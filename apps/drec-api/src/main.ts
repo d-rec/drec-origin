@@ -6,17 +6,17 @@ process.setMaxListeners(0);
 const logger = new Logger();
 
 process.on('warning', (e) => {
-  logger.warn('warning inside main.ts');
+  logger.error('unhandledRejection');
   logger.warn(e.stack);
 });
 
 process.on('unhandledException', (e) => {
-  logger.error('unhandledException inside main.ts');
+  logger.error('unhandledRejection');
   logger.error(e.stack);
 });
 
 process.on('unhandledRejection', (e: Error) => {
-  logger.error('unhandledRejection inside main.ts');
+  logger.error('unhandledRejection');
   logger.error(e?.stack || e);
 });
 /*
