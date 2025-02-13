@@ -92,6 +92,7 @@ import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 @Injectable()
 export class DeviceGroupService {
@@ -124,6 +125,8 @@ export class DeviceGroupService {
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
     @InjectRepository(BulkUploadEntity)
     public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
+    @InjectRepository(BulkUploadFailedLogEntity)
+    public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @InjectQueue('device-queue') private deviceQueue: Queue,
   ) {}
 
@@ -853,19 +856,17 @@ export class DeviceGroupService {
     };
   }
   async createFailedRowDetailsForCSVJob(
-    jobId: number,
+    jobId: string,
     errorDetails: Array<any>,
     successfullyAddedRowsAndExternalIds: Array<{
       rowNumber: number;
       externalId: string;
     }>,
-  ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
+  ): Promise<BulkUploadFailedLogEntity | undefined> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
-    return await this.repositoryJobFailedRows.save({
-      jobId,
-      errorDetails: {
-        log: { errorDetails, successfullyAddedRowsAndExternalIds },
-      },
+    return await this.bulkUploadFailedLogRepository.save({
+      bulkUploadId: jobId,
+      details: 'Failed',
     });
   }
 
@@ -1358,6 +1359,7 @@ export class DeviceGroupService {
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
     this.logger.verbose(`With in registerCSVBulkDevicess`);
+    console.log('New Device', newDevices);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
@@ -1948,6 +1950,7 @@ export class DeviceGroupService {
           rowNumber: number;
           externalId: string;
         }> = [];
+        console.log('error list', recordsErrors[0].errorsList);
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
@@ -1966,6 +1969,7 @@ export class DeviceGroupService {
             }
           } else return true;
         });
+        console.log('Device to register', recordsToRegister);
 
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
@@ -2003,7 +2007,7 @@ export class DeviceGroupService {
           }
         });
         this.createFailedRowDetailsForCSVJob(
-          parseInt(filesAddedForProcessing.jobId),
+          filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
