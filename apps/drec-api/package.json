@@ -41,7 +41,7 @@
     "test:e2e:single": "sh ./scripts/test-e2e-single.sh",
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
     "coverage:jest": "jest --coverage",
-    "users-seed":"npm run typeorm migration:run"
+    "users-deveices-seed":"npm run typeorm migration:revert"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"

@@ -5,10 +5,10 @@ require('dotenv').config({ path: '../../../.env' });
 
 export class SeedUsers1739362729331 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const BUYER_EMAIL = process.env.BUYER_EMAIL;
-    const DEVELOPER_EMAIL = process.env.DEVELOPER_EMAIL;
-    const BUYER_PASSWORD = await bcrypt.hash(process.env.BUYER_PASSWORD, 8);
-    const DEVELOPER_PASSWORD = await bcrypt.hash(
+    const buyerEmail = process.env.BUYER_EMAIL;
+    const developerEmail = process.env.DEVELOPER_EMAIL;
+    const buyerPassword = await bcrypt.hash(process.env.BUYER_PASSWORD, 8);
+    const developerPassword = await bcrypt.hash(
       process.env.DEVELOPER_PASSWORD,
       8,
     );
@@ -23,14 +23,14 @@ export class SeedUsers1739362729331 implements MigrationInterface {
             )VALUES
                 (
                     'John Doe', 
-                    '${process.env.BUYER_EMAIL.toLowerCase()}', 
+                    '${buyerEmail.toLowerCase()}', 
                     'Buyer', 
                     'e0ab91a4-03bc-4447-9d00-c51260fd6ff8', 
                     'Active'
                 ),
                 (
                     'Jane Smith', 
-                    '${process.env.DEVELOPER_EMAIL.toLowerCase()}', 
+                    '${developerEmail.toLowerCase()}', 
                     'Developer', 
                     'e0ab91a4-03bc-4447-9d00-c51260fd6ff8', 
                     'Active'
@@ -38,10 +38,10 @@ export class SeedUsers1739362729331 implements MigrationInterface {
         `);
 
     const buyerOrgId = await queryRunner.query(`
-            SELECT id FROM public.organization WHERE "orgEmail" = '${BUYER_EMAIL}'
+            SELECT id FROM public.organization WHERE "orgEmail" = '${buyerEmail}'
         `);
     const developerOrgId = await queryRunner.query(`
-            SELECT id FROM public.organization WHERE "orgEmail" = '${DEVELOPER_EMAIL}'
+            SELECT id FROM public.organization WHERE "orgEmail" = '${developerEmail}'
         `);
 
     await queryRunner.query(`
@@ -54,7 +54,7 @@ export class SeedUsers1739362729331 implements MigrationInterface {
                     'Doe', 
                     '1234567890', 
                     '${process.env.BUYER_EMAIL.toLowerCase()}', 
-                    '${BUYER_PASSWORD}',  
+                    '${buyerPassword}',  
                     false, 
                     'Active', 
                     'Buyer', 
@@ -68,7 +68,7 @@ export class SeedUsers1739362729331 implements MigrationInterface {
                     'Smith', 
                     '0987654321', 
                     '${process.env.DEVELOPER_EMAIL.toLowerCase()}', 
-                    '${DEVELOPER_PASSWORD}', 
+                    '${developerPassword}', 
                     false, 
                     'Active', 
                     'OrganizationAdmin', 
@@ -80,14 +80,14 @@ export class SeedUsers1739362729331 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const BUYER_EMAIL = process.env.BUYER_EMAIL;
-    const DEVELOPER_EMAIL = process.env.DEVELOPER_EMAIL;
+    const buyerEmail = process.env.BUYER_EMAIL;
+    const developerEmail = process.env.DEVELOPER_EMAIL;
     await queryRunner.query(`
-            DELETE FROM "organization" WHERE "orgEmail" IN  ('${BUYER_EMAIL}', '${DEVELOPER_EMAIL}');
+            DELETE FROM "organization" WHERE "orgEmail" IN  ('${buyerEmail}', '${developerEmail}');
         `);
 
     await queryRunner.query(`
-            DELETE FROM "user" WHERE "email" IN ('${BUYER_EMAIL}', '${DEVELOPER_EMAIL}');
+            DELETE FROM "user" WHERE "email" IN ('${buyerEmail}', '${developerEmail}');
         `);
   }
 }
