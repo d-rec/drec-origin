@@ -4,7 +4,7 @@ order: 1
 
 # Get Started
 
-This guide will help you sign up, log in, and navigate the platform with ease. Whether you are a **Buyer** or a **DRE Developer**, you’ll find clear instructions, useful tips, and troubleshooting advice to ensure a smooth experience.
+This guide will help you sign up, log in, and navigate the platform with ease. Whether you are a **Buyer** or a **DRE Project Developer**, you’ll find clear instructions, useful tips, and troubleshooting advice to ensure a smooth experience.
 
 ## Introduction
 
@@ -20,7 +20,7 @@ In addition, all users can manage their organization settings, ensuring that tea
 All new users follow the same registration process. The only difference occurs during the **Organization Information** step, where you must select the appropriate organization type:
 
 - **Buyer:** Select this option if you are signing up as a Buyer.
-- **Developer:** Select this option if you are signing up as a DRE Developer.
+- **Developer:** Select this option if you are signing up as a DRE Project Developer.
 
 ### Registration Workflow
 
@@ -34,7 +34,7 @@ All new users follow the same registration process. The only difference occurs d
    Provide your company or organizational details. When prompted, select your organization type:
 
    - **Buyer:** Choose this option if you are registering as a Buyer.
-   - **Developer:** Choose this option if you are registering as a DRE Developer.
+   - **Developer:** Choose this option if you are registering as a DRE Project Developer.
 
 4. **Set Up Security Information:**  
    Create a strong password (see [Security Best Practices](#security-best-practices) for recommendations).
@@ -55,8 +55,7 @@ All new users follow the same registration process. The only difference occurs d
 
 2. **Forgot Password?**  
    If you forget your password, click the **"Forgot Password"** link and follow the instructions to reset it via the email you receive.
-
-![Login Page](./dashboard-user-guide-images/login-page.png)
+  ![Login Page](./dashboard-user-guide-images/login-page.png)
 
 3. **Role-Based Dashboard Redirection:**
 

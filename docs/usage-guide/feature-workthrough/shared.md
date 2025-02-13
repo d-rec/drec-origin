@@ -44,7 +44,7 @@ Organization administrators have access to comprehensive user management capabil
 
 > **Note:** Available roles differ based on your user type
 
-#### Role Assignment Options:
+#### Role Assignment Options
 
 - **For Developers:**
 

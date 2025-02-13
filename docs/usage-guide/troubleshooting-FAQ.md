@@ -82,13 +82,13 @@ order: 4
 
 ### Device Management
 
-4. **How do I register multiple devices?**
+1. **How do I register multiple devices?**
 
    - Use "Add More Device" button for a few devices
    - Use Bulk Upload for many devices
    - Download and follow the template for bulk uploads
 
-5. **What do I do if my bulk upload fails?**
+2. **What do I do if my bulk upload fails?**
    - Check the error logs in the status page
    - Verify data format matches template
    - Correct errors and try again
@@ -96,13 +96,13 @@ order: 4
 
 ### Reservations
 
-6. **How do I track my reservations?**
+1. **How do I track my reservations?**
 
    - Go to Reservations > All Reservations
    - Use filters to find specific reservations
    - Check status and details in the list view
 
-7. **Why can't I see certain devices?**
+2. **Why can't I see certain devices?**
    - Devices might be already reserved
    - Check your filter settings
    - Verify your permissions level
