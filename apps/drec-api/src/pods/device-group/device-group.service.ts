@@ -88,6 +88,10 @@ import { FilterDTO } from '../certificate-log/dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import {
+  BulkUploadEntity,
+  BulkUploadStatus,
+} from '../bulk-upload/bulk-uploads.entity';
 
 @Injectable()
 export class DeviceGroupService {
@@ -118,6 +122,8 @@ export class DeviceGroupService {
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
+    @InjectRepository(BulkUploadEntity)
+    public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectQueue('device-queue') private deviceQueue: Queue,
   ) {}
 
@@ -1571,21 +1577,20 @@ export class DeviceGroupService {
   }
 
   private async updateJobStatus(
-    jobId: number,
-    status: StatusCSV,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
+    jobId: string,
+    status: BulkUploadStatus,
+  ): Promise<BulkUploadEntity> {
     this.logger.verbose(`With in updateJobStatus`);
-    const updateResult: UpdateResult =
-      await this.repositoryCSVJobProcessing.update(
-        { jobId: jobId },
-        { status: status },
-      );
+    const updateResult: UpdateResult = await this.bulkUploadRepository.update(
+      { jobId: jobId },
+      { status: status },
+    );
 
     if (updateResult.affected === 0) {
       throw new Error(`No job found with ID ${jobId}`);
     }
 
-    return await this.repositoryCSVJobProcessing.findOne({
+    return await this.bulkUploadRepository.findOne({
       where: { jobId: jobId },
     });
   }
@@ -1594,6 +1599,7 @@ export class DeviceGroupService {
     s3Key: string,
     fileId: string,
   ): Promise<string> {
+    console.log('processing');
     try {
       const job = await this.deviceQueue.add('device-bulk-upload', {
         s3Key: s3Key,
@@ -1608,46 +1614,44 @@ export class DeviceGroupService {
 
   //@Cron(CronExpression.EVERY_5_SECONDS)
   //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing(
-    bulkUpload,
-  ): Promise<void | any> {
-    this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
-    const filesAddedForProcessing =
-      await this.hasSingleAddedJobForCSVProcessing();
-    if (
-      filesAddedForProcessing === undefined ||
-      filesAddedForProcessing === null
-    ) {
-      return;
-    }
+  // async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
+  //   this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
+  //   const filesAddedForProcessing =
+  //     await this.hasSingleAddedJobForCSVProcessing();
+  //   if (
+  //     filesAddedForProcessing === undefined ||
+  //     filesAddedForProcessing === null
+  //   ) {
+  //     return;
+  //   }
 
-    const user = await this.userService.findById(
-      filesAddedForProcessing.userId,
-    );
+  //   const user = await this.userService.findById(
+  //     filesAddedForProcessing.userId,
+  //   );
 
-    const data = new LoggedInUser(user);
-    data.id = filesAddedForProcessing.userId;
-    data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.getUploadS3(
-      filesAddedForProcessing.fileId,
-    );
-    this.logger.debug(response);
-    if (response == undefined) {
-      return;
-    } else {
-      this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
-      this.processCsvFileAnotherLibrary(
-        response,
-        filesAddedForProcessing.organizationId,
-        filesAddedForProcessing,
-      );
-    }
-  }
+  //   const data = new LoggedInUser(user);
+  //   data.id = filesAddedForProcessing.userId;
+  //   data.organizationId = filesAddedForProcessing.organizationId;
+  //   const response = await this.fileService.getUploadS3(
+  //     filesAddedForProcessing.fileId,
+  //   );
+  //   this.logger.debug(response);
+  //   if (response == undefined) {
+  //     return;
+  //   } else {
+  //     this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
+  //     this.processCsvFileAnotherLibrary(
+  //       response,
+  //       filesAddedForProcessing.organizationId,
+  //       filesAddedForProcessing,
+  //     );
+  //   }
+  // }
 
   async processCsvFileAnotherLibrary(
     file: Record<string, unknown> | any,
     organizationId: number,
-    filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
+    filesAddedForProcessing: BulkUploadEntity,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1999,13 +2003,13 @@ export class DeviceGroupService {
           }
         });
         this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.jobId,
+          parseInt(filesAddedForProcessing.jobId),
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
         this.updateJobStatus(
           filesAddedForProcessing.jobId,
-          StatusCSV.Completed,
+          BulkUploadStatus.Completed,
         );
       });
   }
