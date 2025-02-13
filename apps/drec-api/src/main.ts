@@ -10,12 +10,12 @@ process.on('warning', (e) => {
 });
 
 process.on('unhandledException', (e) => {
-  logger.error('unhandledRejection');
+  logger.error('Unhandled Exception');
   logger.error(e.stack);
 });
 
 process.on('unhandledRejection', (e: Error) => {
-  logger.error('unhandledRejection');
+  logger.error('Unhandled Rejection');
   logger.error(e?.stack || e);
 });
 /*
