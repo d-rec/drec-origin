@@ -10,6 +10,15 @@ process.on('warning', (e) => {
   logger.warn(e.stack);
 });
 
+process.on('unhandledException', (e) => {
+  logger.error('Unhandled Exception');
+  logger.error(e.stack);
+});
+
+process.on('unhandledRejection', (e: Error) => {
+  logger.error('Unhandled Rejection');
+  logger.error(e?.stack || e);
+});
 /*
 https://stackoverflow.com/questions/57115918/maxlistenersexceededwarning-possible-eventemitter-memory-leak-dete
 
