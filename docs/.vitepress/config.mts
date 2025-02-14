@@ -39,11 +39,11 @@ export default withMermaid(
       logo: '/D-REC-banner.png',
       nav: [
         { text: 'Home', link: '/' },
-        { text: 'Documentation', link: '/introduction/technology-overview' },
+        { text: 'Documentation', link: '/platform-overview/what-is-d-rec.md' },
       ],
       footer: {
         message: 'Built with VitePress ❤️.',
-        copyright: `Copyright © ${new Date().getFullYear()} D-REC Initiative.`,
+        copyright: `Copyright © ${new Date().getFullYear()} D-REC`,
       },
 
       sidebar: generateSidebar(vitepressSidebarOptions),
