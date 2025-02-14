@@ -1,12 +1,12 @@
-# DRE Developer Guide
+# DRE Project Developer Guide
 
-This guide provides detailed instructions for DRE Developers to manage their devices and meter reads on the platform. Follow the steps below to register devices, view and manage device details, and handle meter read entries both individually and in bulk.
+This guide provides detailed instructions for DRE Project Developers to manage their devices and meter reads on the platform. Follow the steps below to register devices, view and manage device details, and handle meter read entries both individually and in bulk.
 
 ## Device Registration
 
 ### Accessing Device Registration
 
-1. Log in to your DRE Developer account
+1. Log in to your DRE Project Developer account
 2. In the left sidebar menu, click on "Device"
 3. Select "Add Devices" from the dropdown menu
 

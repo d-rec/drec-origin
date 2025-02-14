@@ -8,10 +8,10 @@ This guide will help you sign up, log in, and navigate the platform with ease. W
 
 ## Introduction
 
-Our platform is designed to meet the specific needs of both Buyers and DRE Developers:
+Our platform is designed to meet the specific needs of both Buyers and DRE Project Developers:
 
 - **Buyers** can manage reservations and view digital certificates.
-- **DRE Developers** can manage their energy generation devices and record meter reads.
+- **DRE Project Developers** can manage their energy generation devices and record meter reads.
 
 In addition, all users can manage their organization settings, ensuring that team members and permissions are correctly maintained.
 
@@ -46,7 +46,7 @@ All new users follow the same registration process. The only difference occurs d
    - Once your registration is complete, you will be automatically logged in.
    - A confirmation email will be sent to your registered email address. (If required, click the verification link to activate your account.)
 
-![Buyer and DRE Developer Signup](./dashboard-user-guide-images/buyer-developer-sign-up.png)
+![Buyer and DRE Project Developer Signup](./dashboard-user-guide-images/buyer-developer-sign-up.png)
 
 ## Logging In
 
@@ -59,7 +59,7 @@ All new users follow the same registration process. The only difference occurs d
 
 3. **Role-Based Dashboard Redirection:**
 
-   - **DRE Developers:** Upon logging in, DRE Developers are directed to a dashboard that highlights tools for managing devices and meter reads.
+   - **DRE Project Developers:** Upon logging in, DRE Project Developers are directed to a dashboard that highlights tools for managing devices and meter reads.
 
      ![DRE Developer Dashboard](./dashboard-user-guide-images/developer-login.png)
 
