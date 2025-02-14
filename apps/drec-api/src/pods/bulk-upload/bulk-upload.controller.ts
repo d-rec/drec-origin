@@ -102,7 +102,6 @@ export class BulkUploadController {
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling bulk upload');
-    console.log(bulkUploadType);
     if (!file) {
       throw new BadRequestException('No file provided');
     }

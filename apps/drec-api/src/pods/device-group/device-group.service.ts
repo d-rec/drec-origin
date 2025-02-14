@@ -25,7 +25,6 @@ import {
   AddGroupDTO,
   DeviceGroupDTO,
   EndReservationDateDTO,
-  JobFailedRowsDTO,
   NewDeviceGroupDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
@@ -39,7 +38,6 @@ import {
   DeviceDescription,
   IDevice,
   ILoggedInUser,
-  LoggedInUser,
 } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
@@ -60,8 +58,6 @@ import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
   DeviceCsvFileProcessingJobsEntity,
   StatusCSV,
@@ -100,8 +96,6 @@ export class DeviceGroupService {
   private readonly logger = new Logger(DeviceGroupService.name);
 
   constructor(
-    @InjectRepository(DeviceCsvProcessingFailedRowsEntity)
-    private readonly repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>,
     @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     private readonly repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
@@ -857,11 +851,11 @@ export class DeviceGroupService {
   }
   async createFailedRowDetailsForCSVJob(
     jobId: string,
-    errorDetails: Array<any>,
-    successfullyAddedRowsAndExternalIds: Array<{
-      rowNumber: number;
-      externalId: string;
-    }>,
+    // errorDetails: Array<any>,
+    // successfullyAddedRowsAndExternalIds: Array<{
+    //   rowNumber: number;
+    //   externalId: string;
+    // }>,
   ): Promise<BulkUploadFailedLogEntity | undefined> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
     return await this.bulkUploadFailedLogRepository.save({
@@ -873,7 +867,7 @@ export class DeviceGroupService {
   async getFailedRowDetailsForCSVJob(
     jobId: number,
     organizationId?: number,
-  ): Promise<JobFailedRowsDTO | undefined> {
+  ): Promise<BulkUploadFailedLogEntity | undefined> {
     this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
     if (organizationId) {
       const csvJob = await this.repositoryCSVJobProcessing.findOne({
@@ -892,7 +886,7 @@ export class DeviceGroupService {
       }
     }
 
-    return await this.repositoryJobFailedRows.findOne({
+    return await this.bulkUploadFailedLogRepository.findOne({
       where: {
         jobId: jobId,
       },
@@ -1614,42 +1608,6 @@ export class DeviceGroupService {
     }
   }
 
-  //@Cron(CronExpression.EVERY_5_SECONDS)
-  //@Cron('*/3 * * * *')
-  // async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
-  //   this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
-  //   const filesAddedForProcessing =
-  //     await this.hasSingleAddedJobForCSVProcessing();
-  //   if (
-  //     filesAddedForProcessing === undefined ||
-  //     filesAddedForProcessing === null
-  //   ) {
-  //     return;
-  //   }
-
-  //   const user = await this.userService.findById(
-  //     filesAddedForProcessing.userId,
-  //   );
-
-  //   const data = new LoggedInUser(user);
-  //   data.id = filesAddedForProcessing.userId;
-  //   data.organizationId = filesAddedForProcessing.organizationId;
-  //   const response = await this.fileService.getUploadS3(
-  //     filesAddedForProcessing.fileId,
-  //   );
-  //   this.logger.debug(response);
-  //   if (response == undefined) {
-  //     return;
-  //   } else {
-  //     this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
-  //     this.processCsvFileAnotherLibrary(
-  //       response,
-  //       filesAddedForProcessing.organizationId,
-  //       filesAddedForProcessing,
-  //     );
-  //   }
-  // }
-
   async processCsvFileAnotherLibrary(
     file: Record<string, unknown> | any,
     organizationId: number,
@@ -1950,7 +1908,6 @@ export class DeviceGroupService {
           rowNumber: number;
           externalId: string;
         }> = [];
-        console.log('error list', recordsErrors[0].errorsList);
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
@@ -1969,7 +1926,6 @@ export class DeviceGroupService {
             }
           } else return true;
         });
-        console.log('Device to register', recordsToRegister);
 
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
@@ -2008,8 +1964,8 @@ export class DeviceGroupService {
         });
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
-          recordsErrors,
-          successfullyAddedRowsAndExternalIds,
+          // recordsErrors,
+          // successfullyAddedRowsAndExternalIds,
         );
         this.updateJobStatus(
           filesAddedForProcessing.jobId,

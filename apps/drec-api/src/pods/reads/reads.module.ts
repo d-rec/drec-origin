@@ -31,14 +31,6 @@ const baseReadServiceProvider = {
   inject: [ConfigService],
 };
 
-console.log({
-  DeviceModule,
-  DeviceGroupModule,
-  UserModule,
-  OrganizationModule,
-  BulkUploadModule,
-});
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([

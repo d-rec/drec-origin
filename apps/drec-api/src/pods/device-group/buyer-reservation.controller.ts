@@ -64,6 +64,7 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 @ApiTags('buyer-reservation')
 @ApiBearerAuth('access-token')
@@ -697,7 +698,7 @@ export class BuyerReservationController {
     @Param('id') jobId: number,
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-  ): Promise<JobFailedRowsDTO | undefined> {
+  ): Promise<BulkUploadFailedLogEntity | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
 
     if (orgId) {

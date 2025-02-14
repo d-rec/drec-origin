@@ -3,10 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
-import {
-  BulkUploadEntity,
-  BulkUploadStatus,
-} from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 
 @Processor('device-queue')
@@ -35,7 +32,6 @@ export class DeviceProcessor {
     }
     try {
       const fileContent = await this.fileService.getUploadS3(s3Key);
-      const buffer = Buffer.from(fileContent.data.Body);
       return await this.deviceGroupService.processCsvFileAnotherLibrary(
         fileContent,
         bulkUpload.organizationId,
