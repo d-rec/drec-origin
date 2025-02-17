@@ -851,16 +851,22 @@ export class DeviceGroupService {
   }
   async createFailedRowDetailsForCSVJob(
     jobId: string,
-    // errorDetails: Array<any>,
-    // successfullyAddedRowsAndExternalIds: Array<{
-    //   rowNumber: number;
-    //   externalId: string;
-    // }>,
-  ): Promise<BulkUploadFailedLogEntity | undefined> {
+    errorDetails: Array<any>,
+    successfullyAddedRowsAndExternalIds: Array<{
+      rowNumber: number;
+      externalId: string;
+    }>,
+  ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
+    await this.bulkUploadRepository.update(
+      { id: jobId },
+      { status: BulkUploadStatus.Failed },
+    );
     return await this.bulkUploadFailedLogRepository.save({
       bulkUploadId: jobId,
-      details: 'Failed',
+      details: {
+        log: { errorDetails, successfullyAddedRowsAndExternalIds },
+      },
     });
   }
 
@@ -1578,7 +1584,7 @@ export class DeviceGroupService {
   ): Promise<BulkUploadEntity> {
     this.logger.verbose(`With in updateJobStatus`);
     const updateResult: UpdateResult = await this.bulkUploadRepository.update(
-      { jobId: jobId },
+      { id: jobId },
       { status: status },
     );
 
@@ -1587,7 +1593,7 @@ export class DeviceGroupService {
     }
 
     return await this.bulkUploadRepository.findOne({
-      where: { jobId: jobId },
+      where: { id: jobId },
     });
   }
 
@@ -1908,6 +1914,7 @@ export class DeviceGroupService {
           rowNumber: number;
           externalId: string;
         }> = [];
+        console.log(recordsErrors[0].errorsList);
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
@@ -1962,13 +1969,14 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
-        this.createFailedRowDetailsForCSVJob(
+        await this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
-          // recordsErrors,
-          // successfullyAddedRowsAndExternalIds,
+          recordsErrors,
+          successfullyAddedRowsAndExternalIds,
         );
-        this.updateJobStatus(
-          filesAddedForProcessing.jobId,
+        console.log('elleo');
+        await this.updateJobStatus(
+          filesAddedForProcessing.id,
           BulkUploadStatus.Completed,
         );
       });

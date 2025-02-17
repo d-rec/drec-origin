@@ -102,6 +102,7 @@ export class BulkUploadService {
 
   async getAllBulkUploadsJobsByOrganization(
     organizationId: number,
+    bulkUploadType: BulkUploadType,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -111,8 +112,14 @@ export class BulkUploadService {
     totalCount: number;
   }> {
     this.logger.verbose(`Fetching jobs for organization ${organizationId}`);
+
+    const whereConditions: any = {
+      ...(organizationId && { organizationId: organizationId }),
+      type: bulkUploadType,
+    };
+
     const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: { organizationId },
+      where: whereConditions,
       order: { createdAt: 'DESC' },
       skip: (pageNumber - 1) * limit,
       take: limit,
@@ -134,7 +141,8 @@ export class BulkUploadService {
   }
 
   async getAllBulkUploadJobs(
-    orgId: number | null,
+    organizationId: number | null,
+    bulkUploadType: BulkUploadType,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -144,7 +152,12 @@ export class BulkUploadService {
     totalCount: number;
   }> {
     this.logger.verbose(`Fetching jobs for admin`);
-    const whereConditions: any = orgId ? { organizationId: orgId } : {};
+    const whereConditions: any = {
+      ...(organizationId && { organizationId: organizationId }),
+      type: bulkUploadType,
+    };
+
+    console.log(whereConditions);
 
     const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
       where: whereConditions,
@@ -211,6 +224,7 @@ export class BulkUploadService {
 
   public async getBulkUploadJobsByRole(
     user: ILoggedInUser,
+    bulkUploadType: BulkUploadType,
     orgId: number | null,
     pageNumber: number,
     limit: number,
@@ -223,7 +237,12 @@ export class BulkUploadService {
     const { role, api_user_id, organizationId } = user;
 
     if (role === Role.Admin) {
-      return this.getAllBulkUploadJobs(orgId, pageNumber, limit);
+      return this.getAllBulkUploadJobs(
+        orgId,
+        bulkUploadType,
+        pageNumber,
+        limit,
+      );
     }
 
     if (role === Role.ApiUser) {
@@ -237,6 +256,7 @@ export class BulkUploadService {
 
     return this.getAllBulkUploadsJobsByOrganization(
       organizationId,
+      bulkUploadType,
       pageNumber,
       limit,
     );
@@ -286,6 +306,7 @@ export class BulkUploadService {
     bulkUploadId: string,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getFailedBulkUploadJob`);
+    console.log(bulkUploadId);
     return await this.bulkUploadFailedLogRepository.findOne({
       where: {
         bulkUploadId: bulkUploadId,

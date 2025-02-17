@@ -55,6 +55,7 @@ export class BulkUploadController {
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({
@@ -131,11 +132,18 @@ export class BulkUploadController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiSecurity('bearer')
   @ApiQuery({
     name: 'organizationId',
     type: Number,
     required: false,
     description: 'This query parameter is used for ApiUser',
+  })
+  @ApiQuery({
+    name: 'bulkUploadType',
+    required: true,
+    enum: BulkUploadType,
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
@@ -148,6 +156,8 @@ export class BulkUploadController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
+    @Query('bulkUploadType', new DefaultValuePipe(null))
+    bulkUploadType: BulkUploadType,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -160,7 +170,7 @@ export class BulkUploadController {
     this.logger.verbose(
       `Fetching bulk upload jobs for user with role: ${user.role}`,
     );
-
+    console.log(bulkUploadType);
     await this.bulkUploadService.canViewBulkUploadJobs({
       user,
       organizationId: organizationId,
@@ -172,6 +182,7 @@ export class BulkUploadController {
 
     return this.bulkUploadService.getBulkUploadJobsByRole(
       user,
+      bulkUploadType,
       organizationId,
       pageNumber,
       limit,
@@ -200,7 +211,6 @@ export class BulkUploadController {
     organizationId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
-
     await this.bulkUploadService.canViewBulkUploadJobs({
       user: user,
       organizationId: organizationId,
