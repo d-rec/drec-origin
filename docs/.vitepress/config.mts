@@ -15,7 +15,7 @@ const vitepressSidebarOptions = {
 // https://vitepress.dev/reference/site-config
 export default withMermaid(
   defineConfig({
-    title: 'D-REC Docs',
+    title: 'D-REC Documentation',
     description:
       'Documentation for the D-REC (Distributed Renewable Energy Certificates) platform',
 

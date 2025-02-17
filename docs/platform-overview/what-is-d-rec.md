@@ -10,7 +10,7 @@ D-RECs attest to the socio-economic and environmental benefits of the clean ener
 
 ## Understanding D-REC
 
-The **D-REC Platform** bridges the gap between small-scale **Distributed Renewable Energy (DRE)** projects and **Environmental Attribute Certificate (EAC)** markets. It addresses challenges such as **limited visibility, remote monitoring issues, and institutional barriers** that DRE developers face. By leveraging technology, **D-REC enhances accessibility, scalability, and transparency** in the renewable energy market.
+The **D-REC Platform** bridges the gap between small-scale **Distributed Renewable Energy (DRE)** projects and **Environmental Attribute Certificate (EAC)** markets. It addresses challenges such as **limited visibility, remote monitoring issues, and institutional barriers** that DRE Project Developers face. By leveraging technology, **D-REC enhances accessibility, scalability, and transparency** in the renewable energy market.
 
 ### Key Value Proposition
 
@@ -29,7 +29,7 @@ The **D-REC Platform** incorporates the following core functionalities to suppor
 - **Buyer Reservation** – Enables REC buyers to select and reserve projects of interest, automating the issuance process based on their specifications.
 - **Automated Validation** – Uses heuristic methods to validate meter data from devices before incorporating it into issuance requests.
 
-Through these features, the **D-REC Platform** enables **DRE developers** to access **global climate finance** while providing buyers with direct access to **high-impact DRE projects**.
+Through these features, the **D-REC Platform** enables **DRE Project Developers** to access **global climate finance** while providing buyers with direct access to **high-impact DRE projects**.
 
 ## Types of Users
 
