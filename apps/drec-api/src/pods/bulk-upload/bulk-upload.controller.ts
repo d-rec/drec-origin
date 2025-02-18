@@ -170,7 +170,6 @@ export class BulkUploadController {
     this.logger.verbose(
       `Fetching bulk upload jobs for user with role: ${user.role}`,
     );
-    console.log(bulkUploadType);
     await this.bulkUploadService.canViewBulkUploadJobs({
       user,
       organizationId: organizationId,

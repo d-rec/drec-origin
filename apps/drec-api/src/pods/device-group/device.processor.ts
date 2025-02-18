@@ -20,7 +20,6 @@ export class DeviceProcessor {
     job: Job<{ fileId: string; s3Key: string }>,
   ): Promise<any> {
     const { fileId, s3Key } = job.data;
-    console.log(job.id);
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
         where: { jobId: job.id.toString() },

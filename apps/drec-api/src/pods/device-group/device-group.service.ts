@@ -1359,7 +1359,6 @@ export class DeviceGroupService {
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
     this.logger.verbose(`With in registerCSVBulkDevicess`);
-    console.log('New Device', newDevices);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
@@ -1601,7 +1600,6 @@ export class DeviceGroupService {
     s3Key: string,
     fileId: string,
   ): Promise<string> {
-    console.log('processing');
     try {
       const job = await this.deviceQueue.add('device-bulk-upload', {
         s3Key: s3Key,
@@ -1914,7 +1912,6 @@ export class DeviceGroupService {
           rowNumber: number;
           externalId: string;
         }> = [];
-        console.log(recordsErrors[0].errorsList);
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
             //these are required fields and if one is having error we cannot try to insert the record
@@ -1969,16 +1966,18 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
-        await this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.id,
-          recordsErrors,
-          successfullyAddedRowsAndExternalIds,
-        );
-        console.log('elleo');
-        await this.updateJobStatus(
-          filesAddedForProcessing.id,
-          BulkUploadStatus.Completed,
-        );
+        if (recordsErrors.length >= 1) {
+          this.createFailedRowDetailsForCSVJob(
+            filesAddedForProcessing.id,
+            recordsErrors,
+            successfullyAddedRowsAndExternalIds,
+          );
+        } else {
+          this.bulkUploadRepository.update(
+            { jobId: filesAddedForProcessing.id },
+            { status: BulkUploadStatus.Completed },
+          );
+        }
       });
   }
 

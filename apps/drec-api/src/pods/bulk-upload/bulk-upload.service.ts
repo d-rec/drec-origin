@@ -157,8 +157,6 @@ export class BulkUploadService {
       type: bulkUploadType,
     };
 
-    console.log(whereConditions);
-
     const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
       where: whereConditions,
       order: { createdAt: 'DESC' },
@@ -306,7 +304,6 @@ export class BulkUploadService {
     bulkUploadId: string,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getFailedBulkUploadJob`);
-    console.log(bulkUploadId);
     return await this.bulkUploadFailedLogRepository.findOne({
       where: {
         bulkUploadId: bulkUploadId,
