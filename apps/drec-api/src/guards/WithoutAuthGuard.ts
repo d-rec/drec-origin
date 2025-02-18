@@ -101,6 +101,7 @@ export class WithoutAuthGuard implements CanActivate {
     ).api_user_id;
 
     if (
+      request.body.organizationType === undefined &&
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
       user.api_user_id != adminApiUserId
