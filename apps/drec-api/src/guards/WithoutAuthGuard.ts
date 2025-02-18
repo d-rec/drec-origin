@@ -96,14 +96,14 @@ export class WithoutAuthGuard implements CanActivate {
         break;
     }
 
-    const getAdminApiUserId = (
+    const adminApiUserId = (
       (await this.userService.findOne({ role: Role.Admin })) as IUser
     ).api_user_id;
 
     if (
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
-      user.api_user_id != getAdminApiUserId
+      user.api_user_id != adminApiUserId
     ) {
       throw new UnauthorizedException({
         statusCode: 401,
