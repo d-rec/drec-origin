@@ -35,7 +35,7 @@ export const parseMeterReadingCsv = async (
       let record;
       while ((record = parser.read()) !== null) {
         records.push({
-          deviceExternalId: record.deviceExternalId,
+          deviceExternalId: record.deviceExternalId.toString(),
           measurements: {
             reads: [
               {
