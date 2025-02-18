@@ -141,7 +141,7 @@ export class BulkUploadService {
   }
 
   async getAllBulkUploadJobs(
-    organizationId: number | null,
+    organizationId: number,
     bulkUploadType: BulkUploadType,
     pageNumber: number,
     limit: number,

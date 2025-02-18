@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -22,7 +21,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
@@ -42,11 +40,6 @@ import { Role } from '../../utils/enums';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { CSVBulkUploadDTO } from '../device-group/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { Roles } from '../user/decorators/roles.decorator';

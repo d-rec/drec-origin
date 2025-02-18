@@ -20,7 +20,6 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
@@ -32,10 +31,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
-  CSVBulkUploadDTO,
   DeviceGroupDTO,
   EndReservationDateDTO,
-  JobFailedRowsDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
@@ -53,10 +50,6 @@ import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
 import csv from 'csv-parser';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
@@ -64,7 +57,6 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 
 @ApiTags('buyer-reservation')
 @ApiBearerAuth('access-token')

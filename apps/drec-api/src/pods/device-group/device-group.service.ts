@@ -18,7 +18,6 @@ import {
   Raw,
   Repository,
   SelectQueryBuilder,
-  UpdateResult,
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
@@ -1211,7 +1210,7 @@ export class DeviceGroupService {
   ): Promise<
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
-    this.logger.verbose(`With in registerCSVBulkDevicess`);
+    this.logger.verbose(`With in registerCSVBulkDevices`);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
