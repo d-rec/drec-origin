@@ -40,6 +40,14 @@ const baseReadServiceProvider = {
     ]),
     BullModule.registerQueue({
       name: 'reads-queue',
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        delay: 1000,
+      },
     }),
     forwardRef(() => FileModule),
     ConfigModule,

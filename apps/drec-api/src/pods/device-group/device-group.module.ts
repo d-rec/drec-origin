@@ -41,6 +41,14 @@ import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-lo
     forwardRef(() => DeviceModule),
     BullModule.registerQueue({
       name: 'device-queue',
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 2000,
+        },
+        delay: 1000,
+      },
     }),
     OrganizationModule,
     YieldConfigModule,
