@@ -5,7 +5,6 @@ import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceGroupService } from './device-group.service';
 import { DeviceGroup } from './device-group.entity';
-import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { FileService } from '../file';
@@ -25,6 +24,9 @@ import { Role } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { getQueueToken } from '@nestjs/bull';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -42,12 +44,21 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(DeviceCsvProcessingFailedRowsEntity),
-          useClass: Repository,
-        },
-        {
           provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
           useClass: Repository,
+        },
+
+        {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
@@ -86,6 +97,10 @@ describe('DeviceGroupService', () => {
         {
           provide: YieldConfigService,
           useValue: {} as any,
+        },
+        {
+          provide: getQueueToken('device-queue'),
+          useValue: {},
         },
         {
           provide: getRepositoryToken(
