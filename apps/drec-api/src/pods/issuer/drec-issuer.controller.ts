@@ -1,19 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Logger,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
@@ -128,7 +119,7 @@ export class DRECIssuerController {
     });
   }
 
-  async invokeIssuerCronLateOngoing(groupId?: number): Promise<void> {
+  async invokeIssuerCronLateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
       await this.issuerService.handleCronForOngoingLateIssuance();
