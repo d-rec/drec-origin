@@ -11,6 +11,7 @@ import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadService } from './bulk-upload.service';
 import { ReadsService } from '../reads/reads.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
+import { Organization } from '../organization/organization.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -45,6 +46,10 @@ describe('BulkUploadService', () => {
             save: jest.fn(),
             create: jest.fn(),
           },
+        },
+        {
+          provide: getRepositoryToken(Organization),
+          useClass: Repository,
         },
         {
           provide: OrganizationService,
