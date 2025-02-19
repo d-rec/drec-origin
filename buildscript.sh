@@ -20,7 +20,7 @@ echo "Deploying $IMAGE - $BUILD_NUMBER - $DOCKERFILE"
 
 #exit 10
 
-docker build -t $IMAGE:$BUILD_NUMBER -f ./apps/drec-api/$DOCKERFILE .
+docker build -t $IMAGE:$BUILD_NUMBER -f ./apps/drec-api/$DOCKERFILE ./apps/drec-api
 
 aws ecr get-login-password --region eu-west-1  | docker login --username AWS --password-stdin 895706603967.dkr.ecr.eu-west-1.amazonaws.com
 
