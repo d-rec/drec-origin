@@ -69,7 +69,6 @@ import { SentryFilter } from './filters/sentry.filter';
 import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
-import { SeederModule } from './seeds/permissions/seeder.module';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -191,7 +190,6 @@ const queueModule = () => {
     OnChainCertificateModule,
     BlockchainPropertiesModule,
     BulkUploadModule,
-    SeederModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
