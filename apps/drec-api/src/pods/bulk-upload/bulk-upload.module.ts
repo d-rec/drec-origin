@@ -10,10 +10,15 @@ import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { ReadsModule } from '../reads/reads.module';
 import { UserModule } from '../user/user.module';
 import { DeviceGroupModule } from '../device-group/device-group.module';
+import { Organization } from '../organization/organization.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BulkUploadEntity, BulkUploadFailedLogEntity]),
+    TypeOrmModule.forFeature([
+      BulkUploadEntity,
+      BulkUploadFailedLogEntity,
+      Organization,
+    ]),
     OrganizationModule,
     FileModule,
     forwardRef(() => ReadsModule),

@@ -549,7 +549,7 @@ export class OrganizationService {
     const organizationAdmin = await this.userService.findByEmail(
       organization.orgEmail,
     );
-
+    console.log(organizationAdmin);
     const hasAccess = canManageOrganization({
       user,
       organizationAdmin,

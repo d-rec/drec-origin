@@ -20,6 +20,7 @@ import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { Role } from '../../utils/enums';
 import { DeviceGroupService } from '../device-group/device-group.service';
+import { Organization } from '../organization/organization.entity';
 
 @Injectable()
 export class BulkUploadService {
@@ -29,6 +30,8 @@ export class BulkUploadService {
     public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
+    @InjectRepository(Organization)
+    public readonly organizationRepository: Repository<Organization>,
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
     private readonly readsService: ReadsService,
@@ -181,7 +184,7 @@ export class BulkUploadService {
 
   async getAllBulkUploadJobsForApiUser(
     apiUserId: string,
-    orgId: number | null,
+    bulkUploadType: BulkUploadType,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -190,14 +193,30 @@ export class BulkUploadService {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`Fetching jobs for API user ${apiUserId}`);
+    const organizations = await this.organizationRepository
+      .createQueryBuilder('organization')
+      .select('organization.id')
+      .where('organization.api_user_id = :apiUserId', { apiUserId })
+      .getMany();
+
+    const organizationIds = organizations.map((org) => org.id);
+    console.log('Organization IDs:', organizationIds);
+
+    if (organizationIds.length === 0) {
+      return {
+        bulkUploadJobs: [],
+        currentPage: pageNumber,
+        totalPages: 0,
+        totalCount: 0,
+      };
+    }
+
     const query = this.bulkUploadRepository
       .createQueryBuilder('jobs')
-      .where('jobs.api_user_id = :apiUserId', { apiUserId });
-
-    if (orgId) {
-      query.andWhere('jobs.organizationId = :orgId', { orgId });
-    }
+      .where('jobs.organizationId IN (:...organizationIds)', {
+        organizationIds,
+      })
+      .andWhere('jobs.type = :bulkUploadType', { bulkUploadType });
 
     const [jobs, totalCount] = await query
       .orderBy('jobs.createdAt', 'DESC')
@@ -246,7 +265,7 @@ export class BulkUploadService {
     if (role === Role.ApiUser) {
       return this.getAllBulkUploadJobsForApiUser(
         api_user_id,
-        orgId,
+        bulkUploadType,
         pageNumber,
         limit,
       );

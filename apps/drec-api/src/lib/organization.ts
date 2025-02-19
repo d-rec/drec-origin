@@ -17,6 +17,10 @@ export const canManageOrganization = ({
     return true;
   }
 
+  if (organizationAdmin.role === Role.ApiUser) {
+    return true;
+  }
+
   if (user.role !== Role.ApiUser) {
     return user.organizationId === organization.id;
   }
