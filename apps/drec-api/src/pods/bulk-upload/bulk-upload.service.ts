@@ -200,7 +200,6 @@ export class BulkUploadService {
       .getMany();
 
     const organizationIds = organizations.map((org) => org.id);
-    console.log('Organization IDs:', organizationIds);
 
     if (organizationIds.length === 0) {
       return {
