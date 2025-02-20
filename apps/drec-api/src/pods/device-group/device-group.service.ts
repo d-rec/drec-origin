@@ -1765,7 +1765,6 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
-          filesAddedForProcessing.api_user_id,
         );
 
         devicesRegistered
