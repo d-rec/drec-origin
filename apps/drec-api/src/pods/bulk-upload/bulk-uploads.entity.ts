@@ -54,8 +54,6 @@ export class BulkUploadEntity extends BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  api_user_id: string;
-
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
