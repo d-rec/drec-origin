@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ACLModulePermission } from '../../../src/pods/permission/permission.entity';
-import { EntityType } from '../../../src/utils/enums';
+import { ACLModulePermission } from '../src/pods/permission/permission.entity';
+import { EntityType } from '../src/utils/enums';
+import { SeederInterface } from './seeder-interface';
 
 @Injectable()
-export class PermissionsSeeder {
+export class PermissionsSeeder implements SeederInterface {
   constructor(
     @InjectRepository(ACLModulePermission)
     private readonly aclPermissionsRepository: Repository<ACLModulePermission>,
   ) {}
 
-  async seed(): Promise<void> {
+  async run(): Promise<void> {
     const permissions = this.aclPermissionsRepository.create([
       {
         aclmodulesId: 1,
@@ -195,7 +196,7 @@ export class PermissionsSeeder {
     console.log('Seed permissions inserted successfully');
   }
 
-  async clear(): Promise<void> {
+  async drop(): Promise<void> {
     await this.aclPermissionsRepository.delete({});
     console.log('Seed permissions cleared successfully');
   }
