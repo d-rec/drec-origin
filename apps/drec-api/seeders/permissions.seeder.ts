@@ -15,179 +15,179 @@ export class PermissionsSeeder implements SeederInterface {
   async run(): Promise<void> {
     const permissions = this.aclPermissionsRepository.create([
       {
-        aclmodulesId: 1, // ACL Module ID for User module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 2, // ACL Module ID for Organization module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 3, // ACL Module ID for Organization module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 3, // FILE_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 4, //ACL Module ID for Device module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 4, // ACL Module ID for Device module management
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions 
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete. 
         status: 1,
       },
       {
-        aclmodulesId: 5, //ACL Module ID for Buyer Reservation module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 6, //ACL Module ID for Bulk Device management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 6, // ACL Module ID for Bulk Device management
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 7, // ACL Module ID for Reads module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 7, // READS_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 8, //ACL Module ID for Certificate Log module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // Bitmask representation of permissions
+        permissionValue: 1, // 1 = Read,
         status: 1,
       },
       {
-        aclmodulesId: 9, // ACL Module ID for Invitation module management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 9, // INVITATION_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1, 
       },
       {
-        aclmodulesId: 11, //ACL Module ID for password management
-        entityId: 2, // OrganizationAdmin role ID
+        aclmodulesId: 11, //PASSWORD_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // Bitmask representation of permissions
+        permissionValue: 2, // 2 = Write
         status: 1,
       },
       {
-        aclmodulesId: 1, // ACL Module ID for User module management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 2, // ACL Module ID for Organization module management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1, 
       },
       {
-        aclmodulesId: 5, // ACL Module ID for Buyer Reservation module management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1, 
       },
       {
-        aclmodulesId: 8, //ACL Module ID for Certificate Log module management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 8, //CERTIFICATE_LOG_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // Bitmask representation of permissions
+        permissionValue: 1, // 1 = Read,
         status: 1,
       },
       {
-        aclmodulesId: 9, // ACL Module ID for Invitation module management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 9, // INVITATION_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 11, // ACL Module ID for password management
-        entityId: 6, // SubBuyer role ID
+        aclmodulesId: 11, // PASSWORD_MANAGEMENT_CRUDL
+        entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // Bitmask representation of permissions
+        permissionValue: 2, // 2 = Write
         status: 1,
       },
       {
-        aclmodulesId: 1, // ACL Module ID for User module management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update'],
         permissionValue: 15, //Bitmask representation of permissions
         status: 1,
       },
       {
-        aclmodulesId: 2, // ACL Module ID for Organization module management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 15, //Bitmask representation of permissions
         status: 1,
       },
       {
-        aclmodulesId: 5, // ACL Module ID for Buyer Reservation module management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 8, // ACL Module ID for Certificate Log module management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // Bitmask representation of permissions
+        permissionValue: 1, // 1 = Read,
         status: 1,
       },
       {
-        aclmodulesId: 9, // ACL Module ID for Invitation module management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 9, // INVITATION_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // Bitmask representation of permissions
+        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
         status: 1,
       },
       {
-        aclmodulesId: 11, // ACL Module ID for password management
-        entityId: 4, // Buyer role ID
+        aclmodulesId: 11, // PASSWORD_MANAGEMENT_CRUDL
+        entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // Bitmask representation of permissions
+        permissionValue: 2, // 2 = Write
         status: 1,
       },
     ]);
