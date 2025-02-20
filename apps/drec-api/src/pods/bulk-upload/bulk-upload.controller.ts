@@ -137,8 +137,7 @@ export class BulkUploadController {
   @ApiQuery({
     name: 'organizationId',
     type: Number,
-    required: false,
-    description: 'This query parameter is used for ApiUser',
+    required: true,
   })
   @ApiQuery({
     name: 'bulkUploadType',
@@ -155,7 +154,7 @@ export class BulkUploadController {
   public async getByOrganization(
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
-    organizationId: number | null,
+    organizationId: number,
     @Query('bulkUploadType', new DefaultValuePipe(null))
     bulkUploadType: BulkUploadType,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
