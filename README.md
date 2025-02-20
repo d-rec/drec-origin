@@ -119,6 +119,12 @@ Run API project
 rush start:dev
 ```
 
+You may also want to run permission seeder
+
+```sh
+npm run seed
+```
+
 You may also want to drop local databases with
 
 ```sh

@@ -19,7 +19,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -27,7 +27,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -35,7 +35,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -43,7 +43,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete. 
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -51,7 +51,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15,
         status: 1,
       },
       {
@@ -59,7 +59,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -67,7 +67,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -75,7 +75,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // 1 = Read,
+        permissionValue: 1, 
         status: 1,
       },
       {
@@ -83,7 +83,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1, 
       },
       {
@@ -91,31 +91,15 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // 2 = Write
+        permissionValue: 2, 
         status: 1,
-      },
-      {
-        aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
-        entityId: 6, // SubBuyer
-        entityType: EntityType.Role,
-        permissions: ['Read', 'Write', 'Update'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
-        status: 1,
-      },
-      {
-        aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
-        entityId: 6, // SubBuyer
-        entityType: EntityType.Role,
-        permissions: ['Read'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
-        status: 1, 
       },
       {
         aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
-        permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissions: ['Read', 'Write'],
+        permissionValue: 3, 
         status: 1, 
       },
       {
@@ -123,7 +107,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // 1 = Read,
+        permissionValue: 1, 
         status: 1,
       },
       {
@@ -131,7 +115,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15,
         status: 1,
       },
       {
@@ -139,7 +123,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // 2 = Write
+        permissionValue: 2,
         status: 1,
       },
       {
@@ -147,7 +131,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update'],
-        permissionValue: 15, //Bitmask representation of permissions
+        permissionValue: 15,
         status: 1,
       },
       {
@@ -155,7 +139,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 15, //Bitmask representation of permissions
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -163,7 +147,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -171,7 +155,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read'],
-        permissionValue: 1, // 1 = Read,
+        permissionValue: 1, 
         status: 1,
       },
       {
@@ -179,7 +163,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15, // 1 = Read, 2 = Write, 4 = Update, 8 = Delete.
+        permissionValue: 15, 
         status: 1,
       },
       {
@@ -187,7 +171,7 @@ export class PermissionsSeeder implements SeederInterface {
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Write'],
-        permissionValue: 2, // 2 = Write
+        permissionValue: 2, 
         status: 1,
       },
     ]);
