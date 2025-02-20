@@ -119,7 +119,7 @@ Run API project
 rush start:dev
 ```
 
-You may also want to run permission seeder
+For the initial setup, run this command to seed the database with the basic permissions and content
 
 ```sh
 npm run seed
