@@ -38,6 +38,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
+import { Roles } from '../user/decorators/roles.decorator';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -56,6 +57,7 @@ export class BulkUploadController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({
@@ -133,6 +135,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @ApiSecurity('bearer')
   @ApiQuery({
     name: 'bulkUploadType',
@@ -146,7 +149,7 @@ export class BulkUploadController {
     type: [BulkUploadEntity],
     description: 'Returns created jobs of an organization',
   })
-  public async getByOrganization(
+  public async getAll(
     @UserDecorator() user: ILoggedInUser,
     @Query('bulkUploadType', new DefaultValuePipe(null))
     bulkUploadType: BulkUploadType,
@@ -163,14 +166,7 @@ export class BulkUploadController {
       `Fetching bulk upload jobs for user with role: ${user.role}`,
     );
 
-    const organizationId = user.organizationId;
-
-    await this.bulkUploadService.canViewBulkUploadJobs({
-      user,
-      organizationId: organizationId,
-    });
-
-    return this.bulkUploadService.getBulkUploadJobsByRole(
+    return await this.bulkUploadService.getBulkUploadJobsByRole(
       user,
       bulkUploadType,
       pageNumber,
@@ -200,7 +196,7 @@ export class BulkUploadController {
     organizationId: number | null,
   ): Promise<GetBulkUploadDTO | undefined> {
     this.logger.verbose(`With in getBulkUploadJobStatus`);
-    await this.bulkUploadService.canViewBulkUploadJobs({
+    await this.bulkUploadService.canManageBulkUploadJobs({
       user: user,
       organizationId: organizationId,
     });

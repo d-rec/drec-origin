@@ -4,11 +4,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { Organization } from '../organization/organization.entity';
 
 export enum BulkUploadStatus {
   Added = 'Added',
@@ -39,9 +42,9 @@ export class BulkUploadEntity extends BaseEntity {
   @IsNumber()
   organizationId: number;
 
-  organization?: {
-    name: string;
-  };
+  @ManyToOne(() => Organization)
+  @JoinColumn({ name: "organization_id" })
+  organization: Organization;
 
   @Column({ name: 'status' })
   @IsEnum(BulkUploadStatus)
