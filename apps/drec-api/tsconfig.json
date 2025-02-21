@@ -23,6 +23,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*", "migrations/*", "test/*", "ormconfig*.ts"],
+  "include": ["src/**/*", "migrations/*", "test/*", "ormconfig*.ts", "seeders/*"],
   "exclude": ["node_modules", "dist"]
 }
