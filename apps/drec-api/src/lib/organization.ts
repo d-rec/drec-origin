@@ -29,9 +29,9 @@ export const canManageOrganization = ({
     return false;
   }
 
-  if (organizationAdmin.role !== Role.OrganizationAdmin) {
-    return false;
+  if (organizationAdmin.role === Role.OrganizationAdmin) {
+    return true;
   }
 
-  return true;
+  return false;
 };

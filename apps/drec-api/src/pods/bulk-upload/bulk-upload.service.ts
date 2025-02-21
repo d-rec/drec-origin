@@ -156,7 +156,6 @@ export class BulkUploadService {
   }> {
     this.logger.verbose(`Fetching jobs for admin`);
     const whereConditions: any = {
-      ...(organizationId && { organizationId: organizationId }),
       type: bulkUploadType,
     };
 
@@ -241,7 +240,6 @@ export class BulkUploadService {
   public async getBulkUploadJobsByRole(
     user: ILoggedInUser,
     bulkUploadType: BulkUploadType,
-    orgId: number | null,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -254,7 +252,7 @@ export class BulkUploadService {
 
     if (role === Role.Admin) {
       return this.getAllBulkUploadJobs(
-        orgId,
+        organizationId,
         bulkUploadType,
         pageNumber,
         limit,

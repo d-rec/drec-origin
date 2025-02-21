@@ -135,11 +135,6 @@ export class BulkUploadController {
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
   @ApiSecurity('bearer')
   @ApiQuery({
-    name: 'organizationId',
-    type: Number,
-    required: true,
-  })
-  @ApiQuery({
     name: 'bulkUploadType',
     required: true,
     enum: BulkUploadType,
@@ -153,8 +148,6 @@ export class BulkUploadController {
   })
   public async getByOrganization(
     @UserDecorator() user: ILoggedInUser,
-    @Query('organizationId', new DefaultValuePipe(null))
-    organizationId: number,
     @Query('bulkUploadType', new DefaultValuePipe(null))
     bulkUploadType: BulkUploadType,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
@@ -169,19 +162,17 @@ export class BulkUploadController {
     this.logger.verbose(
       `Fetching bulk upload jobs for user with role: ${user.role}`,
     );
+
+    const organizationId = user.organizationId;
+
     await this.bulkUploadService.canViewBulkUploadJobs({
       user,
       organizationId: organizationId,
     });
 
-    if (organizationId) {
-      user.organizationId = organizationId;
-    }
-
     return this.bulkUploadService.getBulkUploadJobsByRole(
       user,
       bulkUploadType,
-      organizationId,
       pageNumber,
       limit,
     );
