@@ -17,10 +17,6 @@ export const canManageOrganization = ({
     return true;
   }
 
-  if (organizationAdmin.role === Role.ApiUser) {
-    return true;
-  }
-
   if (user.role !== Role.ApiUser) {
     return user.organizationId === organization.id;
   }
@@ -29,9 +25,9 @@ export const canManageOrganization = ({
     return false;
   }
 
-  if (organizationAdmin.role === Role.OrganizationAdmin) {
-    return true;
+  if (organizationAdmin.role !== Role.OrganizationAdmin) {
+    return false;
   }
 
-  return false;
+  return true;
 };
