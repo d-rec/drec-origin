@@ -86,6 +86,7 @@ import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
 import { FilterDTO } from '../certificate-log/dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class DeviceGroupService {
@@ -1648,11 +1649,8 @@ export class DeviceGroupService {
         rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
-        const dataToStore = new NewDeviceDTO();
-        dataToStore.SDGBenefits = [];
-        dataToStore.version = '1.0';
 
-        const dataKeyForValidation: NewDeviceDTO = {
+        const dataToStore: NewDeviceDTO = {
           externalId: '',
           projectName: '',
           address: '',
@@ -1674,16 +1672,16 @@ export class DeviceGroupService {
           SDGBenefits: [],
           version: '1.0',
         };
-        for (const key in dataKeyForValidation) {
+        for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
             continue;
           }
-          if (typeof dataKeyForValidation[key] === 'string') {
+          if (typeof dataToStore[key] === 'string') {
             dataToStore[key] = data[key];
-          } else if (typeof dataKeyForValidation[key] === 'boolean') {
+          } else if (typeof dataToStore[key] === 'boolean') {
             dataToStore[key] =
               data[key].toLowerCase() === 'true' ? true : false;
-          } else if (typeof dataKeyForValidation[key] === 'number') {
+          } else if (typeof dataToStore[key] === 'number') {
             dataToStore[key] = Number.isNaN(data[key])
               ? 0
               : parseFloat(data[key]);
@@ -1702,7 +1700,7 @@ export class DeviceGroupService {
         for (const key in dataToStore) {
           dataToStore[key] === '' ? (dataToStore[key] = null) : '';
         }
-        records.push(dataToStore);
+        records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({
           externalId: '',
           rowNumber: rowsConvertedToCsvCount,
