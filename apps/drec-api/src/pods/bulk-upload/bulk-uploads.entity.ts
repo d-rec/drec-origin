@@ -43,7 +43,7 @@ export class BulkUploadEntity extends BaseEntity {
   organizationId: number;
 
   @ManyToOne(() => Organization)
-  @JoinColumn({ name: "organization_id" })
+  @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
   @Column({ name: 'status' })
