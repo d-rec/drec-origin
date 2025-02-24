@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import * as path from 'path';
@@ -122,9 +122,9 @@ export const entities = [
   BulkUploadFailedLogEntity,
 ];
 
-const originAppTypeOrmModule = () => {
-  return process.env.DATABASE_URL
-    ? TypeOrmModule.forRoot({
+export const originAppTypeOrmModule = (): DynamicModule => {
+  const options: TypeOrmModuleOptions = process.env.DATABASE_URL
+    ? {
         type: 'postgres',
         url: process.env.DATABASE_URL,
         ssl: {
@@ -132,8 +132,8 @@ const originAppTypeOrmModule = () => {
         },
         entities,
         logging: ['info'],
-      })
-    : TypeOrmModule.forRoot({
+      }
+    : {
         type: 'postgres',
         host: process.env.DB_HOST ?? 'localhost',
         port: Number(process.env.DB_PORT) ?? 5432,
@@ -142,7 +142,9 @@ const originAppTypeOrmModule = () => {
         database: process.env.DB_DATABASE ?? 'origin',
         entities,
         logging: ['info'],
-      });
+      };
+
+  return TypeOrmModule.forRoot(options);
 };
 
 const redisOptions = {

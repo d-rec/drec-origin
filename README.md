@@ -119,6 +119,12 @@ Run API project
 rush start:dev
 ```
 
+For the initial setup, run this command to seed the database with the basic permissions and content
+
+```sh
+npm run seed
+```
+
 You may also want to drop local databases with
 
 ```sh
