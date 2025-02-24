@@ -18,14 +18,12 @@ import {
   Raw,
   Repository,
   SelectQueryBuilder,
-  UpdateResult,
 } from 'typeorm';
 import { DeviceService } from '../device/device.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
   EndReservationDateDTO,
-  JobFailedRowsDTO,
   NewDeviceGroupDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
@@ -39,7 +37,6 @@ import {
   DeviceDescription,
   IDevice,
   ILoggedInUser,
-  LoggedInUser,
 } from '../../models';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
@@ -60,8 +57,6 @@ import cleanDeep from 'clean-deep';
 import { OrganizationService } from '../organization/organization.service';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import {
   DeviceCsvFileProcessingJobsEntity,
   StatusCSV,
@@ -86,7 +81,15 @@ import { UserService } from '../user/user.service';
 import { ICertificateMetadata } from '../../utils/types';
 import { FilterDTO } from '../certificate-log/dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import {
+  BulkUploadEntity,
+  BulkUploadStatus,
+} from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { plainToClass } from 'class-transformer';
+import { Queues } from '../../utils/enums/queues.enum';
 
 @Injectable()
 export class DeviceGroupService {
@@ -94,8 +97,6 @@ export class DeviceGroupService {
   private readonly logger = new Logger(DeviceGroupService.name);
 
   constructor(
-    @InjectRepository(DeviceCsvProcessingFailedRowsEntity)
-    private readonly repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>,
     @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     private readonly repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
@@ -117,6 +118,11 @@ export class DeviceGroupService {
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
+    @InjectRepository(BulkUploadEntity)
+    public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
+    @InjectRepository(BulkUploadFailedLogEntity)
+    public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
+    @InjectQueue(Queues.DeviceBulkUpload) private deviceQueue: Queue,
   ) {}
 
   async getAll(
@@ -731,165 +737,22 @@ export class DeviceGroupService {
     return (await this.repository.findOne(conditions)) ?? null;
   }
 
-  async createCSVJobForFile(
-    userId: number,
-    organizationId: number,
-    status: StatusCSV,
-    fileId: string,
-    api_user_id?: string,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in createCSVJobForFile`);
-    return await this.repositoryCSVJobProcessing.save({
-      userId,
-      organizationId,
-      status,
-      fileId,
-      api_user_id,
-    });
-  }
-
-  async getAllCSVJobsForOrganization(
-    organizationId: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForOrganization`);
-    const [csvJobs, totalCount] =
-      await this.repositoryCSVJobProcessing.findAndCount({
-        where: { organizationId },
-        order: {
-          createdAt: 'DESC',
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
-      });
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: DeviceCsvFileProcessingJobsEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
-        );
-        csvJob.organization = {
-          name: organization.name,
-        };
-        return csvJob;
-      }),
-    );
-
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
-  async getAllCSVJobsForAdmin(
-    orgId?: number,
-    pageNumber?: number,
-    limit?: number,
-  ): Promise<
-    | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCSVJobsForAdmin`);
-    const whereConditions: any = {};
-
-    if (orgId) {
-      whereConditions.organizationId = orgId;
-    }
-
-    const [csvJobs, totalCount] =
-      await this.repositoryCSVJobProcessing.findAndCount({
-        where: whereConditions,
-        order: {
-          createdAt: 'DESC',
-        },
-        skip: (pageNumber - 1) * limit,
-        take: limit,
-      });
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    const csvJobsWithOrganization = await Promise.all(
-      csvJobs.map(async (csvJob: DeviceCsvFileProcessingJobsEntity) => {
-        const organization = await this.organizationService.findOne(
-          csvJob.organizationId,
-        );
-        csvJob.organization = {
-          name: organization.name,
-        };
-        return csvJob;
-      }),
-    );
-
-    return {
-      csvJobs: csvJobsWithOrganization,
-      currentPage: pageNumber,
-      totalPages,
-      totalCount,
-    };
-  }
   async createFailedRowDetailsForCSVJob(
-    jobId: number,
+    jobId: string,
     errorDetails: Array<any>,
     successfullyAddedRowsAndExternalIds: Array<{
       rowNumber: number;
       externalId: string;
     }>,
-  ): Promise<DeviceCsvProcessingFailedRowsEntity | undefined> {
+  ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
-    return await this.repositoryJobFailedRows.save({
-      jobId,
-      errorDetails: {
+    return await this.bulkUploadFailedLogRepository.save({
+      bulkUploadId: jobId,
+      details: {
         log: { errorDetails, successfullyAddedRowsAndExternalIds },
       },
     });
   }
-
-  async getFailedRowDetailsForCSVJob(
-    jobId: number,
-    organizationId?: number,
-  ): Promise<JobFailedRowsDTO | undefined> {
-    this.logger.verbose(`With in getFailedRowDetailsForCSVJob`);
-    if (organizationId) {
-      const csvJob = await this.repositoryCSVJobProcessing.findOne({
-        where: {
-          jobId: jobId,
-          organizationId: organizationId,
-        },
-      });
-
-      if (!csvJob) {
-        this.logger.error(`The job requested is belongs to other organization`);
-        throw new UnauthorizedException({
-          success: false,
-          message: `The job requested is belongs to other organization`,
-        });
-      }
-    }
-
-    return await this.repositoryJobFailedRows.findOne({
-      where: {
-        jobId: jobId,
-      },
-    });
-  }
-
   async create(
     organizationId: number,
     data: NewDeviceGroupDTO,
@@ -1349,7 +1212,7 @@ export class DeviceGroupService {
   ): Promise<
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
   > {
-    this.logger.verbose(`With in registerCSVBulkDevicess`);
+    this.logger.verbose(`With in registerCSVBulkDevices`);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
@@ -1568,66 +1431,26 @@ export class DeviceGroupService {
     });
   }
 
-  private async updateJobStatus(
-    jobId: number,
-    status: StatusCSV,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in updateJobStatus`);
-    const updateResult: UpdateResult =
-      await this.repositoryCSVJobProcessing.update(
-        { jobId: jobId },
-        { status: status },
-      );
-
-    if (updateResult.affected === 0) {
-      throw new Error(`No job found with ID ${jobId}`);
-    }
-
-    return await this.repositoryCSVJobProcessing.findOne({
-      where: { jobId: jobId },
-    });
-  }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  //@Cron('*/3 * * * *')
-  async getAddedCSVProcessingJobsAndStartProcessing(): Promise<void | any> {
-    this.logger.verbose(`With in getAddedCSVProcessingJobsAndStartProcessing`);
-    const filesAddedForProcessing =
-      await this.hasSingleAddedJobForCSVProcessing();
-    if (
-      filesAddedForProcessing === undefined ||
-      filesAddedForProcessing === null
-    ) {
-      return;
-    }
-
-    const user = await this.userService.findById(
-      filesAddedForProcessing.userId,
-    );
-
-    const data = new LoggedInUser(user);
-    data.id = filesAddedForProcessing.userId;
-    data.organizationId = filesAddedForProcessing.organizationId;
-    const response = await this.fileService.getUploadS3(
-      filesAddedForProcessing.fileId,
-    );
-    this.logger.debug(response);
-    if (response == undefined) {
-      return;
-    } else {
-      this.updateJobStatus(filesAddedForProcessing.jobId, StatusCSV.Running);
-      this.processCsvFileAnotherLibrary(
-        response,
-        filesAddedForProcessing.organizationId,
-        filesAddedForProcessing,
-      );
+  async bulkUploadJobProcessing(
+    s3Key: string,
+    fileId: string,
+  ): Promise<string> {
+    try {
+      const job = await this.deviceQueue.add({
+        s3Key: s3Key,
+        fileId: fileId,
+      });
+      return job.id.toString();
+    } catch (error) {
+      this.logger.error('Job processing failed:', error);
+      throw error;
     }
   }
 
   async processCsvFileAnotherLibrary(
     file: Record<string, unknown> | any,
     organizationId: number,
-    filesAddedForProcessing: DeviceCsvFileProcessingJobsEntity,
+    filesAddedForProcessing: BulkUploadEntity,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1943,7 +1766,6 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
-          filesAddedForProcessing.api_user_id,
         );
 
         devicesRegistered
@@ -1976,13 +1798,14 @@ export class DeviceGroupService {
           }
         });
         this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.jobId,
+          filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
-        this.updateJobStatus(
-          filesAddedForProcessing.jobId,
-          StatusCSV.Completed,
+
+        this.bulkUploadRepository.update(
+          { jobId: filesAddedForProcessing.jobId },
+          { status: BulkUploadStatus.Completed },
         );
       });
   }

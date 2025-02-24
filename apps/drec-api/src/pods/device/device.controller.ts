@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -22,7 +21,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
@@ -42,11 +40,6 @@ import { Role } from '../../utils/enums';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { CSVBulkUploadDTO } from '../device-group/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -735,92 +728,5 @@ export class DeviceController {
         pageNumber,
       );
     }
-  }
-
-  /**
-   * It is POST api to create array of devices by uploading csv files with device data
-   * @param user is loggedIn user from request
-   * @param organizationId is organization unique identifier with number type to map with the respective organization
-   * @param fileToProcess is parsed data of uploaded csv file
-   * @returns {DeviceCsvFileProcessingJobsEntity}
-   */
-  @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created devices from csv',
-  })
-  @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(
-    @UserDecorator() user: ILoggedInUser,
-    @Param('organizationId') organizationId: number | null,
-    @Body() fileToProcess: CSVBulkUploadDTO,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in processCreationBulkFromCSV`);
-    if (organizationId === null || organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-
-    if (fileToProcess.fileName == undefined) {
-      this.logger.error(`File Not Found`);
-      throw new ConflictException({
-        success: false,
-        message: 'File Not Found',
-      });
-    }
-    if (!fileToProcess.fileName.endsWith('.csv')) {
-      this.logger.error(`Invalid file`);
-      throw new ConflictException({
-        success: false,
-        message: 'Invalid file',
-      });
-    }
-
-    let jobCreated: any;
-    if (user.role === Role.ApiUser) {
-      const organization =
-        await this.organizationService.findOne(organizationId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-      if (organization.api_user_id != user.api_user_id) {
-        this.logger.error(
-          `The requested organization is belongs to other apiuser`,
-        );
-        throw new BadRequestException({
-          success: false,
-          message: 'The requested organization is belongs to other apiuser',
-        });
-      }
-
-      if (orgUser.role != Role.OrganizationAdmin) {
-        this.logger.error(`Unauthorized`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized',
-        });
-      }
-
-      jobCreated = await this.deviceGroupService.createCSVJobForFile(
-        user.id,
-        organizationId,
-        StatusCSV.Added,
-        fileToProcess.fileName,
-        user.api_user_id,
-      );
-    } else {
-      jobCreated = await this.deviceGroupService.createCSVJobForFile(
-        user.id,
-        organizationId,
-        StatusCSV.Added,
-        fileToProcess.fileName,
-      );
-    }
-    return jobCreated;
   }
 }

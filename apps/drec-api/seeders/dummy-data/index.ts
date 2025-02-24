@@ -1,15 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { SeederModule } from '../seeder.module';
 import { SeederInterface } from '../seeder-interface';
-
+import { OrganizationsSeeder } from '../organizations.seeder'
+import { UsersSeeder } from '../user.seeder';
+import { DevicesSeeder } from '../devices.seeder';
 async function run() {
   console.log('Initializing dummy data seeding...');
 
   const app = await NestFactory.create(SeederModule);
-
+  
   const seeders: SeederInterface[] = [
-      // Add more seeders here for dummy data
-      // eg: app.get(OrganizationDummySeeder),
+     app.get(OrganizationsSeeder),
+     app.get(UsersSeeder),
+     app.get(DevicesSeeder),
   ];
 
   console.log('Seeding dummy data...');

@@ -10,6 +10,8 @@ import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-lo
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadService } from './bulk-upload.service';
 import { ReadsService } from '../reads/reads.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { Organization } from '../organization/organization.entity';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -31,16 +33,29 @@ describe('BulkUploadService', () => {
       providers: [
         BulkUploadService,
         {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+          },
+        },
+        {
           provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useValue: {
+            save: jest.fn(),
+            create: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Organization),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(BulkUploadEntity),
-          useValue: {},
-        },
-        {
-          provide: ReadsService,
-          useValue: {},
+          provide: OrganizationService,
+          useValue: {
+            findOne: jest.fn(),
+          },
         },
         {
           provide: FileService,
@@ -50,8 +65,17 @@ describe('BulkUploadService', () => {
           },
         },
         {
-          provide: OrganizationService,
-          useValue: {} as any,
+          provide: ReadsService,
+          useValue: {
+            createRead: jest.fn(),
+          },
+        },
+        {
+          provide: DeviceGroupService,
+          useValue: {
+            findOne: jest.fn(),
+            findById: jest.fn(),
+          },
         },
         {
           provide: EventBus,

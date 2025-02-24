@@ -20,7 +20,6 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiBody,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
@@ -32,10 +31,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
-  CSVBulkUploadDTO,
   DeviceGroupDTO,
   EndReservationDateDTO,
-  JobFailedRowsDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
   UnreservedDeviceGroupsFilterDTO,
@@ -53,10 +50,6 @@ import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
 import csv from 'csv-parser';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
@@ -551,57 +544,6 @@ export class BuyerReservationController {
   }
 
   /**
-   * It is POST api to create device group
-   * @param user from user request
-   * @param param1 is getting organizationId from loggedIn user
-   * @param fileToProcess uploaded csv file
-   * @returns {DeviceCsvFileProcessingJobsEntity}
-   */
-  @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created devices from csv',
-  })
-  @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() fileToProcess: CSVBulkUploadDTO,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in processCreationBulkFromCSV`);
-    if (user.organizationId === null || user.organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-    if (fileToProcess.fileName == undefined) {
-      //throw new Error("file not found");
-      this.logger.error(`File Not Found`);
-      throw new ConflictException({
-        success: false,
-        message: 'File Not Found',
-      });
-    }
-    if (!fileToProcess.fileName.endsWith('.csv')) {
-      this.logger.error(`Invalid file`);
-      throw new ConflictException({
-        success: false,
-        message: 'Invalid file',
-      });
-    }
-    return await this.deviceGroupService.createCSVJobForFile(
-      user.id,
-      organizationId,
-      StatusCSV.Added,
-      fileToProcess.fileName,
-    );
-  }
-
-  /**
    * It is PATCH api to update device group by id
    * @param id  is identifier of device group in type number
    * @param loggedUser user from request
@@ -670,192 +612,6 @@ export class BuyerReservationController {
   ): Promise<void> {
     this.logger.verbose(`With in remove`);
     return await this.deviceGroupService.remove(id, organizationId);
-  }
-
-  /**
-   * It is GET api to list the status of jobs
-   * @param jobId is unique identifier of jobId
-   * @param param1 organizationId from loggedIn User
-   * @returns {JobFailedRowsDTO | undefined}
-   */
-  @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard) //, PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiQuery({
-    name: 'orgId',
-    type: Number,
-    required: false,
-    description: 'This query parameter is used for Apiuser',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: JobFailedRowsDTO,
-    description: 'Returns status of job id for bulk upload',
-  })
-  public async getBulkUploadJobStatus(
-    @Param('id') jobId: number,
-    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-  ): Promise<JobFailedRowsDTO | undefined> {
-    this.logger.verbose(`With in getBulkUploadJobStatus`);
-
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-
-      if (role === Role.ApiUser) {
-        if (organization.api_user_id != api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiuser',
-          });
-        }
-
-        if (orgUser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (orgId != organizationId && role != Role.Admin) {
-          this.logger.error(
-            `The organizationId in query params should be same as user's organizationId`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `The organizationId in query params should be same as user's organizationId`,
-          });
-        } else if (role === Role.Admin) {
-          orgId = null;
-        }
-      }
-    } else {
-      if (role === Role.ApiUser) {
-        this.logger.error(`Add the orgId at query param`);
-        throw new BadRequestException({
-          success: false,
-          message: `Add the orgId at query param`,
-        });
-      }
-    }
-    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId,
-      orgId,
-    );
-  }
-
-  /**
-   * It is GET api to list all jobs by organization
-   * @param user is user from request
-   * @param param1 is getting organization Id from user request
-   * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
-   */
-  @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiQuery({
-    name: 'orgId',
-    type: Number,
-    required: false,
-    description: 'This query parameter is used for Apiuser',
-  })
-  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
-  @ApiQuery({ name: 'limit', type: Number, required: false })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created jobs of an organization',
-  })
-  public async getAllCsvJobsBelongingToOrganization(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
-    pageNumber: number,
-    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<
-    | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
-    if (user.organizationId === null || user.organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-
-      if (user.role === Role.ApiUser) {
-        if (organization.api_user_id != user.api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiuser',
-          });
-        }
-
-        if (orgUser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (user.role != Role.Admin) {
-          if (orgId != organizationId) {
-            this.logger.error(
-              `The orgId at query param is not same as user's organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message: `The orgId at query param is not same as user's organization`,
-            });
-          }
-        }
-      }
-    }
-
-    if (user.role === 'Admin') {
-      return this.deviceGroupService.getAllCSVJobsForAdmin(
-        orgId,
-        pageNumber,
-        limit,
-      );
-    } else if (user.role === Role.ApiUser) {
-      return this.deviceGroupService.getAllCSVJobsForApiUser(
-        user.api_user_id,
-        orgId,
-        pageNumber,
-        limit,
-      );
-    } else {
-      return this.deviceGroupService.getAllCSVJobsForOrganization(
-        organizationId,
-        pageNumber,
-        limit,
-      );
-    }
   }
 
   /**
