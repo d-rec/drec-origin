@@ -11,7 +11,7 @@ import {
   BulkUploadType,
 } from './bulk-uploads.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { OrganizationService } from '../organization/organization.service';
 import { ILoggedInUser } from 'src/models';
 import { FileService } from '../file';
@@ -19,6 +19,8 @@ import { ReadsService } from '../reads/reads.service';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';
 import { GetBulkUploadDTO } from './dto/get-bulk-upload.dto';
 import { Role } from '../../utils/enums';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { Organization } from '../organization/organization.entity';
 
 @Injectable()
 export class BulkUploadService {
@@ -28,9 +30,12 @@ export class BulkUploadService {
     public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
+    @InjectRepository(Organization)
+    public readonly organizationRepository: Repository<Organization>,
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
     private readonly readsService: ReadsService,
+    private readonly deviceGroupService: DeviceGroupService,
   ) {}
 
   async storeBulkUploadJob(
@@ -86,6 +91,11 @@ export class BulkUploadService {
           file.filename,
           bulkUploadType,
         );
+      case BulkUploadType.Devices:
+        return this.deviceGroupService.bulkUploadJobProcessing(
+          s3Upload.key,
+          file.filename,
+        );
       default:
         throw new BadRequestException(
           `Unsupported bulk upload type: ${bulkUploadType}`,
@@ -93,60 +103,39 @@ export class BulkUploadService {
     }
   }
 
-  async getAllBulkUploadsJobsByOrganization(
-    organizationId: number,
-    pageNumber: number,
-    limit: number,
-  ): Promise<{
-    bulkUploadJobs: BulkUploadEntity[];
-    currentPage: number;
-    totalPages: number;
-    totalCount: number;
-  }> {
-    this.logger.verbose(`Fetching jobs for organization ${organizationId}`);
-    const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
-      where: { organizationId },
-      order: { createdAt: 'DESC' },
-      skip: (pageNumber - 1) * limit,
-      take: limit,
-    });
-
-    const mappedJobs = await this.mapJobsWithOrganization(jobs);
-    const { currentPage, totalPages } = this.paginate(
-      pageNumber,
-      limit,
-      totalCount,
-    );
-
-    return {
-      bulkUploadJobs: mappedJobs,
-      currentPage,
-      totalPages,
-      totalCount,
-    };
-  }
-
-  async getAllBulkUploadJobs(
-    orgId: number | null,
-    pageNumber: number,
-    limit: number,
-  ): Promise<{
+  async getBulkUploadJobs({
+    bulkUploadType,
+    pageNumber,
+    limit,
+    organizationIds,
+  }: {
+    bulkUploadType: BulkUploadType;
+    pageNumber: number;
+    limit: number;
+    organizationIds?: number[];
+  }): Promise<{
     bulkUploadJobs: BulkUploadEntity[];
     currentPage: number;
     totalPages: number;
     totalCount: number;
   }> {
     this.logger.verbose(`Fetching jobs for admin`);
-    const whereConditions: any = orgId ? { organizationId: orgId } : {};
+    const whereConditions: any = {
+      type: bulkUploadType,
+    };
+
+    if (organizationIds?.length) {
+      whereConditions.organizationId = In(organizationIds);
+    }
 
     const [jobs, totalCount] = await this.bulkUploadRepository.findAndCount({
       where: whereConditions,
       order: { createdAt: 'DESC' },
       skip: (pageNumber - 1) * limit,
       take: limit,
+      relations: ['organization'],
     });
 
-    const mappedJobs = await this.mapJobsWithOrganization(jobs);
     const { currentPage, totalPages } = this.paginate(
       pageNumber,
       limit,
@@ -154,57 +143,48 @@ export class BulkUploadService {
     );
 
     return {
-      bulkUploadJobs: mappedJobs,
+      bulkUploadJobs: jobs,
       currentPage,
       totalPages,
       totalCount,
     };
   }
 
-  async getAllBulkUploadJobsForApiUser(
-    apiUserId: string,
-    orgId: number | null,
-    pageNumber: number,
-    limit: number,
-  ): Promise<{
+  async getAllBulkUploadJobsForApiUser({
+    apiUserId,
+    bulkUploadType,
+    pageNumber,
+    limit,
+  }: {
+    apiUserId: string;
+    bulkUploadType: BulkUploadType;
+    pageNumber: number;
+    limit: number;
+  }): Promise<{
     bulkUploadJobs: BulkUploadEntity[];
     currentPage: number;
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`Fetching jobs for API user ${apiUserId}`);
-    const query = this.bulkUploadRepository
-      .createQueryBuilder('jobs')
-      .where('jobs.api_user_id = :apiUserId', { apiUserId });
+    const organizations = await this.organizationRepository
+      .createQueryBuilder('organization')
+      .select('organization.id')
+      .where('organization.api_user_id = :apiUserId', { apiUserId })
+      .getMany();
 
-    if (orgId) {
-      query.andWhere('jobs.organizationId = :orgId', { orgId });
-    }
+    const organizationIds = organizations.map((org) => org.id);
 
-    const [jobs, totalCount] = await query
-      .orderBy('jobs.createdAt', 'DESC')
-      .skip((pageNumber - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
-
-    const mappedJobs = await this.mapJobsWithOrganization(jobs);
-    const { currentPage, totalPages } = this.paginate(
+    return this.getBulkUploadJobs({
+      bulkUploadType,
       pageNumber,
       limit,
-      totalCount,
-    );
-
-    return {
-      bulkUploadJobs: mappedJobs,
-      currentPage,
-      totalPages,
-      totalCount,
-    };
+      organizationIds,
+    });
   }
 
   public async getBulkUploadJobsByRole(
     user: ILoggedInUser,
-    orgId: number | null,
+    bulkUploadType: BulkUploadType,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -215,44 +195,30 @@ export class BulkUploadService {
   }> {
     const { role, api_user_id, organizationId } = user;
 
-    if (role === Role.Admin) {
-      return this.getAllBulkUploadJobs(orgId, pageNumber, limit);
+    switch (role) {
+      case Role.Admin:
+        return this.getBulkUploadJobs({
+          bulkUploadType,
+          pageNumber,
+          limit,
+        });
+
+      case Role.ApiUser:
+        return this.getAllBulkUploadJobsForApiUser({
+          apiUserId: api_user_id,
+          bulkUploadType,
+          pageNumber,
+          limit,
+        });
+
+      default:
+        return this.getBulkUploadJobs({
+          bulkUploadType,
+          pageNumber,
+          limit,
+          organizationIds: [organizationId],
+        });
     }
-
-    if (role === Role.ApiUser) {
-      return this.getAllBulkUploadJobsForApiUser(
-        api_user_id,
-        orgId,
-        pageNumber,
-        limit,
-      );
-    }
-
-    return this.getAllBulkUploadsJobsByOrganization(
-      organizationId,
-      pageNumber,
-      limit,
-    );
-  }
-
-  async mapJobsWithOrganization(
-    jobs: BulkUploadEntity[],
-  ): Promise<BulkUploadEntity[]> {
-    const organizationIds = new Set(jobs.map((job) => job.organizationId));
-
-    const organizations = await this.organizationService.findByIds(
-      Array.from(organizationIds.values()),
-    );
-
-    return jobs.map((job: BulkUploadEntity) => {
-      const organization = organizations.find(
-        (org) => org.id === job.organizationId,
-      );
-      job.organization = {
-        name: organization.name,
-      };
-      return job;
-    });
   }
 
   paginate(
@@ -286,7 +252,7 @@ export class BulkUploadService {
     });
   }
 
-  async canViewBulkUploadJobs({
+  async canManageBulkUploadJobs({
     user,
     organizationId,
   }: {

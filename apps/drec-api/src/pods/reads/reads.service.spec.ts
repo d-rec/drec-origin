@@ -15,6 +15,8 @@ import { FileService } from '../file/file.service';
 import { BASE_READ_SERVICE } from './constants';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { getQueueToken } from '@nestjs/bull';
+import { Queues } from '../../utils/enums/queues.enum';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -67,11 +69,8 @@ describe('ReadsService', () => {
           useValue: {} as any,
         },
         {
-          provide: 'BullQueue_reads-queue',
-          useValue: {
-            add: jest.fn(),
-            process: jest.fn(),
-          },
+          provide: getQueueToken(Queues.ReadsBulkUpload),
+          useValue: {},
         },
         {
           provide: FileService,
