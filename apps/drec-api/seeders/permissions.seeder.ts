@@ -177,11 +177,9 @@ export class PermissionsSeeder implements SeederInterface {
     ]);
 
     await this.aclPermissionsRepository.save(permissions);
-    console.log('Seed permissions inserted successfully');
   }
 
   async drop(): Promise<void> {
     await this.aclPermissionsRepository.delete({});
-    console.log('Seed permissions cleared successfully');
   }
 }
