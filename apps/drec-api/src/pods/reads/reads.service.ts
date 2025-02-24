@@ -67,7 +67,7 @@ import {
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
 import { validateTimezone } from '../../validations/timezone';
-import { BullConfig } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
@@ -90,7 +90,7 @@ export class ReadsService {
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
-    @InjectQueue(BullConfig.queues.reads) private readsQueue: Queue,
+    @InjectQueue(Queues.ReadsBulkUpload) private readsQueue: Queue,
   ) {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
     const token = process.env.INFLUXDB_TOKEN;
@@ -181,14 +181,11 @@ export class ReadsService {
     bulkUploadType: BulkUploadType,
   ): Promise<string> {
     try {
-      const job = await this.readsQueue.add(
-        BullConfig.jobNames.readsBulkUpload,
-        {
-          s3Key: s3Key,
-          fileId: fileId,
-          bulkUploadType: bulkUploadType,
-        },
-      );
+      const job = await this.readsQueue.add({
+        s3Key: s3Key,
+        fileId: fileId,
+        bulkUploadType: bulkUploadType,
+      });
       return job.id.toString();
     } catch (error) {
       this.logger.error('Job processing failed:', error);

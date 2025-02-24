@@ -12,11 +12,11 @@ import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
-import { BullConfig } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
 
-@Processor(BullConfig.queues.reads)
-export class ReadsProcessor {
-  private readonly logger = new Logger(ReadsProcessor.name);
+@Processor(Queues.ReadsBulkUpload)
+export class ReadsBulkUploadProcessor {
+  private readonly logger = new Logger(ReadsBulkUploadProcessor.name);
 
   constructor(
     private readonly readsService: ReadsService,
@@ -24,8 +24,8 @@ export class ReadsProcessor {
     private readonly bulkUploadService: BulkUploadService,
   ) {}
 
-  @Process(BullConfig.jobNames.readsBulkUpload)
-  async handleMeterReadsProcessing(
+  @Process({ concurrency: 1 })
+  async process(
     job: Job<{ fileId: string; s3Key: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {
     const { fileId, s3Key } = job.data;
@@ -54,7 +54,7 @@ export class ReadsProcessor {
         { status: BulkUploadStatus.InProgress },
       );
 
-      await this.processReads(meterReads, bulkUpload);
+      await this.storeReads(meterReads, bulkUpload);
 
       await this.bulkUploadService.bulkUploadRepository.update(
         { jobId: job.id.toString() },
@@ -72,7 +72,7 @@ export class ReadsProcessor {
     }
   }
 
-  async processReads(
+  async storeReads(
     meterReads: MeterReadingCSV[],
     bulkUpload: BulkUploadEntity,
   ): Promise<void> {

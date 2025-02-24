@@ -15,11 +15,13 @@ import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.e
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
 import { FileModule } from '../file';
-import { ReadsProcessor } from './reads.processor';
+import { ReadsBulkUploadProcessor } from './reads-bulk-upload.processor';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
-import { BullConfig } from '../../config/bull.config';
+import { defaultBullJobOptions } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
+
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -40,8 +42,8 @@ const baseReadServiceProvider = {
       DeltaFirstRead,
     ]),
     BullModule.registerQueue({
-      name: BullConfig.queues.reads,
-      defaultJobOptions: BullConfig.jobOptions,
+      name: Queues.ReadsBulkUpload,
+      defaultJobOptions: defaultBullJobOptions,
     }),
     forwardRef(() => FileModule),
     ConfigModule,
@@ -53,7 +55,7 @@ const baseReadServiceProvider = {
     forwardRef(() => BulkUploadModule),
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, ReadsProcessor],
+  providers: [baseReadServiceProvider, ReadsService, ReadsBulkUploadProcessor],
   exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}

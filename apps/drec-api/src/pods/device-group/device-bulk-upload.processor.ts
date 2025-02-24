@@ -5,21 +5,20 @@ import { FileService } from '../file';
 import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
 import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
-import { BullConfig } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
 
-@Processor(BullConfig.queues.devices)
-export class DeviceProcessor {
-  private readonly logger = new Logger(DeviceProcessor.name);
+@Processor(Queues.DeviceBulkUpload)
+export class DeviceBulkUploadProcessor {
+  private readonly logger = new Logger(DeviceBulkUploadProcessor.name);
 
   constructor(
     private readonly fileService: FileService,
     private readonly bulkUploadService: BulkUploadService,
     private readonly deviceGroupService: DeviceGroupService,
   ) {}
-  @Process(BullConfig.jobNames.deviceBulkUpload)
-  async handleMeterReadsProcessing(
-    job: Job<{ fileId: string; s3Key: string }>,
-  ): Promise<any> {
+
+  @Process({ concurrency: 1 })
+  async process(job: Job<{ fileId: string; s3Key: string }>): Promise<any> {
     const { fileId, s3Key } = job.data;
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
