@@ -136,7 +136,6 @@ export class BulkUploadService {
       relations: ['organization'],
     });
 
-    this.logger.log('jobs', jobs);
     const { currentPage, totalPages } = this.paginate(
       pageNumber,
       limit,

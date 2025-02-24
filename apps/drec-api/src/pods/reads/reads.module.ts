@@ -19,6 +19,7 @@ import { ReadsProcessor } from './reads.processor';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
+import { BullConfig } from '../../config/bull.config';
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
   useFactory: (configService: ConfigService<Record<string, any>>) => {
@@ -39,15 +40,8 @@ const baseReadServiceProvider = {
       DeltaFirstRead,
     ]),
     BullModule.registerQueue({
-      name: 'reads-queue',
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-        delay: 1000,
-      },
+      name: BullConfig.queues.reads,
+      defaultJobOptions: BullConfig.jobOptions,
     }),
     forwardRef(() => FileModule),
     ConfigModule,

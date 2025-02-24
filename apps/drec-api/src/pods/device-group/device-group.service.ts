@@ -89,6 +89,7 @@ import {
 } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { plainToClass } from 'class-transformer';
+import { BullConfig } from '../../config/bull.config';
 
 @Injectable()
 export class DeviceGroupService {
@@ -121,7 +122,7 @@ export class DeviceGroupService {
     public readonly bulkUploadRepository: Repository<BulkUploadEntity>,
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
-    @InjectQueue('device-queue') private deviceQueue: Queue,
+    @InjectQueue(BullConfig.queues.devices) private deviceQueue: Queue,
   ) {}
 
   async getAll(
@@ -1435,10 +1436,13 @@ export class DeviceGroupService {
     fileId: string,
   ): Promise<string> {
     try {
-      const job = await this.deviceQueue.add('device-bulk-upload', {
-        s3Key: s3Key,
-        fileId: fileId,
-      });
+      const job = await this.deviceQueue.add(
+        BullConfig.jobNames.deviceBulkUpload,
+        {
+          s3Key: s3Key,
+          fileId: fileId,
+        },
+      );
       return job.id.toString();
     } catch (error) {
       this.logger.error('Job processing failed:', error);

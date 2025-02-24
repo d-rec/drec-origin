@@ -22,6 +22,7 @@ import { BullModule } from '@nestjs/bull';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { BullConfig } from '../../config/bull.config';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -40,15 +41,8 @@ import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-lo
     ]),
     forwardRef(() => DeviceModule),
     BullModule.registerQueue({
-      name: 'device-queue',
-      defaultJobOptions: {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-        delay: 1000,
-      },
+      name: BullConfig.queues.devices,
+      defaultJobOptions: BullConfig.jobOptions,
     }),
     OrganizationModule,
     YieldConfigModule,

@@ -5,8 +5,9 @@ import { FileService } from '../file';
 import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
 import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
+import { BullConfig } from '../../config/bull.config';
 
-@Processor('device-queue')
+@Processor(BullConfig.queues.devices)
 export class DeviceProcessor {
   private readonly logger = new Logger(DeviceProcessor.name);
 
@@ -15,7 +16,7 @@ export class DeviceProcessor {
     private readonly bulkUploadService: BulkUploadService,
     private readonly deviceGroupService: DeviceGroupService,
   ) {}
-  @Process('device-bulk-upload')
+  @Process(BullConfig.jobNames.deviceBulkUpload)
   async handleMeterReadsProcessing(
     job: Job<{ fileId: string; s3Key: string }>,
   ): Promise<any> {

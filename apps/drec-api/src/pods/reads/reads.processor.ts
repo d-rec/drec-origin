@@ -12,8 +12,9 @@ import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
+import { BullConfig } from '../../config/bull.config';
 
-@Processor('reads-queue')
+@Processor(BullConfig.queues.reads)
 export class ReadsProcessor {
   private readonly logger = new Logger(ReadsProcessor.name);
 
@@ -23,7 +24,7 @@ export class ReadsProcessor {
     private readonly bulkUploadService: BulkUploadService,
   ) {}
 
-  @Process('meter-reads-bulk-upload')
+  @Process(BullConfig.jobNames.readsBulkUpload)
   async handleMeterReadsProcessing(
     job: Job<{ fileId: string; s3Key: string }>,
   ): Promise<{ success: number; failed: Array<{ read: any; error: string }> }> {

@@ -27,6 +27,7 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { getQueueToken } from '@nestjs/bull';
+import { BullConfig } from '../../config/bull.config';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -99,7 +100,7 @@ describe('DeviceGroupService', () => {
           useValue: {} as any,
         },
         {
-          provide: getQueueToken('device-queue'),
+          provide: getQueueToken(BullConfig.queues.devices),
           useValue: {},
         },
         {
