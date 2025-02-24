@@ -69,7 +69,7 @@ import {
 import { validateTimezone } from '../../validations/timezone';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
-
+const INFLUX_DB_TIMEOUT = 60000;
 @Injectable()
 export class ReadsService {
   public readonly logger = new Logger(ReadsService.name);
@@ -94,8 +94,7 @@ export class ReadsService {
     const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
-
-    this.influxDB = new InfluxDB({ url, token });
+    this.influxDB = new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT });
     this.queryApi = this.influxDB.getQueryApi(org);
   }
 
@@ -821,7 +820,9 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
-    return new InfluxDB({ url, token }).getQueryApi(org);
+    return new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT }).getQueryApi(
+      org,
+    );
   }
 
   private async checkHistoryReadExist(
