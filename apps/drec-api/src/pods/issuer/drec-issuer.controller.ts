@@ -111,6 +111,9 @@ export class DRECIssuerController {
       `With in simpleGetCallForLateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
+    this.logger.debug(`Received group id`);
+    this.invokeIssuerCronLateOngoing();
+    this.logger.log(`successfully Hit the late ongoing API`, 'with group id');
 
     return new Promise((resolve) => {
       this.invokeIssuerCronLateOngoing();

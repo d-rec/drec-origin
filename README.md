@@ -125,6 +125,12 @@ For the initial setup, run this command to seed the database with the basic perm
 npm run seed
 ```
 
+To populate the database with  organizations and devices dummy data, run this command
+
+```sh
+npm run seed:dummy-data
+```
+
 You may also want to drop local databases with
 
 ```sh
