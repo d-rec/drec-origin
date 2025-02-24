@@ -47,12 +47,10 @@ export class OrganizationsSeeder implements SeederInterface{
           ]);
     
         await this.organizationRepository.save(organizations);
-        console.log('Seed organizations inserted successfully');
     }
     
      async drop(): Promise<any> {
          await this.organizationRepository.delete({});
-         console.log('Seed organizations cleared successfully');
     }
 
 }

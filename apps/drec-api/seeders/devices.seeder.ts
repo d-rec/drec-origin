@@ -91,13 +91,8 @@ const devices = this.deviceRepository.create([
 ]);
 
 await this.deviceRepository.save(devices);
-
-
-        await this.deviceRepository.save(devices);
-        console.log('Seed devices inserted successfully');
     }
     async drop(): Promise<void> {
         await this.deviceRepository.delete({});
-        console.log('Seed devices cleared successfully');
       }
 }

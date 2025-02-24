@@ -61,11 +61,9 @@ async run(): Promise<void> {
     ]);
 
     await this.userRepository.save(users);
-    console.log('Seed users inserted successfully');
 }
 
 async drop(): Promise<any> {
     await this.userRepository.delete({});
-    console.log('Seed users cleared successfully');
 }
 }
