@@ -48,3 +48,13 @@ order: 2
 | ES820 | Renewable heat: Aerothermal                                             |
 | ES830 | ES830 Renewable heat: Hydrothermal                                      |
 | ES840 | Renewable heat: Biogenic process heat                                   |
+
+## Device Type Codes
+
+| Code  | Description                                                             |
+| ----- | ----------------------------------------------------------------------- |
+| TC110 | PV Ground mounted                                                       |
+| TC120 | PV Roof Mounted (single installation)                                   |
+| TC130 | PV Floating                                                             |
+| TC140 | PV Aggregated                                                           |
+| TC150 | Solar Thermal Concentration                                             |
