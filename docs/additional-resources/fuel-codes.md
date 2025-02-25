@@ -2,7 +2,9 @@
 order: 2
 ---
 
-# Fuel Codes
+# IREC Codes
+
+## Fuel Codes
 
 | Code  | Description                                                             |
 | ----- | ----------------------------------------------------------------------- |
