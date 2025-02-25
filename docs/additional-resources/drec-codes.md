@@ -2,7 +2,7 @@
 order: 2
 ---
 
-# IREC Codes
+# D-REC Codes
 
 ## Fuel Codes
 
