@@ -12,6 +12,7 @@ const supportedFormats = [
   'YYYY-MM-DD HH:mm:ss.SSS',
   'YYYY-MM-DD HH:mm:ss.SS',
   'YYYY-MM-DD HH:mm:ss.S',
+  moment.ISO_8601,
 ];
 
 @ValidatorConstraint({ async: false })
