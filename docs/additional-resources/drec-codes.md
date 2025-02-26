@@ -6,9 +6,9 @@ order: 2
 
 ## Fuel Codes
 
-| Code  | Description                                                             |
-| ----- | ----------------------------------------------------------------------- |
-| ES100 | Solar                                                                   |
+| Code  | Description |
+| ----- | ----------- |
+| ES100 | Solar       |
 
 ## Device Type Codes
 
