@@ -6,6 +6,7 @@ import { useContainer } from 'class-validator';
 import fs from 'fs';
 import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
+import Redoc from 'redoc-express';
 
 export { DRECModule };
 
@@ -55,6 +56,19 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger', app, document);
+
+  app.use(
+    '/redoc',
+    Redoc({
+      title: 'D-REC Origin API',
+      specUrl: '/swagger-json',
+      nonce: '',
+    }),
+  );
+
+  app.use('/swagger-json', (req, res) => {
+    res.json(document);
+  });
 
   await app.listen(PORT);
 
