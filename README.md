@@ -125,7 +125,7 @@ For the initial setup, run this command to seed the database with the basic perm
 npm run seed
 ```
 
-To populate the database with  organizations and devices dummy data, run this command
+To populate the database with organizations and devices dummy data, run this command
 
 ```sh
 npm run seed:dummy-data
@@ -167,3 +167,8 @@ Before running the script, make sure:
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
+
+## Energy Web Dependencies
+
+For a detailed list of dependencies used in this project, check:  
+[Energy Web Origin Dependencies](./DEPENDENCIES.md)
