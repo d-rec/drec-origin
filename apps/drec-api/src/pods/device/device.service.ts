@@ -203,7 +203,9 @@ export class DeviceService {
     return newDevices;
   }
 
-  public getLatestDeviceByOrganization(organizationId: number): Promise<Device[]> {
+  public getLatestDeviceByOrganization(
+    organizationId: number,
+  ): Promise<Device[]> {
     this.logger.verbose(`With in getLatestDeviceByOrganization`);
     const result = this.repository.find({
       where: { organizationId },
@@ -1047,9 +1049,9 @@ export class DeviceService {
     });
   }
 
-  public async findAllLateCycle(groupId?: number): Promise<
-    DeviceLateOngoingIssueCertificateEntity[]
-  > {
+  public async findAllLateCycle(
+    groupId?: number,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {
     this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
     const whereClause: any = {
       certificate_issued: false,

@@ -583,14 +583,13 @@ export class CertificateLogService {
     oldcertificatelog: boolean;
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
-    const reservationInfo =
-      await this.deviceGroupService.getReservationInfo(
-        user.organizationId,
-        user.role,
-        filterDTO,
-        pageNumber,
-        user.api_user_id,
-      );
+    const reservationInfo = await this.deviceGroupService.getReservationInfo(
+      user.organizationId,
+      user.role,
+      filterDTO,
+      pageNumber,
+      user.api_user_id,
+    );
     this.logger.debug(
       'getNewReservationInfo',
       reservationInfo.deviceGroups.length,
