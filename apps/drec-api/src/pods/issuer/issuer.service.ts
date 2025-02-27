@@ -1076,14 +1076,29 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 0 */2 * * *')
-  async handleCronForOngoingLateIssuance(): Promise<void> {
+  @Cron('0 0 */8 * * *')
+  async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
+    try {
+      this.triggerOngoingLateIssuance(groupId);
+    } catch (error) {
+      this.logger.error(
+        `Error in influxdb query: ${error.message}`, //Please include the whole stack
+        error.stack,
+      );
+    }
+  }
+
+  private async triggerOngoingLateIssuance(groupId?: number): Promise<void> {
     this.logger.debug('late ongoing issuance');
-    this.logger.debug('Called every 2hr to check for issuance of certificates');
-    const lateOngoing = await this.deviceService.findAllLateCycle();
+    this.logger.debug('Called every 8hr to check for issuance of certificates');
+    const lateOngoing = await this.deviceService.findAllLateCycle(groupId);
     if (lateOngoing) {
       for (const element of lateOngoing) {
         const group = await this.groupService.findOne({ id: element.groupId });
+        this.logger.debug(
+          'Processing late ongoing issuance for::',
+          element.device_externalid,
+        );
         if (!group) {
           this.logger.error('LateOngoing group is missing');
           continue; // Skip to the next element if the group is missing
@@ -1178,7 +1193,10 @@ export class IssuerService {
                 new Date(element.late_end_date).toISOString(),
               );
             }
-
+            this.logger.debug(
+              'Late ongoing Issue Certificate For::',
+              element.device_externalid,
+            );
             await this.lateOngoingIssueCertificateForGroup(
               newGroupWithSingleDevice,
               startDate,
@@ -1205,6 +1223,12 @@ export class IssuerService {
               newGroupWithSingleDevice.devices[0].externalId,
               readsFilter,
             );
+          this.logger.debug(
+            'Device Reads For:: ' + element.device_externalid,
+            'From: ' + startDate.toString(),
+            'To: ' + endDate.toString(),
+            'Equal to ' + allReadsForDeviceBetweenTimeRange?.length,
+          );
           if (allReadsForDeviceBetweenTimeRange.length > 0) {
             this.logger.verbose('if read are available in date range');
             await this.deviceService.updateLateOngoing(

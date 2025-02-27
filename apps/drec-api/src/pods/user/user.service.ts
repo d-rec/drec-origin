@@ -674,13 +674,13 @@ export class UserService {
   }
   /**
    * This service method use for get info of permission request status(Request,Active and Deactive)
-   * @param api_id
+   * @param apiId
    * @returns
    */
-  async getApiUserPermissionStatus(api_id: string): Promise<any> {
+  async getApiUserPermissionStatus(apiId: string): Promise<any> {
     return await this.apiUserEntityRepository.findOne({
       where: {
-        api_user_id: api_id,
+        api_user_id: apiId,
       },
     });
   }

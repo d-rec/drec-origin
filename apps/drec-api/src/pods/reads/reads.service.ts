@@ -70,6 +70,7 @@ import { validateTimezone } from '../../validations/timezone';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
+const INFLUX_DB_TIMEOUT = 60000;
 @Injectable()
 export class ReadsService {
   public readonly logger = new Logger(ReadsService.name);
@@ -95,7 +96,7 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
-    this.influxDB = new InfluxDB({ url, token });
+    this.influxDB = new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT });
     this.queryApi = this.influxDB.getQueryApi(org);
   }
 
@@ -519,7 +520,7 @@ export class ReadsService {
       };
     } else if (measurement.type === 'Delta') {
       if (!final) {
-        await new Promise((resolve) => {
+        await new Promise((resolve, reject) => {
           measurement.reads.forEach(async (element, measurementReadIndex) => {
             if (final && final['timestamp']) {
               if (
@@ -532,10 +533,12 @@ export class ReadsService {
                   element.endtimestamp,
                   measurement.unit,
                 );
-                throw new ConflictException({
-                  success: false,
-                  message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
-                });
+                return reject(
+                  new ConflictException({
+                    success: false,
+                    message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp}`,
+                  }),
+                );
               }
             }
 
@@ -587,7 +590,7 @@ export class ReadsService {
                     element.endtimestamp,
                     measurement.unit,
                   );
-                  reject(
+                  return reject(
                     new ConflictException({
                       success: false,
                       message: `The sent date for reading ${element.endtimestamp} is less than last sent meter read date ${final.timestamp.toISOString()}`,
@@ -649,7 +652,7 @@ export class ReadsService {
                   element.endtimestamp,
                   measurement.unit,
                 );
-                reject(
+                return reject(
                   new ConflictException({
                     success: false,
                     message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent meter read date/value ${lastValue[0].datetime}/${lastValue[0].value} `,
@@ -821,7 +824,9 @@ export class ReadsService {
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
 
-    return new InfluxDB({ url, token }).getQueryApi(org);
+    return new InfluxDB({ url, token, timeout: INFLUX_DB_TIMEOUT }).getQueryApi(
+      org,
+    );
   }
 
   private async checkHistoryReadExist(
@@ -1562,16 +1567,21 @@ export class ReadsService {
   }
 
   async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
-    const query = `
-from(bucket: "${process.env.INFLUXDB_BUCKET}")
-|> range(start: ${deviceOnboarded}, stop: now())
-|> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-|> last()
-`;
-
-    return await this.execute(query);
+    try {
+      const query = `
+        from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        |> range(start: ${deviceOnboarded}, stop: now())
+        |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+        |> last()
+        `;
+      return await this.execute(query);
+    } catch (error) {
+      this.logger.error(
+        `Error in influxdb query: ${error.message}`, //Please include the whole stack
+        error.stack,
+      );
+    }
   }
-  /* */
 
   async getAccumulatedReads(
     meter: string,

@@ -1046,19 +1046,26 @@ export class DeviceService {
       ...params,
     });
   }
-  public async findAllLateCycle(): Promise<
+  
+  public async findAllLateCycle(groupId?: number): Promise<
     DeviceLateOngoingIssueCertificateEntity[]
   > {
-    this.logger.verbose(`With in DeviceLateongoingIssueCertificateList`);
+    this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
+    const whereClause: any = {
+      certificate_issued: false,
+    };
+    if (groupId) {
+      whereClause.groupId = groupId; // Add groupId condition if provided
+      this.logger.debug(`filtering by groupId: ${groupId}`);
+    }
     return await this.lateDeviceCertificateRepository.find({
-      where: {
-        certificate_issued: false,
-      },
+      where: whereClause,
       order: {
         late_end_date: 'ASC',
       },
     });
   }
+
   public async findDeviceLateCycleOfDateRange(
     groupid: number,
     externalid: string,

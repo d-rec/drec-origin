@@ -1031,7 +1031,7 @@ export const countryCodesList: CountryCodeNameDTO[] = [
     ],
   },
   {
-    country: 'Congo',
+    country: 'Congo - Brazzaville',
     alpha2: 'CG',
     alpha3: 'COG',
     numeric: '178',
@@ -1048,7 +1048,7 @@ export const countryCodesList: CountryCodeNameDTO[] = [
     ],
   },
   {
-    country: 'Congo',
+    country: 'Congo - Kinshasa',
     alpha2: 'CD',
     alpha3: 'COD',
     numeric: '180',
