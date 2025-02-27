@@ -168,7 +168,6 @@ Before running the script, make sure:
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
 
-## Energy Web Dependencies
+## Dependencies
 
-For a detailed list of dependencies used in this project, check:  
-[Energy Web Origin Dependencies](./DEPENDENCIES.md)
+This project uses a variety of dependencies developed for D-REC. For a detailed list of these dependencies—including their GitHub links and version information—please refer to the [Dependencies](./DEPENDENCIES.md) page.
