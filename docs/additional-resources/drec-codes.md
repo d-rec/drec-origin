@@ -6,7 +6,7 @@ order: 2
 
 This document provides a list of standardized codes and values used in the D-REC system. The codes are categorized into **Fuel Codes**, **Device Type Codes**, **SDG Benefits**, and **Off-Takers**.
 
-## 1. Fuel Codes
+## Fuel Codes
 
 Fuel codes classify the type of energy source used.
 
@@ -14,7 +14,7 @@ Fuel codes classify the type of energy source used.
 | ----- | ----------- |
 | ES100 | Solar       |
 
-## 2. Device Type Codes
+## Device Type Codes
 
 Device type codes define the specific type of energy generation device.
 
@@ -26,7 +26,7 @@ Device type codes define the specific type of energy generation device.
 | TC140 | PV Aggregated                         |
 | TC150 | Solar Thermal Concentration           |
 
-## 3. SDG Benefits
+## SDG Benefits
 
 These codes represent the Sustainable Development Goals (SDGs) associated with the project.
 
@@ -50,7 +50,7 @@ These codes represent the Sustainable Development Goals (SDGs) associated with t
 | SDG16 | Peace and Justice Strong Institutions   |
 | SDG17 | Partnerships to achieve the SDG         |
 
-## 4. Off-Takers
+## Off-Takers
 
 Off-takers represent the end users or sectors benefiting from the energy supply.
 
