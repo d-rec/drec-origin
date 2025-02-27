@@ -203,8 +203,8 @@ export class DeviceService {
     return newDevices;
   }
 
-  public getatleastonedeviceinOrg(organizationId: number): Promise<Device[]> {
-    this.logger.verbose(`With in getatleastonedeviceinOrg`);
+  public getLatestDeviceByOrganization(organizationId: number): Promise<Device[]> {
+    this.logger.verbose(`With in getLatestDeviceByOrganization`);
     const result = this.repository.find({
       where: { organizationId },
       order: {
@@ -1046,7 +1046,7 @@ export class DeviceService {
       ...params,
     });
   }
-  
+
   public async findAllLateCycle(groupId?: number): Promise<
     DeviceLateOngoingIssueCertificateEntity[]
   > {

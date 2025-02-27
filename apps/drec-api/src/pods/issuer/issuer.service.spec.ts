@@ -81,7 +81,7 @@ describe('IssuerService', () => {
             addCertificateIssueDateLogForDevice: jest.fn(),
             removeFromGroup: jest.fn(),
             addLateCertificateIssueDateLogForDevice: jest.fn(),
-            finddeviceLateCycleOfdaterange: jest.fn(),
+            findDeviceLateCycleOfDateRange: jest.fn(),
             getCheckCertificateIssueDateLogForDevice: jest.fn(),
             findAllLateCycle: jest.fn(),
           } as any,
@@ -98,7 +98,7 @@ describe('IssuerService', () => {
             getCheckHistoryCertificateIssueDateLogForDevice: jest.fn(),
             updateHistoryCertificateIssueDate: jest.fn(),
             getDeltaMeterReadsFirstEntryOfDevice: jest.fn(),
-            latestread: jest.fn(),
+            latestRead: jest.fn(),
             findLastReadForMeterWithinRange: jest.fn(),
             getAggregateMeterReadsFirstEntryOfDevice: jest.fn(),
           } as any,
@@ -432,10 +432,10 @@ describe('IssuerService', () => {
       const countryCodeKey = 'US';
   
       const findOneSpy = jest.spyOn(organizationService, 'findOne').mockResolvedValue({} as unknown as Organization);
-      jest.spyOn(deviceService, 'finddeviceLateCycleOfdaterange').mockResolvedValue([] as unknown as boolean);
+      jest.spyOn(deviceService, 'findDeviceLateCycleOfDateRange').mockResolvedValue([] as unknown as boolean);
       const getCheckCertificateIssueDateLogForDeviceSpy = jest.spyOn(deviceService, 'getCheckCertificateIssueDateLogForDevice').mockResolvedValue([]);
       jest.spyOn(readservice, 'getDeltaMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
-      jest.spyOn(readservice, 'latestread').mockResolvedValue([{ timestamp: new Date() }]);
+      jest.spyOn(readservice, 'latestRead').mockResolvedValue([{ timestamp: new Date() }]);
       jest.spyOn(readservice, 'findLastReadForMeterWithinRange').mockResolvedValue([]);
       jest.spyOn(readservice, 'getAggregateMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
       const AddCertificateIssueDateLogForDeviceGroupSpy = jest.spyOn(groupService, 'AddCertificateIssueDateLogForDeviceGroup').mockResolvedValue({} as unknown as CheckCertificateIssueDateLogForDeviceGroupEntity);

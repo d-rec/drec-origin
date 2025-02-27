@@ -335,7 +335,7 @@ export class AdminController {
           'This user is part of reservation,So you cannot remove this user and organization',
         );
       }
-      const deviceOfOrg = await this.deviceService.getatleastonedeviceinOrg(
+      const deviceOfOrg = await this.deviceService.getLatestDeviceByOrganization(
         user.organization.id,
       );
 

@@ -2344,14 +2344,14 @@ export class DeviceGroupService {
     };
   }
 
-  async getReservationInforDeveloperBsise(
+  async getReservationInfo(
     orgId: number,
     role: Role,
     filterDTO: FilterDTO,
     pageNumber: number,
     apiUserId?: string,
   ): Promise<any> {
-    this.logger.verbose(`With in getReservationInforDeveloperBsise`);
+    this.logger.verbose(`With in getReservationInfo`);
     const pageSize = 10;
     if (pageNumber <= 0) {
       this.logger.error(`Invalid page number`);

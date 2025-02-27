@@ -584,7 +584,7 @@ export class CertificateLogService {
   }> {
     this.logger.verbose(`With in getCertifiedlogofDevices`);
     const reservationInfo =
-      await this.deviceGroupService.getReservationInforDeveloperBsise(
+      await this.deviceGroupService.getReservationInfo(
         user.organizationId,
         user.role,
         filterDTO,
