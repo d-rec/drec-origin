@@ -1,43 +1,41 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  HttpStatus,
-  Param,
-  Body,
-  UseGuards,
-  Delete,
-  Query,
-  ValidationPipe,
-  ConflictException,
   BadRequestException,
-  UnauthorizedException,
+  Body,
+  ConflictException,
+  Controller,
   DefaultValuePipe,
-  ParseIntPipe,
+  Delete,
+  Get,
+  HttpStatus,
   Logger,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UnauthorizedException,
+  UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
-  ApiResponse,
   ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
   DeviceGroupDTO,
-  UnreservedDeviceGroupsFilterDTO,
-  CSVBulkUploadDTO,
-  JobFailedRowsDTO,
-  EndReservationdateDTO,
+  EndReservationDateDTO,
   NewUpdateDeviceGroupDTO,
   ResponseDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
@@ -45,17 +43,13 @@ import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import {
-  ILoggedInUser,
   BuyerReservationCertificateGenerationFrequency,
+  ILoggedInUser,
 } from '../../models';
 import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
 import csv from 'csv-parser';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards';
@@ -103,7 +97,7 @@ export class BuyerReservationController {
     description: 'This query parameter is used for Apiuser',
   })
   @ApiQuery({
-    name: 'apiuserId',
+    name: 'apiUserId',
     type: String,
     required: false,
     description:
@@ -119,7 +113,7 @@ export class BuyerReservationController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId', new DefaultValuePipe(null))
     organizationId: number | null,
-    @Query('apiuserId', new DefaultValuePipe(null)) apiuserId: string | null,
+    @Query('apiUserId', new DefaultValuePipe(null)) apiUserId: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -129,7 +123,7 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -146,8 +140,8 @@ export class BuyerReservationController {
     /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     this.logger.verbose('With in getAll');
     let organization: any;
-    if (!apiuserId) {
-      apiuserId = user.api_user_id;
+    if (!apiUserId) {
+      apiUserId = user.api_user_id;
     }
 
     if (organizationId) {
@@ -165,9 +159,9 @@ export class BuyerReservationController {
       }
     }
 
-    if (apiuserId) {
+    if (apiUserId) {
       if (user.role === Role.ApiUser) {
-        if (apiuserId != user.api_user_id) {
+        if (apiUserId != user.api_user_id) {
           this.logger.error(
             `An apiuser is unauthorized to request for other apiuser`,
           );
@@ -178,7 +172,7 @@ export class BuyerReservationController {
         }
       }
 
-      if (organizationId && apiuserId != organization.api_user_id) {
+      if (organizationId && apiUserId != organization.api_user_id) {
         this.logger.error(
           `The requested organization is not belongs to the apiuser`,
         );
@@ -191,18 +185,18 @@ export class BuyerReservationController {
     return this.deviceGroupService.getAll(
       user,
       organizationId,
-      apiuserId,
+      apiUserId,
       pageNumber,
       limit,
-      filterDto,
+      filterDTO,
     );
   }
 
   /**
    * It is GET api to list all device groups of loggedIn user
    * @param param0 is getting userId, organizationId and user role from user at request
-   * @param filterDto is filteration fields to retrieve records
-   * @param pagenumber is for pagination
+   * @param filterDTO is filteration fields to retrieve records
+   * @param pageNumber is for pagination
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get('/my')
@@ -222,9 +216,9 @@ export class BuyerReservationController {
         whitelist: true,
       }),
     )
-    filterDto: UnreservedDeviceGroupsFilterDTO,
+    filterDTO: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -244,14 +238,14 @@ export class BuyerReservationController {
       case Role.Buyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
-          filterDto,
+          pageNumber,
+          filterDTO,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getBuyerDeviceGroups(
           id,
-          pagenumber,
-          filterDto,
+          pageNumber,
+          filterDTO,
         );
       case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll();
@@ -265,7 +259,7 @@ export class BuyerReservationController {
   /**
    * It is GET api to fetch device group by id
    * @param id is unique identifier of device groupId
-   * @returns {DeviceGroupDTO | null} DeviceGroupDto is when the record found, returns null when the record not found by id
+   * @returns {DeviceGroupDTO | null} DeviceGroupDTO is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
@@ -352,7 +346,7 @@ export class BuyerReservationController {
     deviceGroupToRegister.api_user_id = user.api_user_id;
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
         if (organization.api_user_id !== user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
@@ -361,15 +355,15 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-        if (orguser.role === Role.Buyer) {
+        if (orgUser.role === Role.Buyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-        if (orguser.role != Role.Buyer) {
-          this.logger.error(`Unauthorized for ${orguser.role}`);
+        if (orgUser.role != Role.Buyer) {
+          this.logger.error(`Unauthorized for ${orgUser.role}`);
           throw new UnauthorizedException({
             success: false,
-            message: `Unauthorized for ${orguser.role}`,
+            message: `Unauthorized for ${orgUser.role}`,
           });
         }
       } else {
@@ -550,59 +544,6 @@ export class BuyerReservationController {
   }
 
   /**
-   * It is POST api to create device group
-   * @param user from user request
-   * @param param1 is getting organizationId from loggedIn user
-   * @param fileToProcess uploaded csv file
-   * @returns {DeviceCsvFileProcessingJobsEntity}
-   */
-  @Post('process-creation-bulk-devices-csv')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created devices from csv',
-  })
-  @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Body() fileToProcess: CSVBulkUploadDTO,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in processCreationBulkFromCSV`);
-    if (user.organizationId === null || user.organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-    if (fileToProcess.fileName == undefined) {
-      //throw new Error("file not found");
-      this.logger.error(`File Not Found`);
-      throw new ConflictException({
-        success: false,
-        message: 'File Not Found',
-      });
-    }
-    if (!fileToProcess.fileName.endsWith('.csv')) {
-      this.logger.error(`Invalid file`);
-      throw new ConflictException({
-        success: false,
-        message: 'Invalid file',
-      });
-    }
-    const jobCreated = await this.deviceGroupService.createCSVJobForFile(
-      user.id,
-      organizationId,
-      StatusCSV.Added,
-      fileToProcess.fileName,
-    );
-
-    return jobCreated;
-  }
-
-  /**
    * It is PATCH api to update device group by id
    * @param id  is identifier of device group in type number
    * @param loggedUser user from request
@@ -624,11 +565,11 @@ export class BuyerReservationController {
     @Body() groupToUpdate: NewUpdateDeviceGroupDTO,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in update`);
-    const devicenextissuence: DeviceGroupNextIssueCertificate | null =
-      await this.deviceGroupService.getGroupiCertificateIssueDate({
+    const deviceNextIssuance: DeviceGroupNextIssueCertificate | null =
+      await this.deviceGroupService.getGroupCertificateIssueDate({
         groupId: id,
       });
-    if (devicenextissuence === null) {
+    if (deviceNextIssuance === null) {
       this.logger.error(`This device groups reservation has already ended`);
       throw new ConflictException({
         success: false,
@@ -637,14 +578,14 @@ export class BuyerReservationController {
     }
     if (
       new Date(groupToUpdate.reservationEndDate).getTime() <
-      new Date(devicenextissuence.start_date).getTime()
+      new Date(deviceNextIssuance.start_date).getTime()
     ) {
       this.logger.error(
-        `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       );
       throw new ConflictException({
         success: false,
-        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${devicenextissuence.start_date}`,
+        message: `Certificates are already generated or in progress for device group, cannot reduce below start time:${deviceNextIssuance.start_date}`,
       });
     }
 
@@ -674,192 +615,6 @@ export class BuyerReservationController {
   }
 
   /**
-   * It is GET api to list the status of jobs
-   * @param jobId is unique identifier of jobId
-   * @param param1 organizationId from loggedIn User
-   * @returns {JobFailedRowsDTO | undefined}
-   */
-  @Get('/bulk-upload-status/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard) //, PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiQuery({
-    name: 'orgId',
-    type: Number,
-    required: false,
-    description: 'This query parameter is used for Apiuser',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: JobFailedRowsDTO,
-    description: 'Returns status of job id for bulk upload',
-  })
-  public async getBulkUploadJobStatus(
-    @Param('id') jobId: number,
-    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-  ): Promise<JobFailedRowsDTO | undefined> {
-    this.logger.verbose(`With in getBulkUploadJobStatus`);
-
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
-
-      if (role === Role.ApiUser) {
-        if (organization.api_user_id != api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiuser',
-          });
-        }
-
-        if (orguser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (orgId != organizationId && role != Role.Admin) {
-          this.logger.error(
-            `The organizationId in query params should be same as user's organizationId`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: `The organizationId in query params should be same as user's organizationId`,
-          });
-        } else if (role === Role.Admin) {
-          orgId = null;
-        }
-      }
-    } else {
-      if (role === Role.ApiUser) {
-        this.logger.error(`Add the orgId at query param`);
-        throw new BadRequestException({
-          success: false,
-          message: `Add the orgId at query param`,
-        });
-      }
-    }
-    return await this.deviceGroupService.getFailedRowDetailsForCSVJob(
-      jobId,
-      orgId,
-    );
-  }
-
-  /**
-   * It is GET api to list all jobs by organization
-   * @param user is user from request
-   * @param param1 is getting organization Id from user request
-   * @returns {Array<DeviceCsvFileProcessingJobsEntity>}
-   */
-  @Get('/bulk-upload/get-all-csv-jobs-of-organization')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  //@UseGuards(AuthGuard('jwt'),PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiQuery({
-    name: 'orgId',
-    type: Number,
-    required: false,
-    description: 'This query parameter is used for Apiuser',
-  })
-  @ApiQuery({ name: 'pageNumber', type: Number, required: false })
-  @ApiQuery({ name: 'limit', type: Number, required: false })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created jobs of an organization',
-  })
-  public async getAllCsvJobsBelongingToOrganization(
-    @UserDecorator() user: ILoggedInUser,
-    @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('orgId', new DefaultValuePipe(null)) orgId: number | null,
-    @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
-    pageNumber: number,
-    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
-  ): Promise<
-    | {
-        csvJobs: Array<DeviceCsvFileProcessingJobsEntity>;
-        currentPage: number;
-        totalPages: number;
-        totalCount: number;
-      }
-    | any
-  > {
-    this.logger.verbose(`With in getAllCsvJobsBelongingToOrganization`);
-    if (user.organizationId === null || user.organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
-
-      if (user.role === Role.ApiUser) {
-        if (organization.api_user_id != user.api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new BadRequestException({
-            success: false,
-            message: 'The requested organization is belongs to other apiuser',
-          });
-        }
-
-        if (orguser.role != Role.OrganizationAdmin) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      } else {
-        if (user.role != Role.Admin) {
-          if (orgId != organizationId) {
-            this.logger.error(
-              `The orgId at query param is not same as user's organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message: `The orgId at query param is not same as user's organization`,
-            });
-          }
-        }
-      }
-    }
-
-    if (user.role === 'Admin') {
-      return this.deviceGroupService.getAllCSVJobsForAdmin(
-        orgId,
-        pageNumber,
-        limit,
-      );
-    } else if (user.role === Role.ApiUser) {
-      return this.deviceGroupService.getAllCSVJobsForApiUser(
-        user.api_user_id,
-        orgId,
-        pageNumber,
-        limit,
-      );
-    } else {
-      return this.deviceGroupService.getAllCSVJobsForOrganization(
-        organizationId,
-        pageNumber,
-        limit,
-      );
-    }
-  }
-
-  /**
    * It is GET api to fetch an certificate log of an device
    * @param id is unique identifier of device group
    * @returns {CheckCertificateIssueDateLogForDeviceGroupEntity}
@@ -870,17 +625,17 @@ export class BuyerReservationController {
     description: 'Returns a Device group',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
-  async getdevciegrouplog(
+  async getDeviceGroupLog(
     @Param('id') id: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[] | null> {
-    this.logger.verbose(`With in getdevciegrouplog`);
+    this.logger.verbose(`With in getdevicegrouplog`);
     return this.deviceGroupService.getDeviceGrouplog(id);
   }
 
   /**
    * It is DELETE api to delete an device reservation
    * @param id is unique identifier of an device group
-   * @param endresavationdate is date of end reservation
+   * @param endReservationDate is date of end reservation
    * @param param2 is getting organization Id of loggedIn user
    * @returns {void}
    */
@@ -888,27 +643,27 @@ export class BuyerReservationController {
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: HttpStatus.OK,
-    type: EndReservationdateDTO,
+    type: EndReservationDateDTO,
     description: 'Reservation End',
   })
   @ApiNotFoundResponse({ description: `No  Reservation found` })
-  public async endresavation(
+  public async endReservation(
     @Param('id') id: number,
-    @Body() endresavationdate: EndReservationdateDTO,
+    @Body() endReservationDate: EndReservationDateDTO,
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<void> {
     this.logger.verbose(`With in endresavation`);
-    return await this.deviceGroupService.EndReservationGroup(
+    return await this.deviceGroupService.endReservationGroup(
       id,
       organizationId,
-      endresavationdate,
+      endReservationDate,
     );
   }
 
   /**
    * It is GET api to fetch current information of reservation
-   * @param groupuId is an identifier of device
-   * @param param1
+   * @param groupId is an identifier of device
+   * @param pageNumber
    * @returns {any}
    */
   @Get('current-information/:groupUid')
@@ -917,26 +672,15 @@ export class BuyerReservationController {
   @ApiResponse({
     status: HttpStatus.OK,
   })
-  public async getReservationcurrentinformation(
-    @Param('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+  public async getReservationCurrentInformation(
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
+    @Query('pagenumber') pageNumber: number,
   ): Promise<any> {
-    this.logger.verbose(`With in getReservationcurrentinformation`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in getReservationCurrentInformation`);
 
-    return await this.deviceGroupService.getcurrentInformationofDevicesInReservation(
-      groupuId,
-      pagenumber,
+    return await this.deviceGroupService.getCurrentInformationOfDevicesInReservation(
+      groupId,
+      pageNumber,
     );
   }
 }

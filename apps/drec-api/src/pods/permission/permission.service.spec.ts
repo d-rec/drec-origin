@@ -4,15 +4,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { PermissionService } from './permission.service';
-import { ACLModulePermissions } from './permission.entity';
+import { ACLModulePermission } from './permission.entity';
 import { AccessControlLayerModuleServiceService } from '../access-control-layer-module-service/access-control-layer-module-service.service';
 import { UserService } from '../user/user.service';
 import { DecimalPermissionValue } from '../access-control-layer-module-service/common/permissionBitposition';
 
 describe('PermissionService', () => {
   let service: PermissionService;
-  let repository: Repository<ACLModulePermissions>;
-  let ACLpermissionService: AccessControlLayerModuleServiceService;
+  let repository: Repository<ACLModulePermission>;
+  let aclPermissionService: AccessControlLayerModuleServiceService;
   let userService: UserService;
   let permissionValue: DecimalPermissionValue;
 
@@ -21,7 +21,7 @@ describe('PermissionService', () => {
       providers: [
         PermissionService,
         {
-          provide: getRepositoryToken(ACLModulePermissions),
+          provide: getRepositoryToken(ACLModulePermission),
           useClass: Repository,
         },
         {
@@ -40,8 +40,8 @@ describe('PermissionService', () => {
     }).compile();
 
     service = module.get<PermissionService>(PermissionService);
-    repository = module.get<Repository<ACLModulePermissions>>(
-      getRepositoryToken(ACLModulePermissions),
+    repository = module.get<Repository<ACLModulePermission>>(
+      getRepositoryToken(ACLModulePermission),
     );
   });
 

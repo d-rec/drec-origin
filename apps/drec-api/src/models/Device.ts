@@ -2,7 +2,7 @@ import {
   DeviceOrderBy,
   OffTaker,
   FuelCode,
-  DevicetypeCode,
+  DeviceTypeCode,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -18,7 +18,7 @@ export interface IDevice {
   countryCode: string;
   //zipCode?: string;
   fuelCode: FuelCode;
-  deviceTypeCode: DevicetypeCode;
+  deviceTypeCode: DeviceTypeCode;
   //installationConfiguration: Installation;
   capacity: number;
   commissioningDate: string;

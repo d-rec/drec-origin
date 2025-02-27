@@ -39,9 +39,9 @@ import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
-import { IUser, LoggedInUser, ResponseSuccess } from '../../models';
+import { IUser, LoggedInUser, responseSuccess } from '../../models';
 // import { CreateUserDTO } from '../user/dto/create-user.dto';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
@@ -61,8 +61,8 @@ export class AdminController {
     private readonly userService: UserService,
     private readonly organizationService: OrganizationService,
     private readonly deviceService: DeviceService,
-    private readonly devicegroupService: DeviceGroupService,
-    private readonly invitationservice: InvitationService,
+    private readonly deviceGroupService: DeviceGroupService,
+    private readonly invitationService: InvitationService,
   ) {}
 
   @Get('/users')
@@ -77,7 +77,7 @@ export class AdminController {
     description: 'Gets all users',
   })
   public async getUsers(
-    @Query(ValidationPipe) filterDto: UserFilterDTO,
+    @Query(ValidationPipe) filterDTO: UserFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -87,7 +87,7 @@ export class AdminController {
     totalPages: number;
     totalCount: number;
   }> {
-    return this.userService.getUsersByFilter(filterDto, pageNumber, limit);
+    return this.userService.getUsersByFilter(filterDTO, pageNumber, limit);
   }
 
   @Get('/organizations')
@@ -102,7 +102,7 @@ export class AdminController {
     description: 'Returns all Organizations',
   })
   async getAllOrganizations(
-    @Query(ValidationPipe) filterDto: OrganizationFilterDTO,
+    @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
@@ -114,7 +114,7 @@ export class AdminController {
     totalCount: number;
   }> {
     return await this.organizationService.getAll(
-      filterDto,
+      filterDTO,
       pageNumber,
       limit,
       user,
@@ -173,11 +173,11 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     // type: CreateUserDTO,
-    type: CreateUserORGDTO,
+    type: CreateUserOrgDTO,
     description: 'Returns a new created user',
   })
   public async createUser(
-    @Body() newUser: CreateUserORGDTO,
+    @Body() newUser: CreateUserOrgDTO,
     @UserDecorator() { api_user_id }: LoggedInUser,
   ): Promise<UserDTO> {
     newUser.api_user_id = api_user_id;
@@ -299,7 +299,7 @@ export class AdminController {
 
     await this.organizationService.remove(organizationId);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   @Delete('/user/:id')
@@ -320,27 +320,27 @@ export class AdminController {
     if (!user) {
       throw new NotFoundException('Does not exist');
     }
-    const manyotheruserinorg =
-      await this.userService.getAnotherUserInOrganization(
-        user.organization.id,
-        user.id,
-      );
+    const otherOrgUsers = await this.userService.getAnotherUserInOrganization(
+      user.organization.id,
+      user.id,
+    );
 
     if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
-      const buyerresrvation = await this.devicegroupService.findOne({
+      const buyerReservation = await this.deviceGroupService.findOne({
         organizationId: user.organization.id,
       });
 
-      if (buyerresrvation) {
+      if (buyerReservation) {
         throw new NotFoundException(
           'This user is part of reservation,So you cannot remove this user and organization',
         );
       }
-      const deviceoforg = await this.deviceService.getatleastonedeviceinOrg(
-        user.organization.id,
-      );
+      const deviceOfOrg =
+        await this.deviceService.getLatestDeviceByOrganization(
+          user.organization.id,
+        );
 
-      if (deviceoforg.length > 0) {
+      if (deviceOfOrg.length > 0) {
         throw new NotFoundException(
           'Some device are available in organization ',
         );
@@ -348,17 +348,17 @@ export class AdminController {
       // if (manyotheruserinorg) {
       //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
       // }
-      if (!(manyotheruserinorg.length > 0)) {
+      if (!(otherOrgUsers.length > 0)) {
         // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
       }
     } else {
-      await this.invitationservice.remove(user.email, user.organization.id);
+      await this.invitationService.remove(user.email, user.organization.id);
       await this.userService.remove(user.id);
     }
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
@@ -372,11 +372,11 @@ export class AdminController {
     // type: CreateUserORGDTO,
     description: 'Returns a new created device in I-REC',
   })
-  public async IrecdeviceRegister(
+  public async irecDeviceRegister(
     @Param('id') id: number,
     // @Body() irecDevice: {deviceid:number}
   ): Promise<any> {
-    return await this.deviceService.I_recPostData(id);
+    return await this.deviceService.irecPostData(id);
   }
 
   @Get('/devices/autocomplete')
@@ -390,7 +390,7 @@ export class AdminController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     // @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
     @Query('organizationId') organizationId: number,

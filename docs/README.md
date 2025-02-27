@@ -1,6 +1,7 @@
 # D-REC Origin Documention
 
-This D-REC Origin Documention website is built using [VitePress](https://vitepress.dev/), a Vite & Vue Powered Static Site Generator.
+This D-REC Origin Documention website is built using
+[VitePress](https://vitepress.dev/), a Vite & Vue Powered Static Site Generator.
 
 ## Pre-requisites
 
@@ -20,7 +21,8 @@ npm run docs:dev
 ```
 
 Then open [docs](http://localhost:5173/drec-origin/) in a local web browser.
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+This command starts a local development server and opens up a browser window.
+Most changes are reflected live without having to restart the server.
 
 ## Deployment
 

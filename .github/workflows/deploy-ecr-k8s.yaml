@@ -1,0 +1,42 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      aws-region:
+        required: true
+      ecr-registry:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ secrets.aws-region }}
+
+      - name: Set up kubectl
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.aws-region }} --name drec
+
+      - name: Deploy to Kubernetes
+        env:
+          ECR_REGISTRY: ${{ secrets.ecr-registry }}
+          ECR_REPOSITORY: drec-api
+          IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
+        run: |
+          kubectl -n ${{ inputs.environment }} set image deployment/drec-api \
+            drec-api=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

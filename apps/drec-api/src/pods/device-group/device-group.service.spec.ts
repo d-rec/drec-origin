@@ -5,7 +5,6 @@ import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceGroupService } from './device-group.service';
 import { DeviceGroup } from './device-group.entity';
-import { DeviceCsvProcessingFailedRowsEntity } from './device_csv_processing_failed_rows.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { FileService } from '../file';
@@ -14,8 +13,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
-import { IrecErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
-import { ICertificateMetadata } from '../../utils/types';
+import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
 import {
   ConflictException,
   UnauthorizedException,
@@ -26,23 +24,17 @@ import { Role } from 'src/utils/enums';
 import { ILoggedInUser } from 'src/models';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { getQueueToken } from '@nestjs/bull';
+import { Queues } from '../../utils/enums/queues.enum';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
   let repository: Repository<DeviceGroup>;
-  let repositoryJobFailedRows: Repository<DeviceCsvProcessingFailedRowsEntity>;
-  let repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>;
-  let repositorynextDeviceGroupcertificate: Repository<DeviceGroupNextIssueCertificate>;
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
-  let fileService: FileService;
-  let yieldConfigService: YieldConfigService;
   let userService: UserService;
-  let checkdevciegrouplogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>;
-  let historynextissuancedaterepository: Repository<HistoryDeviceGroupNextIssueCertificate>;
-  let certificateReadModelEntity: Repository<
-    CertificateReadModelEntity<ICertificateMetadata>
-  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -53,19 +45,28 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(DeviceCsvProcessingFailedRowsEntity),
-          useClass: Repository,
-        },
-        {
           provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
           useClass: Repository,
+        },
+
+        {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(IrecErrorLogInformationEntity),
+          provide: getRepositoryToken(IRECErrorLogInformationEntity),
           useClass: Repository,
         },
         {
@@ -99,6 +100,10 @@ describe('DeviceGroupService', () => {
           useValue: {} as any,
         },
         {
+          provide: getQueueToken(Queues.DeviceBulkUpload),
+          useValue: {},
+        },
+        {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceGroupEntity,
           ),
@@ -119,46 +124,45 @@ describe('DeviceGroupService', () => {
       ],
     }).compile();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     service = module.get<DeviceGroupService>(DeviceGroupService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositoryJobFailedRows = module.get<
-      Repository<DeviceCsvProcessingFailedRowsEntity>
-    >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositoyCSVJobProcessing = module.get<
-      Repository<DeviceCsvFileProcessingJobsEntity>
-    >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repositorynextDeviceGroupcertificate = module.get<
-      Repository<DeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(DeviceGroupNextIssueCertificate));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    // repositoryJobFailedRows = module.get<
+    //   Repository<DeviceCsvProcessingFailedRowsEntity>
+    // >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
+
+    // repositoryCSVJobProcessing = module.get<
+    //   Repository<DeviceCsvFileProcessingJobsEntity>
+    // >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
+
+    // repositoryNextDeviceGroupCertificate = module.get<
+    //   Repository<DeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(DeviceGroupNextIssueCertificate));
+
     organizationService = module.get<OrganizationService>(OrganizationService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     deviceService = module.get<DeviceService>(DeviceService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    fileService = module.get<FileService>(FileService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    //fileService = module.get<FileService>(FileService);
+
+    //yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
+
     userService = module.get<UserService>(UserService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    checkdevciegrouplogcertificaterepository = module.get<
-      Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
-    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    historynextissuancedaterepository = module.get<
-      Repository<HistoryDeviceGroupNextIssueCertificate>
-    >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    >(getRepositoryToken(CertificateReadModelEntity));
+
+    // checkDeviceGroupLogCertificateRepository = module.get<
+    //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
+    // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
+
+    // historyNextIssuanceDateRepository = module.get<
+    //   Repository<HistoryDeviceGroupNextIssueCertificate>
+    // >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
+
+    // certificateReadModelEntity = module.get<
+    //   Repository<CertificateReadModelEntity<ICertificateMetadata>>
+    // >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {
@@ -199,7 +203,7 @@ describe('DeviceGroupService', () => {
       });
     });
 
-    it('should filter device groups by apiuserId when user is admin', async () => {
+    it('should filter device groups by apiUserId when user is admin', async () => {
       const user = {
         id: 1,
         role: Role.User, // Non-admin role
@@ -208,7 +212,7 @@ describe('DeviceGroupService', () => {
         email: 'user@example.com',
         blockchainAccountAddress: '0x123',
       } as ILoggedInUser;
-      const apiuserId = 'admin123';
+      const apiUserId = 'admin123';
       const deviceGroups = [
         {
           id: 1,
@@ -234,7 +238,7 @@ describe('DeviceGroupService', () => {
         } as any;
       });
 
-      const result = await service.getAll(user, undefined, apiuserId);
+      const result = await service.getAll(user, undefined, apiUserId);
       expect(result).toEqual({
         groupedData: deviceGroups,
         currentPage: undefined,
@@ -242,89 +246,6 @@ describe('DeviceGroupService', () => {
         totalCount: 1,
       });
     });
-    /*  
-    it('should throw a ConflictException when start date is provided without end date', async () => {
-      const filterDto = {
-        start_date: new Date('2023-01-01'),
-        end_date: null,
-        name: undefined,
-        country: undefined,
-        fuelCode: undefined,
-        offTaker: undefined,
-        sdgbenefit: undefined,
-        reservationActive: undefined,
-      };
-    
-      jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
-        return {
-          innerJoin: jest.fn().mockReturnThis(),
-          addSelect: jest.fn().mockReturnThis(),
-          orderBy: jest.fn().mockReturnThis(),
-          groupBy: jest.fn().mockReturnThis(),
-          andWhere: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([[], 0]),  // Mock with empty result
-        } as any;
-      });
-          
-      // Ensure service throws ConflictException when only start_date is provided
-      await expect(
-        service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto)
-      ).rejects.toThrow(ConflictException);
-    }); 
-
-    it('should throw a ConflictException when start date is not less than end date', async () => {
-      const filterDto = {
-        start_date: new Date('2023-01-01'),
-        end_date: null,
-        name: undefined,
-        country: undefined,
-        fuelCode: undefined,
-        offTaker: undefined,
-        sdgbenefit: undefined,
-        reservationActive: undefined,
-      };
-  
-      await expect(service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto)).rejects.toThrow(
-        ConflictException,
-      );
-    });
-
-    it('should filter device groups by country', async () => {
-      const filterDto = { country: 'US' };
-      const deviceGroups = [
-        {
-          id: 1,
-          name: 'Test Group',
-          countryCode: ['US'],
-          deviceIdsInt: [1, 2],
-          organizationId: 1,
-          createdAt: new Date(),
-        },
-      ];
-  
-      jest.spyOn(repository, 'createQueryBuilder').mockImplementation(() => {
-        return {
-          innerJoin: jest.fn().mockReturnThis(),
-          addSelect: jest.fn().mockReturnThis(),
-          orderBy: jest.fn().mockReturnThis(),
-          groupBy: jest.fn().mockReturnThis(),
-          andWhere: jest.fn().mockReturnThis(),
-          skip: jest.fn().mockReturnThis(),
-          take: jest.fn().mockReturnThis(),
-          getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
-        } as any;
-      });
-  
-      const result = await service.getAll(undefined, undefined, undefined, undefined, undefined, filterDto);
-      expect(result).toEqual({
-        groupedData: deviceGroups,
-        currentPage: undefined,
-        totalPages: NaN,
-        totalCount: 1,
-      });
-    }); */
   });
 
   describe('findById', () => {
@@ -384,7 +305,7 @@ describe('DeviceGroupService', () => {
         .spyOn(userService, 'findByEmail')
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest
-        .spyOn(service, 'checkdeveloperorganization')
+        .spyOn(service, 'checkDeveloperOrganization')
         .mockResolvedValue(false);
 
       await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
@@ -411,7 +332,7 @@ describe('DeviceGroupService', () => {
       jest
         .spyOn(userService, 'findByEmail')
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
-      jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       const result = await service.findById(deviceGroupId, mockUser);
 
@@ -431,7 +352,7 @@ describe('DeviceGroupService', () => {
       } as ILoggedInUser;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(service, 'checkdeveloperorganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
         UnauthorizedException,
@@ -620,8 +541,8 @@ describe('DeviceGroupService', () => {
     it('should throw ConflictException when end date is before start date', async () => {
       const buyerId = 1;
 
-      // Add all required properties to groupfilterDto
-      const groupfilterDto = {
+      // Add all required properties to groupFilterDTO
+      const groupFilterDTO = {
         name: null, // Adjust based on the actual type, use '' or null if appropriate
         country: null, // Same here, adjust accordingly
         fuelCode: null,
@@ -644,7 +565,7 @@ describe('DeviceGroupService', () => {
         service.getBuyerDeviceGroups(
           buyerId,
           1,
-          groupfilterDto as unknown as UnreservedDeviceGroupsFilterDTO,
+          groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
         ),
       ).rejects.toThrow(ConflictException);
     });

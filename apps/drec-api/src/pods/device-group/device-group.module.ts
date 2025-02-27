@@ -17,6 +17,14 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { Certificate } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
 import { CertificateSettingEntity } from './certificate_setting.entity';
+import { DeviceBulkUploadProcessor } from './device-bulk-upload.processor';
+import { BullModule } from '@nestjs/bull';
+import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { defaultBullJobOptions } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -30,16 +38,22 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
       CheckCertificateIssueDateLogForDeviceEntity,
       Certificate,
       CertificateSettingEntity,
+      BulkUploadEntity,
+      BulkUploadFailedLogEntity,
     ]),
     forwardRef(() => DeviceModule),
-
+    BullModule.registerQueue({
+      name: Queues.DeviceBulkUpload,
+      defaultJobOptions: defaultBullJobOptions,
+    }),
     OrganizationModule,
     YieldConfigModule,
     FileModule,
     UserModule,
+    forwardRef(() => BulkUploadModule),
   ],
-  providers: [DeviceGroupService],
-  exports: [DeviceGroupService],
+  providers: [DeviceGroupService, DeviceBulkUploadProcessor],
+  exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })
 export class DeviceGroupModule {}

@@ -9,16 +9,16 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { IAggregateintermediate } from '../../models';
+import { IAggregateIntermediate } from '../../models';
 import { Unit } from '@energyweb/energy-api-influxdb';
 @Entity({ name: 'aggregate_meterread' })
 export class AggregateMeterRead
   extends ExtendedBaseEntity
-  implements IAggregateintermediate
+  implements IAggregateIntermediate
 {
-  constructor(aggrgatevalue?: Partial<IAggregateintermediate>) {
+  constructor(aggregateValue?: Partial<IAggregateIntermediate>) {
     super();
-    Object.assign(this, aggrgatevalue);
+    Object.assign(this, aggregateValue);
   }
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()

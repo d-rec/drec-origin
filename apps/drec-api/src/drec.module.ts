@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import fs from 'fs';
 import * as path from 'path';
@@ -39,31 +39,36 @@ import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
 import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
-import { ACLModulePermissions } from './pods/permission/permission.entity';
+import { ACLModulePermission } from './pods/permission/permission.entity';
 import { PermissionModule } from './pods/permission/permission.module';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
 import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './pods/reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { CountrycodeModule } from './pods/countrycode/countrycode.module';
-import { SdgbenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
-import { SdgBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
+import { CountryCodeModule } from './pods/countrycode/countrycode.module';
+import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
+import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-import { IrecDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
 import { HttpModule } from '@nestjs/axios';
-
+import { SentryModule } from '@sentry/nestjs/setup';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryFilter } from './filters/sentry.filter';
+import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
+import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -94,30 +99,32 @@ export const entities = [
   File,
   YieldConfig,
   AClModules,
-  ACLModulePermissions,
+  ACLModulePermission,
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
-  HistoryIntermediate_MeterRead,
+  HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
-  SdgBenefit,
+  SDGBenefit,
   DeltaFirstRead,
-  IrecDevicesInformationEntity,
-  IrecErrorLogInformationEntity,
+  IRECDevicesInformationEntity,
+  IRECErrorLogInformationEntity,
   UserLoginSessionEntity,
-  DeviceLateongoingIssueCertificateEntity,
+  DeviceLateOngoingIssueCertificateEntity,
   CertificateSettingEntity,
   ...IssuerEntities,
   ...OnChainCertificateEntities,
   ...OffChainCertificateEntities,
+  BulkUploadEntity,
+  BulkUploadFailedLogEntity,
 ];
 
-const OriginAppTypeOrmModule = () => {
-  return process.env.DATABASE_URL
-    ? TypeOrmModule.forRoot({
+export const originAppTypeOrmModule = (): DynamicModule => {
+  const options: TypeOrmModuleOptions = process.env.DATABASE_URL
+    ? {
         type: 'postgres',
         url: process.env.DATABASE_URL,
         ssl: {
@@ -125,8 +132,8 @@ const OriginAppTypeOrmModule = () => {
         },
         entities,
         logging: ['info'],
-      })
-    : TypeOrmModule.forRoot({
+      }
+    : {
         type: 'postgres',
         host: process.env.DB_HOST ?? 'localhost',
         port: Number(process.env.DB_PORT) ?? 5432,
@@ -135,7 +142,9 @@ const OriginAppTypeOrmModule = () => {
         database: process.env.DB_DATABASE ?? 'origin',
         entities,
         logging: ['info'],
-      });
+      };
+
+  return TypeOrmModule.forRoot(options);
 };
 
 const redisOptions = {
@@ -143,7 +152,7 @@ const redisOptions = {
   port: 6379,
 };
 
-const QueueingModule = () => {
+const queueModule = () => {
   return BullModule.forRoot({
     redis: redisOptions,
     //process.env.REDIS_URL ?? { host: 'localhost', port: 6379 },
@@ -152,13 +161,14 @@ const QueueingModule = () => {
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     HttpModule,
     ConfigModule.forRoot({
       envFilePath: getEnvFilePath(),
       isGlobal: true,
     }),
-    OriginAppTypeOrmModule(),
-    QueueingModule(),
+    originAppTypeOrmModule(),
+    queueModule(),
     ScheduleModule.forRoot(),
     AuthModule,
     MailModule,
@@ -176,12 +186,19 @@ const QueueingModule = () => {
     YieldConfigModule,
     AccessControlLayerModuleServiceModule,
     PermissionModule,
-    CountrycodeModule,
-    SdgbenefitModule,
+    CountryCodeModule,
+    SDGBenefitModule,
     CertificateLogModule,
     OnChainCertificateModule,
     BlockchainPropertiesModule,
+    BulkUploadModule,
   ],
-  providers: [OnApplicationBootstrapHookService],
+  providers: [
+    OnApplicationBootstrapHookService,
+    {
+      provide: APP_FILTER,
+      useClass: SentryFilter,
+    },
+  ],
 })
-export class DrecModule {}
+export class DRECModule {}

@@ -3,7 +3,7 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, InjectConnection } from '@nestjs/typeorm';
 import * as path from 'path';
 import { Connection, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -12,9 +12,7 @@ import { Role } from '../../utils/enums';
 import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
-
 import { File } from './file.entity';
-import { Buffer } from 'buffer';
 
 export type FileUpload = {
   originalname: string;
@@ -29,6 +27,7 @@ export class FileService {
     @InjectRepository(File) private readonly repository: Repository<File>,
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
+    @InjectConnection()
     private readonly connection: Connection,
   ) {}
 
@@ -199,8 +198,7 @@ export class FileService {
     this.logger.debug(file);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
-    const result = await this.uploadS3(file.buffer, bucketS3, originalname);
-    return result;
+    return await this.uploadS3(file.buffer, bucketS3, originalname);
   }
 
   async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {
@@ -233,7 +231,7 @@ export class FileService {
     });
   }
 
-  public async GetuploadS3(key: string): Promise<any> {
+  public async getUploadS3(key: string): Promise<any> {
     this.logger.verbose(`With in GetuploadS3`);
     const s3 = this.getS3();
 

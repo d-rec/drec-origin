@@ -11,12 +11,12 @@ import {
   FindOneOptions,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HistoryIntermediate_MeterRead } from '../reads/history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { Device } from './device.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { ConflictException } from '@nestjs/common';
-import { IrecDevicesInformationEntity } from './irec_devices_information.entity';
-import { IrecErrorLogInformationEntity } from './irec_error_log_information.entity';
+import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Role } from '../../utils/enums/role.enum';
@@ -29,14 +29,14 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
-  DevicetypeCode,
+  DeviceTypeCode,
   FuelCode,
   OffTaker,
   OrganizationStatus,
 } from '../../utils/enums';
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
-import { DeviceLateongoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
@@ -44,15 +44,15 @@ import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_pr
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyrepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
-  let checkdevcielogcertificaterepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
+  let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
-  let irecinforepository: Repository<IrecDevicesInformationEntity>;
-  let irecerrorlogrepository: Repository<IrecErrorLogInformationEntity>;
+  let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
+  let irecErrorLogRepository: Repository<IRECErrorLogInformationEntity>;
   let organizationService: OrganizationService;
   let userService: UserService;
-  let deviceLateOngoingCertificaterepository: DeviceLateongoingIssueCertificateEntity;
+  let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -67,7 +67,7 @@ describe('DeviceService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+          provide: getRepositoryToken(HistoryIntermediateMeterRead),
           useClass: Repository,
         },
         {
@@ -81,11 +81,11 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
-          provide: getRepositoryToken(IrecDevicesInformationEntity),
+          provide: getRepositoryToken(IRECDevicesInformationEntity),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(IrecErrorLogInformationEntity),
+          provide: getRepositoryToken(IRECErrorLogInformationEntity),
           useClass: Repository,
         },
         {
@@ -97,7 +97,7 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
-          provide: getRepositoryToken(DeviceLateongoingIssueCertificateEntity),
+          provide: getRepositoryToken(DeviceLateOngoingIssueCertificateEntity),
           useClass: Repository,
         },
       ],
@@ -121,7 +121,7 @@ describe('DeviceService', () => {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -201,7 +201,7 @@ describe('DeviceService', () => {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -569,9 +569,9 @@ describe('DeviceService', () => {
       },
     ];
     it('should retrieve devices without pagination', async () => {
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: undefined, //600,
         start_date: undefined, //'2023-02-01T06:59:11.000Z',
         end_date: undefined, //'2024-02-26T06:59:11.000Z',
@@ -600,9 +600,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, undefined, orgId);
+      const result = await service.find(filterDTO, undefined, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -905,9 +905,9 @@ describe('DeviceService', () => {
           organization: organizationEntity,
         },
       ];
-      const filterDto: FilterDTO = {
+      const filterDTO: FilterDTO = {
         fuelCode: undefined, //FuelCode.ES100,
-        deviceTypeCode: DevicetypeCode.TC110,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: undefined, //600,
         start_date: undefined, //'2023-02-01T06:59:11.000Z',
         end_date: undefined, //'2024-02-26T06:59:11.000Z',
@@ -925,7 +925,7 @@ describe('DeviceService', () => {
             _value: '200', // Adjust as needed
             _useParameter: true,
           },
-          countryCode: filterDto.country,
+          countryCode: filterDTO.country,
           organizationId: orgId.toString(), // Use orgId provided dynamically
           commissioningDate: {
             _type: 'moreThanOrEqual',
@@ -940,13 +940,13 @@ describe('DeviceService', () => {
           },
           deviceTypeCode: {
             _type: 'raw',
-            _value: [filterDto.deviceTypeCode], // Adjust as needed
+            _value: [filterDTO.deviceTypeCode], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
           offTaker: {
             _type: 'raw',
-            _value: [filterDto.offTaker], // Adjust as needed
+            _value: [filterDTO.offTaker], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
           },
@@ -962,9 +962,9 @@ describe('DeviceService', () => {
       const findSpy = jest
         .spyOn(repository, 'findAndCount')
         .mockResolvedValue([deviceEntity, deviceEntity.length] as any);
-      const result = await service.find(filterDto, pageNumber, orgId);
+      const result = await service.find(filterDTO, pageNumber, orgId);
 
-      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDto, orgId);
+      await expect(getFilteredQueryMock).toHaveBeenCalledWith(filterDTO, orgId);
       await expect(findSpy).toHaveBeenCalledWith({
         relations: ['organization'],
         ...expectedQuery,
@@ -976,49 +976,12 @@ describe('DeviceService', () => {
   });
 
   describe('getOrganizationDevices', () => {
-    /*
-    it('should return devices with filters and pagination', async () => {
-      const organizationId = 1;
-      const api_user_id = 'api-user-123';
-      const role = Role.ApiUser;
-      const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
-      const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
-      const mockTotalCount = 1;
-
-      // Correct the mock return type to match the expected type of getFilteredQuery
-      const mockQueryResult:FindManyOptions<Device> = { where: {} };  // Replace `any` with the appropriate type if known
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue(mockQueryResult as FindManyOptions<Device>);
-
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
-
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
-
-      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        skip: 0,
-        take: 20,
-      }));
-      expect(result).toEqual({
-        devices: [
-          { 
-            id: 1, 
-            internalexternalId: 'EXT123', 
-            externalId: 'DEV123' 
-          }
-        ],
-        currentPage: 1,
-        totalPages: 1,
-        totalCount: 1,
-      });
-    }); */
-
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
-      const api_user_id = 'api-user-123';
+      const apiUserId = 'api-user-123';
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
-      const pagenumber = null;
+      const pageNumber = null;
       const mockDevices = [
         {
           id: 1,
@@ -1033,10 +996,10 @@ describe('DeviceService', () => {
 
       const result = await service.getOrganizationDevices(
         organizationId,
-        api_user_id,
+        apiUserId,
         role,
         filterDto,
-        pagenumber,
+        pageNumber,
       );
 
       expect(repository.findAndCount).toHaveBeenCalledWith(
@@ -1052,233 +1015,9 @@ describe('DeviceService', () => {
         },
       ]);
     });
-    /*
-    it('should handle role specific queries', async () => {
-      const organizationId = 1;
-      const api_user_id = 'api-user-123';
-      const role = Role.ApiUser;
-      const filterDto = {} as FilterDTO;
-      const pagenumber = 1;
-      const mockDevices = [{ id: 1, externalId: 'EXT123', developerExternalId: 'DEV123' } as Device];
-      const mockTotalCount = 1;
-
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
-      jest.spyOn(repository, 'findAndCount').mockResolvedValue([mockDevices, mockTotalCount]);
-
-      const result = await service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber);
-
-      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        skip: 0,
-        take: 20,
-        where: { api_user_id },
-      }));
-      expect(result).toEqual({
-        devices: [
-          { 
-            id: 1, 
-            internalexternalId: 'EXT123', 
-            externalId: 'DEV123' 
-          }
-        ],
-        currentPage: 1,
-        totalPages: 1,
-        totalCount: 1,
-      });
-    });
-
-    it('should handle errors when findAndCount throws an error', async () => {
-      const organizationId = 1;
-      const api_user_id = 'api-user-123';
-      const role = Role.ApiUser;
-      const filterDto = { organizationId: 1 } as FilterDTO;
-      const pagenumber = 1;
-
-      jest.spyOn(service, 'getFilteredQuery').mockResolvedValue({ where: {} });
-      jest.spyOn(repository, 'findAndCount').mockRejectedValue(new Error('Database error'));
-
-      await expect(service.getOrganizationDevices(organizationId, api_user_id, role, filterDto, pagenumber)).rejects.toThrow('Database error');
-
-      expect(service.getFilteredQuery).toHaveBeenCalledWith(filterDto);
-      expect(repository.findAndCount).toHaveBeenCalled();
-    }); */
   });
 
   describe('findOne', () => {
-    /*
-    it('should return the device with updated timezone', async () => {
-      const deviceEntity = {
-      createdAt: '2024-07-16T09:46:59.846Z',
-      updatedAt: '2024-07-16T09:46:59.846Z',
-      id: 54,
-      externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-      developerExternalId: 'EXCESS',
-      organizationId: 94,
-      projectName: null,
-      address: 'MAA',
-      latitude: '72.34',
-      longitude: '75.89',
-      countryCode: 'AFG',
-      fuelCode: 'ES100',
-      deviceTypeCode: 'TC110',
-      capacity: 1200,
-      SDGBenefits: [],
-      commissioningDate: '2024-06-30T18:30:55.000Z',
-      gridInterconnection: true,
-      offTaker: null,
-      yieldValue: 2000,
-      impactStory: null,
-      images: null,
-      groupId: 32,
-      deviceDescription: null,
-      energyStorage: true,
-      energyStorageCapacity: null,
-      qualityLabels: null,
-      meterReadtype: 'Delta',
-      timezone: null,
-      version: '1.0',
-      IREC_Status: 'NotRegistered',
-      IREC_ID: null,
-      api_user_id: null,
-      organization:  {
-        createdAt: '2024-07-15T14:35:30.123Z',
-        updatedAt: '2024-07-15T14:35:30.123Z',
-        id: 94,
-        name: 'MAAs',
-        address: null,
-        zipCode: null,
-        city: null,
-        country: null,
-        blockchainAccountAddress: null,
-        blockchainAccountSignedMessage: null,
-        organizationType: 'Developer',
-        orgEmail: 'developer1@gmail.com',
-        status: 'Active',
-        documentIds: null,
-        api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-        users: [ [User] ],
-        invitations: []
-      },
-      hasId: jest.fn(),
-      save: jest.fn(),
-      remove: jest.fn(),
-      softRemove: jest.fn(),
-      recover: jest.fn(),
-      reload: jest.fn(),
-    };
-
-    const timezone = 'Antarctica/Mawson';
-
-    const deviceTZ = {
-  createdAt: '2024-07-16T09:46:59.846Z',
-  updatedAt: '2024-07-16T09:46:59.846Z',
-  id: 54,
-  externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-  developerExternalId: 'EXCESS',
-  organizationId: 94,
-  projectName: null,
-  address: 'MAA',
-  latitude: '72.34',
-  longitude: '75.89',
-  countryCode: 'AFG',
-  fuelCode: 'ES100',
-  deviceTypeCode: 'TC110',
-  capacity: 1200,
-  SDGBenefits: [],
-  commissioningDate: '2024-06-30T18:30:55.000Z',
-  gridInterconnection: true,
-  offTaker: null,
-  yieldValue: 2000,
-  impactStory: null,
-  images: null,
-  groupId: 32,
-  deviceDescription: null,
-  energyStorage: true,
-  energyStorageCapacity: null,
-  qualityLabels: null,
-  meterReadtype: 'Delta',
-  timezone: 'Antarctica/Mawson',
-  version: '1.0',
-  IREC_Status: 'NotRegistered',
-  IREC_ID: null,
-  api_user_id: null,
-  organization:  {
-    createdAt: '2024-07-15T14:35:30.123Z',
-    updatedAt: '2024-07-15T14:35:30.123Z',
-    id: 94,
-    name: 'MAAs',
-    address: null,
-    zipCode: null,
-    city: null,
-    country: null,
-    blockchainAccountAddress: null,
-    blockchainAccountSignedMessage: null,
-    organizationType: 'Developer',
-    orgEmail: 'developer1@gmail.com',
-    status: 'Active',
-    documentIds: null,
-    api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    users: [ [] ],
-    invitations: []
-  }
-};
-
-const device = {
-  createdAt: '2024-07-16T09:46:59.846Z',
-  updatedAt: '2024-07-16T09:46:59.846Z',
-  id: 54,
-  externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-  developerExternalId: 'EXCESS',
-  organizationId: 94,
-  projectName: null,
-  address: 'MAA',
-  latitude: '72.34',
-  longitude: '75.89',
-  countryCode: 'AFG',
-  fuelCode: 'ES100',
-  deviceTypeCode: 'TC110',
-  capacity: 1200,
-  SDGBenefits: [],
-  commissioningDate: '2024-06-30T18:30:55.000Z',
-  gridInterconnection: true,
-  offTaker: null,
-  yieldValue: 2000,
-  impactStory: null,
-  images: null,
-  groupId: 32,
-  deviceDescription: null,
-  energyStorage: true,
-  energyStorageCapacity: null,
-  qualityLabels: null,
-  meterReadtype: 'Delta',
-  timezone: 'Antarctica/Mawson',
-  version: '1.0',
-  IREC_Status: 'NotRegistered',
-  IREC_ID: null,
-  api_user_id: null
-};
-  
-      const options: FindOneOptions<Device> = {};
-  
-      const findOneSpy = jest.spyOn(repository, 'findOne').mockResolvedValue(deviceEntity);
-      const getLocalTimeZoneFromDeviceSpy = jest.spyOn(service as any, 'getLocalTimeZoneFromDevice').mockResolvedValue(timezone);
-  
-      const result = await service.findOne(1, options);
-  
-      expect(findOneSpy).toHaveBeenCalledWith({
-        where: { id: 1, ...options },
-      });
-  
-      expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
-        deviceEntity.createdAt,
-        deviceEntity,
-      );
-  
-      expect(result).toEqual(device);
-  
-      expect(result?.organization).toBeUndefined();
-    }); */
-
     it('should return null if device is not found', async () => {
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
@@ -1763,7 +1502,7 @@ const device = {
         latitude: '23.65362',
         longitude: '25.43647',
         fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DevicetypeCode.TC110, //'TC110',
+        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
@@ -1829,7 +1568,7 @@ const device = {
           latitude: '23.65362',
           longitude: '25.43647',
           fuelCode: FuelCode.ES100,
-          deviceTypeCode: DevicetypeCode.TC110,
+          deviceTypeCode: DeviceTypeCode.TC110,
           capacity: 2500,
           commissioningDate: '2024-02-01T06:59:11.000Z',
           gridInterconnection: true,
@@ -1853,7 +1592,7 @@ const device = {
   describe('findUngrouped', () => {
     it('should return grouped devices when ungrouped devices are found', async () => {
       const organizationId = 1;
-      const orderFilterDto: DeviceGroupByDTO = {
+      const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       }; // Provide necessary DTO properties
       const mockDevices = [
@@ -1867,7 +1606,7 @@ const device = {
 
       const result = await service.findUngrouped(
         organizationId,
-        orderFilterDto,
+        orderFilterDTO,
       );
 
       expect(findSpy).toHaveBeenCalledWith({

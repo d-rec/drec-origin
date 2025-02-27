@@ -1,23 +1,23 @@
 import {
   BadRequestException,
   ConflictException,
-  Injectable,
-  Logger,
   forwardRef,
   Inject,
+  Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { Repository, FindConditions } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
-import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { UserService } from '../user/user.service';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
+
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -32,7 +32,6 @@ export class EmailConfirmationService {
     private mailService: MailService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly oauthClientCredentialsService: OauthClientCredentialsService,
   ) {}
 
   public async create(user: User): Promise<EmailConfirmation | null> {
@@ -67,7 +66,7 @@ export class EmailConfirmationService {
         token,
         expiryTimestamp,
       });
-      // if (inviteuser) {
+      // if (inviteUser) {
       //   //  await this.sendResetPasswordRequest(user.email, token);
       //   await this.sendInvitation(orgname, user.email, token);
       // } else {
@@ -79,7 +78,7 @@ export class EmailConfirmationService {
   }
 
   // create function when orguseradmin direct added by super admin so confirm email true
-  public async admincreate(
+  public async adminCreate(
     user: User,
     password: string,
   ): Promise<EmailConfirmation> {
@@ -110,7 +109,7 @@ export class EmailConfirmationService {
       expiryTimestamp,
     });
 
-    await this.sendadminConfirmEmailRequest(user.email, password);
+    await this.sendAdminConfirmEmailRequest(user.email, password);
 
     return emailConfirmation;
   }
@@ -137,11 +136,9 @@ export class EmailConfirmationService {
     conditions: FindConditions<EmailConfirmation>,
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
-    const user = await (this.repository.findOne(conditions, {
+    return await (this.repository.findOne(conditions, {
       relations: ['user'],
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
-
-    return user;
   }
   async confirmEmail(
     token: IEmailConfirmationToken['token'],
@@ -212,7 +209,7 @@ export class EmailConfirmationService {
         message: `Email already confirmed`,
       });
     }
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendConfirmEmailRequest(email.toLowerCase(), token);
 
@@ -221,7 +218,7 @@ export class EmailConfirmationService {
     };
   }
 
-  public async ConfirmationEmailForResetPassword(
+  public async confirmationEmailForResetPassword(
     email: IUser['email'],
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in ConfirmationEmailForResetPassword`);
@@ -234,7 +231,7 @@ export class EmailConfirmationService {
       };
     }
     const { id } = currentToken;
-    const { token } = await this.generatetoken(currentToken, id);
+    const { token } = await this.generateToken(currentToken, id);
 
     await this.sendResetPasswordRequest(
       email.toLowerCase(),
@@ -251,7 +248,7 @@ export class EmailConfirmationService {
         'Password Reset Mail has been sent to your register authorized Email.',
     };
   }
-  public async generatetoken(
+  public async generateToken(
     currentToken: EmailConfirmation,
     id: number,
   ): Promise<any> {
@@ -295,7 +292,7 @@ export class EmailConfirmationService {
     }
   }
 
-  private async sendadminConfirmEmailRequest(
+  private async sendAdminConfirmEmailRequest(
     email: string,
     password: string,
   ): Promise<void> {
@@ -305,7 +302,7 @@ export class EmailConfirmationService {
     const result = await this.mailService.send({
       to: email,
       subject: `[Origin] Welcome TO D-REC`,
-      html: `Welcome to the marketplace!You are added in Drec platform, Please click the link below to login: <br/> <br/>
+      html: `Welcome to the marketplace!You are added in DREC platform, Please click the link below to login: <br/> <br/>
       <p>UserName:<b>${email}</b></p>
       <p> PassWord:<b>${password}</b></p>
       <p><a href="${url}"style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">click me</a>.</p>`,
@@ -337,12 +334,12 @@ export class EmailConfirmationService {
 
   async remove(userId: number): Promise<void> {
     this.logger.verbose(`With in remove`);
-    const allemialconfirm = await this.get(userId);
-    await this.repository.delete(allemialconfirm.id);
+    const confirmation = await this.get(userId);
+    await this.repository.delete(confirmation.id);
   }
 
   public async sendInvitation(
-    inviteuser: any | CreateUserORGDTO,
+    inviteUser: any | CreateUserOrgDTO,
     email: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendInvitation`);
@@ -350,11 +347,11 @@ export class EmailConfirmationService {
 
     const htmlTemplate = `
     <p> Dear ${email},<p>
-    <p> you have been invited to register with D-REC from Organization <b>${inviteuser.orgName}</b></p>
+    <p> you have been invited to register with D-REC from Organization <b>${inviteUser.orgName}</b></p>
     <p>Use your email and the password below to login into D-REC Initiative.<p>
     <p>
     Username: <b>${email}</b><br>
-    Password: <b>${inviteuser.password}<b><p>
+    Password: <b>${inviteUser.password}<b><p>
     <p><a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Click me</a></p>
    <hr>
     <p>Thank you<br>

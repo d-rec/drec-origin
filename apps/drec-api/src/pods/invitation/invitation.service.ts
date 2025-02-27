@@ -1,10 +1,10 @@
 import {
   BadRequestException,
-  Injectable,
-  Logger,
   ConflictException,
   forwardRef,
   Inject,
+  Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
@@ -13,7 +13,7 @@ import {
   ISuccessResponse,
   LoggedInUser,
   OrganizationRole,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { UserService } from '../user/user.service';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
@@ -22,13 +22,14 @@ import { OrganizationService } from '../organization/organization.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
-import { updateInviteStatusDTO } from './dto/invite.dto';
-import { CreateUserORGDTO } from '../user/dto/create-user.dto';
+import { UpdateInviteStatusDTO } from './dto/invite.dto';
+import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { UserStatus } from '@energyweb/origin-backend-core';
+
 @Injectable()
 export class InvitationService {
   private readonly logger = new Logger(InvitationService.name);
-  inviteuseradd = false;
+  inviteUserAdd = false;
   randPassword: string;
   constructor(
     @InjectRepository(Invitation)
@@ -49,10 +50,10 @@ export class InvitationService {
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
-    let inviteorg: number;
+    let inviteOrg: number;
     if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
-        inviteorg = orgId;
+        inviteOrg = orgId;
       } else {
         if (user.organizationId != orgId) {
           this.logger.error(
@@ -65,9 +66,9 @@ export class InvitationService {
         }
       }
     } else {
-      inviteorg = user.organizationId;
+      inviteOrg = user.organizationId;
     }
-    const organization = await this.organizationService.findOne(inviteorg);
+    const organization = await this.organizationService.findOne(inviteOrg);
     if (!organization) {
       this.logger.error(`Organization information not found`);
       throw new ConflictException({
@@ -91,7 +92,7 @@ export class InvitationService {
     const invitee = await this.userService.findByEmail(lowerCaseEmail);
 
     if (invitee && invitee.organization) {
-      if (invitee.organization.id === inviteorg) {
+      if (invitee.organization.id === inviteOrg) {
         this.logger.error(
           `User ${lowerCaseEmail} is already part of this organization`,
         );
@@ -110,16 +111,16 @@ export class InvitationService {
       }
     }
 
-    const orginvitee = await this.invitationRepository.findOne({
+    const orgInvitee = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: {
-          id: inviteorg,
+          id: inviteOrg,
         },
       },
       relations: ['organization'],
     });
-    if (orginvitee) {
+    if (orgInvitee) {
       this.logger.error(
         `Requested invitation User ${lowerCaseEmail} is already exist`,
       );
@@ -143,7 +144,7 @@ export class InvitationService {
         return x[Math.floor(Math.random() * x.length)];
       })
       .join('');
-    const inviteuser: CreateUserORGDTO = {
+    const inviteUser: CreateUserOrgDTO = {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
@@ -154,28 +155,22 @@ export class InvitationService {
     };
     this.logger.debug('invitee');
 
-    inviteuser.api_user_id = organization.api_user_id;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const newUser = await this.userService.newCreateUser(
-      inviteuser,
-      UserStatus.Pending,
-      true,
-    );
-
+    inviteUser.api_user_id = organization.api_user_id;
+    await this.userService.newCreateUser(inviteUser, UserStatus.Pending, true);
     if (sender.role !== Role.ApiUser) {
-      console.log('inviteuser:', inviteuser, 'lowerCaseEmail:', lowerCaseEmail);
-      await this.userService.sendUserInvitation(inviteuser, lowerCaseEmail);
+      console.log('inviteUser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
+      await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
   }
 
   public async update(
-    user: updateInviteStatusDTO,
+    user: UpdateInviteStatusDTO,
     invitationId: number,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in update`);
     const lowerCaseEmail = user.email.toLowerCase();
-    const userinvite = await this.userService.findByEmail(lowerCaseEmail);
-    this.logger.debug(userinvite);
+    const userInvite = await this.userService.findByEmail(lowerCaseEmail);
+    this.logger.debug(userInvite);
     const invitation = await this.invitationRepository.findOne({
       where: {
         id: invitationId,
@@ -203,17 +198,17 @@ export class InvitationService {
 
     if (user.status === OrganizationInvitationStatus.Accepted) {
       await this.userService.addToOrganization(
-        userinvite.id,
+        userInvite.id,
         invitation.organization.id,
       );
-      await this.userService.changeRole(userinvite.id, invitation.role);
+      await this.userService.changeRole(userInvite.id, invitation.role);
     }
 
     invitation.status = user.status;
 
     await this.invitationRepository.save(invitation);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   public async getUsersInvitation(
@@ -323,7 +318,7 @@ export class InvitationService {
 
   async remove(email: string, orgId: number): Promise<void> {
     const lowerCaseEmail = email.toLowerCase();
-    const orginvitee = await this.invitationRepository.findOne({
+    const orgInvite = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: orgId,
@@ -331,13 +326,13 @@ export class InvitationService {
       relations: ['organization'],
     });
     this.logger.verbose('orginvitee');
-    if (orginvitee) {
-      await this.invitationRepository.delete(orginvitee.id);
+    if (orgInvite) {
+      await this.invitationRepository.delete(orgInvite.id);
     }
   }
-  async getinvite_info_byEmail(user: LoggedInUser): Promise<any> {
+  async getInviteInfoByEmail(user: LoggedInUser): Promise<any> {
     const lowerCaseEmail = user.email.toLowerCase();
-    const orginvitee = await this.invitationRepository.findOne({
+    return await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
         organization: {
@@ -346,6 +341,5 @@ export class InvitationService {
       },
       relations: ['organization'],
     });
-    return orginvitee;
   }
 }

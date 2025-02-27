@@ -5,13 +5,18 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediate_MeterRead } from './history_intermideate_meterread.entity';
+import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { DeviceService } from '../device';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
-import { BASE_READ_SERVICE } from './const';
+import { FileService } from '../file/file.service';
+import { BASE_READ_SERVICE } from './constants';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { getQueueToken } from '@nestjs/bull';
+import { Queues } from '../../utils/enums/queues.enum';
 
 jest.mock('@influxdata/influxdb-client', () => {
   return {
@@ -28,7 +33,7 @@ jest.mock('@influxdata/influxdb-client', () => {
 describe('ReadsService', () => {
   let service: ReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;
-  let historyRepository: Repository<HistoryIntermediate_MeterRead>;
+  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let deltaRepository: Repository<DeltaFirstRead>;
   let deviceService: DeviceService;
   let deviceGroupService: DeviceGroupService;
@@ -36,10 +41,6 @@ describe('ReadsService', () => {
   let eventBus: EventBus;
 
   beforeEach(async () => {
-    process.env.INFLUXDB_URL = 'http://localhost:8086';
-    process.env.INFLUXDB_TOKEN = 'test-token';
-    process.env.INFLUXDB_ORG = 'test-org';
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReadsService,
@@ -48,7 +49,15 @@ describe('ReadsService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediate_MeterRead),
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(HistoryIntermediateMeterRead),
           useClass: Repository,
         },
         {
@@ -58,6 +67,17 @@ describe('ReadsService', () => {
         {
           provide: BASE_READ_SERVICE,
           useValue: {} as any,
+        },
+        {
+          provide: getQueueToken(Queues.ReadsBulkUpload),
+          useValue: {},
+        },
+        {
+          provide: FileService,
+          useValue: {
+            uploadFile: jest.fn().mockResolvedValue('mock-file-url'),
+            retrieveFile: jest.fn().mockResolvedValue('mock-file-content'),
+          },
         },
         {
           provide: DeviceService,
@@ -73,15 +93,16 @@ describe('ReadsService', () => {
         },
         {
           provide: EventBus,
-          useValue: {} as any,
+          useValue: {
+            publish: jest.fn(),
+            subscribe: jest.fn(),
+            unsubscribe: jest.fn(),
+          },
         },
       ],
     }).compile();
 
     service = module.get<ReadsService>(ReadsService);
-    aggregateRepository = module.get<Repository<AggregateMeterRead>>(
-      getRepositoryToken(AggregateMeterRead),
-    );
   });
 
   it('should be defined', () => {

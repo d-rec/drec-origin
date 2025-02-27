@@ -1,68 +1,61 @@
 import {
+  Body,
+  ConflictException,
   Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+  ParseUUIDPipe,
+  Patch,
   Post,
   Put,
-  Patch,
-  Delete,
-  HttpStatus,
-  Param,
-  Body,
+  Query,
+  UnauthorizedException,
   UseGuards,
   ValidationPipe,
-  Query,
-  ConflictException,
-  HttpException,
-  UnauthorizedException,
-  BadRequestException,
-  Logger,
 } from '@nestjs/common';
 
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
-  ApiResponse,
   ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
   ApiSecurity,
   ApiTags,
-  ApiQuery,
-  ApiBody,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 
-import { DeviceService } from './device.service';
-import {
-  FilterDTO,
-  NewDeviceDTO,
-  UpdateDeviceDTO,
-  DeviceDTO,
-  DeviceGroupByDTO,
-  GroupedDevicesDTO,
-} from './dto';
-import { CSVBulkUploadDTO } from '../device-group/dto';
-import { Role } from '../../utils/enums';
-import { RolesGuard } from '../../guards/RolesGuard';
-import { PermissionGuard } from '../../guards/PermissionGuard';
-import { ILoggedInUser } from '../../models';
-import { CodeNameDTO } from './dto/code-name.dto';
+import { FindOneOptions } from 'typeorm';
 import { ActiveUserGuard } from '../../guards';
+import { PermissionGuard } from '../../guards/PermissionGuard';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { ILoggedInUser } from '../../models';
+import { countryCodesList } from '../../models/country-code';
+import { Role } from '../../utils/enums';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { OrganizationService } from '../organization/organization.service';
+import { Permission } from '../permission/decorators/permission.decorator';
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { countryCodesList } from '../../models/country-code';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from '../device-group/device_csv_processing_jobs.entity';
-import { Device } from './device.entity';
-import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { FindOneOptions } from 'typeorm';
+import { Device } from './device.entity';
+import { DeviceService } from './device.service';
+import {
+  DeviceDTO,
+  DeviceGroupByDTO,
+  FilterDTO,
+  GroupedDevicesDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import { CodeNameDTO } from './dto/code-name.dto';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -82,7 +75,7 @@ export class DeviceController {
   ) {}
 
   /**
-   * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDto
+   * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDTO
    */
   @Get()
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
@@ -93,12 +86,12 @@ export class DeviceController {
   @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAll(
-    @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
+    @Query('pagenumber') pageNumber: number | null,
     @Query('OrganizationId') OrgId: number | null,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in getAll`);
-    return this.deviceService.find(filterDto, pagenumber, OrgId);
+    return this.deviceService.find(filterDTO, pageNumber, OrgId);
   }
 
   /**
@@ -116,16 +109,16 @@ export class DeviceController {
   @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
   @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
   async getAllDeviceForBuyer(
-    @Query(ValidationPipe) filterDto: FilterDTO,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
+    @Query('pagenumber') pageNumber: number | null,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    if (filterDto.organizationId) {
+    if (filterDTO.organizationId) {
       const organization = await this.organizationService.findOne(
-        filterDto.organizationId,
+        filterDTO.organizationId,
       );
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
+      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
@@ -138,8 +131,8 @@ export class DeviceController {
         }
 
         if (
-          orguser.role === Role.OrganizationAdmin ||
-          orguser.role === Role.DeviceOwner
+          orgUser.role === Role.OrganizationAdmin ||
+          orgUser.role === Role.DeviceOwner
         ) {
           this.logger.error(
             `Unauthorized... The requested user is developer or device owner`,
@@ -166,9 +159,9 @@ export class DeviceController {
       api_user_id = null;
     }
 
-    return this.deviceService.finddeviceForBuyer(
-      filterDto,
-      pagenumber,
+    return this.deviceService.findDeviceForBuyer(
+      filterDTO,
+      pageNumber,
       api_user_id,
     );
   }
@@ -188,10 +181,10 @@ export class DeviceController {
   })
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query(ValidationPipe) orderFilterDto: DeviceGroupByDTO,
+    @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
   ): Promise<GroupedDevicesDTO[]> {
     this.logger.verbose(`With in getAllUngrouped`);
-    return this.deviceService.findUngrouped(organizationId, orderFilterDto);
+    return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
   }
 
   /**
@@ -248,23 +241,23 @@ export class DeviceController {
     description: 'Returns my Devices',
   })
   async getMyDevices(
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
-    @Query('pagenumber') pagenumber: number | null,
+    @Query('pagenumber') pageNumber: number | null,
   ): Promise<any> {
     this.logger.verbose(`With in getMyDevices`);
-    if (filterDto.country) {
-      filterDto.country = filterDto.country.toUpperCase();
+    if (filterDTO.country) {
+      filterDTO.country = filterDTO.country.toUpperCase();
 
       if (
-        filterDto.country &&
-        typeof filterDto.country === 'string' &&
-        filterDto.country.length === 3
+        filterDTO.country &&
+        typeof filterDTO.country === 'string' &&
+        filterDTO.country.length === 3
       ) {
-        const countries = countryCodesList;
         if (
-          countries.find((ele) => ele.countryCode === filterDto.country) ===
-          undefined
+          countryCodesList.find(
+            (ele) => ele.countryCode === filterDTO.country,
+          ) === undefined
         ) {
           this.logger.error(
             `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
@@ -286,12 +279,12 @@ export class DeviceController {
         });
       }
     }
-    if (filterDto.organizationId) {
+    if (filterDTO.organizationId) {
       if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
-          filterDto.organizationId,
+          filterDTO.organizationId,
         );
-        const orguser = await this.userService.findByEmail(
+        const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
         if (organization.api_user_id != api_user_id) {
@@ -303,7 +296,7 @@ export class DeviceController {
             message: 'The organization Id in param is belongs to other apiuser',
           });
         } else {
-          if (orguser.role != Role.OrganizationAdmin) {
+          if (orgUser.role != Role.OrganizationAdmin) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -312,7 +305,7 @@ export class DeviceController {
           }
         }
       } else {
-        if (filterDto.organizationId != organizationId) {
+        if (filterDTO.organizationId != organizationId) {
           this.logger.error(
             `The organization Id in param should be same as user's organization`,
           );
@@ -323,7 +316,7 @@ export class DeviceController {
         }
       }
 
-      organizationId = filterDto.organizationId;
+      organizationId = filterDTO.organizationId;
     }
 
     this.logger.log('In devices before calling service');
@@ -331,15 +324,15 @@ export class DeviceController {
       organizationId,
       api_user_id,
       role,
-      filterDto,
-      pagenumber,
+      filterDTO,
+      pageNumber,
     );
   }
 
   /**
    * It is GET api to fetch an device by the deviceId in param
    * @param id is deviceId in type number
-   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('/:id')
   @UseGuards(
@@ -361,23 +354,23 @@ export class DeviceController {
     @Query('organizationId') organizationId: number | null,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in get`);
-    let devicedata: Device;
+    let deviceData: Device;
     if (api_user_id && organizationId) {
-      devicedata = await this.deviceService.findOne(id, {
+      deviceData = await this.deviceService.findOne(id, {
         api_user_id: api_user_id,
         organizationId: organizationId,
       } as FindOneOptions<Device>);
     } else {
-      devicedata = await this.deviceService.findOne(id);
+      deviceData = await this.deviceService.findOne(id);
     }
-    return devicedata;
+    return deviceData;
   }
 
   /**
    * It is GET api to fetch an device by externalId in param
    * @param id  is externalId in device
    * @param param1
-   * @returns {DeviceDTO | null} DeviceDto for success response and null when there is no device found by the id
+   * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('externalId/:id')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -392,27 +385,27 @@ export class DeviceController {
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
-    let devicedata: Device;
+    let deviceData: Device;
 
     if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
 
-      devicedata =
+      deviceData =
         await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
           id,
           loginUser.api_user_id,
         );
     } else {
-      devicedata = await this.deviceService.findDeviceByDeveloperExternalId(
+      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
         id,
         loginUser.organizationId,
       );
     }
-    devicedata.externalId = devicedata.developerExternalId;
-    delete devicedata['developerExternalId'];
-    return devicedata;
+    deviceData.externalId = deviceData.developerExternalId;
+    delete deviceData['developerExternalId'];
+    return deviceData;
   }
 
   /**
@@ -435,98 +428,6 @@ export class DeviceController {
     @Body() deviceToRegister: NewDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    deviceToRegister.externalId = deviceToRegister.externalId.trim();
-    if (deviceToRegister.externalId.trim() === '') {
-      this.logger.error(`externalId should not be empty`);
-      throw new ConflictException({
-        success: false,
-        message: `externalId should not be empty`,
-      });
-    }
-
-    if (!isValidUTCDateFormat(deviceToRegister.commissioningDate)) {
-      this.logger.error(
-        `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-      });
-    }
-    if (
-      new Date(deviceToRegister.commissioningDate).getTime() >
-      new Date().getTime()
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, commissioning is greater than current date`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ` Invalid commissioning date, commissioning is greater than current date`,
-      });
-    }
-    if (deviceToRegister['groupId'] === 0 || deviceToRegister['groupId']) {
-      deviceToRegister['groupId'] = null;
-    }
-    deviceToRegister.countryCode = deviceToRegister.countryCode.toUpperCase();
-    if (
-      deviceToRegister.countryCode &&
-      typeof deviceToRegister.countryCode === 'string' &&
-      deviceToRegister.countryCode.length === 3
-    ) {
-      const countries = countryCodesList;
-      if (
-        countries.find(
-          (ele) => ele.countryCode === deviceToRegister.countryCode,
-        ) === undefined
-      ) {
-        this.logger.error(
-          `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-        });
-      }
-    } else {
-      this.logger.error(
-        `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-      });
-    }
-    if (isNaN(parseFloat(deviceToRegister.capacity.toString()))) {
-      this.logger.error(`Invalid Capacity or energy Storage Capacity`);
-      throw new ConflictException({
-        success: false,
-        message: ' Invalid Capacity or energy Storage Capacity',
-      });
-    }
-    if (
-      deviceToRegister.capacity <= 0 ||
-      deviceToRegister.energyStorageCapacity < 0
-    ) {
-      this.logger.error(
-        `Invalid Capacity or energy Storage Capacity, it should be greater than 0`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid Capacity or energy Storage Capacity, it should be greater than 0',
-      });
-    }
-    if (
-      deviceToRegister.version === null ||
-      deviceToRegister.version === undefined ||
-      deviceToRegister.version === '0'
-    ) {
-      deviceToRegister.version = '1.0';
-    }
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -572,60 +473,19 @@ export class DeviceController {
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
-
-    if (
-      deviceToUpdate.organizationId != null &&
-      deviceToUpdate.organizationId != undefined &&
-      deviceToUpdate.organizationId
-    ) {
-      const org = await this.organizationService.findOne(
-        deviceToUpdate.organizationId,
-      );
-      if (user.role === Role.ApiUser) {
-        if (
-          user.api_user_id != org.api_user_id ||
-          org.organizationType != 'Developer'
-        ) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        } else {
-          user.organizationId = deviceToUpdate.organizationId;
-        }
-      } else {
-        if (user.role != Role.Admin && user.organizationId != org.id) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        } else if (user.role === Role.Admin) {
-          user.organizationId = deviceToUpdate.organizationId;
-        }
-      }
-    }
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
-      deviceToUpdate.externalId = deviceToUpdate.externalId.trim();
-      if (deviceToUpdate.externalId === '') {
-        this.logger.error(`externalId should not be empty`);
-        throw new ConflictException({
-          success: false,
-          message: `externalId should not be empty`,
-        });
-      }
-
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           deviceToUpdate.externalId,
           user.organizationId,
         );
-      if (
-        checkexternalid != undefined &&
-        checkexternalid.developerExternalId === externalId.trim()
-      ) {
+      if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
           success: false,
@@ -634,112 +494,32 @@ export class DeviceController {
       }
     }
 
-    if (deviceToUpdate.countryCode != undefined) {
-      deviceToUpdate.countryCode = deviceToUpdate.countryCode.toUpperCase();
-      if (
-        deviceToUpdate.countryCode &&
-        typeof deviceToUpdate.countryCode === 'string' &&
-        deviceToUpdate.countryCode.length === 3
-      ) {
-        const countries = countryCodesList;
-        if (
-          countries.find(
-            (ele) => ele.countryCode === deviceToUpdate.countryCode,
-          ) === undefined
-        ) {
-          this.logger.error(
-            `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-          );
-          throw new ConflictException({
-            success: false,
-            message:
-              ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-          });
-        }
-      } else {
-        this.logger.error(
-          `Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid countryCode, some of the valid country codes are "GBR" - "United Kingdom of Great Britain and Northern Ireland",  "CAN" - "Canada"  "IND" - "India", "DEU"-  "Germany"',
-        });
-      }
-    }
-
-    if (deviceToUpdate.capacity <= 0) {
-      this.logger.error(`Invalid Capacity, it should be greater than 0`);
-      throw new ConflictException({
-        success: false,
-        message: ' Invalid Capacity, it should be greater than 0',
-      });
-    }
-    if (
-      !isValidUTCDateFormat(deviceToUpdate.commissioningDate) &&
-      deviceToUpdate.commissioningDate !== undefined
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          ' Invalid commissioning date, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-      });
-    }
-    if (
-      new Date(deviceToUpdate.commissioningDate).getTime() >
-      new Date().getTime()
-    ) {
-      this.logger.error(
-        `Invalid commissioning date, commissioning is greater than current date`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ` Invalid commissioning date, commissioning is greater than current date`,
-      });
-    }
-
     if (deviceToUpdate.commissioningDate) {
-      const checkexternalid =
+      const checkExternalId =
         await this.deviceService.findDeviceByDeveloperExternalId(
           externalId,
           user.organizationId,
         );
       const noOfHistRead: number =
-        await this.deviceService.getNumberOfHistReads(
-          checkexternalid.externalId,
+        await this.deviceService.getNumberOfHistoryReads(
+          checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
-        await this.deviceService.getNumberOfOngReads(
-          checkexternalid.externalId,
-          checkexternalid.createdAt,
+        await this.deviceService.getNumberOfOngoingReads(
+          checkExternalId.externalId,
+          checkExternalId.createdAt,
         );
 
       if (
-        deviceToUpdate.commissioningDate != checkexternalid.commissioningDate
+        deviceToUpdate.commissioningDate != checkExternalId.commissioningDate
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkexternalid.developerExternalId}`,
-          });
-        }
-
-        if (
-          new Date(deviceToUpdate.commissioningDate).getTime() >
-          new Date(checkexternalid.createdAt).getTime()
-        ) {
-          this.logger.error(
-            `Invalid commissioning date, commissioning is greater than device onboarding date`,
-          );
-          throw new ConflictException({
-            success: false,
-            message: `Invalid commissioning date, commissioning is greater than device onboarding date`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
           });
         }
       }
@@ -773,20 +553,20 @@ export class DeviceController {
     @UserDecorator() { organizationId, role }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkisungroup = this.deviceService.findUngroupedById(id);
-    if (checkisungroup) {
-      let fitlerop: any;
+    const checkIsUnGroup = this.deviceService.findUngroupedById(id);
+    if (checkIsUnGroup) {
+      let filterOptions: any;
       if (role === 'Admin') {
-        fitlerop = {
+        filterOptions = {
           groupId: null,
         };
       } else {
-        fitlerop = {
+        filterOptions = {
           groupId: null,
           organizationId: organizationId,
         };
       }
-      return await this.deviceService.remove(id, fitlerop);
+      return await this.deviceService.remove(id, filterOptions);
     }
   }
 
@@ -878,7 +658,7 @@ export class DeviceController {
     description: 'Returns Auto-Complete',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
-  async autocomplete(
+  async autoComplete(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('externalId') externalId: string,
   ): Promise<any> {
@@ -889,8 +669,9 @@ export class DeviceController {
   /**
    * It is GET api to fetch the certified device records with in the range of date
    * @param user is loggedIn user at request
+   * @param pageNumber
    * @param externalId is unique identifier of device
-   * @param groupuId
+   * @param groupId
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
@@ -903,27 +684,16 @@ export class DeviceController {
     status: HttpStatus.OK,
     description: 'Returns Certified log date rang of Device',
   })
-  async certifiedlogdaterang(
+  async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,
-    @Query('groupUid') groupuId: string,
-    @Query('pagenumber') pagenumber: number,
+    @Query('groupUid', ParseUUIDPipe) groupId: string,
+    @Query('pagenumber') pageNumber: number,
     @Query('externalId') externalId?: number,
   ): Promise<any> {
-    this.logger.verbose(`With in certifiedlogdaterang`);
-    const regexExp =
-      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
-    if (groupuId === null || !regexExp.test(groupuId)) {
-      this.logger.error(
-        `Please Add the valid UID ,invalid group uid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: ' Please Add the valid UID ,invalid group uid value was sent',
-      });
-    }
+    this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupuId,
+      devicegroup_uid: groupId,
     });
     if (
       group === null ||
@@ -948,102 +718,15 @@ export class DeviceController {
           message: 'device not found, invalid value was sent',
         });
       }
-      return await this.deviceService.getcertifieddevicedaterange(
+      return await this.deviceService.getCertifiedDeviceDateRange(
         group.id,
         device,
       );
     } else {
-      return await this.deviceService.getcertifieddevicedaterangeBygroupid(
+      return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
         group.id,
-        pagenumber,
+        pageNumber,
       );
     }
-  }
-
-  /**
-   * It is POST api to create array of devices by uploading csv files with device data
-   * @param user is loggedIn user from request
-   * @param organizationId is organization unique identifier with number type to map with the respective organization
-   * @param fileToProcess is parsed data of uploaded csv file
-   * @returns {DeviceCsvFileProcessingJobsEntity}
-   */
-  @Post('addByAdmin/process-creation-bulk-devices-csv/:organizationId')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [DeviceCsvFileProcessingJobsEntity],
-    description: 'Returns created devices from csv',
-  })
-  @ApiBody({ type: CSVBulkUploadDTO })
-  public async processCreationBulkFromCSV(
-    @UserDecorator() user: ILoggedInUser,
-    @Param('organizationId') organizationId: number | null,
-    @Body() fileToProcess: CSVBulkUploadDTO,
-  ): Promise<DeviceCsvFileProcessingJobsEntity> {
-    this.logger.verbose(`With in processCreationBulkFromCSV`);
-    if (organizationId === null || organizationId === undefined) {
-      this.logger.error(`User needs to have organization added`);
-      throw new ConflictException({
-        success: false,
-        message: 'User needs to have organization added',
-      });
-    }
-
-    if (fileToProcess.fileName == undefined) {
-      this.logger.error(`File Not Found`);
-      throw new ConflictException({
-        success: false,
-        message: 'File Not Found',
-      });
-    }
-    if (!fileToProcess.fileName.endsWith('.csv')) {
-      this.logger.error(`Invalid file`);
-      throw new ConflictException({
-        success: false,
-        message: 'Invalid file',
-      });
-    }
-
-    let jobCreated: any;
-    if (user.role === Role.ApiUser) {
-      const organization =
-        await this.organizationService.findOne(organizationId);
-      const orguser = await this.userService.findByEmail(organization.orgEmail);
-      if (organization.api_user_id != user.api_user_id) {
-        this.logger.error(
-          `The requested organization is belongs to other apiuser`,
-        );
-        throw new BadRequestException({
-          success: false,
-          message: 'The requested organization is belongs to other apiuser',
-        });
-      }
-
-      if (orguser.role != Role.OrganizationAdmin) {
-        this.logger.error(`Unauthorized`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized',
-        });
-      }
-
-      jobCreated = await this.deviceGroupService.createCSVJobForFile(
-        user.id,
-        organizationId,
-        StatusCSV.Added,
-        fileToProcess.fileName,
-        user.api_user_id,
-      );
-    } else {
-      jobCreated = await this.deviceGroupService.createCSVJobForFile(
-        user.id,
-        organizationId,
-        StatusCSV.Added,
-        fileToProcess.fileName,
-      );
-    }
-    return jobCreated;
   }
 }

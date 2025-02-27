@@ -33,7 +33,7 @@ import {
   ISuccessResponse,
   IUser,
   LoggedInUser,
-  ResponseSuccess,
+  responseSuccess,
 } from '../../models';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationDocumentOwnershipMismatchError } from './error/organization-document-ownership-mismatch.error';
@@ -41,7 +41,7 @@ import { OrganizationStatus, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
-import { FileService } from '../file';
+import { FileService } from '../file/file.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
 
@@ -86,13 +86,15 @@ export class OrganizationService {
     });
   }
 
-  public async findByIds(ids: string[]): Promise<IFullOrganization[]> {
+  public async findByIds(
+    ids: string[] | number[],
+  ): Promise<IFullOrganization[]> {
     this.logger.verbose(`With in findByIds`);
     return this.repository.findByIds(ids);
   }
 
   async getAll(
-    filterDto: OrganizationFilterDTO,
+    filterDTO: OrganizationFilterDTO,
     pageNumber: number,
     limit: number,
     user?: LoggedInUser,
@@ -103,7 +105,7 @@ export class OrganizationService {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getAll`);
-    const query = await this.getFilteredQuery(filterDto);
+    const query = await this.getFilteredQuery(filterDTO);
     try {
       if (user != undefined && user?.role === 'ApiUser') {
         query
@@ -175,21 +177,21 @@ export class OrganizationService {
       limit,
     );
     const totalPages = Math.ceil(totalCount / limit);
-    let newuser = users;
+    let newUser = users;
     if (role != undefined && role != Role.OrganizationAdmin) {
-      newuser = users.filter((user) => user.role != 'OrganizationAdmin');
+      newUser = users.filter((user) => user.role != 'OrganizationAdmin');
     }
 
     return {
-      users: newuser,
+      users: newUser,
       currentPage: pageNumber,
       totalPages,
       totalCount,
     };
   }
 
-  public async findApiuserOrganizationUsers(
-    apiuser_id: string,
+  public async findApiUserOrganizationUsers(
+    apiUserId: string,
     pageNumber: number,
     limit: number,
   ): Promise<{
@@ -198,11 +200,11 @@ export class OrganizationService {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`With in findApiuserOrganizationUsers`);
+    this.logger.verbose(`With in findApiUserOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(
-      apiuser_id,
+      apiUserId,
       pageNumber,
       limit,
     );
@@ -472,7 +474,7 @@ export class OrganizationService {
 
     await this.repository.save(organization);
 
-    return ResponseSuccess();
+    return responseSuccess();
   }
 
   async isNameAlreadyTaken(name: string): Promise<boolean> {
@@ -513,10 +515,10 @@ export class OrganizationService {
   }
 
   public async getFilteredQuery(
-    filterDto: OrganizationFilterDTO,
+    filterDTO: OrganizationFilterDTO,
   ): Promise<SelectQueryBuilder<Organization>> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const { organizationName, organizationType } = filterDto;
+    const { organizationName, organizationType } = filterDTO;
     const query = this.repository
       .createQueryBuilder('organization')
       .leftJoinAndSelect('organization.users', 'users')

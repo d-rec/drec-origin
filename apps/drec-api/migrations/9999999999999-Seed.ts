@@ -177,7 +177,7 @@ export class Seed9999999999999 implements MigrationInterface {
     );
 
     if (!adminExists.length) {
-      const api_user = await queryRunner.query(`INSERT INTO public.api_user (
+      const apiUser = await queryRunner.query(`INSERT INTO public.api_user (
         "api_user_id",
         "permission_status"
         ) VALUES (
@@ -187,7 +187,7 @@ export class Seed9999999999999 implements MigrationInterface {
         RETURNING "api_user_id"
     `);
 
-      const api_user_id = api_user[0].api_user_id;
+      const apiUserId = apiUser[0].api_user_id;
 
       const organization =
         await queryRunner.query(`INSERT INTO public.organization (
@@ -205,7 +205,7 @@ export class Seed9999999999999 implements MigrationInterface {
             '${AdminJSON.organizationType}',
             '${process.env.ADMIN_EMAIL.toLowerCase()}',
             '${AdminJSON.status}',
-            '${api_user_id}'
+            '${apiUserId}'
         )
         RETURNING "id"
     `);
@@ -234,7 +234,7 @@ export class Seed9999999999999 implements MigrationInterface {
             '${RoleJSON[0].name}',    
             '${organizationId}',
             '${RoleJSON[0].id}',
-            '${api_user_id}'
+            '${apiUserId}'
         )`);
     }
   }
@@ -301,11 +301,11 @@ export class Seed9999999999999 implements MigrationInterface {
             const permissionValue =
               await this.computePermissions(addedPermissionList);
 
-            const checkForExistingmodule = await queryRunner.query(
+            const checkForExistingModule = await queryRunner.query(
               `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
             );
 
-            if (!checkForExistingmodule.length) {
+            if (!checkForExistingModule.length) {
               queryRunner.query(
                 `INSERT INTO public.aclmodules (
                 "id", 
@@ -352,11 +352,11 @@ export class Seed9999999999999 implements MigrationInterface {
     return this.decimalFormPermission;
   }
   private async seedCertificateSetting(queryRunner: QueryRunner) {
-    const certificate_settingTable = await queryRunner.getTable(
+    const certificateSettingTable = await queryRunner.getTable(
       'public.certificate_setting',
     );
 
-    if (!certificate_settingTable) {
+    if (!certificateSettingTable) {
       this.logger.verbose('certificate_setting table does not exist.');
       return;
     }

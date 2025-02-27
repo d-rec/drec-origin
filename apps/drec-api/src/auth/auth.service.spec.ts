@@ -10,6 +10,7 @@ import { UserDTO } from '../pods/user/dto/user.dto';
 import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
 import { IUser } from 'src/models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -40,6 +41,12 @@ describe('AuthService', () => {
         {
           provide: OauthClientCredentialsService,
           useValue: {} as any,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('mock-secret'),
+          } as any,
         },
       ],
     }).compile();
@@ -91,7 +98,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    const userDto: UserDTO = {
+    const userDTO: UserDTO = {
       id: 1,
       firstName: 'fName',
       lastName: 'lName',
@@ -115,7 +122,7 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const response = await service.login(userDto);
+      const response = await service.login(userDTO);
 
       expect(response).toBeDefined();
     });
@@ -125,7 +132,7 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      const result = await service.login(userDto);
+      const result = await service.login(userDTO);
 
       expect(result).toEqual({ accessToken: token });
     });
@@ -135,10 +142,10 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      await service.login(userDto);
+      await service.login(userDTO);
 
       expect(userService.createUserSession).toHaveBeenCalledWith(
-        userDto,
+        userDTO,
         token,
       );
     });
@@ -229,10 +236,10 @@ describe('AuthService', () => {
         role: Role.ApiUser,
       };
 
-      const tokeninvalidate = true;
+      const tokenInvalidate = true;
       jest
         .spyOn(userService, 'hasValidUserSession')
-        .mockResolvedValue(tokeninvalidate);
+        .mockResolvedValue(tokenInvalidate);
 
       await service.isTokenBlacklisted(token, payload);
 
@@ -325,7 +332,7 @@ describe('AuthService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith(payload, {
         privateKey: fileData,
-        secret: 'my-secret',
+        secret: 'mock-secret',
       });
     });
 

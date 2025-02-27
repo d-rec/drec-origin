@@ -3,7 +3,7 @@ export enum FuelCode {
   //ES990 = 'ES990',
 }
 
-export enum DevicetypeCode {
+export enum DeviceTypeCode {
   TC110 = 'TC110',
   TC120 = 'TC120',
   TC130 = 'TC130',

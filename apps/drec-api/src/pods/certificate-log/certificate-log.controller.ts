@@ -32,13 +32,13 @@ import {
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { CertificateNewWithPerDeviceLog, CertificatelogResponse } from './dto';
+import { CertificateNewWithPerDeviceLog, CertificateLogResponse } from './dto';
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { deviceFilterDTO } from './dto/deviceFilter.dto';
+import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { Role } from '../../utils/enums';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
@@ -56,7 +56,7 @@ export class CertificateLogController {
 
   constructor(
     private readonly certificateLogService: CertificateLogService,
-    private readonly devicegroupService: DeviceGroupService,
+    private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
   ) {}
@@ -108,16 +108,16 @@ export class CertificateLogController {
       'Returns Certificate logs For individual devices based on groupId',
   })
   async getByGroupId(
-    @Query(ValidationPipe) filterDto: GroupIDBasedFilteringDTO,
+    @Query(ValidationPipe) filterDTO: GroupIDBasedFilteringDTO,
   ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getByGroupId`);
-    return this.certificateLogService.findByGroupId(filterDto.groupId);
+    return this.certificateLogService.findByGroupId(filterDTO.groupId);
   }
 
   /**
    * It is GET api to list issuer certificates of groupId
    * @return { Array<CertificateNewWithPerDeviceLog> } returns issuer certicates of groupId
-   * @param groupuId
+   * @param groupId
    * @param user
    */
   @Get('/issuer/certified/:groupUid')
@@ -129,12 +129,12 @@ export class CertificateLogController {
     description: 'Returns issuer Certificate of groupId',
   })
   async getIssuerCertificate(
-    @Param('groupUid', ParseUUIDPipe) groupuId: string,
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(`With in getissueCertificate`);
-    const deviceGroup = await this.devicegroupService.findOne({
-      devicegroup_uid: groupuId,
+    const deviceGroup = await this.deviceGroupService.findOne({
+      devicegroup_uid: groupId,
     });
 
     if (deviceGroup === null || deviceGroup.buyerId != user.id) {
@@ -165,14 +165,14 @@ export class CertificateLogController {
     description: 'Returns issuer Certificate of groupId',
   })
   async getCertificatesFromUpdatedCertificateTables(
-    @Param('groupUid', ParseUUIDPipe) groupuId: string,
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
     @Query('pageNumber') pageNumber: number,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
 
-    const deviceGroup = await this.devicegroupService.findOne({
-      devicegroup_uid: groupuId,
+    const deviceGroup = await this.deviceGroupService.findOne({
+      devicegroup_uid: groupId,
     });
 
     if (user.role === Role.ApiUser) {
@@ -206,7 +206,7 @@ export class CertificateLogController {
   }
 
   /**
-   * This is GET api used in previous version of Drec, after claiming certicate user can view the redemption report
+   * This is GET api used in previous version of DREC, after claiming certicate user can view the redemption report
    */
   @Get('/redemption-report')
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
@@ -262,14 +262,14 @@ export class CertificateLogController {
     type: Object,
     required: false,
   })
-  async GetCertificateReadModule(
+  async getCertificateReadModule(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('pageNumber') pageNumber: number,
     @Query('certificateStartDate') generationStartTime?: string,
     @Query('certiifcateEndDate') generationEndTime?: string,
     @Query('targetVolumeCertificateGenerationRequestedInMegaWattHour')
     targetVolumeCertificateGenerationRequestedInMegaWattHour?: number,
-    @Query('deviceFilter') deviceFilter?: deviceFilterDTO,
+    @Query('deviceFilter') deviceFilter?: DeviceFilterDTO,
   ): Promise<{
     result: any[];
     pageNumber: number;
@@ -298,19 +298,19 @@ export class CertificateLogController {
     description: 'This query parameter is for apiuser',
   })
   @ApiOkResponse({
-    type: [CertificatelogResponse],
+    type: [CertificateLogResponse],
     description: 'Returns issuer Certificate of Reservation',
   })
   async getCertificatesForDeveloper(
     @UserDecorator() user: ILoggedInUser,
-    @Query(ValidationPipe) filterDto: FilterDTO,
+    @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pageNumber') pageNumber: number,
     @Query(
       'organizationId',
       new ValidationPipe({ skipMissingProperties: true }),
     )
     organizationId: number,
-  ): Promise<CertificatelogResponse> {
+  ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
 
     if (user.role === Role.ApiUser) {
@@ -319,7 +319,7 @@ export class CertificateLogController {
       if (organizationId) {
         const organization =
           await this.organizationService.findOne(organizationId);
-        const orguser = await this.userService.findByEmail(
+        const orgUser = await this.userService.findByEmail(
           organization.orgEmail,
         );
 
@@ -331,7 +331,7 @@ export class CertificateLogController {
           });
         } else {
           user.organizationId = organizationId;
-          user.role = orguser.role;
+          user.role = orgUser.role;
         }
       }
     } else {
@@ -347,16 +347,28 @@ export class CertificateLogController {
       }
     }
 
-    return this.certificateLogService.getCertifiedlogofDevices(
-      user,
-      filterDto,
-      pageNumber,
-    );
+    const certificateLogs =
+      await this.certificateLogService.getCertifiedLogOfDevices(
+        user,
+        filterDTO,
+        pageNumber,
+      );
+    if (filterDTO.deviceId) {
+      certificateLogs.certificatelog = (
+        certificateLogs.certificatelog as CertificateNewWithPerDeviceLog[]
+      ).filter((log) =>
+        log.perDeviceCertificateLog.some(
+          (deviceLog) => deviceLog.externalId === filterDTO.deviceId,
+        ),
+      );
+    }
+
+    return certificateLogs;
   }
 
   /**
    *
-   * @param groupuId reservat group uuid
+   * @param groupId reservat group uuid
    * @param user user login details
    * @returns
    */
@@ -365,15 +377,15 @@ export class CertificateLogController {
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
-  async getcertifcateLog_Perdevice(
+  async getCertifcateLogPerDevice(
     @UserDecorator() user: ILoggedInUser,
-    @Param('groupUid', ParseUUIDPipe) groupuId: string,
+    @Param('groupUid', ParseUUIDPipe) groupId: string,
     @Res() res: Response,
   ): Promise<void> {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
-    const deviceGroup = await this.devicegroupService.findOne({
-      devicegroup_uid: groupuId,
+    const deviceGroup = await this.deviceGroupService.findOne({
+      devicegroup_uid: groupId,
     });
     if (user.role === Role.ApiUser) {
       if (deviceGroup.api_user_id != user.api_user_id) {

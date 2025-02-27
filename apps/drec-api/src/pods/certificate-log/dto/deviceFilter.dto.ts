@@ -1,6 +1,6 @@
 import { IsOptional, IsArray, IsString, IsNumber } from 'class-validator';
 
-export class deviceFilterDTO {
+export class DeviceFilterDTO {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

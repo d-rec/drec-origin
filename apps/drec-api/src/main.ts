@@ -6,7 +6,6 @@ process.setMaxListeners(0);
 const logger = new Logger();
 
 process.on('warning', (e) => {
-  logger.warn('warning inside main.ts');
   logger.warn(e.stack);
 });
 
