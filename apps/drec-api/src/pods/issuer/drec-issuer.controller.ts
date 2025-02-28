@@ -124,7 +124,7 @@ export class DRECIssuerController {
       `got hit from cloudwatch ongoing`,
     );
     this.logger.debug(`Received group id`, groupId);
-    this.invokeIssuerCronLateOngoing(groupId);
+    this.invokeIssuerCronLateOngoing();
     this.logger.log(
       `successfully Hit the late ongoing API`,
       'with group id',
@@ -134,10 +134,10 @@ export class DRECIssuerController {
     return 'successfully Hit the late ongoing API';
   }
 
-  async invokeIssuerCronLateOngoing(groupId?: number): Promise<void> {
+  async invokeIssuerCronLateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
+      await this.issuerService.handleCronForOngoingLateIssuance();
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
