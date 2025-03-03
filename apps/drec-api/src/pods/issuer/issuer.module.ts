@@ -33,7 +33,7 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   providers: [IssuerService, SynchronizeBlockchainTaskService],
-  exports: [IssuerService],
+  exports: [IssuerService, BullModule],
   controllers: [DRECIssuerController],
 })
 export class IssuerModule {}

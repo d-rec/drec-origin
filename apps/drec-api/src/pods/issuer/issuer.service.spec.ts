@@ -3,6 +3,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationService } from '../organization/organization.service';
 import { IssuerService } from './issuer.service';
+import { getQueueToken } from '@nestjs/bull';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ReadsService } from '../reads/reads.service';
 import { Device, DeviceService } from '../device';
@@ -51,6 +52,12 @@ describe('IssuerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IssuerService,
+        {
+          provide: getQueueToken('lateOngoingIssuanceQueue'),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         {
           provide: DeviceGroupService,
           useValue: {

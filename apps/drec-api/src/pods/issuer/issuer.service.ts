@@ -1081,6 +1081,15 @@ export class IssuerService {
   @Cron('0 0 */8 * * *')
   async scheduleLateOngoingIssuance(groupId?: number): Promise<void> {
     try {
+      if (groupId) {
+        this.logger.debug(
+          `Scheduling late ongoing issuance for group ID: ${groupId}`,
+        );
+      } else {
+        this.logger.debug(
+          'No specific groupId provided, scheduling for all active groups',
+        );
+      }
       const activeGroups = await this.groupService.getAllReservationActive();
       if (!activeGroups.length) {
         this.logger.debug('No active device groups found.');
@@ -1095,11 +1104,14 @@ export class IssuerService {
         `Queued ${activeGroups.length} jobs for late ongoing issuance.`,
       );
     } catch (error) {
-      this.logger.error('Error scheduling late ongoing issuance', error.stack);
+      this.logger.error(
+        `Error in influxdb query: ${error.message}`, //Please include the whole stack
+        error.stack,
+      );
     }
   }
 
-  @Process({ name: 'lateOngoingIssuance', concurrency: 5 })
+  @Process({ concurrency: 5 })
   async handleLateOngoingIssuance(
     job: Job<{ groupId: number }>,
   ): Promise<void> {
