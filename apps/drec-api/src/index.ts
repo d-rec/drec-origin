@@ -58,7 +58,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   SwaggerModule.setup('swagger', app, document);
 
   app.use(
-    '/redoc',
+    '/docs',
     Redoc({
       title: 'D-REC Origin API',
       specUrl: '/swagger-json',
