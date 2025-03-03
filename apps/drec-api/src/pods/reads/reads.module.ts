@@ -21,6 +21,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
+import { IssuerProcessor } from '../issuer/issuer.processor';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -55,7 +56,12 @@ const baseReadServiceProvider = {
     forwardRef(() => BulkUploadModule),
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, ReadsBulkUploadProcessor],
+  providers: [
+    baseReadServiceProvider,
+    ReadsService,
+    ReadsBulkUploadProcessor,
+    IssuerProcessor,
+  ],
   exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}

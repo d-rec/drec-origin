@@ -1,0 +1,24 @@
+import { Processor, Process } from '@nestjs/bull';
+import { Job } from 'bull';
+import { IssuerService } from './issuer.service';
+import { Logger } from '@nestjs/common';
+
+@Processor('lateOngoingIssuanceQueue')
+export class IssuerProcessor {
+  private readonly logger = new Logger(IssuerProcessor.name);
+  constructor(private readonly issuerService: IssuerService) {}
+
+  @Process({ name: 'lateOngoingIssuance', concurrency: 5 })
+  async processLateOngoingIssuance(
+    job: Job<{ groupId: number }>,
+  ): Promise<void> {
+    const { groupId } = job.data;
+    this.logger.debug(`Processing late ongoing issuance for group: ${groupId}`);
+
+    try {
+      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
+    } catch (error) {
+      this.logger.error(`Error processing group ${groupId}`, error.stack);
+    }
+  }
+}
