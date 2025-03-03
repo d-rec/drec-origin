@@ -15,6 +15,7 @@ import { CertificateLogModule } from '../certificate-log/certificate-log.module'
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';
+import { IssuerProcessor } from './issuer.processor';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { BullModule } from '@nestjs/bull';
       name: 'lateOngoingIssuanceQueue',
     }),
   ],
-  providers: [IssuerService, SynchronizeBlockchainTaskService],
+  providers: [IssuerService, SynchronizeBlockchainTaskService, IssuerProcessor],
   exports: [IssuerService, BullModule],
   controllers: [DRECIssuerController],
 })
