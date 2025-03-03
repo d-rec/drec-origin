@@ -2,9 +2,9 @@
 order: 3
 ---
 
-# D-REC Cron Jobs Overview
+# Cron Jobs Overview
 
-This document details the scheduled cron jobs within the D-REC system. Each job is designed to maintain data consistency, ensure timely certificate issuance, and uphold the overall system's reliability.
+This document details the scheduled cron jobs within the D-REC platform.
 
 ## Scheduled Tasks
 
