@@ -14,6 +14,7 @@ import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.
 import { CertificateLogModule } from '../certificate-log/certificate-log.module';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -27,6 +28,9 @@ import { FileModule } from '../file';
     HttpModule,
     UserModule,
     FileModule,
+    BullModule.registerQueue({
+      name: 'lateOngoingIssuanceQueue',
+    }),
   ],
   providers: [IssuerService, SynchronizeBlockchainTaskService],
   exports: [IssuerService],

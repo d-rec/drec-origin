@@ -13,7 +13,8 @@ import {
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
 import { v4 as uuid } from 'uuid';
-
+import { InjectQueue, Process } from '@nestjs/bull';
+import { Job, Queue } from 'bull';
 import { HttpService } from '@nestjs/axios';
 
 import { DeviceService } from '../device/device.service';
@@ -47,6 +48,7 @@ export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
+    @InjectQueue('lateOngoingIssuanceQueue') private readonly queue: Queue,
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
@@ -1077,14 +1079,37 @@ export class IssuerService {
   }
 
   @Cron('0 0 */8 * * *')
-  async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
+  async scheduleLateOngoingIssuance(groupId?: number): Promise<void> {
     try {
-      this.triggerOngoingLateIssuance(groupId);
-    } catch (error) {
-      this.logger.error(
-        `Error in influxdb query: ${error.message}`, //Please include the whole stack
-        error.stack,
+      const activeGroups = await this.groupService.getAllReservationActive();
+      if (!activeGroups.length) {
+        this.logger.debug('No active device groups found.');
+        return;
+      }
+
+      for (const group of activeGroups) {
+        await this.queue.add('lateOngoingIssuance', { groupId: group.id });
+      }
+
+      this.logger.debug(
+        `Queued ${activeGroups.length} jobs for late ongoing issuance.`,
       );
+    } catch (error) {
+      this.logger.error('Error scheduling late ongoing issuance', error.stack);
+    }
+  }
+
+  @Process({ name: 'lateOngoingIssuance', concurrency: 5 })
+  async handleLateOngoingIssuance(
+    job: Job<{ groupId: number }>,
+  ): Promise<void> {
+    const { groupId } = job.data;
+    this.logger.debug(`Processing late ongoing issuance for group: ${groupId}`);
+
+    try {
+      await this.triggerOngoingLateIssuance(groupId);
+    } catch (error) {
+      this.logger.error(`Error processing group ${groupId}`, error.stack);
     }
   }
 

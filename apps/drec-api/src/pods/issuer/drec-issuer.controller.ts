@@ -137,7 +137,7 @@ export class DRECIssuerController {
   async invokeIssuerCronLateOngoing(groupId?: number): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
+      await this.issuerService.scheduleLateOngoingIssuance(groupId);
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
