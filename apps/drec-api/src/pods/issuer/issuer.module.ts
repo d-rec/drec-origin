@@ -15,7 +15,7 @@ import { CertificateLogModule } from '../certificate-log/certificate-log.module'
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';
-import { IssuerProcessor } from './issuer.processor';
+import { IssuerProcessor } from './late-ongoing-issuance.processor';
 
 @Module({
   imports: [
