@@ -16,6 +16,7 @@ import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';
 import { IssuerProcessor } from './late-ongoing-issuance.processor';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { IssuerProcessor } from './late-ongoing-issuance.processor';
     UserModule,
     FileModule,
     BullModule.registerQueue({
-      name: 'lateOngoingIssuanceQueue',
+      name: Queues.LateOngoingIssuance,
     }),
   ],
   providers: [IssuerService, SynchronizeBlockchainTaskService, IssuerProcessor],

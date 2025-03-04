@@ -42,13 +42,14 @@ import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_mete
 import { Device } from '../device';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
-    @InjectQueue('lateOngoingIssuanceQueue') private readonly queue: Queue,
+    @InjectQueue(Queues.LateOngoingIssuance) private readonly queue: Queue,
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
@@ -1099,7 +1100,7 @@ export class IssuerService {
       }
 
       for (const group of activeGroups) {
-        await this.queue.add('lateOngoingIssuance', { groupId: group.id });
+        await this.queue.add(Queues.LateOngoingIssuance, { groupId: group.id });
       }
 
       this.logger.debug(

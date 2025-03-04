@@ -32,6 +32,7 @@ import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
 } from '@energyweb/origin-247-certificate';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 describe('IssuerService', () => {
   let service: IssuerService;
@@ -53,7 +54,7 @@ describe('IssuerService', () => {
       providers: [
         IssuerService,
         {
-          provide: getQueueToken('lateOngoingIssuanceQueue'),
+          provide: getQueueToken(Queues.LateOngoingIssuance),
           useValue: {
             add: jest.fn().mockResolvedValue(undefined),
           },

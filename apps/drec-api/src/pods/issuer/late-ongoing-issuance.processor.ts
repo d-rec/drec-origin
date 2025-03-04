@@ -2,13 +2,14 @@ import { Processor, Process } from '@nestjs/bull';
 import { Job } from 'bull';
 import { IssuerService } from './issuer.service';
 import { Logger } from '@nestjs/common';
+import { Queues } from 'src/utils/enums/queues.enum';
 
-@Processor('lateOngoingIssuanceQueue')
+@Processor(Queues.LateOngoingIssuance)
 export class IssuerProcessor {
   private readonly logger = new Logger(IssuerProcessor.name);
   constructor(private readonly issuerService: IssuerService) {}
 
-  @Process({ name: 'lateOngoingIssuance', concurrency: 5 })
+  @Process({ concurrency: 5 })
   async processLateOngoingIssuance(
     job: Job<{ groupId: number }>,
   ): Promise<void> {
