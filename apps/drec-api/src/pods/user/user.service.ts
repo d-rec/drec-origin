@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -292,14 +293,13 @@ export class UserService {
     const user = await (this.repository.findOne(conditions, {
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
-
-    if (user) {
-      const emailConfirmation = await this.emailConfirmationService.get(
-        user.id,
-      );
-
-      user.emailConfirmed = emailConfirmation?.confirmed || false;
+    if (!user) {
+      throw new BadRequestException('Email does not exist');
     }
+
+    const emailConfirmation = await this.emailConfirmationService.get(user.id);
+
+    user.emailConfirmed = emailConfirmation?.confirmed || false;
 
     return user ?? null;
   }
