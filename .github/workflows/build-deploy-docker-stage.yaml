@@ -1,4 +1,4 @@
-name: Staging Deployment
+name: Staging - Build, Push to ECR & Deploy to Kubernetes
 
 on:
   push:
