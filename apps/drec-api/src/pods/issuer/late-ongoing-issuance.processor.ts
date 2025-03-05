@@ -2,7 +2,7 @@ import { Processor, Process } from '@nestjs/bull';
 import { Job } from 'bull';
 import { IssuerService } from './issuer.service';
 import { Logger } from '@nestjs/common';
-import { Queues } from 'src/utils/enums/queues.enum';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Processor(Queues.LateOngoingIssuance)
 export class IssuerProcessor {

@@ -49,7 +49,8 @@ export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
-    @InjectQueue(Queues.LateOngoingIssuance) private readonly queue: Queue,
+    @InjectQueue(Queues.LateOngoingIssuance)
+    private readonly lateOngoingQueue: Queue,
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
@@ -1093,18 +1094,19 @@ export class IssuerService {
   @Cron('0 0 */8 * * *')
   async scheduleLateOngoingIssuance(): Promise<void> {
     try {
-      const activeGroups = await this.groupService.getAllReservationActive();
-      if (!activeGroups.length) {
+      const activeDeviceGroups =
+        await this.groupService.getAllReservationActive();
+      if (!activeDeviceGroups.length) {
         this.logger.debug('No active device groups found.');
         return;
       }
 
-      for (const group of activeGroups) {
-        await this.queue.add(Queues.LateOngoingIssuance, { groupId: group.id });
+      for (const group of activeDeviceGroups) {
+        await this.lateOngoingQueue.add({ groupId: group.id });
       }
 
       this.logger.debug(
-        `Queued ${activeGroups.length} jobs for late ongoing issuance.`,
+        `Queued ${activeDeviceGroups} jobs for late ongoing issuance.`,
       );
     } catch (error) {
       this.logger.error('Error scheduling late ongoing issuance', error.stack);
