@@ -5,8 +5,8 @@ import { Logger } from '@nestjs/common';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Processor(Queues.LateOngoingIssuance)
-export class IssuerProcessor {
-  private readonly logger = new Logger(IssuerProcessor.name);
+export class LateOngoingIssuanceProcessor {
+  private readonly logger = new Logger(LateOngoingIssuanceProcessor.name);
   constructor(private readonly issuerService: IssuerService) {}
 
   @Process({ concurrency: 5 })

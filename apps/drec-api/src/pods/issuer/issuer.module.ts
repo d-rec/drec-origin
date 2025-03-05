@@ -15,7 +15,7 @@ import { CertificateLogModule } from '../certificate-log/certificate-log.module'
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';
-import { IssuerProcessor } from './late-ongoing-issuance.processor';
+import { LateOngoingIssuanceProcessor } from './late-ongoing-issuance.processor';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Module({
@@ -34,7 +34,11 @@ import { Queues } from '../../../src/utils/enums/queues.enum';
       name: Queues.LateOngoingIssuance,
     }),
   ],
-  providers: [IssuerService, SynchronizeBlockchainTaskService, IssuerProcessor],
+  providers: [
+    IssuerService,
+    SynchronizeBlockchainTaskService,
+    LateOngoingIssuanceProcessor,
+  ],
   exports: [IssuerService, BullModule],
   controllers: [DRECIssuerController],
 })
