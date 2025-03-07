@@ -11,13 +11,13 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
 import { IUser } from '../models';
-import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { WithoutAuthGuard } from '../guards';
-@ApiTags('auth')
+@ApiTags('Auth')
 @ApiBearerAuth('access-token')
 @Controller()
 export class AuthController {
@@ -32,6 +32,11 @@ export class AuthController {
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginDataDTO })
+  @ApiOperation({
+    summary: 'Login',
+    description:
+      'Authenticates a user using their email and password and returns an authentication token',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: LoginReturnDataDTO,
