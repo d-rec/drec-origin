@@ -6,5 +6,4 @@ const tags: { name: string; description: string }[] = [
   },
 ];
 
-
 export default tags;
