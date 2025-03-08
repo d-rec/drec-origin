@@ -289,21 +289,19 @@ export class UserService {
   }
 
   async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
-    try {
-      const user = await (this.repository.findOne(conditions, {
-        relations: ['organization'],
-      }) as Promise<IUser> as Promise<TUserBaseEntity>);
+    const user = await (this.repository.findOne(conditions, {
+      relations: ['organization'],
+    }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
+    if (user) {
       const emailConfirmation = await this.emailConfirmationService.get(
         user.id,
       );
 
       user.emailConfirmed = emailConfirmation?.confirmed || false;
-      return user;
-    } catch (error) {
-      this.logger.error('Database error in findOne', error.message);
-      return null;
     }
+
+    return user ?? null;
   }
 
   private hashPassword(password: string) {
