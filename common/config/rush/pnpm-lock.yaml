@@ -103,6 +103,7 @@ specifiers:
   pkcs7-padding: 0.1.1
   prettier: ~3.2.5
   qs: ^6.10.3
+  redoc-express: ^2.1.0
   reflect-metadata: ^0.1.13
   rijndael-js: 2.0.0
   rimraf: ^3.0.2
@@ -228,6 +229,7 @@ dependencies:
   pkcs7-padding: 0.1.1
   prettier: 3.2.5
   qs: 6.12.1
+  redoc-express: 2.1.0
   reflect-metadata: 0.1.14
   rijndael-js: 2.0.0
   rimraf: 3.0.2
@@ -12161,6 +12163,10 @@ packages:
       redis-errors: 1.2.0
     dev: false
 
+  /redoc-express/2.1.0:
+    resolution: {integrity: sha512-gq6FvghNirD3dCJ7w8Z6escXYHnU1Hk50baQsIeGunQQ9YRoy6qR/MjEOJtDEKaPNB2NgkIzQ9ESNX5/27zkDA==}
+    dev: false
+
   /reflect-metadata/0.1.13:
     resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
     dev: false
@@ -14283,7 +14289,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-I0KYHPVbId38vAo8wM/OlzgKOdVG8VEb3TWDvvkq7K8R+H6JrLyJTNRCCK9iKBpcOnfIh8cvq4gL6MGdBJgnww==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-XBqxQha2NgPxhI42tK4rLMbWevn5TcQeyb68jSwzG+W9MEnbf7TOimmbCQRI0b+NWpFsUkWr9LF+nhGgR49L1Q==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -14382,6 +14388,7 @@ packages:
       pkcs7-padding: 0.1.1
       prettier: 3.2.5
       qs: 6.12.1
+      redoc-express: 2.1.0
       reflect-metadata: 0.1.14
       rijndael-js: 2.0.0
       rimraf: 3.0.2
