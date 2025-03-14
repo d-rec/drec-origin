@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - ft/add-get-endpoint
   workflow_dispatch:
 
 jobs:
