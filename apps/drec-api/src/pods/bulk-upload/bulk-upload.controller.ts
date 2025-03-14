@@ -110,7 +110,7 @@ export class BulkUploadController {
     }
 
     const organizationId = organizationIdParam || user.organizationId;
-    
+
     const organization = await this.organizationService.findOne(organizationId);
     if (organization.organizationType != Role.Developer) {
       throw new UnauthorizedException(
