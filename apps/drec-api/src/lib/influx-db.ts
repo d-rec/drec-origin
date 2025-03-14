@@ -18,7 +18,9 @@ const dbWriter = (): WriteApi => {
 };
 
 const dbReader = (): QueryApi => {
-  return new InfluxDB(influxDBConfig).getQueryApi(process.env.INFLUXDB_ORG || '');
+  return new InfluxDB(influxDBConfig).getQueryApi(
+    process.env.INFLUXDB_ORG || '',
+  );
 };
 
 const writePoints = async (points: Point[]): Promise<void> => {

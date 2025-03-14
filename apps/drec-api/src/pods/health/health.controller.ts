@@ -7,7 +7,7 @@ import {
   HealthCheckService,
   HttpHealthIndicator,
   MemoryHealthIndicator,
-  TypeOrmHealthIndicator
+  TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { redisOptions } from '../../drec.module';
 import { influxDBConfig } from '../../lib/influx-db';
@@ -38,7 +38,11 @@ export class HealthController {
       //   The process should not use more than 1024MB memory
       () => this.memory.checkHeap('memory_heap', 2048 * 1024 * 1024),
       () => this.db.pingCheck('database'),
-      () => this.redis.pingCheck('redis', `redis://${redisOptions.host}:${redisOptions.port}`),
+      () =>
+        this.redis.pingCheck(
+          'redis',
+          `redis://${redisOptions.host}:${redisOptions.port}`,
+        ),
       () => this.http.pingCheck('influx-db', `${influxDBConfig.url}/health`),
     ]);
   }
