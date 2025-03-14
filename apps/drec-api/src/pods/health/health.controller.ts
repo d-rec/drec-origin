@@ -1,13 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-  DiskHealthIndicator,
   HealthCheck,
   HealthCheckResult,
   HealthCheckService,
   HttpHealthIndicator,
-  MemoryHealthIndicator,
-  TypeOrmHealthIndicator,
+  TypeOrmHealthIndicator
 } from '@nestjs/terminus';
 import { redisOptions } from '../../drec.module';
 import { influxDBConfig } from '../../lib/influx-db';
@@ -18,8 +16,6 @@ import { RedisHealthIndicator } from './redis.health-indicator';
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private readonly disk: DiskHealthIndicator,
-    private memory: MemoryHealthIndicator,
     private db: TypeOrmHealthIndicator,
     private redis: RedisHealthIndicator,
     private http: HttpHealthIndicator,
@@ -33,10 +29,6 @@ export class HealthController {
   @HealthCheck()
   check(): Promise<HealthCheckResult> {
     return this.health.check([
-      () =>
-        this.disk.checkStorage('storage', { path: '/', thresholdPercent: 0.9 }),
-      //   The process should not use more than 1024MB memory
-      () => this.memory.checkHeap('memory_heap', 2048 * 1024 * 1024),
       () => this.db.pingCheck('database'),
       () =>
         this.redis.pingCheck(
