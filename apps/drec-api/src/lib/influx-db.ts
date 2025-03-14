@@ -5,20 +5,20 @@ import {
   WriteApi,
 } from '@influxdata/influxdb-client';
 
-const dbConfig = {
+export const influxDBConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
   token: process.env.INFLUXDB_TOKEN || 'admin:admin',
 };
 
 const dbWriter = (): WriteApi => {
-  return new InfluxDB(dbConfig).getWriteApi(
+  return new InfluxDB(influxDBConfig).getWriteApi(
     process.env.INFLUXDB_ORG || '',
     process.env.INFLUXDB_BUCKET,
   );
 };
 
 const dbReader = (): QueryApi => {
-  return new InfluxDB(dbConfig).getQueryApi(process.env.INFLUXDB_ORG || '');
+  return new InfluxDB(influxDBConfig).getQueryApi(process.env.INFLUXDB_ORG || '');
 };
 
 const writePoints = async (points: Point[]): Promise<void> => {

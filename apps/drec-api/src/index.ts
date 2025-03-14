@@ -64,13 +64,6 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
     res.json(document);
   });
 
-  app
-    .getHttpAdapter()
-    .get('/health/liveness', (req, res) => res.send({ status: 'okay' }));
-  app
-    .getHttpAdapter()
-    .get('/health/readiness', (req, res) => res.send({ status: 'ready' }));
-
   await app.listen(PORT);
 
   return app;
