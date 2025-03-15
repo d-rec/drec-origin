@@ -119,12 +119,12 @@ specifiers:
   terser: ^5.14.2
   ts-jest: 29.2.3
   ts-node: 9.1.0
+  tsconfig-paths: ^4.2.0
   typeorm: 0.2.41
   typescript: 4.1.3
   uglify-js: 2.6.0
   underscore: ^1.12.1
   uuid: 8.3.2
-  wait-on: 5.2.1
 
 dependencies:
   '@compodoc/compodoc': 1.1.25_typescript@4.1.3
@@ -245,12 +245,12 @@ dependencies:
   terser: 5.31.1
   ts-jest: 29.2.3_d5u5sfj7ji52djbvoyst6etada
   ts-node: 9.1.0_typescript@4.1.3
+  tsconfig-paths: 4.2.0
   typeorm: 0.2.41_pg@8.7.1
   typescript: 4.1.3
   uglify-js: 2.6.0
   underscore: 1.13.6
   uuid: 8.3.2
-  wait-on: 5.2.1
 
 packages:
 
@@ -14289,7 +14289,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-XBqxQha2NgPxhI42tK4rLMbWevn5TcQeyb68jSwzG+W9MEnbf7TOimmbCQRI0b+NWpFsUkWr9LF+nhGgR49L1Q==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-fHO/teDiu30CcQGQaQEPayc351J/yCZFX6zeYRDcL8jJ1KPIn5uFzE8i/ZEgdYRGiSiAWExOJDflRycLtKy2Ng==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -14404,6 +14404,7 @@ packages:
       terser: 5.31.1
       ts-jest: 29.2.3_d5u5sfj7ji52djbvoyst6etada
       ts-node: 9.1.0_typescript@4.1.3
+      tsconfig-paths: 4.2.0
       typeorm: 0.2.41_pg@8.7.1
       typescript: 4.1.3
       uglify-js: 2.6.0
