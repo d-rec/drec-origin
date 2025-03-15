@@ -32,7 +32,7 @@ const DevicesJSON = [];
 import RoleJSON from './user_role.json';
 import AdminJSON from './admin.json';
 import ACLModuleJSON from './acl_modules.json';
-import { PermissionString } from 'src/utils/enums';
+import { PermissionString } from '../src/utils/enums';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });

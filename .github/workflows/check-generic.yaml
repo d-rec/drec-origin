@@ -7,9 +7,13 @@ on:
   push:
     branches:
       - develop
+      - stage
+      - prod
   pull_request:
     branches:
       - develop
+      - stage
+      - prod
 
 jobs:
   editorconfig-checker:
