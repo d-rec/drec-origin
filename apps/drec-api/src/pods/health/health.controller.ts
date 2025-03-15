@@ -7,7 +7,7 @@ import {
   HttpHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
-// import { redisOptions } from '../../drec.module';
+import { redisOptions } from '../../drec.module';
 import { influxDBConfig } from '../../lib/influx-db';
 import { RedisHealthIndicator } from './redis.health-indicator';
 
@@ -17,7 +17,7 @@ export class HealthController {
   constructor(
     private health: HealthCheckService,
     private db: TypeOrmHealthIndicator,
-    // private redis: RedisHealthIndicator,
+    private redis: RedisHealthIndicator,
     private http: HttpHealthIndicator,
   ) {}
 
@@ -30,11 +30,11 @@ export class HealthController {
   check(): Promise<HealthCheckResult> {
     return this.health.check([
       () => this.db.pingCheck('database'),
-      // () =>
-      //   this.redis.pingCheck(
-      //     'redis',
-      //     `redis://${redisOptions.host}:${redisOptions.port}`,
-      //   ),
+      () =>
+        this.redis.pingCheck(
+          'redis',
+          `redis://${redisOptions.host}:${redisOptions.port}`,
+        ),
       () => this.http.pingCheck('influx-db', `${influxDBConfig.url}/health`),
     ]);
   }
