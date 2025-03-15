@@ -1,13 +1,13 @@
-import 'reflect-metadata';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
+import 'reflect-metadata';
 import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
-import Redoc from 'redoc-express';
-import { getDocumentBuilder } from './swagger';
+import { setupRedoc } from './docs/redoc';
+import { getDocumentBuilder } from './docs/swagger';
 
 export { DRECModule };
 
@@ -50,19 +50,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger', app, document);
-
-  app.use(
-    '/docs',
-    Redoc({
-      title: 'D-REC Origin API',
-      specUrl: '/swagger-json',
-      nonce: '',
-    }),
-  );
-
-  app.use('/swagger-json', (req, res) => {
-    res.json(document);
-  });
+  await setupRedoc(app, document);
 
   await app.listen(PORT);
 
