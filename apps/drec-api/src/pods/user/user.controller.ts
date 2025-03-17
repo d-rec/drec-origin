@@ -23,6 +23,7 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
   ApiParam,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
@@ -54,7 +55,7 @@ import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
 
-@ApiTags('user')
+@ApiTags('User')
 @ApiBearerAuth('access-token')
 @UseInterceptors(ClassSerializerInterceptor, NullOrUndefinedResultInterceptor)
 @Controller('user')
@@ -74,10 +75,22 @@ export class UserController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password'])) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
+  @ApiOperation({
+    summary: 'Get Current User Profile',
+    description: 'Retrieves the profile of the currently authenticated user, including user details such as ID, first name, last name, email, and any other relevant user information.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: 'Get my user profile',
+    description: 'Returns a UserDTO object containing user details.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated to access this endpoint.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. The user does not have permission to access this resource.',
   })
   me(@UserDecorator() { id }: UserDTO): Promise<UserDTO | null> {
     return this.userService.findById(id);
@@ -96,10 +109,26 @@ export class UserController {
   )
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get User by ID',
+    description: 'Fetches user information based on the provided user ID. Ensures that the requester has the necessary permissions to view the user data.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: `Get another user's data`,
+    description: 'Returns a UserDTO object containing the requested user\'s details, including ID, first name, last name, email, and any other relevant information.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found. The specified user ID does not correspond to any existing user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated to access this endpoint.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. The user does not have permission to access this resource.',
   })
   public async get(
     @Param('id', new ParseIntPipe()) id: number,
@@ -118,10 +147,26 @@ export class UserController {
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Register a New User',
+    description: 'Creates a new user account with the provided registration data. The request body must include the user\'s organization details, as they are required for registration.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: UserDTO,
-    description: 'Register a new user ',
+    description: 'Returns the newly created UserDTO object containing the user\'s details, including ID, first name, last name, email, and any other relevant information.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Request. The provided registration data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CONFLICT,
+    description: 'Conflict. A user with the provided email already exists.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated to access this endpoint.',
   })
   public async register(
     @Body() userRegistrationData: CreateUserOrgDTO,
