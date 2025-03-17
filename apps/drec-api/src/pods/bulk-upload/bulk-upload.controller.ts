@@ -101,13 +101,16 @@ export class BulkUploadController {
   async upload(
     @UploadedFile() file: MeterReadFileDto,
     @UserDecorator() user: ILoggedInUser,
-    @Query('organizationId') organizationId: number | null,
+    @Query('organizationId') organizationIdParam: number | null,
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling bulk upload');
     if (!file) {
       throw new BadRequestException('No file provided');
     }
+
+    const organizationId = organizationIdParam || user.organizationId;
+
     const organization = await this.organizationService.findOne(organizationId);
     if (organization.organizationType != Role.Developer) {
       throw new UnauthorizedException(
