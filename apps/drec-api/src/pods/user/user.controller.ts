@@ -192,13 +192,25 @@ export class UserController {
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateUserProfileDTO })
+  @ApiOperation({
+    summary: 'Update User Profile',
+    description: 'Updates the profile information of the authenticated user. The request body must include the updated user details such as first name, last name, and email.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: `Update your own profile`,
+    description: 'Returns the updated UserDTO object containing the user\'s details after the profile update.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated to access this endpoint.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. The user does not have permission to update this resource.',
   })
   @ApiUnprocessableEntityResponse({
-    description: 'Input data validation failed',
+    description: 'Input data validation failed. The provided data does not meet the required format or constraints.',
   })
   public async updateOwnProfile(
     @UserDecorator() { id }: ILoggedInUser,
@@ -219,10 +231,17 @@ export class UserController {
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdatePasswordDTO })
+  @ApiOperation({
+    summary: 'Update Your Own Password',
+    description: 'Allows the authenticated user to change their password. The request body must include the current password and the new password.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: `Update your own password`,
+    description: 'Returns the updated UserDTO object containing the user\'s details after the password update.',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Input data validation failed. The provided data does not meet the required format or constraints.',
   })
   public async updateOwnPassword(
     @UserDecorator() { email }: ILoggedInUser,
@@ -240,10 +259,18 @@ export class UserController {
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateChangePasswordDTO })
+  @ApiOperation({
+    summary: 'Reset Password Using Token',
+    description: 'Allows users to reset their password using a valid token.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: `Update your own password`,
+    description: 'Returns the updated UserDTO object containing the user\'s details after the password reset.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Conflict. The token is invalid.',
   })
   @ApiParam({ name: 'token', type: String })
   public async changePassword(
@@ -277,11 +304,16 @@ export class UserController {
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Confirm Email Address',
+    description: 'Confirms a user’s email address using a token sent during registration. This is necessary for verifying the user’s email.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: String,
-    description: `Confirm an email confirmation token`,
+    description: 'Returns a success message indicating that the email has been confirmed successfully.',
   })
+
   @ApiParam({ name: 'token', type: String })
   public async confirmToken(
     @Param('token') token: IEmailConfirmationToken['token'],
@@ -298,10 +330,14 @@ export class UserController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Resend Confirmation Email',
+    description: 'Resends the email confirmation link to the authenticated user if they did not confirm their email.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: `Resend a confirmation email`,
+    description: 'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
     @UserDecorator() { email }: ILoggedInUser,
@@ -320,10 +356,18 @@ export class UserController {
   /*@UseGuards(PermissionGuard) */
   @Permission('Write')
   @ACLModules('PASSWORD_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Request Password Reset',
+    description: 'Initiates the password recovery process by sending a reset token to the user’s email address.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: `send a email`,
+    description: 'Returns a success message indicating that the reset email has been sent.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad Request. The provided email is invalid or not associated with any user.',
   })
   public async forgetPassword(
     @Req() req: Request,
@@ -335,6 +379,18 @@ export class UserController {
   @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
   @Roles(Role.ApiUser)
+  @ApiOperation({
+    summary: 'Export Access Key',
+    description: 'Generates and exports an access key file for the specified API user ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns the access key file for the specified API user ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User not found. The specified API user ID does not correspond to any existing user.',
+  })
   public async accessKeyFile(
     @Param('api_user_id') api_user_id: string,
     @Res() res: Response,
