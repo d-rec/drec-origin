@@ -41,7 +41,6 @@ import { writePoints } from '../../lib/influx-db';
 import { IAggregateIntermediate } from '../../models';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { convertToWh } from '../../utils/convert-to-power-units';
-
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -73,6 +72,8 @@ import { computeMaxEnergyCapacity } from '../../utils/compute-max-energy-capacit
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 const INFLUX_DB_TIMEOUT = 60000;
+const DEGRADATION = 0.5;
+const DEGRADATION_PERCENTAGE = DEGRADATION / 100;
 @Injectable()
 export class ReadsService {
   public readonly logger = new Logger(ReadsService.name);
@@ -188,7 +189,7 @@ export class ReadsService {
     });
   }
 
-  public async newStoreRead(
+  public async storeRead(
     id: string,
     measurements: NewIntermediateMeterReadDTO,
   ): Promise<void> {
@@ -211,18 +212,18 @@ export class ReadsService {
       );
     }
 
-    const roundedMeasurements = this.newRoundMeasurementsToUnit(measurements);
+    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
 
-    const filteredMeasurements = await this.newFilterMeasurements(
+    const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
     this.logger.verbose(filteredMeasurements);
-    await this.newStoreGenerationReading(id, filteredMeasurements, device);
+    await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
-  private newRoundMeasurementsToUnit(
+  private roundMeasurementsToUnit(
     measurement: NewIntermediateMeterReadDTO,
   ): NewIntermediateMeterReadDTO {
     const getMultiplier = (unit: Unit) => {
@@ -250,12 +251,12 @@ export class ReadsService {
     };
   }
 
-  private async newFilterMeasurements(
+  private async filterMeasurements(
     deviceId: string,
     measurement: NewIntermediateMeterReadDTO,
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
-    const final = await this.newFindLatestRead(deviceId, device.createdAt);
+    const final = await this.findLatestRead(deviceId, device.createdAt);
     this.logger.verbose(`final: ${final}`);
     const reads: any = [];
     if (measurement.type === 'History') {
@@ -323,7 +324,7 @@ export class ReadsService {
             timestamp: new Date(element.endtimestamp),
             value: element.value,
           };
-          const historyValidation = await this.newHistoryValidateEnergy(
+          const historyValidation = await this.historyValidateEnergy(
             read,
             device,
             meteredTimePeriod,
@@ -446,7 +447,7 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const newDeltaValidation = this.newValidateEnergy(
+              const newDeltaValidation = this.validateEnergy(
                 read,
                 final,
                 device,
@@ -593,7 +594,7 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: delta,
               };
-              const newValidation = this.newValidateEnergy(read, final, device);
+              const newValidation = this.validateEnergy(read, final, device);
               if (newValidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
@@ -629,7 +630,7 @@ export class ReadsService {
     }
   }
 
-  async newFindLatestRead(
+  async findLatestRead(
     meterId: string,
     deviceRegistrationDate: Date,
   ): Promise<ReadDTO | void> {
@@ -727,8 +728,6 @@ export class ReadsService {
     device: DeviceDTO,
   ): { success: boolean; message: string } {
     this.logger.debug(JSON.stringify(read));
-    const degradation = 0.5; // [%/year]
-    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -749,12 +748,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradationPercentage,
+      DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
@@ -772,13 +771,11 @@ export class ReadsService {
       };
     }
   }
-  private newValidateEnergy(
+  private validateEnergy(
     read: ReadDTO,
     final: ReadDTO,
     device: DeviceDTO,
   ): { success: boolean; message: string } {
-    const degradation = 0.5; // [%/year]
-    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -798,12 +795,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradationPercentage,
+      DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
@@ -821,7 +818,7 @@ export class ReadsService {
     }
   }
 
-  async newHistoryValidateEnergy(
+  async historyValidateEnergy(
     read: ReadDTO,
     device: DeviceDTO,
     requestedMeteredTimePeriod: number,
@@ -830,8 +827,6 @@ export class ReadsService {
     endDate: Date,
   ): Promise<boolean> {
     this.logger.debug(JSON.stringify(read));
-    const degradation = 0.5; // [%/year]
-    const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 2000; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
@@ -846,12 +841,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      degradationPercentage,
+      DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${degradation}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
@@ -911,7 +906,7 @@ export class ReadsService {
     }
   }
 
-  private async newStoreGenerationReading(
+  private async storeGenerationReading(
     id: string,
     measurements: MeasurementDTO,
     device: DeviceDTO,
@@ -1972,6 +1967,6 @@ export class ReadsService {
         message: `can not allow multiple reads simultaneously `,
       });
     }
-    return await this.newStoreRead(device.externalId, measurements);
+    return await this.storeRead(device.externalId, measurements);
   }
 }
