@@ -17,7 +17,7 @@ import {
   ApiBody,
   ApiTags,
   ApiSecurity,
-  ApiOkResponse,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { PermissionService } from './permission.service'; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -36,7 +36,7 @@ import { ACLModulePermission } from './permission.entity';
 import { Permission } from './decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { PermissionGuard } from '../../guards'; // eslint-disable-line @typescript-eslint/no-unused-vars
-@ApiTags('permission')
+@ApiTags('Permissions')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('permission')
@@ -53,9 +53,23 @@ export class PermissionController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
-    type: [ACLModulePermission],
-    description: 'Returns all Permission',
+  @ApiOperation({
+    summary: 'Get All Permissions',
+    description: 'Retrieves a list of all permissions available in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [PermissionDTO],
+    description: 'Returns an array of permissions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to access this resource.',
   })
   async getAll(): Promise<ACLModulePermission[]> {
     this.logger.verbose(`With in getAll`);
@@ -71,10 +85,27 @@ export class PermissionController {
   @Roles(Role.Admin, Role.OrganizationAdmin)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get Permissions by Role ID',
+    description: 'Retrieves permissions associated with a specific role ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: PermissionDTO,
-    description: 'Get list of user role permission',
+    type: [PermissionDTO],
+    description: 'Returns an array of permissions for the specified role.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not Found. The specified role does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to access this resource.',
   })
   async rolePermission(
     @Param('id', new ParseIntPipe()) id: number,
@@ -92,12 +123,28 @@ export class PermissionController {
   @UseGuards(AuthGuard('jwt'))
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get Permissions by User ID',
+    description: 'Retrieves permissions associated with a specific user ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: PermissionDTO,
-    description: 'Get list of user permission',
+    type: [PermissionDTO],
+    description: 'Returns an array of permissions for the specified user.',
   })
-  //user( { id }: PermissionDTO): Promise<PermissionDTO[] | null> {
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not Found. The specified user does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized access. The user must be authenticated.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to access this resource.',
+  })
   user(
     @Param('id', new ParseIntPipe()) id: number,
   ): Promise<PermissionDTO[] | null> {
@@ -116,10 +163,24 @@ export class PermissionController {
   @ApiBody({ type: NewPermissionDTO })
   @Permission('Write')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Create Permission',
+    description: 'Creates a new permission in the system.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: PermissionDTO,
-    description: 'Permission added sucessfull',
+    description: 'Permission added successfully.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Bad Request. The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to create permissions.',
   })
   public async register(
     @Body() moduleData: NewPermissionDTO,
@@ -139,11 +200,28 @@ export class PermissionController {
   @ApiBody({ type: UpdatePermissionDTO })
   @Permission('Write')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Update Permission',
+    description: 'Updates an existing permission based on the provided ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: PermissionDTO,
+    description: 'Returns the updated permission.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not Found. The specified permission does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
     description:
-      'Updates a permission (Read,Write,Delete,Update) or status by admin',
+      'Bad Request. The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to update permissions.',
   })
   public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,
@@ -163,10 +241,20 @@ export class PermissionController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   @Roles(Role.ApiUser)
   @ApiBody({ type: [NewApiUserPermissionDTO] })
+  @ApiOperation({
+    summary: 'Request Permission for API User',
+    description:
+      'Allows an API user to request permissions for specific modules.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: PermissionDTO,
-    description: 'Request of permission from ApiUser',
+    description: 'Request of permission from ApiUser.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Bad Request. The provided data is invalid or missing required fields.',
   })
   public async apiUserModuleRequest(
     //  @Param('apiUserId') apiUserId: string,
@@ -188,10 +276,19 @@ export class PermissionController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiBody({ type: ApiUserPermissionUpdateDTO })
+  @ApiOperation({
+    summary: 'Approve API User Permission Request',
+    description:
+      'Allows an admin to approve permission requests made by API users. The admin provides the API user ID and the updated permission data.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: PermissionDTO,
-    description: 'Request for api user',
+    description: 'Successfully approved the API user permission request.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not Found. The specified API user does not exist.',
   })
   public async apiUserModuleApprove(
     @Param('apiUserId') apiUserId: string,

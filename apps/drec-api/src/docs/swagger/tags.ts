@@ -28,6 +28,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to managing invitations within organizations. This includes functionalities for inviting users to organizations, retrieving invitations, and managing invitation statuses. These operations ensure that organizations can effectively manage user access and collaboration while maintaining proper authorization and validation mechanisms.',
   },
+  {
+    name: 'Permissions',
+    description:
+      'Endpoints related to managing permissions within the application. This includes functionalities for assigning, updating, and retrieving permissions for users and roles. These operations ensure that access control is effectively managed, allowing for secure and organized user interactions within the system.',
+  },
 ];
 
 export default tags;
