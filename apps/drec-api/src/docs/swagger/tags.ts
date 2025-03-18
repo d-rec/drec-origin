@@ -16,7 +16,7 @@ const tags: { name: string; description: string }[] = [
   },
   {
     name: 'blockchain-properties',
-    description:'',
+    description: '',
   },
   {
     name: 'File',

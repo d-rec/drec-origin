@@ -58,7 +58,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Logout',
-    description: 'Logs out the authenticated user by removing their active session.',
+    description:
+      'Logs out the authenticated user by removing their active session.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -75,7 +76,8 @@ export class AuthController {
   @Post('auth/getAccess')
   @ApiOperation({
     summary: 'Generate Access Token',
-    description: 'Authenticates a user with email and password, then returns an access token.',
+    description:
+      'Authenticates a user with email and password, then returns an access token.',
   })
   @ApiBody({
     type: LoginDataDTO,

@@ -70,7 +70,8 @@ export class InvitationController {
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Get Invitations',
-    description: 'Retrieves all invitations associated with the authenticated user.',
+    description:
+      'Retrieves all invitations associated with the authenticated user.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -79,11 +80,13 @@ export class InvitationController {
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized access. The user must be authenticated to access this endpoint.',
+    description:
+      'Unauthorized access. The user must be authenticated to access this endpoint.',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden. The user does not have permission to access this resource.',
+    description:
+      'Forbidden. The user does not have permission to access this resource.',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -126,27 +129,33 @@ export class InvitationController {
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Update Invitation',
-    description: 'Updates the status of an invitation based on the provided ID.',
+    description:
+      'Updates the status of an invitation based on the provided ID.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: 'Returns a success response indicating the invitation has been updated.',
+    description:
+      'Returns a success response indicating the invitation has been updated.',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'The specified invitation does not exist.' })
+    description: 'The specified invitation does not exist.',
+  })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Bad Request. The provided data is invalid or missing required fields.',
+    description:
+      'Bad Request. The provided data is invalid or missing required fields.',
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized access. The user must be authenticated to update invitations.',
+    description:
+      'Unauthorized access. The user must be authenticated to update invitations.',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden. The user does not have permission to update this invitation.',
+    description:
+      'Forbidden. The user does not have permission to update this invitation.',
   })
   async updateInvitation(
     @Param('id') invitationId: number,
@@ -205,13 +214,15 @@ export class InvitationController {
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden. The user does not have permission to invite members.',
+    description:
+      'Forbidden. The user does not have permission to invite members.',
   })
   @ApiQuery({
     name: 'organizationId',
     required: false,
     type: Number,
-    description: 'Optional ID of the organization to which the user is being invited.',
+    description:
+      'Optional ID of the organization to which the user is being invited.',
   })
   async invite(
     @Body() { email, role, firstName, lastName }: InviteDTO,
@@ -291,7 +302,8 @@ export class InvitationController {
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Get invitations by email',
-    description: 'Retrieves all invitations associated with the logged-in user’s email.',
+    description:
+      'Retrieves all invitations associated with the logged-in user’s email.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -304,7 +316,8 @@ export class InvitationController {
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden. The user does not have permission to view invitations.',
+    description:
+      'Forbidden. The user does not have permission to view invitations.',
   })
   async getInvitationsByEmail(
     @UserDecorator() loggedUser: ILoggedInUser,
