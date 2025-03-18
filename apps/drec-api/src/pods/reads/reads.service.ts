@@ -447,12 +447,12 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const newDeltaValidation = this.validateEnergy(
+              const deltaValidation = this.validateEnergy(
                 read,
                 final,
                 device,
               );
-              if (newDeltaValidation.success) {
+              if (deltaValidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
                   value: element.value,
@@ -461,7 +461,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: newDeltaValidation.message,
+                    message: deltaValidation.message,
                   }),
                 );
               }
@@ -594,8 +594,8 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: delta,
               };
-              const newValidation = this.validateEnergy(read, final, device);
-              if (newValidation.success) {
+              const validation = this.validateEnergy(read, final, device);
+              if (validation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
                   value: delta,
@@ -611,7 +611,7 @@ export class ReadsService {
                 return reject(
                   new ConflictException({
                     success: false,
-                    message: newValidation.message,
+                    message: validation.message,
                   }),
                 );
               }
