@@ -447,11 +447,7 @@ export class ReadsService {
                 timestamp: new Date(element.endtimestamp),
                 value: element.value,
               };
-              const deltaValidation = this.validateEnergy(
-                read,
-                final,
-                device,
-              );
+              const deltaValidation = this.validateEnergy(read, final, device);
               if (deltaValidation.success) {
                 reads.push({
                   timestamp: new Date(element.endtimestamp),
