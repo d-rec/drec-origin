@@ -41,6 +41,7 @@ import { writePoints } from '../../lib/influx-db';
 import { IAggregateIntermediate } from '../../models';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { convertToWh } from '../../utils/convert-to-power-units';
+
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -68,6 +69,7 @@ import {
 } from '../../transformers/timezone';
 import { validateTimezone } from '../../validations/timezone';
 import { Queues } from '../../utils/enums/queues.enum';
+import { computeMaxEnergyCapacity } from '../../utils/compute-max-energy-capacity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 const INFLUX_DB_TIMEOUT = 60000;
@@ -724,26 +726,6 @@ export class ReadsService {
     read: ReadDTO,
     device: DeviceDTO,
   ): { success: boolean; message: string } {
-    const computeMaxEnergy = (
-      capacity: number,
-      meteredTimePeriod: number,
-      deviceAge: number,
-      degradationPercentage: number,
-      yieldValue: number,
-    ) => {
-      // Max calculated energy formula
-      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
-      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
-      this.logger.debug(
-        'New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)',
-      );
-      return (
-        capacity *
-        meteredTimePeriod *
-        (yieldValue / 8760) *
-        Math.pow(1 - degradationPercentage, deviceAge - 1)
-      );
-    };
     this.logger.debug(JSON.stringify(read));
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
@@ -763,7 +745,7 @@ export class ReadsService {
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
 
-    const maxEnergy = computeMaxEnergy(
+    const maxEnergy = computeMaxEnergyCapacity(
       capacity,
       meteredTimePeriod,
       deviceAge,
@@ -795,26 +777,6 @@ export class ReadsService {
     final: ReadDTO,
     device: DeviceDTO,
   ): { success: boolean; message: string } {
-    const computeMaxEnergy = (
-      capacity: number,
-      meteredTimePeriod: number,
-      deviceAge: number,
-      degradationPercentage: number,
-      yieldValue: number,
-    ) => {
-      // Max calculated energy formula
-      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
-      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
-      this.logger.debug(
-        'New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)',
-      );
-      return (
-        capacity *
-        meteredTimePeriod *
-        (yieldValue / 8760) *
-        Math.pow(1 - degradationPercentage, deviceAge - 1)
-      );
-    };
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
     const yieldValue = device.yieldValue || 2000; // [kWh/kW]
@@ -832,7 +794,7 @@ export class ReadsService {
     const meteredTimePeriod = Math.abs(
       currentRead.diff(lastRead, ['hours']).toObject()?.hours || 0,
     ); // hours
-    const maxEnergy = computeMaxEnergy(
+    const maxEnergy = computeMaxEnergyCapacity(
       capacity,
       meteredTimePeriod,
       deviceAge,
@@ -867,27 +829,6 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): Promise<boolean> {
-    const computeMaxEnergy = (
-      capacity: number,
-      meteredTimePeriod: number,
-      deviceAge: number,
-      degradationPercentage: number,
-      yieldValue: number,
-    ) => {
-      // Max calculated energy formula
-      // Old formula: Device capacity [kW] * metered time period [h] * device age [years] * degradation [%/year] * yield [kWh/kW]
-      //New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)
-      this.logger.debug(
-        'New formula: Device capacity [kW]  * metered time period [h] * (Yield [kWh/kW] / 8760)* (1-degradation [%/year])^(device age [years] - 1)',
-      );
-      return (
-        capacity *
-        meteredTimePeriod *
-        (yieldValue / 8760) *
-        Math.pow(1 - degradationPercentage, deviceAge - 1)
-      );
-    };
-
     this.logger.debug(JSON.stringify(read));
     const degradation = 0.5; // [%/year]
     const degradationPercentage = degradation / 100;
@@ -901,7 +842,7 @@ export class ReadsService {
       deviceAge = 1;
     }
     const meteredTimePeriod = requestedMeteredTimePeriod;
-    const maxEnergy = computeMaxEnergy(
+    const maxEnergy = computeMaxEnergyCapacity(
       capacity,
       meteredTimePeriod,
       deviceAge,
