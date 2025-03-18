@@ -33,6 +33,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to managing permissions within the application. This includes functionalities for assigning, updating, and retrieving permissions for users and roles. These operations ensure that access control is effectively managed, allowing for secure and organized user interactions within the system.',
   },
+  {
+    name: 'Aclmodules',
+    description:
+      'Endpoints related to managing ACL modules within the application. This includes functionalities for creating, updating, and retrieving ACL modules, ensuring that access control layers are effectively managed and organized within the system.',
+  },
 ];
 
 export default tags;

@@ -17,6 +17,7 @@ import {
   ApiBody,
   ApiTags,
   ApiSecurity,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { Role } from '../../utils/enums';
 import { AccessControlLayerModuleServiceService } from './access-control-layer-module-service.service';
@@ -31,7 +32,7 @@ import { RolesGuard } from '../../guards/RolesGuard';
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
  */
-@ApiTags('aclmoduleservices')
+@ApiTags('Aclmodules')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('access-control-layer-module-service')
@@ -54,10 +55,14 @@ export class AccessControlLayerModuleServiceController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
 
   //@Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Get All ACL Modules',
+    description: 'Retrieves a list of all ACL modules available in the system.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ACLModuleDTO],
-    description: 'ACL Module list',
+    description: 'List of all ACL modules.',
   })
   async getAll(): Promise<ACLModuleDTO[] | null> {
     this.logger.verbose(`With in getAll`);
@@ -71,10 +76,19 @@ export class AccessControlLayerModuleServiceController {
   @Post()
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Create ACL Module',
+    description: 'Creates a new ACL module in the system.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: ACLModuleDTO,
-    description: 'Add a Module',
+    description: 'Successfully created a new ACL module.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Bad Request. The provided data is invalid or missing required fields.',
   })
   public async register(
     @Body() moduleData: NewACLModuleDTO,
@@ -92,10 +106,18 @@ export class AccessControlLayerModuleServiceController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @ApiBody({ type: UpdateACLModuleDTO })
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Update ACL Module',
+    description: "Updates an existing ACL module's permissions or status.",
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ACLModuleDTO,
-    description: 'Updates a Module Permission or status by admin',
+    description: 'Successfully updated the ACL module permissions or status.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not Found. The specified ACL module does not exist.',
   })
   public async updateyield(
     @Param('id', new ParseIntPipe()) id: number,
