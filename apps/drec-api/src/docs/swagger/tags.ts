@@ -14,6 +14,20 @@ const tags: { name: string; description: string }[] = [
     description:
       'All endpoints related to organization management. This includes functionalities such as retrieving organization details for the authenticated user, managing all organizations associated with an API user, fetching users within an organization, handling user role changes, managing invitations, and setting blockchain addresses. These endpoints ensure comprehensive management of organizational data and user interactions within the organization, providing a structured approach to organization-related operations.',
   },
+  {
+    name: 'blockchain-properties',
+    description:'',
+  },
+  {
+    name: 'File',
+    description:
+      'Endpoints for managing file operations, including uploading files to an AWS S3 bucket and downloading files. These operations ensure secure handling of files, allowing users to store and retrieve documents efficiently while maintaining proper authorization and validation mechanisms.',
+  },
+  {
+    name: 'Invitation',
+    description:
+      'Endpoints related to managing invitations within organizations. This includes functionalities for inviting users to organizations, retrieving invitations, and managing invitation statuses. These operations ensure that organizations can effectively manage user access and collaboration while maintaining proper authorization and validation mechanisms.',
+  },
 ];
 
 export default tags;
