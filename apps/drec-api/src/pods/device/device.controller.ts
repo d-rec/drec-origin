@@ -21,8 +21,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
-  ApiNotFoundResponse,
-  ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiSecurity,
@@ -60,7 +59,7 @@ import { CodeNameDTO } from './dto/code-name.dto';
 /**
  * It is Controller of device with the endpoints of device operations.
  */
-@ApiTags('device')
+@ApiTags('Device')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/device')
@@ -84,7 +83,26 @@ export class DeviceController {
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiQuery({ name: 'OrganizationId', type: Number, required: false })
-  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  @ApiOperation({
+    summary: 'Retrieve all devices',
+    description:
+      'Fetch a paginated list of all devices, with optional filtering by organization ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved the list of devices.',
+    type: [DeviceDTO],
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to view the list of devices.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description:
+      'Unauthorized. User is not authorized to access the device list.',
+  })
   async getAll(
     @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pagenumber') pageNumber: number | null,
@@ -107,7 +125,19 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
-  @ApiOkResponse({ type: [DeviceDTO], description: 'Returns all Devices' })
+  @ApiOperation({
+    summary: 'Retrieve ungrouped devices for buyer reservation',
+    description: 'Fetch all devices available for reservation by buyers.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved devices for reservation',
+    type: [DeviceDTO],
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Access to the resource is forbidden',
+  })
   async getAllDeviceForBuyer(
     @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pagenumber') pageNumber: number | null,
@@ -175,9 +205,19 @@ export class DeviceController {
   @Roles(Role.Admin, Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Retrieve all ungrouped devices',
+    description:
+      'Fetch a list of all ungrouped devices with optional filtering.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved the list of ungrouped devices.',
     type: [GroupedDevicesDTO],
-    description: 'Returns all ungrouped Devices',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view ungrouped devices.',
   })
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
@@ -192,15 +232,22 @@ export class DeviceController {
    * @returns {Array<CodeNameDTO>}
    */
   @Get('/device-type')
+  @ApiOperation({
+    summary: 'Retrieve all device types',
+    description: 'Fetch a list of all available device types.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
+    description: 'Successfully retrieved the list of device types.',
     type: [CodeNameDTO],
-    description: 'Returns all IREC device types',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view device types.',
   })
   getDeviceTypes(): CodeNameDTO[] {
     this.logger.verbose(`With in getDeviceTypes`);
     const deviceTypes = this.deviceService.getDeviceTypes();
-
     return deviceTypes.map((deviceType) =>
       plainToClass(CodeNameDTO, deviceType),
     );
@@ -211,10 +258,18 @@ export class DeviceController {
    * @returns {Array<CodeNameDTO>}
    */
   @Get('/fuel-type')
+  @ApiOperation({
+    summary: 'Retrieve all fuel types',
+    description: 'Fetch a list of all available fuel types.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
+    description: 'Successfully retrieved the list of fuel types.',
     type: [CodeNameDTO],
-    description: 'Returns all IREC fuel types',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view fuel types.',
   })
   getFuelTypes(): CodeNameDTO[] {
     this.logger.verbose(`With in getFuelTypes`);
@@ -235,10 +290,19 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Retrieve my devices',
+    description: 'Fetch a paginated list of devices owned by the user.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
+    description:
+      'Successfully retrieved the list of devices owned by the user.',
     type: [DeviceDTO],
-    description: 'Returns my Devices',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view their devices.',
   })
   async getMyDevices(
     @Query(ValidationPipe) filterDTO: FilterDTO,
@@ -344,9 +408,18 @@ export class DeviceController {
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'apiUserId', type: String, required: false })
   @ApiQuery({ name: 'organizationId', type: Number, required: false })
-  @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
-  @ApiNotFoundResponse({
-    description: `The device with the code doesn't exist`,
+  @ApiOperation({
+    summary: 'Fetch device by ID',
+    description: 'Retrieve a device using its unique identifier.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved the device details.',
+    type: DeviceDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
   })
   async get(
     @Param('id') id: number,
@@ -376,9 +449,22 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @ApiOkResponse({ type: DeviceDTO, description: 'Returns a Device' })
-  @ApiNotFoundResponse({
-    description: `The device with the code doesn't exist`,
+  @ApiOperation({
+    summary: 'Fetch device by external ID',
+    description: 'Retrieve a device using its external identifier.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully retrieved the device details.',
+    type: DeviceDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view this device.',
   })
   async getByExternalId(
     @Param('id') id: string,
@@ -418,10 +504,18 @@ export class DeviceController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Create a new device',
+    description: 'Register a new device in the system.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
+    description: 'Successfully created the device.',
     type: NewDeviceDTO,
-    description: 'Returns a new created Device id',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to create devices.',
   })
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
@@ -461,12 +555,24 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Update device by external ID',
+    description:
+      'Update the details of an existing device using its external identifier.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
+    description: 'Successfully updated the device details.',
     type: UpdateDeviceDTO,
-    description: 'Returns an updated Device',
   })
-  @ApiNotFoundResponse({ description: `No device found` })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to update this device.',
+  })
   public async update(
     @UserDecorator() user: ILoggedInUser,
     @Param('externalId') externalId: string,
@@ -543,11 +649,22 @@ export class DeviceController {
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.OrganizationAdmin, Role.Admin)
+  @ApiOperation({
+    summary: 'Delete device by ID',
+    description: 'Remove a device from the system using its unique identifier.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Remove device group',
+    description: 'Successfully deleted the device.',
   })
-  @ApiNotFoundResponse({ description: `No device group found` })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to delete this device.',
+  })
   public async remove(
     @Param('id') id: number,
     @UserDecorator() { organizationId, role }: ILoggedInUser,
@@ -579,10 +696,23 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Retrieve total reads by devices',
+    description:
+      'Fetch total read for devices owned by the user, grouped by organization.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
+    description: "Successfully retrieved total read for the user's devices.",
     type: [DeviceDTO],
-    description: 'Returns my Devices',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view total read.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'User is not authorized to access total.',
   })
   async getMyDevicesTotal(
     @UserDecorator() { organizationId }: ILoggedInUser,
@@ -602,9 +732,18 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Update device onboarding date',
+    description:
+      'Change the onboarding date of a device using its unique identifier.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "change the device's OnBoarding date",
+    description: 'Successfully updated the onboarding date of the device.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to update the onboarding date.',
   })
   @ApiQuery({ name: 'deviceId', description: 'Device Id' })
   @ApiQuery({
@@ -653,9 +792,19 @@ export class DeviceController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Auto-complete device search',
+    description:
+      'Fetch devices based on a partial external identifier for auto-completion.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns Auto-Complete',
+    description: 'Successfully retrieved auto-complete results for devices.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to access auto-complete results.',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
   async autoComplete(
@@ -680,9 +829,18 @@ export class DeviceController {
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'externalId', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Fetch certified device records by date range',
+    description:
+      'Retrieve certified device records within a specified date range.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns Certified log date rang of Device',
+    description: 'Successfully retrieved certified log date range for devices.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to access certified logs.',
   })
   async certifiedLogDateRange(
     @UserDecorator() user: ILoggedInUser,

@@ -38,6 +38,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to managing ACL modules within the application. This includes functionalities for creating, updating, and retrieving ACL modules, ensuring that access control layers are effectively managed and organized within the system.',
   },
+  {
+    name: 'Device',
+    description:
+      'Endpoints related to device management. This includes functionalities for creating, updating, retrieving, and deleting devices, as well as managing device types and their associated data. These endpoints facilitate the organization and management of devices within the application, ensuring that device-related operations are streamlined and accessible for developers.',
+  },
 ];
 
 export default tags;
