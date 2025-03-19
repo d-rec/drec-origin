@@ -69,7 +69,11 @@ import {
 import { validateTimezone } from '../../validations/timezone';
 import { Queues } from '../../utils/enums/queues.enum';
 import { computeMaxEnergyCapacity } from '../../utils/compute-max-energy-capacity';
-import { DEGRADATION, DEGRADATION_PERCENTAGE, INFLUX_DB_TIMEOUT } from '../../constants';
+import {
+  DEGRADATION,
+  DEGRADATION_PERCENTAGE,
+  INFLUX_DB_TIMEOUT,
+} from '../../constants';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
