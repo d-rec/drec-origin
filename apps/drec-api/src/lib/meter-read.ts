@@ -1,3 +1,5 @@
+import { DEVICE_DEGRADATION } from "../constants";
+
 export const computeMaxEnergyCapacity = (
   capacity: number,
   meteredTimePeriod: number,
@@ -9,6 +11,6 @@ export const computeMaxEnergyCapacity = (
     capacity *
     meteredTimePeriod *
     (yieldValue / 8760) *
-    Math.pow(1 - degradationPercentage, deviceAge - 1)
-  );
+    Math.pow(1 - DEVICE_DEGRADATION/100, deviceAge - 1)
+);
 };
