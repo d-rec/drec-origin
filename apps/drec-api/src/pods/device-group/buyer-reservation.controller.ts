@@ -217,11 +217,16 @@ export class BuyerReservationController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
-  @ApiOperation({ summary: 'Fetch my reservations', description: 'Retrieve buyer reservations associated with the logged-in user.' })
+  @ApiOperation({
+    summary: 'Fetch my reservations',
+    description:
+      'Retrieve buyer reservations associated with the logged-in user.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
-    description: 'Successfully retrieved buyer reservations associated with the user.',
+    description:
+      'Successfully retrieved buyer reservations associated with the user.',
   })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
@@ -286,7 +291,11 @@ export class BuyerReservationController {
     required: false,
     description: 'This query parameter is used for Apiuser',
   })
-  @ApiOperation({ summary: 'Fetch buyer reservation by ID', description: 'Retrieve a specific buyer reservation using its ID. Optionally filter by organization ID.' })
+  @ApiOperation({
+    summary: 'Fetch buyer reservation by ID',
+    description:
+      'Retrieve a specific buyer reservation using its ID. Optionally filter by organization ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: DeviceGroupDTO,
@@ -684,11 +693,16 @@ export class BuyerReservationController {
    * @returns {CheckCertificateIssueDateLogForDeviceGroupEntity}
    */
   @Get('certificatelog/:id')
-  @ApiOperation({ summary: 'Fetch certificate log for a device using its ID',   description: 'This log contains details about the issuance of certificates related to the device group, which can be useful for tracking and auditing purposes in the context of buyer reservations.' })
+  @ApiOperation({
+    summary: 'Fetch certificate log for a device using its ID',
+    description:
+      'This log contains details about the issuance of certificates related to the device group, which can be useful for tracking and auditing purposes in the context of buyer reservations.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [DeviceGroupDTO], 
-    description: 'Successfully retrieved the certificate log for the device group.',
+    type: [DeviceGroupDTO],
+    description:
+      'Successfully retrieved the certificate log for the device group.',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,

@@ -44,8 +44,14 @@ const tags: { name: string; description: string }[] = [
       'Endpoints related to device management. This includes functionalities for creating, updating, retrieving, and deleting devices, as well as managing device types and their associated data. These endpoints facilitate the organization and management of devices within the application, ensuring that device-related operations are streamlined and accessible for developers.',
   },
   {
-    name: 'Buyer Reservation', 
-    description: 'Endpoints related to managing buyer reservations, including creating new reservations, updating existing reservations, retrieving current reservation information, ending reservations, and fetching reservation logs. These endpoints facilitate the management of buyer interactions with reservations, ensuring that users can effectively handle their reservation data and maintain accurate records.',
+    name: 'Buyer Reservation',
+    description:
+      'Endpoints related to managing buyer reservations, including creating new reservations, updating existing reservations, retrieving current reservation information, ending reservations, and fetching reservation logs. These endpoints facilitate the management of buyer interactions with reservations, ensuring that users can effectively handle their reservation data and maintain accurate records.',
+  },
+  {
+    name: 'Country List',
+    description:
+      'Endpoint to get country codes. This allow retrieving a list of all country codes. These endpoints are essential for applications that require localization or internationalization, allowing users to obtain standardized country codes for various purposes, such as displaying country names or validating user input related to geographical locations.',
   },
 ];
 
