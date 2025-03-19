@@ -6,10 +6,10 @@ export const computeMaxEnergyCapacity = (
   deviceAge: number,
   yieldValue: number,
 ): number => {
-  return (
+  const maxEnergy =
     capacity *
     meteredTimePeriod *
     (yieldValue / 8760) *
-    Math.pow(1 - DEVICE_DEGRADATION / 100, deviceAge - 1)
-  );
+    Math.pow(1 - DEVICE_DEGRADATION / 100, deviceAge - 1);
+  return maxEnergy * (120 / 100);
 };

@@ -748,15 +748,14 @@ export class ReadsService {
       deviceAge,
       yieldValue,
     );
-    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
+      `${read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
     this.logger.verbose(`hgfgfdt871, ${Math.round(read.value)}`);
-    if (read.value < finalMax) {
+    if (read.value < maxEnergy) {
       return {
         success: true,
         message: 'Validation successful',
@@ -764,7 +763,7 @@ export class ReadsService {
     } else {
       return {
         success: false,
-        message: `Failed, MaxEnergy: ${finalMax}`,
+        message: `Failed, MaxEnergy: ${maxEnergy}`,
       };
     }
   }
@@ -794,14 +793,13 @@ export class ReadsService {
       deviceAge,
       yieldValue,
     );
-    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
+      `${read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
-    if (read.value < finalMax) {
+    if (read.value < maxEnergy) {
       return {
         success: true,
         message: 'Validation successful',
@@ -809,7 +807,7 @@ export class ReadsService {
     } else {
       return {
         success: false,
-        message: `Failed, MaxEnergy: ${finalMax}`,
+        message: `Failed, MaxEnergy: ${maxEnergy}`,
       };
     }
   }
@@ -839,15 +837,14 @@ export class ReadsService {
       deviceAge,
       yieldValue,
     );
-    const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
       `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
-      `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
+      `${read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
     );
 
-    if (read.value < finalMax) {
+    if (read.value < maxEnergy) {
       this.historyRepository.save({
         type: measurement.type,
         externalId: device.externalId,
@@ -895,7 +892,7 @@ export class ReadsService {
           }
         }
       }
-      return read.value < finalMax;
+      return read.value < maxEnergy;
     } else {
       return false;
     }
