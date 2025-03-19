@@ -53,6 +53,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoint to get country codes. This allow retrieving a list of all country codes. These endpoints are essential for applications that require localization or internationalization, allowing users to obtain standardized country codes for various purposes, such as displaying country names or validating user input related to geographical locations.',
   },
+  {
+    name: 'Yield Configuration',
+    description:
+      'Endpoints related to managing yield configurations for countries. This includes functionalities for retrieving all yield values, adding new yield values, and updating existing yield configurations. These endpoints are crucial for applications that require accurate yield data for various countries.',
+  },
 ];
 
 export default tags;
