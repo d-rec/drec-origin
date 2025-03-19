@@ -24,10 +24,20 @@ export class HealthController {
   @Get()
   @ApiOperation({
     description:
+      'Return success when the application is up and running.',
+  })
+  @HealthCheck()
+  check(): string {
+    return 'ok';
+  }
+
+  @Get('/status')
+  @ApiOperation({
+    description:
       'Checks if all the core services of the application are healthy',
   })
   @HealthCheck()
-  check(): Promise<HealthCheckResult> {
+  status(): Promise<HealthCheckResult> {
     return this.health.check([
       () => this.db.pingCheck('database'),
       () =>
