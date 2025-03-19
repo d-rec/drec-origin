@@ -14,6 +14,9 @@ import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.
 import { CertificateLogModule } from '../certificate-log/certificate-log.module';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
+import { BullModule } from '@nestjs/bull';
+import { LateOngoingIssuanceProcessor } from './late-ongoing-issuance.processor';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Module({
   imports: [
@@ -27,9 +30,16 @@ import { FileModule } from '../file';
     HttpModule,
     UserModule,
     FileModule,
+    BullModule.registerQueue({
+      name: Queues.LateOngoingIssuance,
+    }),
   ],
-  providers: [IssuerService, SynchronizeBlockchainTaskService],
-  exports: [IssuerService],
+  providers: [
+    IssuerService,
+    SynchronizeBlockchainTaskService,
+    LateOngoingIssuanceProcessor,
+  ],
+  exports: [IssuerService, BullModule],
   controllers: [DRECIssuerController],
 })
 export class IssuerModule {}

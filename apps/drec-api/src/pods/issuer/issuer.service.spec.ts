@@ -3,6 +3,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrganizationService } from '../organization/organization.service';
 import { IssuerService } from './issuer.service';
+import { getQueueToken } from '@nestjs/bull';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { ReadsService } from '../reads/reads.service';
 import { Device, DeviceService } from '../device';
@@ -31,6 +32,7 @@ import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
 } from '@energyweb/origin-247-certificate';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 describe('IssuerService', () => {
   let service: IssuerService;
@@ -51,6 +53,12 @@ describe('IssuerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         IssuerService,
+        {
+          provide: getQueueToken(Queues.LateOngoingIssuance),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         {
           provide: DeviceGroupService,
           useValue: {
@@ -1198,8 +1206,8 @@ describe('IssuerService', () => {
       jest
         .spyOn(groupService, 'getGroupCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);
-
       await service.handleCronForOngoingLateIssuance();
+      await service.scheduleLateOngoingIssuance();
 
       const parsedLeftoverReads = JSON.parse(
         mockGroup.leftoverReadsByCountryCode,
