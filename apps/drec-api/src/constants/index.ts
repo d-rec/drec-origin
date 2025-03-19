@@ -1,0 +1,3 @@
+export const INFLUX_DB_TIMEOUT = 60000;
+export const DEGRADATION = 0.5;
+export const DEGRADATION_PERCENTAGE = DEGRADATION / 100;

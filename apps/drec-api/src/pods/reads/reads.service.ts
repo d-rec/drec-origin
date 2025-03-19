@@ -69,11 +69,9 @@ import {
 import { validateTimezone } from '../../validations/timezone';
 import { Queues } from '../../utils/enums/queues.enum';
 import { computeMaxEnergyCapacity } from '../../utils/compute-max-energy-capacity';
+import { DEGRADATION, DEGRADATION_PERCENTAGE, INFLUX_DB_TIMEOUT } from '../../constants';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
-const INFLUX_DB_TIMEOUT = 60000;
-const DEGRADATION = 0.5;
-const DEGRADATION_PERCENTAGE = DEGRADATION / 100;
 @Injectable()
 export class ReadsService {
   public readonly logger = new Logger(ReadsService.name);
