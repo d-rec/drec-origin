@@ -72,7 +72,6 @@ import { computeMaxEnergyCapacity } from '../../lib/meter-read';
 import {
   DEFAULT_YIELD_VALUE,
   DEVICE_DEGRADATION,
-  DEVICE_DEGRADATION_PERCENTAGE,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
 
