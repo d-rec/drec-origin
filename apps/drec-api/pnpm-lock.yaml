@@ -38,6 +38,9 @@ importers:
       '@influxdata/influxdb-client':
         specifier: 1.9.0
         version: 1.9.0
+      '@jozefazz/nestjs-redoc':
+        specifier: ^1.0.7
+        version: 1.0.7(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@8.1.1)(@nestjs/swagger@5.2.1(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@8.1.1)(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(swagger-ui-express@4.1.6(express@4.19.2)))(reflect-metadata@0.1.14)
       '@mapbox/timespace':
         specifier: 2.0.4
         version: 2.0.4
@@ -233,9 +236,18 @@ importers:
       terser:
         specifier: ^5.14.2
         version: 5.37.0
+      ts-node:
+        specifier: 9.1.0
+        version: 9.1.0(typescript@4.1.3)
+      tsconfig-paths:
+        specifier: ^4.2.0
+        version: 4.2.0
       typeorm:
         specifier: 0.2.41
         version: 0.2.41(ioredis@5.4.2)(pg@8.7.1)
+      typescript:
+        specifier: 4.1.3
+        version: 4.1.3
       uglify-js:
         specifier: 2.6.0
         version: 2.6.0
@@ -348,15 +360,6 @@ importers:
       ts-jest:
         specifier: 29.2.3
         version: 29.2.3(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@14.18.63)(ts-node@9.1.0(typescript@4.1.3)))(typescript@4.1.3)
-      ts-node:
-        specifier: 9.1.0
-        version: 9.1.0(typescript@4.1.3)
-      typescript:
-        specifier: 4.1.3
-        version: 4.1.3
-      wait-on:
-        specifier: 5.2.1
-        version: 5.2.1
 
 packages:
 
@@ -1399,6 +1402,14 @@ packages:
   '@jest/types@29.6.3':
     resolution: {integrity: sha512-u3UPsIilWKOM3F9CXtrG8LEJmNxwoCQC/XVj4IKYXvvpx7QIi/Kg1LI5uDmDpKlac62NUtX7eLjRh+jVZcLOzw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+
+  '@jozefazz/nestjs-redoc@1.0.7':
+    resolution: {integrity: sha512-UXGPIzbqCt6a5pW149+/gNFgwd9SJs6Rq0Qxg7Z0V+aTMfQNof3Qzeef30hKsMuACmCMCeFnlTsu9GXURdcqug==}
+    peerDependencies:
+      '@nestjs/common': ^10.0.0
+      '@nestjs/core': ^10.0.0
+      '@nestjs/swagger': ^7.1.17
+      reflect-metadata: ^0.1.13
 
   '@jridgewell/gen-mapping@0.3.8':
     resolution: {integrity: sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA==}
@@ -2525,9 +2536,6 @@ packages:
   aws-sdk@2.1692.0:
     resolution: {integrity: sha512-x511uiJ/57FIsbgUe5csJ13k3uzu25uWQE+XqfBis/sB0SFoiElJWXRkgEAUh0U6n40eT3ay5Ue4oPkRMu1LYw==}
     engines: {node: '>= 10.0.0'}
-
-  axios@0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
 
   axios@0.23.0:
     resolution: {integrity: sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==}
@@ -3731,6 +3739,13 @@ packages:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
+  express-basic-auth@1.2.1:
+    resolution: {integrity: sha512-L6YQ1wQ/mNjVLAmK3AG1RK6VkokA1BIY6wmiH304Xtt/cLTps40EusZsU1Uop+v9lTDPxdtzbFmdXfFO3KEnwA==}
+
+  express-handlebars@7.1.3:
+    resolution: {integrity: sha512-O0W4n14iQ8+iFIDdiMh9HRI2nbVQJ/h1qndlD1TXWxxcfbKjKoqJh+ti2tROkyx4C4VQrt0y3bANBQ5auQAiew==}
+    engines: {node: '>=v16'}
+
   express@4.17.1:
     resolution: {integrity: sha512-mHJ9O79RqluphRrcw2X/GTh3k9tVv8YcoyY4Kkh4WDMUYKRZUq0h1o0w2rrrxBqM7VoeUVqgb27xlEMXTnYt4g==}
     engines: {node: '>= 0.10.0'}
@@ -3998,6 +4013,10 @@ packages:
   glob@10.3.12:
     resolution: {integrity: sha512-TCNv8vJ+xz4QiqTpfOJA7HvYv+tNIRHKfUWw/q+v2jdgN4ebz+KY9tGx5J4rHP0o84mNP+ApH66HRX8us3Khqg==}
     engines: {node: '>=16 || 14 >=14.17'}
+    hasBin: true
+
+  glob@10.4.5:
+    resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
     hasBin: true
 
   glob@11.0.1:
@@ -4462,6 +4481,9 @@ packages:
   jackspeak@2.3.6:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
     engines: {node: '>=14'}
+
+  jackspeak@3.4.3:
+    resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
   jackspeak@4.0.2:
     resolution: {integrity: sha512-bZsjR/iRjl1Nk1UkjGpAzLNfQtzuijhn2g+pbZb98HQ1Gk8vM9hfbxeMBP+M2/UUdwj0RqGG3mlvk2MsAqwvEw==}
@@ -6026,10 +6048,6 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  rxjs@6.6.7:
-    resolution: {integrity: sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==}
-    engines: {npm: '>=2.0.0'}
-
   rxjs@7.4.0:
     resolution: {integrity: sha512-7SQDi7xeTMCJpqViXh8gL/lebcwlp3d831F05+9B44A4B0WfsEwUQHR64gsH1kvJ+Ep/J9K2+n1hVl1CsGN23w==}
 
@@ -6872,11 +6890,6 @@ packages:
   void-elements@3.1.0:
     resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
     engines: {node: '>=0.10.0'}
-
-  wait-on@5.2.1:
-    resolution: {integrity: sha512-H2F986kNWMU9hKlI9l/ppO6tN8ZSJd35yBljMLa1/vjzWP++Qh6aXyt77/u7ySJFZQqBtQxnvm/xgG48AObXcw==}
-    engines: {node: '>=8.9.0'}
-    hasBin: true
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
@@ -9059,6 +9072,16 @@ snapshots:
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
+  '@jozefazz/nestjs-redoc@1.0.7(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@8.1.1)(@nestjs/swagger@5.2.1(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@8.1.1)(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(swagger-ui-express@4.1.6(express@4.19.2)))(reflect-metadata@0.1.14)':
+    dependencies:
+      '@nestjs/common': 8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/core': 8.1.1(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@8.1.1)(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/swagger': 5.2.1(@nestjs/common@8.1.1(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@8.1.1)(class-transformer@0.3.1)(class-validator@0.14.0)(reflect-metadata@0.1.14)(swagger-ui-express@4.1.6(express@4.19.2))
+      express-basic-auth: 1.2.1
+      express-handlebars: 7.1.3
+      joi: 17.13.3
+      reflect-metadata: 0.1.14
+
   '@jridgewell/gen-mapping@0.3.8':
     dependencies:
       '@jridgewell/set-array': 1.2.1
@@ -10556,12 +10579,6 @@ snapshots:
       util: 0.12.5
       uuid: 8.0.0
       xml2js: 0.6.2
-
-  axios@0.21.4:
-    dependencies:
-      follow-redirects: 1.15.6
-    transitivePeerDependencies:
-      - debug
 
   axios@0.23.0:
     dependencies:
@@ -12125,6 +12142,16 @@ snapshots:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
 
+  express-basic-auth@1.2.1:
+    dependencies:
+      basic-auth: 2.0.1
+
+  express-handlebars@7.1.3:
+    dependencies:
+      glob: 10.4.5
+      graceful-fs: 4.2.11
+      handlebars: 4.7.8
+
   express@4.17.1:
     dependencies:
       accepts: 1.3.8
@@ -12510,6 +12537,15 @@ snapshots:
       jackspeak: 2.3.6
       minimatch: 9.0.5
       minipass: 7.1.2
+      path-scurry: 1.11.1
+
+  glob@10.4.5:
+    dependencies:
+      foreground-child: 3.3.0
+      jackspeak: 3.4.3
+      minimatch: 9.0.5
+      minipass: 7.1.2
+      package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
   glob@11.0.1:
@@ -13066,6 +13102,12 @@ snapshots:
   iterare@1.2.1: {}
 
   jackspeak@2.3.6:
+    dependencies:
+      '@isaacs/cliui': 8.0.2
+    optionalDependencies:
+      '@pkgjs/parseargs': 0.11.0
+
+  jackspeak@3.4.3:
     dependencies:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
@@ -15111,10 +15153,6 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  rxjs@6.6.7:
-    dependencies:
-      tslib: 1.14.1
-
   rxjs@7.4.0:
     dependencies:
       tslib: 2.1.0
@@ -16008,16 +16046,6 @@ snapshots:
 
   void-elements@3.1.0:
     optional: true
-
-  wait-on@5.2.1:
-    dependencies:
-      axios: 0.21.4
-      joi: 17.13.3
-      lodash: 4.17.21
-      minimist: 1.2.8
-      rxjs: 6.6.7
-    transitivePeerDependencies:
-      - debug
 
   walker@1.0.8:
     dependencies:
