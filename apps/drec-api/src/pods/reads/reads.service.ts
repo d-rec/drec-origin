@@ -68,10 +68,11 @@ import {
 } from '../../transformers/timezone';
 import { validateTimezone } from '../../validations/timezone';
 import { Queues } from '../../utils/enums/queues.enum';
-import { computeMaxEnergyCapacity } from '../../utils/compute-max-energy-capacity';
+import { computeMaxEnergyCapacity } from '../../lib/meter-read';
 import {
-  DEGRADATION,
-  DEGRADATION_PERCENTAGE,
+  DEFAULT_YIELD_VALUE,
+  DEVICE_DEGRADATION,
+  DEVICE_DEGRADATION_PERCENTAGE,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
 
@@ -726,7 +727,7 @@ export class ReadsService {
     device: DeviceDTO,
   ): { success: boolean; message: string } {
     this.logger.debug(JSON.stringify(read));
-    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
+    const yieldValue = device.yieldValue || DEFAULT_YIELD_VALUE; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -746,12 +747,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEGRADATION_PERCENTAGE,
+      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
@@ -774,7 +775,7 @@ export class ReadsService {
     final: ReadDTO,
     device: DeviceDTO,
   ): { success: boolean; message: string } {
-    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
+    const yieldValue = device.yieldValue || DEFAULT_YIELD_VALUE; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -793,12 +794,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEGRADATION_PERCENTAGE,
+      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
@@ -825,7 +826,7 @@ export class ReadsService {
     endDate: Date,
   ): Promise<boolean> {
     this.logger.debug(JSON.stringify(read));
-    const yieldValue = device.yieldValue || 2000; // [kWh/kW]
+    const yieldValue = device.yieldValue || DEFAULT_YIELD_VALUE; // [kWh/kW]
     const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
     const commissioningDate = DateTime.fromISO(device.commissioningDate);
     const currentDate = DateTime.now();
@@ -839,12 +840,12 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEGRADATION_PERCENTAGE,
+      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
     this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEGRADATION}, yieldValue: ${yieldValue}`,
+      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
     );
     this.logger.debug(
       `${read.value < finalMax ? 'Passed' : 'Failed'}, MaxEnergy: ${finalMax}`,
