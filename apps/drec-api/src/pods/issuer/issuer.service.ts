@@ -13,7 +13,8 @@ import {
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
 import { v4 as uuid } from 'uuid';
-
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { HttpService } from '@nestjs/axios';
 
 import { DeviceService } from '../device/device.service';
@@ -41,12 +42,15 @@ import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_mete
 import { Device } from '../device';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
+    @InjectQueue(Queues.LateOngoingIssuance)
+    private readonly lateOngoingQueue: Queue,
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
@@ -1075,7 +1079,6 @@ export class IssuerService {
     });
   }
 
-  // @Cron('0 0 */8 * * *')
   async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
     try {
       this.triggerOngoingLateIssuance(groupId);
@@ -1084,6 +1087,28 @@ export class IssuerService {
         `Error in influxdb query: ${error.message}`, //Please include the whole stack
         error.stack,
       );
+    }
+  }
+
+  @Cron('0 0 */8 * * *')
+  async scheduleLateOngoingIssuance(): Promise<void> {
+    try {
+      const activeDeviceGroups =
+        await this.groupService.getAllReservationActive();
+      if (!activeDeviceGroups.length) {
+        this.logger.debug('No active device groups found.');
+        return;
+      }
+
+      for (const group of activeDeviceGroups) {
+        await this.lateOngoingQueue.add({ groupId: group.id });
+      }
+
+      this.logger.debug(
+        `Queued ${activeDeviceGroups} jobs for late ongoing issuance.`,
+      );
+    } catch (error) {
+      this.logger.error('Error scheduling late ongoing issuance', error.stack);
     }
   }
 
