@@ -410,7 +410,7 @@ export class DeviceController {
   @ApiQuery({ name: 'organizationId', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch device by ID',
-    description: 'Retrieve a device using its unique identifier.',
+    description: 'Retrieve a device using its ID.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -651,7 +651,7 @@ export class DeviceController {
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @ApiOperation({
     summary: 'Delete device by ID',
-    description: 'Remove a device from the system using its unique identifier.',
+    description: 'Remove a device from the system using its ID.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -734,8 +734,7 @@ export class DeviceController {
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Update device onboarding date',
-    description:
-      'Change the onboarding date of a device using its unique identifier.',
+    description: 'Change the onboarding date of a device using its ID.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
