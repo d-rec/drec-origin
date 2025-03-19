@@ -747,7 +747,6 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
@@ -794,7 +793,6 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);
@@ -840,7 +838,6 @@ export class ReadsService {
       capacity,
       meteredTimePeriod,
       deviceAge,
-      DEVICE_DEGRADATION_PERCENTAGE,
       yieldValue,
     );
     const finalMax = maxEnergy * (120 / 100);

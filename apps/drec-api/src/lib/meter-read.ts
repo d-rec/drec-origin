@@ -4,7 +4,6 @@ export const computeMaxEnergyCapacity = (
   capacity: number,
   meteredTimePeriod: number,
   deviceAge: number,
-  degradationPercentage: number,
   yieldValue: number,
 ): number => {
   return (
