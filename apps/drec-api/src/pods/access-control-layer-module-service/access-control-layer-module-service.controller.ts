@@ -32,7 +32,7 @@ import { RolesGuard } from '../../guards/RolesGuard';
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
  */
-@ApiTags('Aclmodules')
+@ApiTags('ACL Modules')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('access-control-layer-module-service')

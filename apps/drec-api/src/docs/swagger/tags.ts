@@ -34,7 +34,7 @@ const tags: { name: string; description: string }[] = [
       'Endpoints related to managing permissions within the application. This includes functionalities for assigning, updating, and retrieving permissions for users and roles. These operations ensure that access control is effectively managed, allowing for secure and organized user interactions within the system.',
   },
   {
-    name: 'Aclmodules',
+    name: 'ACL Modules',
     description:
       'Endpoints related to managing ACL modules within the application. This includes functionalities for creating, updating, and retrieving ACL modules, ensuring that access control layers are effectively managed and organized within the system.',
   },
@@ -42,6 +42,10 @@ const tags: { name: string; description: string }[] = [
     name: 'Device',
     description:
       'Endpoints related to device management. This includes functionalities for creating, updating, retrieving, and deleting devices, as well as managing device types and their associated data. These endpoints facilitate the organization and management of devices within the application, ensuring that device-related operations are streamlined and accessible for developers.',
+  },
+  {
+    name: 'Buyer Reservation', 
+    description: 'Endpoints related to managing buyer reservations, including creating new reservations, updating existing reservations, retrieving current reservation information, ending reservations, and fetching reservation logs. These endpoints facilitate the management of buyer interactions with reservations, ensuring that users can effectively handle their reservation data and maintain accurate records.',
   },
 ];
 
