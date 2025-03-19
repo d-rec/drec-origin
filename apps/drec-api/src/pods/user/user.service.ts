@@ -40,6 +40,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
+import { OrganizationType } from '../../utils/enums';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -125,20 +126,17 @@ export class UserService {
     let role;
     let roleId;
     if (
-      data.organizationType === 'Buyer' ||
-      data.organizationType === 'buyer'
+      data.organizationType === OrganizationType.Buyer
     ) {
       role = Role.Buyer;
       roleId = 4;
     } else if (
-      data.organizationType === 'Developer' ||
-      data.organizationType === 'Developer'
+      data.organizationType === OrganizationType.Developer
     ) {
       role = Role.OrganizationAdmin;
       roleId = 2;
     } else if (
-      data.organizationType === 'ApiUser' ||
-      data.organizationType === 'apiuser'
+      data.organizationType === OrganizationType.ApiUser
     ) {
       role = Role.ApiUser;
       roleId = 6;
@@ -204,8 +202,7 @@ export class UserService {
     let role;
     let roleId;
     if (
-      data.organizationType === 'Buyer' ||
-      data.organizationType === 'buyer'
+      data.organizationType === OrganizationType.Buyer
     ) {
       role = Role.Buyer;
       roleId = 4;

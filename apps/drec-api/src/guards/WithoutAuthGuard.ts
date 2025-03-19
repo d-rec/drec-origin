@@ -78,7 +78,7 @@ export class WithoutAuthGuard implements CanActivate {
               message: 'Requested api user is not available',
             });
           }
-        } else if (request.body.organizationType === Role.ApiUser) {
+        } else if (request.body.organizationType === OrganizationType.ApiUser) {
           const apiUser =
             await this.oauthClientCredentialsService.createAPIUser();
           request.body.api_user_id = apiUser.api_user_id;
