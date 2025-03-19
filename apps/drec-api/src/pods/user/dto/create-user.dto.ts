@@ -95,8 +95,15 @@ export class CreateUserOrgDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  @IsIn([OrganizationType.Developer, OrganizationType.ApiUser, OrganizationType.Buyer], {
-    message: 'organizationType value should be Developer/Buyer/ApiUser',
-  })
+  @IsIn(
+    [
+      OrganizationType.Developer,
+      OrganizationType.ApiUser,
+      OrganizationType.Buyer,
+    ],
+    {
+      message: 'organizationType value should be Developer/Buyer/ApiUser',
+    },
+  )
   organizationType: string;
 }

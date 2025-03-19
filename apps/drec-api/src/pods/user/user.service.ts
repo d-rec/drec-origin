@@ -125,19 +125,13 @@ export class UserService {
     }
     let role;
     let roleId;
-    if (
-      data.organizationType === OrganizationType.Buyer
-    ) {
+    if (data.organizationType === OrganizationType.Buyer) {
       role = Role.Buyer;
       roleId = 4;
-    } else if (
-      data.organizationType === OrganizationType.Developer
-    ) {
+    } else if (data.organizationType === OrganizationType.Developer) {
       role = Role.OrganizationAdmin;
       roleId = 2;
-    } else if (
-      data.organizationType === OrganizationType.ApiUser
-    ) {
+    } else if (data.organizationType === OrganizationType.ApiUser) {
       role = Role.ApiUser;
       roleId = 6;
     }
@@ -201,9 +195,7 @@ export class UserService {
 
     let role;
     let roleId;
-    if (
-      data.organizationType === OrganizationType.Buyer
-    ) {
+    if (data.organizationType === OrganizationType.Buyer) {
       role = Role.Buyer;
       roleId = 4;
     } else {
