@@ -23,8 +23,7 @@ export class HealthController {
 
   @Get()
   @ApiOperation({
-    description:
-      'Return success when the application is up and running.',
+    description: 'Return success when the application is up and running.',
   })
   @HealthCheck()
   check(): string {
