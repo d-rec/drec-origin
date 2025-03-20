@@ -58,6 +58,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to managing yield configurations for countries. This includes functionalities for retrieving all yield values, adding new yield values, and updating existing yield configurations. These endpoints are crucial for applications that require accurate yield data for various countries.',
   },
+  {
+    name: 'Bulk Upload',
+    description:
+      'Endpoints related to bulk upload operations, including uploading bulk data files for processing and retrieving the status of bulk upload jobs. These endpoints facilitate efficient data management and integration for organizations, allowing for streamlined processing of large datasets.',
+  },
 ];
 
 export default tags;
