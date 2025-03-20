@@ -78,6 +78,16 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to certificate management. This includes functionalities for retrieving certificate logs, generating certificates, managing certificate issuance, and exporting certificate data. These endpoints are essential for tracking and managing certificates issued for energy generation and consumption, ensuring transparency and compliance with regulatory requirements.',
   },
+  {
+    name: 'Admin',
+    description:
+      'Endpoints related to administrative operations. This includes functionalities for managing users, organizations, devices, and API users. It also covers tasks such as seeding data, registering devices in I-REC, and retrieving autocomplete suggestions for devices. These endpoints are restricted to a user with administrative roles and provide comprehensive tools for managing the system at a high level.',
+  },
+  {
+    name: 'Sdg Benefit',
+    description:
+      'Endpoints related to managing Sustainable Development Goals (SDG) benefits. This includes functionalities for adding SDG benefits, retrieving a list of all SDG benefits, and fetching predefined SDG benefit codes and names. These endpoints are essential for tracking and managing SDG-related data within the system.',
+  },
 ];
 
 export default tags;
