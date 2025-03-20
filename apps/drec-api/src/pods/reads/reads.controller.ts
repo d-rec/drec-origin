@@ -20,7 +20,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import * as momentTimeZone from 'moment-timezone';
 import { PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -68,7 +74,8 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Get valid time zones',
-    description: 'Returns a list of valid time zones. Optionally filtered by a search keyword.',
+    description:
+      'Returns a list of valid time zones. Optionally filtered by a search keyword.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -102,7 +109,8 @@ export class ReadsController extends BaseReadsController {
   @Get('/:externalId')
   @ApiOperation({
     summary: 'Get time-series of meter reads',
-    description: 'Returns time-series data of meter reads for the specified device.',
+    description:
+      'Returns time-series data of meter reads for the specified device.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -154,7 +162,8 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Get time-series of meter reads with filters',
-    description: 'Returns time-series of meter reads for the specified device, with optional filters for month, year, and pagination.',
+    description:
+      'Returns time-series of meter reads for the specified device, with optional filters for month, year, and pagination.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -348,7 +357,8 @@ export class ReadsController extends BaseReadsController {
   @Post('new/:id')
   @ApiOperation({
     summary: 'Add new meter read',
-    description: 'Stores new meter reads for historical data, delta readings, and aggregate readings.',
+    description:
+      'Stores new meter reads for historical data, delta readings, and aggregate readings.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -400,7 +410,8 @@ export class ReadsController extends BaseReadsController {
   @Post('addByAdmin/new/:id')
   @ApiOperation({
     summary: 'Add new meter read by admin',
-    description: 'Stores new meter reads for historical data, delta readings, and aggregate readings by an admin user.',
+    description:
+      'Stores new meter reads for historical data, delta readings, and aggregate readings by an admin user.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -449,7 +460,8 @@ export class ReadsController extends BaseReadsController {
   @Get('/latestread/:externalId')
   @ApiOperation({
     summary: 'Get latest meter read',
-    description: 'Returns the latest meter read of the given device by its external ID. This is useful for quickly accessing the most recent read data without retrieving the entire history.',
+    description:
+      'Returns the latest meter read of the given device by its external ID. This is useful for quickly accessing the most recent read data without retrieving the entire history.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -457,11 +469,13 @@ export class ReadsController extends BaseReadsController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Device not found for the given external ID. Verify the ID and try again.',
+    description:
+      'Device not found for the given external ID. Verify the ID and try again.',
   })
   @ApiResponse({
     status: HttpStatus.CONFLICT,
-    description: 'Invalid device ID provided. Ensure the device exists and is accessible.',
+    description:
+      'Invalid device ID provided. Ensure the device exists and is accessible.',
   })
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')

@@ -35,7 +35,8 @@ export class DRECIssuerController {
   @Get('/ongoing')
   @ApiOperation({
     summary: 'Trigger ongoing issuance process',
-    description: 'This endpoint triggers the ongoing issuance process for certificates.',
+    description:
+      'This endpoint triggers the ongoing issuance process for certificates.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -69,7 +70,8 @@ export class DRECIssuerController {
   @Get('/history')
   @ApiOperation({
     summary: 'Trigger historical issuance process',
-    description: 'This endpoint triggers the historical issuance process for certificates.',
+    description:
+      'This endpoint triggers the historical issuance process for certificates.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -95,15 +97,18 @@ export class DRECIssuerController {
   @Post()
   @ApiOperation({
     summary: 'Re-issue certificates',
-    description: 'This endpoint re-issues certificates for failed or incomplete issuance tasks. It accepts a request body containing the necessary data to re-issue the certificates.',
+    description:
+      'This endpoint re-issues certificates for failed or incomplete issuance tasks. It accepts a request body containing the necessary data to re-issue the certificates.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'The certificates were successfully re-issued. The system has processed the request and updated the certificate records.',
+    description:
+      'The certificates were successfully re-issued. The system has processed the request and updated the certificate records.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The request body is invalid or missing required fields. Please check the request body and try again.',
+    description:
+      'The request body is invalid or missing required fields. Please check the request body and try again.',
   })
   @ApiBody({ type: ReIssueCertificateDTO })
   async reIssueCertificates(
@@ -135,15 +140,18 @@ export class DRECIssuerController {
   @Get('/lateongoing')
   @ApiOperation({
     summary: 'Trigger late ongoing issuance process',
-    description: 'This endpoint triggers the late ongoing issuance process for certificates. It is used to handle delayed issuance tasks that were not processed in the regular cycle.',
+    description:
+      'This endpoint triggers the late ongoing issuance process for certificates. It is used to handle delayed issuance tasks that were not processed in the regular cycle.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'The late ongoing issuance process was successfully triggered. The system will now process any delayed certificate issuance tasks.',
+    description:
+      'The late ongoing issuance process was successfully triggered. The system will now process any delayed certificate issuance tasks.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The request is invalid or the provided groupId is invalid. Please check the request and try again.',
+    description:
+      'The request is invalid or the provided groupId is invalid. Please check the request and try again.',
   })
   @ApiQuery({ name: 'groupId', type: Number, required: false })
   async simpleGetCallForLateOngoing(
@@ -180,15 +188,18 @@ export class DRECIssuerController {
   @Post('/missinglateongoing/onetimerun')
   @ApiOperation({
     summary: 'Trigger missing late ongoing issuance process',
-    description: 'This endpoint triggers the missing late ongoing issuance process for certificates.',
+    description:
+      'This endpoint triggers the missing late ongoing issuance process for certificates.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'The missing late ongoing issuance process was successfully triggered. The system will now process any missed certificate issuance tasks.',
+    description:
+      'The missing late ongoing issuance process was successfully triggered. The system will now process any missed certificate issuance tasks.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'The request is invalid or missing required parameters. Please check the request and try again.',
+    description:
+      'The request is invalid or missing required parameters. Please check the request and try again.',
   })
   async simpleGetCallForMissingLateOngoing(): Promise<any> {
     this.logger.verbose(
