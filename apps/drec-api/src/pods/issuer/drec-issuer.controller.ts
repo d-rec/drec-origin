@@ -6,14 +6,16 @@ import {
   Logger,
   ParseIntPipe,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiBody,
   ApiQuery,
+  ApiOperation,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
@@ -31,8 +33,13 @@ export class DRECIssuerController {
    * @returns
    */
   @Get('/ongoing')
-  @ApiOkResponse({
-    description: 'Simple Get For Issuer API',
+  @ApiOperation({
+    summary: 'Trigger ongoing issuance process',
+    description: 'This endpoint triggers the ongoing issuance process for certificates.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully triggered the ongoing issuance process.',
   })
   async simpleGetCallForOngoing(): Promise<any> {
     this.logger.verbose(
@@ -60,8 +67,13 @@ export class DRECIssuerController {
    * @returns
    */
   @Get('/history')
-  @ApiOkResponse({
-    description: 'Simple Get For Issuer API',
+  @ApiOperation({
+    summary: 'Trigger historical issuance process',
+    description: 'This endpoint triggers the historical issuance process for certificates.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully triggered the historical issuance process.',
   })
   async simpleGetCallForHistory(): Promise<any> {
     this.logger.verbose(
@@ -81,8 +93,17 @@ export class DRECIssuerController {
    * @returns
    */
   @Post()
-  @ApiOkResponse({
-    description: 'Re ISSUE certificates for failed data',
+  @ApiOperation({
+    summary: 'Re-issue certificates',
+    description: 'This endpoint re-issues certificates for failed or incomplete issuance tasks. It accepts a request body containing the necessary data to re-issue the certificates.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The certificates were successfully re-issued. The system has processed the request and updated the certificate records.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The request body is invalid or missing required fields. Please check the request body and try again.',
   })
   @ApiBody({ type: ReIssueCertificateDTO })
   async reIssueCertificates(
@@ -112,8 +133,17 @@ export class DRECIssuerController {
    */
 
   @Get('/lateongoing')
-  @ApiOkResponse({
-    description: 'Simple Get For Issuer API',
+  @ApiOperation({
+    summary: 'Trigger late ongoing issuance process',
+    description: 'This endpoint triggers the late ongoing issuance process for certificates. It is used to handle delayed issuance tasks that were not processed in the regular cycle.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The late ongoing issuance process was successfully triggered. The system will now process any delayed certificate issuance tasks.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The request is invalid or the provided groupId is invalid. Please check the request and try again.',
   })
   @ApiQuery({ name: 'groupId', type: Number, required: false })
   async simpleGetCallForLateOngoing(
@@ -148,8 +178,17 @@ export class DRECIssuerController {
    */
 
   @Post('/missinglateongoing/onetimerun')
-  @ApiOkResponse({
-    description: 'Simple add For missing lateongoing',
+  @ApiOperation({
+    summary: 'Trigger missing late ongoing issuance process',
+    description: 'This endpoint triggers the missing late ongoing issuance process for certificates.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The missing late ongoing issuance process was successfully triggered. The system will now process any missed certificate issuance tasks.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The request is invalid or missing required parameters. Please check the request and try again.',
   })
   async simpleGetCallForMissingLateOngoing(): Promise<any> {
     this.logger.verbose(
