@@ -63,6 +63,10 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to bulk upload operations, including uploading bulk data files for processing and retrieving the status of bulk upload jobs. These endpoints facilitate efficient data management and integration for organizations, allowing for streamlined processing of large datasets.',
   },
+  {
+    name: 'Meter Reads', 
+    description: 'Endpoints related to managing meter reads. This includes functionalities for retrieving time-series data of meter reads, adding new meter reads, and accessing the latest meter read for devices. These endpoints are essential for monitoring and analyzing energy consumption data.',
+  },
 ];
 
 export default tags;
