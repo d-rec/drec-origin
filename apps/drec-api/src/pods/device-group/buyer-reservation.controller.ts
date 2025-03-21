@@ -228,6 +228,10 @@ export class BuyerReservationController {
     description:
       'Successfully retrieved buyer reservations associated with the user.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view buyer reservations.',
+  })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
     @Query(

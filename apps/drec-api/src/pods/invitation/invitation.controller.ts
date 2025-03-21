@@ -79,11 +79,6 @@ export class InvitationController {
     description: 'Returns an array of invitations for the user.',
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description:
-      'Unauthorized access. The user must be authenticated to access this endpoint.',
-  })
-  @ApiResponse({
     status: HttpStatus.FORBIDDEN,
     description:
       'Forbidden. The user does not have permission to access this resource.',
@@ -148,11 +143,6 @@ export class InvitationController {
       'Bad Request. The provided data is invalid or missing required fields.',
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description:
-      'Unauthorized access. The user must be authenticated to update invitations.',
-  })
-  @ApiResponse({
     status: HttpStatus.FORBIDDEN,
     description:
       'Forbidden. The user does not have permission to update this invitation.',
@@ -207,10 +197,6 @@ export class InvitationController {
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid request data or missing required fields.',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized access. The user must be authenticated.',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
@@ -309,10 +295,6 @@ export class InvitationController {
     status: HttpStatus.OK,
     type: [InvitationDTO],
     description: 'Gets all invitations for a user.',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Unauthorized access. The user must be authenticated.',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,

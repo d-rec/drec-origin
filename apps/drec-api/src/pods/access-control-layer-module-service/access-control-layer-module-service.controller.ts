@@ -64,6 +64,14 @@ export class AccessControlLayerModuleServiceController {
     type: [ACLModuleDTO],
     description: 'List of all ACL modules.',
   })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No ACL modules found in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async getAll(): Promise<ACLModuleDTO[] | null> {
     this.logger.verbose(`With in getAll`);
     return this.ModulesService.getAll();
@@ -89,6 +97,10 @@ export class AccessControlLayerModuleServiceController {
     status: HttpStatus.BAD_REQUEST,
     description:
       'Bad Request. The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async register(
     @Body() moduleData: NewACLModuleDTO,
@@ -118,6 +130,10 @@ export class AccessControlLayerModuleServiceController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Not Found. The specified ACL module does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async updateyield(
     @Param('id', new ParseIntPipe()) id: number,

@@ -256,6 +256,11 @@ export class PermissionController {
     description:
       'Bad Request. The provided data is invalid or missing required fields.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to request permissions.',
+  })
   public async apiUserModuleRequest(
     //  @Param('apiUserId') apiUserId: string,
     @Body() moduleData: [NewApiUserPermissionDTO],
@@ -289,6 +294,11 @@ export class PermissionController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Not Found. The specified API user does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to approve permission requests.',
   })
   public async apiUserModuleApprove(
     @Param('apiUserId') apiUserId: string,

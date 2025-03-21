@@ -174,6 +174,10 @@ export class BulkUploadController {
     type: [BulkUploadEntity],
     description: 'Successfully retrieved the list of bulk upload jobs.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   public async getAll(
     @UserDecorator() user: ILoggedInUser,
     @Query('bulkUploadType', new DefaultValuePipe(null))
@@ -223,6 +227,10 @@ export class BulkUploadController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'No bulk upload job found with the specified bulk upload ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async getJob(
     @Param('bulkUploadId') bulkUploadId: string,

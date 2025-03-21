@@ -85,6 +85,10 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid search keyword provided.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   getTimezones(
     @Query('timezoneSearchKeyword') searchKeyword?: string,
   ): string[] {
@@ -122,8 +126,8 @@ export class ReadsController extends BaseReadsController {
     description: 'Device not found for the given external ID.',
   })
   @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description: 'Invalid device ID provided.',
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
@@ -369,6 +373,10 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid data provided for meter read.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   @UseGuards(
     AuthGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
@@ -422,6 +430,10 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid data provided for meter read.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   @ApiQuery({
     name: 'organizationId',
     required: false,
@@ -473,9 +485,8 @@ export class ReadsController extends BaseReadsController {
       'Device not found for the given external ID. Verify the ID and try again.',
   })
   @ApiResponse({
-    status: HttpStatus.CONFLICT,
-    description:
-      'Invalid device ID provided. Ensure the device exists and is accessible.',
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')

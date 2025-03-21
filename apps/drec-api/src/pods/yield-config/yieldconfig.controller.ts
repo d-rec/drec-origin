@@ -57,6 +57,10 @@ export class YieldConfigController {
     type: [YieldConfigDTO],
     description: 'Successfully retrieved all country yield values.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async getAll(): Promise<YieldConfigDTO[]> {
     return this.yieldConfigService.getAll();
   }
@@ -85,6 +89,10 @@ export class YieldConfigController {
     status: HttpStatus.NOT_FOUND,
     description: 'No yield configuration found for the specified ID.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
     return this.yieldConfigService.findById(id);
   }
@@ -110,9 +118,13 @@ export class YieldConfigController {
       'Successfully created a new yield value for the specified country.',
   })
   @ApiResponse({
-    status: HttpStatus.CONFLICT,
+    status: HttpStatus.NOT_FOUND,
     description:
       'Invalid country code provided or country code does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async create(
     @UserDecorator() loggedUser: ILoggedInUser,
@@ -173,6 +185,14 @@ export class YieldConfigController {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'No yield configuration found for the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid request body.',
   })
   public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,

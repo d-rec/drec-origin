@@ -421,6 +421,10 @@ export class DeviceController {
     status: HttpStatus.NOT_FOUND,
     description: 'The specified device does not exist.',
   })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view devices.',
+  })
   async get(
     @Param('id') id: number,
     @Query('apiUserId') api_user_id: string | null,
@@ -709,10 +713,6 @@ export class DeviceController {
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
     description: 'User does not have permission to view total read.',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'User is not authorized to access total.',
   })
   async getMyDevicesTotal(
     @UserDecorator() { organizationId }: ILoggedInUser,
