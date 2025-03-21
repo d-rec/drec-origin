@@ -33,6 +33,7 @@ specifiers:
   '@nestjs/platform-express': 8.1.1
   '@nestjs/schedule': 1.0.1
   '@nestjs/swagger': 5.2.1
+  '@nestjs/terminus': 8.1.1
   '@nestjs/testing': 8.1.1
   '@nestjs/typeorm': 8.0.2
   '@rush-temp/origin-drec-api': file:./projects/origin-drec-api.tgz
@@ -104,6 +105,7 @@ specifiers:
   pkcs7-padding: 0.1.1
   prettier: ~3.2.5
   qs: ^6.10.3
+  redis: 4.3.1
   reflect-metadata: ^0.1.13
   rijndael-js: 2.0.0
   rimraf: ^3.0.2
@@ -130,11 +132,11 @@ dependencies:
   '@compodoc/compodoc': 1.1.25_typescript@4.1.3
   '@energyweb/energy-api-influxdb': 0.8.3_5s24yubn6oroycelimerxxvadu
   '@energyweb/issuer': 6.0.2-alpha.1646058469.0
-  '@energyweb/issuer-api': 0.7.1_xopg3sgvptdwdhuxuxidphnbby
-  '@energyweb/origin-247-certificate': 4.1.5_qasctm6eojpfmqas2yzny6nlp4
-  '@energyweb/origin-backend': 11.2.3_qcfya5smcgw3snj2p4r43qelz4
+  '@energyweb/issuer-api': 0.7.1_fzt6dscbt2daefun6xhy6jys5m
+  '@energyweb/origin-247-certificate': 4.1.5_pq2zeslzz2kr5i3hupe7b7pds4
+  '@energyweb/origin-backend': 11.2.3_nleeufitestzgpxqerxgwd3dtu
   '@energyweb/origin-backend-core': 8.2.3
-  '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye
+  '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_fu7tfezqjst5heupdvfavdqtuy
   '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
   '@ethersproject/abi': 5.3.1
   '@ethersproject/abstract-provider': 5.3.0
@@ -159,6 +161,7 @@ dependencies:
   '@nestjs/platform-express': 8.1.1_svu4v2sifhq6njkoaosg5fk444
   '@nestjs/schedule': 1.0.1_seuf5arsp3auuxtradyzipfpxi
   '@nestjs/swagger': 5.2.1_abmryazx2drv6ur45tzub6qzha
+  '@nestjs/terminus': 8.1.1_bdg32xphm2sdzobso5mm5chw5y
   '@nestjs/testing': 8.1.1_rhqqhkohavfzgk66f2dnttsjri
   '@nestjs/typeorm': 8.0.2_z4qkyll2osxajkcmqyf7iixbiu
   '@rush-temp/origin-drec-api': file:projects/origin-drec-api.tgz
@@ -230,6 +233,7 @@ dependencies:
   pkcs7-padding: 0.1.1
   prettier: 3.2.5
   qs: 6.12.1
+  redis: 4.3.1
   reflect-metadata: 0.1.14
   rijndael-js: 2.0.0
   rimraf: 3.0.2
@@ -246,7 +250,7 @@ dependencies:
   ts-jest: 29.2.3_d5u5sfj7ji52djbvoyst6etada
   ts-node: 9.1.0_typescript@4.1.3
   tsconfig-paths: 4.2.0
-  typeorm: 0.2.41_pg@8.7.1
+  typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
   typescript: 4.1.3
   uglify-js: 2.6.0
   underscore: 1.13.6
@@ -1854,7 +1858,7 @@ packages:
       - swagger-ui-express
     dev: false
 
-  /@energyweb/issuer-api/0.7.1_xopg3sgvptdwdhuxuxidphnbby:
+  /@energyweb/issuer-api/0.7.1_fzt6dscbt2daefun6xhy6jys5m:
     resolution: {integrity: sha512-qdB7qsmaKLTzvza6LKsy/s027mazTAsgXS/DIO+jQq6pr1N5WueOyj9DbtEgZuUlqtEFDISiY8oD7y0N6nJVpw==}
     hasBin: true
     peerDependencies:
@@ -1865,7 +1869,7 @@ packages:
     dependencies:
       '@energyweb/issuer': 7.0.1
       '@energyweb/origin-backend-core': 8.2.3
-      '@energyweb/origin-backend-utils': 1.8.3_736bfa3hfcnsrzaam4jllwzxyq
+      '@energyweb/origin-backend-utils': 1.8.3_lpspb3vnu3fgpf3vosq4kxwd2u
       '@energyweb/utils-general': 11.2.3
       '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
       '@nestjs/config': 1.0.2_ebwtjqk3qdsa6zp65pjedcqvta
@@ -1885,7 +1889,7 @@ packages:
       pg: 8.7.1
       rxjs: 7.4.0
       swagger-ui-express: 4.2.0_express@4.19.2
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
     transitivePeerDependencies:
       - '@sap/hana-client'
       - better-sqlite3
@@ -1951,7 +1955,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-247-certificate/4.1.5_qasctm6eojpfmqas2yzny6nlp4:
+  /@energyweb/origin-247-certificate/4.1.5_pq2zeslzz2kr5i3hupe7b7pds4:
     resolution: {integrity: sha512-wTba6HlfulZi1KCazNjgTrGUy1CPZmFco4lXMYS1ZiPono8ddN0VlMoIFY8Efmo1/JYqrHYspt/di5dMP84VqA==}
     peerDependencies:
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
@@ -1976,7 +1980,7 @@ packages:
       passport: 0.5.0
       pg: 8.7.1
       reflect-metadata: 0.1.13
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
     transitivePeerDependencies:
       - '@sap/hana-client'
       - better-sqlite3
@@ -2019,7 +2023,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend-utils/1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye:
+  /@energyweb/origin-backend-utils/1.8.2-alpha.1646058469.0_fu7tfezqjst5heupdvfavdqtuy:
     resolution: {integrity: sha512-c+v8qOOYlwUlispAiRLhOZGF70XGlVW7sqInWB1Tf9/arQl3hm606vWKAnAM31a41m2Yh+4aCLAYFAwNzJAyaA==}
     peerDependencies:
       '@nestjs/common': 8.1.1
@@ -2035,7 +2039,7 @@ packages:
       pg: 8.7.1
       polly-js: 1.8.3
       rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
     transitivePeerDependencies:
       - '@sap/hana-client'
       - better-sqlite3
@@ -2060,48 +2064,7 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend-utils/1.8.3_736bfa3hfcnsrzaam4jllwzxyq:
-    resolution: {integrity: sha512-+/8T+jNf0/u2QuKdKplCgUEGf0vWw66n44nyHzOeDznm3wsZ0VIm8+1Cy4mEc+biFfNM8cMh47bYHVdRgqdtoQ==}
-    peerDependencies:
-      '@nestjs/common': 8.1.1
-      '@nestjs/core': 8.1.1
-    dependencies:
-      '@energyweb/origin-backend-core': 8.2.3
-      '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
-      '@nestjs/config': 1.0.2_ebwtjqk3qdsa6zp65pjedcqvta
-      '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
-      '@nestjs/swagger': 5.1.4_zo6t4wn2mwd6lqe3hgh4ccaea4
-      bn.js: 5.2.0
-      class-validator: 0.13.2
-      pg: 8.7.1
-      polly-js: 1.8.3
-      rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
-    transitivePeerDependencies:
-      - '@sap/hana-client'
-      - better-sqlite3
-      - bufferutil
-      - class-transformer
-      - fastify-swagger
-      - hdb-pool
-      - ioredis
-      - mongodb
-      - mssql
-      - mysql2
-      - oracledb
-      - pg-native
-      - pg-query-stream
-      - redis
-      - reflect-metadata
-      - sql.js
-      - sqlite3
-      - supports-color
-      - swagger-ui-express
-      - typeorm-aurora-data-api-driver
-      - utf-8-validate
-    dev: false
-
-  /@energyweb/origin-backend-utils/1.8.3_axx4gnse27cgtz2rqq4skbif3i:
+  /@energyweb/origin-backend-utils/1.8.3_3ww2ngnigiquecnxfogkmta7ai:
     resolution: {integrity: sha512-+/8T+jNf0/u2QuKdKplCgUEGf0vWw66n44nyHzOeDznm3wsZ0VIm8+1Cy4mEc+biFfNM8cMh47bYHVdRgqdtoQ==}
     peerDependencies:
       '@nestjs/common': 8.1.1
@@ -2117,7 +2080,7 @@ packages:
       pg: 8.7.1
       polly-js: 1.8.3
       rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
     transitivePeerDependencies:
       - '@sap/hana-client'
       - better-sqlite3
@@ -2142,12 +2105,53 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@energyweb/origin-backend/11.2.3_qcfya5smcgw3snj2p4r43qelz4:
+  /@energyweb/origin-backend-utils/1.8.3_lpspb3vnu3fgpf3vosq4kxwd2u:
+    resolution: {integrity: sha512-+/8T+jNf0/u2QuKdKplCgUEGf0vWw66n44nyHzOeDznm3wsZ0VIm8+1Cy4mEc+biFfNM8cMh47bYHVdRgqdtoQ==}
+    peerDependencies:
+      '@nestjs/common': 8.1.1
+      '@nestjs/core': 8.1.1
+    dependencies:
+      '@energyweb/origin-backend-core': 8.2.3
+      '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
+      '@nestjs/config': 1.0.2_ebwtjqk3qdsa6zp65pjedcqvta
+      '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
+      '@nestjs/swagger': 5.1.4_zo6t4wn2mwd6lqe3hgh4ccaea4
+      bn.js: 5.2.0
+      class-validator: 0.13.2
+      pg: 8.7.1
+      polly-js: 1.8.3
+      rxjs: 7.4.0
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
+    transitivePeerDependencies:
+      - '@sap/hana-client'
+      - better-sqlite3
+      - bufferutil
+      - class-transformer
+      - fastify-swagger
+      - hdb-pool
+      - ioredis
+      - mongodb
+      - mssql
+      - mysql2
+      - oracledb
+      - pg-native
+      - pg-query-stream
+      - redis
+      - reflect-metadata
+      - sql.js
+      - sqlite3
+      - supports-color
+      - swagger-ui-express
+      - typeorm-aurora-data-api-driver
+      - utf-8-validate
+    dev: false
+
+  /@energyweb/origin-backend/11.2.3_nleeufitestzgpxqerxgwd3dtu:
     resolution: {integrity: sha512-BuA9C+xxMeQUFHQVkSq8A9Q1PIVZ5vNWvkNMlcavdStBRyOpG2lEnt07B0XKYPd9ZMwh41Y53T63Fcs55iAGvw==}
     hasBin: true
     dependencies:
       '@energyweb/origin-backend-core': 8.2.3
-      '@energyweb/origin-backend-utils': 1.8.3_axx4gnse27cgtz2rqq4skbif3i
+      '@energyweb/origin-backend-utils': 1.8.3_3ww2ngnigiquecnxfogkmta7ai
       '@energyweb/utils-general': 11.2.3
       '@nestjs/common': 8.1.1_krxtcc6zrwe22ekvoie7l2esf4
       '@nestjs/config': 1.0.2_cow7jscv5lay2xwofv5rai7wpa
@@ -2172,7 +2176,7 @@ packages:
       passport-local: 1.0.0
       reflect-metadata: 0.1.13
       rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
       uuid: 8.3.2
     transitivePeerDependencies:
       - '@nestjs/microservices'
@@ -3840,6 +3844,21 @@ packages:
       - class-validator
     dev: false
 
+  /@nestjs/terminus/8.1.1_bdg32xphm2sdzobso5mm5chw5y:
+    resolution: {integrity: sha512-C+Pm1LZse8ZSfXeZXMTmUIGAmDpov1WRury/cyWj50ceCCCWz7csACNouGBEvjDmBklzfbkxgDH9mOSbm1r54A==}
+    peerDependencies:
+      '@nestjs/common': 8.x
+      '@nestjs/core': 8.x
+      reflect-metadata: 0.1.x
+      rxjs: 7.x
+    dependencies:
+      '@nestjs/common': 8.1.1_q6s47l4nyhjovs6nshw3c2acbu
+      '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
+      check-disk-space: 3.3.0
+      reflect-metadata: 0.1.14
+      rxjs: 7.8.1
+    dev: false
+
   /@nestjs/testing/8.1.1_rhqqhkohavfzgk66f2dnttsjri:
     resolution: {integrity: sha512-5vW1xi8z2m0QHdsLIpyyLpgINIiHcHTikYiPl1jde3mI52iLrIpv9+v2aWUrp2aHQJf7+br2M7WqDlVLWRFonA==}
     peerDependencies:
@@ -3873,7 +3892,7 @@ packages:
       '@nestjs/core': 8.1.1_7uvda5e5idlzxfvrevfd5fxvgm
       reflect-metadata: 0.1.13
       rxjs: 7.4.0
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
       uuid: 8.3.2
     dev: false
 
@@ -3890,7 +3909,7 @@ packages:
       '@nestjs/core': 8.1.1_3vbyzxnvvawlf2liu2gv6qanje
       reflect-metadata: 0.1.14
       rxjs: 7.8.1
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
       uuid: 8.3.2
     dev: false
 
@@ -4432,6 +4451,55 @@ packages:
       '@opentelemetry/sdk-trace-base': 1.28.0_@opentelemetry+api@1.9.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@redis/bloom/1.0.2_@redis+client@1.3.0:
+    resolution: {integrity: sha512-EBw7Ag1hPgFzdznK2PBblc1kdlj5B5Cw3XwI9/oG7tSn85/HKy3X9xHy/8tm/eNXJYHLXHJL/pkwBpFMVVefkw==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.3.0
+    dev: false
+
+  /@redis/client/1.3.0:
+    resolution: {integrity: sha512-XCFV60nloXAefDsPnYMjHGtvbtHR8fV5Om8cQ0JYqTNbWcQo/4AryzJ2luRj4blveWazRK/j40gES8M7Cp6cfQ==}
+    engines: {node: '>=14'}
+    dependencies:
+      cluster-key-slot: 1.1.0
+      generic-pool: 3.8.2
+      yallist: 4.0.0
+    dev: false
+
+  /@redis/graph/1.0.1_@redis+client@1.3.0:
+    resolution: {integrity: sha512-oDE4myMCJOCVKYMygEMWuriBgqlS5FqdWerikMoJxzmmTUErnTRRgmIDa2VcgytACZMFqpAOWDzops4DOlnkfQ==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.3.0
+    dev: false
+
+  /@redis/json/1.0.4_@redis+client@1.3.0:
+    resolution: {integrity: sha512-LUZE2Gdrhg0Rx7AN+cZkb1e6HjoSKaeeW8rYnt89Tly13GBI5eP4CwDVr+MY8BAYfCg4/N15OUrtLoona9uSgw==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.3.0
+    dev: false
+
+  /@redis/search/1.1.0_@redis+client@1.3.0:
+    resolution: {integrity: sha512-NyFZEVnxIJEybpy+YskjgOJRNsfTYqaPbK/Buv6W2kmFNaRk85JiqjJZA5QkRmWvGbyQYwoO5QfDi2wHskKrQQ==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.3.0
+    dev: false
+
+  /@redis/time-series/1.0.3_@redis+client@1.3.0:
+    resolution: {integrity: sha512-OFp0q4SGrTH0Mruf6oFsHGea58u8vS/iI5+NpYdicaM+7BgqBZH8FFvNZ8rYYLrUO/QRqMq72NpXmxLVNcdmjA==}
+    peerDependencies:
+      '@redis/client': ^1.0.0
+    dependencies:
+      '@redis/client': 1.3.0
     dev: false
 
   /@selderee/plugin-htmlparser2/0.11.0:
@@ -6154,6 +6222,11 @@ packages:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
     dev: false
 
+  /check-disk-space/3.3.0:
+    resolution: {integrity: sha512-Hvr+Nr01xSSvuCpXvJ8oZ2iXjIu4XT3uHbw3g7F/Uiw6O5xk8c/Ot7ZGFDaTRDf2Bz8AdWA4DvpAgCJVKt8arw==}
+    engines: {node: '>=12'}
+    dev: false
+
   /check-error/1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
     dependencies:
@@ -6347,6 +6420,11 @@ packages:
   /clone/1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
+    dev: false
+
+  /cluster-key-slot/1.1.0:
+    resolution: {integrity: sha512-2Nii8p3RwAPiFwsnZvukotvow2rIHM+yQ6ZcBXGHdniadkYGZYiGmkHJIbZPIV9nfv7m/U1IPMVVcAhoWFeklw==}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /cluster-key-slot/1.1.2:
@@ -8338,6 +8416,11 @@ packages:
       - source-map-support
       - yargs
       - ethereumjs-util
+
+  /generic-pool/3.8.2:
+    resolution: {integrity: sha512-nGToKy6p3PAbYQ7p1UlWl6vSPwfwU6TMSWK7TTu+WUY4ZjyZQGniGGt2oNVvyNSpyZYSB43zMXVLcBm08MTMkg==}
+    engines: {node: '>= 4'}
+    dev: false
 
   /gensync/1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -12195,6 +12278,17 @@ packages:
       redis-errors: 1.2.0
     dev: false
 
+  /redis/4.3.1:
+    resolution: {integrity: sha512-cM7yFU5CA6zyCF7N/+SSTcSJQSRMEKN0k0Whhu6J7n9mmXRoXugfWDBo5iOzGwABmsWKSwGPTU5J4Bxbl+0mrA==}
+    dependencies:
+      '@redis/bloom': 1.0.2_@redis+client@1.3.0
+      '@redis/client': 1.3.0
+      '@redis/graph': 1.0.1_@redis+client@1.3.0
+      '@redis/json': 1.0.4_@redis+client@1.3.0
+      '@redis/search': 1.1.0_@redis+client@1.3.0
+      '@redis/time-series': 1.0.3_@redis+client@1.3.0
+    dev: false
+
   /redoc-express/2.1.0:
     resolution: {integrity: sha512-gq6FvghNirD3dCJ7w8Z6escXYHnU1Hk50baQsIeGunQQ9YRoy6qR/MjEOJtDEKaPNB2NgkIzQ9ESNX5/27zkDA==}
     dev: false
@@ -13561,7 +13655,7 @@ packages:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
     dev: false
 
-  /typeorm/0.2.41_pg@8.7.1:
+  /typeorm/0.2.41_pg@8.7.1+redis@4.3.1:
     resolution: {integrity: sha512-/d8CLJJxKPgsnrZWiMyPI0rz2MFZnBQrnQ5XP3Vu3mswv2WPexb58QM6BEtmRmlTMYN5KFWUz8SKluze+wS9xw==}
     hasBin: true
     peerDependencies:
@@ -13623,6 +13717,7 @@ packages:
       js-yaml: 4.1.0
       mkdirp: 1.0.4
       pg: 8.7.1
+      redis: 4.3.1
       reflect-metadata: 0.1.14
       sha.js: 2.4.11
       tslib: 2.6.3
@@ -14240,6 +14335,10 @@ packages:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
     dev: false
 
+  /yallist/4.0.0:
+    resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
+    dev: false
+
   /yargs-parser/20.2.4:
     resolution: {integrity: sha512-WOkpgNhPTlE73h4VFAFsOnomJVaovO8VqLDzy5saChRBFQFBoMYirowyW+Q9HB4HFF4Z7VZTiG3iSzJJA29yRA==}
     engines: {node: '>=10'}
@@ -14321,18 +14420,18 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-H9QcmU/Y1jrRRUN4tkswpHbyGJJrpqN3IqvMr30/YeqJRQ4yzBls35SwOB0XcaCnqDp6hysgdFWuU7yL+GCaeQ==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-mEjD9pWaqEgVLMibmNpMlMxCOoLEf7w6XMKHkTekDin1kUMZ/XpYLCBpgOYvNCgHENJJnNrtPiNbigUvlaq/iQ==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
       '@compodoc/compodoc': 1.1.25_typescript@4.1.3
       '@energyweb/energy-api-influxdb': 0.8.3_5s24yubn6oroycelimerxxvadu
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
-      '@energyweb/issuer-api': 0.7.1_xopg3sgvptdwdhuxuxidphnbby
-      '@energyweb/origin-247-certificate': 4.1.5_qasctm6eojpfmqas2yzny6nlp4
-      '@energyweb/origin-backend': 11.2.3_qcfya5smcgw3snj2p4r43qelz4
+      '@energyweb/issuer-api': 0.7.1_fzt6dscbt2daefun6xhy6jys5m
+      '@energyweb/origin-247-certificate': 4.1.5_pq2zeslzz2kr5i3hupe7b7pds4
+      '@energyweb/origin-backend': 11.2.3_nleeufitestzgpxqerxgwd3dtu
       '@energyweb/origin-backend-core': 8.2.3
-      '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_azlrti6fdagkyqdo7z3ubbyaye
+      '@energyweb/origin-backend-utils': 1.8.2-alpha.1646058469.0_fu7tfezqjst5heupdvfavdqtuy
       '@energyweb/utils-general': 11.2.2-alpha.1646058469.0
       '@ethersproject/bignumber': 5.3.0
       '@influxdata/influxdb-client': 1.9.0
@@ -14351,6 +14450,7 @@ packages:
       '@nestjs/platform-express': 8.1.1_svu4v2sifhq6njkoaosg5fk444
       '@nestjs/schedule': 1.0.1_seuf5arsp3auuxtradyzipfpxi
       '@nestjs/swagger': 5.2.1_abmryazx2drv6ur45tzub6qzha
+      '@nestjs/terminus': 8.1.1_bdg32xphm2sdzobso5mm5chw5y
       '@nestjs/testing': 8.1.1_rhqqhkohavfzgk66f2dnttsjri
       '@nestjs/typeorm': 8.0.2_z4qkyll2osxajkcmqyf7iixbiu
       '@sentry/nestjs': 8.42.0_svu4v2sifhq6njkoaosg5fk444
@@ -14421,6 +14521,7 @@ packages:
       pkcs7-padding: 0.1.1
       prettier: 3.2.5
       qs: 6.12.1
+      redis: 4.3.1
       redoc-express: 2.1.0
       reflect-metadata: 0.1.14
       rijndael-js: 2.0.0
@@ -14438,7 +14539,7 @@ packages:
       ts-jest: 29.2.3_d5u5sfj7ji52djbvoyst6etada
       ts-node: 9.1.0_typescript@4.1.3
       tsconfig-paths: 4.2.0
-      typeorm: 0.2.41_pg@8.7.1
+      typeorm: 0.2.41_pg@8.7.1+redis@4.3.1
       typescript: 4.1.3
       uglify-js: 2.6.0
       underscore: 1.13.6
@@ -14473,7 +14574,6 @@ packages:
       - oracledb
       - pg-native
       - pg-query-stream
-      - redis
       - sql.js
       - sqlite3
       - supports-color
