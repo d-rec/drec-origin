@@ -568,7 +568,8 @@ export class AdminController {
   @ApiQuery({ name: 'organizationName', type: String, required: false })
   @ApiOperation({
     summary: 'Get all API users',
-    description: 'Returns list of all API users, optionally filtered by organization name.',
+    description:
+      'Returns list of all API users, optionally filtered by organization name.',
   })
   @ApiResponse({
     status: HttpStatus.OK,

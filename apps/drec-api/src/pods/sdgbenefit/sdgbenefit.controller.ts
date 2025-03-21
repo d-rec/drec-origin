@@ -84,12 +84,14 @@ export class SDGBenefitController {
   @Get('/code')
   @ApiOperation({
     summary: 'Get all SDG benefit codes and names',
-    description: 'Returns a list of all SDG benefit codes and names from a predefined list (not stored in the database).',
+    description:
+      'Returns a list of all SDG benefit codes and names from a predefined list (not stored in the database).',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [SDGBenefitCodeNameDTO],
-    description: 'Successfully retrieved the list of SDG benefit codes and names.',
+    description:
+      'Successfully retrieved the list of SDG benefit codes and names.',
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
