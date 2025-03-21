@@ -3,7 +3,7 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IsArray, IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
-import { OrganizationStatus } from '../../utils/enums';
+import { OrganizationStatus, OrganizationType } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { Invitation } from '../invitation/invitation.entity';
 
@@ -59,7 +59,7 @@ export class Organization
 
   @Column()
   @IsString()
-  organizationType: string;
+  organizationType: OrganizationType;
 
   // @ApiProperty({ type: String })
   // @Column()

@@ -25,7 +25,12 @@ import {
   UserChangePasswordUpdate,
   UserPasswordUpdate,
 } from '../../models';
-import { Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import {
+  Role,
+  UserPermissionStatus,
+  UserStatus,
+  OrganizationType,
+} from '../../utils/enums';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -40,7 +45,6 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { OrganizationType } from '../../utils/enums';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -98,7 +102,7 @@ export class UserService {
     if (!inviteUser) {
       const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
+        organizationType: data.organizationType as OrganizationType,
         orgEmail: data.email,
         address: data.orgAddress,
       };
@@ -170,7 +174,7 @@ export class UserService {
     if (!inviteUser) {
       const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
+        organizationType: data.organizationType as OrganizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress,
