@@ -90,8 +90,9 @@ const tags: { name: string; description: string }[] = [
   },
   {
     name: 'Health',
-    description: 'Endpoints related to checking the health and status of the application and it\'s related services',
-  }
+    description:
+      "Endpoints related to checking the health and status of the application and it's related services",
+  },
 ];
 
 export default tags;

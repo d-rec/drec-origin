@@ -11,7 +11,7 @@ const paths: {
     summary: 'Properties',
     description:
       'Returns the blockchain properties including issuer details and registry information.',
-    tag: 'Blockchain Properties'
+    tag: 'Blockchain Properties',
   },
 ];
 

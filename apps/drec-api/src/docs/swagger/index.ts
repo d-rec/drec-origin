@@ -22,10 +22,10 @@ export const getDocumentBuilder = (): DocumentBuilder => {
 };
 
 export const customizeDocument = (document: OpenAPIObject): OpenAPIObject => {
-  Paths.filter(({ endpoint }) => document.paths[endpoint]).forEach((item)=> {
+  Paths.filter(({ endpoint }) => document.paths[endpoint]).forEach((item) => {
     document.paths[item.endpoint][item.method].summary = item.summary;
     document.paths[item.endpoint][item.method].description = item.description;
-    if(item.tag){
+    if (item.tag) {
       document.paths[item.endpoint][item.method].tags = [item.tag];
     }
   });
