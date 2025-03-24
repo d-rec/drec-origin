@@ -58,13 +58,13 @@ export class WithoutAuthGuard implements CanActivate {
 
       case UrlPath.Register: {
         const userData = await this.userService.findOne({ role: Role.Admin });
-        const userRoles = [
+        const userOrganizationTypes = [
           OrganizationType.Developer,
           OrganizationType.ApiUser,
           OrganizationType.Buyer,
         ];
 
-        if (userRoles.includes(request.body.organizationType)) {
+        if (userOrganizationTypes.includes(request.body.organizationType)) {
           user = userData;
         } else if (
           request.body.api_user_id !== userData.api_user_id &&
