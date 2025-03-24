@@ -15,8 +15,8 @@ const tags: { name: string; description: string }[] = [
       'All endpoints related to organization management. This includes functionalities such as retrieving organization details for the authenticated user, managing all organizations associated with an API user, fetching users within an organization, handling user role changes, managing invitations, and setting blockchain addresses. These endpoints ensure comprehensive management of organizational data and user interactions within the organization, providing a structured approach to organization-related operations.',
   },
   {
-    name: 'blockchain-properties',
-    description: '',
+    name: 'Blockchain Properties',
+    description: 'Endpoints related to blockchain properties',
   },
   {
     name: 'File',
@@ -88,6 +88,10 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to managing Sustainable Development Goals (SDG) benefits. This includes functionalities for adding SDG benefits, retrieving a list of all SDG benefits, and fetching predefined SDG benefit codes and names. These endpoints are essential for tracking and managing SDG-related data within the system.',
   },
+  {
+    name: 'Health',
+    description: 'Endpoints related to checking the health and status of the application and it\'s related services',
+  }
 ];
 
 export default tags;
