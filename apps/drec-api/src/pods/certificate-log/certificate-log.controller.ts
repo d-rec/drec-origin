@@ -75,7 +75,8 @@ export class CertificateLogController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: [CheckCertificateIssueDateLogForDeviceEntity],
+    type: CheckCertificateIssueDateLogForDeviceEntity,
+    isArray: true,
     description: 'Successfully retrieved all certificate logs.',
   })
   @ApiResponse({

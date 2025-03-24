@@ -20,7 +20,7 @@ import {
 import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 
-@ApiTags('DREC Issuer')
+@ApiTags('Issuer')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('drec-issuer')
