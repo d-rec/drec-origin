@@ -77,7 +77,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Generate Access Token',
     description:
-      'Authenticates a user with email and password, then returns an access token.',
+      'Authenticates a using a privateKey and returns an access token.',
   })
   @ApiBody({
     type: LoginDataDTO,
