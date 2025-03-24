@@ -13,7 +13,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiOkResponse,
+  ApiOperation,
   ApiResponse,
   ApiSecurity,
   ApiTags,
@@ -31,7 +31,7 @@ import { ActiveUserGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
-@ApiTags('YieldConfigration')
+@ApiTags('Yield Configuration')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('yield/config')
@@ -47,9 +47,19 @@ export class YieldConfigController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Get all yield values',
+    description:
+      'Fetches all yield values associated with countries. This endpoint is restricted to admin users and requires appropriate permissions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
     type: [YieldConfigDTO],
-    description: 'Returns all country yield value',
+    description: 'Successfully retrieved all country yield values.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getAll(): Promise<YieldConfigDTO[]> {
     return this.yieldConfigService.getAll();
@@ -65,7 +75,24 @@ export class YieldConfigController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({ type: [YieldConfigDTO], description: 'Returns all Devices' })
+  @ApiOperation({
+    summary: 'Get yield value by ID',
+    description: 'Fetches the yield value for a specific country using its ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: YieldConfigDTO,
+    description:
+      'Successfully retrieved the yield value for the specified country.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No yield configuration found for the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async get(@Param('id') id: number): Promise<YieldConfigDTO> {
     return this.yieldConfigService.findById(id);
   }
@@ -79,11 +106,25 @@ export class YieldConfigController {
   @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
-  //@Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Create a new yield value',
+    description:
+      'Adds a new yield value for a specified country. The country code must be valid and in uppercase.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     type: NewYieldConfigDTO,
-    description: 'Returns a new created country yield value id',
+    description:
+      'Successfully created a new yield value for the specified country.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Invalid country code provided or country code does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async create(
     @UserDecorator() loggedUser: ILoggedInUser,
@@ -130,10 +171,28 @@ export class YieldConfigController {
   @Permission('Update')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateYieldValueDTO })
+  @ApiOperation({
+    summary: 'Update yield value',
+    description:
+      'Updates the yield value or status for a specified country by its ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: YieldConfigDTO,
-    description: 'Updates a yield value or status by admin',
+    description:
+      'Successfully updated the yield value for the specified country.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No yield configuration found for the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid request body.',
   })
   public async updateYield(
     @Param('id', new ParseIntPipe()) id: number,

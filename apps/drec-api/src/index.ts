@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
-import { getDocumentBuilder } from './docs/swagger';
+import { customizeDocument, getDocumentBuilder } from './docs/swagger';
 
 export { DRECModule };
 
@@ -49,8 +49,9 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   const options = documentBuilder.build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
-  await setupRedoc(app, document);
+  const customizedDocument = customizeDocument(document);
+  SwaggerModule.setup('swagger', app, customizedDocument);
+  await setupRedoc(app, customizedDocument);
 
   await app.listen(PORT);
 

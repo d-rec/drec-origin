@@ -1,5 +1,6 @@
-import { DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject } from '@nestjs/swagger';
 import Tags from './tags';
+import Paths from './paths';
 
 export const getDocumentBuilder = (): DocumentBuilder => {
   const options = new DocumentBuilder()
@@ -13,7 +14,20 @@ export const getDocumentBuilder = (): DocumentBuilder => {
       'access-token',
     );
 
-  Tags.forEach((tag) => options.addTag(tag.name, tag.description));
+  Tags.sort((a, b) => a.name.localeCompare(b.name)).forEach((tag) =>
+    options.addTag(tag.name, tag.description),
+  );
 
   return options;
+};
+
+export const customizeDocument = (document: OpenAPIObject): OpenAPIObject => {
+  Paths.filter(({ endpoint }) => document.paths[endpoint]).forEach((item) => {
+    document.paths[item.endpoint][item.method].summary = item.summary;
+    document.paths[item.endpoint][item.method].description = item.description;
+    if (item.tag) {
+      document.paths[item.endpoint][item.method].tags = [item.tag];
+    }
+  });
+  return document;
 };
