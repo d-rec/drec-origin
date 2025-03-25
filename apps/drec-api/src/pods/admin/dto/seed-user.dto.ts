@@ -17,7 +17,7 @@ export class SeedUserDTO
       'firstName',
       'lastName',
       'email',
-      'phoneNumber',
+      'telephone',
       'notifications',
       'status',
       'role',

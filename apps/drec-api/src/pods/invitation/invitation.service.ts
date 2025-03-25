@@ -43,7 +43,7 @@ export class InvitationService {
   public async invite(
     user: ILoggedInUser,
     email: string,
-    phoneNumber: string,
+    telephone: string,
     role: OrganizationRole,
     firstName: string,
     lastName: string,
@@ -149,7 +149,7 @@ export class InvitationService {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
-      phoneNumber: phoneNumber,
+      telephone: telephone,
       password: this.randPassword,
       orgName: organization.name,
       organizationType: organization.organizationType,

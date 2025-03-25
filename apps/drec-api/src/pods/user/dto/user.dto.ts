@@ -49,7 +49,7 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @ApiProperty({ type: String })
   @IsNotEmpty()
   @IsString()
-  phoneNumber: string;
+  telephone: string;
 
   @ApiProperty({ type: Boolean })
   @IsNotEmpty()

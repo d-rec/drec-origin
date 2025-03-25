@@ -91,7 +91,7 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
-      phoneNumber: '119754217675',
+      telephone: '119754217675',
       password: 'testUser2',
       organizationType: 'Developer',
     };
@@ -103,7 +103,7 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
-      phoneNumber: '119754217689',
+      telephone: '119754217689',
       password: 'testUser2',
       organizationType: 'Developer',
     };

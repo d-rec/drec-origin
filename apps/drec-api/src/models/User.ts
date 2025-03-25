@@ -10,7 +10,7 @@ export interface IUserProperties {
   title?: string;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
+  telephone: string;
   email: string;
   notifications: boolean;
   status: UserStatus;

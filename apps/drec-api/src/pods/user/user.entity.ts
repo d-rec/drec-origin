@@ -51,7 +51,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   @ApiProperty({ type: String })
   @Column({ unique: true })
   @IsString()
-  phoneNumber: string;
+  telephone: string;
 
   @ApiProperty({ type: String })
   @Column({ select: false })

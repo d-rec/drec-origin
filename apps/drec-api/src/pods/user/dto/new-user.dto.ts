@@ -20,7 +20,7 @@ export class NewUserDTO implements Omit<IUserProperties, 'id'> {
   email: string;
 
   @ApiProperty({ type: String })
-  phoneNumber: string;
+  telephone: string;
 
   @ApiProperty({ type: Boolean })
   notifications: boolean;
