@@ -320,6 +320,7 @@ describe('InvitationService', () => {
       const role = Role.User as OrganizationRole; //'DeviceOwner';
       const firstName = 'test';
       const lastName = 'test';
+      const phoneNumber = '919754218975';
       const orgId = 18;
 
       const mockApiUserEntity: IUser = {
@@ -327,6 +328,7 @@ describe('InvitationService', () => {
         firstName: 'test',
         lastName: 'apiuser',
         email: 'iceratan@gmail.com',
+        phoneNumber: '919754218975',
         notifications: true,
         status: UserStatus.Active, //'Active',
         role: Role.ApiUser, //'Admin',
@@ -462,6 +464,7 @@ describe('InvitationService', () => {
         service.invite(
           user as unknown as ILoggedInUser,
           email,
+          phoneNumber,
           role,
           firstName,
           lastName,
@@ -540,6 +543,7 @@ describe('InvitationService', () => {
         firstName: 'admin',
         lastName: 'drec',
         email: 'aishuutech@gmail.com',
+        phoneNumber: '789754218975',
         notifications: true,
         status: UserStatus.Active, //'Active',
         role: Role.Admin, //'Admin',
@@ -716,8 +720,8 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser, // Change to Role.ApiUser to match the organization’s api_user_id
-          api_user_id: 'ygjkgthhfrhjfjh', // Match the organization’s api_user_id
+          role: Role.ApiUser, // Change to Role.ApiUser to match the organization's api_user_id
+          api_user_id: 'ygjkgthhfrhjfjh', // Match the organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
           blockchainAccountAddress: '0x123',
@@ -767,8 +771,8 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser, // Role matching organization’s api_user_id
-          api_user_id: 'ygjkgthhfrhjfjh', // Matching organization’s api_user_id
+          role: Role.ApiUser, // Role matching organization's api_user_id
+          api_user_id: 'ygjkgthhfrhjfjh', // Matching organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
           blockchainAccountAddress: '0x123',

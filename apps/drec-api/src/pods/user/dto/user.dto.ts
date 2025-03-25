@@ -46,6 +46,11 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @IsEmail()
   email: string;
 
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
+
   @ApiProperty({ type: Boolean })
   @IsNotEmpty()
   @IsBoolean()

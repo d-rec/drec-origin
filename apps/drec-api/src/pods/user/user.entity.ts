@@ -49,6 +49,11 @@ export class User extends ExtendedBaseEntity implements IUser {
   email: string;
 
   @ApiProperty({ type: String })
+  @Column({ unique: true })
+  @IsString()
+  phoneNumber: string;
+
+  @ApiProperty({ type: String })
   @Column({ select: false })
   @Exclude()
   @IsString()
