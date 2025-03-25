@@ -46,7 +46,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     type: LoginReturnDataDTO,
-    description: 'Log in',
+    description: 'Login',
   })
   async login(@Request() req: ExpressRequest): Promise<LoginReturnDataDTO> {
     this.logger.verbose('Within login');
@@ -56,6 +56,15 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Post('auth/logout')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Logout',
+    description:
+      'Logs out the authenticated user by removing their active session.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User session successfully removed.',
+  })
   async logout(@Request() req: ExpressRequest): Promise<{ message: string }> {
     this.logger.verbose('Within login');
     const token: string = req.headers.authorization?.split(' ')[1];
@@ -65,7 +74,20 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('auth/getAccess')
-  @ApiBody({ type: LoginDataDTO })
+  @ApiOperation({
+    summary: 'Generate Access Token',
+    description:
+      'Authenticates a using a privateKey and returns an access token.',
+  })
+  @ApiBody({
+    type: LoginDataDTO,
+    description: 'User login credentials including email and password.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Access token successfully generated.',
+    type: LoginReturnDataDTO,
+  })
   async generateToken(
     @Request() req: ExpressRequest,
     @Query('privateKey') privateKey: string,

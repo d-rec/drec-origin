@@ -24,6 +24,7 @@ import {
   ApiResponse,
   ApiTags,
   ApiQuery,
+  ApiOperation,
 } from '@nestjs/swagger';
 
 import {
@@ -51,7 +52,7 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Organization } from '../organization/organization.entity';
-@ApiTags('admin')
+@ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
 @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
@@ -71,10 +72,19 @@ export class AdminController {
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Get all users',
+    description:
+      'Returns a paginated list of all users, optionally filtered by query parameters.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
-    description: 'Gets all users',
+    description: 'Successfully retrieved the list of users.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async getUsers(
     @Query(ValidationPipe) filterDTO: UserFilterDTO,
@@ -97,9 +107,19 @@ export class AdminController {
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Get all organizations',
+    description:
+      'Returns a paginated list of all organizations, optionally filtered by query parameters.',
+  })
   @ApiResponse({
+    status: HttpStatus.OK,
     type: [OrganizationDTO],
-    description: 'Returns all Organizations',
+    description: 'Successfully retrieved the list of organizations.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getAllOrganizations(
     @Query(ValidationPipe) filterDTO: OrganizationFilterDTO,
@@ -125,9 +145,20 @@ export class AdminController {
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Get all users of an organization',
+    description:
+      'Returns a paginated list of users belonging to the specified organization.',
+  })
   @ApiResponse({
+    status: HttpStatus.OK,
     type: [OrganizationDTO],
-    description: 'Returns all User Of Organizations',
+    description:
+      'Successfully retrieved the list of users for the organization.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getAllUserOrganizations(
     @Param('organizationId', new ParseIntPipe()) organizationId: number,
@@ -151,13 +182,23 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT-CRUDL')
+  @ApiOperation({
+    summary: 'Get organization by ID',
+    description:
+      'Returns the details of the organization with the specified ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: OrganizationDTO,
-    description: 'Gets an organization',
+    description: 'Successfully retrieved the organization details.',
   })
-  @ApiNotFoundResponse({
-    description: `The organization with the id doesn't exist`,
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The organization with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getOrganizationById(
     @Param('id', new ParseIntPipe()) organizationId: number,
@@ -170,11 +211,22 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Create a new user',
+    description: 'Creates a new user with the provided details.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
-    // type: CreateUserDTO,
+    status: HttpStatus.CREATED,
     type: CreateUserOrgDTO,
-    description: 'Returns a new created user',
+    description: 'Successfully created a new user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for creating the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async createUser(
     @Body() newUser: CreateUserOrgDTO,
@@ -189,10 +241,22 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Seed users',
+    description: 'Creates multiple users with the provided seed data.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     type: [UserDTO],
-    description: 'Returns new created users',
+    description: 'Successfully created the seeded users.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for seeding users.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
     const users: UserDTO[] = [];
@@ -218,10 +282,22 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Seed organizations',
+    description: 'Creates multiple organizations with the provided seed data.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     type: [OrganizationDTO],
-    description: 'Returns new created users',
+    description: 'Successfully created the seeded organizations.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for seeding organizations.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async seedOrgs(
     @Body() newOrgs: OrganizationDTO[],
@@ -245,10 +321,26 @@ export class AdminController {
   @Permission('Write')
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
+  @ApiOperation({
+    summary: 'Update a user',
+    description: 'Updates the details of the user with the specified ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UserDTO,
-    description: 'Updates a user (admin)',
+    description: 'Successfully updated the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for updating the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The user with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async updateUser(
     @Param('id', new ParseIntPipe()) id: number,
@@ -262,10 +354,23 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Update')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Update an organization',
+    description:
+      'Updates the details of the organization with the specified ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: UpdateOrganizationDTO,
-    description: 'Returns an updated Organization',
+    description: 'Successfully updated the organization.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The organization with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @ApiNotFoundResponse({ description: `No organization found` })
   public async updateOrganization(
@@ -283,10 +388,22 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Delete an organization',
+    description: 'Deletes the organization with the specified ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: 'Delete an organization',
+    description: 'Successfully deleted the organization.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The organization with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async deleteOrganization(
     @Param('id', new ParseIntPipe()) organizationId: number,
@@ -307,10 +424,22 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Delete a user',
+    description: 'Deletes the user with the specified ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: 'Delete an organization',
+    description: 'Successfully deleted the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The user with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async deleteUser(
     @Param('id', new ParseIntPipe()) userid: number,
@@ -366,11 +495,26 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Register a device in I-REC',
+    description:
+      'Registers a device with the specified ID in the I-REC system.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    // type: CreateUserDTO,
-    // type: CreateUserORGDTO,
-    description: 'Returns a new created device in I-REC',
+    description: 'Successfully registered the device in I-REC.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid device ID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The device with the specified ID does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async irecDeviceRegister(
     @Param('id') id: number,
@@ -385,9 +529,22 @@ export class AdminController {
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  @ApiOperation({
+    summary: 'Get device autocomplete suggestions',
+    description:
+      'Returns a list of device suggestions based on the provided external ID and organization ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns Auto-Complete',
+    description: 'Successfully retrieved device autocomplete suggestions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid external ID or organization ID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @ApiQuery({ name: 'externalId', description: 'externalId', type: String })
   async autoComplete(
@@ -409,10 +566,27 @@ export class AdminController {
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiQuery({ name: 'organizationName', type: String, required: false })
+  @ApiOperation({
+    summary: 'Get all API users',
+    description:
+      'Returns list of all API users, optionally filtered by organization name.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [UserDTO],
-    description: 'Gets all apiusers',
+    description: 'Successfully retrieved the list of API users.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid query parameters provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No API users found matching the criteria.',
   })
   public async getApiUsers(
     @Query('organizationName', new DefaultValuePipe(null))
