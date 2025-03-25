@@ -1,5 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   HealthCheck,
   HealthCheckResult,
@@ -23,15 +28,24 @@ export class HealthController {
 
   @Get()
   @ApiOperation({
+    summary: 'Check',
     description: 'Return success when the application is up and running.',
   })
-  @HealthCheck()
+  @ApiOkResponse({
+    description: 'The Health Check is successful',
+    type: String,
+  })
+  @ApiResponse({
+    status: HttpStatus.SERVICE_UNAVAILABLE,
+    description: 'The Health Check is not successful',
+  })
   check(): string {
     return 'ok';
   }
 
   @Get('/status')
   @ApiOperation({
+    summary: 'Status',
     description:
       'Checks if all the core services of the application are healthy',
   })

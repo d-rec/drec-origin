@@ -16,10 +16,10 @@ import {
 import {
   ApiBearerAuth,
   ApiResponse,
-  ApiOkResponse,
   ApiSecurity,
   ApiTags,
   ApiQuery,
+  ApiOperation,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
@@ -47,7 +47,7 @@ import { Response } from 'express';
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
  */
-@ApiTags('certificate-log')
+@ApiTags('Certificate Log')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/certificate-log')
@@ -69,9 +69,19 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
-    type: [CheckCertificateIssueDateLogForDeviceEntity],
-    description: 'Returns all individual devices certificate log',
+  @ApiOperation({
+    summary: 'Get all certificate issue date logs',
+    description: 'Returns a list of all certificate logs for devices.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: CheckCertificateIssueDateLogForDeviceEntity,
+    isArray: true,
+    description: 'Successfully retrieved all certificate logs.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getAll(): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     this.logger.verbose(`With in getAll`);
@@ -85,6 +95,24 @@ export class CertificateLogController {
   @UseGuards(PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get claim amount in Ethers (JSON format)',
+    description:
+      'Converts the provided amount into Ethers and returns it in JSON format.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: String,
+    description: 'Successfully converted the amount into Ethers.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid amount provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async getClaimAmountInEthersJSON(
     @Query() amountFormatData: AmountFormattingDTO,
   ): Promise<string> {
@@ -102,10 +130,24 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Get certificate logs by reservation group ID',
+    description:
+      'Returns certificate logs for devices filtered by the provided reservation group ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
     type: [CheckCertificateIssueDateLogForDeviceEntity],
     description:
-      'Returns Certificate logs For individual devices based on groupId',
+      'Successfully retrieved certificate logs for the specified group ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid group ID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getByGroupId(
     @Query(ValidationPipe) filterDTO: GroupIDBasedFilteringDTO,
@@ -124,9 +166,23 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Get issuer certificates by group UID',
+    description: 'Returns issuer certificates for the specified group UID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
     type: [CertificateNewWithPerDeviceLog],
-    description: 'Returns issuer Certificate of groupId',
+    description:
+      'Successfully retrieved issuer certificates for the specified group UID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid group UID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getIssuerCertificate(
     @Param('groupUid', ParseUUIDPipe) groupId: string,
@@ -160,9 +216,24 @@ export class CertificateLogController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Get issuer certificates from updated tables by group UID',
+    description:
+      'Returns issuer certificates for the specified group UID from updated certificate tables.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
     type: [CertificateNewWithPerDeviceLog],
-    description: 'Returns issuer Certificate of groupId',
+    description:
+      'Successfully retrieved issuer certificates for the specified group UID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid group UID or page number provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getCertificatesFromUpdatedCertificateTables(
     @Param('groupUid', ParseUUIDPipe) groupId: string,
@@ -212,9 +283,19 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  @ApiOkResponse({
+  @ApiOperation({
+    summary: 'Get redemption report',
+    description:
+      'Returns the redemption report for the logged-in user after claiming certificates.',
+  })
+  @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns a new created Device id',
+    type: Array,
+    description: 'Successfully retrieved the redemption report.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getRedemptionReport(
     @UserDecorator() { id }: ILoggedInUser,
@@ -235,9 +316,23 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get certificate read module data',
+    description:
+      'Returns paginated certificate read module data filtered by device and date range.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns the certificate_read_module table',
+    type: Object,
+    description: 'Successfully retrieved certificate read module data.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid query parameters provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @ApiQuery({
     name: 'certificateStartDate',
@@ -297,9 +392,27 @@ export class CertificateLogController {
     required: false,
     description: 'This query parameter is for apiuser',
   })
-  @ApiOkResponse({
-    type: [CertificateLogResponse],
-    description: 'Returns issuer Certificate of Reservation',
+  @ApiOperation({
+    summary: 'Get certified logs of devices',
+    description:
+      'Returns certified logs of devices filtered by organization and device ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: CertificateLogResponse,
+    description: 'Successfully retrieved certified logs of devices.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid organization ID or device ID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized. Authentication token is missing or invalid.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   async getCertificatesForDeveloper(
     @UserDecorator() user: ILoggedInUser,
@@ -376,7 +489,23 @@ export class CertificateLogController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
-  //@ApiOkResponse({ type: [Response], description: 'Returns Certificate logs For individual devices based on groupId' })
+  @ApiOperation({
+    summary: 'Export per-device certificate logs',
+    description:
+      'Exports per-device certificate logs for the specified group UID as a CSV file.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully exported per-device certificate logs.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid group UID provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
+  })
   async getCertifcateLogPerDevice(
     @UserDecorator() user: ILoggedInUser,
     @Param('groupUid', ParseUUIDPipe) groupId: string,

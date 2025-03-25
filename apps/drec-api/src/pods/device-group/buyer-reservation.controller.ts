@@ -22,6 +22,7 @@ import {
   ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiSecurity,
@@ -58,7 +59,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 
-@ApiTags('buyer-reservation')
+@ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/buyer-reservation')
@@ -108,6 +109,19 @@ export class BuyerReservationController {
   @ApiOkResponse({
     type: [DeviceGroupDTO],
     description: 'Returns all Device groups',
+  })
+  @ApiOperation({
+    summary: 'Retrieve all buyer reservations',
+    description: 'Fetch a list of all buyer reservations available.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description: 'Successfully retrieved all buyer reservations.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view buyer reservations.',
   })
   async getAll(
     @UserDecorator() user: ILoggedInUser,
@@ -203,10 +217,20 @@ export class BuyerReservationController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Fetch my reservations',
+    description:
+      'Retrieve buyer reservations associated with the logged-in user.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [DeviceGroupDTO],
-    description: 'Returns my Device groups',
+    description:
+      'Successfully retrieved buyer reservations associated with the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view buyer reservations.',
   })
   async getMyDevices(
     @UserDecorator() { id, organizationId, role }: ILoggedInUser,
@@ -271,11 +295,25 @@ export class BuyerReservationController {
     required: false,
     description: 'This query parameter is used for Apiuser',
   })
-  @ApiOkResponse({
-    type: DeviceGroupDTO,
-    description: 'Returns a Device group',
+  @ApiOperation({
+    summary: 'Fetch buyer reservation by ID',
+    description:
+      'Retrieve a specific buyer reservation using its ID. Optionally filter by organization ID.',
   })
-  @ApiNotFoundResponse({ description: `No device group found` })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: 'Successfully retrieved the buyer reservation.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No buyer reservation found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to view this buyer reservation.',
+  })
   async get(
     @Param('id') id: number,
     @Query('organizationId', new DefaultValuePipe(null))
@@ -331,10 +369,22 @@ export class BuyerReservationController {
     required: false,
     description: 'This query parameter is used for Apiuser',
   })
+  @ApiOperation({
+    summary: 'Create a new buyer reservation',
+    description: 'Register a new buyer reservation in the system.',
+  })
   @ApiResponse({
-    status: HttpStatus.OK,
+    status: HttpStatus.CREATED,
     type: DeviceGroupDTO,
-    description: 'Returns a new created Device group',
+    description: 'Successfully created the buyer reservation.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to create buyer reservations.',
   })
   public async createOne(
     @UserDecorator() { organizationId }: ILoggedInUser,
@@ -552,13 +602,28 @@ export class BuyerReservationController {
    */
   @Patch('/:id')
   @UseGuards(AuthGuard('jwt'))
-  // @Roles(Role.DeviceOwner, Role.Admin)
+  @ApiOperation({
+    summary: 'Update buyer reservation by ID',
+    description: 'Modify an existing buyer reservation using its ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: NewUpdateDeviceGroupDTO,
-    description: 'Returns an updated Device Group',
+    description: 'Successfully updated the buyer reservation.',
   })
-  @ApiNotFoundResponse({ description: `No device group found` })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No buyer reservation found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to update this buyer reservation.',
+  })
   public async update(
     @Param('id') id: number,
     @UserDecorator() loggedUser: ILoggedInUser,
@@ -601,11 +666,23 @@ export class BuyerReservationController {
   @Delete('/:id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)
+  @ApiOperation({
+    summary: 'Remove buyer reservation by ID',
+    description: 'Delete a buyer reservation using its ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Remove device group',
+    description: 'Successfully removed the buyer reservation.',
   })
-  @ApiNotFoundResponse({ description: `No device group found` })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No buyer reservation found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to delete this buyer reservation.',
+  })
   public async remove(
     @Param('id') id: number,
     @UserDecorator() { organizationId }: ILoggedInUser,
@@ -620,9 +697,24 @@ export class BuyerReservationController {
    * @returns {CheckCertificateIssueDateLogForDeviceGroupEntity}
    */
   @Get('certificatelog/:id')
-  @ApiOkResponse({
-    type: DeviceGroupDTO,
-    description: 'Returns a Device group',
+  @ApiOperation({
+    summary: 'Fetch certificate log for a device using its ID',
+    description:
+      'This log contains details about the issuance of certificates related to the device group, which can be useful for tracking and auditing purposes in the context of buyer reservations.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [DeviceGroupDTO],
+    description:
+      'Successfully retrieved the certificate log for the device group.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No device group found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to view this certificate log.',
   })
   @ApiNotFoundResponse({ description: `No device group found` })
   async getDeviceGroupLog(
@@ -641,12 +733,28 @@ export class BuyerReservationController {
    */
   @Delete('endreservation/:id')
   @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: 'End reservation by ID',
+    description:
+      'Terminate a reservation for a specific buyer reservation using its ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: EndReservationDateDTO,
-    description: 'Reservation End',
+    description: 'Successfully ended the reservation.',
   })
-  @ApiNotFoundResponse({ description: `No  Reservation found` })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No reservation found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to end this reservation.',
+  })
   public async endReservation(
     @Param('id') id: number,
     @Body() endReservationDate: EndReservationDateDTO,
@@ -669,8 +777,24 @@ export class BuyerReservationController {
   @Get('current-information/:groupUid')
   @UseGuards(AuthGuard('jwt'))
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Fetch current reservation information',
+    description:
+      'Retrieve current information of reservations for a specific buyer reservation using its ID.',
+  })
+  @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
+    description: 'Successfully retrieved current reservation information.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No reservation found with the specified ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to view this reservation information.',
   })
   public async getReservationCurrentInformation(
     @Param('groupUid', ParseUUIDPipe) groupId: string,

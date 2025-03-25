@@ -9,6 +9,7 @@ import {
 
 import {
   ApiBearerAuth,
+  ApiOperation,
   ApiResponse,
   ApiSecurity,
   ApiTags,
@@ -19,7 +20,7 @@ import { CountryCodeNameDTO, FilterKeyDTO } from './dto';
 /*
  * It is Controller of CountrCode with the endpoints of countrycode operations.
  */
-@ApiTags('CountryList')
+@ApiTags('Country List')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('countrycode')
@@ -33,10 +34,19 @@ export class CountryCodeController {
    * @return { Array<CountryCodeNameDTO>} returns array of countrycode
    */
   @Get('/list')
+  @ApiOperation({
+    summary: 'Fetch all country codes',
+    description:
+      'Retrieve a list of all country codes, optionally filtered by a specified pattern.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [CountryCodeNameDTO],
-    description: 'Returns all  Country code List',
+    description: 'Successfully retrieved the list of country codes.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid filter parameters provided.',
   })
   async getCountryCode(
     @Query(ValidationPipe) filterDTO: FilterKeyDTO,
