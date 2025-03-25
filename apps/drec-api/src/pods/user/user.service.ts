@@ -148,6 +148,7 @@ export class UserService {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email.toLowerCase(),
+      telephone: data.telephone,
       password: this.hashPassword(data.password),
       notifications: true,
       status: status || UserStatus.Active,

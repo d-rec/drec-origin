@@ -185,8 +185,7 @@ export class UserController {
     @Req() request: Request,
   ): Promise<UserDTO> {
     const user = request.user;
-    console.log('userREgis', userRegistrationData);
-    console.log('user', user);
+
     if (!userRegistrationData.api_user_id) {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
