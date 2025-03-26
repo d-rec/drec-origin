@@ -103,7 +103,7 @@ describe('AuthService', () => {
       firstName: 'fName',
       lastName: 'lName',
       email: 'test@example.com',
-      telephone: '119754217675',
+      telephone: '+250788496001', // Rwanda number
       notifications: true,
       status: UserStatus.Active,
       role: Role.OrganizationAdmin,
@@ -304,7 +304,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
-        telephone: '119754677675',
+        telephone: '+250784496001', // Rwanda number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -344,7 +344,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
-        telephone: '229754677675',
+        telephone: '+447911123456', // UK number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -380,7 +380,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
-        telephone: '339984677675',
+        telephone: '+14155552671', // US number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,

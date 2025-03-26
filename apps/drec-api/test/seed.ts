@@ -69,7 +69,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     firstName: 'Jane',
     lastName: 'Williams',
     email: 'owner2@mailinator.com',
-    telephone: '119754217675',
+    telephone: '+250780079691', // Rwanda number
     password: '******123',
     organizationType: 'Developer',
   },
@@ -77,7 +77,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     firstName: 'John',
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
-    telephone: '119754217689',
+    telephone: '+447911123456', // UK number
     password: '******123',
     organizationType: 'Buyer',
   },
@@ -85,7 +85,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     firstName: 'Joe',
     lastName: 'Miller2',
     email: 'admin2@mailinator.com',
-    telephone: '119754217645',
+    telephone: '+14155552671', // US number
     password: '******123',
     organizationType: 'ApiUser',
   },
@@ -93,7 +93,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     firstName: 'Maria',
     lastName: 'Williams',
     email: 'owner3@mailinator.com',
-    telephone: '119754217656',
+    telephone: '+819012345678', // Japanese number
     password: '******123',
     organizationType: 'Developer',
   },

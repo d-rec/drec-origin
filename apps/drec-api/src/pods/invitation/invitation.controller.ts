@@ -222,7 +222,7 @@ export class InvitationController {
         responseFailure(`User doesn't belong to any organization.`),
       );
     }
-    console.log('Telephone', telephone);
+
     try {
       ensureOrganizationRole(role as Role);
     } catch (e) {
