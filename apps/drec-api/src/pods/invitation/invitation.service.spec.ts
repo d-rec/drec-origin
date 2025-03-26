@@ -55,6 +55,7 @@ describe('InvitationService', () => {
             sendUserInvitation: jest.fn(),
             addToOrganization: jest.fn(),
             changeRole: jest.fn(),
+            checkForExistingTelephone: jest.fn(),
           } as any,
         },
         {
@@ -459,6 +460,7 @@ describe('InvitationService', () => {
           message: 'Invitation sent successfully',
           success: true,
         });
+      jest.spyOn(userService, 'checkForExistingTelephone').mockResolvedValue(undefined);
 
       await expect(
         service.invite(
