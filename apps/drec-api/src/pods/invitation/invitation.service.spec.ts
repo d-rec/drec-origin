@@ -460,7 +460,9 @@ describe('InvitationService', () => {
           message: 'Invitation sent successfully',
           success: true,
         });
-      jest.spyOn(userService, 'checkForExistingTelephone').mockResolvedValue(undefined);
+      jest
+        .spyOn(userService, 'checkForExistingTelephone')
+        .mockResolvedValue(undefined);
 
       await expect(
         service.invite(
