@@ -320,7 +320,7 @@ describe('InvitationService', () => {
       const role = Role.User as OrganizationRole; //'DeviceOwner';
       const firstName = 'test';
       const lastName = 'test';
-      const telephone = '919754218975';
+      const telephone = '+919754218975';
       const orgId = 18;
 
       const mockApiUserEntity: IUser = {
@@ -502,6 +502,7 @@ describe('InvitationService', () => {
           firstName: firstName,
           lastName: lastName,
           email: email,
+          telephone: telephone,
           password: service.randPassword,
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
