@@ -12,6 +12,7 @@ import {
   IsString,
   IsOptional,
   ValidateNested,
+  IsPhoneNumber,
 } from 'class-validator';
 import { OrganizationDTO } from '../../organization/dto';
 
@@ -49,6 +50,7 @@ export class UserDTO implements Omit<IUser, 'password'> {
   @ApiProperty({ type: String })
   @IsNotEmpty()
   @IsString()
+  @IsPhoneNumber(undefined, { message: 'Invalid country code' })
   telephone: string;
 
   @ApiProperty({ type: Boolean })
