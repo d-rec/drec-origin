@@ -83,87 +83,108 @@ export class UserService {
     });
   }
 
+  public async checkForExistingTelephone(telephone: string): Promise<void> {
+    const existingTelephone = await this.repository.findOne({
+      where: { telephone }
+    });
+
+    if (existingTelephone) {
+      throw new ConflictException({
+        success: false,
+        message: 'This phone number is already registered. Please use a different phone number.',
+      });
+    }
+  }
+
   public async newCreateUser(
     data: CreateUserOrgDTO,
     status?: UserStatus,
     inviteUser?: boolean,
   ): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email.toLowerCase());
-    const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
-      data.api_user_id,
-    );
+    try {
+      await this.checkForExistingUser(data.email.toLowerCase());
+      await this.checkForExistingTelephone(data.telephone);
+      const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
+        data.api_user_id,
+      );
 
-    let orgId;
-    if (!inviteUser) {
-      const organizationData = {
-        name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
-        orgEmail: data.email,
-        address: data.orgAddress,
-      };
+      let orgId;
+      if (!inviteUser) {
+        const organizationData = {
+          name: data.orgName !== undefined ? data.orgName : '',
+          organizationType: data.organizationType,
+          orgEmail: data.email,
+          address: data.orgAddress,
+        };
 
-      organizationData['api_user_id'] = apiUser.api_user_id;
-      if (
-        await this.organizationService.isNameAlreadyTaken(organizationData.name)
-      ) {
-        throw new ConflictException({
-          success: false,
-          message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
-        });
-      } else {
-        const org =
-          await this.organizationService.newCreateUser(organizationData);
-        orgId = org.id;
-        this.logger.debug(
-          `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
-        );
+        organizationData['api_user_id'] = apiUser.api_user_id;
+        if (
+          await this.organizationService.isNameAlreadyTaken(organizationData.name)
+        ) {
+          throw new ConflictException({
+            success: false,
+            message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+          });
+        } else {
+          const org =
+            await this.organizationService.newCreateUser(organizationData);
+          orgId = org.id;
+          this.logger.debug(
+            `Successfully registered a new organization with id ${JSON.stringify(org.id)}`,
+          );
+        }
       }
-    }
-    if (data.orgid) {
-      orgId = data.orgid;
-    }
-    let role;
-    let roleId;
-    if (
-      data.organizationType === 'Buyer' ||
-      data.organizationType === 'buyer'
-    ) {
-      role = Role.Buyer;
-      roleId = 4;
-    } else if (
-      data.organizationType === 'Developer' ||
-      data.organizationType === 'Developer'
-    ) {
-      role = Role.OrganizationAdmin;
-      roleId = 2;
-    } else if (
-      data.organizationType === 'ApiUser' ||
-      data.organizationType === 'apiuser'
-    ) {
-      role = Role.ApiUser;
-      roleId = 6;
-    }
+      if (data.orgid) {
+        orgId = data.orgid;
+      }
+      let role;
+      let roleId;
+      if (
+        data.organizationType === 'Buyer' ||
+        data.organizationType === 'buyer'
+      ) {
+        role = Role.Buyer;
+        roleId = 4;
+      } else if (
+        data.organizationType === 'Developer' ||
+        data.organizationType === 'Developer'
+      ) {
+        role = Role.OrganizationAdmin;
+        roleId = 2;
+      } else if (
+        data.organizationType === 'ApiUser' ||
+        data.organizationType === 'apiuser'
+      ) {
+        role = Role.ApiUser;
+        roleId = 6;
+      }
 
-    const user = await this.repository.save({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email.toLowerCase(),
-      telephone: data.telephone,
-      password: this.hashPassword(data.password),
-      notifications: true,
-      status: status || UserStatus.Active,
-      role: role,
-      roleId: roleId,
-      organization: orgId ? { id: orgId } : {},
-      api_user_id: apiUser ? apiUser.api_user_id : null,
-    });
-    const { ...userData } = user;
-    this.logger.debug(
-      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
-    );
+      const user = await this.repository.save({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email.toLowerCase(),
+        telephone: data.telephone,
+        password: this.hashPassword(data.password),
+        notifications: true,
+        status: status || UserStatus.Active,
+        role: role,
+        roleId: roleId,
+        organization: orgId ? { id: orgId } : {},
+        api_user_id: apiUser ? apiUser.api_user_id : null,
+      });
+      const { ...userData } = user;
+      this.logger.debug(
+        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
+      );
 
-    await this.emailConfirmationService.create(user);
-    return user;
+      await this.emailConfirmationService.create(user);
+      return user;
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   public async createUserByAdmin(
