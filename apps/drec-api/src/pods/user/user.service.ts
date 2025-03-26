@@ -85,13 +85,14 @@ export class UserService {
 
   public async checkForExistingTelephone(telephone: string): Promise<void> {
     const existingTelephone = await this.repository.findOne({
-      where: { telephone }
+      where: { telephone },
     });
 
     if (existingTelephone) {
       throw new ConflictException({
         success: false,
-        message: 'This phone number is already registered. Please use a different phone number.',
+        message:
+          'This phone number is already registered. Please use a different phone number.',
       });
     }
   }
@@ -104,9 +105,10 @@ export class UserService {
     try {
       await this.checkForExistingUser(data.email.toLowerCase());
       await this.checkForExistingTelephone(data.telephone);
-      const apiUser = await this.oauthClientCredentialsService.findOneByApiUserId(
-        data.api_user_id,
-      );
+      const apiUser =
+        await this.oauthClientCredentialsService.findOneByApiUserId(
+          data.api_user_id,
+        );
 
       let orgId;
       if (!inviteUser) {
@@ -119,7 +121,9 @@ export class UserService {
 
         organizationData['api_user_id'] = apiUser.api_user_id;
         if (
-          await this.organizationService.isNameAlreadyTaken(organizationData.name)
+          await this.organizationService.isNameAlreadyTaken(
+            organizationData.name,
+          )
         ) {
           throw new ConflictException({
             success: false,

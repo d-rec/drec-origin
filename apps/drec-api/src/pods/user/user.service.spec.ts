@@ -145,6 +145,7 @@ describe('UserService', () => {
         permissionIds: [],
       };
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({

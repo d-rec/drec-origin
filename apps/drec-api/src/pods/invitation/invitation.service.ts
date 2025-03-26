@@ -51,6 +51,14 @@ export class InvitationService {
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
+    try {
+      await this.userService.checkForExistingTelephone(telephone);
+    } catch (error) {
+      this.logger.error(`Requested telephone ${telephone} is already exist`);
+      throw new BadRequestException(
+        `Requested telephone ${telephone} is already exist`,
+      );
+    }
     let inviteOrg: number;
     if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
