@@ -6,6 +6,7 @@ import {
   Inject,
   Logger,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from '../pods/user/user.service';
 import { Role } from '../utils/enums';
@@ -35,6 +36,9 @@ export class WithoutAuthGuard implements CanActivate {
     switch (pathSegment) {
       case UrlPath.ForgetPassword:
         user = await this.userService.findByEmail(request.body.email);
+        if (!user) {
+          throw new NotFoundException(`No user found with that email address`);
+        }
         break;
 
       case UrlPath.ConfirmEmail:

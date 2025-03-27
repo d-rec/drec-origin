@@ -20,6 +20,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiSecurity,
@@ -42,7 +43,7 @@ import { Roles } from '../user/decorators/roles.decorator';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
-@ApiTags('bulk-upload')
+@ApiTags('Bulk Upload')
 export class BulkUploadController {
   private readonly logger = new Logger(BulkUploadController.name);
   constructor(
@@ -98,16 +99,35 @@ export class BulkUploadController {
       },
     }),
   )
+  @ApiOperation({
+    summary: 'Upload bulk data',
+    description:
+      'Uploads a bulk file for processing. The file must be in CSV format. This endpoint requires a valid organization ID and a valid bulk upload type.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: BulkUploadEntity,
+    description:
+      'Successfully uploaded the bulk file and created a new upload job.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'No file provided or invalid file type. Only .csv files are allowed.',
+  })
   async upload(
     @UploadedFile() file: MeterReadFileDto,
     @UserDecorator() user: ILoggedInUser,
-    @Query('organizationId') organizationId: number | null,
+    @Query('organizationId') organizationIdParam: number | null,
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling bulk upload');
     if (!file) {
       throw new BadRequestException('No file provided');
     }
+
+    const organizationId = organizationIdParam || user.organizationId;
+
     const organization = await this.organizationService.findOne(organizationId);
     if (organization.organizationType != Role.Developer) {
       throw new UnauthorizedException(
@@ -144,10 +164,19 @@ export class BulkUploadController {
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Get all bulk upload jobs',
+    description:
+      'Retrieves all bulk upload jobs for the authenticated user, filtered by upload type and paginated.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [BulkUploadEntity],
-    description: 'Returns created jobs of an organization',
+    description: 'Successfully retrieved the list of bulk upload jobs.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async getAll(
     @UserDecorator() user: ILoggedInUser,
@@ -184,10 +213,24 @@ export class BulkUploadController {
     required: false,
     description: 'This query parameter is used for ApiUser',
   })
+  @ApiOperation({
+    summary: 'Get bulk upload job status',
+    description:
+      'Retrieves the status of a specific bulk upload job by its ID. This endpoint is restricted to users with appropriate permissions.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: GetBulkUploadDTO,
-    description: 'Returns status of job id for bulk upload',
+    description:
+      'Successfully retrieved the status of the specified bulk upload job.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No bulk upload job found with the specified bulk upload ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   public async getJob(
     @Param('bulkUploadId') bulkUploadId: string,

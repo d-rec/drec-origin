@@ -20,6 +20,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiNotFoundResponse,
+  ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -46,7 +47,7 @@ supportedFiles.push('image/png');
 /**
  * It is controller for file operations
  */
-@ApiTags('file')
+@ApiTags('File')
 @ApiBearerAuth('access-token')
 @Controller('file')
 export class FileController {
@@ -82,10 +83,20 @@ export class FileController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('FILE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Upload Files',
+    description:
+      'Uploads multiple files to an AWS S3 bucket. The request must include the files in a multipart/form-data format.',
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: [String],
-    description: 'Upload a file',
+    description: 'Returns an array of file keys for the uploaded files.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Bad Request. The provided files are invalid or exceed the size limit.',
   })
   async upload(
     @UploadedFiles()
@@ -113,12 +124,27 @@ export class FileController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('FILE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Download File',
+    description:
+      'Retrieves a file from the AWS S3 bucket based on the provided file ID. The user must be authenticated and have the necessary permissions to access the file.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: FileDTO,
-    description: 'Download a file',
+    description: 'Returns the requested file data.',
   })
   @ApiNotFoundResponse({ description: `The file doesn't exist` })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description:
+      'Unauthorized access. The user must be authenticated to download files.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to download this file.',
+  })
   async download(
     @UserDecorator() user: ILoggedInUser,
     @Param('id') id: string,
