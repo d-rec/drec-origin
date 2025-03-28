@@ -315,6 +315,7 @@ describe('AuthService', () => {
           organizationType: 'Developer',
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
@@ -354,6 +355,7 @@ describe('AuthService', () => {
           organizationType: 'Developer',
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
@@ -389,6 +391,7 @@ describe('AuthService', () => {
           organizationType: 'Developer',
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
