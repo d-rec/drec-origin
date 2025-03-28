@@ -25,7 +25,12 @@ import {
   UserChangePasswordUpdate,
   UserPasswordUpdate,
 } from '../../models';
-import { Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import {
+  Role,
+  UserPermissionStatus,
+  UserStatus,
+  OrganizationType,
+} from '../../utils/enums';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -110,11 +115,20 @@ export class UserService {
           data.api_user_id,
         );
 
+    let orgId;
+    if (!inviteUser) {
+      const organizationData = {
+        name: data.orgName !== undefined ? data.orgName : '',
+        organizationType: data.organizationType as OrganizationType,
+        orgEmail: data.email,
+        address: data.orgAddress,
+      };
+
       let orgId;
       if (!inviteUser) {
         const organizationData = {
           name: data.orgName !== undefined ? data.orgName : '',
-          organizationType: data.organizationType,
+          organizationType: data.organizationType as OrganizationType,
           orgEmail: data.email,
           address: data.orgAddress,
         };
@@ -138,52 +152,44 @@ export class UserService {
           );
         }
       }
-      if (data.orgid) {
-        orgId = data.orgid;
-      }
-      let role;
-      let roleId;
-      if (
-        data.organizationType === 'Buyer' ||
-        data.organizationType === 'buyer'
-      ) {
-        role = Role.Buyer;
-        roleId = 4;
-      } else if (
-        data.organizationType === 'Developer' ||
-        data.organizationType === 'Developer'
-      ) {
-        role = Role.OrganizationAdmin;
-        roleId = 2;
-      } else if (
-        data.organizationType === 'ApiUser' ||
-        data.organizationType === 'apiuser'
-      ) {
-        role = Role.ApiUser;
-        roleId = 6;
-      }
+    }
+    if (data.orgid) {
+      orgId = data.orgid;
+    }
+    let role;
+    let roleId;
+    if (data.organizationType === OrganizationType.Buyer) {
+      role = Role.Buyer;
+      roleId = 4;
+    } else if (data.organizationType === OrganizationType.Developer) {
+      role = Role.OrganizationAdmin;
+      roleId = 2;
+    } else if (data.organizationType === OrganizationType.ApiUser) {
+      role = Role.ApiUser;
+      roleId = 6;
+    }
 
-      const user = await this.repository.save({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email.toLowerCase(),
-        telephone: data.telephone,
-        password: this.hashPassword(data.password),
-        notifications: true,
-        status: status || UserStatus.Active,
-        role: role,
-        roleId: roleId,
-        organization: orgId ? { id: orgId } : {},
-        api_user_id: apiUser ? apiUser.api_user_id : null,
-      });
-      const { ...userData } = user;
-      this.logger.debug(
-        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
-      );
+    const user = await this.repository.save({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email.toLowerCase(),
+      telephone: data.telephone,
+      password: this.hashPassword(data.password),
+      notifications: true,
+      status: status || UserStatus.Active,
+      role: role,
+      roleId: roleId,
+      organization: orgId ? { id: orgId } : {},
+      api_user_id: apiUser ? apiUser.api_user_id : null,
+    });
+    const { ...userData } = user;
+    this.logger.debug(
+      `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
+    );
 
-      await this.emailConfirmationService.create(user);
-      return user;
-    } catch (error) {
+    await this.emailConfirmationService.create(user);
+    return user;
+  } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
       }
@@ -206,7 +212,7 @@ export class UserService {
       if (!inviteUser) {
         const organizationData = {
           name: data.orgName !== undefined ? data.orgName : '',
-          organizationType: data.organizationType,
+          organizationType: data.organizationType as OrganizationType,
           orgEmail: data.email,
           address: data.orgAddress,
         };
@@ -233,8 +239,7 @@ export class UserService {
       let role;
       let roleId;
       if (
-        data.organizationType === 'Buyer' ||
-        data.organizationType === 'buyer'
+        data.organizationType === OrganizationType.Buyer
       ) {
         role = Role.Buyer;
         roleId = 4;
