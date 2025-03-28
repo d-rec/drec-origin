@@ -271,7 +271,6 @@ export class UserService {
 
   public async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
-
     return this.findOne({ email: lowerCaseEmail });
   }
 

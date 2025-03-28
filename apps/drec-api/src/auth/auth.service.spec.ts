@@ -27,6 +27,7 @@ describe('AuthService', () => {
           useValue: {
             getUserAndPasswordByEmail: jest.fn(), // Mock method
             findById: jest.fn(), // Include other methods if needed
+            findByEmail: jest.fn(),
             createUserSession: jest.fn(),
             removeUserSession: jest.fn(),
             hasValidUserSession: jest.fn(),
@@ -118,7 +119,27 @@ describe('AuthService', () => {
       },
     };
     it('should get result', async () => {
-      //const user = { email: 'test@example.com', id: '123', role: 'user' };
+      const user = {
+        email: 'test@example.com',
+        id: 1,
+        firstName: 'fName',
+        lastName: 'lName',
+        role: Role.OrganizationAdmin,
+        emailConfirmed: true,
+        notifications: true,
+        status: UserStatus.Active,
+        organization: {
+          id: 1,
+          name: 'org1',
+          address: 'sAddress',
+          zipCode: '623754',
+          city: 'Chennai',
+          country: 'India',
+          organizationType: 'Developer',
+          status: OrganizationStatus.Active,
+        },
+      };
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue(user);
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
@@ -126,7 +147,6 @@ describe('AuthService', () => {
 
       expect(response).toBeDefined();
     });
-
     it('should return an access token', async () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
