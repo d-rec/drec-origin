@@ -117,11 +117,14 @@ describe('AuthService', () => {
         organizationType: 'Developer',
         status: OrganizationStatus.Active,
       },
-      emailConfirmed: true,
     };
     it('should get result', async () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
       const response = await service.login(userDTO);
 
       expect(response).toBeDefined();
@@ -130,6 +133,10 @@ describe('AuthService', () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
 
       const result = await service.login(userDTO);
 
@@ -140,6 +147,10 @@ describe('AuthService', () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
 
       await service.login(userDTO);
 
