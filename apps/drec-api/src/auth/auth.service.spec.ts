@@ -117,11 +117,11 @@ describe('AuthService', () => {
         organizationType: 'Developer',
         status: OrganizationStatus.Active,
       },
+      emailConfirmed: true,
     };
     it('should get result', async () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-
       const response = await service.login(userDTO);
 
       expect(response).toBeDefined();
