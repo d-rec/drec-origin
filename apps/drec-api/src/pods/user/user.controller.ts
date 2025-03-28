@@ -372,7 +372,7 @@ export class UserController {
    * @param param0
    * @returns
    */
-  @Put('resend-confirm-email')
+  @Put('resend-confirm-email/:email')
   // @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
@@ -388,7 +388,7 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    @UserDecorator() { email }: ILoggedInUser,
+    @Param('email') email: string,
   ): Promise<SuccessResponseDTO> {
     return this.emailConfirmationService.sendConfirmationEmail(email);
   }

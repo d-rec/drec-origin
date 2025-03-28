@@ -45,7 +45,7 @@ export class AuthService {
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
     this.logger.verbose('With in login');
-        const dbUser = await this.userService.findByEmail(user.email);
+    const dbUser = await this.userService.findByEmail(user.email);
     if (!dbUser.emailConfirmed) {
       throw new UnauthorizedException('Email not confirmed');
     }
