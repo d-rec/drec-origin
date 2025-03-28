@@ -269,7 +269,7 @@ export class UserService {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  public async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
 
     return this.findOne({ email: lowerCaseEmail });
