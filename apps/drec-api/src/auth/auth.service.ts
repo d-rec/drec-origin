@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { UserLoginReturnData } from '@energyweb/origin-backend-core';
@@ -45,6 +45,10 @@ export class AuthService {
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
     this.logger.verbose('With in login');
+        const dbUser = await this.userService.findByEmail(user.email);
+    if (!dbUser.emailConfirmed) {
+      throw new UnauthorizedException('Email not confirmed');
+    }
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,
