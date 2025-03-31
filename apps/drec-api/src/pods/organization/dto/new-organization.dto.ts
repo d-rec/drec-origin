@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization, IPublicAddOrganization } from '../../../models';
-import { OrganizationType } from 'src/utils/enums';
+import { OrganizationType } from '../../../utils/enums';
 
 export class NewOrganizationDTO
   implements
