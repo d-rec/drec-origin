@@ -9,7 +9,6 @@ order: 4
 ### Account Access Issues
 
 - **I can't log in to my account**
-
   - Ensure your email and password are correct
   - Check if your Caps Lock is on
   - Verify you're using the email address used during registration
@@ -61,14 +60,12 @@ order: 4
 ### Account Management
 
 1. **How do I reset my password?**
-
    - Navigate to Account Setting > Profile
    - Go to the Security Setting tab
    - Enter and confirm your new password
    - Click "Reset Password"
 
 2. **Can I change my email address?**
-
    - Yes, go to Account Setting > Profile > User Details
    - Update your email
    - Save changes
@@ -83,7 +80,6 @@ order: 4
 ### Device Management
 
 1. **How do I register multiple devices?**
-
    - Use "Add More Device" button for a few devices
    - Use Bulk Upload for many devices
    - Download and follow the template for bulk uploads
@@ -97,7 +93,6 @@ order: 4
 ### Reservations
 
 1. **How do I track my reservations?**
-
    - Go to Reservations > All Reservations
    - Use filters to find specific reservations
    - Check status and details in the list view
@@ -111,23 +106,18 @@ order: 4
 ### Certificate Generation
 
 1. **What are the date requirements for certificate generation?**
-   - Your meter readings must fall completely within your reservation period:
-     - The meter read start date must be equal to or after your reservation start date
-     - The meter read end date must be equal to or before your reservation end date
-   - Example:
-     - If your reservation is from Jan 1 to Jan 31
-     - Valid meter readings would be:
-       - Jan 1 to Jan 31 (exact match)
-       - Jan 5 to Jan 25 (within period)
-     - Invalid meter readings would be:
-       - Dec 30 to Jan 15 (starts before reservation)
-       - Jan 15 to Feb 1 (ends after reservation)
-
-2. **How do I check if my dates are valid?**
-   - Go to your reservation details
-   - Note your reservation start and end dates
-   - Compare these with your meter reading dates
-   - Ensure all meter readings fall within this window
+   - Certificate generation requires meter readings to be within the specified reservation period
+   - Date validation rules:
+     - Meter reading start date must be on or after the reservation start date
+     - Meter reading end date must be on or before the reservation end date
+   - Example scenarios:
+     - Reservation period: January 1 to January 31
+     - Valid meter readings:
+       - January 1 to January 31 (period matches reservation)
+       - January 5 to January 25 (period within reservation)
+     - Invalid meter readings:
+       - December 30 to January 15 (period starts before reservation)
+       - January 15 to February 1 (period ends after reservation)
 
 ## Getting Help
 
