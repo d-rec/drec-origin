@@ -6,14 +6,14 @@ export class AddTermsAcceptedAtToUser1709123456789
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             ALTER TABLE "public"."user"
-            ADD COLUMN "termsAcceptedAt" TIMESTAMP WITH TIME ZONE DEFAULT NULL
+            ADD COLUMN "terms_accept_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             ALTER TABLE "public"."user"
-            DROP COLUMN "termsAcceptedAt"
-        `);
+              DROP COLUMN "termsAcceptedAt"
+          `);
   }
 }
