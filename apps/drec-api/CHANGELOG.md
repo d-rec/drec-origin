@@ -4,8 +4,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.1.1](https://github.com/d-rec/drec-origin/compare/v0.1.0...v0.1.1) (2025-04-01)
 
-## [0.1.0](https://github.com/d-rec/drec-origin/compare/v0.0.154...v0.1.0) (2025-03-20)
-
 ### Features
 
 * Add a new platform overview section ([#497](https://github.com/d-rec/drec-origin/issues/497)) ([f1a23a1](https://github.com/d-rec/drec-origin/commit/f1a23a1f3b51979ab4a759be6a8a0dd634677f2c))

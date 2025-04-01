@@ -6,7 +6,7 @@ import { useContainer } from 'class-validator';
 import fs from 'fs';
 import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
-
+import './sentry';
 export { DRECModule };
 
 export async function startAPI(logger?: LoggerService): Promise<any> {
