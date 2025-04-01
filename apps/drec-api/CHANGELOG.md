@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/d-rec/drec-origin/compare/v0.1.1...v0.1.2) (2025-04-01)
+
+
+### Bug Fixes
+
+* sentry activation issue ([f9df80c](https://github.com/d-rec/drec-origin/commit/f9df80c1770073aa658f8c571a00934b4e1926a9))
+
 ### [0.1.1](https://github.com/d-rec/drec-origin/compare/v0.1.0...v0.1.1) (2025-04-01)
 
 ### Features
