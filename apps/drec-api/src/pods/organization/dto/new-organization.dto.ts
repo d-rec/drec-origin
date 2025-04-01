@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization, IPublicAddOrganization } from '../../../models';
+import { OrganizationType } from '../../../utils/enums';
 
 export class NewOrganizationDTO
   implements
@@ -36,7 +37,7 @@ export class NewOrganizationDTO
   @ApiProperty({ type: String })
   @IsOptional()
   @IsString()
-  organizationType: string;
+  organizationType: OrganizationType;
 
   // @ApiProperty({ type: String })
   // @IsString()
@@ -113,7 +114,7 @@ export class NewAddOrganizationDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  organizationType: string;
+  organizationType: OrganizationType;
 
   @ApiProperty({ type: String })
   @IsString()

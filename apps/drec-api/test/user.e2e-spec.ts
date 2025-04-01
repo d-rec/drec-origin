@@ -14,6 +14,7 @@ import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
 import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
+import { OrganizationType } from '../src/utils/enums';
 
 export const userToRegister: UserRegistrationData = {
   title: 'Mr',
@@ -92,7 +93,7 @@ describe('Users tests', () => {
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
       password: 'testUser2',
-      organizationType: 'Developer',
+      organizationType: OrganizationType.Developer,
     };
     await postAdminUser('', HttpStatus.CREATED, partialUser);
   });
@@ -103,7 +104,7 @@ describe('Users tests', () => {
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
       password: 'testUser2',
-      organizationType: 'Developer',
+      organizationType: OrganizationType.Developer,
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
   });
