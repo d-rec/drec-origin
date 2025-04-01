@@ -25,7 +25,12 @@ import {
   UserChangePasswordUpdate,
   UserPasswordUpdate,
 } from '../../models';
-import { Role, UserPermissionStatus, UserStatus } from '../../utils/enums';
+import {
+  Role,
+  UserPermissionStatus,
+  UserStatus,
+  OrganizationType,
+} from '../../utils/enums';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { validate } from 'class-validator';
@@ -97,7 +102,7 @@ export class UserService {
     if (!inviteUser) {
       const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
+        organizationType: data.organizationType as OrganizationType,
         orgEmail: data.email,
         address: data.orgAddress,
       };
@@ -124,22 +129,13 @@ export class UserService {
     }
     let role;
     let roleId;
-    if (
-      data.organizationType === 'Buyer' ||
-      data.organizationType === 'buyer'
-    ) {
+    if (data.organizationType === OrganizationType.Buyer) {
       role = Role.Buyer;
       roleId = 4;
-    } else if (
-      data.organizationType === 'Developer' ||
-      data.organizationType === 'Developer'
-    ) {
+    } else if (data.organizationType === OrganizationType.Developer) {
       role = Role.OrganizationAdmin;
       roleId = 2;
-    } else if (
-      data.organizationType === 'ApiUser' ||
-      data.organizationType === 'apiuser'
-    ) {
+    } else if (data.organizationType === OrganizationType.ApiUser) {
       role = Role.ApiUser;
       roleId = 6;
     }
@@ -178,7 +174,7 @@ export class UserService {
     if (!inviteUser) {
       const organizationData = {
         name: data.orgName !== undefined ? data.orgName : '',
-        organizationType: data.organizationType,
+        organizationType: data.organizationType as OrganizationType,
         // secretKey: data.secretKey,
         orgEmail: data.email,
         address: data.orgAddress,
@@ -203,10 +199,7 @@ export class UserService {
 
     let role;
     let roleId;
-    if (
-      data.organizationType === 'Buyer' ||
-      data.organizationType === 'buyer'
-    ) {
+    if (data.organizationType === OrganizationType.Buyer) {
       role = Role.Buyer;
       roleId = 4;
     } else {

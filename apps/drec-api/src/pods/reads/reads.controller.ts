@@ -20,7 +20,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import * as momentTimeZone from 'moment-timezone';
 import { PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -42,7 +48,7 @@ import { ReadsService } from './reads.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
-@ApiTags('meter-reads')
+@ApiTags('Meter Reads')
 export class ReadsController extends BaseReadsController {
   private readonly logger = new Logger(ReadsController.name);
 
@@ -66,9 +72,22 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get valid time zones',
+    description:
+      'Returns a list of valid time zones. Optionally filtered by a search keyword.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Returns valid time-zones list',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid search keyword provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   getTimezones(
     @Query('timezoneSearchKeyword') searchKeyword?: string,
@@ -92,10 +111,23 @@ export class ReadsController extends BaseReadsController {
    * @returns {ReadDTO[]}
    */
   @Get('/:externalId')
+  @ApiOperation({
+    summary: 'Get time-series of meter reads',
+    description:
+      'Returns time-series data of meter reads for the specified device.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
-    description: 'Returns  time-series of meter reads',
+    description: 'Returns time-series of meter reads.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Device not found for the given external ID.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Read')
@@ -132,10 +164,23 @@ export class ReadsController extends BaseReadsController {
   @ApiQuery({ name: 'Month', type: Number, required: false })
   @ApiQuery({ name: 'Year', type: Number, required: false })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
+  @ApiOperation({
+    summary: 'Get time-series of meter reads with filters',
+    description:
+      'Returns time-series of meter reads for the specified device, with optional filters for month, year, and pagination.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [ReadDTO],
-    description: 'Returns time-series of meter reads',
+    description: 'Returns time-series of meter reads.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid parameters provided.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Device not found for the given external ID.',
   })
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
@@ -314,11 +359,23 @@ export class ReadsController extends BaseReadsController {
    * @returns {NewIntermediateMeterReadDTO}
    */
   @Post('new/:id')
+  @ApiOperation({
+    summary: 'Add new meter read',
+    description:
+      'Stores new meter reads for historical data, delta readings, and aggregate readings.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description:
-      'New meter reads for historical data, Delta readings and Aggregate Readings',
+    description: 'New meter reads successfully stored.',
     type: [NewIntermediateMeterReadDTO],
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for meter read.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(
     AuthGuard(['jwt', 'oauth2-client-password']),
@@ -359,11 +416,23 @@ export class ReadsController extends BaseReadsController {
    */
 
   @Post('addByAdmin/new/:id')
+  @ApiOperation({
+    summary: 'Add new meter read by admin',
+    description:
+      'Stores new meter reads for historical data, delta readings, and aggregate readings by an admin user.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description:
-      'New meter reads for historical data, Delta readings and Aggregate Readings',
+    description: 'New meter reads successfully stored.',
     type: [NewIntermediateMeterReadDTO],
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid data provided for meter read.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -401,9 +470,23 @@ export class ReadsController extends BaseReadsController {
    * @returns {enddate:DateTime,value:number}
    */
   @Get('/latestread/:externalId')
+  @ApiOperation({
+    summary: 'Get latest meter read',
+    description:
+      'Returns the latest meter read of the given device by its external ID. This is useful for quickly accessing the most recent read data without retrieving the entire history.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Returns the latest meter read of the given device',
+    description: 'Returns the latest meter read of the given device.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'Device not found for the given external ID. Verify the ID and try again.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')

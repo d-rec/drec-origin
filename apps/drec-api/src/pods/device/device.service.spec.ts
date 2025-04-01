@@ -33,6 +33,7 @@ import {
   FuelCode,
   OffTaker,
   OrganizationStatus,
+  OrganizationType,
 } from '../../utils/enums';
 import { DeviceDescription } from '../../models';
 import { Organization } from '../organization/organization.entity';
@@ -279,7 +280,7 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      organizationType: Role.OrganizationAdmin,
+      organizationType: OrganizationType.Developer,
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -616,7 +617,7 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        organizationType: Role.OrganizationAdmin,
+        organizationType: OrganizationType.Developer,
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
@@ -1080,7 +1081,7 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'developer1@gmail.com',
           status: 'Active',
           documentIds: null,
@@ -1353,7 +1354,7 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'developer1@gmail.com',
           status: 'Active',
           documentIds: null,
@@ -1413,7 +1414,7 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'developer1@gmail.com',
           status: 'Active',
           documentIds: null,

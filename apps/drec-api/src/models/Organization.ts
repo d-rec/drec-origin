@@ -1,10 +1,10 @@
-import { OrganizationStatus, Role } from '../utils/enums';
+import { OrganizationStatus, OrganizationType, Role } from '../utils/enums';
 
 export class IPublicAddOrganization {
   id: number;
   name?: string = '';
 
-  organizationType?: string;
+  organizationType?: OrganizationType;
   //secretKey:string;
   status: OrganizationStatus;
 }
@@ -15,7 +15,7 @@ export class IPublicOrganization {
   zipCode: string;
   city: string;
   country: string;
-  organizationType: string;
+  organizationType: OrganizationType;
 
   status: OrganizationStatus;
 

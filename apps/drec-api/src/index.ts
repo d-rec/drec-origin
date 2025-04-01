@@ -1,11 +1,13 @@
-import 'reflect-metadata';
 import { LoggerService, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
+import 'reflect-metadata';
 import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
+import { setupRedoc } from './docs/redoc';
+import { customizeDocument, getDocumentBuilder } from './docs/swagger';
 
 export { DRECModule };
 
@@ -43,18 +45,13 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
     app.useLogger(logger);
   }
 
-  const options = new DocumentBuilder()
-    .setTitle('D-REC Origin API')
-    .setDescription('Swagger documentation for D-REC Origin API')
-    .setVersion('0.1')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'access-token',
-    )
-    .build();
+  const documentBuilder = getDocumentBuilder();
+  const options = documentBuilder.build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
+  const customizedDocument = customizeDocument(document);
+  SwaggerModule.setup('swagger', app, customizedDocument);
+  await setupRedoc(app, customizedDocument);
 
   await app.listen(PORT);
 
