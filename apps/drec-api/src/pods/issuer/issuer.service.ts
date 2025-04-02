@@ -43,10 +43,12 @@ import { Device } from '../device';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { Queues } from '../../../src/utils/enums/queues.enum';
-
+import { Mutex } from 'async-mutex'; // npm install async-mutex
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
+  private mutex = new Mutex();
 
   constructor(
     @InjectQueue(Queues.LateOngoingIssuance)
@@ -1091,23 +1093,34 @@ export class IssuerService {
     }
   }
 
-  @Cron('0 0 */8 * * *')
+  @Cron(CronExpression.EVERY_10_SECONDS) // every hour
   async scheduleLateOngoingIssuance(): Promise<void> {
+    if (this.mutex.isLocked()) {
+      this.logger.debug('preventing cron reentry.');
+      return; // let previous cron job finish
+    }
+
     try {
-      const activeDeviceGroups =
-        await this.groupService.getAllReservationActive();
-      if (!activeDeviceGroups.length) {
-        this.logger.debug('No active device groups found.');
-        return;
-      }
+      this.mutex.runExclusive(async () => {
+        // is 'this' still accessible here ?
 
-      for (const group of activeDeviceGroups) {
-        await this.lateOngoingQueue.add({ groupId: group.id });
-      }
+        const activeDeviceGroups =
+          await this.groupService.getAllReservationActive();
+        if (!activeDeviceGroups.length) {
+          this.logger.debug('No active device groups found.');
+          return;
+        }
 
-      this.logger.debug(
-        `Queued ${activeDeviceGroups} jobs for late ongoing issuance.`,
-      );
+        for (const group of activeDeviceGroups) {
+          await this.lateOngoingQueue.add({ groupId: group.id });
+        }
+
+        this.logger.debug(
+          `Queued ${activeDeviceGroups} jobs for late ongoing issuance.`,
+        );
+        await sleep(1000 * 30); // 30 seconds
+        this.logger.debug('Finished scheduling late ongoing issuance.');
+      });
     } catch (error) {
       this.logger.error('Error scheduling late ongoing issuance', error.stack);
     }
