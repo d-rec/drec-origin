@@ -467,7 +467,7 @@ export class DeviceGroupService {
 
   async getBuyerDeviceGroups(
     buyerId: number,
-    pageNumber?: number,
+    pageNumber = 1,
     groupFilterDTO?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<any> {
     this.logger.verbose(`With in getBuyerDeviceGroups`);

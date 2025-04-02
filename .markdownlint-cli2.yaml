@@ -10,5 +10,8 @@ config:
 globs:
   - "**/*.md"
 
+ignores:
+  - "**/CHANGELOG.md"
+
 # Ignore files that are not part of version control
 gitignore: true
