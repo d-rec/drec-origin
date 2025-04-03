@@ -42,7 +42,7 @@ export class CreateUserOrgDTO
     'firstName',
     'lastName',
     'email',
-    'telephone',
+    'phoneNumber',
   ] as const)
   implements UserOrgRegistrationData
 {

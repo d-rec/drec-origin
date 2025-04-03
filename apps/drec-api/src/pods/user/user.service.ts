@@ -80,7 +80,7 @@ export class UserService {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email.toLowerCase(),
-      telephone: data.telephone,
+      phoneNumber: data.phoneNumber,
       password: this.hashPassword(data.password),
       role: role || Role.Admin,
       status: status || UserStatus.Active,
@@ -88,9 +88,9 @@ export class UserService {
     });
   }
 
-  public async checkForExistingTelephone(telephone: string): Promise<void> {
+  public async checkIfPhoneNumberExists(phoneNumber: string): Promise<void> {
     const existingTelephone = await this.repository.findOne({
-      where: { telephone },
+      where: { phoneNumber },
     });
 
     if (existingTelephone) {
@@ -109,7 +109,7 @@ export class UserService {
   ): Promise<UserDTO> {
     try {
       await this.checkForExistingUser(data.email.toLowerCase());
-      await this.checkForExistingTelephone(data.telephone);
+      await this.checkIfPhoneNumberExists(data.phoneNumber);
       const apiUser =
         await this.oauthClientCredentialsService.findOneByApiUserId(
           data.api_user_id,
@@ -163,7 +163,7 @@ export class UserService {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email.toLowerCase(),
-        telephone: data.telephone,
+        phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
         notifications: true,
         status: status || UserStatus.Active,
@@ -194,7 +194,7 @@ export class UserService {
   ): Promise<UserDTO> {
     try {
       await this.checkForExistingUser(data.email.toLowerCase());
-      await this.checkForExistingTelephone(data.telephone);
+      await this.checkIfPhoneNumberExists(data.phoneNumber);
       const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
@@ -239,7 +239,7 @@ export class UserService {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email.toLowerCase(),
-        telephone: data.telephone,
+        phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
         notifications: true,
         status: status || UserStatus.Active,

@@ -56,7 +56,7 @@ describe('InvitationService', () => {
             sendUserInvitation: jest.fn(),
             addToOrganization: jest.fn(),
             changeRole: jest.fn(),
-            checkForExistingTelephone: jest.fn(),
+            checkIfPhoneNumberExists: jest.fn(),
           } as any,
         },
         {
@@ -322,7 +322,7 @@ describe('InvitationService', () => {
       const role = Role.User as OrganizationRole; //'DeviceOwner';
       const firstName = 'test';
       const lastName = 'test';
-      const telephone = '+919754218975';
+      const phoneNumber = '+919754218975';
       const orgId = 18;
 
       const mockApiUserEntity: IUser = {
@@ -330,7 +330,7 @@ describe('InvitationService', () => {
         firstName: 'test',
         lastName: 'apiuser',
         email: 'iceratan@gmail.com',
-        telephone: '+919754218975',
+        phoneNumber: '+919754218975',
         notifications: true,
         status: UserStatus.Active, //'Active',
         role: Role.ApiUser, //'Admin',
@@ -379,7 +379,7 @@ describe('InvitationService', () => {
             firstName: 'string',
             lastName: 'string',
             email: 'eqicgglmwppkbkugh@cazlg.com',
-            telephone: '+919754218975',
+            phoneNumber: '+919754218975',
             notifications: true,
             status: 'Active',
             role: 'OrganizationAdmin',
@@ -463,14 +463,14 @@ describe('InvitationService', () => {
           success: true,
         });
       jest
-        .spyOn(userService, 'checkForExistingTelephone')
+        .spyOn(userService, 'checkIfPhoneNumberExists')
         .mockResolvedValue(undefined);
 
       await expect(
         service.invite(
           user as unknown as ILoggedInUser,
           email,
-          telephone,
+          phoneNumber,
           role,
           firstName,
           lastName,
@@ -508,7 +508,7 @@ describe('InvitationService', () => {
           firstName: firstName,
           lastName: lastName,
           email: email,
-          telephone: telephone,
+          phoneNumber: phoneNumber,
           password: service.randPassword,
           orgName: inviteeOrganization.name,
           organizationType: inviteeOrganization.organizationType,
@@ -550,7 +550,7 @@ describe('InvitationService', () => {
         firstName: 'admin',
         lastName: 'drec',
         email: 'aishuutech@gmail.com',
-        telephone: '+919754218975',
+        phoneNumber: '+919754218975',
         notifications: true,
         status: UserStatus.Active, //'Active',
         role: Role.Admin, //'Admin',

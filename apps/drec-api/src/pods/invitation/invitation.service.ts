@@ -43,7 +43,7 @@ export class InvitationService {
   public async invite(
     user: ILoggedInUser,
     email: string,
-    telephone: string,
+    phoneNumber: string,
     role: OrganizationRole,
     firstName: string,
     lastName: string,
@@ -51,14 +51,7 @@ export class InvitationService {
   ): Promise<void> {
     this.logger.verbose(`With in invite`);
     const sender = await this.userService.findByEmail(user.email);
-    try {
-      await this.userService.checkForExistingTelephone(telephone);
-    } catch (error) {
-      this.logger.error(`Requested telephone ${telephone} is already exist`);
-      throw new BadRequestException(
-        `Requested telephone ${telephone} is already exist`,
-      );
-    }
+    await this.userService.checkIfPhoneNumberExists(phoneNumber);
     let inviteOrg: number;
     if (orgId) {
       if (user.role === Role.Admin || user.role === Role.ApiUser) {
@@ -157,7 +150,7 @@ export class InvitationService {
       firstName: firstName,
       lastName: lastName,
       email: email.toLowerCase(),
-      telephone: telephone,
+      phoneNumber: phoneNumber,
       password: this.randPassword,
       orgName: organization.name,
       organizationType: organization.organizationType,

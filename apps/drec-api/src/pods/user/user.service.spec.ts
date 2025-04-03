@@ -398,7 +398,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya@gmail.com',
-        telephone: '+447911123456', // UK number
+        phoneNumber: '+447911123456', // UK number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -411,7 +411,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya5@gmail.com',
-        telephone: '+14155552671', // US number
+        phoneNumber: '+14155552671', // US number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,
@@ -424,7 +424,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya2@gmail.com',
-        telephone: '+819012345678', // Japanese number
+        phoneNumber: '+819012345678', // Japanese number
         notifications: null,
         status: UserStatus.Active,
         role: Role.DeviceOwner,
@@ -437,7 +437,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya6@gmail.com',
-        telephone: '+4915123456789', // German number
+        phoneNumber: '+4915123456789', // German number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -450,7 +450,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya4@gmail.com',
-        telephone: '+33612345678', // French number
+        phoneNumber: '+33612345678', // French number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,
