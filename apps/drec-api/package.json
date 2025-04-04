@@ -42,7 +42,8 @@
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
     "coverage:jest": "jest --coverage",
     "seed": "ts-node seeders",
-    "seed:dummy-data": "ts-node seeders/dummy-data"
+    "seed:dummy-data": "ts-node seeders/dummy-data",
+    "seed:verify-emails": "ts-node seeders/verify-emails.ts"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
