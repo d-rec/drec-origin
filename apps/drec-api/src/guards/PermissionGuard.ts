@@ -12,7 +12,7 @@ import { Reflector } from '@nestjs/core';
 
 import { PermissionService } from '../pods/permission/permission.service';
 import { UserService } from '../pods/user/user.service';
-import { Role } from '../utils/enums';
+import { Role, OrganizationType } from '../utils/enums';
 @Injectable()
 export class PermissionGuard implements CanActivate {
   private readonly logger = new Logger(PermissionGuard.name);
@@ -42,7 +42,7 @@ export class PermissionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     if (
       request.url.split('/')[3] === 'register' &&
-      request.body.organizationType === Role.ApiUser
+      request.body.organizationType === OrganizationType.ApiUser
     ) {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       return true;

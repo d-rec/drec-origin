@@ -108,6 +108,22 @@ order: 4
    - Verify your permissions level
    - Ensure devices are active in the system
 
+### Certificate Generation
+
+1. **What are the date requirements for certificate generation?**
+   - Certificate generation requires meter readings to be within the specified reservation period
+   - Date validation rules:
+     - Meter reading start date must be on or after the reservation start date
+     - Meter reading end date must be on or before the reservation end date
+   - Example scenarios:
+     - Reservation period: January 1 to January 31
+     - Valid meter readings:
+       - January 1 to January 31 (period matches reservation)
+       - January 5 to January 25 (period within reservation)
+     - Invalid meter readings:
+       - December 30 to January 15 (period starts before reservation)
+       - January 15 to February 1 (period ends after reservation)
+
 ## Getting Help
 
 ### Contact Support

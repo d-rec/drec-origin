@@ -7,7 +7,12 @@ import { JwtService } from '@nestjs/jwt';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import bcrypt from 'bcryptjs';
 import { UserDTO } from '../pods/user/dto/user.dto';
-import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
+import {
+  OrganizationStatus,
+  OrganizationType,
+  Role,
+  UserStatus,
+} from '../utils/enums';
 import { IUser } from 'src/models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
@@ -114,7 +119,7 @@ describe('AuthService', () => {
         zipCode: '623754',
         city: 'Chennai',
         country: 'India',
-        organizationType: 'Developer',
+        organizationType: OrganizationType.Developer,
         status: OrganizationStatus.Active,
       },
     };
@@ -323,7 +328,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,
@@ -363,7 +368,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,
@@ -399,7 +404,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,
