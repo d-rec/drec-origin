@@ -48,6 +48,10 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsString()
   email: string;
 
+  @ApiProperty({ type: Date, required: true })
+  @Column({ type: 'timestamp', nullable: false })
+  terms_accept_at: Date;
+
   @ApiProperty({ type: String })
   @Column({ select: false })
   @Exclude()
