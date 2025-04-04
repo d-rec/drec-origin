@@ -9,7 +9,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { IPublicOrganization } from '../../../models';
-import { OrganizationStatus } from '../../../utils/enums';
+import { OrganizationStatus, OrganizationType } from '../../../utils/enums';
 import { Organization } from '../organization.entity';
 
 export class PublicOrganizationInfoDTO implements IPublicOrganization {
@@ -49,10 +49,10 @@ export class PublicOrganizationInfoDTO implements IPublicOrganization {
   @Expose()
   country: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @ApiProperty({ enum: OrganizationType, enumName: 'OrganizationType' })
+  @IsEnum(OrganizationType)
   @IsOptional()
-  organizationType: string;
+  organizationType: OrganizationType;
 
   // @ApiProperty({ type: String })
   // @IsString()

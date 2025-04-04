@@ -9,6 +9,7 @@ import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
 import { customizeDocument, getDocumentBuilder } from './docs/swagger';
 
+import './sentry';
 export { DRECModule };
 
 export async function startAPI(logger?: LoggerService): Promise<any> {
