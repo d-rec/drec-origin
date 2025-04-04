@@ -24,7 +24,6 @@ export class EmailVerifiedGuard implements CanActivate {
     }
 
     if (!userWithVerification.emailVerifiedAt) {
-      console.log('email not verified');
       throw new UnauthorizedException({
         success: false,
         message: 'Your email has not been confirmed yet.',

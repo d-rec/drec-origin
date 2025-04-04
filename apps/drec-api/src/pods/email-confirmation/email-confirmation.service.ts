@@ -148,6 +148,7 @@ export class EmailConfirmationService {
       where: {
         token,
       },
+      relations: ['user'],
     });
 
     if (!emailConfirmation) {
@@ -179,6 +180,10 @@ export class EmailConfirmationService {
     await this.repository.update(emailConfirmation.id, {
       confirmed: true,
     });
+
+    await this.userService.updateUserEmailVerification(
+      emailConfirmation.user.id,
+    );
 
     this.logger.warn(EmailConfirmationResponse.Success);
     return {

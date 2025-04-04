@@ -751,4 +751,15 @@ export class UserService {
   ): Promise<boolean> {
     return Boolean(await this.userLoginSessionRepository.findOne(conditions));
   }
+
+  async updateUserEmailVerification(userId: number): Promise<User> {
+    this.logger.verbose(`Updating emailVerifiedAt for user ${userId}`);
+
+    await this.repository.update(
+      { id: userId },
+      { emailVerifiedAt: new Date() },
+    );
+
+    return this.repository.findOne({ id: userId });
+  }
 }
