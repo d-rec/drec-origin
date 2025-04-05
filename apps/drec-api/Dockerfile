@@ -1,5 +1,9 @@
 FROM node:20-alpine
 
+# Set environment variables
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+
 # Set the working directory
 WORKDIR /usr/src/app
 
@@ -17,6 +21,9 @@ RUN pnpm install
 
 # Build the application
 RUN pnpm run build
+
+# Send sourcemaps to Sentry
+RUN pnpm run sentry:sourcemaps
 
 # Remove development dependencies
 RUN pnpm prune --prod
