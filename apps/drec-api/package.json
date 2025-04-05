@@ -42,7 +42,8 @@
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
     "coverage:jest": "jest --coverage",
     "seed": "ts-node seeders",
-    "seed:dummy-data": "ts-node seeders/dummy-data"
+    "seed:dummy-data": "ts-node seeders/dummy-data",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org d-rec --project drec-origin ./dist && sentry-cli sourcemaps upload --org d-rec --project drec-origin ./dist"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
@@ -72,6 +73,7 @@
     "@nestjs/schedule": "1.0.1",
     "@nestjs/swagger": "5.2.1",
     "@nestjs/typeorm": "8.0.2",
+    "@sentry/cli": "^2.43.0",
     "@sentry/nestjs": "^8.42.0",
     "@sentry/node": "^8.42.0",
     "ansi-regex": "^4.1.1",
