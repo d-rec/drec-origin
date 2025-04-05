@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.1.3) (2025-04-05)
+
+
+### Improvements
+
+* add standard versioning ([f98d72e](https://github.com/d-rec/drec-origin/commit/f98d72ede10656f4c5ffa9b1f387aaf878f2ee39))
+* ignore changelog in markdown lint ([a1c045e](https://github.com/d-rec/drec-origin/commit/a1c045e1e7bc2a36fb69c4d67a0d31a57a14c9e6))
+* **sentry:** merge sentry filter with global filter ([#555](https://github.com/d-rec/drec-origin/issues/555)) ([b6b1b5e](https://github.com/d-rec/drec-origin/commit/b6b1b5e9293f88656e380b51b9cfcda5b98b9387))
+
 ### [0.1.2](https://github.com/d-rec/drec-origin/compare/v0.1.1...v0.1.2) (2025-04-01)
 
 ### Bug Fixes
