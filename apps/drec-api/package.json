@@ -43,7 +43,11 @@
     "coverage:jest": "jest --coverage",
     "seed": "ts-node seeders",
     "seed:dummy-data": "ts-node seeders/dummy-data",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org d-rec --project drec-origin ./dist && sentry-cli sourcemaps upload --org d-rec --project drec-origin ./dist"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org d-rec --project drec-origin ./dist && sentry-cli sourcemaps upload --org d-rec --project drec-origin ./dist",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
@@ -166,6 +170,7 @@
     "prettier": "~3.2.5",
     "shx": "0.3.3",
     "sinon": "^17.0.1",
+    "standard-version": "^9.5.0",
     "supertest": "6.0.1",
     "ts-jest": "29.2.3"
   },
