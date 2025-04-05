@@ -65,7 +65,7 @@ import { CertificateSettingEntity } from './pods/device-group/certificate_settin
 import { HttpModule } from '@nestjs/axios';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { APP_FILTER } from '@nestjs/core';
-import { SentryFilter } from './filters/sentry.filter';
+import { GlobalExceptionFilter } from './filters/global.filter';
 import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
@@ -197,7 +197,7 @@ const queueModule = () => {
     OnApplicationBootstrapHookService,
     {
       provide: APP_FILTER,
-      useClass: SentryFilter,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })
