@@ -43,6 +43,7 @@ export class CreateUserOrgDTO
     'lastName',
     'email',
     'phoneNumber',
+    'termsAndConditions',
   ] as const)
   implements UserOrgRegistrationData
 {
