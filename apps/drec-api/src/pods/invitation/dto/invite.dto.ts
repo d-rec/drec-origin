@@ -29,7 +29,7 @@ export class InviteDTO {
   @ApiProperty({ type: String })
   @IsNotEmpty()
   @IsString()
-  telephone: string;
+  phoneNumber: string;
 
   @ApiProperty({ enum: Role, enumName: 'Role' })
   @Column({ default: Role.User })

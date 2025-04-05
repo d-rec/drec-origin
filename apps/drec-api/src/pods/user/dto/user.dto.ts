@@ -42,7 +42,7 @@ export class UserDTO implements Omit<IUser, 'password' | 'phone_number'> {
   @IsString()
   @IsPhoneNumber(undefined, { message: 'Invalid country code' })
   phoneNumber: string;
-  
+
   @IsNotEmpty()
   @IsBoolean()
   @ApiProperty({ type: Boolean, required: true })

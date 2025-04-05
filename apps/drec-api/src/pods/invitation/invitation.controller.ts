@@ -211,7 +211,7 @@ export class InvitationController {
       'Optional ID of the organization to which the user is being invited.',
   })
   async invite(
-    @Body() { email, role, firstName, lastName, telephone }: InviteDTO,
+    @Body() { email, role, firstName, lastName, phoneNumber }: InviteDTO,
     @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
@@ -244,7 +244,7 @@ export class InvitationController {
         await this.organizationInvitationService.invite(
           loggedUser,
           email,
-          telephone,
+          phoneNumber,
           role,
           firstName,
           lastName,
@@ -254,7 +254,7 @@ export class InvitationController {
         await this.organizationInvitationService.invite(
           loggedUser,
           email,
-          telephone,
+          phoneNumber,
           role,
           firstName,
           lastName,
