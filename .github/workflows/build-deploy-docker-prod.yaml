@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@prod
+    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@rf/change-sentry-error-handling
     with:
       environment: prod
     secrets:
