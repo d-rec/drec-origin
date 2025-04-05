@@ -47,6 +47,6 @@ jobs:
         run: |
           docker build --build-arg SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -f apps/drec-api/Dockerfile apps/drec-api 
+            -f apps/drec-api/Dockerfile apps/drec-api
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

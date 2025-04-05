@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - prod
-      - rf/change-sentry-error-handling
   workflow_dispatch:
 
 jobs:
   build:
-    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@rf/change-sentry-error-handling
+    uses: d-rec/drec-origin/.github/workflows/build-docker-ecr.yaml@prod
     with:
       environment: prod
     secrets:
