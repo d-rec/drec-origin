@@ -18,6 +18,9 @@ RUN pnpm install
 # Build the application
 RUN pnpm run build
 
+# Send sourcemaps to Sentry
+RUN pnpm run sentry:sourcemaps
+
 # Remove development dependencies
 RUN pnpm prune --prod
 

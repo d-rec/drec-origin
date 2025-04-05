@@ -15,6 +15,8 @@ on:
         required: true
       ecr-registry:
         required: true
+      SENTRY_AUTH_TOKEN:
+        required: true
 
 jobs:
   build:
@@ -41,6 +43,7 @@ jobs:
           ECR_REGISTRY: ${{ secrets.ecr-registry }}
           ECR_REPOSITORY: drec-api
           IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f apps/drec-api/Dockerfile apps/drec-api
