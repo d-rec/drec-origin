@@ -26,6 +26,11 @@ export class InviteDTO {
   @IsEmail()
   email: string;
 
+  @ApiProperty({ type: String })
+  @IsNotEmpty()
+  @IsString()
+  phoneNumber: string;
+
   @ApiProperty({ enum: Role, enumName: 'Role' })
   @Column({ default: Role.User })
   @IsNotEmpty()

@@ -38,10 +38,10 @@ export class User extends ExtendedBaseEntity implements IUser {
   @IsString()
   lastName: string;
 
-  // @ApiProperty({ type: String })
-  // @Column({ nullable: true })
-  // @IsString()
-  // telephone: string;
+  @ApiProperty({ type: String })
+  @Column({ nullable: true, unique: true, name: 'phone_number' })
+  @IsString()
+  phoneNumber: string;
 
   @ApiProperty({ type: String })
   @Column({ unique: true })

@@ -146,6 +146,7 @@ describe('UserService', () => {
         permissionIds: [],
       };
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({
@@ -397,6 +398,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya@gmail.com',
+        phoneNumber: '+447911123456', // UK number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -409,6 +411,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya5@gmail.com',
+        phoneNumber: '+14155552671', // US number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,
@@ -421,6 +424,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya2@gmail.com',
+        phoneNumber: '+819012345678', // Japanese number
         notifications: null,
         status: UserStatus.Active,
         role: Role.DeviceOwner,
@@ -433,6 +437,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya6@gmail.com',
+        phoneNumber: '+4915123456789', // German number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -445,6 +450,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya4@gmail.com',
+        phoneNumber: '+33612345678', // French number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,

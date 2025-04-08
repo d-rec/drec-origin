@@ -20,7 +20,7 @@ export class UserRegistrationData {
 
   @IsOptional()
   @IsString()
-  telephone?: string;
+  phoneNumber: string;
 
   @IsNotEmpty()
   @IsString()

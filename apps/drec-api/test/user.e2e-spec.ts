@@ -22,7 +22,7 @@ export const userToRegister: UserRegistrationData = {
   lastName: 'Doe',
   email: 'johndoe@example.com',
   password: 'thisIsAPassword',
-  telephone: '+11',
+  phoneNumber: '+250799496091', // Rwanda number
 };
 
 describe('Users tests', () => {
@@ -92,6 +92,7 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
+      phoneNumber: '+447911123456', // UK number
       password: 'testUser2',
       organizationType: OrganizationType.Developer,
     };
@@ -103,6 +104,7 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
+      phoneNumber: '+14155552671', // US number
       password: 'testUser2',
       organizationType: OrganizationType.Developer,
     };
