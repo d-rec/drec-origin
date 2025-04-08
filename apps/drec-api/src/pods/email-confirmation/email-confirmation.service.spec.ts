@@ -293,6 +293,7 @@ describe('EmailConfirmationService', () => {
 
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
+        relations: ['user'],
       });
       expect(result).toEqual({
         success: false,
