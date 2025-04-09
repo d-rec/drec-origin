@@ -40,6 +40,7 @@ import { PermissionGuard } from '../../guards/PermissionGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
+import { OrganizationType } from '../../utils/enums/organization-type.enum';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -129,7 +130,7 @@ export class BulkUploadController {
     const organizationId = organizationIdParam || user.organizationId;
 
     const organization = await this.organizationService.findOne(organizationId);
-    if (organization.organizationType != Role.Developer) {
+    if (organization.organizationType != OrganizationType.Developer) {
       throw new UnauthorizedException(
         'Only Developer organizations can upload bulk files',
       );

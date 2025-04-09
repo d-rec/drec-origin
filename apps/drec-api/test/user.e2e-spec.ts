@@ -14,6 +14,7 @@ import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
 import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
+import { OrganizationType } from '../src/utils/enums';
 
 export const userToRegister: UserRegistrationData = {
   title: 'Mr',
@@ -21,7 +22,7 @@ export const userToRegister: UserRegistrationData = {
   lastName: 'Doe',
   email: 'johndoe@example.com',
   password: 'thisIsAPassword',
-  telephone: '+11',
+  phoneNumber: '+250799496091', // Rwanda number
 };
 
 describe('Users tests', () => {
@@ -91,8 +92,9 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-1-2021@mailinator.com',
+      phoneNumber: '+447911123456', // UK number
       password: 'testUser2',
-      organizationType: 'Developer',
+      organizationType: OrganizationType.Developer,
     };
     await postAdminUser('', HttpStatus.CREATED, partialUser);
   });
@@ -102,8 +104,9 @@ describe('Users tests', () => {
       firstName: 'test',
       lastName: 'user2021',
       email: 'test-2-2021@mailinator.com',
+      phoneNumber: '+14155552671', // US number
       password: 'testUser2',
-      organizationType: 'Developer',
+      organizationType: OrganizationType.Developer,
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
   });

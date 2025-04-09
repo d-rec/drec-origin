@@ -12,7 +12,7 @@ import {
 import { UserOrgRegistrationData } from '../../../models';
 import { Match } from '../decorators/match.decorator';
 import { Trim } from '../../../transformers/string';
-import { Role } from '../../../utils/enums/role.enum';
+import { OrganizationType } from '../../../utils/enums/organization-type.enum';
 // export class CreateUserDTO
 //   extends PickType(UserDTO, [
 //     'title',
@@ -38,7 +38,13 @@ import { Role } from '../../../utils/enums/role.enum';
 // }
 
 export class CreateUserOrgDTO
-  extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
+  extends PickType(UserDTO, [
+    'firstName',
+    'lastName',
+    'email',
+    'phoneNumber',
+    'termsAndConditions',
+  ] as const)
   implements UserOrgRegistrationData
 {
   @ApiProperty({ type: String })
@@ -95,8 +101,15 @@ export class CreateUserOrgDTO
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  @IsIn([Role.Developer, Role.ApiUser, Role.Buyer], {
-    message: 'organizationType value should be Developer/Buyer/ApiUser',
-  })
+  @IsIn(
+    [
+      OrganizationType.Developer,
+      OrganizationType.ApiUser,
+      OrganizationType.Buyer,
+    ],
+    {
+      message: 'organizationType value should be Developer/Buyer/ApiUser',
+    },
+  )
   organizationType: string;
 }

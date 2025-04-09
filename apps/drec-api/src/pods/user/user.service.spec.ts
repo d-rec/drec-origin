@@ -20,6 +20,7 @@ import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
 import {
   OrganizationStatus,
+  OrganizationType,
   Role,
   UserPermissionStatus,
   UserStatus,
@@ -113,7 +114,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya3@gmail.com',
-        organizationType: 'ApiUser',
+        organizationType: OrganizationType.ApiUser,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -145,6 +146,7 @@ describe('UserService', () => {
         permissionIds: [],
       };
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
+      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({
@@ -211,7 +213,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
-        organizationType: 'ApiUser',
+        organizationType: OrganizationType.ApiUser,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -229,7 +231,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: Role.OrganizationAdmin,
+        organizationType: OrganizationType.Developer,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -287,7 +289,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
-        organizationType: 'ApiUser',
+        organizationType: OrganizationType.ApiUser,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -305,7 +307,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: Role.OrganizationAdmin,
+        organizationType: OrganizationType.Developer,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -364,7 +366,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: Role.OrganizationAdmin,
+      organizationType: OrganizationType.Developer,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -382,7 +384,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya6@gmail.com',
-      organizationType: Role.OrganizationAdmin,
+      organizationType: OrganizationType.Developer,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -396,6 +398,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya@gmail.com',
+        phoneNumber: '+447911123456', // UK number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -408,6 +411,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya5@gmail.com',
+        phoneNumber: '+14155552671', // US number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,
@@ -420,6 +424,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya2@gmail.com',
+        phoneNumber: '+819012345678', // Japanese number
         notifications: null,
         status: UserStatus.Active,
         role: Role.DeviceOwner,
@@ -432,6 +437,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya6@gmail.com',
+        phoneNumber: '+4915123456789', // German number
         notifications: null,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -444,6 +450,7 @@ describe('UserService', () => {
         firstName: 'Dev',
         lastName: 'lastName',
         email: 'testsweya4@gmail.com',
+        phoneNumber: '+33612345678', // French number
         notifications: null,
         status: UserStatus.Active,
         role: Role.User,
@@ -526,7 +533,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: Role.ApiUser,
+      organizationType: OrganizationType.ApiUser,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -621,7 +628,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: Role.OrganizationAdmin,
+        organizationType: OrganizationType.Developer,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -675,7 +682,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: Role.ApiUser,
+      organizationType: OrganizationType.ApiUser,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -743,7 +750,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: Role.ApiUser,
+      organizationType: OrganizationType.ApiUser,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -822,7 +829,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: Role.ApiUser,
+      organizationType: OrganizationType.ApiUser,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
