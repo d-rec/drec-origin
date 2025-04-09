@@ -144,31 +144,7 @@ export class UserController {
   ): Promise<UserDTO | null> {
     return await this.userService.canViewUserData(id, loggedUser);
   }
-  @Get('/email/:email')
-  @ApiOperation({
-    summary: 'Get User by email',
-    description:
-      'Fetches user information based on the provided user email. Ensures that the requester has the necessary permissions to view the user data.',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: UserDTO,
-    description:
-      "Returns a UserDTO object containing the requested user's details, including ID, first name, last name, email, and any other relevant information.",
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description:
-      'User not found. The specified user email does not correspond to any existing user.',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description:
-      'Forbidden. The user does not have permission to access this resource.',
-  })
-  async getByEmail(@Param('email') email: string): Promise<UserDTO | null> {
-    return this.userService.findByEmail(email);
-  }
+
   /**
    * add new for adding user with organization
    * @body {CreateUserORGDTO}
@@ -345,7 +321,7 @@ export class UserController {
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
   @Put('confirm-email/:token')
-  @UseGuards(WithoutAuthGuard, PermissionGuard)
+  @UseGuards(WithoutAuthGuard)
   //@UseGuards(PermissionGuard)
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
