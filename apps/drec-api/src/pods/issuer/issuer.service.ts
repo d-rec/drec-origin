@@ -1092,8 +1092,11 @@ export class IssuerService {
     this.logger.debug('Called every 8hr to check for issuance of certificates');
     const lateOngoing = await this.deviceService.findAllLateCycle(groupId);
     if (lateOngoing) {
+      let index = 0;
       for (const element of lateOngoing) {
         const group = await this.groupService.findOne({ id: element.groupId });
+        index = index + 1;
+        this.logger.debug(`Processing ${index} of ${lateOngoing.length}`)
         this.logger.debug(
           'Processing late ongoing issuance for::',
           element.device_externalid,
