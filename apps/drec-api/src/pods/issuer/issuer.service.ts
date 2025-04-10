@@ -1094,17 +1094,23 @@ export class IssuerService {
     if (lateOngoing) {
       let index = 0;
       for (const element of lateOngoing) {
-        const group = await this.groupService.findOne({ id: element.groupId });
         index = index + 1;
-        this.logger.debug(`Processing ${index} of ${lateOngoing.length}`)
+        this.logger.debug(`Processing ${index} of ${lateOngoing.length}`);
         this.logger.debug(
           'Processing late ongoing issuance for::',
           element.device_externalid,
         );
+
+        const [group, device] = await Promise.all([
+          this.groupService.findOne({ id: element.groupId }),
+          this.deviceService.findReads(element.device_externalid),
+        ]);
+
         if (!group) {
           this.logger.error('LateOngoing group is missing');
           continue; // Skip to the next element if the group is missing
         }
+
         if (
           group.leftoverReadsByCountryCode === null ||
           group.leftoverReadsByCountryCode === undefined ||
@@ -1112,11 +1118,13 @@ export class IssuerService {
         ) {
           group.leftoverReadsByCountryCode = {};
         }
+
         if (typeof group.leftoverReadsByCountryCode === 'string') {
           group.leftoverReadsByCountryCode = JSON.parse(
             group.leftoverReadsByCountryCode,
           );
         }
+
         if (
           group.reservationExpiryDate != null &&
           group.reservationExpiryDate.getTime() <= new Date().getTime()
@@ -1124,30 +1132,29 @@ export class IssuerService {
           this.logger.error('ReservationExpiryDate has passed');
           continue; // Skip to the next element if the reservation expiry date has passed
         }
-        const device = await this.deviceService.findReads(
-          element.device_externalid,
-        );
+
+        const [lastRead, nextIssuance] = await Promise.all([
+          this.readService.latestRead(device.externalId, device.createdAt),
+          this.groupService.getGroupCertificateIssueDate({
+            groupId: group.id,
+          }),
+        ]);
+
+        if (lastRead.length === 0) {
+          this.logger.error('No last read found');
+          continue; // Skip to the next element if no last read is found
+        }
+
         const newGroupWithSingleDevice: DeviceGroup = group;
         newGroupWithSingleDevice.devices = [device];
         const startDate = DateTime.fromISO(element.late_start_date).toUTC();
         const endDate = DateTime.fromISO(element.late_end_date).toUTC();
-        const nextIssuance =
-          await this.groupService.getGroupCertificateIssueDate({
-            groupId: group.id,
-          });
 
         if (nextIssuance) {
           nextIssuance.start_date = element.late_start_date;
           nextIssuance.end_date = element.late_end_date;
         }
-        const lastRead = await this.readService.latestRead(
-          device.externalId,
-          device.createdAt,
-        );
-        if (lastRead.length === 0) {
-          this.logger.error('No last read found');
-          continue; // Skip to the next element if no last read is found
-        }
+
         if (
           new Date(lastRead[0].timestamp).getTime() <=
             new Date(element.late_end_date).getTime() &&
