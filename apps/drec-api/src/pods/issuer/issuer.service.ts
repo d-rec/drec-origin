@@ -1080,14 +1080,13 @@ export class IssuerService {
   }
 
   async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
-    try {
-      this.triggerOngoingLateIssuance(groupId);
-    } catch (error) {
-      this.logger.error(
-        `Error in influxdb query: ${error.message}`, //Please include the whole stack
-        error.stack,
-      );
-    }
+    if (!groupId) return this.scheduleLateOngoingIssuance();
+    await this.lateOngoingQueue.add(
+      { groupId: groupId },
+      {
+        lifo: true,
+      },
+    );
   }
 
   @Cron('0 0 */8 * * *')
@@ -1112,7 +1111,7 @@ export class IssuerService {
     }
   }
 
-  private async triggerOngoingLateIssuance(groupId?: number): Promise<void> {
+  async triggerOngoingLateIssuance(groupId?: number): Promise<void> {
     this.logger.debug('late ongoing issuance');
     this.logger.debug('Called every 8hr to check for issuance of certificates');
     const lateOngoing = await this.deviceService.findAllLateCycle(groupId);
