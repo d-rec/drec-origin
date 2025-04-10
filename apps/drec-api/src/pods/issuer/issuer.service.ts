@@ -1075,7 +1075,7 @@ export class IssuerService {
     });
   }
 
-  @Cron('0 0 */8 * * *')
+  // @Cron('0 0 */8 * * *')
   async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
     try {
       this.triggerOngoingLateIssuance(groupId);
