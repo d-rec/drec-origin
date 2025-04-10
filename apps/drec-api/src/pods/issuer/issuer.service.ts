@@ -51,7 +51,6 @@ export class IssuerService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private readService: ReadsService,
-
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
     private httpService: HttpService,
@@ -1244,12 +1243,13 @@ export class IssuerService {
               device.countryCode,
               nextIssuance,
             );
+          } else {
+            continue;
           }
-          // }
         }
 
         // Add delay before moving to the next element
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } else {
       this.logger.error('No late ongoing read found');
@@ -1493,6 +1493,7 @@ export class IssuerService {
     this.issueCertificate(issuance);
     return;
   }
+
   // @Cron('*/2 * * * * ')
   async getMissingCycleBeforeLateOngoing(): Promise<void> {
     this.logger.debug('Called every 4pm to check for issuance of certificates');
