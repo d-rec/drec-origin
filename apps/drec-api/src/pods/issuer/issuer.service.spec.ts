@@ -1207,7 +1207,6 @@ describe('IssuerService', () => {
         .spyOn(groupService, 'getGroupCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);
       await service.triggerOngoingLateIssuance();
-      await service.scheduleLateOngoingIssuance();
 
       const parsedLeftoverReads = JSON.parse(
         mockGroup.leftoverReadsByCountryCode,
