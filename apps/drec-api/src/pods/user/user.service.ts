@@ -45,13 +45,14 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-
+import * as AWS from 'aws-sdk';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-
+  private currentOtp: string | null = null;
+  private otpExpirationTime: number | null = null;
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserRole)
@@ -64,7 +65,13 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
-  ) {}
+  ) {
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: process.env.AWS_REGION,
+    });
+  }
 
   public async seed(
     data: CreateUserOrgDTO,
@@ -172,6 +179,7 @@ export class UserService {
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
+        isPhoneVerified: false,
       });
       const { ...userData } = user;
       this.logger.debug(
@@ -179,6 +187,8 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
+     const aa = await this.sendOtp(user.phoneNumber);
+     console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",aa)
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -415,6 +425,51 @@ export class UserService {
     await this.repository.update(id, updateEntity);
 
     return this.findOne({ id });
+  }
+  private generateOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+  async sendOtp(phoneNumber: string): Promise<string> {
+    const formatted = phoneNumber.replace(/\s+/g, '');
+    console.log(formatted);
+    const otp = this.generateOtp();
+    const sns = new AWS.SNS({
+      endpoint: 'http://localhost:4566',
+    })
+    const params = {
+      Message: `Your OTP is: ${otp}. Please enter it to verify your phone number.`,
+      PhoneNumber: formatted,
+    };
+
+    try {
+      const result = await sns.publish(params).promise();
+      console.log('Message sent with ID:', result.MessageId);
+      this.currentOtp = otp;
+      this.otpExpirationTime = Date.now() + 5 * 60 * 1000; 
+      return otp; 
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      throw new Error('Failed to send OTP via SMS');
+    }
+  }
+  async verifyOtp(phoneNumber:string,otp: string): Promise<boolean> {
+    if (!this.checkOtpValidity()) {
+      throw new Error('OTP has expired or is invalid.');
+    }
+    if (this.currentOtp === otp) {
+      const user = await this.repository.findOne({ where: { phoneNumber } });
+      if (!user) {
+        throw new ConflictException('User not found.');
+      }
+      user.isPhoneVerified = true;
+      user.phone_number_verified_at = new Date(); 
+      await this.repository.save(user); 
+      return true; 
+    }
+    return false;
+  }
+  private checkOtpValidity(): boolean {
+    return this.currentOtp !== null && this.otpExpirationTime !== null && Date.now() < this.otpExpirationTime;
   }
 
   async updatePassword(

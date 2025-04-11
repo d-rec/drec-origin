@@ -54,6 +54,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
+import { SendOtpDTO } from './dto/send-otp-dto';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -189,6 +190,21 @@ export class UserController {
       userRegistrationData.api_user_id = (user as any).api_user_id;
     }
     return this.userService.newCreateUser(userRegistrationData);
+  }
+
+  @Post('send-otp')
+  @ApiBody({ type: SendOtpDTO }) 
+  async sendOtp(@Body('phoneNumber') phoneNumber: string) {
+    return this.userService.sendOtp(phoneNumber);
+  }
+  @Post('verify-otp')
+  @ApiBody({ type: SendOtpDTO }) 
+  async verifyOtp(@Body('phoneNumber') phoneNumber: string, @Body('otp') otp: string) {
+    const isVerified = await this.userService.verifyOtp(phoneNumber, otp);
+    if (isVerified) {
+      return { message: 'Phone number verified successfully.' };
+    }
+    return { message: 'Invalid or expired OTP.' };
   }
   /**
    * this api route using for update Profile.
