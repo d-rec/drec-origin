@@ -20,9 +20,9 @@ import {
 } from '../src/pods/device-group/dto';
 import { Device } from '../src/pods/device';
 import {
-  BuyerReservationCertificateGenerationFrequency,
   IFullOrganization,
 } from '../src/models';
+import { CertificateGenerationFrequency } from '../src/utils/enums';
 import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
 import TestDevicesToGroup from './test-devices-for-grouping.json';
 import { NewDeviceDTO } from '../src/pods/device/dto';
@@ -131,7 +131,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -205,7 +205,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -255,7 +255,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -305,7 +305,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -361,7 +361,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,

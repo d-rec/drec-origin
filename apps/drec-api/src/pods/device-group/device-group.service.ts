@@ -33,11 +33,11 @@ import { cloneDeep, defaults } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
 import {
-  BuyerReservationCertificateGenerationFrequency,
   DeviceDescription,
   IDevice,
   ILoggedInUser,
 } from '../../models';
+import { CertificateGenerationFrequency } from '../../utils/enums';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
   CommissioningDateRange,
@@ -90,6 +90,7 @@ import {
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { plainToClass } from 'class-transformer';
 import { Queues } from '../../utils/enums/queues.enum';
+import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
 
 @Injectable()
 export class DeviceGroupService {
@@ -806,18 +807,18 @@ export class DeviceGroupService {
       let hours = 1;
 
       const frequency = group.frequency.toLowerCase();
-      if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
+      if (frequency === CertificateGenerationFrequency.daily) {
         hours = 1 * 24;
       } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.monthly
+        frequency === CertificateGenerationFrequency.monthly
       ) {
         hours = 30 * 24;
       } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.weekly
+        frequency === CertificateGenerationFrequency.weekly
       ) {
         hours = 7 * 24;
       } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.quarterly
+        frequency === CertificateGenerationFrequency.quarterly
       ) {
         hours = 91 * 24;
       }
@@ -2799,5 +2800,32 @@ export class DeviceGroupService {
       totalPages,
       totalCount,
     };
+  }
+
+  public async processLeftOverReadsByCountryCode(
+    group: DeviceGroup,
+    totalReadValueW: number,
+    countryCodeKey: string,
+  ): Promise<number> {
+    const WATTS_TO_KW_CONVERSION = 1000; // 10^3
+
+    // 1. Convert watts to kilowatts and add any existing leftover value
+    const leftovers = group.leftoverReadsByCountryCode?.[countryCodeKey] || 0;
+    const totalReadValueKw =
+      totalReadValueW / WATTS_TO_KW_CONVERSION + leftovers;
+
+    // 2. Split the value into integer and decimal components
+    const { integralVal, decimalVal } =
+      splitValueIntoIntegerAndDecimal(totalReadValueKw);
+
+    // 3. Store the decimal component for future accumulation
+    await this.updateLeftOverReadByCountryCode(
+      group.id,
+      decimalVal,
+      countryCodeKey,
+    );
+
+    // 4. Return the integer component for certificate issuance
+    return integralVal;
   }
 }

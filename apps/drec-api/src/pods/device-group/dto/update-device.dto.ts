@@ -29,8 +29,8 @@ export class NewUpdateDeviceGroupDTO {
   @IsOptional()
   reservationExpiryDate: Date;
   // @ApiProperty()
-  // @IsEnum(BuyerReservationCertificateGenerationFrequency)
-  // frequency:BuyerReservationCertificateGenerationFrequency;
+  // @IsEnum(CertificateGenerationFrequency)
+  // frequency:CertificateGenerationFrequency;
 }
 
 export class EndReservationDateDTO {

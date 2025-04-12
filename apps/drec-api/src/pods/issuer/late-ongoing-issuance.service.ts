@@ -2,21 +2,14 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
 import { ReadsService as BaseReadsService } from '@energyweb/energy-api-influxdb';
-import { IIssueCommandParams } from '@energyweb/origin-247-certificate';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
-import { ICertificateMetadata } from '../../utils/types';
 
-import { Queues } from '../../../src/utils/enums/queues.enum';
-import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
-import { IDevice } from '../../models';
-import {
-  CertificateType,
-  ReadType,
-  StandardCompliance,
-} from '../../utils/enums';
+import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
+import { Queues } from '../../utils/enums/queues.enum';
+import { ReadType } from '../../utils/enums';
 import { CertificateLogService } from '../certificate-log/certificate-log.service';
 import { Device } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -51,6 +44,11 @@ export class LateOngoingIssuanceService {
     private certificateService: CertificateService,
   ) {}
 
+  /**
+   * Cron job that runs every 8 hours to schedule certificate issuance for active device groups
+   *
+   * @returns Promise that resolves when all jobs are queued
+   */
   @Cron('0 0 */8 * * *')
   async scheduleIssuance(): Promise<void> {
     try {
@@ -172,6 +170,109 @@ export class LateOngoingIssuanceService {
     }
   }
 
+  /**
+   * Checks and processes missing certificate cycles before late ongoing issuance
+   *
+   * @returns Promise that resolves when all missing cycles are processed
+   */
+  async getMissingCycleBeforeLateOngoing(): Promise<void> {
+    this.logger.debug('Checking for missing certificate cycles');
+
+    // Get active device groups
+    const activeGroups = await this.groupService.getAllReservationActive();
+
+    // Process each group sequentially to avoid overwhelming the system
+    for (const group of activeGroups) {
+      if (!group) {
+        this.logger.error('Group data is missing');
+        continue;
+      }
+
+      // Get devices for this group
+      const devicesInGroup = await this.deviceService.findForGroup(group.id);
+
+      // Pre-fetch next certificate request
+      await this.groupService.getNextRequestCertificateByGroupId(group.id);
+      await Promise.all(
+        devicesInGroup.map(async (device) =>
+          this.checkForDeviceMissingCycles(group, device),
+        ),
+      );
+    }
+  }
+
+  /**
+   * Checks for and fills any missing cycles for a device
+   *
+   * @param group - The device group
+   * @param device - The device to check for missing cycles
+   * @returns Promise resolving when all missing cycles are processed
+   */
+  private async checkForDeviceMissingCycles(
+    group: DeviceGroup,
+    device: Device,
+  ) {
+    // Find the latest ongoing cycle
+    const latestCycles = await this.deviceService.findOneLateCycle(
+      group.id,
+      device.externalId,
+    );
+
+    if (!latestCycles?.length) {
+      this.logger.error(
+        `No ongoing cycle found for device: ${device.externalId}`,
+      );
+      return;
+    }
+
+    // Get cycle boundaries
+    const cycleEnd = new Date(latestCycles[0].late_start_date);
+    const deviceCreationDate = new Date(device.createdAt);
+
+    // Iterate through time periods to find and fill gaps
+    let currentDate = new Date(deviceCreationDate);
+
+    while (currentDate < cycleEnd) {
+      // Calculate the next date based on frequency
+      const nextDate = getCycleEndDate(currentDate, group.frequency);
+
+      // Determine the actual end date (earlier of calculated end or boundary end)
+      const actualEndDate = nextDate < cycleEnd ? nextDate : cycleEnd;
+
+      // Check if cycle already exists
+      const existingCycle =
+        await this.deviceService.findDeviceLateCycleOfDateRange(
+          group.id,
+          device.externalId,
+          DateTime.fromJSDate(currentDate).toUTC(),
+          DateTime.fromJSDate(actualEndDate).toUTC(),
+        );
+
+      // Create cycle if it doesn't exist
+      if (!existingCycle) {
+        await this.addCycle(
+          group.id,
+          device.externalId,
+          currentDate.toISOString(),
+          actualEndDate.toISOString(),
+        );
+      }
+
+      // Move to next period
+      currentDate = nextDate;
+    }
+  }
+
+  /**
+   * Processes certificate issuance when last read is within the late cycle time range
+   *
+   * @param cycle - Late cycle entity
+   * @param device - Device object
+   * @param group - Device group
+   * @param lastReadDate - Date of the last reading
+   * @param nextIssuance - Next issuance information
+   * @returns Promise resolving when processing is complete
+   */
   private async issueForInRangeLastRead(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
@@ -234,6 +335,15 @@ export class LateOngoingIssuanceService {
     );
   }
 
+  /**
+   * Issues certificates for readings when the last read is after the late end date
+   *
+   * @param cycle - The late ongoing issue certificate entity
+   * @param device - The device object
+   * @param group - The device group
+   * @param nextIssuance - Next issuance information
+   * @returns Promise that resolves when the process is complete
+   */
   private async issueForRecentLastRead(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
@@ -276,6 +386,16 @@ export class LateOngoingIssuanceService {
     );
   }
 
+  /**
+   * Issues certificates for a device group based on reading data
+   *
+   * @param group - The device group to issue certificates for
+   * @param startDate - Certificate period start date
+   * @param endDate - Certificate period end date
+   * @param countryCodeKey - Country code identifier
+   * @param groupRequest - Optional group certificate request data
+   * @returns Promise that resolves when certificate issuance is complete
+   */
   private async issueCertificateForGroup(
     group: DeviceGroup,
     startDate: DateTime,
@@ -331,11 +451,12 @@ export class LateOngoingIssuanceService {
     );
 
     // Process leftover readings and convert to kilowatts
-    const totalReadValueKw = await this.handleLeftoverReadsByCountryCode(
-      group,
-      totalReadValue,
-      countryCodeKey,
-    );
+    const totalReadValueKw =
+      await this.groupService.processLeftOverReadsByCountryCode(
+        group,
+        totalReadValue,
+        countryCodeKey,
+      );
 
     // Skip if no whole kilowatt hours to certify
     if (!totalReadValueKw) {
@@ -371,23 +492,14 @@ export class LateOngoingIssuanceService {
     );
 
     // Prepare certificate issuance parameters
-    const issuance: IIssueCommandParams<ICertificateMetadata> = {
-      deviceId: group.id?.toString(),
-      energyValue: issueTotalReadValue.toString(),
-      fromTime: minimumStartDate,
-      toTime: maximumEndDate,
-      toAddress: group.buyerAddress,
-      userId: group.buyerAddress,
-      metadata: {
-        version: 'v1.0',
-        buyerReservationId: group.devicegroup_uid,
-        isStandardIssuanceRequested: StandardCompliance.IREC,
-        type: CertificateType.REC,
-        deviceIds: group.devices.map((device: IDevice) => device.externalId),
-        groupId: group.id?.toString() || null,
-        certificateTransactionUID: certificateTransactionUID.toString(),
-      },
-    };
+    const issuance = this.certificateService.getIssuanceParams(
+      group,
+      group.devices,
+      issueTotalReadValue,
+      minimumStartDate,
+      maximumEndDate,
+      certificateTransactionUID,
+    );
 
     // Calculate and update megawatt hour values
     const totalReadValueMegaWattHour = totalReadValueKw / 1000;
@@ -425,6 +537,15 @@ export class LateOngoingIssuanceService {
     return this.certificateService.issue(issuance);
   }
 
+  /**
+   * Filters out certified and invalid device readings
+   *
+   * @param group - The device group containing devices
+   * @param startDate - Certificate period start date
+   * @param endDate - Certificate period end date
+   * @param deviceReadings - Array of device readings to filter
+   * @returns Promise resolving to filtered readings and total value, or null if no valid readings
+   */
   private async filterOutCertifiedReads(
     group: DeviceGroup,
     startDate: DateTime,
@@ -485,6 +606,13 @@ export class LateOngoingIssuanceService {
     };
   }
 
+  /**
+   * Retrieves the previous meter reading for a device based on recent readings
+   *
+   * @param device - The device to retrieve readings for
+   * @param deviceReadings - Recent device readings within time range
+   * @returns Promise resolving to an array of previous readings
+   */
   private async getPreviousReading(
     device: Device,
     deviceReadings: DeviceReading[],
@@ -590,32 +718,5 @@ export class LateOngoingIssuanceService {
       `Created late cycle ID: ${savedEntity.id} for device: ${deviceExternalId}`,
     );
     return savedEntity;
-  }
-
-  public async handleLeftoverReadsByCountryCode(
-    group: DeviceGroup,
-    totalReadValueW: number,
-    countryCodeKey: string,
-  ): Promise<number> {
-    const WATTS_TO_KW_CONVERSION = 1000; // 10^3
-
-    // 1. Convert watts to kilowatts and add any existing leftover value
-    const leftovers = group.leftoverReadsByCountryCode?.[countryCodeKey] || 0;
-    const totalReadValueKw =
-      totalReadValueW / WATTS_TO_KW_CONVERSION + leftovers;
-
-    // 2. Split the value into integer and decimal components
-    const { integralVal, decimalVal } =
-      splitValueIntoIntegerAndDecimal(totalReadValueKw);
-
-    // 3. Store the decimal component for future accumulation
-    await this.groupService.updateLeftOverReadByCountryCode(
-      group.id,
-      decimalVal,
-      countryCodeKey,
-    );
-
-    // 4. Return the integer component for certificate issuance
-    return integralVal;
   }
 }
