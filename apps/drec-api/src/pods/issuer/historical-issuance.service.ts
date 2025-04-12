@@ -47,7 +47,7 @@ export class HistoricalIssuanceService {
   @Cron(CronExpression.EVERY_30_SECONDS)
   async processHistoricalIssuance(): Promise<void> {
     this.logger.debug('Starting historical certificate issuance check');
-    
+
     // Get all pending historical issuance requests
     const historyDeviceRequests =
       await this.groupService.getNextHistoryIssuanceDeviceLog();
@@ -145,19 +145,13 @@ export class HistoricalIssuanceService {
       ),
     );
 
-    // Calculate total valid reads (ignoring reads below 1000W threshold)
-    let totalReadsValue = 0;
-
-    for (const read of historyReads) {
-      if (!group.buyerAddress || !group.buyerId) {
-        continue;
-      }
-
-      // Minimum value of certificate should be 1 kW (1000W)
-      if (read.readsvalue >= 1000) {
-        totalReadsValue += read.readsvalue;
-      }
-    }
+    // Calculate total using a chain of filters and reduce
+    const totalReadsValue = historyReads
+      // Only process reads when buyer information is present
+      .filter(() => Boolean(group.buyerAddress && group.buyerId))
+      // Only include reads that meet the minimum threshold (1kW = 1000W)
+      .filter((read) => read.readsvalue >= 1000)
+      .reduce((sum, read) => sum + read.readsvalue, 0);
 
     // Convert to MWh and update group totals if needed
     const totalReadValueMegaWattHour = totalReadsValue / 10 ** 6;
