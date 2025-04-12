@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import {
-  ReadsService as BaseReadsService,
-  FilterDTO,
-} from '@energyweb/energy-api-influxdb';
-import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
   OffChainCertificateService,
@@ -18,6 +14,11 @@ import { of } from 'rxjs';
 import { IDevice } from 'src/models';
 import { ICertificateMetadata } from 'src/utils/types';
 import { Queues } from '../../../src/utils/enums/queues.enum';
+import {
+  roundDecimalToFixedPrecision,
+  splitValueIntoIntegerAndDecimal,
+} from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { CertificateLogService } from '../certificate-log/certificate-log.service';
 import { DeviceService } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
@@ -28,14 +29,9 @@ import { OrganizationService } from '../organization/organization.service';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../reads/reads.service';
+import { CertificateService } from './certificate.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
-import {
-  splitValueIntoIntegerAndDecimal,
-  roundDecimalToFixedPrecision,
-} from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
-import { CertificateService } from './certificate.service';
-import { CertificateLogService } from '../certificate-log/certificate-log.service';
 
 
 describe('IssuerService', () => {
@@ -46,10 +42,9 @@ describe('IssuerService', () => {
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
-  let readService: ReadsService;
+  let readsService: ReadsService;
   let httpService: HttpService;
   let logger: Logger;
-  let baseReadsService: BaseReadsService;
 
   beforeEach(async () => {
     jest.setTimeout(10000); // Set timeout to 10 seconds
@@ -174,8 +169,7 @@ describe('IssuerService', () => {
     logger = module.get<Logger>(Logger);
     deviceService = module.get<DeviceService>(DeviceService);
     organizationService = module.get<OrganizationService>(OrganizationService);
-    readService = module.get<ReadsService>(ReadsService);
-    baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
+    readsService = module.get<ReadsService>(ReadsService);
   });
 
   it('should be defined', () => {
@@ -317,7 +311,7 @@ describe('IssuerService', () => {
         groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readService.updateHistoryCertificateIssueDate,
+        readsService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -344,7 +338,7 @@ describe('IssuerService', () => {
         groupService.addCertificateIssueDateLogForDeviceGroup,
       ).not.toHaveBeenCalled();
       expect(
-        readService.updateHistoryCertificateIssueDate,
+        readsService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
     });
 
@@ -440,7 +434,7 @@ describe('IssuerService', () => {
       );
 
       expect(
-        readService.updateHistoryCertificateIssueDate,
+        readsService.updateHistoryCertificateIssueDate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
         deviceHistoryRequest.readsStartDate,
@@ -645,64 +639,7 @@ describe('IssuerService', () => {
     });
   });
 
-  describe('getDeviceFullReadsWithTimestampAndValueAsArray', () => {
-    it('should return device reads when find is successful', async () => {
-      const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
-      const mockReads = [
-        { timestamp: new Date('2024-01-01T00:00:00Z'), value: 123.45 },
-        { timestamp: new Date('2024-01-02T00:00:00Z'), value: 678.9 },
-      ];
-
-      jest.spyOn(baseReadsService, 'find').mockResolvedValue(mockReads);
-
-      const result =
-        await service.getDeviceFullReadsWithTimestampAndValueAsArray(
-          meterId,
-          filter,
-        );
-
-      expect(result).toEqual(mockReads);
-    });
-
-    it('should handle errors thrown by baseReadsService.find', async () => {
-      const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
-
-      jest
-        .spyOn(baseReadsService, 'find')
-        .mockRejectedValue(new Error('Test error'));
-
-      const result =
-        await service.getDeviceFullReadsWithTimestampAndValueAsArray(
-          meterId,
-          filter,
-        );
-
-      expect(result).toBeUndefined(); // Expectation depends on how you handle errors in your service
-    });
-
-    it('should log errors when baseReadsService.find throws an exception', async () => {
-      const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
-      const error = new Error('Test error');
-
-      jest.spyOn(baseReadsService, 'find').mockRejectedValue(error);
-      const loggerErrorSpy = jest
-        .spyOn(service['logger'], 'error')
-        .mockImplementation();
-
-      await service.getDeviceFullReadsWithTimestampAndValueAsArray(
-        meterId,
-        filter,
-      );
-
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'exception caught in in between device onboarding checking for createdAt',
-      );
-      expect(loggerErrorSpy).toHaveBeenCalledWith(error);
-    });
-  });
+ 
 
   describe('issueCertificateFromAPI', () => {
     it('should convert fromTime and toTime to Date and call issueCertificate', () => {

@@ -1,15 +1,15 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 
-import { ReadsService as BaseReadsService } from '@energyweb/energy-api-influxdb';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 
+import { delay } from '../../lib/helpers/delay';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
-import { Queues } from '../../utils/enums/queues.enum';
 import { ReadType } from '../../utils/enums';
+import { Queues } from '../../utils/enums/queues.enum';
 import { CertificateLogService } from '../certificate-log/certificate-log.service';
 import { Device } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -18,10 +18,8 @@ import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_is
 import { DeviceService } from '../device/device.service';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { OrganizationService } from '../organization/organization.service';
-import { BASE_READ_SERVICE } from '../reads/constants';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { delay } from '../../lib/helpers/delay';
 
 type DeviceReading = {
   timestamp: Date;
@@ -39,9 +37,7 @@ export class LateOngoingIssuanceService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private certificateLogService: CertificateLogService,
-    private readService: ReadsService,
-    @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadsService,
+    private readsService: ReadsService,
     private certificateService: CertificateService,
   ) {}
 
@@ -149,7 +145,7 @@ export class LateOngoingIssuanceService {
 
       // Fetch last read and next issuance data in parallel
       const [lastRead, nextIssuance] = await Promise.all([
-        this.readService.latestRead(device.externalId, device.createdAt),
+        this.readsService.latestRead(device.externalId, device.createdAt),
         this.groupService.getGroupCertificateIssueDate({ groupId: group.id }),
       ]);
 
@@ -373,7 +369,7 @@ export class LateOngoingIssuanceService {
   ): Promise<void> {
     this.logger.verbose('dLast read greater then from late_end_date');
 
-    const allReadsForDeviceBetweenTimeRange = await this.baseReadsService.find(
+    const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
       {
         offset: 0,
@@ -435,7 +431,7 @@ export class LateOngoingIssuanceService {
 
     // Retrieve device readings for the time period
     const deviceId = group.devices[0].externalId;
-    const allReadsForDeviceBetweenTimeRange = await this.baseReadsService.find(
+    const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       deviceId,
       {
         offset: 0,
@@ -579,7 +575,7 @@ export class LateOngoingIssuanceService {
 
     if (group?.devices[0].meterReadtype === 'Delta') {
       const firstDeltaRead =
-        await this.readService.getDeltaMeterReadsFirstEntryOfDevice(
+        await this.readsService.getDeltaMeterReadsFirstEntryOfDevice(
           group?.devices[0].externalId,
         );
 
@@ -652,7 +648,7 @@ export class LateOngoingIssuanceService {
     try {
       // Find the last reading within the specified range
       const previousReadings =
-        await this.readService.findLastReadForMeterWithinRange(
+        await this.readsService.findLastReadForMeterWithinRange(
           externalId,
           new Date(createdAt),
           endTimestampToCheck,
@@ -673,7 +669,7 @@ export class LateOngoingIssuanceService {
           // For ReadMeter type, try to get first entry from aggregate readings
           try {
             const aggregateReadings =
-              await this.readService.getAggregateMeterReadsFirstEntryOfDevice(
+              await this.readsService.getAggregateMeterReadsFirstEntryOfDevice(
                 externalId,
               );
 

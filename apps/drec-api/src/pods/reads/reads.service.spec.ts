@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  ReadsService as BaseReadsService,
+  FilterDTO,
+} from '@energyweb/energy-api-influxdb';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
@@ -32,6 +36,7 @@ jest.mock('@influxdata/influxdb-client', () => {
 
 describe('ReadsService', () => {
   let service: ReadsService;
+  let baseReadsService: BaseReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;
   let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let deltaRepository: Repository<DeltaFirstRead>;
@@ -66,7 +71,9 @@ describe('ReadsService', () => {
         },
         {
           provide: BASE_READ_SERVICE,
-          useValue: {} as any,
+          useValue: {
+            find: jest.fn(),
+          } as any,
         },
         {
           provide: getQueueToken(Queues.ReadsBulkUpload),
@@ -103,9 +110,69 @@ describe('ReadsService', () => {
     }).compile();
 
     service = module.get<ReadsService>(ReadsService);
+    baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('find', () => {
+    it('should return device reads when find is successful', async () => {
+      const meterId = 'test-meter-id';
+      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
+      const mockReads = [
+        { timestamp: new Date('2024-01-01T00:00:00Z'), value: 123.45 },
+        { timestamp: new Date('2024-01-02T00:00:00Z'), value: 678.9 },
+      ];
+
+      jest.spyOn(baseReadsService, 'find').mockResolvedValue(mockReads);
+
+      const result =
+        await service.find(
+          meterId,
+          filter,
+        );
+
+      expect(result).toEqual(mockReads);
+    });
+
+    it('should handle errors thrown by baseReadsService.find', async () => {
+      const meterId = 'test-meter-id';
+      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
+
+      jest
+        .spyOn(baseReadsService, 'find')
+        .mockRejectedValue(new Error('Test error'));
+
+      const result =
+        await service.find(
+          meterId,
+          filter,
+        );
+
+      expect(result).toBeUndefined(); // Expectation depends on how you handle errors in your service
+    });
+
+    it('should log errors when baseReadsService.find throws an exception', async () => {
+      const meterId = 'test-meter-id';
+      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
+      const error = new Error('Test error');
+
+      jest.spyOn(baseReadsService, 'find').mockRejectedValue(error);
+      const loggerErrorSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
+
+      await service.find(
+        meterId,
+        filter,
+      );
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'exception caught in in between device onboarding checking for createdAt',
+      );
+      expect(loggerErrorSpy).toHaveBeenCalledWith(error);
+    });
   });
 });

@@ -47,9 +47,7 @@ export class IssuerService {
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
-    private readService: ReadsService,
-    @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadsService,
+    private readService: ReadsService,     
     private httpService: HttpService,
     private readonly certificateService: CertificateService,
     private lateOngoingIssuanceService: LateOngoingIssuanceService,
@@ -486,7 +484,7 @@ export class IssuerService {
         let allReadsForDeviceBetweenTimeRange: Array<{
           timestamp: Date;
           value: number;
-        }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(
+        }> = await this.readService.find(
           device.externalId,
           readsFilter,
         );
@@ -885,23 +883,5 @@ export class IssuerService {
       deviceHistoryRequest.readsEndDate,
     );
     return;
-  }
-
-  public async getDeviceFullReadsWithTimestampAndValueAsArray(
-    meterId: string,
-    filter: FilterDTO,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
-    this.logger.verbose(
-      `With in getDeviceFullReadsWithTimestampAndValueAsArray`,
-    );
-
-    try {
-      return await this.baseReadsService.find(meterId, filter);
-    } catch (e) {
-      this.logger.error(
-        'exception caught in in between device onboarding checking for createdAt',
-      );
-      this.logger.error(e);
-    }
   }
 }
