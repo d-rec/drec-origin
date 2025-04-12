@@ -1,34 +1,20 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
-import { FilterDTO } from '@energyweb/energy-api-influxdb';
-import { IIssueCommandParams } from '@energyweb/origin-247-certificate';
-import { HttpService } from '@nestjs/axios';
-import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
-import { ICertificateMetadata } from '../../utils/types';
 
 import { IDevice } from '../../models';
-import {
-  CertificateType,
-  ReadType,
-  SingleDeviceIssuanceStatus,
-  StandardCompliance,
-} from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { CertificateLogService } from '../certificate-log/certificate-log.service';
+import { Device } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
-import { Device } from '../device';
 
 @Injectable()
 export class HistoricalIssuanceService {
@@ -39,9 +25,8 @@ export class HistoricalIssuanceService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private readService: ReadsService,
-    private httpService: HttpService,
     private readonly certificateService: CertificateService,
-    private lateOngoingIssuanceService: LateOngoingIssuanceService,
+    private certificateLogService: CertificateLogService,
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -141,7 +126,7 @@ export class HistoricalIssuanceService {
     // Issue certificates for each read
     await Promise.all(
       historyReads.map((historyRead) =>
-        this.newHistoryIssueCertificateForDevice(group, historyRead, device),
+        this.issueCertificate(group, historyRead, device),
       ),
     );
 
@@ -225,5 +210,82 @@ export class HistoricalIssuanceService {
     if (expiryTime <= reservationEndTime || expiryTime <= now) {
       await this.groupService.deactivateReservation(group);
     }
+  }
+
+  /**
+   * Issues a new certificate for historical device reads
+   *
+   * @param group - The device group
+   * @param deviceHistoryRequest - Historical meter read data
+   * @param device - Device information
+   * @returns Promise that resolves when the certificate is issued
+   */
+  private async issueCertificate(
+    group: DeviceGroup,
+    deviceHistoryRequest: HistoryIntermediateMeterRead,
+    device: IDevice,
+  ): Promise<void> {
+    // Early validation checks
+    if (
+      !group.buyerAddress ||
+      !group.buyerId ||
+      deviceHistoryRequest.readsvalue < 1000
+    ) {
+      return;
+    }
+
+    // Generate certificate transaction ID
+    const certificateTransactionUID = uuid().toString();
+
+    // Convert dates once to avoid repeated conversions
+    const startDate = new Date(deviceHistoryRequest.readsStartDate.toString());
+    const endDate = new Date(deviceHistoryRequest.readsEndDate.toString());
+    const readValue = deviceHistoryRequest.readsvalue;
+
+    // Get issuance parameters
+    const issuance = this.certificateService.getIssuanceParams(
+      group,
+      [device],
+      readValue,
+      startDate,
+      endDate,
+      certificateTransactionUID,
+    );
+
+    // Log the issuance for debugging (consider using debug level instead)
+    this.logger.debug(
+      `Issuance for group ${group.name}: ${JSON.stringify(issuance)}`,
+    );
+
+    await Promise.all([
+      // Create certificate log for device
+      await this.certificateLogService.createForDevice(
+        group,
+        device,
+        deviceHistoryRequest.readsStartDate,
+        deviceHistoryRequest.readsEndDate,
+        readValue,
+        certificateTransactionUID,
+      ),
+      // Create certificate log for group
+      this.certificateLogService.createForGroup(
+        group,
+        deviceHistoryRequest.readsStartDate,
+        deviceHistoryRequest.readsEndDate,
+        readValue,
+        issuance,
+        device.countryCode,
+        certificateTransactionUID,
+      ),
+    ]);
+
+    // Issue certificate
+    await this.certificateService.issue(issuance);
+
+    await this.readService.updateHistoryCertificateIssueDate(
+      deviceHistoryRequest.id,
+      deviceHistoryRequest.readsStartDate,
+      deviceHistoryRequest.readsEndDate,
+    );
   }
 }

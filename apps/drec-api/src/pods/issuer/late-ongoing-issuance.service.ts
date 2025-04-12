@@ -500,12 +500,13 @@ export class LateOngoingIssuanceService {
     // Log the certificate details
     this.certificateLogService.createForDevice(
       group,
+      group.devices[0],
       minimumStartDate,
       maximumEndDate,
-      startDate,
-      endDate,
       issueTotalReadValue,
       certificateTransactionUID,
+      startDate,
+      endDate,
     );
 
     // Prepare certificate issuance parameters
