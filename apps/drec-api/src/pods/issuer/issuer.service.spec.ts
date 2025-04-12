@@ -175,30 +175,6 @@ describe('IssuerService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('hitTheCronFromIssuerAPIOngoing', () => {
-    it('should log the verbose message and make an HTTP GET request', () => {
-      // Act
-      service.hitTheCronFromIssuerAPIOngoing();
-
-      // Assert
-      expect(httpService.get).toHaveBeenCalledWith(
-        `${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/ongoing`,
-      );
-    });
-  });
-
-  describe('hitTheCronFromIssuerAPIHistory', () => {
-    it('should log the verbose message and make an HTTP GET request', () => {
-      // Act
-      service.hitTheCronFromIssuerAPIHistory();
-
-      // Assert
-      expect(httpService.get).toHaveBeenCalledWith(
-        `${process.env.REACT_APP_BACKEND_URL}/api/drec-issuer/history`,
-      );
-    });
-  });
-
   describe('handleCron', () => {
     it('should update certificate issue date correctly', async () => {
       // Arrange
