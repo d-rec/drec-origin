@@ -117,7 +117,7 @@ export class DRECIssuerController {
   })
   @ApiQuery({ name: 'groupId', type: Number, required: false })
   async simpleGetCallForLateOngoing(
-    @Query('groupId', new ParseIntPipe()) groupId?: number,
+    @Query('groupId') groupId?: number,
   ): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForLateOngoing`,

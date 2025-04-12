@@ -2,47 +2,45 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import {
-  IGetAllCertificatesOptions,
-  IIssueCommandParams,
-  OffChainCertificateService,
-} from '@energyweb/origin-247-certificate';
-import { ICertificateMetadata } from '../../utils/types';
-import { DateTime } from 'luxon';
-import {
-  FilterDTO,
   ReadsService as BaseReadsService,
+  FilterDTO,
 } from '@energyweb/energy-api-influxdb';
-import { v4 as uuid } from 'uuid';
+import {
+  IIssueCommandParams
+} from '@energyweb/origin-247-certificate';
+import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { HttpService } from '@nestjs/axios';
+import { DateTime } from 'luxon';
+import { v4 as uuid } from 'uuid';
+import { ICertificateMetadata } from '../../utils/types';
 
-import { DeviceService } from '../device/device.service';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { OrganizationService } from '../organization/organization.service';
-import { DeviceGroupService } from '../device-group/device-group.service';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 import {
   BuyerReservationCertificateGenerationFrequency,
   IDevice,
 } from '../../models';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { EndReservationDateDTO } from '../device-group/dto';
 import {
   CertificateType,
   ReadType,
   SingleDeviceIssuanceStatus,
   StandardCompliance,
 } from '../../utils/enums';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { ReadsService } from '../reads/reads.service';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Device } from '../device';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
-import { Queues } from '../../../src/utils/enums/queues.enum';
+import { Device } from '../device';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
+import { EndReservationDateDTO } from '../device-group/dto';
+import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { DeviceService } from '../device/device.service';
+import { OrganizationService } from '../organization/organization.service';
+import { BASE_READ_SERVICE } from '../reads/constants';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
+import { ReadsService } from '../reads/reads.service';
+import { CertificateService } from './certificate.service';
 
 @Injectable()
 export class IssuerService {
@@ -58,7 +56,7 @@ export class IssuerService {
     @Inject(BASE_READ_SERVICE)
     private baseReadsService: BaseReadsService,
     private httpService: HttpService,
-    private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
+    private readonly certificateService: CertificateService,
   ) {}
 
   hitTheCronFromIssuerAPIOngoing(): void {
@@ -440,24 +438,6 @@ export class IssuerService {
           }
         },
       ),
-    );
-  }
-
-  public async addLateOngoingDeviceCertificateCycle(
-    groupId: number,
-    deviceExternalId: string,
-    late_start_date: Date | string | DateTime,
-    late_end_date: Date | string | DateTime,
-  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
-    const lateDeviceCertificateLogDTO =
-      new DeviceLateOngoingIssueCertificateEntity();
-    (lateDeviceCertificateLogDTO.device_externalid = deviceExternalId),
-      (lateDeviceCertificateLogDTO.groupId = groupId),
-      (lateDeviceCertificateLogDTO.late_start_date =
-        late_start_date.toString()),
-      (lateDeviceCertificateLogDTO.late_end_date = late_end_date.toString());
-    return await this.deviceService.addLateCertificateIssueDateLogForDevice(
-      lateDeviceCertificateLogDTO,
     );
   }
 
@@ -913,106 +893,13 @@ export class IssuerService {
       deviceGroupCertificateLogDTO,
     );
     //const issuedCertificate = await
-    this.issueCertificate(issuance);
+    this.certificateService.issue(issuance);
     await this.readService.updateHistoryCertificateIssueDate(
       deviceHistoryRequest.id,
       deviceHistoryRequest.readsStartDate,
       deviceHistoryRequest.readsEndDate,
     );
     return;
-  }
-
-  public async handleLeftoverReadsByCountryCode(
-    group: DeviceGroup,
-    totalReadValueW: number,
-    countryCodeKey: string,
-  ): Promise<number> {
-    // Logic
-    // 1. Get the accumulated read values from devices
-    // 2. Transform current value from watts to kw
-    // 3. Add any leftover value from group to the current total value
-    // 4. Separate all decimal values from the current kw value and store it as leftover value to the device group
-    // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
-    this.logger.verbose(`With in handleLeftoverReadsByCountryCode`);
-    const totalReadValueKw = group.leftoverReadsByCountryCode[countryCodeKey]
-      ? totalReadValueW / 10 ** 3 +
-        group.leftoverReadsByCountryCode[countryCodeKey]
-      : totalReadValueW / 10 ** 3;
-    const { integralVal, decimalVal } =
-      this.separateIntegerAndDecimalByCountryCode(totalReadValueKw);
-    await this.groupService.updateLeftOverReadByCountryCode(
-      group.id,
-      decimalVal,
-      countryCodeKey,
-    );
-
-    return integralVal;
-  }
-
-  public separateIntegerAndDecimalByCountryCode(num: number): {
-    integralVal: number;
-    decimalVal: number;
-  } {
-    this.logger.verbose(`With in separateIntegerAndDecimalByCountryCode`);
-    if (!num) {
-      return { integralVal: 0, decimalVal: 0 };
-    }
-    const integralVal = Math.floor(num);
-    const decimalVal = this.roundDecimalNumberByCountryCode(num - integralVal);
-    return { integralVal, decimalVal };
-  }
-
-  public roundDecimalNumberByCountryCode(num: number): number {
-    this.logger.verbose(`With in roundDecimalNumberByCountryCode`);
-    if (num === 0) {
-      return num;
-    }
-    const precision = 2;
-    return Math.round(num * 10 ** precision) / 10 ** precision;
-  }
-
-  public async handleLeftoverReads(
-    group: DeviceGroup,
-    totalReadValueW: number,
-  ): Promise<number> {
-    this.logger.verbose(`With in handleLeftoverReads`);
-    // Logic
-    // 1. Get the accumulated read values from devices
-    // 2. Transform current value from watts to kw
-    // 3. Add any leftover value from group to the current total value
-    // 4. Separate all decimal values from the current kw value and store it as leftover value to the device group
-    // 5. Return all the integer value from the current kw value (if any) and continue issuing the certificate
-
-    const totalReadValueKW = group.leftoverReads
-      ? totalReadValueW / 10 ** 3 + group.leftoverReads
-      : totalReadValueW / 10 ** 3;
-    const { integralVal, decimalVal } =
-      this.separateIntegerAndDecimal(totalReadValueKW);
-    await this.groupService.updateLeftOverRead(group.id, decimalVal);
-
-    return integralVal;
-  }
-
-  public separateIntegerAndDecimal(num: number): {
-    integralVal: number;
-    decimalVal: number;
-  } {
-    this.logger.verbose(`With in separateIntegerAndDecimal`);
-    if (!num) {
-      return { integralVal: 0, decimalVal: 0 };
-    }
-    const integralVal = Math.floor(num);
-    const decimalVal = this.roundDecimalNumber(num - integralVal);
-    return { integralVal, decimalVal };
-  }
-
-  public roundDecimalNumber(num: number): number {
-    this.logger.verbose(`With in roundDecimalNumber`);
-    if (num === 0) {
-      return num;
-    }
-    const precision = 2;
-    return Math.round(num * 10 ** precision) / 10 ** precision;
   }
 
   public async getDeviceFullReadsWithTimestampAndValueAsArray(
@@ -1031,501 +918,6 @@ export class IssuerService {
       );
       this.logger.error(e);
     }
-  }
-
-  private async getDeviceFullReads(
-    meterId: string,
-    filter: FilterDTO,
-  ): Promise<number> {
-    this.logger.verbose(`With in getDeviceFullReads`);
-    const allReads = await this.baseReadsService.find(meterId, filter);
-    return allReads.reduce(
-      (accumulator, currentValue) => accumulator + currentValue.value,
-      0,
-    );
-  }
-
-  //actual definition is up removing async
-
-  issueCertificateFromAPI(
-    reading: IIssueCommandParams<ICertificateMetadata>,
-  ): void {
-    this.logger.verbose(`With in issueCertificateFromAPI`);
-    reading.fromTime = new Date(reading.fromTime);
-    reading.toTime = new Date(reading.toTime);
-    this.issueCertificate(reading);
-  }
-
-  public issueCertificate(
-    reading: IIssueCommandParams<ICertificateMetadata>,
-  ): void {
-    this.logger.log(`Issuing a certificate for reading`);
-    this.offChainCertificateService.issue(reading);
-  }
-
-  getCertificateData(): void {
-    const request: IGetAllCertificatesOptions = {
-      // generationEndFrom: new Date(1677671426*1000),
-      // generationEndTo: new Date(1677671426*1000),
-      //  generationStartFrom :new Date(1646622684*1000),
-      // generationStartTo: new Date(1648159894*1000),
-      // creationTimeFrom: Date;
-      //  creationTimeTo: Date;
-      deviceId: '51',
-    };
-
-    this.offChainCertificateService.getAll(request).then(() => {
-      this.logger.debug('certificates');
-    });
-  }
-
-  async handleCronForOngoingLateIssuance(groupId?: number): Promise<void> {
-    if (!groupId) return this.scheduleLateOngoingIssuance();
-    await this.lateOngoingQueue.add(
-      { groupId: groupId },
-      {
-        lifo: true,
-      },
-    );
-  }
-
-  @Cron('0 0 */8 * * *')
-  async scheduleLateOngoingIssuance(): Promise<void> {
-    try {
-      const activeDeviceGroups =
-        await this.groupService.getAllReservationActive();
-      if (!activeDeviceGroups.length) {
-        this.logger.debug('No active device groups found.');
-        return;
-      }
-
-      for (const group of activeDeviceGroups) {
-        await this.lateOngoingQueue.add({ groupId: group.id });
-      }
-
-      this.logger.debug(
-        `Queued ${activeDeviceGroups} jobs for late ongoing issuance.`,
-      );
-    } catch (error) {
-      this.logger.error('Error scheduling late ongoing issuance', error.stack);
-    }
-  }
-
-  async triggerOngoingLateIssuance(groupId?: number): Promise<void> {
-    this.logger.debug('late ongoing issuance');
-    this.logger.debug('Called every 8hr to check for issuance of certificates');
-    const lateOngoing = await this.deviceService.findAllLateCycle(groupId);
-    if (lateOngoing) {
-      let index = 0;
-      for (const element of lateOngoing) {
-        index = index + 1;
-        this.logger.debug(`Processing ${index} of ${lateOngoing.length}`);
-        this.logger.debug(
-          'Processing late ongoing issuance for::',
-          element.device_externalid,
-        );
-
-        const [group, device] = await Promise.all([
-          this.groupService.findOne({ id: element.groupId }),
-          this.deviceService.findReads(element.device_externalid),
-        ]);
-
-        if (!group) {
-          this.logger.error('LateOngoing group is missing');
-          continue; // Skip to the next element if the group is missing
-        }
-
-        if (
-          group.leftoverReadsByCountryCode === null ||
-          group.leftoverReadsByCountryCode === undefined ||
-          group.leftoverReadsByCountryCode === ''
-        ) {
-          group.leftoverReadsByCountryCode = {};
-        }
-
-        if (typeof group.leftoverReadsByCountryCode === 'string') {
-          group.leftoverReadsByCountryCode = JSON.parse(
-            group.leftoverReadsByCountryCode,
-          );
-        }
-
-        if (
-          group.reservationExpiryDate != null &&
-          group.reservationExpiryDate.getTime() <= new Date().getTime()
-        ) {
-          this.logger.error('ReservationExpiryDate has passed');
-          continue; // Skip to the next element if the reservation expiry date has passed
-        }
-
-        const [lastRead, nextIssuance] = await Promise.all([
-          this.readService.latestRead(device.externalId, device.createdAt),
-          this.groupService.getGroupCertificateIssueDate({
-            groupId: group.id,
-          }),
-        ]);
-
-        if (lastRead.length === 0) {
-          this.logger.error('No last read found');
-          continue; // Skip to the next element if no last read is found
-        }
-
-        const newGroupWithSingleDevice: DeviceGroup = group;
-        newGroupWithSingleDevice.devices = [device];
-        const startDate = DateTime.fromISO(element.late_start_date).toUTC();
-        const endDate = DateTime.fromISO(element.late_end_date).toUTC();
-
-        if (nextIssuance) {
-          nextIssuance.start_date = element.late_start_date;
-          nextIssuance.end_date = element.late_end_date;
-        }
-
-        if (
-          new Date(lastRead[0].timestamp).getTime() <=
-            new Date(element.late_end_date).getTime() &&
-          new Date(lastRead[0].timestamp).getTime() >=
-            new Date(element.late_start_date).getTime()
-        ) {
-          this.logger.verbose(
-            'If Last read less from late end_date and greater then from latest_date',
-          );
-          const endDate1 = new Date(lastRead[0].timestamp).toISOString();
-          const certifiedDevices =
-            await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-              element.device_externalid,
-              new Date(startDate.toString()),
-              new Date(lastRead[0].timestamp.toString()),
-            );
-          const newStartDate = new Date(lastRead[0].timestamp);
-          newStartDate.setTime(newStartDate.getTime() + 1); // Add one millisecond
-          if (
-            certifiedDevices.length === 0 &&
-            new Date(newStartDate).getTime() !==
-              new Date(element.late_start_date).getTime()
-          ) {
-            await this.deviceService.updateLateOngoing(
-              device.externalId,
-              element.id,
-              new Date(lastRead[0].timestamp).toISOString(),
-            );
-
-            const isLateOngoingCycle =
-              await this.deviceService.findDeviceLateCycleOfDateRange(
-                group.id,
-                device.externalId,
-                DateTime.fromISO(
-                  new Date(lastRead[0].timestamp).toISOString(),
-                ).toUTC(),
-                DateTime.fromISO(element.late_end_date).toUTC(),
-              );
-
-            if (!isLateOngoingCycle) {
-              await this.addLateOngoingDeviceCertificateCycle(
-                group.id,
-                device.externalId,
-                new Date(newStartDate).toISOString(),
-                new Date(element.late_end_date).toISOString(),
-              );
-            }
-            this.logger.debug(
-              'Late ongoing Issue Certificate For::',
-              element.device_externalid,
-            );
-            await this.lateOngoingIssueCertificateForGroup(
-              newGroupWithSingleDevice,
-              startDate,
-              DateTime.fromISO(endDate1).toUTC(),
-              device.countryCode,
-              nextIssuance,
-            );
-          }
-        } else {
-          this.logger.verbose(
-            'certified devices_else',
-            new Date(startDate.toString()),
-            new Date(endDate.toString()),
-          );
-          this.logger.verbose('else Last read greater then from late_end_date');
-          const readsFilter: FilterDTO = {
-            offset: 0,
-            limit: 5000,
-            start: startDate.toString(),
-            end: endDate.toString(),
-          };
-          const allReadsForDeviceBetweenTimeRange =
-            await this.getDeviceFullReadsWithTimestampAndValueAsArray(
-              newGroupWithSingleDevice.devices[0].externalId,
-              readsFilter,
-            );
-          this.logger.debug(
-            'Device Reads For:: ' + element.device_externalid,
-            'From: ' + startDate.toString(),
-            'To: ' + endDate.toString(),
-            'Equal to ' + allReadsForDeviceBetweenTimeRange?.length,
-          );
-          if (allReadsForDeviceBetweenTimeRange.length > 0) {
-            this.logger.verbose('if read are available in date range');
-            await this.deviceService.updateLateOngoing(
-              device.externalId,
-              element.id,
-              element.late_end_date,
-            );
-
-            await this.lateOngoingIssueCertificateForGroup(
-              newGroupWithSingleDevice,
-              startDate,
-              endDate,
-              device.countryCode,
-              nextIssuance,
-            );
-          } else {
-            continue;
-          }
-        }
-
-        // Add delay before moving to the next element
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    } else {
-      this.logger.error('No late ongoing read found');
-    }
-  }
-
-  public async lateOngoingIssueCertificateForGroup(
-    group: DeviceGroup,
-    startDate: DateTime,
-    endDate: DateTime,
-    countryCodeKey: string,
-    groupRequest?: DeviceGroupNextIssueCertificate,
-  ): Promise<void> {
-    this.logger.verbose(`With in newIssueCertificateForGroup late`);
-    if (!group?.devices?.length) {
-      this.logger.debug('Line No: 463');
-      return;
-    }
-    const org = await this.organizationService.findOne(group.organizationId);
-    if (!org) {
-      this.logger.error(
-        `No organization found with code ${group.organizationId}`,
-      );
-      throw new NotFoundException(
-        `No organization found with code ${group.organizationId}`,
-      );
-    }
-    const readsFilter: FilterDTO = {
-      offset: 0,
-      limit: 5000,
-      start: startDate.toString(),
-      end: endDate.toString(),
-    };
-    let allReadsForDeviceBetweenTimeRange: Array<{
-      timestamp: Date;
-      value: number;
-    }> = await this.getDeviceFullReadsWithTimestampAndValueAsArray(
-      group.devices[0].externalId,
-      readsFilter,
-    );
-    let deviceReadValue: number;
-    if (allReadsForDeviceBetweenTimeRange != undefined) {
-      if (
-        group?.devices[0].meterReadtype === 'Delta' ||
-        allReadsForDeviceBetweenTimeRange.length > 0
-      ) {
-        const firstDeltaRead =
-          await this.readService.getDeltaMeterReadsFirstEntryOfDevice(
-            group?.devices[0].externalId,
-          );
-        allReadsForDeviceBetweenTimeRange =
-          allReadsForDeviceBetweenTimeRange.filter(
-            (v) =>
-              !firstDeltaRead.some(
-                (e) => e.readsEndDate.getTime() === v.timestamp.getTime(),
-              ),
-          );
-      }
-      const certifiedDevices =
-        await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-          group.devices[0].externalId,
-          new Date(startDate.toString()),
-          new Date(endDate.toString()),
-        );
-
-      if (
-        certifiedDevices.length > 0 &&
-        allReadsForDeviceBetweenTimeRange.length > 0
-      ) {
-        allReadsForDeviceBetweenTimeRange =
-          allReadsForDeviceBetweenTimeRange.filter((ele) => {
-            let readingInBetween = false;
-            certifiedDevices.forEach((certifiedDevice) => {
-              if (
-                ele.timestamp.getTime() >=
-                  new Date(
-                    certifiedDevice.certificate_issuance_startdate,
-                  ).getTime() &&
-                ele.timestamp.getTime() <=
-                  new Date(
-                    certifiedDevice.certificate_issuance_enddate,
-                  ).getTime()
-              ) {
-                readingInBetween = true;
-              }
-            });
-            if (readingInBetween) {
-              return false;
-            } else {
-              return true;
-            }
-          });
-      }
-      deviceReadValue = allReadsForDeviceBetweenTimeRange.reduce(
-        (accumulator, currentValue) => accumulator + currentValue.value,
-        0,
-      );
-      if (deviceReadValue === 0) {
-        return;
-      }
-    }
-    if (!group.buyerAddress || !group.buyerId) {
-      return;
-    }
-    const certificateTransactionUID = uuid();
-
-    let previousReading: Array<{ timestamp: Date; value: number }> = [];
-    if (allReadsForDeviceBetweenTimeRange.length > 0) {
-      const endTimestampToCheck = new Date(
-        allReadsForDeviceBetweenTimeRange[0].timestamp.getTime() - 1,
-      );
-      const startTimeToCheck = group.devices[0].createdAt;
-
-      try {
-        previousReading =
-          await this.readService.findLastReadForMeterWithinRange(
-            group.devices[0].externalId,
-            new Date(startTimeToCheck),
-            endTimestampToCheck,
-          );
-
-        if (previousReading.length == 0) {
-          if (group.devices[0].meterReadtype === ReadType.Delta) {
-            previousReading = [
-              { timestamp: new Date(group.devices[0].createdAt), value: 0 },
-            ];
-          } else if (group.devices[0].meterReadtype === ReadType.ReadMeter) {
-            try {
-              const aggregateReadings =
-                await this.readService.getAggregateMeterReadsFirstEntryOfDevice(
-                  group.devices[0].externalId,
-                );
-              if (aggregateReadings.length > 0) {
-                previousReading = [
-                  {
-                    timestamp: new Date(aggregateReadings[0].datetime),
-                    value: 0,
-                  },
-                ];
-              }
-            } catch (e) {
-              this.logger.error(`error in getting aggregate read ${e}`);
-            }
-          }
-        }
-      } catch (e) {
-        this.logger.error(`error in getting aggregate read ${e}`);
-      }
-    }
-    const totalReadValueKw = await this.handleLeftoverReadsByCountryCode(
-      group,
-      deviceReadValue,
-      countryCodeKey,
-    );
-    if (!totalReadValueKw) {
-      return;
-    }
-    const issueTotalReadValue = totalReadValueKw * 10 ** 3; // Issue certificate in watts
-    const deviceCertificateLogDTO =
-      new CheckCertificateIssueDateLogForDeviceEntity();
-    (deviceCertificateLogDTO.externalId = group.devices[0].externalId),
-      (deviceCertificateLogDTO.certificate_issuance_startdate =
-        previousReading.length > 0
-          ? new Date(new Date(previousReading[0].timestamp).getTime() + 1000)
-          : new Date(startDate.toString())),
-      (deviceCertificateLogDTO.certificate_issuance_enddate =
-        allReadsForDeviceBetweenTimeRange[
-          allReadsForDeviceBetweenTimeRange.length - 1
-        ].timestamp), // new Date(endDate.toString()),
-      (deviceCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested),
-      (deviceCertificateLogDTO.readvalue_watthour = deviceReadValue);
-    (deviceCertificateLogDTO.groupId = group.id),
-      (deviceCertificateLogDTO.certificateTransactionUID =
-        certificateTransactionUID.toString());
-    (deviceCertificateLogDTO.ongoing_start_date = startDate.toString()),
-      (deviceCertificateLogDTO.ongoing_end_date = endDate.toString());
-    await this.deviceService.addCertificateIssueDateLogForDevice(
-      deviceCertificateLogDTO,
-    );
-    let minimumStartDate: Date = new Date('1970-04-01T12:51:51.112Z');
-    minimumStartDate =
-      previousReading.length > 0
-        ? new Date(previousReading[0].timestamp.getTime() + 1000)
-        : new Date(startDate.toString());
-    let maximumEndDate: Date = new Date('1990-04-01T12:51:51.112Z');
-    maximumEndDate =
-      allReadsForDeviceBetweenTimeRange[
-        allReadsForDeviceBetweenTimeRange.length - 1
-      ].timestamp;
-
-    const issuance: IIssueCommandParams<ICertificateMetadata> = {
-      deviceId: group.id?.toString(), // This is the device group id not a device id
-      energyValue: issueTotalReadValue.toString(),
-      fromTime: minimumStartDate, //new Date(startDate.toString()),
-      toTime: maximumEndDate, //new Date(endDate.toString()),
-      toAddress: group.buyerAddress,
-      userId: group.buyerAddress,
-      metadata: {
-        version: 'v1.0',
-        buyerReservationId: group.devicegroup_uid,
-        isStandardIssuanceRequested: StandardCompliance.IREC,
-        type: CertificateType.REC,
-        deviceIds: group.devices.map((device: IDevice) => device.externalId),
-        //deviceGroup,
-        groupId: group.id?.toString() || null,
-        certificateTransactionUID: certificateTransactionUID.toString(),
-      },
-    };
-    const totalReadValueMegaWattHour = totalReadValueKw / 10 ** 3;
-    this.groupService.updateTotalReadingRequestedForCertificateIssuance(
-      group.id,
-      group.organizationId,
-      totalReadValueMegaWattHour,
-    );
-    if (
-      group.reservationActive &&
-      group.authorityToExceed === false &&
-      group.targetVolumeCertificateGenerationRequestedInMegaWattHour +
-        totalReadValueMegaWattHour >=
-        group.targetVolumeInMegaWattHour
-    ) {
-      this.groupService.endReservation(group.id, group, groupRequest);
-    }
-    const deviceGroupCertificateLogDTO =
-      new CheckCertificateIssueDateLogForDeviceGroupEntity();
-    (deviceGroupCertificateLogDTO.groupid = group.id?.toString()),
-      (deviceGroupCertificateLogDTO.certificate_issuance_startdate =
-        minimumStartDate), //new Date(startDate.toString()),
-      (deviceGroupCertificateLogDTO.certificate_issuance_enddate =
-        maximumEndDate), //new Date(endDate.toString()),
-      (deviceGroupCertificateLogDTO.status =
-        SingleDeviceIssuanceStatus.Requested),
-      (deviceGroupCertificateLogDTO.readvalue_watthour = issueTotalReadValue),
-      (deviceGroupCertificateLogDTO.certificate_payload = issuance),
-      (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
-      (deviceGroupCertificateLogDTO.certificateTransactionUID =
-        certificateTransactionUID.toString());
-    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
-      deviceGroupCertificateLogDTO,
-    );
-    this.issueCertificate(issuance);
-    return;
   }
 
   // @Cron('*/2 * * * * ')

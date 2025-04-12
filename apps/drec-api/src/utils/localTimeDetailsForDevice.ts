@@ -32,35 +32,31 @@ export const getLocalTimeZoneFromDevice = (
     logger.log('timezone is there');
     logger.log(`DEVICE TIMEZONE BEING RETURNED: ${device.timezone}`);
     return device.timezone;
-  } else if (device.longitude && device.latitude && localTime) {
+  }
+  if (device.longitude && device.latitude && localTime) {
     try {
       logger.log('lat and long are there');
       const timestamp = new Date(localTime);
       const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
       const time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
       logger.log(`TIME::::::::::::::::: + ${time}`);
-      const actualTimeZone = momentTimeZone.tz.names().find((timezone) => {
+      return momentTimeZone.tz.names().find((timezone) => {
         if (momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr()) {
           logger.log(`TIMEZONE THAT's BEING RETURNED::: + ${timezone}`);
           return timezone;
         }
       });
-      return actualTimeZone;
-    } catch {
-      const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(
-        (entry) => entry.countryCode === device.countryCode,
-      );
-
-      return countryCodeFound.timezones[0].name;
+    } catch(e) {
+      logger.error(e);
     }
-  } else {
-    logger.log('only country code');
-    const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(
-      (entry) => entry.countryCode === device.countryCode,
-    );
-
-    return countryCodeFound.timezones[0].name;
   }
+
+  logger.log('only country code');
+  const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(
+    (entry) => entry.countryCode === device.countryCode,
+  );
+
+  return countryCodeFound.timezones[0].name;
 };
 
 export const getOffsetFromTimeZoneName = (givenTimeZone: string | any): any => {

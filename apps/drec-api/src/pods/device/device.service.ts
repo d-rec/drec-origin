@@ -1055,6 +1055,7 @@ export class DeviceService {
     this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
     const whereClause: any = {
       certificate_issued: false,
+      archived_at: null,
     };
     if (groupId) {
       whereClause.groupId = groupId; // Add groupId condition if provided
@@ -1474,6 +1475,30 @@ export class DeviceService {
     return await this.lateDeviceCertificateRepository.update(
       { device_externalid: externalId },
       { certificate_issued: true },
+    );
+  }
+
+  async archiveLateOngoing(id: number): Promise<any> {
+    this.logger.verbose(`With in archiveLateOngoing`);
+    this.logger.verbose(
+      `With in archiveLateOngoing`,
+      id,
+    );
+    return await this.lateDeviceCertificateRepository.update(
+      { id: id },
+      { archived_at: new Date() },
+    );
+  }
+
+  async archiveLateOngoingIfReservationInactive(groupId: number): Promise<any> {
+    this.logger.verbose(`With in archiveLateOngoingIfReservationInactive`);
+    this.logger.verbose(
+      `With in archiveLateOngoingIfReservationInactive`,
+      groupId,
+    );
+    return await this.lateDeviceCertificateRepository.update(
+      { groupId: groupId },
+      { archived_at: new Date() },
     );
   }
 }

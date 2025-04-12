@@ -27,9 +27,11 @@ import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/di
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { ILoggedInUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { Role, SingleDeviceIssuanceStatus } from '../../utils/enums';
 import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { DateTime } from 'luxon';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
@@ -1039,5 +1041,69 @@ export class CertificateLogService {
 
       throw new HttpException('Devices log Not found', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async createDeviceCertificateLog(
+    group: DeviceGroup,
+    minimumStartDate: Date,
+    maximumEndDate: Date,
+    startDate: DateTime,
+    endDate: DateTime,
+    deviceReadValue: number,
+    certificateTransactionUID: string,
+  ): Promise<void> {
+    const deviceCertificateLogDTO =
+      new CheckCertificateIssueDateLogForDeviceEntity();
+
+    // Set basic properties
+    deviceCertificateLogDTO.externalId = group.devices[0].externalId;
+    deviceCertificateLogDTO.groupId = group.id;
+    deviceCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested;
+    deviceCertificateLogDTO.readvalue_watthour = deviceReadValue;
+    deviceCertificateLogDTO.certificateTransactionUID =
+      certificateTransactionUID.toString();
+
+    // Set date properties with appropriate formatting
+    deviceCertificateLogDTO.certificate_issuance_startdate = minimumStartDate;
+
+    deviceCertificateLogDTO.certificate_issuance_enddate = maximumEndDate;
+
+    deviceCertificateLogDTO.ongoing_start_date = startDate.toString();
+    deviceCertificateLogDTO.ongoing_end_date = endDate.toString();
+
+    // Save to database
+    await this.deviceService.addCertificateIssueDateLogForDevice(
+      deviceCertificateLogDTO,
+    );
+  }
+
+  async createGroupCertificateLog(
+    group: DeviceGroup,
+    minimumStartDate: Date,
+    maximumEndDate: Date,
+    issueTotalReadValue: number,
+    issuance: any, // Consider using a more specific type here
+    countryCodeKey: string,
+    certificateTransactionUID: string,
+  ): Promise<void> {
+    const deviceGroupCertificateLogDTO =
+      new CheckCertificateIssueDateLogForDeviceGroupEntity();
+
+    // Set all properties with proper formatting
+    deviceGroupCertificateLogDTO.groupid = group.id?.toString();
+    deviceGroupCertificateLogDTO.certificate_issuance_startdate =
+      minimumStartDate;
+    deviceGroupCertificateLogDTO.certificate_issuance_enddate = maximumEndDate;
+    deviceGroupCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested;
+    deviceGroupCertificateLogDTO.readvalue_watthour = issueTotalReadValue;
+    deviceGroupCertificateLogDTO.certificate_payload = issuance;
+    deviceGroupCertificateLogDTO.countryCode = countryCodeKey;
+    deviceGroupCertificateLogDTO.certificateTransactionUID =
+      certificateTransactionUID.toString();
+
+    // Save to database
+    await this.deviceGroupService.addCertificateIssueDateLogForDeviceGroup(
+      deviceGroupCertificateLogDTO,
+    );
   }
 }
