@@ -43,7 +43,12 @@ import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
     SynchronizeBlockchainTaskService,
     LateOngoingIssuanceProcessor,
   ],
-  exports: [IssuerService, CertificateService, LateOngoingIssuanceService, BullModule],
+  exports: [
+    IssuerService,
+    CertificateService,
+    LateOngoingIssuanceService,
+    BullModule,
+  ],
   controllers: [DRECIssuerController],
 })
 export class IssuerModule {}

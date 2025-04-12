@@ -11,7 +11,7 @@ import { ICertificateMetadata } from '../../utils/types';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { CertificateType, StandardCompliance } from 'src/utils/enums';
+import { CertificateType, StandardCompliance } from '../../utils/enums';
 import { IDevice } from '../../models';
 
 @Injectable()

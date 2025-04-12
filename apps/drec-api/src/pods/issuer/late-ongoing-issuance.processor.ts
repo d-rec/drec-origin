@@ -7,7 +7,9 @@ import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 @Processor(Queues.LateOngoingIssuance)
 export class LateOngoingIssuanceProcessor {
   private readonly logger = new Logger(LateOngoingIssuanceProcessor.name);
-  constructor(private readonly lateOngoingIssuanceService: LateOngoingIssuanceService) {}
+  constructor(
+    private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
+  ) {}
 
   @Process({ concurrency: 1 })
   async processLateOngoingIssuance(

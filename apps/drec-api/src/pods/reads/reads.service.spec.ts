@@ -128,11 +128,7 @@ describe('ReadsService', () => {
 
       jest.spyOn(baseReadsService, 'find').mockResolvedValue(mockReads);
 
-      const result =
-        await service.find(
-          meterId,
-          filter,
-        );
+      const result = await service.find(meterId, filter);
 
       expect(result).toEqual(mockReads);
     });
@@ -145,11 +141,7 @@ describe('ReadsService', () => {
         .spyOn(baseReadsService, 'find')
         .mockRejectedValue(new Error('Test error'));
 
-      const result =
-        await service.find(
-          meterId,
-          filter,
-        );
+      const result = await service.find(meterId, filter);
 
       expect(result).toBeUndefined(); // Expectation depends on how you handle errors in your service
     });
@@ -164,10 +156,7 @@ describe('ReadsService', () => {
         .spyOn(service['logger'], 'error')
         .mockImplementation();
 
-      await service.find(
-        meterId,
-        filter,
-      );
+      await service.find(meterId, filter);
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         'exception caught in in between device onboarding checking for createdAt',

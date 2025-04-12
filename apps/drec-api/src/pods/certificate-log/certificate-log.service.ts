@@ -20,7 +20,10 @@ import {
 } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
-import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
+import {
+  ICertificateReadModel,
+  IIssueCommandParams,
+} from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
@@ -1043,7 +1046,7 @@ export class CertificateLogService {
     }
   }
 
-  async createDeviceCertificateLog(
+  async createForDevice(
     group: DeviceGroup,
     minimumStartDate: Date,
     maximumEndDate: Date,
@@ -1077,12 +1080,12 @@ export class CertificateLogService {
     );
   }
 
-  async createGroupCertificateLog(
+  async createForGroup(
     group: DeviceGroup,
     minimumStartDate: Date,
     maximumEndDate: Date,
     issueTotalReadValue: number,
-    issuance: any, // Consider using a more specific type here
+    issuance: IIssueCommandParams<ICertificateMetadata>,
     countryCodeKey: string,
     certificateTransactionUID: string,
   ): Promise<void> {

@@ -46,7 +46,7 @@ export const getLocalTimeZoneFromDevice = (
           return timezone;
         }
       });
-    } catch(e) {
+    } catch (e) {
       logger.error(e);
     }
   }

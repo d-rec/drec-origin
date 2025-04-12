@@ -1480,10 +1480,7 @@ export class DeviceService {
 
   async archiveLateOngoing(id: number): Promise<any> {
     this.logger.verbose(`With in archiveLateOngoing`);
-    this.logger.verbose(
-      `With in archiveLateOngoing`,
-      id,
-    );
+    this.logger.verbose(`With in archiveLateOngoing`, id);
     return await this.lateDeviceCertificateRepository.update(
       { id: id },
       { archived_at: new Date() },

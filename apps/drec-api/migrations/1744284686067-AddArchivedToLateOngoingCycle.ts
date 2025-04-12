@@ -15,6 +15,9 @@ export class AddArchivedToLateOngoingCycle1744284686067
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropColumn('device_lateongoing_certificate_cycle', 'archived_at');
+    await queryRunner.dropColumn(
+      'device_lateongoing_certificate_cycle',
+      'archived_at',
+    );
   }
 }

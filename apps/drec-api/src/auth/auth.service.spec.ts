@@ -8,7 +8,7 @@ import { OauthClientCredentialsService } from '../pods/user/oauth_client.service
 import bcrypt from 'bcryptjs';
 import { UserDTO } from '../pods/user/dto/user.dto';
 import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
-import { IUser } from 'src/models/User';
+import { IUser } from '../models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
 

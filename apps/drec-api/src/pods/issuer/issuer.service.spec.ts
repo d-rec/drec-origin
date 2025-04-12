@@ -11,8 +11,8 @@ import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
-import { IDevice } from 'src/models';
-import { ICertificateMetadata } from 'src/utils/types';
+import { IDevice } from '../../models';
+import { ICertificateMetadata } from '../../utils/types';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 import {
   roundDecimalToFixedPrecision,
@@ -32,7 +32,6 @@ import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
-
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -81,8 +80,8 @@ describe('IssuerService', () => {
         {
           provide: CertificateLogService,
           useValue: {
-            createDeviceCertificateLog: jest.fn(),
-            createGroupCertificateLog: jest.fn(),
+            createForDevice: jest.fn(),
+            createForGroup: jest.fn(),
           } as any,
         },
         {
@@ -287,7 +286,7 @@ describe('IssuerService', () => {
       expect(result).toBe(mockReturnValue);
     });
   });
- 
+
   describe('newHistoryIssueCertificateForDevice', () => {
     it('should return early if group buyerAddress or buyerId is missing', async () => {
       const group = {
@@ -443,8 +442,6 @@ describe('IssuerService', () => {
     });
   });
 
-  
-
   describe('separateIntegerAndDecimalByCountryCode', () => {
     it('should correctly separate integer and decimal parts when both are non-zero', () => {
       const num = 5.75;
@@ -545,7 +542,6 @@ describe('IssuerService', () => {
     it('should separate positive number into integer and decimal parts correctly', () => {
       const num = 3.456;
 
-
       const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(3); // Integer part
@@ -638,8 +634,6 @@ describe('IssuerService', () => {
       expect(result).toBe(0.0); // Rounds down to zero
     });
   });
-
- 
 
   describe('issueCertificateFromAPI', () => {
     it('should convert fromTime and toTime to Date and call issueCertificate', () => {

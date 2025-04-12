@@ -36,7 +36,6 @@ export class DeviceLateOngoingIssueCertificateEntity
   @Column()
   archived_at?: Date;
 
-
   get lateStartTimestamp(): number {
     return new Date(this.late_start_date).getTime();
   }

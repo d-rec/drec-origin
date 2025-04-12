@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ILoggedInUser } from 'src/models';
-import { Role } from 'src/utils/enums';
+import { ILoggedInUser } from '../../models';
+import { Role } from '../../utils/enums';
 import { Repository } from 'typeorm';
 import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';

@@ -498,7 +498,7 @@ export class LateOngoingIssuanceService {
       ].timestamp;
 
     // Log the certificate details
-    this.certificateLogService.createDeviceCertificateLog(
+    this.certificateLogService.createForDevice(
       group,
       minimumStartDate,
       maximumEndDate,
@@ -540,7 +540,7 @@ export class LateOngoingIssuanceService {
     }
 
     // Create group certificate log
-    await this.certificateLogService.createGroupCertificateLog(
+    await this.certificateLogService.createForGroup(
       group,
       minimumStartDate,
       maximumEndDate,

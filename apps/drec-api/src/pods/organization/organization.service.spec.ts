@@ -11,8 +11,8 @@ import { UserService } from '../user/user.service';
 import { MailService } from '../../mail/mail.service';
 import { FileService } from '../file';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
-import { LoggedInUser } from 'src/models';
-import { OrganizationStatus, Role, UserStatus } from 'src/utils/enums';
+import { LoggedInUser } from '../../models';
+import { OrganizationStatus, Role, UserStatus } from '../../utils/enums';
 import {
   InternalServerErrorException,
   NotFoundException,

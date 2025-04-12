@@ -42,9 +42,7 @@ import { Role } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import {
-  ILoggedInUser,
-} from '../../models';
+import { ILoggedInUser } from '../../models';
 import { CertificateGenerationFrequency } from '../../utils/enums';
 import { FileService } from '../file';
 

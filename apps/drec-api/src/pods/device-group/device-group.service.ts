@@ -32,11 +32,7 @@ import {
 import { cloneDeep, defaults } from 'lodash';
 import { DeviceGroup } from './device-group.entity';
 import { Device } from '../device/device.entity';
-import {
-  DeviceDescription,
-  IDevice,
-  ILoggedInUser,
-} from '../../models';
+import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import { CertificateGenerationFrequency } from '../../utils/enums';
 import { DeviceDTO, NewDeviceDTO } from '../device/dto';
 import {
@@ -809,17 +805,11 @@ export class DeviceGroupService {
       const frequency = group.frequency.toLowerCase();
       if (frequency === CertificateGenerationFrequency.daily) {
         hours = 1 * 24;
-      } else if (
-        frequency === CertificateGenerationFrequency.monthly
-      ) {
+      } else if (frequency === CertificateGenerationFrequency.monthly) {
         hours = 30 * 24;
-      } else if (
-        frequency === CertificateGenerationFrequency.weekly
-      ) {
+      } else if (frequency === CertificateGenerationFrequency.weekly) {
         hours = 7 * 24;
-      } else if (
-        frequency === CertificateGenerationFrequency.quarterly
-      ) {
+      } else if (frequency === CertificateGenerationFrequency.quarterly) {
         hours = 91 * 24;
       }
       let newEndDate = '';

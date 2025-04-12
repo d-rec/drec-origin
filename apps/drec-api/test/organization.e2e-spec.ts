@@ -16,7 +16,7 @@ import {
   UpdateOrganizationDTO,
 } from '../src/pods/organization/dto';
 import { DeviceService } from '../src/pods/device/device.service';
-import { OrganizationFilterDTO } from 'src/pods/admin/dto/organization-filter.dto';
+import { OrganizationFilterDTO } from '../src/pods/admin/dto/organization-filter.dto';
 
 describe('Organization tests', () => {
   let app: INestApplication;

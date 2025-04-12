@@ -1,26 +1,20 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
-import {
-  ReadsService as BaseReadsService,
-  FilterDTO,
-} from '@energyweb/energy-api-influxdb';
-import {
-  IIssueCommandParams
-} from '@energyweb/origin-247-certificate';
+import { FilterDTO } from '@energyweb/energy-api-influxdb';
+import { IIssueCommandParams } from '@energyweb/origin-247-certificate';
 import { HttpService } from '@nestjs/axios';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { ICertificateMetadata } from '../../utils/types';
 
+import { IDevice } from '../../models';
 import {
-  IDevice,
-} from '../../models';
-import {
-  CertificateGenerationFrequency, CertificateType,
+  CertificateGenerationFrequency,
+  CertificateType,
   ReadType,
   SingleDeviceIssuanceStatus,
-  StandardCompliance
+  StandardCompliance,
 } from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Device } from '../device';
@@ -33,7 +27,6 @@ import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
-import { BASE_READ_SERVICE } from '../reads/constants';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
@@ -47,7 +40,7 @@ export class IssuerService {
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
-    private readService: ReadsService,     
+    private readService: ReadsService,
     private httpService: HttpService,
     private readonly certificateService: CertificateService,
     private lateOngoingIssuanceService: LateOngoingIssuanceService,
@@ -119,22 +112,13 @@ export class IssuerService {
 
           let hours = 1;
           const frequency = group.frequency.toLowerCase();
-          if (
-            frequency === CertificateGenerationFrequency.daily
-          ) {
+          if (frequency === CertificateGenerationFrequency.daily) {
             hours = 1 * 24;
-          } else if (
-            frequency === CertificateGenerationFrequency.monthly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.monthly) {
             hours = 30 * 24;
-          } else if (
-            frequency === CertificateGenerationFrequency.weekly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.weekly) {
             hours = 7 * 24;
-          } else if (
-            frequency ===
-            CertificateGenerationFrequency.quarterly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.quarterly) {
             hours = 91 * 24;
           }
           const endDateFormatted = new Date(
@@ -484,10 +468,7 @@ export class IssuerService {
         let allReadsForDeviceBetweenTimeRange: Array<{
           timestamp: Date;
           value: number;
-        }> = await this.readService.find(
-          device.externalId,
-          readsFilter,
-        );
+        }> = await this.readService.find(device.externalId, readsFilter);
         if (allReadsForDeviceBetweenTimeRange != undefined) {
           if (
             device.meterReadtype === 'Delta' ||
@@ -620,11 +601,12 @@ export class IssuerService {
     if (!totalReadValue) {
       return;
     }
-    const totalReadValueKw = await this.groupService.processLeftOverReadsByCountryCode(
-      group,
-      totalReadValue,
-      countryCodeKey,
-    );
+    const totalReadValueKw =
+      await this.groupService.processLeftOverReadsByCountryCode(
+        group,
+        totalReadValue,
+        countryCodeKey,
+      );
     if (!totalReadValueKw) {
       return;
     }
@@ -850,8 +832,8 @@ export class IssuerService {
       deviceHistoryRequest.readsvalue,
       new Date(deviceHistoryRequest.readsStartDate.toString()),
       new Date(deviceHistoryRequest.readsEndDate.toString()),
-      certificateTransactionUID.toString()
-    )
+      certificateTransactionUID.toString(),
+    );
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
