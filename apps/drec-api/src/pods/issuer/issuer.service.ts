@@ -24,6 +24,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import { CertificateLogService } from '../certificate-log/certificate-log.service';
 
 @Injectable()
 export class IssuerService {
@@ -34,7 +35,7 @@ export class IssuerService {
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
     private readService: ReadsService,
-    private httpService: HttpService,
+    private certificateLogService: CertificateLogService,
     private readonly certificateService: CertificateService,
     private lateOngoingIssuanceService: LateOngoingIssuanceService,
   ) {}
@@ -298,29 +299,17 @@ export class IssuerService {
           0,
         );
 
-        const deviceCertificateLogDTO =
-          new CheckCertificateIssueDateLogForDeviceEntity();
-        (deviceCertificateLogDTO.externalId = device.externalId),
-          (deviceCertificateLogDTO.certificate_issuance_startdate =
-            previousReading.length > 0
-              ? new Date(
-                  new Date(previousReading[0].timestamp).getTime() + 1000,
-                )
-              : new Date(startDate.toString())),
-          (deviceCertificateLogDTO.certificate_issuance_enddate =
-            allDevicesCompleteReadsBetweenTimeRange[index][
-              allDevicesCompleteReadsBetweenTimeRange[index].length - 1
-            ].timestamp), // new Date(endDate.toString()),
-          (deviceCertificateLogDTO.status =
-            SingleDeviceIssuanceStatus.Requested),
-          (deviceCertificateLogDTO.readvalue_watthour = deviceReadValue);
-        (deviceCertificateLogDTO.groupId = group.id),
-          (deviceCertificateLogDTO.certificateTransactionUID =
-            certificateTransactionUID.toString());
-        (deviceCertificateLogDTO.ongoing_start_date = groupRequest.start_date),
-          (deviceCertificateLogDTO.ongoing_end_date = groupRequest.end_date);
-        await this.deviceService.addCertificateIssueDateLogForDevice(
-          deviceCertificateLogDTO,
+        await this.certificateLogService.createForDevice(
+          group,
+          device,
+          previousReading.length > 0
+            ? new Date(new Date(previousReading[0].timestamp).getTime() + 1000)
+            : new Date(startDate.toString()),
+          allDevicesCompleteReadsBetweenTimeRange[index][
+            allDevicesCompleteReadsBetweenTimeRange[index].length - 1
+          ].timestamp,
+          deviceReadValue,
+          certificateTransactionUID,
         );
       }),
     );
@@ -359,24 +348,14 @@ export class IssuerService {
       });
     }
 
-    const issuance: IIssueCommandParams<ICertificateMetadata> = {
-      deviceId: group.id?.toString(), // This is the device group id not a device id
-      energyValue: issueTotalReadValue.toString(),
-      fromTime: minimumStartDate, //new Date(startDate.toString()),
-      toTime: maximumEndDate, //new Date(endDate.toString()),
-      toAddress: group.buyerAddress,
-      userId: group.buyerAddress,
-      metadata: {
-        version: 'v1.0',
-        buyerReservationId: group.devicegroup_uid,
-        isStandardIssuanceRequested: StandardCompliance.IREC,
-        type: CertificateType.REC,
-        deviceIds: group.devices.map((device: IDevice) => device.externalId),
-        //deviceGroup,
-        groupId: group.id?.toString() || null,
-        certificateTransactionUID: certificateTransactionUID.toString(),
-      },
-    };
+    const issuance = this.certificateService.getIssuanceParams(
+      group,
+      group.devices,
+      issueTotalReadValue,
+      minimumStartDate,
+      maximumEndDate,
+      certificateTransactionUID,
+    );
     this.logger.log(
       `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
     );
@@ -394,24 +373,17 @@ export class IssuerService {
     ) {
       this.groupService.endReservation(group.id, group, groupRequest);
     }
-    const deviceGroupCertificateLogDTO =
-      new CheckCertificateIssueDateLogForDeviceGroupEntity();
-    (deviceGroupCertificateLogDTO.groupid = group.id?.toString()),
-      (deviceGroupCertificateLogDTO.certificate_issuance_startdate =
-        minimumStartDate), //new Date(startDate.toString()),
-      (deviceGroupCertificateLogDTO.certificate_issuance_enddate =
-        maximumEndDate), //new Date(endDate.toString()),
-      (deviceGroupCertificateLogDTO.status =
-        SingleDeviceIssuanceStatus.Requested),
-      (deviceGroupCertificateLogDTO.readvalue_watthour = issueTotalReadValue),
-      (deviceGroupCertificateLogDTO.certificate_payload = issuance),
-      (deviceGroupCertificateLogDTO.countryCode = countryCodeKey),
-      (deviceGroupCertificateLogDTO.certificateTransactionUID =
-        certificateTransactionUID.toString());
-    await this.groupService.addCertificateIssueDateLogForDeviceGroup(
-      deviceGroupCertificateLogDTO,
+
+    await this.certificateLogService.createForGroup(
+      group,
+      minimumStartDate,
+      maximumEndDate,
+      issueTotalReadValue,
+      issuance,
+      countryCodeKey,
+      certificateTransactionUID,
     );
     this.certificateService.issue(issuance);
     return;
-  } 
+  }
 }
