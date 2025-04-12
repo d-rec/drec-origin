@@ -48,8 +48,6 @@ export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
-    @InjectQueue(Queues.LateOngoingIssuance)
-    private readonly lateOngoingQueue: Queue,
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,

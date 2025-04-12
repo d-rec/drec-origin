@@ -17,6 +17,8 @@ import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';
 import { LateOngoingIssuanceProcessor } from './late-ongoing-issuance.processor';
 import { Queues } from '../../../src/utils/enums/queues.enum';
+import { CertificateService } from './certificate.service';
+import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 
 @Module({
   imports: [
@@ -35,11 +37,13 @@ import { Queues } from '../../../src/utils/enums/queues.enum';
     }),
   ],
   providers: [
+    CertificateService,
+    LateOngoingIssuanceService,
     IssuerService,
     SynchronizeBlockchainTaskService,
     LateOngoingIssuanceProcessor,
   ],
-  exports: [IssuerService, BullModule],
+  exports: [IssuerService, CertificateService, LateOngoingIssuanceService, BullModule],
   controllers: [DRECIssuerController],
 })
 export class IssuerModule {}

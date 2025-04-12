@@ -28,5 +28,6 @@ import { UserModule } from '../user/user.module';
   ],
   controllers: [CertificateLogController],
   providers: [CertificateLogService],
+  exports: [CertificateLogService],
 })
 export class CertificateLogModule {}

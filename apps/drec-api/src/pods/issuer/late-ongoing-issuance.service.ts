@@ -21,6 +21,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { delay } from '../../lib/helpers/delay';
 
 type DeviceReading = {
   timestamp: Date;
@@ -73,6 +74,25 @@ export class LateOngoingIssuanceService {
   }
 
   /**
+   * Triggers certificate issuance for a specific group or schedules issuance for all active groups
+   *
+   * @param groupId - Optional ID of the specific group to process
+   * @returns Promise resolving when issuance is triggered
+   */
+  async triggerIssuance(groupId?: number): Promise<void> {
+    // If no group ID provided, schedule issuance for all active groups
+    if (!groupId) return this.scheduleIssuance();
+
+    // Add a job for the specified group ID
+    await this.lateOngoingQueue.add(
+      { groupId: groupId },
+      {
+        lifo: true,
+      },
+    );
+  }
+
+  /**
    * Processes certificate issuance for late ongoing cycles
    *
    * @param groupId - Optional group ID to filter cycles
@@ -94,6 +114,7 @@ export class LateOngoingIssuanceService {
     // Process each cycle sequentially
     for (let index = 0; index < cycles.length; index++) {
       const cycle = cycles[index];
+      await delay(1000);
       this.logger.debug(
         `Processing cycle ${index + 1} of ${cycles.length} for device: ${cycle.device_externalid}`,
       );
@@ -396,7 +417,7 @@ export class LateOngoingIssuanceService {
    * @param groupRequest - Optional group certificate request data
    * @returns Promise that resolves when certificate issuance is complete
    */
-  private async issueCertificateForGroup(
+  async issueCertificateForGroup(
     group: DeviceGroup,
     startDate: DateTime,
     endDate: DateTime,

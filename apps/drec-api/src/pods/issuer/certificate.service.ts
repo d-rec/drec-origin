@@ -38,7 +38,7 @@ export class CertificateService {
     await this.offChainCertificateService.issue(reading);
   }
 
-  getCertificateData(request: IGetAllCertificatesOptions): Promise<any[]> {
+  get(request: IGetAllCertificatesOptions): Promise<any[]> {
     return this.offChainCertificateService.getAll(request);
   }
 

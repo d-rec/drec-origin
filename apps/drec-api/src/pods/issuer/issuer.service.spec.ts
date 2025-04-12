@@ -1,41 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { OrganizationService } from '../organization/organization.service';
-import { IssuerService } from './issuer.service';
-import { getQueueToken } from '@nestjs/bull';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { ReadsService } from '../reads/reads.service';
-import { Device, DeviceService } from '../device';
-import { HttpService } from '@nestjs/axios';
-import { OffChainCertificateService } from '@energyweb/origin-247-certificate';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { of } from 'rxjs';
-import { Logger } from '@nestjs/common';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { Organization } from '../organization/organization.entity';
-import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
-import { NotFoundException } from '@nestjs/common'; // Adjust the import path as needed
-import { DateTime } from 'luxon';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { IDevice } from 'src/models';
 import {
-  FilterDTO,
   ReadsService as BaseReadsService,
+  FilterDTO,
 } from '@energyweb/energy-api-influxdb';
-import { ICertificateMetadata } from 'src/utils/types';
 import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
+  OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
+import { HttpService } from '@nestjs/axios';
+import { getQueueToken } from '@nestjs/bull';
+import { Logger, NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { DateTime } from 'luxon';
+import { of } from 'rxjs';
+import { IDevice } from 'src/models';
+import { ICertificateMetadata } from 'src/utils/types';
 import { Queues } from '../../../src/utils/enums/queues.enum';
+import { DeviceService } from '../device';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { BASE_READ_SERVICE } from '../reads/constants';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
+import { ReadsService } from '../reads/reads.service';
+import { IssuerService } from './issuer.service';
+import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import {
+  splitValueIntoIntegerAndDecimal,
+  roundDecimalToFixedPrecision,
+} from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { CertificateService } from './certificate.service';
+
+jest.mock('../../lib/helpers/splitValueIntoIntegerAndDecimal', () => ({
+  splitValueIntoIntegerAndDecimal: jest.fn(),
+  roundDecimalToFixedPrecision: jest.fn(),
+}));
 
 describe('IssuerService', () => {
   let service: IssuerService;
+  let certificateService: CertificateService;
+  let lateOngoingIssuanceService: LateOngoingIssuanceService;
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
@@ -139,6 +148,12 @@ describe('IssuerService', () => {
     }).compile();
 
     service = module.get<IssuerService>(IssuerService);
+    lateOngoingIssuanceService = module.get<LateOngoingIssuanceService>(
+      LateOngoingIssuanceService,
+    );
+    certificateService = module.get<CertificateService>(
+      CertificateService,
+    );
     groupService = module.get<DeviceGroupService>(DeviceGroupService);
     httpService = module.get<HttpService>(HttpService);
     logger = module.get<Logger>(Logger);
@@ -154,6 +169,7 @@ describe('IssuerService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
   describe('hitTheCronFromIssuerAPIOngoing', () => {
     it('should log the verbose message and make an HTTP GET request', () => {
       // Act
@@ -309,7 +325,7 @@ describe('IssuerService', () => {
         .mockResolvedValue(mockReturnValue);
 
       // Act
-      const result = await service.addLateOngoingDeviceCertificateCycle(
+      const result = await lateOngoingIssuanceService.addCycle(
         groupId,
         deviceExternalId,
         lateStartDate,
@@ -629,22 +645,18 @@ describe('IssuerService', () => {
       const countryCodeKey = 'US';
 
       // Mock the separateIntegerAndDecimalByCountryCode method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimalByCountryCode')
-        .mockReturnValue({
-          integralVal: 5,
-          decimalVal: 0,
-        });
+      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
+        integralVal: 5,
+        decimalVal: 0,
+      });
 
-      const result = await service.handleLeftoverReadsByCountryCode(
+      const result = await groupService.processLeftOverReadsByCountryCode(
         group,
         totalReadValueW,
         countryCodeKey,
       );
 
-      expect(
-        service.separateIntegerAndDecimalByCountryCode,
-      ).toHaveBeenCalledWith(5); // 5 kW
+      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5); // 5 kW
       expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
         1,
         0,
@@ -664,22 +676,18 @@ describe('IssuerService', () => {
       const countryCodeKey = 'US';
 
       // Mock the separateIntegerAndDecimalByCountryCode method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimalByCountryCode')
-        .mockReturnValue({
-          integralVal: 5,
-          decimalVal: 0.5,
-        });
+      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
+        integralVal: 5,
+        decimalVal: 0.5,
+      });
 
-      const result = await service.handleLeftoverReadsByCountryCode(
+      const result = await groupService.processLeftOverReadsByCountryCode(
         group,
         totalReadValueW,
         countryCodeKey,
       );
 
-      expect(
-        service.separateIntegerAndDecimalByCountryCode,
-      ).toHaveBeenCalledWith(5.5); // 5.5 kW
+      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5.5); // 5.5 kW
       expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
         1,
         0.5,
@@ -697,22 +705,18 @@ describe('IssuerService', () => {
       const countryCodeKey = 'US';
 
       // Mock the separateIntegerAndDecimalByCountryCode method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimalByCountryCode')
-        .mockReturnValue({
-          integralVal: 5,
-          decimalVal: 0.5,
-        });
+      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
+        integralVal: 5,
+        decimalVal: 0.5,
+      });
 
-      const result = await service.handleLeftoverReadsByCountryCode(
+      const result = await groupService.processLeftOverReadsByCountryCode(
         group,
         totalReadValueW,
         countryCodeKey,
       );
 
-      expect(
-        service.separateIntegerAndDecimalByCountryCode,
-      ).toHaveBeenCalledWith(5.5); // 5.5 kW
+      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5.5); // 5.5 kW
       expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
         1,
         0.5,
@@ -726,12 +730,10 @@ describe('IssuerService', () => {
     it('should correctly separate integer and decimal parts when both are non-zero', () => {
       const num = 5.75;
 
-      // Mock the roundDecimalNumberByCountryCode method
-      jest
-        .spyOn(service, 'roundDecimalNumberByCountryCode')
-        .mockReturnValue(0.75);
+      // Mock the roundDecimalToFixedPrecision method
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.75);
 
-      const result = service.separateIntegerAndDecimalByCountryCode(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(5);
       expect(result.decimalVal).toBe(0.75);
@@ -740,10 +742,10 @@ describe('IssuerService', () => {
     it('should return zero decimal value when input is an integer', () => {
       const num = 10;
 
-      // Mock the roundDecimalNumberByCountryCode method
-      jest.spyOn(service, 'roundDecimalNumberByCountryCode').mockReturnValue(0);
+      // Mock the roundDecimalToFixedPrecision method
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
-      const result = service.separateIntegerAndDecimalByCountryCode(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(10);
       expect(result.decimalVal).toBe(0);
@@ -752,10 +754,10 @@ describe('IssuerService', () => {
     it('should handle zero input', () => {
       const num = 0;
 
-      // Mock the roundDecimalNumberByCountryCode method
-      jest.spyOn(service, 'roundDecimalNumberByCountryCode').mockReturnValue(0);
+      // Mock the roundDecimalToFixedPrecision method
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
-      const result = service.separateIntegerAndDecimalByCountryCode(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(0);
       expect(result.decimalVal).toBe(0);
@@ -765,22 +767,20 @@ describe('IssuerService', () => {
       const num = -3.65;
 
       // Mock the rounding function
-      jest
-        .spyOn(service, 'roundDecimalNumberByCountryCode')
-        .mockReturnValue(-0.65);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(-0.65);
 
-      const result = service.separateIntegerAndDecimalByCountryCode(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(-4); // Ensure this is what you expect based on the method logic
       expect(result.decimalVal).toBe(-0.65);
     });
   });
 
-  describe('roundDecimalNumberByCountryCode', () => {
+  describe('roundDecimalToFixedPrecision', () => {
     it('should round positive numbers correctly', () => {
       const num = 3.456;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.46); // Rounds to two decimal places
     });
@@ -788,7 +788,7 @@ describe('IssuerService', () => {
     it('should round negative numbers correctly', () => {
       const num = -3.456;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(-3.46); // Rounds to two decimal places
     });
@@ -796,7 +796,7 @@ describe('IssuerService', () => {
     it('should handle numbers already at two decimal places', () => {
       const num = 3.45;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.45); // No change needed
     });
@@ -804,7 +804,7 @@ describe('IssuerService', () => {
     it('should handle zero correctly', () => {
       const num = 0;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(0); // Zero should remain zero
     });
@@ -812,7 +812,7 @@ describe('IssuerService', () => {
     it('should handle numbers with fewer than two decimal places', () => {
       const num = 3.4;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.4); // No change needed
     });
@@ -820,103 +820,9 @@ describe('IssuerService', () => {
     it('should handle very small decimal values correctly', () => {
       const num = 0.0001;
 
-      const result = service.roundDecimalNumberByCountryCode(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(0.0); // Rounds down to zero
-    });
-  });
-
-  describe('handleLeftoverReads', () => {
-    it('should handle leftover reads correctly and return the integral value', async () => {
-      const group = {
-        id: 1,
-        leftoverReads: 0.2,
-      } as DeviceGroup;
-      const totalReadValueW = 5000;
-
-      // Mock the `separateIntegerAndDecimal` method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimal')
-        .mockReturnValue({ integralVal: 5, decimalVal: 0.2 });
-
-      // Mock the `updateLeftOverRead` method
-      const updateLeftOverReadSpy = jest
-        .spyOn(groupService, 'updateLeftOverRead')
-        .mockResolvedValue(undefined);
-
-      const result = await service.handleLeftoverReads(group, totalReadValueW);
-
-      expect(result).toBe(5); // Integral value returned
-      expect(updateLeftOverReadSpy).toHaveBeenCalledWith(group.id, 0.2); // Check if updateLeftOverRead was called with correct values
-    });
-
-    it('should handle case with no leftover reads and return the integral value', async () => {
-      const group = {
-        id: 2,
-        leftoverReads: 0,
-      } as DeviceGroup;
-      const totalReadValueW = 8000;
-
-      // Mock the `separateIntegerAndDecimal` method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimal')
-        .mockReturnValue({ integralVal: 8, decimalVal: 0 });
-
-      // Mock the `updateLeftOverRead` method
-      const updateLeftOverReadSpy = jest
-        .spyOn(groupService, 'updateLeftOverRead')
-        .mockResolvedValue(undefined);
-
-      const result = await service.handleLeftoverReads(group, totalReadValueW);
-
-      expect(result).toBe(8); // Integral value returned
-      expect(updateLeftOverReadSpy).toHaveBeenCalledWith(group.id, 0); // Check if updateLeftOverRead was called with correct values
-    });
-
-    it('should handle case with leftover reads that leads to rounding', async () => {
-      const group = {
-        id: 3,
-        leftoverReads: 0.75,
-      } as DeviceGroup;
-      const totalReadValueW = 3500;
-
-      // Mock the `separateIntegerAndDecimal` method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimal')
-        .mockReturnValue({ integralVal: 4, decimalVal: 0.25 });
-
-      // Mock the `updateLeftOverRead` method
-      const updateLeftOverReadSpy = jest
-        .spyOn(groupService, 'updateLeftOverRead')
-        .mockResolvedValue(undefined);
-
-      const result = await service.handleLeftoverReads(group, totalReadValueW);
-
-      expect(result).toBe(4); // Integral value returned
-      expect(updateLeftOverReadSpy).toHaveBeenCalledWith(group.id, 0.25); // Check if updateLeftOverRead was called with correct values
-    });
-
-    it('should handle case with zero totalReadValueW', async () => {
-      const group = {
-        id: 4,
-        leftoverReads: 0.5,
-      } as DeviceGroup;
-      const totalReadValueW = 0;
-
-      // Mock the `separateIntegerAndDecimal` method
-      jest
-        .spyOn(service, 'separateIntegerAndDecimal')
-        .mockReturnValue({ integralVal: 0, decimalVal: 0.5 });
-
-      // Mock the `updateLeftOverRead` method
-      const updateLeftOverReadSpy = jest
-        .spyOn(groupService, 'updateLeftOverRead')
-        .mockResolvedValue(undefined);
-
-      const result = await service.handleLeftoverReads(group, totalReadValueW);
-
-      expect(result).toBe(0); // Integral value returned
-      expect(updateLeftOverReadSpy).toHaveBeenCalledWith(group.id, 0.5); // Check if updateLeftOverRead was called with correct values
     });
   });
 
@@ -925,9 +831,9 @@ describe('IssuerService', () => {
       const num = 3.456;
 
       // Mock the `roundDecimalNumber` method
-      jest.spyOn(service, 'roundDecimalNumber').mockReturnValue(0.46);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.46);
 
-      const result = service.separateIntegerAndDecimal(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(3); // Integer part
       expect(result.decimalVal).toBe(0.46); // Rounded decimal part
@@ -937,9 +843,9 @@ describe('IssuerService', () => {
       const num = -3.456;
 
       // Mock the `roundDecimalNumber` method
-      jest.spyOn(service, 'roundDecimalNumber').mockReturnValue(-0.46);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(-0.46);
 
-      const result = service.separateIntegerAndDecimal(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(-4); // Integer part
       expect(result.decimalVal).toBe(-0.46); // Rounded decimal part
@@ -949,9 +855,9 @@ describe('IssuerService', () => {
       const num = 0;
 
       // Mock the `roundDecimalNumber` method
-      jest.spyOn(service, 'roundDecimalNumber').mockReturnValue(0);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
-      const result = service.separateIntegerAndDecimal(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(0); // Integer part
       expect(result.decimalVal).toBe(0); // Decimal part
@@ -961,9 +867,9 @@ describe('IssuerService', () => {
       const num = 3.4;
 
       // Mock the `roundDecimalNumber` method
-      jest.spyOn(service, 'roundDecimalNumber').mockReturnValue(0.4);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.4);
 
-      const result = service.separateIntegerAndDecimal(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(3); // Integer part
       expect(result.decimalVal).toBe(0.4); // Decimal part
@@ -973,9 +879,9 @@ describe('IssuerService', () => {
       const num = 0.0001;
 
       // Mock the `roundDecimalNumber` method
-      jest.spyOn(service, 'roundDecimalNumber').mockReturnValue(0.0);
+      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.0);
 
-      const result = service.separateIntegerAndDecimal(num);
+      const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(0); // Integer part
       expect(result.decimalVal).toBe(0.0); // Rounded decimal part
@@ -986,7 +892,7 @@ describe('IssuerService', () => {
     it('should round positive number correctly', () => {
       const num = 3.456;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.46); // Rounds to two decimal places
     });
@@ -994,7 +900,7 @@ describe('IssuerService', () => {
     it('should round negative number correctly', () => {
       const num = -3.456;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(-3.46); // Rounds to two decimal places
     });
@@ -1002,7 +908,7 @@ describe('IssuerService', () => {
     it('should handle number already at two decimal places correctly', () => {
       const num = 3.45;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.45); // No change needed
     });
@@ -1010,7 +916,7 @@ describe('IssuerService', () => {
     it('should handle zero correctly', () => {
       const num = 0;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(0); // Zero should remain zero
     });
@@ -1018,7 +924,7 @@ describe('IssuerService', () => {
     it('should handle numbers with fewer than two decimal places correctly', () => {
       const num = 3.4;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(3.4); // No change needed
     });
@@ -1026,7 +932,7 @@ describe('IssuerService', () => {
     it('should handle very small decimal values correctly', () => {
       const num = 0.0001;
 
-      const result = service.roundDecimalNumber(num);
+      const result = roundDecimalToFixedPrecision(num);
 
       expect(result).toBe(0.0); // Rounds down to zero
     });
@@ -1110,10 +1016,10 @@ describe('IssuerService', () => {
 
       // Mock the issueCertificate method
       const issueCertificateSpy = jest
-        .spyOn(service, 'issueCertificate')
+        .spyOn(certificateService, 'issue')
         .mockImplementation();
 
-      service.issueCertificateFromAPI(reading);
+      certificateService.issueFromAPI(reading);
 
       // Check if issueCertificate was called with the correct reading object
       expect(issueCertificateSpy).toHaveBeenCalledWith(reading);
@@ -1137,10 +1043,10 @@ describe('IssuerService', () => {
 
       // Mock the issueCertificate method
       const issueCertificateSpy = jest
-        .spyOn(service, 'issueCertificate')
+        .spyOn(certificateService, 'issue')
         .mockImplementation();
 
-      service.issueCertificateFromAPI(reading);
+      certificateService.issueFromAPI(reading);
 
       // Check if fromTime and toTime are still converted to Date objects (invalid dates will be handled as such)
       expect(isNaN(reading.fromTime.getTime())).toBe(true);
@@ -1167,7 +1073,7 @@ describe('IssuerService', () => {
         } as ICertificateMetadata,
       } as unknown as IIssueCommandParams<ICertificateMetadata>;
 
-      service.issueCertificate(reading);
+      certificateService.issue(reading);
 
       expect(offChainCertificateService.issue).toHaveBeenCalledWith(reading);
     });
@@ -1181,7 +1087,7 @@ describe('IssuerService', () => {
       const getAllSpy = jest
         .spyOn(offChainCertificateService, 'getAll')
         .mockResolvedValue([]);
-      await service.getCertificateData();
+      await certificateService.get(request);
 
       expect(getAllSpy).toHaveBeenCalledWith(request);
     });
@@ -1206,7 +1112,7 @@ describe('IssuerService', () => {
       jest
         .spyOn(groupService, 'getGroupCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);
-      await service.triggerOngoingLateIssuance();
+      await lateOngoingIssuanceService.triggerIssuance();
 
       const parsedLeftoverReads = JSON.parse(
         mockGroup.leftoverReadsByCountryCode,
@@ -1231,7 +1137,7 @@ describe('IssuerService', () => {
       jest.spyOn(organizationService, 'findOne').mockResolvedValue(null);
 
       try {
-        await service.lateOngoingIssueCertificateForGroup(
+        await lateOngoingIssuanceService.issueCertificateForGroup(
           group,
           startDate,
           endDate,
@@ -1255,7 +1161,7 @@ describe('IssuerService', () => {
       const endDate = DateTime.now();
       const countryCodeKey = 'US';
 
-      await service.lateOngoingIssueCertificateForGroup(
+      await lateOngoingIssuanceService.issueCertificateForGroup(
         group,
         startDate,
         endDate,

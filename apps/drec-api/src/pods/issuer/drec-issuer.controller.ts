@@ -1,22 +1,16 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Logger,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOkResponse,
+  ApiQuery,
   ApiSecurity,
   ApiTags,
-  ApiBody,
-  ApiQuery,
 } from '@nestjs/swagger';
-import { IssuerService } from './issuer.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
+import { IssuerService } from './issuer.service';
+import { CertificateService } from './certificate.service';
+import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 
 @ApiTags('DREC Issuer')
 @ApiBearerAuth('access-token')
@@ -25,7 +19,11 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 export class DRECIssuerController {
   private readonly logger = new Logger(DRECIssuerController.name);
 
-  constructor(private readonly issuerService: IssuerService) {}
+  constructor(
+    private readonly issuerService: IssuerService,
+    private readonly certificateService: CertificateService,
+    private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
+  ) {}
   /**
    *
    * @returns
@@ -91,7 +89,7 @@ export class DRECIssuerController {
     this.logger.verbose(`With in reIssueCertificates`);
 
     return new Promise((resolve) => {
-      this.issuerService.issueCertificateFromAPI(certificateData);
+      this.certificateService.issueFromAPI(certificateData);
       this.logger.log(`hit the issueance data`);
       resolve('hit the issueance data');
     });
@@ -137,7 +135,7 @@ export class DRECIssuerController {
   async invokeIssuerCronLateOngoing(groupId?: number): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
+      await this.lateOngoingIssuanceService.triggerIssuance(groupId);
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
@@ -167,7 +165,7 @@ export class DRECIssuerController {
   async invokeIssuerCronMissingLateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.getMissingCycleBeforeLateOngoing();
+      await this.lateOngoingIssuanceService.getMissingCycleBeforeLateOngoing();
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
