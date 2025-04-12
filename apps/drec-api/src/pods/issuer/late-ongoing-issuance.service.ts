@@ -196,7 +196,7 @@ export class LateOngoingIssuanceService {
    *
    * @returns Promise that resolves when all missing cycles are processed
    */
-  async getMissingCycleBeforeLateOngoing(): Promise<void> {
+  async getMissingCycle(): Promise<void> {
     this.logger.debug('Checking for missing certificate cycles');
 
     // Get active device groups
@@ -274,8 +274,8 @@ export class LateOngoingIssuanceService {
         await this.addCycle(
           group.id,
           device.externalId,
-          currentDate.toISOString(),
-          actualEndDate.toISOString(),
+          DateTime.fromJSDate(currentDate).toUTC(),
+          DateTime.fromJSDate(actualEndDate).toUTC(),
         );
       }
 

@@ -165,9 +165,9 @@ export class DRECIssuerController {
   async invokeIssuerCronMissingLateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.lateOngoingIssuanceService.getMissingCycleBeforeLateOngoing();
+      await this.lateOngoingIssuanceService.getMissingCycle();
     } catch (e) {
-      this.logger.error('caught exception in cron ongoing', e);
+      this.logger.error('caught exception in getting missing cycles', e);
     }
   }
 }
