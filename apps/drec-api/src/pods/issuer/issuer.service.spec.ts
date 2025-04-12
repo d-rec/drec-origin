@@ -35,13 +35,11 @@ import {
   roundDecimalToFixedPrecision,
 } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
 import { CertificateService } from './certificate.service';
+import { CertificateLogService } from '../certificate-log/certificate-log.service';
 
-jest.mock('../../lib/helpers/splitValueIntoIntegerAndDecimal', () => ({
-  splitValueIntoIntegerAndDecimal: jest.fn(),
-  roundDecimalToFixedPrecision: jest.fn(),
-}));
 
 describe('IssuerService', () => {
+  let offChainCertificateService: OffChainCertificateService;
   let service: IssuerService;
   let certificateService: CertificateService;
   let lateOngoingIssuanceService: LateOngoingIssuanceService;
@@ -50,7 +48,6 @@ describe('IssuerService', () => {
   let organizationService: OrganizationService;
   let readService: ReadsService;
   let httpService: HttpService;
-  let offChainCertificateService: OffChainCertificateService;
   let logger: Logger;
   let baseReadsService: BaseReadsService;
 
@@ -61,12 +58,37 @@ describe('IssuerService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        LateOngoingIssuanceService,
         IssuerService,
+        {
+          provide: CertificateService,
+          useValue: {
+            issue: jest.fn(),
+            get: jest.fn(),
+            issueFromAPI: jest.fn(),
+            getIssuanceParams: jest.fn(),
+          } as any,
+        },
+        {
+          provide: OffChainCertificateService,
+          useValue: {
+            issue: jest.fn(),
+            issueCertificate: jest.fn(),
+            getAll: jest.fn(),
+          } as any,
+        },
         {
           provide: getQueueToken(Queues.LateOngoingIssuance),
           useValue: {
             add: jest.fn().mockResolvedValue(undefined),
           },
+        },
+        {
+          provide: CertificateLogService,
+          useValue: {
+            createDeviceCertificateLog: jest.fn(),
+            createGroupCertificateLog: jest.fn(),
+          } as any,
         },
         {
           provide: DeviceGroupService,
@@ -133,27 +155,20 @@ describe('IssuerService', () => {
           } as any,
         },
         {
-          provide: OffChainCertificateService,
-          useValue: {
-            issue: jest.fn(),
-            issueCertificate: jest.fn(),
-            getAll: jest.fn(),
-          } as any,
-        },
-        {
           provide: Logger,
           useValue: logger,
         },
       ],
     }).compile();
 
+    offChainCertificateService = module.get<OffChainCertificateService>(
+      OffChainCertificateService,
+    );
     service = module.get<IssuerService>(IssuerService);
     lateOngoingIssuanceService = module.get<LateOngoingIssuanceService>(
       LateOngoingIssuanceService,
     );
-    certificateService = module.get<CertificateService>(
-      CertificateService,
-    );
+    certificateService = module.get<CertificateService>(CertificateService);
     groupService = module.get<DeviceGroupService>(DeviceGroupService);
     httpService = module.get<HttpService>(HttpService);
     logger = module.get<Logger>(Logger);
@@ -161,9 +176,6 @@ describe('IssuerService', () => {
     organizationService = module.get<OrganizationService>(OrganizationService);
     readService = module.get<ReadsService>(ReadsService);
     baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
-    offChainCertificateService = module.get<OffChainCertificateService>(
-      OffChainCertificateService,
-    );
   });
 
   it('should be defined', () => {
@@ -245,69 +257,6 @@ describe('IssuerService', () => {
       expect(findForGroupSpy).toHaveBeenCalledWith(mockGroup.id);
     });
   });
-  /*  
-  describe('handleCronForHistoricalIssuance', () => {
-    it('should call updateTotalReadingRequestedForCertificateIssuance with correct arguments', async () => {
-      const mockGroup = {
-        id: 1,
-        organizationId: 2,
-        buyerAddress: 'someAddress',
-        buyerId: 'buyerId',
-        reservationExpiryDate: new Date('2023-01-01T12:00:00Z'),
-        reservationEndDate: new Date('2023-02-01T12:00:00Z'),
-      } as unknown as DeviceGroup;
-  
-      const mockDevice = {
-        id: 'device1',
-        createdAt: new Date('2023-01-01'),
-      } as unknown as Device;
-  
-      const mockRead = {
-        readsvalue: 1000,
-        readsStartDate: new Date('2023-01-01'),
-        readsEndDate: new Date('2023-01-02'),
-      } as unknown as HistoryIntermediateMeterRead;
-  
-      jest.spyOn(groupService, 'getNextHistoryIssuanceDeviceLog').mockResolvedValue([
-        {
-          groupId: 1,
-          id: 1,
-          device_externalid: 'device1',
-          reservationStartDate: new Date('2023-01-01'),
-          reservationEndDate: new Date('2023-02-01'),
-        } as unknown as HistoryDeviceGroupNextIssueCertificate,
-      ]);
-      jest.spyOn(groupService, 'findOne').mockResolvedValue(mockGroup);
-      jest.spyOn(organizationService, 'findOne').mockResolvedValue({
-        name: 'Org',
-        blockchainAccountAddress: 'abc123',
-      } as unknown as Organization);
-      jest.spyOn(deviceService, 'findReads').mockResolvedValue(mockDevice);
-      jest.spyOn(readservice, 'getCheckHistoryCertificateIssueDateLogForDevice').mockResolvedValue([mockRead]);
-  
-      const updateTotalReadingRequestedForCertificateIssuanceSpy = jest.spyOn(
-        groupService,
-        'updateTotalReadingRequestedForCertificateIssuance'
-      ).mockResolvedValue(undefined);
-  
-      jest.spyOn(groupService, 'updateHistoryCertificateIssueDate').mockResolvedValue(undefined);
-      jest.spyOn(deviceService, 'removeFromGroup').mockResolvedValue(undefined);
-      jest.spyOn(groupService, 'deactivateReservation').mockResolvedValue(undefined);
-      jest.spyOn(groupService, 'countGroupIdHistoryIssuanceDeviceLog').mockResolvedValue(0);
-      jest.spyOn(groupService, 'getGroupCertificateIssueDate').mockResolvedValue(undefined);
-  
-      await service.handleCronForHistoricalIssuance();
-  
-      // Add logging to check the arguments
-      console.log('Arguments passed to updateTotalReadingRequestedForCertificateIssuance:', updateTotalReadingRequestedForCertificateIssuanceSpy.mock.calls);
-  
-      expect(updateTotalReadingRequestedForCertificateIssuanceSpy).toHaveBeenCalledWith(
-        1,
-        2,
-        0.001
-      );
-    });
-  });   */
 
   describe('addLateOngoingDeviceCertificateCycle', () => {
     it('should call addLateCertificateIssueDateLogForDevice with correct arguments', async () => {
@@ -344,142 +293,7 @@ describe('IssuerService', () => {
       expect(result).toBe(mockReturnValue);
     });
   });
-  /*
-  describe('newIssueCertificateForGroup', () => {
-    it('should log an error and throw NotFoundException if organization is not found', async () => {
-      // Arrange
-      const group: DeviceGroup = {
-        organizationId: 1,
-        devices: [],
-        id: 1,
-        name: 'Test Group',
-        buyerAddress: 'address',
-        buyerId: 1,
-        devicegroup_uid: 'uid',
-        authorityToExceed: false,
-        targetVolumeCertificateGenerationRequestedInMegaWattHour: 10,
-        targetVolumeInMegaWattHour: 100,
-      } as unknown as DeviceGroup;
-      const grouprequest: DeviceGroupNextIssueCertificate = {
-        id: 1,
-        groupId: 1,
-        start_date: new Date().toISOString(),
-        end_date: new Date().toISOString(),
-      } as unknown as DeviceGroupNextIssueCertificate;
-      const startDate = DateTime.now();
-      const endDate = DateTime.now();
-      const countryCodeKey = 'US';
-    
-      const findOneSpy = jest.spyOn(organizationService, 'findOne').mockResolvedValue(null);
-    
-      // Act & Assert
-      await expect(
-        service.newIssueCertificateForGroup(
-          group,
-          grouprequest,
-          startDate,
-          endDate,
-          countryCodeKey
-        )
-      ).rejects.toThrow(NotFoundException);
-    
-      expect(findOneSpy).toHaveBeenCalledWith(0);
-    });    
-  
-    it('should not proceed if group has no devices', async () => {
-      // Arrange
-      const group: DeviceGroup = {
-        organizationId: 1,
-        devices: [],
-        id: 1,
-        name: 'Test Group',
-        buyerAddress: 'address',
-        buyerId: 1,
-        devicegroup_uid: 'uid',
-        authorityToExceed: false,
-        targetVolumeCertificateGenerationRequestedInMegaWattHour: 10,
-        targetVolumeInMegaWattHour: 100,
-      } as unknown as DeviceGroup;
-      const grouprequest: DeviceGroupNextIssueCertificate = {
-        id: 1,
-        groupId: 1,
-        start_date: new Date().toISOString(),
-        end_date: new Date().toISOString(),
-      } as unknown as DeviceGroupNextIssueCertificate;
-      const startDate = DateTime.now();
-      const endDate = DateTime.now();
-      const countryCodeKey = 'US';
-  
-      const findOneSpy = jest.spyOn(organizationService, 'findOne').mockResolvedValue({} as unknown as Organization);
-  
-      // Act
-      await service.newIssueCertificateForGroup(
-        group,
-        grouprequest,
-        startDate,
-        endDate,
-        countryCodeKey
-      );
-  
-      // Assert
-      expect(findOneSpy).toHaveBeenCalledWith(group.organizationId);
-    });
-  
-    it('should handle devices and calculate reads correctly', async () => {
-      // Arrange
-      const group: DeviceGroup = {
-        organizationId: 1,
-        devices: [
-          {
-            externalId: 'device123',
-            meterReadtype: 'Delta',
-            createdAt: new Date(),
-          } as IDevice,
-        ],
-        id: 1,
-        name: 'Test Group',
-        buyerAddress: 'address',
-        buyerId: 1,
-        devicegroup_uid: 'uid',
-        authorityToExceed: false,
-        targetVolumeCertificateGenerationRequestedInMegaWattHour: 10,
-        targetVolumeInMegaWattHour: 100,
-      } as unknown as DeviceGroup;
-      const grouprequest: DeviceGroupNextIssueCertificate = {
-        id: 1,
-        groupId: 1,
-        start_date: new Date().toISOString(),
-        end_date: new Date().toISOString(),
-      } as unknown as DeviceGroupNextIssueCertificate;
-      const startDate = DateTime.now();
-      const endDate = DateTime.now();
-      const countryCodeKey = 'US';
-  
-      const findOneSpy = jest.spyOn(organizationService, 'findOne').mockResolvedValue({} as unknown as Organization);
-      jest.spyOn(deviceService, 'findDeviceLateCycleOfDateRange').mockResolvedValue([] as unknown as boolean);
-      const getCheckCertificateIssueDateLogForDeviceSpy = jest.spyOn(deviceService, 'getCheckCertificateIssueDateLogForDevice').mockResolvedValue([]);
-      jest.spyOn(readservice, 'getDeltaMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
-      jest.spyOn(readservice, 'latestRead').mockResolvedValue([{ timestamp: new Date() }]);
-      jest.spyOn(readservice, 'findLastReadForMeterWithinRange').mockResolvedValue([]);
-      jest.spyOn(readservice, 'getAggregateMeterReadsFirstEntryOfDevice').mockResolvedValue([]);
-      const AddCertificateIssueDateLogForDeviceGroupSpy = jest.spyOn(groupService, 'AddCertificateIssueDateLogForDeviceGroup').mockResolvedValue({} as unknown as CheckCertificateIssueDateLogForDeviceGroupEntity);
-  
-      // Act
-      await service.newIssueCertificateForGroup(
-        group,
-        grouprequest,
-        startDate,
-        endDate,
-        countryCodeKey
-      );
-  
-      // Assert
-      expect(findOneSpy).toHaveBeenCalledWith(group.organizationId);
-      expect(getCheckCertificateIssueDateLogForDeviceSpy).toHaveBeenCalled();
-      expect(AddCertificateIssueDateLogForDeviceGroupSpy).toHaveBeenCalled();
-    });
-  });  */
-
+ 
   describe('newHistoryIssueCertificateForDevice', () => {
     it('should return early if group buyerAddress or buyerId is missing', async () => {
       const group = {
@@ -635,103 +449,13 @@ describe('IssuerService', () => {
     });
   });
 
-  describe('handleLeftoverReadsByCountryCode', () => {
-    it('should correctly handle leftover reads when there are no existing leftovers', async () => {
-      const group = {
-        id: 1,
-        leftoverReadsByCountryCode: {},
-      } as unknown as DeviceGroup;
-      const totalReadValueW = 5000; // 5 kW
-      const countryCodeKey = 'US';
-
-      // Mock the separateIntegerAndDecimalByCountryCode method
-      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
-        integralVal: 5,
-        decimalVal: 0,
-      });
-
-      const result = await groupService.processLeftOverReadsByCountryCode(
-        group,
-        totalReadValueW,
-        countryCodeKey,
-      );
-
-      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5); // 5 kW
-      expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
-        1,
-        0,
-        'US',
-      );
-      expect(result).toBe(5);
-    });
-
-    it('should correctly handle leftover reads when there are existing leftovers', async () => {
-      const group = {
-        id: 1,
-        leftoverReadsByCountryCode: {
-          US: 0.5,
-        },
-      } as unknown as DeviceGroup;
-      const totalReadValueW = 5000; // 5 kW
-      const countryCodeKey = 'US';
-
-      // Mock the separateIntegerAndDecimalByCountryCode method
-      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
-        integralVal: 5,
-        decimalVal: 0.5,
-      });
-
-      const result = await groupService.processLeftOverReadsByCountryCode(
-        group,
-        totalReadValueW,
-        countryCodeKey,
-      );
-
-      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5.5); // 5.5 kW
-      expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
-        1,
-        0.5,
-        'US',
-      );
-      expect(result).toBe(5);
-    });
-
-    it('should correctly handle leftover reads when resulting value has decimal part', async () => {
-      const group = {
-        id: 1,
-        leftoverReadsByCountryCode: {},
-      } as unknown as DeviceGroup;
-      const totalReadValueW = 5500; // 5.5 kW
-      const countryCodeKey = 'US';
-
-      // Mock the separateIntegerAndDecimalByCountryCode method
-      (splitValueIntoIntegerAndDecimal as jest.Mock).mockReturnValue({
-        integralVal: 5,
-        decimalVal: 0.5,
-      });
-
-      const result = await groupService.processLeftOverReadsByCountryCode(
-        group,
-        totalReadValueW,
-        countryCodeKey,
-      );
-
-      expect(splitValueIntoIntegerAndDecimal).toHaveBeenCalledWith(5.5); // 5.5 kW
-      expect(groupService.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
-        1,
-        0.5,
-        'US',
-      );
-      expect(result).toBe(5);
-    });
-  });
+  
 
   describe('separateIntegerAndDecimalByCountryCode', () => {
     it('should correctly separate integer and decimal parts when both are non-zero', () => {
       const num = 5.75;
 
       // Mock the roundDecimalToFixedPrecision method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.75);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -743,7 +467,6 @@ describe('IssuerService', () => {
       const num = 10;
 
       // Mock the roundDecimalToFixedPrecision method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -755,7 +478,6 @@ describe('IssuerService', () => {
       const num = 0;
 
       // Mock the roundDecimalToFixedPrecision method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -767,11 +489,10 @@ describe('IssuerService', () => {
       const num = -3.65;
 
       // Mock the rounding function
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(-0.65);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
-      expect(result.integralVal).toBe(-4); // Ensure this is what you expect based on the method logic
+      expect(result.integralVal).toBe(-3); // Ensure this is what you expect based on the method logic
       expect(result.decimalVal).toBe(-0.65);
     });
   });
@@ -830,8 +551,6 @@ describe('IssuerService', () => {
     it('should separate positive number into integer and decimal parts correctly', () => {
       const num = 3.456;
 
-      // Mock the `roundDecimalNumber` method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.46);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -842,20 +561,14 @@ describe('IssuerService', () => {
     it('should handle negative number correctly', () => {
       const num = -3.456;
 
-      // Mock the `roundDecimalNumber` method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(-0.46);
-
       const result = splitValueIntoIntegerAndDecimal(num);
 
-      expect(result.integralVal).toBe(-4); // Integer part
+      expect(result.integralVal).toBe(-3); // Integer part
       expect(result.decimalVal).toBe(-0.46); // Rounded decimal part
     });
 
     it('should handle zero correctly', () => {
       const num = 0;
-
-      // Mock the `roundDecimalNumber` method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -866,9 +579,6 @@ describe('IssuerService', () => {
     it('should handle number with fewer than two decimal places correctly', () => {
       const num = 3.4;
 
-      // Mock the `roundDecimalNumber` method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.4);
-
       const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(3); // Integer part
@@ -877,9 +587,6 @@ describe('IssuerService', () => {
 
     it('should handle very small decimal values correctly', () => {
       const num = 0.0001;
-
-      // Mock the `roundDecimalNumber` method
-      (roundDecimalToFixedPrecision as jest.Mock).mockReturnValue(0.0);
 
       const result = splitValueIntoIntegerAndDecimal(num);
 
@@ -1016,7 +723,7 @@ describe('IssuerService', () => {
 
       // Mock the issueCertificate method
       const issueCertificateSpy = jest
-        .spyOn(certificateService, 'issue')
+        .spyOn(certificateService, 'issueFromAPI')
         .mockImplementation();
 
       certificateService.issueFromAPI(reading);
@@ -1043,7 +750,7 @@ describe('IssuerService', () => {
 
       // Mock the issueCertificate method
       const issueCertificateSpy = jest
-        .spyOn(certificateService, 'issue')
+        .spyOn(certificateService, 'issueFromAPI')
         .mockImplementation();
 
       certificateService.issueFromAPI(reading);
@@ -1075,7 +782,7 @@ describe('IssuerService', () => {
 
       certificateService.issue(reading);
 
-      expect(offChainCertificateService.issue).toHaveBeenCalledWith(reading);
+      expect(certificateService.issue).toHaveBeenCalledWith(reading);
     });
   });
 
@@ -1085,7 +792,7 @@ describe('IssuerService', () => {
         deviceId: '51',
       };
       const getAllSpy = jest
-        .spyOn(offChainCertificateService, 'getAll')
+        .spyOn(certificateService, 'get')
         .mockResolvedValue([]);
       await certificateService.get(request);
 

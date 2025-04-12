@@ -9,22 +9,18 @@ import {
   IIssueCommandParams
 } from '@energyweb/origin-247-certificate';
 import { HttpService } from '@nestjs/axios';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import { ICertificateMetadata } from '../../utils/types';
 
-import { Queues } from '../../../src/utils/enums/queues.enum';
 import {
   IDevice,
 } from '../../models';
-import { CertificateGenerationFrequency } from '../../utils/enums';
 import {
-  CertificateType,
+  CertificateGenerationFrequency, CertificateType,
   ReadType,
   SingleDeviceIssuanceStatus,
-  StandardCompliance,
+  StandardCompliance
 } from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Device } from '../device';

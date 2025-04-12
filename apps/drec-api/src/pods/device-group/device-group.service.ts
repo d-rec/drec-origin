@@ -1140,7 +1140,7 @@ export class DeviceGroupService {
     return await this.repository.save(deviceGroup);
   }
 
-  async updateLeftOverReadByCountryCode(
+  public async updateLeftOverReadByCountryCode(
     id: number,
     leftOverRead: number,
     countryCodeKey: string,

@@ -39,10 +39,12 @@ export const splitValueIntoIntegerAndDecimal = (num: number): {
     }
     
     // Extract integral part
-    const integralVal = Math.floor(num);
+    const integralVal = Math.trunc(num);
+
+    const decimals = parseFloat((num - integralVal).toFixed(10));
     
     // Extract and round decimal part
-    const decimalVal = roundDecimalToFixedPrecision(num - integralVal);
+    const decimalVal = roundDecimalToFixedPrecision(decimals);
     
     return { integralVal, decimalVal };
   }
