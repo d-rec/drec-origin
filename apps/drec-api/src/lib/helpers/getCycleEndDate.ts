@@ -11,7 +11,7 @@ export const getFrequencyInHours = (frequency: string): number => {
     case CertificateGenerationFrequency.monthly:
       return HOURS_PER_DAY * 30;
     case CertificateGenerationFrequency.quarterly:
-      return HOURS_PER_DAY * 90;
+      return HOURS_PER_DAY * 91;
     default:
       return 1;
   }
