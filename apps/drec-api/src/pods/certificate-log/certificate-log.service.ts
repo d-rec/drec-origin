@@ -29,7 +29,7 @@ import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevic
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
-import { ILoggedInUser } from '../../models';
+import { IDevice, ILoggedInUser } from '../../models';
 import { Role, SingleDeviceIssuanceStatus } from '../../utils/enums';
 import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
@@ -1048,18 +1048,19 @@ export class CertificateLogService {
 
   async createForDevice(
     group: DeviceGroup,
+    device: Device | IDevice,
     minimumStartDate: Date,
     maximumEndDate: Date,
-    startDate: DateTime,
-    endDate: DateTime,
     deviceReadValue: number,
     certificateTransactionUID: string,
+    startDate?: DateTime,
+    endDate?: DateTime,
   ): Promise<void> {
     const deviceCertificateLogDTO =
       new CheckCertificateIssueDateLogForDeviceEntity();
 
     // Set basic properties
-    deviceCertificateLogDTO.externalId = group.devices[0].externalId;
+    deviceCertificateLogDTO.externalId = device.externalId;
     deviceCertificateLogDTO.groupId = group.id;
     deviceCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested;
     deviceCertificateLogDTO.readvalue_watthour = deviceReadValue;
@@ -1071,8 +1072,13 @@ export class CertificateLogService {
 
     deviceCertificateLogDTO.certificate_issuance_enddate = maximumEndDate;
 
-    deviceCertificateLogDTO.ongoing_start_date = startDate.toString();
-    deviceCertificateLogDTO.ongoing_end_date = endDate.toString();
+    if (startDate) {
+      deviceCertificateLogDTO.ongoing_start_date = startDate.toString();
+    }
+
+    if (endDate) {
+      deviceCertificateLogDTO.ongoing_end_date = endDate.toString();
+    }
 
     // Save to database
     await this.deviceService.addCertificateIssueDateLogForDevice(

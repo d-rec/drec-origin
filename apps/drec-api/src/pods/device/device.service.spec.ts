@@ -1664,4 +1664,40 @@ describe('DeviceService', () => {
       });
     });
   });
+
+  describe('addCycle', () => {
+    it('should call addLateCertificateIssueDateLogForDevice with correct arguments', async () => {
+      // Arrange
+      const groupId = 1;
+      const deviceExternalId = 'device123';
+      const lateStartDate = new Date('2023-01-01');
+      const lateEndDate = new Date('2023-01-31');
+
+      const mockReturnValue =
+        {} as unknown as DeviceLateOngoingIssueCertificateEntity; // or any expected return value
+
+      const addLateCertificateIssueDateLogForDeviceSpy = jest
+        .spyOn(service, 'addLateCertificateIssueDateLogForDevice')
+        .mockResolvedValue(mockReturnValue);
+
+      // Act
+      const result = await service.addCycle(
+        groupId,
+        deviceExternalId,
+        lateStartDate,
+        lateEndDate,
+      );
+
+      // Assert
+      expect(addLateCertificateIssueDateLogForDeviceSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          device_externalid: deviceExternalId,
+          groupId: groupId,
+          late_start_date: lateStartDate.toString(),
+          late_end_date: lateEndDate.toString(),
+        }),
+      );
+      expect(result).toBe(mockReturnValue);
+    });
+  });
 });
