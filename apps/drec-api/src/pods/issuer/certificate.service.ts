@@ -1,26 +1,21 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
   OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
-import { InjectQueue } from '@nestjs/bull';
 import { ICertificateMetadata } from '../../utils/types';
 
-import { Queues } from '../../../src/utils/enums/queues.enum';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { CertificateType, StandardCompliance } from '../../utils/enums';
 import { IDevice } from '../../models';
+import { CertificateType, StandardCompliance } from '../../utils/enums';
+import { DeviceGroup } from '../device-group/device-group.entity';
 
 @Injectable()
 export class CertificateService {
   private readonly logger = new Logger(CertificateService.name);
 
   constructor(
-    @InjectQueue(Queues.LateOngoingIssuance)
-    @Inject(BASE_READ_SERVICE)
     private readonly offChainCertificateService: OffChainCertificateService<ICertificateMetadata>,
   ) {}
 

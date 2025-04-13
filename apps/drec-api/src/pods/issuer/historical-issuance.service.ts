@@ -21,23 +21,24 @@ export class HistoricalIssuanceService {
   private readonly logger = new Logger(HistoricalIssuanceService.name);
 
   constructor(
-    private groupService: DeviceGroupService,
-    private deviceService: DeviceService,
-    private organizationService: OrganizationService,
-    private readService: ReadsService,
+    private readonly groupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private readonly organizationService: OrganizationService,
+    private readonly readService: ReadsService,
     private readonly certificateService: CertificateService,
-    private certificateLogService: CertificateLogService,
+    private readonly certificateLogService: CertificateLogService,
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async processIssuance(): Promise<void> {
-    this.logger.debug('Starting historical certificate issuance check');
+    this.logger.debug('CRON [*/30s]: Historical certificate issuance check');
 
     // Get all pending historical issuance requests
     const historyDeviceRequests =
       await this.groupService.getNextHistoryIssuanceDeviceLog();
 
     if (historyDeviceRequests.length === 0) {
+      this.logger.debug('No pending historical issuance requests found');
       return; // Early return if no requests
     }
 

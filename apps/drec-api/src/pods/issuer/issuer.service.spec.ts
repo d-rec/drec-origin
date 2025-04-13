@@ -11,29 +11,28 @@ import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
-import { IDevice } from '../../models';
-import { ICertificateMetadata } from '../../utils/types';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 import {
   roundDecimalToFixedPrecision,
   splitValueIntoIntegerAndDecimal,
 } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { IDevice } from '../../models';
+import { ICertificateMetadata } from '../../utils/types';
 import { CertificateLogService } from '../certificate-log/certificate-log.service';
 import { DeviceService } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
-import { HistoricalIssuanceService } from './historical-issuance.service';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -47,7 +46,6 @@ describe('IssuerService', () => {
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
   let readsService: ReadsService;
-  let httpService: HttpService;
   let logger: Logger;
 
   beforeEach(async () => {
@@ -61,15 +59,7 @@ describe('IssuerService', () => {
         HistoricalIssuanceService,
         OngoingIssuanceService,
         IssuerService,
-        {
-          provide: CertificateService,
-          useValue: {
-            issue: jest.fn(),
-            get: jest.fn(),
-            issueFromAPI: jest.fn(),
-            getIssuanceParams: jest.fn(),
-          } as any,
-        },
+        CertificateService,
         {
           provide: OffChainCertificateService,
           useValue: {
@@ -171,7 +161,6 @@ describe('IssuerService', () => {
     );
     certificateService = module.get<CertificateService>(CertificateService);
     groupService = module.get<DeviceGroupService>(DeviceGroupService);
-    httpService = module.get<HttpService>(HttpService);
     logger = module.get<Logger>(Logger);
     deviceService = module.get<DeviceService>(DeviceService);
     organizationService = module.get<OrganizationService>(OrganizationService);
@@ -391,8 +380,6 @@ describe('IssuerService', () => {
     it('should correctly separate integer and decimal parts when both are non-zero', () => {
       const num = 5.75;
 
-      // Mock the roundDecimalToFixedPrecision method
-
       const result = splitValueIntoIntegerAndDecimal(num);
 
       expect(result.integralVal).toBe(5);
@@ -597,15 +584,10 @@ describe('IssuerService', () => {
         },
       };
 
-      // Mock the issueCertificate method
-      const issueCertificateSpy = jest
-        .spyOn(certificateService, 'issueFromAPI')
-        .mockImplementation();
-
       certificateService.issueFromAPI(reading);
 
       // Check if issueCertificate was called with the correct reading object
-      expect(issueCertificateSpy).toHaveBeenCalledWith(reading);
+      expect(offChainCertificateService.issue).toHaveBeenCalledWith(reading);
     });
 
     it('should handle invalid date strings gracefully', () => {
@@ -625,9 +607,6 @@ describe('IssuerService', () => {
       };
 
       // Mock the issueCertificate method
-      const issueCertificateSpy = jest
-        .spyOn(certificateService, 'issueFromAPI')
-        .mockImplementation();
 
       certificateService.issueFromAPI(reading);
 
@@ -636,7 +615,7 @@ describe('IssuerService', () => {
       expect(isNaN(reading.toTime.getTime())).toBe(true);
 
       // Check if issueCertificate was called with the correct reading object
-      expect(issueCertificateSpy).toHaveBeenCalledWith(reading);
+      expect(offChainCertificateService.issue).toHaveBeenCalledWith(reading);
     });
   });
 
@@ -658,7 +637,7 @@ describe('IssuerService', () => {
 
       certificateService.issue(reading);
 
-      expect(certificateService.issue).toHaveBeenCalledWith(reading);
+      expect(offChainCertificateService.issue).toHaveBeenCalledWith(reading);
     });
   });
 
@@ -667,12 +646,10 @@ describe('IssuerService', () => {
       const request: IGetAllCertificatesOptions = {
         deviceId: '51',
       };
-      const getAllSpy = jest
-        .spyOn(certificateService, 'get')
-        .mockResolvedValue([]);
+
       await certificateService.get(request);
 
-      expect(getAllSpy).toHaveBeenCalledWith(request);
+      expect(offChainCertificateService.getAll).toHaveBeenCalledWith(request);
     });
   });
 

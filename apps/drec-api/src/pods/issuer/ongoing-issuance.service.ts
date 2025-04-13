@@ -18,10 +18,10 @@ export class OngoingIssuanceService {
   private readonly logger = new Logger(OngoingIssuanceService.name);
 
   constructor(
-    private groupService: DeviceGroupService,
-    private deviceService: DeviceService,
-    private organizationService: OrganizationService,
-    private issuerService: IssuerService,
+    private readonly groupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private readonly organizationService: OrganizationService,
+    private readonly issuerService: IssuerService,
   ) {}
 
   /**
@@ -29,19 +29,19 @@ export class OngoingIssuanceService {
    */
   @Cron(CronExpression.EVERY_30_SECONDS)
   async processIssuance(): Promise<void> {
-    this.logger.debug('Starting ongoing cycle certificate issuance check');
+    this.logger.debug('CRON [*/30s]: Ongoing cycle certificate issuance check');
 
     // Fetch all pending certificate requests
     const groupsRequestAll =
       await this.groupService.getAllNextRequestCertificate();
 
     if (groupsRequestAll.length === 0) {
-      this.logger.debug('No pending certificate issuance requests found');
+      this.logger.debug('No pending ongoing issuance requests found');
       return;
     }
 
     this.logger.debug(
-      `Processing ${groupsRequestAll.length} certificate issuance requests`,
+      `Processing ${groupsRequestAll.length} ongoing certificate issuance requests`,
     );
 
     // Process all requests in parallel, ensuring proper binding of 'this'
@@ -51,7 +51,7 @@ export class OngoingIssuanceService {
       ),
     );
 
-    this.logger.debug('Certificate issuance check completed');
+    this.logger.debug('Ongoing issuance check completed');
   }
 
   /**

@@ -71,8 +71,8 @@ export class DRECIssuerController {
 
     return new Promise((resolve) => {
       this.invokeIssuerCronForHistory();
-      this.logger.log(`successfully Hitthe history API`);
-      resolve('successfully Hitthe history API');
+      this.logger.log(`successfully Hit the history API`);
+      resolve('successfully Hit the history API');
     });
   }
   /**

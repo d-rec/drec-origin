@@ -24,11 +24,11 @@ export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
 
   constructor(
-    private groupService: DeviceGroupService,
-    private deviceService: DeviceService,
-    private organizationService: OrganizationService,
-    private readsService: ReadsService,
-    private certificateLogService: CertificateLogService,
+    private readonly groupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private readonly organizationService: OrganizationService,
+    private readonly readsService: ReadsService,
+    private readonly certificateLogService: CertificateLogService,
     private readonly certificateService: CertificateService,
   ) {}
 

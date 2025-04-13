@@ -23,11 +23,11 @@ export class LateOngoingIssuanceService {
   constructor(
     @InjectQueue(Queues.LateOngoingIssuance)
     private readonly lateOngoingQueue: Queue,
-    private groupService: DeviceGroupService,
-    private deviceService: DeviceService,
-    private organizationService: OrganizationService,
-    private readsService: ReadsService,
-    private issuerService: IssuerService,
+    private readonly groupService: DeviceGroupService,
+    private readonly deviceService: DeviceService,
+    private readonly organizationService: OrganizationService,
+    private readonly readsService: ReadsService,
+    private readonly issuerService: IssuerService,
   ) {}
 
   /**
@@ -37,6 +37,7 @@ export class LateOngoingIssuanceService {
    */
   @Cron('0 0 */8 * * *')
   async scheduleIssuance(): Promise<void> {
+    this.logger.debug('CRON [*/8h]: Late ongoing certificate issuance check');
     try {
       const activeDeviceGroups =
         await this.groupService.getAllReservationActive();
