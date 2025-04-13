@@ -69,6 +69,7 @@ import { GlobalExceptionFilter } from './filters/global.filter';
 import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
+import { HealthModule } from './pods/health/health.module';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -147,7 +148,7 @@ export const originAppTypeOrmModule = (): DynamicModule => {
   return TypeOrmModule.forRoot(options);
 };
 
-const redisOptions = {
+export const redisOptions = {
   host: process.env.REDIS_URL ?? 'localhost',
   port: 6379,
 };
@@ -192,6 +193,7 @@ const queueModule = () => {
     OnChainCertificateModule,
     BlockchainPropertiesModule,
     BulkUploadModule,
+    HealthModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

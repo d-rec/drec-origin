@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IFullOrganization } from '../../../models';
-import { OrganizationStatus } from '../../../utils/enums';
+import { OrganizationStatus, OrganizationType } from '../../../utils/enums';
 
 export class UpdateOrganizationDTO
   implements
@@ -45,7 +45,7 @@ export class UpdateOrganizationDTO
   @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
-  organizationType: string;
+  organizationType: OrganizationType;
 
   // @ApiPropertyOptional({ type: String })
   // @IsString()

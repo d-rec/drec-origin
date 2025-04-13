@@ -10,6 +10,7 @@ import {
   Installation,
   OffTaker,
   OrganizationStatus,
+  OrganizationType,
   Sector,
   StandardCompliance,
   UserStatus,
@@ -27,7 +28,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress111',
-    organizationType: 'Developer',
+    organizationType: OrganizationType.Developer,
   },
   {
     id: 11,
@@ -38,7 +39,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'null',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress222',
-    organizationType: 'Buyer',
+    organizationType: OrganizationType.Buyer,
   },
   {
     id: 12,
@@ -49,7 +50,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress333',
-    organizationType: 'Admin',
+    organizationType: OrganizationType.Admin,
   },
   {
     id: 13,
@@ -60,7 +61,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress444',
-    organizationType: 'Developer',
+    organizationType: OrganizationType.Developer,
   },
 ];
 
@@ -69,29 +70,33 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     firstName: 'Jane',
     lastName: 'Williams',
     email: 'owner2@mailinator.com',
+    phoneNumber: '+250780079691', // Rwanda number
     password: '******123',
-    organizationType: 'Developer',
+    organizationType: OrganizationType.Developer,
   },
   {
     firstName: 'John',
     lastName: 'Buyer',
     email: 'buyer2@mailinator.com',
+    phoneNumber: '+447911123456', // UK number
     password: '******123',
-    organizationType: 'Buyer',
+    organizationType: OrganizationType.Buyer,
   },
   {
     firstName: 'Joe',
     lastName: 'Miller2',
     email: 'admin2@mailinator.com',
+    phoneNumber: '+14155552671', // US number
     password: '******123',
-    organizationType: 'ApiUser',
+    organizationType: OrganizationType.ApiUser,
   },
   {
     firstName: 'Maria',
     lastName: 'Williams',
     email: 'owner3@mailinator.com',
+    phoneNumber: '+819012345678', // Japanese number
     password: '******123',
-    organizationType: 'Developer',
+    organizationType: OrganizationType.Developer,
   },
 ];
 

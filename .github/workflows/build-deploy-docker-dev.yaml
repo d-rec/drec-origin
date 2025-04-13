@@ -1,4 +1,4 @@
-name: Development Deployment
+name: Development - Build, Push to ECR & Deploy to Kubernetes
 
 on:
   push:

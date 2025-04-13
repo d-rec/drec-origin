@@ -7,7 +7,12 @@ import { JwtService } from '@nestjs/jwt';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import bcrypt from 'bcryptjs';
 import { UserDTO } from '../pods/user/dto/user.dto';
-import { OrganizationStatus, Role, UserStatus } from '../utils/enums';
+import {
+  OrganizationStatus,
+  OrganizationType,
+  Role,
+  UserStatus,
+} from '../utils/enums';
 import { IUser } from '../models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
@@ -103,6 +108,7 @@ describe('AuthService', () => {
       firstName: 'fName',
       lastName: 'lName',
       email: 'test@example.com',
+      phoneNumber: '+250788496001', // Rwanda number
       notifications: true,
       status: UserStatus.Active,
       role: Role.OrganizationAdmin,
@@ -113,7 +119,7 @@ describe('AuthService', () => {
         zipCode: '623754',
         city: 'Chennai',
         country: 'India',
-        organizationType: 'Developer',
+        organizationType: OrganizationType.Developer,
         status: OrganizationStatus.Active,
       },
     };
@@ -303,6 +309,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+250784496001', // Rwanda number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -313,7 +320,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
       };
@@ -342,6 +349,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+447911123456', // UK number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -352,7 +360,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
       };
@@ -377,6 +385,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+14155552671', // US number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -387,7 +396,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
       };

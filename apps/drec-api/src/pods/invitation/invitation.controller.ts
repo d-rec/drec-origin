@@ -25,6 +25,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -47,7 +48,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { InviteDTO, UpdateInviteStatusDTO } from './dto/invite.dto';
 import { Invitation } from './invitation.entity';
 
-@ApiTags('invitation')
+@ApiTags('Invitation')
 @ApiBearerAuth('access-token')
 @Controller('/invitation')
 @UseInterceptors(NullOrUndefinedResultInterceptor)
@@ -67,20 +68,29 @@ export class InvitationController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get Invitations',
+    description:
+      'Retrieves all invitations associated with the authenticated user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: [InvitationDTO],
+    description: 'Returns an array of invitations for the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to access this resource.',
+  })
   @ApiQuery({
     name: 'organizationId',
     type: Number,
     required: false,
-    description:
-      'This organizationId can be used to retrieve records of apiuser',
+    description: 'Optional organization ID to filter invitations.',
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: [InvitationDTO],
-    description: 'Gets all invitations for a user',
-  })
   async getInvitations(
     @UserDecorator() loggedUser: ILoggedInUser,
     @Query('organizationId') organizationId?: number | null,
@@ -112,15 +122,30 @@ export class InvitationController {
   @UseGuards(AuthGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
-  // @ApiParam({
-  //   name: 'status',
-  //   enum: OrganizationInvitationStatus,
-  //   enumName: 'OrganizationInvitationStatus',
-  // })
+  @ApiOperation({
+    summary: 'Update Invitation',
+    description:
+      'Updates the status of an invitation based on the provided ID.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: SuccessResponseDTO,
-    description: 'Updates an invitation',
+    description:
+      'Returns a success response indicating the invitation has been updated.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified invitation does not exist.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'Bad Request. The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to update this invitation.',
   })
   async updateInvitation(
     @Param('id') invitationId: number,
@@ -159,20 +184,34 @@ export class InvitationController {
   )
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Invite a User',
+    description: 'Sends an invitation to a user to join an organization.',
+  })
   @ApiBody({ type: InviteDTO })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: SuccessResponseDTO,
-    description: 'Invites a user',
+    description: 'Successfully invited the user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid request data or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to invite members.',
   })
   @ApiQuery({
     name: 'organizationId',
     required: false,
     type: Number,
-    description: 'This query parameter is used to for admin...',
+    description:
+      'Optional ID of the organization to which the user is being invited.',
   })
   async invite(
-    @Body() { email, role, firstName, lastName }: InviteDTO,
+    @Body() { email, role, firstName, lastName, phoneNumber }: InviteDTO,
     @Query('organizationId') organizationId: number | null,
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<SuccessResponseDTO> {
@@ -205,6 +244,7 @@ export class InvitationController {
         await this.organizationInvitationService.invite(
           loggedUser,
           email,
+          phoneNumber,
           role,
           firstName,
           lastName,
@@ -214,6 +254,7 @@ export class InvitationController {
         await this.organizationInvitationService.invite(
           loggedUser,
           email,
+          phoneNumber,
           role,
           firstName,
           lastName,
@@ -247,10 +288,20 @@ export class InvitationController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
   @Permission('Read')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get invitations by email',
+    description:
+      'Retrieves all invitations associated with the logged-in user’s email.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: [InvitationDTO],
-    description: 'Gets all invitations for a user',
+    description: 'Gets all invitations for a user.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'Forbidden. The user does not have permission to view invitations.',
   })
   async getInvitationsByEmail(
     @UserDecorator() loggedUser: ILoggedInUser,

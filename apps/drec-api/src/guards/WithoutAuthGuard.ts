@@ -14,6 +14,7 @@ import { EmailConfirmationService } from '../pods/email-confirmation/email-confi
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { isEmail } from 'class-validator';
 import { UrlPath } from '../utils/enums/url-path.enum';
+import { OrganizationType } from '../utils/enums/organization-type.enum';
 
 @Injectable()
 export class WithoutAuthGuard implements CanActivate {
@@ -57,14 +58,18 @@ export class WithoutAuthGuard implements CanActivate {
 
       case UrlPath.Register: {
         const userData = await this.userService.findOne({ role: Role.Admin });
-        const userRoles = [Role.Developer, Role.ApiUser, Role.Buyer];
+        const userOrganizationTypes = [
+          OrganizationType.Developer,
+          OrganizationType.ApiUser,
+          OrganizationType.Buyer,
+        ];
 
-        if (userRoles.includes(request.body.organizationType)) {
+        if (userOrganizationTypes.includes(request.body.organizationType)) {
           user = userData;
         } else if (
           request.body.api_user_id !== userData.api_user_id &&
-          (request.body.organizationType === Role.Developer ||
-            request.body.organizationType === Role.Buyer)
+          (request.body.organizationType === OrganizationType.Developer ||
+            request.body.organizationType === OrganizationType.Buyer)
         ) {
           user = await this.userService.findOne({
             role: Role.ApiUser,
@@ -77,7 +82,7 @@ export class WithoutAuthGuard implements CanActivate {
               message: 'Requested api user is not available',
             });
           }
-        } else if (request.body.organizationType === Role.ApiUser) {
+        } else if (request.body.organizationType === OrganizationType.ApiUser) {
           const apiUser =
             await this.oauthClientCredentialsService.createAPIUser();
           request.body.api_user_id = apiUser.api_user_id;

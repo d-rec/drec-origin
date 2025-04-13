@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '@energyweb/origin-backend-utils';
+import { OrganizationType } from '../src/utils/enums/organization-type.enum';
 
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';
@@ -155,7 +156,7 @@ describe('Organization tests', () => {
       zipCode: 'Zip code',
       city: 'City',
       country: 'DE',
-      organizationType: 'DeviceOwner',
+      organizationType: OrganizationType.Developer,
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);

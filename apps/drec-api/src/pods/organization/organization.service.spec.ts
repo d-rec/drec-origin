@@ -12,7 +12,12 @@ import { MailService } from '../../mail/mail.service';
 import { FileService } from '../file';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { LoggedInUser } from '../../models';
-import { OrganizationStatus, Role, UserStatus } from '../../utils/enums';
+import {
+  OrganizationStatus,
+  OrganizationType,
+  Role,
+  UserStatus,
+} from '../../utils/enums';
 import {
   InternalServerErrorException,
   NotFoundException,
@@ -171,7 +176,7 @@ describe('OrganizationService', () => {
             country: null,
             blockchainAccountAddress: null,
             blockchainAccountSignedMessage: null,
-            organizationType: 'Developer',
+            organizationType: OrganizationType.Developer,
             orgEmail: 'mgi36509@zslsz.com',
             status: 'Active',
             documentIds: null,
@@ -303,7 +308,7 @@ describe('OrganizationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: 'Developer',
+        organizationType: OrganizationType.Developer,
         orgEmail: 'mgi36509@zslsz.com',
         status: OrganizationStatus.Active, //"Active",
         documentIds: null,
@@ -367,7 +372,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -398,7 +403,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -427,7 +432,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -456,7 +461,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -485,7 +490,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,

@@ -7,6 +7,7 @@ import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
 import {
   OrganizationStatus,
+  OrganizationType,
   Role,
   UserPermissionStatus,
   UserStatus,
@@ -84,7 +85,7 @@ describe('OauthClientCredentialsService', () => {
           id: 1,
           name: 'ORG_APIUSER',
           address: 'any address',
-          organizationType: Role.ApiUser,
+          organizationType: OrganizationType.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
           api_user_id: apiUserId,
@@ -147,7 +148,7 @@ describe('OauthClientCredentialsService', () => {
           id: 1,
           name: 'ORG_APIUSER',
           address: 'any address',
-          organizationType: Role.ApiUser,
+          organizationType: OrganizationType.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
           api_user_id: apiUserId,

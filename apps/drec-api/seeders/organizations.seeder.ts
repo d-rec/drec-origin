@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Organization } from "../src/pods/organization/organization.entity";
 import { OrganizationStatus } from "../src/utils/enums/organization-status.enum";
 import { Injectable } from "@nestjs/common";
+import { OrganizationType } from "../src/utils/enums";
 
 @Injectable()
 export class OrganizationsSeeder implements SeederInterface{
@@ -19,7 +20,7 @@ export class OrganizationsSeeder implements SeederInterface{
               {
                   name: 'John Doe',
                   orgEmail: buyerEmail?.toLowerCase() || '',
-                  organizationType: 'Buyer',
+                  organizationType: OrganizationType.Buyer,
                   address: '123 Buyer St',
                   zipCode: '10001',
                   city: 'New York',
@@ -33,7 +34,7 @@ export class OrganizationsSeeder implements SeederInterface{
               {
                   name: 'Jane Smith',
                   orgEmail: developerEmail?.toLowerCase() || '',
-                  organizationType: 'Developer',
+                  organizationType: OrganizationType.Developer,
                   address: '456 Dev Ave',
                   zipCode: '20002',
                   city: 'San Francisco',
