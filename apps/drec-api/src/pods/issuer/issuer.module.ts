@@ -19,6 +19,8 @@ import { LateOngoingIssuanceProcessor } from './late-ongoing-issuance.processor'
 import { Queues } from '../../../src/utils/enums/queues.enum';
 import { CertificateService } from './certificate.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import { HistoricalIssuanceService } from './historical-issuance.service';
+import { OngoingIssuanceService } from './ongoing-issuance.service';
 
 @Module({
   imports: [
@@ -42,12 +44,16 @@ import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
     IssuerService,
     SynchronizeBlockchainTaskService,
     LateOngoingIssuanceProcessor,
+    HistoricalIssuanceService,
+    OngoingIssuanceService,
   ],
   exports: [
     IssuerService,
     CertificateService,
     LateOngoingIssuanceService,
     BullModule,
+    HistoricalIssuanceService,
+    OngoingIssuanceService,
   ],
   controllers: [DRECIssuerController],
 })

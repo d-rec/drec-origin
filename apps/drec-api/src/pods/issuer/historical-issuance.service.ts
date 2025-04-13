@@ -30,7 +30,7 @@ export class HistoricalIssuanceService {
   ) {}
 
   @Cron(CronExpression.EVERY_30_SECONDS)
-  async processHistoricalIssuance(): Promise<void> {
+  async processIssuance(): Promise<void> {
     this.logger.debug('Starting historical certificate issuance check');
 
     // Get all pending historical issuance requests
@@ -220,7 +220,7 @@ export class HistoricalIssuanceService {
    * @param device - Device information
    * @returns Promise that resolves when the certificate is issued
    */
-  private async issueCertificate(
+  async issueCertificate(
     group: DeviceGroup,
     deviceHistoryRequest: HistoryIntermediateMeterRead,
     device: IDevice,

@@ -32,10 +32,14 @@ import { ReadsService } from '../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import { OngoingIssuanceService } from './ongoing-issuance.service';
+import { HistoricalIssuanceService } from './historical-issuance.service';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
   let service: IssuerService;
+  let ongoingIssuanceService: OngoingIssuanceService;
+  let historicalIssuanceService: HistoricalIssuanceService;
   let certificateService: CertificateService;
   let lateOngoingIssuanceService: LateOngoingIssuanceService;
   let groupService: DeviceGroupService;
@@ -53,6 +57,8 @@ describe('IssuerService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LateOngoingIssuanceService,
+        HistoricalIssuanceService,
+        OngoingIssuanceService,
         IssuerService,
         {
           provide: CertificateService,
@@ -169,6 +175,12 @@ describe('IssuerService', () => {
     deviceService = module.get<DeviceService>(DeviceService);
     organizationService = module.get<OrganizationService>(OrganizationService);
     readsService = module.get<ReadsService>(ReadsService);
+    ongoingIssuanceService = module.get<OngoingIssuanceService>(
+      OngoingIssuanceService,
+    );
+    historicalIssuanceService = module.get<HistoricalIssuanceService>(
+      HistoricalIssuanceService,
+    );
   });
 
   it('should be defined', () => {
@@ -215,7 +227,7 @@ describe('IssuerService', () => {
         .mockResolvedValue([]);
 
       // Act
-      await service.handleCron();
+      await ongoingIssuanceService.processIssuance();
 
       // Assert
       expect(getAllNextrequestCertificateSpy).toHaveBeenCalled();
@@ -243,7 +255,7 @@ describe('IssuerService', () => {
         .mockResolvedValue(mockReturnValue);
 
       // Act
-      const result = await lateOngoingIssuanceService.addCycle(
+      const result = await deviceService.addCycle(
         groupId,
         deviceExternalId,
         lateStartDate,
@@ -273,7 +285,7 @@ describe('IssuerService', () => {
         {} as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
-      await service.newHistoryIssueCertificateForDevice(
+      await historicalIssuanceService.issueCertificate(
         group,
         deviceHistoryRequest,
         device,
@@ -300,7 +312,7 @@ describe('IssuerService', () => {
       } as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
-      await service.newHistoryIssueCertificateForDevice(
+      await historicalIssuanceService.issueCertificate(
         group,
         deviceHistoryRequest,
         device,
@@ -338,7 +350,7 @@ describe('IssuerService', () => {
         countryCode: 'US',
       } as unknown as IDevice;
 
-      await service.newHistoryIssueCertificateForDevice(
+      await historicalIssuanceService.issueCertificate(
         group,
         deviceHistoryRequest,
         device,
@@ -370,7 +382,7 @@ describe('IssuerService', () => {
         countryCode: 'US',
       } as unknown as IDevice;
 
-      await service.newHistoryIssueCertificateForDevice(
+      await historicalIssuanceService.issueCertificate(
         group,
         deviceHistoryRequest,
         device,
@@ -402,7 +414,7 @@ describe('IssuerService', () => {
         countryCode: 'US',
       } as unknown as IDevice;
 
-      await service.newHistoryIssueCertificateForDevice(
+      await historicalIssuanceService.issueCertificate(
         group,
         deviceHistoryRequest,
         device,
@@ -751,12 +763,12 @@ describe('IssuerService', () => {
       jest.spyOn(organizationService, 'findOne').mockResolvedValue(null);
 
       try {
-        await lateOngoingIssuanceService.issueCertificateForGroup(
+        await service.issueCertificate(
           group,
+          groupRequest,
           startDate,
           endDate,
           countryCodeKey,
-          groupRequest,
         );
       } catch (error) {
         console.log('Caught error:', error);
@@ -775,12 +787,12 @@ describe('IssuerService', () => {
       const endDate = DateTime.now();
       const countryCodeKey = 'US';
 
-      await lateOngoingIssuanceService.issueCertificateForGroup(
+      await service.issueCertificate(
         group,
+        groupRequest,
         startDate,
         endDate,
         countryCodeKey,
-        groupRequest,
       );
 
       // Verify that no further methods are called

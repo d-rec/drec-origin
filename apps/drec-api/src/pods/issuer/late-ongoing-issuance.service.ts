@@ -277,7 +277,7 @@ export class LateOngoingIssuanceService {
       cycle.device_externalid,
     );
 
-    await this.issuerService.issueForGroup(
+    await this.issuerService.issueCertificate(
       group,
       nextIssuance,
       cycle.lateStartDateUTC,
@@ -329,7 +329,7 @@ export class LateOngoingIssuanceService {
       cycle.late_end_date,
     );
 
-    await this.issuerService.issueForGroup(
+    await this.issuerService.issueCertificate(
       group,
       nextIssuance,
       cycle.lateStartDateUTC,

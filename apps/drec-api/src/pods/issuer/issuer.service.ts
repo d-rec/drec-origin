@@ -19,7 +19,6 @@ type DeviceReading = {
   timestamp: Date;
   value: number;
 };
-
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -42,7 +41,7 @@ export class IssuerService {
    * @param endDate - End date for the issuance period
    * @param countryCodeKey - Country code for the issuance
    */
-  public async issueForGroup(
+  public async issueCertificate(
     group: DeviceGroup,
     groupRequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
@@ -95,7 +94,8 @@ export class IssuerService {
       return;
     }
 
-    const issueTotalReadValue = totalReadValueKw * 10 ** 3; // Issue certificate in watts
+    // Issue certificate in watts
+    const issueTotalReadValue = totalReadValueKw * 10 ** 3; 
 
     const { minimumStartDate, maximumEndDate } = this.calculateDateRanges(
       previousReadings,

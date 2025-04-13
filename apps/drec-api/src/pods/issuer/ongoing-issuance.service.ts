@@ -28,7 +28,7 @@ export class OngoingIssuanceService {
    * Scheduled job that runs every 30 seconds to process ongoing cycle's certificate issuance
    */
   @Cron(CronExpression.EVERY_30_SECONDS)
-  async processOngoingCycle(): Promise<void> {
+  async processIssuance(): Promise<void> {
     this.logger.debug('Starting ongoing cycle certificate issuance check');
 
     // Fetch all pending certificate requests
@@ -270,7 +270,7 @@ export class OngoingIssuanceService {
         devices,
       } as DeviceGroup;
 
-      await this.issuerService.issueForGroup(
+      await this.issuerService.issueCertificate(
         countryGroup,
         groupRequest,
         startDate,

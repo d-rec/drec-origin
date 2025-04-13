@@ -7,10 +7,11 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
-import { IssuerService } from './issuer.service';
 import { CertificateService } from './certificate.service';
+import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
+import { HistoricalIssuanceService } from './historical-issuance.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import { OngoingIssuanceService } from './ongoing-issuance.service';
 
 @ApiTags('DREC Issuer')
 @ApiBearerAuth('access-token')
@@ -20,9 +21,10 @@ export class DRECIssuerController {
   private readonly logger = new Logger(DRECIssuerController.name);
 
   constructor(
-    private readonly issuerService: IssuerService,
     private readonly certificateService: CertificateService,
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
+    private readonly historicalIssuanceService: HistoricalIssuanceService,
+    private readonly ongoingIssuanceService: OngoingIssuanceService,
   ) {}
   /**
    *
@@ -48,7 +50,7 @@ export class DRECIssuerController {
   async invokeIssuerCronOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronOngoing`);
     try {
-      await this.issuerService.handleCron();
+      await this.ongoingIssuanceService.processIssuance();
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
@@ -98,7 +100,7 @@ export class DRECIssuerController {
   async invokeIssuerCronForHistory(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronForHistory`);
     try {
-      await this.issuerService.handleCronForHistoricalIssuance();
+      await this.historicalIssuanceService.processIssuance();
     } catch (e) {
       this.logger.error('caught exception in cron history', e);
     }
