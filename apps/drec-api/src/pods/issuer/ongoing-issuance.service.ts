@@ -3,7 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { DateTime } from 'luxon';
 
-import { getCycleEndDate } from 'src/lib/helpers/getCycleEndDate';
+import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { Device } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';

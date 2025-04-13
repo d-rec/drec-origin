@@ -95,7 +95,7 @@ export class IssuerService {
     }
 
     // Issue certificate in watts
-    const issueTotalReadValue = totalReadValueKw * 10 ** 3; 
+    const issueTotalReadValue = totalReadValueKw * 10 ** 3;
 
     const { minimumStartDate, maximumEndDate } = this.calculateDateRanges(
       previousReadings,

@@ -41,6 +41,7 @@ describe('IssuerService', () => {
   let ongoingIssuanceService: OngoingIssuanceService;
   let historicalIssuanceService: HistoricalIssuanceService;
   let certificateService: CertificateService;
+  let certificateLogService: CertificateLogService;
   let lateOngoingIssuanceService: LateOngoingIssuanceService;
   let groupService: DeviceGroupService;
   let deviceService: DeviceService;
@@ -181,6 +182,9 @@ describe('IssuerService', () => {
     historicalIssuanceService = module.get<HistoricalIssuanceService>(
       HistoricalIssuanceService,
     );
+    certificateLogService = module.get<CertificateLogService>(
+      CertificateLogService,
+    );
   });
 
   it('should be defined', () => {
@@ -203,6 +207,7 @@ describe('IssuerService', () => {
         frequency: 'daily',
         leftoverReadsByCountryCode: '{}',
         organizationId: 1,
+        loadLeftOverReadsByCountry: jest.fn(),
       } as unknown as DeviceGroup;
       const getAllNextrequestCertificateSpy = jest
         .spyOn(groupService, 'getAllNextRequestCertificate')
@@ -239,42 +244,6 @@ describe('IssuerService', () => {
     });
   });
 
-  describe('addLateOngoingDeviceCertificateCycle', () => {
-    it('should call addLateCertificateIssueDateLogForDevice with correct arguments', async () => {
-      // Arrange
-      const groupId = 1;
-      const deviceExternalId = 'device123';
-      const lateStartDate = new Date('2023-01-01');
-      const lateEndDate = new Date('2023-01-31');
-
-      const mockReturnValue =
-        {} as unknown as DeviceLateOngoingIssueCertificateEntity; // or any expected return value
-
-      const addLateCertificateIssueDateLogForDeviceSpy = jest
-        .spyOn(deviceService, 'addLateCertificateIssueDateLogForDevice')
-        .mockResolvedValue(mockReturnValue);
-
-      // Act
-      const result = await deviceService.addCycle(
-        groupId,
-        deviceExternalId,
-        lateStartDate,
-        lateEndDate,
-      );
-
-      // Assert
-      expect(addLateCertificateIssueDateLogForDeviceSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          device_externalid: deviceExternalId,
-          groupId: groupId,
-          late_start_date: lateStartDate.toString(),
-          late_end_date: lateEndDate.toString(),
-        }),
-      );
-      expect(result).toBe(mockReturnValue);
-    });
-  });
-
   describe('newHistoryIssueCertificateForDevice', () => {
     it('should return early if group buyerAddress or buyerId is missing', async () => {
       const group = {
@@ -291,12 +260,8 @@ describe('IssuerService', () => {
         device,
       );
 
-      expect(
-        deviceService.addCertificateIssueDateLogForDevice,
-      ).not.toHaveBeenCalled();
-      expect(
-        groupService.addCertificateIssueDateLogForDeviceGroup,
-      ).not.toHaveBeenCalled();
+      expect(certificateLogService.createForDevice).not.toHaveBeenCalled();
+      expect(certificateLogService.createForGroup).not.toHaveBeenCalled();
       expect(
         readsService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
@@ -318,12 +283,8 @@ describe('IssuerService', () => {
         device,
       );
 
-      expect(
-        deviceService.addCertificateIssueDateLogForDevice,
-      ).not.toHaveBeenCalled();
-      expect(
-        groupService.addCertificateIssueDateLogForDeviceGroup,
-      ).not.toHaveBeenCalled();
+      expect(certificateLogService.createForDevice).not.toHaveBeenCalled();
+      expect(certificateLogService.createForGroup).not.toHaveBeenCalled();
       expect(
         readsService.updateHistoryCertificateIssueDate,
       ).not.toHaveBeenCalled();
@@ -356,9 +317,7 @@ describe('IssuerService', () => {
         device,
       );
 
-      expect(
-        deviceService.addCertificateIssueDateLogForDevice,
-      ).toHaveBeenCalled();
+      expect(certificateLogService.createForDevice).toHaveBeenCalled();
     });
 
     it('should call AddCertificateIssueDateLogForDeviceGroup and issue a certificate correctly when all conditions are met', async () => {
@@ -388,9 +347,7 @@ describe('IssuerService', () => {
         device,
       );
 
-      expect(
-        groupService.addCertificateIssueDateLogForDeviceGroup,
-      ).toHaveBeenCalled();
+      expect(certificateLogService.createForGroup).toHaveBeenCalled();
     });
 
     it('should update the history certificate issue date correctly', async () => {

@@ -70,7 +70,7 @@ import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { getCycleEndDate } from 'src/lib/helpers/getCycleEndDate';
+import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 
 @Injectable()
 export class DeviceService {
