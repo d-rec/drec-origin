@@ -4,14 +4,14 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 
 import { getCycleEndDate } from 'src/lib/helpers/getCycleEndDate';
-import { IDevice } from '../../models';
+import { Device } from '../device';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
 import { EndReservationDateDTO } from '../device-group/dto';
 import { DeviceService } from '../device/device.service';
 import { OrganizationService } from '../organization/organization.service';
-import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
+import { IssuerService } from './issuer.service';
 
 @Injectable()
 export class OngoingIssuanceService {
@@ -21,7 +21,7 @@ export class OngoingIssuanceService {
     private groupService: DeviceGroupService,
     private deviceService: DeviceService,
     private organizationService: OrganizationService,
-    private lateOngoingIssuanceService: LateOngoingIssuanceService,
+    private issuerService: IssuerService,
   ) {}
 
   /**
@@ -105,7 +105,7 @@ export class OngoingIssuanceService {
         groupRequest,
       );
     } else {
-       // Normal certificate issuance case
+      // Normal certificate issuance case
       const newEndDate = await this.calculateOptimalEndDate(
         group,
         startDateFormatted,
@@ -231,7 +231,7 @@ export class OngoingIssuanceService {
 
     await Promise.all(
       devicesWithMissingReadType.map(async (device) => {
-        await this.lateOngoingIssuanceService.addCycle(
+        await this.deviceService.addCycle(
           group.id,
           device.externalId,
           startDate,
@@ -255,7 +255,7 @@ export class OngoingIssuanceService {
    */
   private async processByCountry(
     group: DeviceGroup,
-    countryDeviceGroup: Record<string, IDevice[]>,
+    countryDeviceGroup: Record<string, Device[]>,
     groupRequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
@@ -263,12 +263,14 @@ export class OngoingIssuanceService {
     // Process each country's devices
     for (const country in countryDeviceGroup) {
       // Create country-specific group using spread operator instead of deep cloning
+      const devices = countryDeviceGroup[country];
+
       const countryGroup = {
         ...group,
-        devices: countryDeviceGroup[country],
-      };
+        devices,
+      } as DeviceGroup;
 
-      await this.newIssueCertificateForGroup(
+      await this.issuerService.issueForGroup(
         countryGroup,
         groupRequest,
         startDate,

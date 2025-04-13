@@ -114,7 +114,7 @@ describe('IssuerService', () => {
             addCertificateIssueDateLogForDevice: jest.fn(),
             removeFromGroup: jest.fn(),
             addLateCertificateIssueDateLogForDevice: jest.fn(),
-            findDeviceLateCycleOfDateRange: jest.fn(),
+            findLateCycleByDateRange: jest.fn(),
             getCheckCertificateIssueDateLogForDevice: jest.fn(),
             findAllLateCycle: jest.fn(),
           } as any,
