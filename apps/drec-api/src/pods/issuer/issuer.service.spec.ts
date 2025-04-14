@@ -1187,7 +1187,7 @@ describe('IssuerService', () => {
     });
   });
 
-  describe('handleCronForOngoingLateIssuance', () => {
+  describe('triggerOngoingLateIssuance', () => {
     it('should parse leftoverReadsByCountryCode if it is a string', async () => {
       const mockGroup = {
         id: 'group1',
@@ -1206,8 +1206,7 @@ describe('IssuerService', () => {
       jest
         .spyOn(groupService, 'getGroupCertificateIssueDate')
         .mockResolvedValue({} as unknown as DeviceGroupNextIssueCertificate);
-      await service.handleCronForOngoingLateIssuance();
-      await service.scheduleLateOngoingIssuance();
+      await service.triggerOngoingLateIssuance();
 
       const parsedLeftoverReads = JSON.parse(
         mockGroup.leftoverReadsByCountryCode,

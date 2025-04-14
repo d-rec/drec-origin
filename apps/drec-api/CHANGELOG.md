@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.2.0) (2025-04-10)
+
+
+### Features
+
+* load late ongoing queries in parallel ([1de8328](https://github.com/d-rec/drec-origin/commit/1de8328dca154f6ee904ce2c999173d6fc4c2733))
+* trigger the late ongoing issuance in a queue ([46d0623](https://github.com/d-rec/drec-origin/commit/46d06231c48b87de032928d9c006c6fe2579118d))
+
+
+### Improvements
+
+* add standard versioning ([f98d72e](https://github.com/d-rec/drec-origin/commit/f98d72ede10656f4c5ffa9b1f387aaf878f2ee39))
+* console log http 500 error only ([e316a8d](https://github.com/d-rec/drec-origin/commit/e316a8d3aa861f070a6b9fae0c18c2e40fac766f))
+* ignore changelog in markdown lint ([a1c045e](https://github.com/d-rec/drec-origin/commit/a1c045e1e7bc2a36fb69c4d67a0d31a57a14c9e6))
+* reduce timeout between late ongoing processing ([f0bf022](https://github.com/d-rec/drec-origin/commit/f0bf022bd9f36b5c946f696dbcda707fea274254))
+* **release:** 0.1.3 ([d859e8f](https://github.com/d-rec/drec-origin/commit/d859e8fb8955bb2e088672c6481fc2e208701b8f))
+* **sentry:** merge sentry filter with global filter ([#555](https://github.com/d-rec/drec-origin/issues/555)) ([b6b1b5e](https://github.com/d-rec/drec-origin/commit/b6b1b5e9293f88656e380b51b9cfcda5b98b9387))
+* show progress in terminal ([70eaa61](https://github.com/d-rec/drec-origin/commit/70eaa6172164436aa551351044fedccfdfe4ecf0))
+* temporary disable the late ongoing cronjob ([5175126](https://github.com/d-rec/drec-origin/commit/5175126eb1f477c6c729291729a2cf62ab5e79e4))
+
 ### [0.1.3](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.1.3) (2025-04-05)
 
 
