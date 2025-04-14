@@ -120,6 +120,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
+        phoneNumber: '+1234567890',
       } as CreateUserOrgDTO;
 
       const orgData: Organization = {
@@ -145,6 +146,9 @@ describe('UserService', () => {
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
       };
+      jest
+        .spyOn(service, 'sendOtp')
+        .mockResolvedValue({ message: 'OTP sent successfully' });
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest

@@ -188,8 +188,7 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
-      const aa = await this.sendOtp(user.phoneNumber);
-      console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', aa);
+      await this.sendOtp(user.phoneNumber);
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -432,7 +431,7 @@ export class UserService {
   }
   async sendOtp(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
-    console.log(formatted);
+
     const otp = this.generateOtp();
     const sns = new AWS.SNS({
       endpoint: 'http://localhost:4566',
@@ -443,8 +442,7 @@ export class UserService {
     };
 
     try {
-      const result = await sns.publish(params).promise();
-      console.log('Message sent with ID:', result.MessageId);
+      await sns.publish(params).promise();
       this.currentOtp = otp;
       this.otpExpirationTime = Date.now() + 5 * 60 * 1000;
       return { message: 'OTP sent via message.' };
