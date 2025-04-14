@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -187,8 +188,8 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
-     const aa = await this.sendOtp(user.phoneNumber);
-     console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",aa)
+      const aa = await this.sendOtp(user.phoneNumber);
+      console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', aa);
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -435,7 +436,7 @@ export class UserService {
     const otp = this.generateOtp();
     const sns = new AWS.SNS({
       endpoint: 'http://localhost:4566',
-    })
+    });
     const params = {
       Message: `Your OTP is: ${otp}. Please enter it to verify your phone number.`,
       PhoneNumber: formatted,
@@ -445,16 +446,16 @@ export class UserService {
       const result = await sns.publish(params).promise();
       console.log('Message sent with ID:', result.MessageId);
       this.currentOtp = otp;
-      this.otpExpirationTime = Date.now() + 5 * 60 * 1000; 
-      return otp; 
+      this.otpExpirationTime = Date.now() + 5 * 60 * 1000;
+      return otp;
     } catch (error) {
       console.error('Error sending OTP:', error);
       throw new Error('Failed to send OTP via SMS');
     }
   }
-  async verifyOtp(phoneNumber:string,otp: string): Promise<boolean> {
+  async verifyOtp(phoneNumber: string, otp: string): Promise<boolean> {
     if (!this.checkOtpValidity()) {
-      throw new Error('OTP has expired or is invalid.');
+      throw new BadRequestException('OTP has expired.');
     }
     if (this.currentOtp === otp) {
       const user = await this.repository.findOne({ where: { phoneNumber } });
@@ -462,14 +463,19 @@ export class UserService {
         throw new ConflictException('User not found.');
       }
       user.isPhoneVerified = true;
-      user.phone_number_verified_at = new Date(); 
-      await this.repository.save(user); 
-      return true; 
+      user.phone_number_verified_at = new Date();
+      await this.repository.save(user);
+      return true;
     }
-    return false;
+
+    throw new BadRequestException('Invalid OTP.');
   }
   private checkOtpValidity(): boolean {
-    return this.currentOtp !== null && this.otpExpirationTime !== null && Date.now() < this.otpExpirationTime;
+    return (
+      this.currentOtp !== null &&
+      this.otpExpirationTime !== null &&
+      Date.now() < this.otpExpirationTime
+    );
   }
 
   async updatePassword(

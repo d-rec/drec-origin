@@ -193,13 +193,16 @@ export class UserController {
   }
 
   @Post('send-otp')
-  @ApiBody({ type: SendOtpDTO }) 
+  @ApiBody({ type: SendOtpDTO })
   async sendOtp(@Body('phoneNumber') phoneNumber: string) {
     return this.userService.sendOtp(phoneNumber);
   }
   @Post('verify-otp')
-  @ApiBody({ type: SendOtpDTO }) 
-  async verifyOtp(@Body('phoneNumber') phoneNumber: string, @Body('otp') otp: string) {
+  @ApiBody({ type: SendOtpDTO })
+  async verifyOtp(
+    @Body('phoneNumber') phoneNumber: string,
+    @Body('otp') otp: string,
+  ) {
     const isVerified = await this.userService.verifyOtp(phoneNumber, otp);
     if (isVerified) {
       return { message: 'Phone number verified successfully.' };

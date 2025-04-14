@@ -102,9 +102,9 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @Column({ default: false })
   isPhoneVerified: boolean;
-  
+
   @Column({ nullable: true })
-  phone_number_verified_at: Date; 
+  phone_number_verified_at: Date;
 
   @IsEnum(UserPermissionStatus)
   permission_status?: UserPermissionStatus;

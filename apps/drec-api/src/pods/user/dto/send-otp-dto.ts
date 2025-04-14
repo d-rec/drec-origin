@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class SendOtpDTO {
   @ApiProperty({
-    type:String 
+    type: String,
   })
   @IsNotEmpty()
   @IsString()
