@@ -194,7 +194,9 @@ export class UserController {
 
   @Post('send-otp')
   @ApiBody({ type: SendOtpDTO })
-  async sendOtp(@Body('phoneNumber') phoneNumber: string) {
+  async sendOtp(
+    @Body('phoneNumber') phoneNumber: string,
+  ): Promise<{ message: string }> {
     return this.userService.sendOtp(phoneNumber);
   }
   @Post('verify-otp')
@@ -202,7 +204,7 @@ export class UserController {
   async verifyOtp(
     @Body('phoneNumber') phoneNumber: string,
     @Body('otp') otp: string,
-  ) {
+  ): Promise<{ message: string }> {
     const isVerified = await this.userService.verifyOtp(phoneNumber, otp);
     if (isVerified) {
       return { message: 'Phone number verified successfully.' };

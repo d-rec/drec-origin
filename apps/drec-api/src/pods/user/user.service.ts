@@ -430,7 +430,7 @@ export class UserService {
   private generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
-  async sendOtp(phoneNumber: string): Promise<string> {
+  async sendOtp(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
     console.log(formatted);
     const otp = this.generateOtp();
@@ -447,7 +447,7 @@ export class UserService {
       console.log('Message sent with ID:', result.MessageId);
       this.currentOtp = otp;
       this.otpExpirationTime = Date.now() + 5 * 60 * 1000;
-      return otp;
+      return { message: 'OTP sent via message.' };
     } catch (error) {
       console.error('Error sending OTP:', error);
       throw new Error('Failed to send OTP via SMS');
