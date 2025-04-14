@@ -22,13 +22,25 @@ export class DocumentUploadsService {
     private readonly fileService: FileService,
   ) {}
 
-  async uploadDocuments(documentUploads: UploadDocumentsPayload): Promise<DocumentUploadsEntity> {
-    this.logger.log(`Uploading documents for organization ID: ${documentUploads.organizationId}`);
+  async uploadDocuments(
+    documentUploads: UploadDocumentsPayload,
+  ): Promise<DocumentUploadsEntity> {
+    this.logger.log(
+      `Uploading documents for organization ID: ${documentUploads.organizationId}`,
+    );
 
-    const incorporationCertPath = await this.fileService.upload(documentUploads.incorporationCertificate);
-    const legalRepPassportPath = await this.fileService.upload(documentUploads.legalRepresentativePassport);
-    const addressProofPath = await this.fileService.upload(documentUploads.addressProof);
-    const ownersDeclPath = await this.fileService.upload(documentUploads.ownersDeclaration);
+    const incorporationCertPath = await this.fileService.upload(
+      documentUploads.incorporationCertificate,
+    );
+    const legalRepPassportPath = await this.fileService.upload(
+      documentUploads.legalRepresentativePassport,
+    );
+    const addressProofPath = await this.fileService.upload(
+      documentUploads.addressProof,
+    );
+    const ownersDeclPath = await this.fileService.upload(
+      documentUploads.ownersDeclaration,
+    );
 
     const documentUpload = this.documentUploadsRepository.create({
       organizationId: documentUploads.organizationId,

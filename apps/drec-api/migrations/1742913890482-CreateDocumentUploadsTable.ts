@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateDocumentUploadsTable1742913890482 implements MigrationInterface {
+export class CreateDocumentUploadsTable1742913890482
+  implements MigrationInterface
+{
   name = 'CreateDocumentUploadsTable1742913890482';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -19,14 +21,15 @@ export class CreateDocumentUploadsTable1742913890482 implements MigrationInterfa
       )
     `);
 
-    // Add indexes for better query performance
     await queryRunner.query(`
       CREATE INDEX "IDX_document_uploads_organization_id" ON "document_uploads" ("organization_id")
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX "IDX_document_uploads_organization_id"`);
+    await queryRunner.query(
+      `DROP INDEX "IDX_document_uploads_organization_id"`,
+    );
     await queryRunner.query(`DROP TABLE "document_uploads"`);
   }
 }
