@@ -34,15 +34,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
     }
 
-    // Log the error
-    this.logger.error({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      error: errorResponse,
-      stack: exception.stack,
-      environment: process.env.NODE_ENV,
-    });
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      // Log the error
+      this.logger.error({
+        statusCode: status,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        error: errorResponse,
+        stack: exception.stack,
+        environment: process.env.NODE_ENV,
+      });
+    }
 
     // Send the response
     response.status(status).json(errorResponse);
