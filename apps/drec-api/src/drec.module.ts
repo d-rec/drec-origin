@@ -71,7 +71,7 @@ import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-faile
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
 import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
-import { DocumentUploadsEntity } from './pods/document-uploads/entities/document-upload.entity';
+import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -123,7 +123,7 @@ export const entities = [
   ...OffChainCertificateEntities,
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
-  DocumentUploadsEntity,
+  DocumentEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {

@@ -1,15 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { DocumentUploadsEntity } from './entities/document-upload.entity';
+import {
+  DocumentEntity,
+  DocumentTargetType,
+  DocumentType,
+} from './entities/documents.entity';
 import { FileService } from '../file/file.service';
 
-interface UploadDocumentsPayload {
-  organizationId: number;
-  incorporationCertificate: Express.Multer.File;
-  legalRepresentativePassport: Express.Multer.File;
-  addressProof: Express.Multer.File;
-  ownersDeclaration: Express.Multer.File;
+interface UploadDocumentPayload {
+  targetId: number;
+  targetType: DocumentTargetType;
+  documentType: DocumentType;
+  document: Express.Multer.File;
 }
 
 @Injectable()
@@ -17,37 +20,28 @@ export class DocumentUploadsService {
   private readonly logger = new Logger(DocumentUploadsService.name);
 
   constructor(
-    @InjectRepository(DocumentUploadsEntity)
-    private readonly documentUploadsRepository: Repository<DocumentUploadsEntity>,
+    @InjectRepository(DocumentEntity)
+    private readonly documentUploadsRepository: Repository<DocumentEntity>,
     private readonly fileService: FileService,
   ) {}
 
-  async uploadDocuments(
-    documentUploads: UploadDocumentsPayload,
-  ): Promise<DocumentUploadsEntity> {
+  async uploadDocument(
+    documentUploads: UploadDocumentPayload,
+  ): Promise<DocumentEntity> {
     this.logger.log(
-      `Uploading documents for organization ID: ${documentUploads.organizationId}`,
+      `Uploading document for target ID: ${documentUploads.targetId}`,
     );
 
-    const incorporationCertPath = await this.fileService.upload(
-      documentUploads.incorporationCertificate,
-    );
-    const legalRepPassportPath = await this.fileService.upload(
-      documentUploads.legalRepresentativePassport,
-    );
-    const addressProofPath = await this.fileService.upload(
-      documentUploads.addressProof,
-    );
-    const ownersDeclPath = await this.fileService.upload(
-      documentUploads.ownersDeclaration,
+    const documentPath = await this.fileService.upload(
+      documentUploads.document,
     );
 
     const documentUpload = this.documentUploadsRepository.create({
-      organizationId: documentUploads.organizationId,
-      incorporationCertificate: incorporationCertPath,
-      legalRepresentativePassport: legalRepPassportPath,
-      addressProof: addressProofPath,
-      ownersDeclaration: ownersDeclPath,
+      targetId: documentUploads.targetId,
+      targetType: documentUploads.targetType,
+      type: documentUploads.documentType,
+      extension: documentUploads.document.mimetype.split('/')[1],
+      url: documentPath,
     });
 
     return this.documentUploadsRepository.save(documentUpload);

@@ -2,10 +2,10 @@ import {
   Controller,
   Post,
   UseInterceptors,
-  UploadedFiles,
   BadRequestException,
   Param,
-  ParseIntPipe,
+  Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
@@ -15,117 +15,102 @@ import {
   ApiConsumes,
   ApiBody,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { DocumentUploadsService } from './document-uploads.service';
-import { DocumentUploadsEntity } from './entities/document-upload.entity';
+import {
+  DocumentEntity,
+  DocumentTargetType,
+  DocumentType,
+} from './entities/documents.entity';
 import multer from 'multer';
+import { Logger } from '@nestjs/common';
 
 @ApiTags('document-uploads')
 @Controller('document-uploads')
 export class DocumentUploadsController {
+  private readonly logger = new Logger(DocumentUploadsController.name);
+
   constructor(
     private readonly documentUploadsService: DocumentUploadsService,
   ) {}
 
-  @Post(':organizationId')
+  @Post(':targetId')
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'incorporationCertificate', maxCount: 1 },
-        { name: 'legalRepresentativePassport', maxCount: 1 },
-        { name: 'addressProof', maxCount: 1 },
-        { name: 'ownersDeclaration', maxCount: 1 },
-      ],
-      {
-        storage: multer.memoryStorage(),
-        fileFilter: (req, file, callback) => {
-          const allowedMimeTypes = [
-            'application/pdf',
-            'image/jpeg',
-            'image/png',
-          ];
-          if (!allowedMimeTypes.includes(file.mimetype)) {
-            return callback(
-              new BadRequestException(
-                'Invalid file type. Only PDF, JPEG, and PNG files are allowed.',
-              ),
-              false,
-            );
-          }
-          callback(null, true);
-        },
+    FileFieldsInterceptor([{ name: 'document', maxCount: 1 }], {
+      storage: multer.memoryStorage(),
+      fileFilter: (req, file, callback) => {
+        const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException(
+              'Invalid file type. Only PDF, JPEG, and PNG files are allowed.',
+            ),
+            false,
+          );
+        }
+        callback(null, true);
       },
-    ),
+    }),
   )
   @ApiConsumes('multipart/form-data')
   @ApiParam({
-    name: 'organizationId',
+    name: 'targetId',
     type: 'number',
-    description: 'ID of the organization',
+    description: 'ID of the target entity',
     example: 1,
   })
-  @ApiOperation({ summary: 'Create a new document upload' })
+  @ApiQuery({
+    name: 'targetType',
+    enum: DocumentTargetType,
+    description: 'Type of the target entity',
+    example: DocumentTargetType.ORGANIZATION,
+  })
+  @ApiQuery({
+    name: 'documentType',
+    enum: DocumentType,
+    description: 'Type of the document',
+    example: DocumentType.INCORPORATION_CERTIFICATE,
+  })
+  @ApiOperation({ summary: 'Upload a document' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        incorporationCertificate: {
+        document: {
           type: 'string',
           format: 'binary',
-          description: 'Incorporation certificate document',
-        },
-        legalRepresentativePassport: {
-          type: 'string',
-          format: 'binary',
-          description: 'Legal representative passport document',
-        },
-        addressProof: {
-          type: 'string',
-          format: 'binary',
-          description: 'Address proof document',
-        },
-        ownersDeclaration: {
-          type: 'string',
-          format: 'binary',
-          description: 'Owners declaration document',
+          description: 'Document file to upload',
         },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'The document upload has been successfully created.',
-    type: DocumentUploadsEntity,
+    description: 'The document has been successfully uploaded.',
+    type: DocumentEntity,
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Organization not found.' })
+  @ApiResponse({ status: 404, description: 'Target entity not found.' })
   uploadDocuments(
-    @Param('organizationId', ParseIntPipe) organizationId: number,
-    @UploadedFiles()
-    files: {
-      incorporationCertificate?: Express.Multer.File[];
-      legalRepresentativePassport?: Express.Multer.File[];
-      addressProof?: Express.Multer.File[];
-      ownersDeclaration?: Express.Multer.File[];
-    },
-  ): Promise<DocumentUploadsEntity> {
-    if (
-      !files.incorporationCertificate?.[0] ||
-      !files.legalRepresentativePassport?.[0] ||
-      !files.addressProof?.[0] ||
-      !files.ownersDeclaration?.[0]
-    ) {
-      throw new BadRequestException('All required documents must be provided');
+    @UploadedFiles() files: { document?: Express.Multer.File[] },
+    @Param('targetId') targetId: number,
+    @Query('targetType') targetType: DocumentTargetType,
+    @Query('documentType') documentType: DocumentType,
+  ): Promise<DocumentEntity> {
+    if (!files || !files.document || files.document.length === 0) {
+      throw new BadRequestException('No document provided');
     }
 
-    return this.documentUploadsService.uploadDocuments({
-      organizationId,
-      incorporationCertificate: files.incorporationCertificate[0],
-      legalRepresentativePassport: files.legalRepresentativePassport[0],
-      addressProof: files.addressProof[0],
-      ownersDeclaration: files.ownersDeclaration[0],
+    const document = files.document[0];
+
+    return this.documentUploadsService.uploadDocument({
+      targetId,
+      targetType,
+      documentType,
+      document,
     });
   }
 }
