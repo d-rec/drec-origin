@@ -9,45 +9,40 @@ export class DocumentUploadsEntity {
 
   @ApiProperty({
     description: 'ID of the legal entity',
-    example: 1,
   })
-  @Column()
+  @Column({ name: 'organization_id' })
   @IsNumber()
   @IsNotEmpty()
-  legalEntityId: number;
+  organizationId: number;
 
   @ApiProperty({
     description: 'Path or URL to the incorporation certificate document',
-    example: 'uploads/incorporation-certificate.pdf',
   })
-  @Column()
+  @Column({ name: 'incorporation_certificate' })
   @IsString()
   @IsNotEmpty()
   incorporationCertificate: string;
 
   @ApiProperty({
     description: 'Path or URL to the legal representative passport document',
-    example: 'uploads/legal-representative-passport.pdf',
   })
-  @Column()
+  @Column({ name: 'legal_representative_passport' })
   @IsString()
   @IsNotEmpty()
   legalRepresentativePassport: string;
 
   @ApiProperty({
     description: 'Path or URL to the address proof document',
-    example: 'uploads/address-proof.pdf',
   })
-  @Column()
+  @Column({ name: 'address_proof' })
   @IsString()
   @IsNotEmpty()
   addressProof: string;
 
   @ApiProperty({
     description: 'Path or URL to the owners declaration document',
-    example: 'uploads/owners-declaration.pdf',
   })
-  @Column()
+  @Column({ name: 'owners_declaration' })
   @IsString()
   @IsNotEmpty()
   ownersDeclaration: string;
