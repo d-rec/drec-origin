@@ -428,13 +428,25 @@ export class UserService {
 
     const otp = this.generateOtp();
     const sns = new AWS.SNS({
-      endpoint: process.env.AWS_ENDPOINT,
+      region: process.env.region,
+      accessKeyId: process.env.accessKeyId,
+      secretAccessKey: process.env.secretAccessKey,
     });
+
     const params = {
       Message: `Your OTP is: ${otp}. Please enter it to verify your phone number.`,
       PhoneNumber: formatted,
+      MessageAttributes: {
+        'AWS.SNS.SMS.SMSType': {
+          DataType: 'String',
+          StringValue: 'Transactional',
+        },
+        'AWS.SNS.SMS.SenderID': {
+          DataType: 'String',
+          StringValue: 'DREC',
+        },
+      },
     };
-
     try {
       await sns.publish(params).promise();
       this.currentOtp = otp;
