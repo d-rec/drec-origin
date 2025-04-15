@@ -66,13 +66,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
-  ) {
-    AWS.config.update({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION,
-    });
-  }
+  ) {}
 
   public async seed(
     data: CreateUserOrgDTO,
@@ -434,7 +428,7 @@ export class UserService {
 
     const otp = this.generateOtp();
     const sns = new AWS.SNS({
-      endpoint: 'http://localhost:4566',
+      endpoint: process.env.AWS_ENDPOINT,
     });
     const params = {
       Message: `Your OTP is: ${otp}. Please enter it to verify your phone number.`,
