@@ -45,6 +45,29 @@ Meter reads are critical for capturing accurate energy production data. The plat
 
 These reading types ensure that energy data is collected accurately and consistently, forming the basis for reliable certification.
 
+## Verification Mechanism
+
+The D-REC Platform verifies generation data through an algorithm that calculates a theoretical maximum output based on various parameters, such as the system's nameplate size, projected performance degradation, validation time period, solar yield, and a maximum scaler value. This process ensures that the data submitted is within a plausible range, enhancing its accuracy and reliability for I-REC issuance.
+
+The platform currently verifies generation data only. When generation data is submitted to the D-REC Platform, it is compared against a theoretical maximum output. That output right now is given by the following equation:
+
+$$
+kWh_{max} = kWp_{nameplate} \times (1 - \mu)^{(a - 1)} \times t \times \left(\frac{kWh/kWp}{\eta}\right) \times \beta
+$$
+
+Where:
+
+| Symbol            | Description                                                                                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **$kWh_{max}$**   | Theoretical maximum output (in kWh) over the validation period                                                                                 |
+| **$kWp_{nameplate}$** | System's nameplate capacity (in kWp)                                                                                                           |
+| **$\mu$**             | Annual performance degradation rate (**0.5%**)                                                                                                 |
+| **$a$**             | Age of the DRE device in years, based on commissioning date (defaults to **1**)                                                                |
+| **$t$**             | Validation time period in hours                                                                                                                |
+| **${kWh/kWp}$**       | Solar yield for the system's location (currently determined on a **per-country** basis) |
+| **$\eta$**             | Total number of hours in a year (**8760hrs**)                                                                                                     |
+| **$\beta$**             | Maximum scaler (currently set to **120%**)                                                                                                     |
+
 ## Reservations
 
 The reservations feature is designed for corporate buyers to link their energy consumption commitments with specific devices. Buyers can reserve devices by specifying key attributes such as target power output, operational start and end dates, and update frequencies. Once reserved, devices are locked to that reservation, ensuring that energy certificates are issued only for devices that meet the buyer’s energy production targets. This structured approach helps buyers manage their energy portfolios effectively.
