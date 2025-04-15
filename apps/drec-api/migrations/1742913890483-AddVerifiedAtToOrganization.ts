@@ -11,8 +11,7 @@ export class AddVerifiedAtToOrganization1742913890483
       ADD COLUMN "verified_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL
     `);
 
-    await queryRunner.query(`
-      CREATE INDEX "IDX_organization_verified_at" ON "organization" ("verified_at")
+    await queryRunner.query(`      CREATE INDEX "IDX_organization_verified_at" ON "organization" ("verified_at")
     `);
   }
 
