@@ -7,7 +7,6 @@ import {
   DocumentType,
 } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
-
 interface UploadDocumentPayload {
   targetId: number;
   targetType: DocumentTargetType;
