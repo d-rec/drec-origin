@@ -1453,7 +1453,7 @@ export class DeviceService {
   }
   async updateLateCycleCheckedAt(groupId: number): Promise<any> {
     await this.lateDeviceCertificateRepository.update(
-      { groupId: groupId },
+      { groupId: groupId, certificate_issued: false },
       { checked_at: new Date() },
     );
   }
