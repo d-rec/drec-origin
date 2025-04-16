@@ -5,15 +5,15 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DateTime } from 'luxon';
 
-import { Queues } from '../../utils/enums/queues.enum';
-import { Device } from '../device';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { DeviceService } from '../device/device.service';
-import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { ReadsService } from '../reads/reads.service';
+import { Queues } from '../../../utils/enums/queues.enum';
+import { Device } from '../../device';
+import { DeviceGroup } from '../../device-group/device-group.entity';
+import { DeviceGroupService } from '../../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
+import { DeviceService } from '../../device/device.service';
+import { DeviceLateOngoingIssueCertificateEntity } from '../../device/device_lateongoing_certificate.entity';
+import { OrganizationService } from '../../organization/organization.service';
+import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
 
 @Injectable()

@@ -3,21 +3,26 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { DateTime } from 'luxon';
 
-import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
-import { Device } from '../device';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { EndReservationDateDTO } from '../device-group/dto';
-import { DeviceService } from '../device/device.service';
-import { OrganizationService } from '../organization/organization.service';
+import { getCycleEndDate } from '../../../lib/helpers/getCycleEndDate';
+import { Device } from '../../device';
+import { DeviceGroup } from '../../device-group/device-group.entity';
+import { DeviceGroupService } from '../../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
+import { EndReservationDateDTO } from '../../device-group/dto';
+import { DeviceService } from '../../device/device.service';
+import { OrganizationService } from '../../organization/organization.service';
 import { IssuerService } from './issuer.service';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
+import { Queues } from '../../../utils/enums/queues.enum';
 
 @Injectable()
 export class OngoingIssuanceService {
   private readonly logger = new Logger(OngoingIssuanceService.name);
 
   constructor(
+    @InjectQueue(Queues.OngoingIssuance)
+    private readonly queue: Queue,
     private readonly groupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
@@ -25,11 +30,11 @@ export class OngoingIssuanceService {
   ) {}
 
   /**
-   * Scheduled job that runs every 30 seconds to process ongoing cycle's certificate issuance
+   * Scheduled job that runs every 30 seconds to schedule ongoing cycle's certificate issuance jobs
    */
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async processIssuance(): Promise<void> {
-    this.logger.debug('CRON [*/30s]: Ongoing cycle certificate issuance check');
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async scheduleIssuance(): Promise<void> {
+    this.logger.debug('CRON [*/5m]: Ongoing cycle certificate issuance check');
 
     // Fetch all pending certificate requests
     const groupsRequestAll =
@@ -44,14 +49,29 @@ export class OngoingIssuanceService {
       `Processing ${groupsRequestAll.length} ongoing certificate issuance requests`,
     );
 
-    // Process all requests in parallel, ensuring proper binding of 'this'
+    // Schedule each request for processing
     await Promise.all(
       groupsRequestAll.map((request) =>
-        this.processOngoingCycleByGroupRequest(request),
+        this.queue.add({
+          groupRequest: request,
+        }),
       ),
     );
 
-    this.logger.debug('Ongoing issuance check completed');
+    this.logger.debug('Ongoing issuance scheduled');
+  }
+
+  async processIssuance(): Promise<void> {
+    // Fetch all pending certificate requests
+    const groupsRequestAll =
+      await this.groupService.getAllNextRequestCertificate();
+
+    // Process all requests in parallel, ensuring proper binding of 'this'
+    await Promise.all(
+      groupsRequestAll.map((request) =>
+        this.processIssuanceByGroupRequest(request),
+      ),
+    );
   }
 
   /**
@@ -60,7 +80,7 @@ export class OngoingIssuanceService {
    * @param groupRequest - The certificate issuance request to process
    * @returns A promise that resolves when processing is complete
    */
-  private async processOngoingCycleByGroupRequest(
+  async processIssuanceByGroupRequest(
     groupRequest: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     // Get group data

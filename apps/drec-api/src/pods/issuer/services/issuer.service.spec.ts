@@ -11,23 +11,23 @@ import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
-import { Queues } from '../../../src/utils/enums/queues.enum';
+import { Queues } from '../../../utils/enums/queues.enum';
 import {
   roundDecimalToFixedPrecision,
   splitValueIntoIntegerAndDecimal,
-} from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
-import { IDevice } from '../../models';
-import { ICertificateMetadata } from '../../utils/types';
-import { CertificateLogService } from '../certificate-log/certificate-log.service';
-import { DeviceService } from '../device';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { Organization } from '../organization/organization.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { ReadsService } from '../reads/reads.service';
+} from '../../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { IDevice } from '../../../models';
+import { ICertificateMetadata } from '../../../utils/types';
+import { CertificateLogService } from '../../certificate-log/certificate-log.service';
+import { DeviceService } from '../../device';
+import { DeviceGroup } from '../../device-group/device-group.entity';
+import { DeviceGroupService } from '../../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
+import { Organization } from '../../organization/organization.entity';
+import { OrganizationService } from '../../organization/organization.service';
+import { BASE_READ_SERVICE } from '../../reads/constants';
+import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
+import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
@@ -70,6 +70,18 @@ describe('IssuerService', () => {
         },
         {
           provide: getQueueToken(Queues.LateOngoingIssuance),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: getQueueToken(Queues.OngoingIssuance),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: getQueueToken(Queues.HistoricalIssuance),
           useValue: {
             add: jest.fn().mockResolvedValue(undefined),
           },

@@ -3,16 +3,16 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 
-import { IDevice } from '../../models';
-import { ReadType } from '../../utils/enums';
-import { CertificateLogService } from '../certificate-log/certificate-log.service';
-import { Device } from '../device';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { DeviceService } from '../device/device.service';
-import { OrganizationService } from '../organization/organization.service';
-import { ReadsService } from '../reads/reads.service';
+import { IDevice } from '../../../models';
+import { ReadType } from '../../../utils/enums';
+import { CertificateLogService } from '../../certificate-log/certificate-log.service';
+import { Device } from '../../device';
+import { DeviceGroup } from '../../device-group/device-group.entity';
+import { DeviceGroupService } from '../../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
+import { DeviceService } from '../../device/device.service';
+import { OrganizationService } from '../../organization/organization.service';
+import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 
 type DeviceReading = {

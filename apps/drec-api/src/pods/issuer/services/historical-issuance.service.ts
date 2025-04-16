@@ -3,24 +3,29 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { v4 as uuid } from 'uuid';
 
-import { IDevice } from '../../models';
-import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
-import { CertificateLogService } from '../certificate-log/certificate-log.service';
-import { Device } from '../device';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
-import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { DeviceService } from '../device/device.service';
-import { OrganizationService } from '../organization/organization.service';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { ReadsService } from '../reads/reads.service';
+import { IDevice } from '../../../models';
+import { HistoryNextIssuanceStatus } from '../../../utils/enums/history_next_issuance.enum';
+import { CertificateLogService } from '../../certificate-log/certificate-log.service';
+import { Device } from '../../device';
+import { DeviceGroup } from '../../device-group/device-group.entity';
+import { DeviceGroupService } from '../../device-group/device-group.service';
+import { HistoryDeviceGroupNextIssueCertificate } from '../../device-group/history_next_issuance_date_log.entity';
+import { DeviceService } from '../../device/device.service';
+import { OrganizationService } from '../../organization/organization.service';
+import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
+import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queues } from '../../../utils/enums/queues.enum';
+import { Queue } from 'bull';
 
 @Injectable()
 export class HistoricalIssuanceService {
   private readonly logger = new Logger(HistoricalIssuanceService.name);
 
   constructor(
+    @InjectQueue(Queues.HistoricalIssuance)
+    private readonly queue: Queue,
     private readonly groupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
@@ -29,9 +34,9 @@ export class HistoricalIssuanceService {
     private readonly certificateLogService: CertificateLogService,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async processIssuance(): Promise<void> {
-    this.logger.debug('CRON [*/30s]: Historical certificate issuance check');
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async scheduleIssuance(): Promise<void> {
+    this.logger.debug('CRON [*/5m]: Historical certificate issuance check');
 
     // Get all pending historical issuance requests
     const historyDeviceRequests =
@@ -49,17 +54,33 @@ export class HistoricalIssuanceService {
     // Process all requests in parallel
     await Promise.all(
       historyDeviceRequests.map((historyDevice, index) =>
-        this.processHistoricalIssuanceRequest(historyDevice, index),
+        this.queue.add({
+          request: historyDevice,
+          requestIndex: index,
+        }),
       ),
     );
 
-    this.logger.debug('Historical issuance cycle completed');
+    this.logger.debug('Historical issuance scheduled');
+  }
+
+  async processIssuance(): Promise<void> {
+    // Get all pending historical issuance requests
+    const historyDeviceRequests =
+      await this.groupService.getNextHistoryIssuanceDeviceLog();
+
+    // Process all requests in parallel
+    await Promise.all(
+      historyDeviceRequests.map((historyDevice, index) =>
+        this.processIssuanceRequest(historyDevice, index),
+      ),
+    );
   }
 
   /**
    * Processes a single historical issuance request
    */
-  private async processHistoricalIssuanceRequest(
+  async processIssuanceRequest(
     historyDevice: HistoryDeviceGroupNextIssueCertificate,
     requestIndex: number,
   ): Promise<void> {

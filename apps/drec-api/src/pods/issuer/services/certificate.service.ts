@@ -5,11 +5,11 @@ import {
   IIssueCommandParams,
   OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
-import { ICertificateMetadata } from '../../utils/types';
+import { ICertificateMetadata } from '../../../utils/types';
 
-import { IDevice } from '../../models';
-import { CertificateType, StandardCompliance } from '../../utils/enums';
-import { DeviceGroup } from '../device-group/device-group.entity';
+import { IDevice } from '../../../models';
+import { CertificateType, StandardCompliance } from '../../../utils/enums';
+import { DeviceGroup } from '../../device-group/device-group.entity';
 
 @Injectable()
 export class CertificateService {
