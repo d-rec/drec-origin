@@ -13,6 +13,7 @@ import {
   IsNumber,
   IsOptional,
   IsArray,
+  isNotEmpty,
 } from 'class-validator';
 import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
@@ -23,6 +24,7 @@ import {
 //import { Device } from '../device';
 import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
+
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
@@ -181,4 +183,23 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3,
   })
   reservationExpiryDate: Date;
+
+  isExpired(): boolean {
+    return (
+      this.reservationExpiryDate != null &&
+      this.reservationExpiryDate.getTime() <= new Date().getTime()
+    );
+  }
+
+  loadLeftOverReadsByCountry(): void {
+    if (!isNotEmpty(this.leftoverReadsByCountryCode)) {
+      this.leftoverReadsByCountryCode = {};
+    }
+
+    if (typeof this.leftoverReadsByCountryCode === 'string') {
+      this.leftoverReadsByCountryCode = JSON.parse(
+        this.leftoverReadsByCountryCode,
+      );
+    }
+  }
 }

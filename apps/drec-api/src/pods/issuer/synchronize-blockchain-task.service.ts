@@ -4,7 +4,11 @@ import { BlockchainSynchronizeService } from '@energyweb/origin-247-certificate'
 @Injectable()
 export class SynchronizeBlockchainTaskService {
   private logger = new Logger(SynchronizeBlockchainTaskService.name);
-  constructor(private synchronizationService: BlockchainSynchronizeService) {}
+
+  constructor(
+    private readonly synchronizationService: BlockchainSynchronizeService,
+  ) {}
+
   @Cron(CronExpression.EVERY_MINUTE)
   public async synchronizeBlockchain(): Promise<void> {
     this.logger.log(`Synchronizing blockchain started`);

@@ -1,33 +1,33 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { DeviceGroupService } from './device-group.service';
-import { DeviceGroup } from './device-group.entity';
-import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
-import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
-import { FileService } from '../file';
-import { YieldConfigService } from '../yield-config/yieldconfig.service';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
-import { DeviceService } from '../device/device.service';
-import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
+import { getQueueToken } from '@nestjs/bull';
 import {
   ConflictException,
-  UnauthorizedException,
-  NotFoundException,
   HttpException,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Role } from 'src/utils/enums';
-import { ILoggedInUser } from 'src/models';
-import { UnreservedDeviceGroupsFilterDTO } from './dto';
-import { CertificateSettingEntity } from './certificate_setting.entity';
-import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
-import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
-import { getQueueToken } from '@nestjs/bull';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ILoggedInUser } from '../../models';
+import { Role } from '../../utils/enums';
+import { Repository } from 'typeorm';
 import { Queues } from '../../utils/enums/queues.enum';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
+import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { DeviceService } from '../device/device.service';
+import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
+import { FileService } from '../file';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
+import { YieldConfigService } from '../yield-config/yieldconfig.service';
+import { CertificateSettingEntity } from './certificate_setting.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
+import { DeviceGroup } from './device-group.entity';
+import { DeviceGroupService } from './device-group.service';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
+import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
+import { UnreservedDeviceGroupsFilterDTO } from './dto';
+import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -626,6 +626,91 @@ describe('DeviceGroupService', () => {
       );
 
       expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
+    });
+  });
+
+  describe('handleLeftoverReadsByCountryCode', () => {
+    it('should correctly handle leftover reads when there are no existing leftovers', async () => {
+      const group = {
+        id: 1,
+        leftoverReadsByCountryCode: {},
+      } as unknown as DeviceGroup;
+      const totalReadValueW = 5000; // 5 kW
+      const countryCodeKey = 'US';
+
+      // Mock the return
+      jest.spyOn(repository, 'findOne').mockResolvedValue(group);
+      jest.spyOn(repository, 'save').mockResolvedValue(group);
+      jest.spyOn(service, 'updateLeftOverReadByCountryCode');
+
+      const result = await service.processLeftOverReadsByCountryCode(
+        group,
+        totalReadValueW,
+        countryCodeKey,
+      );
+
+      expect(service.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
+        1,
+        0,
+        'US',
+      );
+      expect(result).toBe(5);
+    });
+
+    it('should correctly handle leftover reads when there are existing leftovers', async () => {
+      const group = {
+        id: 1,
+        leftoverReadsByCountryCode: {
+          US: 0.5,
+        },
+      } as unknown as DeviceGroup;
+      const totalReadValueW = 5000; // 5 kW
+      const countryCodeKey = 'US';
+
+      // Mock the return
+      jest.spyOn(repository, 'findOne').mockResolvedValue(group);
+      jest.spyOn(repository, 'save').mockResolvedValue(group);
+      jest.spyOn(service, 'updateLeftOverReadByCountryCode');
+
+      const result = await service.processLeftOverReadsByCountryCode(
+        group,
+        totalReadValueW,
+        countryCodeKey,
+      );
+
+      expect(service.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
+        1,
+        0.5,
+        'US',
+      );
+      expect(result).toBe(5);
+    });
+
+    it('should correctly handle leftover reads when resulting value has decimal part', async () => {
+      const group = {
+        id: 1,
+        leftoverReadsByCountryCode: {},
+      } as unknown as DeviceGroup;
+      const totalReadValueW = 5500; // 5.5 kW
+      const countryCodeKey = 'US';
+
+      // Mock the return
+      jest.spyOn(repository, 'findOne').mockResolvedValue(group);
+      jest.spyOn(repository, 'save').mockResolvedValue(group);
+      jest.spyOn(service, 'updateLeftOverReadByCountryCode');
+
+      const result = await service.processLeftOverReadsByCountryCode(
+        group,
+        totalReadValueW,
+        countryCodeKey,
+      );
+
+      expect(service.updateLeftOverReadByCountryCode).toHaveBeenCalledWith(
+        1,
+        0.5,
+        'US',
+      );
+      expect(result).toBe(5);
     });
   });
 });
