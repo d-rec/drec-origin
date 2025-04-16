@@ -58,6 +58,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
+import { Public } from '../../decorators/public.decorator';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -76,6 +77,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get('me')
+  @Public()
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password'])) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
@@ -109,6 +111,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get(':id')
+  @Public()
   @UseGuards(
     AuthGuard(['jwt', 'oauth2-client-password']),
     ActiveUserGuard,
@@ -154,6 +157,7 @@ export class UserController {
    * @body {CreateUserORGDTO}
    * @returns {UserDTO}
    */
+  @Public()
   @Post('register')
   @ApiBody({ type: CreateUserOrgDTO })
   @UseGuards(WithoutAuthGuard, PermissionGuard)
@@ -277,6 +281,7 @@ export class UserController {
    * This api route to update the password by validating token .
    * @returns {UserDTO} .
    */
+  @Public()
   @Put('reset/password/:token')
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
@@ -324,6 +329,7 @@ export class UserController {
    * @param token :stirng
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
+  @Public()
   @Put('confirm-email/:token')
   @UseGuards(WithoutAuthGuard)
   //@UseGuards(PermissionGuard)
@@ -380,6 +386,7 @@ export class UserController {
    * @param body
    * @returns {SuccessResponseDTO}
    */
+  @Public()
   @Post('forget-password')
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   /*@UseGuards(PermissionGuard) */

@@ -23,6 +23,8 @@ import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { WithoutAuthGuard } from '../guards';
+import { Public } from '../decorators/public.decorator';
+
 @ApiTags('Auth')
 @ApiBearerAuth('access-token')
 @Controller()
@@ -34,6 +36,7 @@ export class AuthController {
   /**
    * @returns {Promise<LoginReturnDataDTO>}
    */
+  @Public()
   @UseGuards(AuthGuard('local'), WithoutAuthGuard)
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
