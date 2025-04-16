@@ -2,30 +2,60 @@
 order: 4
 ---
 
-# Platform Functionality
+# D-REC Platform Functionality
 
-The D-REC platform (open-source software) was developed in partnership with the Energy Web Foundation and manages the D-REC certificate lifecycle. Built upon the open-source Origin toolkit, the platform allows for account and device registration, submission of meter reads for verification as well as the issuance of certificates. All certificate lifecycle stages are recorded on the Energy Web Chain. The platform was designed to closely mirror the Evident registry structure and functionality to ensure maximum compatibility. The following diagram outlines the key functional components:
+## Overview
+
+The D-REC platform is open-source software developed in partnership with the Energy Web Foundation that manages the D-REC certificate lifecycle. Built upon the open-source Origin toolkit, the platform enables:
+
+- Organization Registration
+- Device registration
+- Submission of meter reads for verification
+- Issuance of certificates
+
+All certificate lifecycle stages are recorded on the Energy Web Chain. The platform is designed to closely mirror the Evident registry structure and functionality to ensure maximum compatibility.
+
+This platform serves various user groups, including:
+
+- Platform Operator (Admin)
+- DRE project developers
+- Corporate buyers
+- Market intermediaries
+
+Each group has access to customized tools suited to their unique operational requirements.
+
+## Service Architecture
 
 ![Service Architecture Diagram](./img/service-architecture-diagram.png)
 
-This platform is designed to meet the needs of various user groups, such as administrators, DRE project developers, corporate buyers, and market intermediaries offering them customized tools suited to their unique operational requirements.
+### Key Modules
 
-The various modules are as follows:
+| Module | Description |
+|--------|-------------|
+| **User Management** | Enables users to add/remove users and interact with the system, including registering devices or requesting certificate issuance through UI or API |
+| **Device Management** | Handles adding, removing, or editing individual devices through UI or API using a standardized data schema |
+| **Meter Reads** | Allows devices to submit meter readings via API in three formats: historical, aggregate, or delta |
+| **Buyer Reservation** | Manages certificate issuance, which only occurs when a buyer specifically requests it for selected devices |
 
-- User Management: The D-REC platform’s UI or API enables users to add or remove users and interact with the system, including registering or removing devices or requesting certificate issuance.
-- Device Management: This section involves adding, removing, or editing individual devices. Below is the data schema outlining the fields for device registration; devices can be registered through the UI or the API.
-- Meter Reads: Through an API interface, devices can submit meter readings of three types: historical, aggregate, or delta. Aggregate refers to the running total of electricity produced since the device’s commissioning; delta indicates the specific generation amount between each submission of meter data to the D-REC Platform; historical denotes submitting data from a previous period for certification issuance.
-- Buyer Reservation: Certificate issuance occurs only when a buyer for the D-REC certificates specifically requests it. In this regard, the buyer identifies the devices from which they wish to issue certificates. The data schema for the reservation is outlined below. For interaction with the Evident registry, there are three main points where data  will be exchanged between the two registries: when a device will be registered (i.e., it  will be reflected in both the D-REC Platform and the Evident registry), when a certificate  will be issued. Each step in the process is documented below:
+## User Registration Process
 
-## User Registration
-
-Users register on the D-REC platform by completing the necessary formalities at the time of user registration (please refer to the ‘Application Submission’ steps). The platform then sends an email, which the user verifies. The first user to register in a particular organization is designated as an administrator and can invite other users from their organization to join the platform. All users are granted either read, write, or delete privileges. Once logged in, users are provided an access token, after which they can access other platform functionality.
+1. Users complete the registration process on the D-REC platform
+2. The platform sends a verification email
+3. The first user to register for an organization is designated as an administrator
+4. Administrators can invite other users from their organization
+5. All users are granted either read, write, or delete privileges
+6. Upon login, users receive an access token for platform functionality
 
 ## Device Registration
 
-Developers onboard their devices on the D-REC Platform primarily through two means – the first is a “bulk upload” in which they provide device metadata either in a JavaScript Object Notation (JSON) or a Comma-Separated Values (CSV) file. The second method is to use the D-REC Platform API to submit data. Users must be logged in and have a valid access token in order to register devices. Upon logging in to the D-REC Platform, users can view all the devices that they have registered on the system. Note that during device registration the user must provide detailed metadata via the schema below, and only a subset of the data is shown on the main landing page.
+Developers can onboard devices through two primary methods:
 
-The device schema is as follows:
+1. **Bulk Upload**: Providing device metadata in JSON or CSV format
+2. **API Submission**: Using the D-REC Platform API
+
+Users must be logged in with a valid access token to register devices. The platform's dashboard displays all registered devices, though only a subset of the detailed metadata is shown on the main landing page.
+
+### Device Schema
 
 ```json
 {
@@ -60,15 +90,35 @@ The device schema is as follows:
 }
 ```
 
+### Dashboard Device View
+
 ![Device View](./img/device-view.png)
 
-## **Meter Reads**
+## Meter Reads
 
-Once a device is registered on the D-REC Platform, it can submit meter reads for validation—this occurs through the D-REC Platform’s POST /api/meter-reads/new/{id} endpoint, where {id} refers to the identifier that the developer uniquely assigns to each installation. Alternatively, this can also be done via a file upload. As mentioned earlier, there are three types of meter reads: historical, aggregate, and delta. However, no certificate is issued.
+Once registered, devices can submit meter reads for validation through:
 
-## **Buyer Reservation**
+- The D-REC Platform's API endpoint: `POST` `/api/meter-reads/new/{id}`
+  - Where `{id}` is the identifier uniquely assigned to each installation
+- File upload
 
-A buyer must specify which devices they wish to have certificates issued from. Before making a reservation, a device can submit meter data, but no certificates will be issued. Once a reservation is made, the platform will start validating the submitted data and then issue the corresponding D-REC. The reservation schema is as follows:
+Three types of meter reads are supported:
+
+- **Historical**: Data from a previous period
+- **Aggregate**: Running total of electricity produced since commissioning
+- **Delta**: Specific generation amount between data submissions
+
+*Note: Submitting meter reads alone does not trigger certificate issuance.*
+
+## Buyer Reservation
+
+Certificate issuance requires a buyer to specifically request it by selecting devices. The reservation process follows these steps:
+
+1. Buyer specifies which devices should issue certificates
+2. Platform begins validating submitted data from selected devices
+3. Upon successful validation, certificates are issued and assigned to the buyer's wallet
+
+### Reservation Schema
 
 ```json
 {
@@ -77,27 +127,52 @@ A buyer must specify which devices they wish to have certificates issued from. B
   "frequency": "string",
   "starttime": "string",
   "endtime": "string",
-  "targetVolume": double,
-  "authorityToExceed": boolean,
+  "targetVolume": "double",
+  "authorityToExceed": "boolean",
   "targetAddress": "string",
-  "deviceIDs": [ // list of individual device IDs
-    "UUIDs"
-   ]
+  "deviceIDs": [
+    "UUIDs"  // list of individual device IDs
+  ]
 }
 ```
 
-Once the Buyer Reservation is set, the platform begins validating data from the devices identified in the reservation. The platform then validates the data using an algorithm (a “digital twin lite”) to determine whether the data submitted by the device aligns with expectations based on its location, capacity, and other factors. Currently, the platform utilizes a simplified algorithm that will be further enhanced with input from various stakeholders. As more data becomes available, the expected tolerance band will decrease from two standard deviations. The upper range is likely to be reduced further as the primary risk being mitigated is the reporting of overproduction rather than underproduction (overproduction could result in more D-RECs being issued than are actually attributable to the asset).
+## Data Validation
 
-```math
-Expected generation μ = Solar irradiance * Nameplate capacity *(1 - 0.5%)^(Years since Commissioning - 1)
+The platform validates device data using an algorithm ("digital twin lite") to determine whether submitted data aligns with expectations based on:
 
-Assume expected generation distributed normally with mean μ and standard deviation σ, and reported generation daily value x:
+- Device location
+- Capacity
+- Other relevant factors
 
-If (μ – 1.5σ) ≤ x ≤ (μ + 1.5σ), then the reported generation data is accepted
-```
+The validation process consists of two key components: calculating expected generation and applying acceptance criteria.
 
-Once the validation has been successful, a certificate will be issued and assigned to the Buyer’s wallet (organization blockchain address). The platform user interface (UI) will list all of the issued certificates:
+### Expected Generation Formula
+
+$$\mu = I \times C \times (1 - 0.005)^{(Y-1)}$$
+
+Where:
+
+- $\mu$ = Expected generation (kWh)
+- $I$ = Solar irradiance (kWh/m²)
+- $C$ = Nameplate capacity (kW)
+- $Y$ = Years since commissioning
+
+### Validation Criteria
+
+The reported generation is assumed to be normally distributed with:
+
+- Mean: $\mu$ (calculated from the formula above)
+- Standard deviation: $\sigma$
+
+A reported daily generation value $x$ is accepted when it falls within the following range:
+$$(\mu - 1.5\sigma) \leq x \leq (\mu + 1.5\sigma)$$
+
+## Certificate Issuance
+
+After successful validation:
+
+- Certificates are issued and assigned to the buyer's wallet (organization blockchain address)
+- Each certificate represents 1 or more kWh of verified energy from a reservation
+- Each certificate corresponds to a single reservation
 
 ![Certificates View](./img/certificates-view.png)
-
-Each line represents a digital certificate representing 1 or more kWh of verified energy generated from a reservation; each certificate can only correspond to a single reservation.
