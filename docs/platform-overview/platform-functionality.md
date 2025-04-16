@@ -2,7 +2,7 @@
 order: 4
 ---
 
-# D-REC Platform Functionality
+# Platform Functionality
 
 ## Overview
 
