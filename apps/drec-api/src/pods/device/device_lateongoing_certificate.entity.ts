@@ -31,4 +31,7 @@ export class DeviceLateOngoingIssueCertificateEntity
 
   @Column()
   createdAt: Date;
+
+  @Column()
+  checked_at: Date;
 }

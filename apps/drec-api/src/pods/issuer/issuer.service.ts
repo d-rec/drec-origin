@@ -1285,6 +1285,7 @@ export class IssuerService {
         // Add delay before moving to the next element
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+      groupId && await this.deviceService.updateLateCycleCheckedAt(groupId);
     } else {
       this.logger.error('No late ongoing read found');
     }
