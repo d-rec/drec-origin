@@ -20,16 +20,21 @@ import {
 } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
-import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
+import {
+  ICertificateReadModel,
+  IIssueCommandParams,
+} from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
-import { ILoggedInUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { IDevice, ILoggedInUser } from '../../models';
+import { Role, SingleDeviceIssuanceStatus } from '../../utils/enums';
 import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { DateTime } from 'luxon';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
@@ -1039,5 +1044,75 @@ export class CertificateLogService {
 
       throw new HttpException('Devices log Not found', HttpStatus.NOT_FOUND);
     }
+  }
+
+  async createForDevice(
+    group: DeviceGroup,
+    device: Device | IDevice,
+    minimumStartDate: Date,
+    maximumEndDate: Date,
+    deviceReadValue: number,
+    certificateTransactionUID: string,
+    startDate?: DateTime,
+    endDate?: DateTime,
+  ): Promise<void> {
+    const deviceCertificateLogDTO =
+      new CheckCertificateIssueDateLogForDeviceEntity();
+
+    // Set basic properties
+    deviceCertificateLogDTO.externalId = device.externalId;
+    deviceCertificateLogDTO.groupId = group.id;
+    deviceCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested;
+    deviceCertificateLogDTO.readvalue_watthour = deviceReadValue;
+    deviceCertificateLogDTO.certificateTransactionUID =
+      certificateTransactionUID.toString();
+
+    // Set date properties with appropriate formatting
+    deviceCertificateLogDTO.certificate_issuance_startdate = minimumStartDate;
+
+    deviceCertificateLogDTO.certificate_issuance_enddate = maximumEndDate;
+
+    if (startDate) {
+      deviceCertificateLogDTO.ongoing_start_date = startDate.toString();
+    }
+
+    if (endDate) {
+      deviceCertificateLogDTO.ongoing_end_date = endDate.toString();
+    }
+
+    // Save to database
+    await this.deviceService.addCertificateIssueDateLogForDevice(
+      deviceCertificateLogDTO,
+    );
+  }
+
+  async createForGroup(
+    group: DeviceGroup,
+    minimumStartDate: Date,
+    maximumEndDate: Date,
+    issueTotalReadValue: number,
+    issuance: IIssueCommandParams<ICertificateMetadata>,
+    countryCodeKey: string,
+    certificateTransactionUID: string,
+  ): Promise<void> {
+    const deviceGroupCertificateLogDTO =
+      new CheckCertificateIssueDateLogForDeviceGroupEntity();
+
+    // Set all properties with proper formatting
+    deviceGroupCertificateLogDTO.groupid = group.id?.toString();
+    deviceGroupCertificateLogDTO.certificate_issuance_startdate =
+      minimumStartDate;
+    deviceGroupCertificateLogDTO.certificate_issuance_enddate = maximumEndDate;
+    deviceGroupCertificateLogDTO.status = SingleDeviceIssuanceStatus.Requested;
+    deviceGroupCertificateLogDTO.readvalue_watthour = issueTotalReadValue;
+    deviceGroupCertificateLogDTO.certificate_payload = issuance;
+    deviceGroupCertificateLogDTO.countryCode = countryCodeKey;
+    deviceGroupCertificateLogDTO.certificateTransactionUID =
+      certificateTransactionUID.toString();
+
+    // Save to database
+    await this.deviceGroupService.addCertificateIssueDateLogForDeviceGroup(
+      deviceGroupCertificateLogDTO,
+    );
   }
 }

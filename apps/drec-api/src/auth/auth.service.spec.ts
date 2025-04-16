@@ -13,7 +13,7 @@ import {
   Role,
   UserStatus,
 } from '../utils/enums';
-import { IUser } from 'src/models/User';
+import { IUser } from '../models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
 
