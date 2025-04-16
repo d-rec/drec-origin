@@ -98,7 +98,7 @@ This feature converts reserved energy into digital tokens that act as certificat
 
 ### Key Requirements for Eligibility
 
-- **Capacity Limitation**: Devices must be ≤250 kW. Larger systems require direct registration with an Issuer.
+- **Capacity Limitation**: Devices must be **≤250kWh**. Larger systems require direct registration with an Issuer.
 - **Metered Data Availability**: Devices must provide verifiable generation data through smart meters, inverters, charge controllers, or other monitoring systems capable of periodic reporting.
 - **Grid Connection Types**: Eligible systems include off-grid, captive consumption, and grid-tied assets, provided they meet data validation requirements.
 - **Standards Compliance**: Devices must satisfy the eligibility criteria established by the I-TRACK Standard Foundation. To date, demonstrated projects within the D-REC framework primarily include solar PV systems ≤250 kW.
