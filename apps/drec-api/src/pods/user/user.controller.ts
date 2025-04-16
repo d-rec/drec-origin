@@ -29,7 +29,11 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
+import {
+  IEmailConfirmationToken,
+  ILoggedInUser,
+  LoggedInUser,
+} from '../../models';
 import {
   ActiveUserGuard,
   PermissionGuard,
@@ -348,7 +352,8 @@ export class UserController {
    * @param param0
    * @returns
    */
-  @Put('resend-confirm-email/:email')
+  @Put('resend-confirm-email')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -363,9 +368,10 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    @Param('email') email: string,
+    @UserDecorator() user: LoggedInUser,
   ): Promise<SuccessResponseDTO> {
-    return this.emailConfirmationService.sendConfirmationEmail(email);
+    console.log('user', user);
+    return this.emailConfirmationService.sendConfirmationEmail(user.email);
   }
 
   /**
