@@ -15,7 +15,7 @@ The various modules are as follows:
 - User Management: The D-REC platform’s UI or API enables users to add or remove users and interact with the system, including registering or removing devices or requesting certificate issuance.
 - Device Management: This section involves adding, removing, or editing individual devices. Below is the data schema outlining the fields for device registration; devices can be registered through the UI or the API.
 - Meter Reads: Through an API interface, devices can submit meter readings of three types: historical, aggregate, or delta. Aggregate refers to the running total of electricity produced since the device’s commissioning; delta indicates the specific generation amount between each submission of meter data to the D-REC Platform; historical denotes submitting data from a previous period for certification issuance.
-- Buyer Reservation: Certificate issuance occurs only when a buyer for the D-REC certificates specifically requests it. In this regard, the buyer identifies the devices from which they wish to issue certificates. The data schema for the reservation is outlined below. For interaction with the Evident registry, there are three main points where data ~~is~~ will be exchanged between the two registries: when a device ~~is~~ will be registered (i.e., it ~~is~~ will be reflected in both the D-REC Platform and the Evident registry), when a certificate ~~is~~ will be issued. Each step in the process is documented below:
+- Buyer Reservation: Certificate issuance occurs only when a buyer for the D-REC certificates specifically requests it. In this regard, the buyer identifies the devices from which they wish to issue certificates. The data schema for the reservation is outlined below. For interaction with the Evident registry, there are three main points where data  will be exchanged between the two registries: when a device will be registered (i.e., it  will be reflected in both the D-REC Platform and the Evident registry), when a certificate  will be issued. Each step in the process is documented below:
 
 ## User Registration
 
@@ -60,6 +60,8 @@ The device schema is as follows:
 }
 ```
 
+![Device View](./img/device-view.png)
+
 ## **Meter Reads**
 
 Once a device is registered on the D-REC Platform, it can submit meter reads for validation—this occurs through the D-REC Platform’s POST /api/meter-reads/new/{id} endpoint, where {id} refers to the identifier that the developer uniquely assigns to each installation. Alternatively, this can also be done via a file upload. As mentioned earlier, there are three types of meter reads: historical, aggregate, and delta. However, no certificate is issued.
@@ -95,5 +97,7 @@ If (μ – 1.5σ) ≤ x ≤ (μ + 1.5σ), then the reported generation data is a
 ```
 
 Once the validation has been successful, a certificate will be issued and assigned to the Buyer’s wallet (organization blockchain address). The platform user interface (UI) will list all of the issued certificates:
+
+![Certificates View](./img/certificates-view.png)
 
 Each line represents a digital certificate representing 1 or more kWh of verified energy generated from a reservation; each certificate can only correspond to a single reservation.
