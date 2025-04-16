@@ -14,6 +14,7 @@ import {
   UseInterceptors,
   ConflictException,
   Res,
+  Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -401,6 +402,27 @@ export class UserController {
     @Body() body: ForgetPasswordDTO,
   ): Promise<SuccessResponseDTO> {
     return this.userService.getTokenForResetPassword(body.email);
+  }
+
+  @Patch('accept-terms-and-conditons')
+  @ApiOperation({
+    summary: 'Accept terms and conditions for existing user',
+    description:
+      'User accepts terms and condition when they havent done so in registration',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Terms and conditions accepted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'User not found. The specified user email does not correspond to any existing user.',
+  })
+  public async acceptTermsAndCondition(
+    @Body() body: ForgetPasswordDTO,
+  ): Promise<UserDTO | null> {
+    return this.userService.acceptTermsAndCondition(body.email);
   }
 
   @Get('export-accesskey/:api_user_id')

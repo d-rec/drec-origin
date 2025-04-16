@@ -451,7 +451,12 @@ export class UserService {
       errors: `Incorrect current password.`,
     });
   }
-
+  async acceptTermsAndCondition(email: string): Promise<User> {
+    const user = await this.repository.findOne({ where: { email: email } });
+    if (!user) throw new NotFoundException('User not found');
+    user.terms_accept_at = new Date();
+    return await this.repository.save(user);
+  }
   async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
