@@ -159,7 +159,7 @@ describe('ReadsService', () => {
       await service.find(meterId, filter);
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'exception caught in in between device onboarding checking for createdAt',
+        'exception caught in between device onboarding checking for createdAt',
       );
       expect(loggerErrorSpy).toHaveBeenCalledWith(error);
     });

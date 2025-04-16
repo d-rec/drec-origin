@@ -150,7 +150,7 @@ export class ReadsService {
       return await this.baseReadsService.find(meterId, filter);
     } catch (e) {
       this.logger.error(
-        'exception caught in in between device onboarding checking for createdAt',
+        'exception caught in between device onboarding checking for createdAt',
       );
       this.logger.error(e);
     }
