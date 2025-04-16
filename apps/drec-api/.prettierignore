@@ -12,14 +12,16 @@
 common/changes/
 common/scripts/
 common/config/
+.rush/
 
 # Package manager files
 pnpm-lock.yaml
 package-lock.json
 shrinkwrap.json
-.vitepress
 node_modules
+
 
 # Build outputs
 dist
+bin
 lib
