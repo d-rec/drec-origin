@@ -12,7 +12,7 @@ async function run() {
     app.get(PermissionsSeeder),
     app.get(TermsAndConditionsSeeder),
     // Add more seeders here
-    // For dummy data seeders add them in ./dummy-data/index.ts 
+    // For dummy data seeders add them in ./dummy-data/index.ts
   ];
 
   console.log('Seeding data...');
