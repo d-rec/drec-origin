@@ -9,9 +9,9 @@ import { Device } from '../src/pods/device/device.entity';
 import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
-
+import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
 @Module({
   imports: [originAppTypeOrmModule(), TypeOrmModule.forFeature([ACLModulePermission,Organization,User,Device])],
-  providers: [PermissionsSeeder,OrganizationsSeeder,UsersSeeder,DevicesSeeder],
+  providers: [PermissionsSeeder,OrganizationsSeeder,UsersSeeder,DevicesSeeder, TermsAndConditionsSeeder],
 })
 export class SeederModule {}
