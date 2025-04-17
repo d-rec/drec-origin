@@ -289,38 +289,6 @@ export class LateOngoingIssuanceService {
   }
 
   /**
-   * Issues a new certificate for a device group and archives the related late ongoing cycle
-   *
-   * @param group - The device group for which to issue a certificate
-   * @param nextIssuance - Information about the next certificate issuance
-   * @param startDate - The start date for the certificate validity period
-   * @param endDate - The end date for the certificate validity period
-   * @param countryCodeKey - The country code key used for certificate issuance
-   * @param cycle - The late ongoing certificate cycle entity to be archived after issuance
-   * @returns A Promise that resolves when both the certificate issuance and cycle archiving are complete
-   */
-  private async issueCertificate(
-    group: DeviceGroup,
-    nextIssuance: DeviceGroupNextIssueCertificate,
-    startDate: DateTime,
-    endDate: DateTime,
-    countryCodeKey: string,
-    cycle: DeviceLateOngoingIssueCertificateEntity,
-  ): Promise<void> {
-    // Issue the certificate for the specified device group
-    await this.issuerService.issueCertificate(
-      group,
-      nextIssuance,
-      startDate,
-      endDate,
-      countryCodeKey,
-    );
-
-    // Archive the late ongoing cycle now that a certificate has been issued
-    await this.deviceService.archiveOutdatedLateOngoingCycles(cycle);
-  }
-
-  /**
    * Issues certificates for readings when the last read is after the late end date
    *
    * @param cycle - The late ongoing issue certificate entity
@@ -371,6 +339,38 @@ export class LateOngoingIssuanceService {
       device.countryCode,
       cycle,
     );
+  }
+
+  /**
+   * Issues a new certificate for a device group and archives the related late ongoing cycle
+   *
+   * @param group - The device group for which to issue a certificate
+   * @param nextIssuance - Information about the next certificate issuance
+   * @param startDate - The start date for the certificate validity period
+   * @param endDate - The end date for the certificate validity period
+   * @param countryCodeKey - The country code key used for certificate issuance
+   * @param cycle - The late ongoing certificate cycle entity to be archived after issuance
+   * @returns A Promise that resolves when both the certificate issuance and cycle archiving are complete
+   */
+  private async issueCertificate(
+    group: DeviceGroup,
+    nextIssuance: DeviceGroupNextIssueCertificate,
+    startDate: DateTime,
+    endDate: DateTime,
+    countryCodeKey: string,
+    cycle: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<void> {
+    // Issue the certificate for the specified device group
+    await this.issuerService.issueCertificate(
+      group,
+      nextIssuance,
+      startDate,
+      endDate,
+      countryCodeKey,
+    );
+
+    // Archive the late ongoing cycle now that a certificate has been issued
+    await this.deviceService.archiveOutdatedLateOngoingCycles(cycle);
   }
 
   /**
