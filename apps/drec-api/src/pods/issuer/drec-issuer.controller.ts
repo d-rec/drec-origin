@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Logger,
-  ParseIntPipe,
   Query,
   HttpStatus,
 } from '@nestjs/common';
@@ -17,8 +16,11 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { IssuerService } from './issuer.service';
+import { CertificateService } from './services/certificate.service';
 import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
+import { HistoricalIssuanceService } from './services/historical-issuance.service';
+import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
+import { OngoingIssuanceService } from './services/ongoing-issuance.service';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')
@@ -27,7 +29,12 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 export class DRECIssuerController {
   private readonly logger = new Logger(DRECIssuerController.name);
 
-  constructor(private readonly issuerService: IssuerService) {}
+  constructor(
+    private readonly certificateService: CertificateService,
+    private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
+    private readonly historicalIssuanceService: HistoricalIssuanceService,
+    private readonly ongoingIssuanceService: OngoingIssuanceService,
+  ) {}
   /**
    *
    * @returns
@@ -58,7 +65,7 @@ export class DRECIssuerController {
   async invokeIssuerCronOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronOngoing`);
     try {
-      await this.issuerService.handleCron();
+      await this.ongoingIssuanceService.scheduleIssuance();
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
@@ -85,8 +92,8 @@ export class DRECIssuerController {
 
     return new Promise((resolve) => {
       this.invokeIssuerCronForHistory();
-      this.logger.log(`successfully Hitthe history API`);
-      resolve('successfully Hitthe history API');
+      this.logger.log(`successfully Hit the history API`);
+      resolve('successfully Hit the history API');
     });
   }
   /**
@@ -117,7 +124,7 @@ export class DRECIssuerController {
     this.logger.verbose(`With in reIssueCertificates`);
 
     return new Promise((resolve) => {
-      this.issuerService.issueCertificateFromAPI(certificateData);
+      this.certificateService.issueFromAPI(certificateData);
       this.logger.log(`hit the issueance data`);
       resolve('hit the issueance data');
     });
@@ -126,7 +133,7 @@ export class DRECIssuerController {
   async invokeIssuerCronForHistory(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronForHistory`);
     try {
-      await this.issuerService.handleCronForHistoricalIssuance();
+      await this.historicalIssuanceService.scheduleIssuance();
     } catch (e) {
       this.logger.error('caught exception in cron history', e);
     }
@@ -155,7 +162,7 @@ export class DRECIssuerController {
   })
   @ApiQuery({ name: 'groupId', type: Number, required: false })
   async simpleGetCallForLateOngoing(
-    @Query('groupId', new ParseIntPipe()) groupId?: number,
+    @Query('groupId') groupId?: number,
   ): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForLateOngoing`,
@@ -175,7 +182,7 @@ export class DRECIssuerController {
   async invokeIssuerCronLateOngoing(groupId?: number): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.handleCronForOngoingLateIssuance(groupId);
+      await this.lateOngoingIssuanceService.triggerIssuance(groupId);
     } catch (e) {
       this.logger.error('caught exception in cron ongoing', e);
     }
@@ -217,9 +224,9 @@ export class DRECIssuerController {
   async invokeIssuerCronMissingLateOngoing(): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.issuerService.getMissingCycleBeforeLateOngoing();
+      await this.lateOngoingIssuanceService.getMissingCycle();
     } catch (e) {
-      this.logger.error('caught exception in cron ongoing', e);
+      this.logger.error('caught exception in getting missing cycles', e);
     }
   }
 }

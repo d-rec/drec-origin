@@ -11,7 +11,15 @@ import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
 
 @Module({
-  imports: [originAppTypeOrmModule(), TypeOrmModule.forFeature([ACLModulePermission,Organization,User,Device])],
-  providers: [PermissionsSeeder,OrganizationsSeeder,UsersSeeder,DevicesSeeder],
+  imports: [
+    originAppTypeOrmModule(),
+    TypeOrmModule.forFeature([ACLModulePermission, Organization, User, Device]),
+  ],
+  providers: [
+    PermissionsSeeder,
+    OrganizationsSeeder,
+    UsersSeeder,
+    DevicesSeeder,
+  ],
 })
 export class SeederModule {}

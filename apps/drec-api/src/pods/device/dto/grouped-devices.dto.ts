@@ -9,7 +9,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DeviceDTO } from './device.dto';
 import { CapacityRange, CommissioningDateRange } from '../../../utils/enums';
-import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
+import { CertificateGenerationFrequency } from '../../../utils/enums';
 export class UngroupedDeviceDTO extends DeviceDTO {
   @ApiProperty()
   @IsEnum(CommissioningDateRange)
@@ -54,6 +54,6 @@ export class GroupedDevicesDTO {
   authorityToExceed?: boolean;
 
   @ApiProperty()
-  @IsEnum(BuyerReservationCertificateGenerationFrequency)
-  frequency?: BuyerReservationCertificateGenerationFrequency;
+  @IsEnum(CertificateGenerationFrequency)
+  frequency?: CertificateGenerationFrequency;
 }

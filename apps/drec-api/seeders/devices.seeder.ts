@@ -7,48 +7,46 @@ import { Device } from '../src/pods/device/device.entity';
 import { Organization } from '../src/pods/organization/organization.entity';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../src/utils/enums';
 
-
 @Injectable()
 export class DevicesSeeder {
-    constructor(
-        @InjectRepository(Organization)
-        private readonly organizationRepository: Repository<Organization>,
+  constructor(
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
 
-        @InjectRepository(Device)
-        private readonly deviceRepository: Repository<Device>
-    ) {}
+    @InjectRepository(Device)
+    private readonly deviceRepository: Repository<Device>,
+  ) {}
 
-    async run(): Promise<void> {
-        const developerEmail = process.env.DEVELOPER_EMAIL?.toLowerCase() || '';
+  async run(): Promise<void> {
+    const developerEmail = process.env.DEVELOPER_EMAIL?.toLowerCase() || '';
 
-    
-        const developerOrg = await this.organizationRepository.findOne({
-            where: { orgEmail: developerEmail },
-        });
+    const developerOrg = await this.organizationRepository.findOne({
+      where: { orgEmail: developerEmail },
+    });
 
-        if (!developerOrg) {
-            console.error('Error: Organization not found for Developer.');
-            return;
-        }
+    if (!developerOrg) {
+      console.error('Error: Organization not found for Developer.');
+      return;
+    }
 
-const devices = this.deviceRepository.create([
-    {
+    const devices = this.deviceRepository.create([
+      {
         externalId: uuidv4(),
-        organizationId: developerOrg.id, 
+        organizationId: developerOrg.id,
         projectName: 'Project Alpha',
         address: '123 Main St, City A',
         latitude: '12.3456',
         longitude: '65.4321',
         countryCode: 'ALB',
-        fuelCode: FuelCode.ES100, 
-        deviceTypeCode: DeviceTypeCode.TC120, 
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC120,
         capacity: 1000.0,
-        commissioningDate: '2023-01-01', 
+        commissioningDate: '2023-01-01',
         gridInterconnection: true,
-        offTaker: OffTaker.School, 
+        offTaker: OffTaker.School,
         yieldValue: 2000,
         impactStory: 'Impact story for device 1',
-        images: ['image1.jpg'], 
+        images: ['image1.jpg'],
         deviceDescription: null,
         energyStorage: false,
         energyStorageCapacity: null,
@@ -59,8 +57,8 @@ const devices = this.deviceRepository.create([
         IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: 'e0ab91a4-03bc-4447-9d00-c51260fd6ff9',
-    },
-    {
+      },
+      {
         externalId: uuidv4(),
         organizationId: developerOrg.id,
         projectName: 'Project Beta',
@@ -87,12 +85,12 @@ const devices = this.deviceRepository.create([
         IREC_Status: 'NotRegistered',
         IREC_ID: null,
         api_user_id: 'e0ab91a4-03bc-4447-9d00-c51260fd6ff0',
-    }
-]);
+      },
+    ]);
 
-await this.deviceRepository.save(devices);
-    }
-    async drop(): Promise<void> {
-        await this.deviceRepository.delete({});
-      }
+    await this.deviceRepository.save(devices);
+  }
+  async drop(): Promise<void> {
+    await this.deviceRepository.delete({});
+  }
 }
