@@ -17,10 +17,11 @@ import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
-
+import { AuthService } from '../../auth/auth.service';
 export interface SuccessResponse {
   success: boolean;
   message: string;
+  accessToken?: string;
 }
 @Injectable()
 export class EmailConfirmationService {
@@ -32,6 +33,7 @@ export class EmailConfirmationService {
     private mailService: MailService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly authService: AuthService,
   ) {}
 
   public async create(user: User): Promise<EmailConfirmation | null> {
@@ -185,10 +187,13 @@ export class EmailConfirmationService {
       emailConfirmation.user.id,
     );
 
+    const loginData = await this.authService.login(emailConfirmation.user);
+
     this.logger.warn(EmailConfirmationResponse.Success);
     return {
       success: true,
       message: EmailConfirmationResponse.Success,
+      accessToken: loginData.accessToken,
     };
   }
 
