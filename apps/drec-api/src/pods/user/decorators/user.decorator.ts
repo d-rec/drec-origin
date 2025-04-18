@@ -5,7 +5,6 @@ export const UserDecorator = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const user = request.user as IUser;
-    console.log('user', user);
     return new LoggedInUser(user);
   },
 );
