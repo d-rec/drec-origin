@@ -10,12 +10,14 @@ import { User } from '../user/user.entity';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import { DateTime } from 'luxon';
+import { AuthService } from '../../auth/auth.service';
 
 describe('EmailConfirmationService', () => {
   let service: EmailConfirmationService;
   let repository: Repository<EmailConfirmation>;
   let userService: UserService;
   let mailService: MailService; // eslint-disable-line @typescript-eslint/no-unused-vars
+  let authService: AuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,6 +32,7 @@ describe('EmailConfirmationService', () => {
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
+            updateUserEmailVerification: jest.fn(),
           } as any,
         },
         {
@@ -42,6 +45,12 @@ describe('EmailConfirmationService', () => {
           provide: OauthClientCredentialsService,
           useValue: {} as any,
         },
+        {
+          provide: AuthService,
+          useValue: {
+            login: jest.fn().mockResolvedValue({ accessToken: 'test-token' }),
+          } as any,
+        },
       ],
     }).compile();
 
@@ -51,6 +60,7 @@ describe('EmailConfirmationService', () => {
     );
     userService = module.get<UserService>(UserService); // eslint-disable-line @typescript-eslint/no-unused-vars
     mailService = module.get<MailService>(MailService);
+    authService = module.get<AuthService>(AuthService);
   });
 
   it('should be defined', () => {
@@ -300,6 +310,53 @@ describe('EmailConfirmationService', () => {
       expect(result).toEqual({
         success: false,
         message: EmailConfirmationResponse.Expired,
+      });
+    });
+
+    it('should confirm email and return success response with access token', async () => {
+      const token = 'validToken';
+      const user = { id: 1, email: 'test@example.com' } as User;
+      const emailConfirmation = {
+        id: 1,
+        token,
+        confirmed: false,
+        user,
+        expiryTimestamp: Math.floor(
+          DateTime.now().plus({ hours: 1 }).toSeconds(),
+        ), // Valid timestamp
+      } as EmailConfirmation;
+
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValueOnce(emailConfirmation);
+
+      const updateSpy = jest
+        .spyOn(repository, 'update')
+        .mockResolvedValueOnce({} as any);
+
+      const updateUserEmailVerificationSpy = jest
+        .spyOn(userService, 'updateUserEmailVerification')
+        .mockResolvedValueOnce({} as any);
+
+      const loginSpy = jest
+        .spyOn(authService, 'login')
+        .mockResolvedValueOnce({ accessToken: 'test-token' });
+
+      const result = await service.confirmEmail(token);
+
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { token },
+        relations: ['user'],
+      });
+      expect(updateSpy).toHaveBeenCalledWith(emailConfirmation.id, {
+        confirmed: true,
+      });
+      expect(updateUserEmailVerificationSpy).toHaveBeenCalledWith(user.id);
+      expect(loginSpy).toHaveBeenCalledWith(user);
+      expect(result).toEqual({
+        success: true,
+        message: EmailConfirmationResponse.Success,
+        accessToken: 'test-token',
       });
     });
   });

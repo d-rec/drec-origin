@@ -21,7 +21,7 @@ import { VerifyUsersSeeder } from './verify-users.seeder';
     OrganizationsSeeder,
     UsersSeeder,
     DevicesSeeder,
-    VerifyUsersSeeder
+    VerifyUsersSeeder,
   ],
 })
 export class SeederModule {}
