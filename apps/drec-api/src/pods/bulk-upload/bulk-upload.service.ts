@@ -13,7 +13,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { OrganizationService } from '../organization/organization.service';
-import { ILoggedInUser } from 'src/models';
+import { ILoggedInUser } from '../../models';
 import { FileService } from '../file';
 import { ReadsService } from '../reads/reads.service';
 import { BulkUploadFailedLogEntity } from './bulk-uploads-failed-logs.entity';

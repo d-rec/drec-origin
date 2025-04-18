@@ -13,13 +13,8 @@ import { VerifyUsersSeeder } from './verify-users.seeder';
 
 @Module({
   imports: [
-    originAppTypeOrmModule(), 
-    TypeOrmModule.forFeature([
-      ACLModulePermission,
-      Organization,
-      User,
-      Device
-    ])
+    originAppTypeOrmModule(),
+    TypeOrmModule.forFeature([ACLModulePermission, Organization, User, Device]),
   ],
   providers: [
     PermissionsSeeder,

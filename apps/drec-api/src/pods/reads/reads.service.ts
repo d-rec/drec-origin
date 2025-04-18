@@ -142,6 +142,20 @@ export class ReadsService {
     );
   }
 
+  public async find(
+    meterId: string,
+    filter: FilterDTO,
+  ): Promise<Array<{ timestamp: Date; value: number }>> {
+    try {
+      return await this.baseReadsService.find(meterId, filter);
+    } catch (e) {
+      this.logger.error(
+        'exception caught in between device onboarding checking for createdAt',
+      );
+      this.logger.error(e);
+    }
+  }
+
   async storeFailedReads(
     meterId: string,
     read: number,
