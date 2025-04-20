@@ -2,6 +2,7 @@ import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsString, IsDate } from 'class-validator';
 import { IDeviceLateOngoingIssueCertificate } from '../../models';
+import { DateTime } from 'luxon';
 
 @Entity('device_lateongoing_certificate_cycle')
 export class DeviceLateOngoingIssueCertificateEntity
@@ -31,4 +32,31 @@ export class DeviceLateOngoingIssueCertificateEntity
 
   @Column()
   createdAt: Date;
+
+  @Column()
+  archived_at?: Date;
+
+  get lateStartTimestamp(): number {
+    return new Date(this.late_start_date).getTime();
+  }
+
+  get lateEndTimestamp(): number {
+    return new Date(this.late_end_date).getTime();
+  }
+
+  get lateStartDate(): Date {
+    return new Date(this.late_start_date);
+  }
+
+  get lateEndDate(): Date {
+    return new Date(this.late_end_date);
+  }
+
+  get lateStartDateUTC(): DateTime {
+    return DateTime.fromISO(this.late_start_date).toUTC();
+  }
+
+  get lateEndDateUTC(): DateTime {
+    return DateTime.fromISO(this.late_end_date).toUTC();
+  }
 }

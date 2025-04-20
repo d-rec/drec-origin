@@ -29,6 +29,12 @@
     // This improves issue grouping in Sentry.
     "sourceRoot": "/"
   },
-  "include": ["src/**/*", "migrations/*", "test/*", "ormconfig*.ts", "seeders/*"],
+  "include": [
+    "src/**/*",
+    "migrations/*",
+    "test/*",
+    "ormconfig*.ts",
+    "seeders/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

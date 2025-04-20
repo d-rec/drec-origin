@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsString, IsOptional, Min, IsEnum } from 'class-validator';
-import { BuyerReservationCertificateGenerationFrequency } from '../../../models';
+import { CertificateGenerationFrequency } from '../../../utils/enums';
 
 export class AddGroupDTO {
   @ApiProperty()
@@ -31,8 +31,8 @@ export class AddGroupDTO {
   authorityToExceed: boolean;
 
   @ApiProperty()
-  @IsEnum(BuyerReservationCertificateGenerationFrequency)
-  frequency: BuyerReservationCertificateGenerationFrequency;
+  @IsEnum(CertificateGenerationFrequency)
+  frequency: CertificateGenerationFrequency;
 
   // @ApiPropertyOptional({ type: String })
   @IsString()

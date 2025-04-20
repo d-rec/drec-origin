@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { cloneDeep, defaults } from 'lodash';
 import {
   Between,
   Brackets,
@@ -19,26 +20,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { DeviceService } from '../device/device.service';
-import {
-  AddGroupDTO,
-  DeviceGroupDTO,
-  EndReservationDateDTO,
-  NewDeviceGroupDTO,
-  NewUpdateDeviceGroupDTO,
-  ResponseDeviceGroupDTO,
-  UnreservedDeviceGroupsFilterDTO,
-} from './dto';
-import { cloneDeep, defaults } from 'lodash';
-import { DeviceGroup } from './device-group.entity';
-import { Device } from '../device/device.entity';
-import {
-  BuyerReservationCertificateGenerationFrequency,
-  DeviceDescription,
-  IDevice,
-  ILoggedInUser,
-} from '../../models';
-import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import {
   CommissioningDateRange,
   DeviceTypeCode,
@@ -48,48 +30,63 @@ import {
   Role,
   Sector,
 } from '../../utils/enums';
+import { Device } from '../device/device.entity';
+import { DeviceService } from '../device/device.service';
+import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceGroup } from './device-group.entity';
+import {
+  AddGroupDTO,
+  DeviceGroupDTO,
+  EndReservationDateDTO,
+  NewDeviceGroupDTO,
+  NewUpdateDeviceGroupDTO,
+  ResponseDeviceGroupDTO,
+  UnreservedDeviceGroupsFilterDTO,
+} from './dto';
 
 import moment from 'moment';
 
-import { getCapacityRange } from '../../utils/get-capacity-range';
-import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import cleanDeep from 'clean-deep';
-import { OrganizationService } from '../organization/organization.service';
+import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { getCapacityRange } from '../../utils/get-capacity-range';
+import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
+import { OrganizationService } from '../organization/organization.service';
 import {
   DeviceCsvFileProcessingJobsEntity,
   StatusCSV,
 } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
-import csv from 'csv-parser';
 
 import CSVToJsonV2 from 'csvtojson';
 
 import { countryCodesList } from '../../models/country-code';
 
-import { FileService } from '../file';
-import { validate } from 'class-validator';
-import { YieldConfigService } from '../yield-config/yieldconfig.service';
-import { DateTime } from 'luxon';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { Certificate } from '@energyweb/issuer-api';
-import { UserService } from '../user/user.service';
-import { ICertificateMetadata } from '../../utils/types';
-import { FilterDTO } from '../certificate-log/dto';
-import { CertificateSettingEntity } from './certificate_setting.entity';
+import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
+import { DateTime } from 'luxon';
+import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
+import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
+import { Queues } from '../../utils/enums/queues.enum';
+import { ICertificateMetadata } from '../../utils/types';
+import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
-import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
-import { plainToClass } from 'class-transformer';
-import { Queues } from '../../utils/enums/queues.enum';
+import { FilterDTO } from '../certificate-log/dto';
+import { FileService } from '../file';
+import { UserService } from '../user/user.service';
+import { YieldConfigService } from '../yield-config/yieldconfig.service';
+import { CertificateSettingEntity } from './certificate_setting.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
+import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 
 @Injectable()
 export class DeviceGroupService {
@@ -803,28 +800,12 @@ export class DeviceGroupService {
         startDate = minimumDeviceCreatedAtDate.toISOString();
       }
 
-      let hours = 1;
-
-      const frequency = group.frequency.toLowerCase();
-      if (frequency === BuyerReservationCertificateGenerationFrequency.daily) {
-        hours = 1 * 24;
-      } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.monthly
-      ) {
-        hours = 30 * 24;
-      } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.weekly
-      ) {
-        hours = 7 * 24;
-      } else if (
-        frequency === BuyerReservationCertificateGenerationFrequency.quarterly
-      ) {
-        hours = 91 * 24;
-      }
-      let newEndDate = '';
-      const endDate = new Date(
-        new Date(startDate).getTime() + hours * 3.6e6,
+      const endDate = getCycleEndDate(
+        new Date(startDate),
+        group.frequency,
       ).toISOString();
+
+      let newEndDate = '';
 
       if (
         new Date(endDate).getTime() <
@@ -1139,7 +1120,7 @@ export class DeviceGroupService {
     return await this.repository.save(deviceGroup);
   }
 
-  async updateLeftOverReadByCountryCode(
+  public async updateLeftOverReadByCountryCode(
     id: number,
     leftOverRead: number,
     countryCodeKey: string,
@@ -2799,5 +2780,32 @@ export class DeviceGroupService {
       totalPages,
       totalCount,
     };
+  }
+
+  public async processLeftOverReadsByCountryCode(
+    group: DeviceGroup,
+    totalReadValueW: number,
+    countryCodeKey: string,
+  ): Promise<number> {
+    const WATTS_TO_KW_CONVERSION = 1000; // 10^3
+
+    // 1. Convert watts to kilowatts and add any existing leftover value
+    const leftovers = group.leftoverReadsByCountryCode?.[countryCodeKey] || 0;
+    const totalReadValueKw =
+      totalReadValueW / WATTS_TO_KW_CONVERSION + leftovers;
+
+    // 2. Split the value into integer and decimal components
+    const { integralVal, decimalVal } =
+      splitValueIntoIntegerAndDecimal(totalReadValueKw);
+
+    // 3. Store the decimal component for future accumulation
+    await this.updateLeftOverReadByCountryCode(
+      group.id,
+      decimalVal,
+      countryCodeKey,
+    );
+
+    // 4. Return the integer component for certificate issuance
+    return integralVal;
   }
 }
