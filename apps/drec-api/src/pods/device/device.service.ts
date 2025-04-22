@@ -1477,7 +1477,7 @@ export class DeviceService {
       groupId,
     );
     return await this.lateDeviceCertificateRepository.update(
-      { groupId: groupId },
+      { groupId: groupId, certificate_issued: false },
       { archived_at: new Date() },
     );
   }
@@ -1624,5 +1624,45 @@ export class DeviceService {
       // Move to next period
       currentDate = nextDate;
     }
+  }
+
+  /**
+   * Retrieves the most recently issued certificate cycles for each unique device-group combination
+   *
+   * @returns Promise resolving to an array of the latest issued certificate cycles
+   */
+  async findLatestIssuedCyclesByDeviceAndGroup(): Promise<any> {
+    return this.lateDeviceCertificateRepository
+      .createQueryBuilder('cycle')
+      .distinctOn(['cycle.device_externalid', 'cycle.groupId'])
+      .where('cycle.certificate_issued = :issued', { issued: true })
+      .andWhere('cycle.archived_at IS NULL')
+      .orderBy('cycle.device_externalid', 'ASC')
+      .addOrderBy('cycle.groupId', 'ASC')
+      .addOrderBy('cycle.late_end_date', 'DESC')
+      .getMany();
+  }
+
+  /**
+   * Archives all outdated certificate cycles for a specific device-group combination
+   *
+   * @param cycle - The reference cycle used to determine which older cycles to archive
+   * @returns Promise resolving when the update operation completes
+   */
+  async archiveOutdatedLateOngoingCycles(
+    cycle: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<any> {
+    await this.lateDeviceCertificateRepository.update(
+      {
+        device_externalid: cycle.device_externalid,
+        groupId: cycle.groupId,
+        certificate_issued: false,
+        late_end_date: LessThanOrEqual(cycle.late_start_date),
+        archived_at: null,
+      },
+      {
+        archived_at: new Date(),
+      },
+    );
   }
 }

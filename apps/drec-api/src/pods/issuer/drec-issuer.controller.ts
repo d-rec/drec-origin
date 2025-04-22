@@ -21,6 +21,7 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { HistoricalIssuanceService } from './services/historical-issuance.service';
 import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './services/ongoing-issuance.service';
+import { DeviceService } from '../device';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')
@@ -34,6 +35,7 @@ export class DRECIssuerController {
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
     private readonly historicalIssuanceService: HistoricalIssuanceService,
     private readonly ongoingIssuanceService: OngoingIssuanceService,
+    private readonly deviceService: DeviceService,
   ) {}
   /**
    *
@@ -228,5 +230,34 @@ export class DRECIssuerController {
     } catch (e) {
       this.logger.error('caught exception in getting missing cycles', e);
     }
+  }
+
+  @Post('/remove-invalid-cycles')
+  @ApiOperation({
+    summary: 'Archive inactive late ongoing certificate cycles',
+    description:
+      'This endpoint triggers the process to archive all inactive late ongoing certificate cycles in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description:
+      'The archive process for inactive late ongoing certificate cycles was successfully triggered.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description:
+      'The request is invalid or missing required parameters. Please check the request and try again.',
+  })
+  async removeInactiveCycles(): Promise<any> {
+    this.logger.verbose(
+      `With in simpleGetCallForLateOngoing`,
+      `got hit from cloudwatch ongoing`,
+    );
+
+    return new Promise((resolve) => {
+      this.lateOngoingIssuanceService.removeInactiveCycles();
+      this.logger.log(`successfully removed the inactive cycles`);
+      resolve('successfully removed the inactive cycles');
+    });
   }
 }
