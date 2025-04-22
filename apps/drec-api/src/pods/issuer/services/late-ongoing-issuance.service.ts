@@ -107,6 +107,9 @@ export class LateOngoingIssuanceService {
 
       await this.processIssuanceForCycle(cycle);
     }
+
+    // Update the last checked timestamp for the group
+    groupId && (await this.deviceService.updateLateCycleCheckedAt(groupId));
   }
 
   /**

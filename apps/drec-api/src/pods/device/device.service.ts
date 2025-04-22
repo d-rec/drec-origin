@@ -1435,6 +1435,12 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
+  async updateLateCycleCheckedAt(groupId: number): Promise<any> {
+    await this.lateDeviceCertificateRepository.update(
+      { groupId: groupId, certificate_issued: false },
+      { checked_at: new Date() },
+    );
+  }
   async updateLateOngoing(
     externalId: string,
     id: number,
