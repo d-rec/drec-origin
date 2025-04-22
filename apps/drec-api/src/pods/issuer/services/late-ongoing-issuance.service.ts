@@ -259,33 +259,33 @@ export class LateOngoingIssuanceService {
       return;
     }
 
-    await Promise.all([
-      this.deviceService.updateLateOngoing(
-        device.externalId,
-        cycle.id,
-        lastReadDate.toISOString(),
-      ),
-      this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        DateTime.fromJSDate(newStartDate).toUTC(),
-        cycle.lateEndDateUTC,
-      ),
-    ]);
+    await this.deviceService.updateLateOngoing(
+      device.externalId,
+      cycle.id,
+      lastReadDate.toISOString(),
+    );
 
     this.logger.debug(
       'Late ongoing Issue Certificate For::',
       cycle.device_externalid,
     );
 
-    await this.issueCertificate(
-      group,
-      nextIssuance,
-      cycle.lateStartDateUTC,
-      DateTime.fromJSDate(lastReadDate).toUTC(),
-      device.countryCode,
-      cycle,
-    );
+    await Promise.all([
+      this.deviceService.findOrCreateCycle(
+        group.id,
+        device.externalId,
+        DateTime.fromJSDate(newStartDate).toUTC(),
+        cycle.lateEndDateUTC,
+      ),
+      this.issueCertificate(
+        group,
+        nextIssuance,
+        cycle.lateStartDateUTC,
+        DateTime.fromJSDate(lastReadDate).toUTC(),
+        device.countryCode,
+        cycle,
+      ),
+    ]);
   }
 
   /**
@@ -325,20 +325,22 @@ export class LateOngoingIssuanceService {
     if (!allReadsForDeviceBetweenTimeRange?.length) {
       return;
     }
-    await this.deviceService.updateLateOngoing(
-      device.externalId,
-      cycle.id,
-      cycle.late_end_date,
-    );
 
-    await this.issueCertificate(
-      group,
-      nextIssuance,
-      cycle.lateStartDateUTC,
-      cycle.lateEndDateUTC,
-      device.countryCode,
-      cycle,
-    );
+    await Promise.all([
+      this.deviceService.updateLateOngoing(
+        device.externalId,
+        cycle.id,
+        cycle.late_end_date,
+      ),
+      this.issueCertificate(
+        group,
+        nextIssuance,
+        cycle.lateStartDateUTC,
+        cycle.lateEndDateUTC,
+        device.countryCode,
+        cycle,
+      ),
+    ]);
   }
 
   /**
