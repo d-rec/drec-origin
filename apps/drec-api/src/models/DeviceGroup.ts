@@ -6,14 +6,6 @@ import {
 import { DeviceDTO } from '../pods/device/dto';
 import { OrganizationDTO } from '../pods/organization/dto';
 
-export enum BuyerReservationCertificateGenerationFrequency {
-  hourly = 'hourly',
-  daily = 'daily',
-  weekly = 'weekly',
-  monthly = 'monthly',
-  quarterly = 'quarterly',
-}
-
 export interface IDeviceGroup {
   id: number;
   name: string;

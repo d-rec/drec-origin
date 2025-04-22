@@ -19,12 +19,13 @@
     "clean": "shx rm -rf dist",
     "drop": "pnpm redis:drop && pnpm typeorm:drop && pnpm typeorm:drop:issuer",
     "redis:drop": "redis-cli flushall",
-    "prettier": "prettier --check --config-precedence file-override './{src,migrations,test}/**/*'",
-    "prettier:fix": "prettier --write --config-precedence file-override './{src,migrations,test}/**/*'",
-    "lint": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --max-warnings=0",
-    "lint:error": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --quiet",
-    "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix",
+    "prettier": "prettier --check ./",
+    "prettier:fix": "prettier --write ./",
+    "lint": "eslint \"**/*{.ts,.tsx}\" --max-warnings=0",
+    "lint:error": "eslint \"**/*{.ts,.tsx}\" --quiet",
+    "lint:fix": "eslint \"**/*{.ts,.tsx}\" --fix",
     "migrate": "pnpm typeorm:run:issuer && pnpm typeorm:run && pnpm typeorm:run:certificate",
+    "migration:create": "typeorm migration:create -d ./migrations",
     "migrate:docker": "pnpm typeorm:run:issuer && node_modules/typeorm/cli.js --config dist/js/ormconfig.js migration:run",
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js --config ormconfig-dev.ts",
     "typeorm:migrate": "pnpm typeorm migration:generate -- -n",
@@ -176,6 +177,11 @@
     "standard-version": "^9.5.0",
     "supertest": "6.0.1",
     "ts-jest": "29.2.3"
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "prettier --write ./CHANGELOG.md"
+    }
   },
   "jest": {
     "moduleFileExtensions": [

@@ -5,7 +5,7 @@ import { AccessControlLayerModuleServiceService } from './access-control-layer-m
 import { AClModules } from './aclmodule.entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 import { NewACLModuleDTO, UpdateACLModuleDTO } from './dto/aclmodule.dto';
-import { RoleStatus } from 'src/utils/enums';
+import { RoleStatus } from '../../utils/enums';
 import { ConflictException } from '@nestjs/common';
 
 describe('AccessControlLayerModuleServiceService', () => {

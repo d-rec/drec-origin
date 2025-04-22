@@ -1,4 +1,5 @@
-require('dotenv').config({ path: '../../.env' });
+import Dotenv from 'dotenv';
+Dotenv.config({ path: '../../.env' });
 
 import { ConnectionOptions } from 'typeorm';
 

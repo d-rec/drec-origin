@@ -1,32 +1,28 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { HttpStatus, INestApplication } from '@nestjs/common';
-import request from 'supertest';
-import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '@energyweb/origin-backend-utils';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import request from 'supertest';
 
-import { bootstrapTestInstance } from './drec-api';
-import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization/organization.service';
-import { seed } from './seed';
 import { expect } from 'chai';
-import { before, after } from 'mocha';
-import { DeviceService } from '../src/pods/device/device.service';
+import { after, before } from 'mocha';
+import { OrganizationFilterDTO } from '../src/pods/admin/dto/organization-filter.dto';
+import { IFullOrganization } from '../src/models';
+import { Device } from '../src/pods/device';
 import {
   AddGroupDTO,
   DeviceIdsDTO,
-  NewDeviceGroupDTO,
   UpdateDeviceGroupDTO,
 } from '../src/pods/device-group/dto';
-import { Device } from '../src/pods/device';
-import {
-  BuyerReservationCertificateGenerationFrequency,
-  IFullOrganization,
-} from '../src/models';
-import { CapacityRange, CommissioningDateRange } from '../src/utils/enums';
-import TestDevicesToGroup from './test-devices-for-grouping.json';
+import { DeviceService } from '../src/pods/device/device.service';
 import { NewDeviceDTO } from '../src/pods/device/dto';
-import { OrganizationFilterDTO } from 'src/pods/admin/dto/organization-filter.dto';
+import { OrganizationService } from '../src/pods/organization/organization.service';
+import { UserService } from '../src/pods/user/user.service';
+import { CertificateGenerationFrequency } from '../src/utils/enums';
+import { bootstrapTestInstance } from './drec-api';
+import { seed } from './seed';
+import TestDevicesToGroup from './test-devices-for-grouping.json';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
@@ -131,7 +127,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -205,7 +201,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -255,7 +251,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -305,7 +301,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
@@ -361,7 +357,7 @@ describe('Device Group tests', () => {
       reservationEndDate: new Date('2024-05-03T05:26:14.620Z'),
       reservationExpiryDate: new Date('2024-05-30T05:26:14.620Z'),
       authorityToExceed: true,
-      frequency: BuyerReservationCertificateGenerationFrequency.daily,
+      frequency: CertificateGenerationFrequency.daily,
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
