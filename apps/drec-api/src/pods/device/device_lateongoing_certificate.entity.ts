@@ -34,7 +34,7 @@ export class DeviceLateOngoingIssueCertificateEntity
   createdAt: Date;
 
   @Column()
-  archived_at: Date| null;
+  archived_at: Date | null;
 
   @Column()
   checked_at: Date | null;
