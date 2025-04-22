@@ -30,7 +30,11 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
+import {
+  IEmailConfirmationToken,
+  ILoggedInUser,
+  LoggedInUser,
+} from '../../models';
 import {
   ActiveUserGuard,
   PermissionGuard,
@@ -405,6 +409,7 @@ export class UserController {
   }
 
   @Patch('accept-terms-and-conditons')
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: 'Accept terms and conditions for existing user',
     description:
@@ -420,9 +425,9 @@ export class UserController {
       'User not found. The specified user email does not correspond to any existing user.',
   })
   public async acceptTermsAndCondition(
-    @Body() body: ForgetPasswordDTO,
+    @UserDecorator() user: LoggedInUser,
   ): Promise<UserDTO | null> {
-    return this.userService.acceptTermsAndCondition(body.email);
+    return this.userService.acceptTermsAndCondition(user.email);
   }
 
   @Get('export-accesskey/:api_user_id')
