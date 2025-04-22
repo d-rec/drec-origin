@@ -30,12 +30,12 @@ Each group has access to customized tools suited to their unique operational req
 
 ### Key Modules
 
-| Module | Description |
-|--------|-------------|
-| **User Management** | Enables users to add/remove users and interact with the system, including registering devices or requesting certificate issuance through UI or API |
-| **Device Management** | Handles adding, removing, or editing individual devices through UI or API using a standardized data schema |
-| **Meter Reads** | Allows devices to submit meter readings via API in three formats: historical, aggregate, or delta |
-| **Buyer Reservation** | Manages certificate issuance, which only occurs when a buyer specifically requests it for selected devices |
+| Module                | Description                                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **User Management**   | Enables users to add/remove users and interact with the system, including registering devices or requesting certificate issuance through UI or API |
+| **Device Management** | Handles adding, removing, or editing individual devices through UI or API using a standardized data schema                                         |
+| **Meter Reads**       | Allows devices to submit meter readings via API in three formats: historical, aggregate, or delta                                                  |
+| **Buyer Reservation** | Manages certificate issuance, which only occurs when a buyer specifically requests it for selected devices                                         |
 
 ## User Registration Process
 
@@ -108,7 +108,7 @@ Three types of meter reads are supported:
 - **Aggregate**: Running total of electricity produced since commissioning
 - **Delta**: Specific generation amount between data submissions
 
-*Note: Submitting meter reads alone does not trigger certificate issuance.*
+_Note: Submitting meter reads alone does not trigger certificate issuance._
 
 ## Buyer Reservation
 
@@ -131,7 +131,7 @@ Certificate issuance requires a buyer to specifically request it by selecting de
   "authorityToExceed": "boolean",
   "targetAddress": "string",
   "deviceIDs": [
-    "UUIDs"  // list of individual device IDs
+    "UUIDs" // list of individual device IDs
   ]
 }
 ```
