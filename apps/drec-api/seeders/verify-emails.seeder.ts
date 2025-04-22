@@ -4,8 +4,8 @@ import { InjectConnection } from '@nestjs/typeorm';
 import { SeederInterface } from './seeder-interface';
 
 @Injectable()
-export class VerifyUsersSeeder implements SeederInterface {
-  private readonly logger = new Logger(VerifyUsersSeeder.name);
+export class VerifyEmailsSeeder implements SeederInterface {
+  private readonly logger = new Logger(VerifyEmailsSeeder.name);
 
   constructor(
     @InjectConnection()
@@ -21,17 +21,12 @@ export class VerifyUsersSeeder implements SeederInterface {
       );
 
       const unverifiedCount = parseInt(count);
-      this.logger.log(`Found ${unverifiedCount} unverified users`);
+      this.logger.log(`Found ${unverifiedCount} unverified emails`);
 
       if (unverifiedCount === 0) {
-        this.logger.log('All users already verified');
+        this.logger.log('All emails already verified');
         return;
       }
-
-      await this.connection.query(
-        `UPDATE email_confirmation SET confirmed = true WHERE confirmed = false`,
-      );
-      this.logger.log('Updated email confirmations to confirmed status');
 
       await this.connection.query(`
         UPDATE "user" 
@@ -39,7 +34,7 @@ export class VerifyUsersSeeder implements SeederInterface {
         WHERE "email_verified_at" IS NULL
       `);
 
-      this.logger.log(`Successfully verified ${unverifiedCount} users`);
+      this.logger.log(`Successfully verified ${unverifiedCount} emails`);
     } catch (error) {
       this.logger.error(`Verification update failed: ${error.message}`);
       throw error;
