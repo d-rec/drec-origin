@@ -16,25 +16,13 @@ export class VerifyOrganizationsSeeder implements SeederInterface {
     try {
       this.logger.log('Starting organization verification update...');
 
-      const [{ count }] = await this.connection.query(
-        `SELECT COUNT(*) as count FROM organization WHERE verified_at IS NULL`,
-      );
-
-      const unverifiedCount = parseInt(count);
-      this.logger.log(`Found ${unverifiedCount} unverified organizations`);
-
-      if (unverifiedCount === 0) {
-        this.logger.log('All organizations already verified');
-        return;
-      }
-
       await this.connection.query(`
         UPDATE organization 
         SET verified_at = '0001-01-01T00:00:00Z'::timestamptz 
         WHERE verified_at IS NULL
       `);
 
-      this.logger.log(`Successfully verified ${unverifiedCount} organizations`);
+      this.logger.log(`Successfully verified organizations`);
     } catch (error) {
       this.logger.error(`Verification update failed: ${error.message}`);
       throw error;
