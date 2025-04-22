@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -7,8 +7,9 @@ import {
   DocumentType,
 } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
+import { ILoggedInUser } from '../../models';
 interface UploadDocumentPayload {
-  targetId: number;
+  user: ILoggedInUser;
   targetType: DocumentTargetType;
   documentType: DocumentType;
   document: Express.Multer.File;
@@ -27,16 +28,45 @@ export class DocumentUploadsService {
   async uploadDocument(
     documentUploads: UploadDocumentPayload,
   ): Promise<DocumentEntity> {
-    this.logger.log(
-      `Uploading document for target ID: ${documentUploads.targetId}`,
-    );
+    let targetId: number;
+    switch (documentUploads.targetType) {
+      case DocumentTargetType.USER:
+        targetId = documentUploads.user.id;
+        break;
+      case DocumentTargetType.ORGANIZATION:
+        targetId = documentUploads.user.organizationId;
+        break;
+      case DocumentTargetType.DEVICE:
+        targetId = documentUploads.user.id;
+        break;
+      default:
+        throw new BadRequestException('Invalid target type');
+    }
+
+    this.logger.log(`Uploading document for target ID: ${targetId}`);
+
+    const checkIfDocumentExists = await this.documentUploadsRepository.findOne({
+      where: {
+        targetId: targetId,
+        targetType: documentUploads.targetType,
+        type: documentUploads.documentType,
+      },
+    });
+
+    if (checkIfDocumentExists) {
+      throw new BadRequestException({
+        message: 'Document already uploaded',
+        statusCode: 400,
+        errorType: 'DOCUMENT_ALREADY_UPLOADED',
+      });
+    }
 
     const documentPath = await this.fileService.upload(
       documentUploads.document,
     );
 
     const documentUpload = this.documentUploadsRepository.create({
-      targetId: documentUploads.targetId,
+      targetId: targetId,
       targetType: documentUploads.targetType,
       type: documentUploads.documentType,
       extension: documentUploads.document.mimetype.split('/')[1],
@@ -44,5 +74,14 @@ export class DocumentUploadsService {
     });
 
     return this.documentUploadsRepository.save(documentUpload);
+  }
+
+  async getDocuments(user: ILoggedInUser): Promise<DocumentEntity[]> {
+    return this.documentUploadsRepository.find({
+      where: {
+        targetId: user.organizationId,
+        targetType: DocumentTargetType.ORGANIZATION,
+      },
+    });
   }
 }

@@ -3,9 +3,10 @@ import {
   Post,
   UseInterceptors,
   BadRequestException,
-  Param,
   Query,
   UploadedFiles,
+  UseGuards,
+  Get,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
@@ -14,7 +15,6 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBody,
-  ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
 import { DocumentUploadsService } from './document-uploads.service';
@@ -25,7 +25,11 @@ import {
 } from './entities/documents.entity';
 import multer from 'multer';
 import { Logger } from '@nestjs/common';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
 @ApiTags('document-uploads')
 @Controller('document-uploads')
 export class DocumentUploadsController {
@@ -35,7 +39,7 @@ export class DocumentUploadsController {
     private readonly documentUploadsService: DocumentUploadsService,
   ) {}
 
-  @Post(':targetId')
+  @Post()
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'document', maxCount: 1 }], {
       storage: multer.memoryStorage(),
@@ -54,12 +58,6 @@ export class DocumentUploadsController {
     }),
   )
   @ApiConsumes('multipart/form-data')
-  @ApiParam({
-    name: 'targetId',
-    type: 'number',
-    description: 'ID of the target entity',
-    example: 1,
-  })
   @ApiQuery({
     name: 'targetType',
     enum: DocumentTargetType,
@@ -96,7 +94,7 @@ export class DocumentUploadsController {
   @ApiResponse({ status: 404, description: 'Target entity not found.' })
   uploadDocuments(
     @UploadedFiles() files: { document?: Express.Multer.File[] },
-    @Param('targetId') targetId: number,
+    @UserDecorator() user: ILoggedInUser,
     @Query('targetType') targetType: DocumentTargetType,
     @Query('documentType') documentType: DocumentType,
   ): Promise<DocumentEntity> {
@@ -107,10 +105,23 @@ export class DocumentUploadsController {
     const document = files.document[0];
 
     return this.documentUploadsService.uploadDocument({
-      targetId,
+      user,
       targetType,
       documentType,
       document,
     });
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all documents' })
+  @ApiResponse({
+    status: 200,
+    description: 'The documents have been successfully retrieved.',
+    type: DocumentEntity,
+  })
+  getDocuments(
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<DocumentEntity[]> {
+    return this.documentUploadsService.getDocuments(user);
   }
 }

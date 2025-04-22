@@ -17,7 +17,7 @@ export class VerifyOrganizationsSeeder implements SeederInterface {
       this.logger.log('Starting organization verification update...');
 
       const [{ count }] = await this.connection.query(
-        `SELECT COUNT(*) as count FROM organization WHERE verified_at IS NULL`
+        `SELECT COUNT(*) as count FROM organization WHERE verified_at IS NULL`,
       );
 
       const unverifiedCount = parseInt(count);
@@ -42,6 +42,8 @@ export class VerifyOrganizationsSeeder implements SeederInterface {
   }
 
   async drop(): Promise<void> {
-    this.logger.log('Reverting organization verification updates is not supported');
+    this.logger.log(
+      'Reverting organization verification updates is not supported',
+    );
   }
-} 
+}
