@@ -1,9 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronExpression } from '@nestjs/schedule';
+import { NonConcurrentCron } from '../../../lib/cron';
 
 import { DateTime } from 'luxon';
 
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { getCycleEndDate } from '../../../lib/helpers/getCycleEndDate';
+import { Queues } from '../../../utils/enums/queues.enum';
 import { Device } from '../../device';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { DeviceGroupService } from '../../device-group/device-group.service';
@@ -12,9 +16,6 @@ import { EndReservationDateDTO } from '../../device-group/dto';
 import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { IssuerService } from './issuer.service';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
-import { Queues } from '../../../utils/enums/queues.enum';
 
 @Injectable()
 export class OngoingIssuanceService {
@@ -32,7 +33,7 @@ export class OngoingIssuanceService {
   /**
    * Scheduled job that runs every 30 seconds to schedule ongoing cycle's certificate issuance jobs
    */
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/5m]: Ongoing cycle certificate issuance check');
 

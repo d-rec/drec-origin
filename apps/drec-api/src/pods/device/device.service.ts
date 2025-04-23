@@ -220,7 +220,6 @@ export class DeviceService {
     return result;
   }
 
-  //@Cron('*/30 * * * * *')
   async irecPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
