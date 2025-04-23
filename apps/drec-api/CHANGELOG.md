@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.3.1](https://github.com/d-rec/drec-origin/compare/v0.3.0...v0.3.1) (2025-04-23)
 
+### Bug Fixes
+
+- prevent cron reentry ([#571](https://github.com/d-rec/drec-origin/issues/571)) ([5441f29](https://github.com/d-rec/drec-origin/commit/5441f29b4b54ccbaeabfc29897c9f4c167fdd3e8))
+
 ## [0.3.0](https://github.com/d-rec/drec-origin/compare/v0.1.3...v0.3.0) (2025-04-22)
 
 ### Features
