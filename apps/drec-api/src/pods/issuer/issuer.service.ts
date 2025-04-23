@@ -21,9 +21,7 @@ import { DeviceService } from '../device/device.service';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import {
-  IDevice,
-} from '../../models';
+import { IDevice } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
 import { EndReservationDateDTO } from '../device-group/dto';
@@ -130,22 +128,13 @@ export class IssuerService {
 
           let hours = 1;
           const frequency = group.frequency.toLowerCase();
-          if (
-            frequency === CertificateGenerationFrequency.daily
-          ) {
+          if (frequency === CertificateGenerationFrequency.daily) {
             hours = 1 * 24;
-          } else if (
-            frequency === CertificateGenerationFrequency.monthly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.monthly) {
             hours = 30 * 24;
-          } else if (
-            frequency === CertificateGenerationFrequency.weekly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.weekly) {
             hours = 7 * 24;
-          } else if (
-            frequency ===
-            CertificateGenerationFrequency.quarterly
-          ) {
+          } else if (frequency === CertificateGenerationFrequency.quarterly) {
             hours = 91 * 24;
           }
           const endDateFormatted = new Date(
