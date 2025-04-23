@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@energyweb/origin-drec-api",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
   "main": "dist/js/src/index.js",
   "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
