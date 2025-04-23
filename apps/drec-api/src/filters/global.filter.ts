@@ -5,14 +5,14 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { WithSentry } from '@sentry/nestjs';
 import { ArgumentsHost } from '@nestjs/common';
+import { SentryExceptionCaptured } from '@sentry/nestjs';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
-  @WithSentry()
+  @SentryExceptionCaptured()
   catch(exception: Error | HttpException, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -34,15 +34,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       };
     }
 
-    // Log the error
-    this.logger.error({
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      error: errorResponse,
-      stack: exception.stack,
-      environment: process.env.NODE_ENV,
-    });
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      // Log the error
+      this.logger.error({
+        statusCode: status,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        error: errorResponse,
+        stack: exception.stack,
+        environment: process.env.NODE_ENV,
+      });
+    }
 
     // Send the response
     response.status(status).json(errorResponse);

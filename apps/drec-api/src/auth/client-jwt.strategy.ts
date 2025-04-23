@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { IJWTPayload } from './auth.service';
 import { UserService } from '../pods/user/user.service';
-import { IUser } from 'src/models';
+import { IUser } from '../models';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

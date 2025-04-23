@@ -13,7 +13,7 @@ import {
   Role,
   UserStatus,
 } from '../utils/enums';
-import { IUser } from 'src/models/User';
+import { IUser } from '../models/User';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
 
@@ -108,6 +108,7 @@ describe('AuthService', () => {
       firstName: 'fName',
       lastName: 'lName',
       email: 'test@example.com',
+      phoneNumber: '+250788496001', // Rwanda number
       notifications: true,
       status: UserStatus.Active,
       role: Role.OrganizationAdmin,
@@ -308,6 +309,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+250784496001', // Rwanda number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -347,6 +349,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+447911123456', // UK number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -382,6 +385,7 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
+        phoneNumber: '+14155552671', // US number
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,

@@ -69,6 +69,8 @@ import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_ce
 import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 
 @Injectable()
 export class DeviceService {
@@ -1055,6 +1057,7 @@ export class DeviceService {
     this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
     const whereClause: any = {
       certificate_issued: false,
+      archived_at: null,
     };
     if (groupId) {
       whereClause.groupId = groupId; // Add groupId condition if provided
@@ -1068,25 +1071,6 @@ export class DeviceService {
     });
   }
 
-  public async findDeviceLateCycleOfDateRange(
-    groupid: number,
-    externalid: string,
-    latestartDate: DateTime,
-    lateendDate: DateTime,
-  ): Promise<boolean> {
-    const isAlreadyAdded = await this.lateDeviceCertificateRepository.findOne({
-      where: {
-        groupId: groupid,
-        device_externalid: externalid,
-        late_start_date: latestartDate.toString(),
-        late_end_date: lateendDate.toString(),
-      },
-    });
-
-    if (isAlreadyAdded) {
-      return true;
-    }
-  }
   public async findOneLateCycle(
     groupId: number,
     externalId: string,
@@ -1451,6 +1435,12 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
+  async updateLateCycleCheckedAt(groupId: number): Promise<any> {
+    await this.lateDeviceCertificateRepository.update(
+      { groupId: groupId, certificate_issued: false },
+      { checked_at: new Date() },
+    );
+  }
   async updateLateOngoing(
     externalId: string,
     id: number,
@@ -1474,6 +1464,211 @@ export class DeviceService {
     return await this.lateDeviceCertificateRepository.update(
       { device_externalid: externalId },
       { certificate_issued: true },
+    );
+  }
+
+  async archiveLateOngoing(id: number): Promise<any> {
+    this.logger.verbose(`With in archiveLateOngoing`);
+    this.logger.verbose(`With in archiveLateOngoing`, id);
+    return await this.lateDeviceCertificateRepository.update(
+      { id: id },
+      { archived_at: new Date() },
+    );
+  }
+
+  async archiveLateOngoingIfReservationInactive(groupId: number): Promise<any> {
+    this.logger.verbose(`With in archiveLateOngoingIfReservationInactive`);
+    this.logger.verbose(
+      `With in archiveLateOngoingIfReservationInactive`,
+      groupId,
+    );
+    return await this.lateDeviceCertificateRepository.update(
+      { groupId: groupId, certificate_issued: false },
+      { archived_at: new Date() },
+    );
+  }
+
+  /**
+   * Finds a late device certificate cycle for a specific date range
+   *
+   * @param groupId - The ID of the device group
+   * @param deviceExternalId - The external ID of the device
+   * @param cycleStartDate - The start date of the cycle period
+   * @param cycleEndDate - The end date of the cycle period
+   * @returns Promise resolving to the matching cycle entity or undefined if not found
+   */
+  public async findLateCycleByDateRange(
+    groupId: number,
+    deviceExternalId: string,
+    cycleStartDate: DateTime,
+    cycleEndDate: DateTime,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity | undefined> {
+    return this.lateDeviceCertificateRepository.findOne({
+      where: {
+        groupId: groupId,
+        device_externalid: deviceExternalId,
+        late_start_date: cycleStartDate.toString(),
+        late_end_date: cycleEndDate.toString(),
+      },
+    });
+  }
+
+  /**
+   * Finds an existing device cycle by date range or creates a new one if none exists
+   *
+   * @param groupId - The ID of the device group
+   * @param deviceExternalId - The external ID of the device
+   * @param startDate - The start date of the cycle period
+   * @param endDate - The end date of the cycle period
+   * @returns Promise resolving to the existing or newly created cycle entity
+   */
+  public async findOrCreateCycle(
+    groupId: number,
+    deviceExternalId: string,
+    startDate: DateTime,
+    endDate: DateTime,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
+    // Search for an existing cycle with these parameters
+    const existingCycle = await this.findLateCycleByDateRange(
+      groupId,
+      deviceExternalId,
+      startDate,
+      endDate,
+    );
+
+    // Return existing cycle if found
+    if (existingCycle) {
+      return existingCycle;
+    }
+
+    // Create and return a new cycle
+    return this.addCycle(groupId, deviceExternalId, startDate, endDate);
+  }
+
+  /**
+   * Adds a new late ongoing certificate issuance cycle for a device
+   *
+   * @param groupId - The ID of the device group
+   * @param deviceExternalId - The external ID of the device
+   * @param lateStartDate - The start date for the late issuance cycle
+   * @param lateEndDate - The end date for the late issuance cycle
+   * @returns Promise resolving to the created certificate cycle entity
+   */
+  public async addCycle(
+    groupId: number,
+    deviceExternalId: string,
+    lateStartDate: Date | string | DateTime,
+    lateEndDate: Date | string | DateTime,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity> {
+    this.logger.debug(
+      `Creating late cycle for device: ${deviceExternalId}, group: ${groupId}`,
+    );
+
+    // Create and populate the entity
+    const cycleEntity = new DeviceLateOngoingIssueCertificateEntity();
+    cycleEntity.device_externalid = deviceExternalId;
+    cycleEntity.groupId = groupId;
+    cycleEntity.late_start_date = lateStartDate.toString();
+    cycleEntity.late_end_date = lateEndDate.toString();
+
+    // Persist the entity
+    const savedEntity =
+      await this.addLateCertificateIssueDateLogForDevice(cycleEntity);
+
+    this.logger.debug(
+      `Created late cycle ID: ${savedEntity.id} for device: ${deviceExternalId}`,
+    );
+    return savedEntity;
+  }
+
+  /**
+   * Checks for and fills any missing cycles for a device
+   *
+   * @param group - The device group
+   * @param device - The device to check for missing cycles
+   * @returns Promise resolving when all missing cycles are processed
+   */
+  public async checkForDeviceMissingCycles(
+    group: DeviceGroup,
+    device: Device,
+  ): Promise<void> {
+    // Find the latest ongoing cycle
+    const latestCycles = await this.findOneLateCycle(
+      group.id,
+      device.externalId,
+    );
+
+    if (!latestCycles?.length) {
+      this.logger.error(
+        `No ongoing cycle found for device: ${device.externalId}`,
+      );
+      return;
+    }
+
+    // Get cycle boundaries
+    const cycleEnd = new Date(latestCycles[0].late_start_date);
+    const deviceCreationDate = new Date(device.createdAt);
+
+    // Iterate through time periods to find and fill gaps
+    let currentDate = new Date(deviceCreationDate);
+
+    while (currentDate < cycleEnd) {
+      // Calculate the next date based on frequency
+      const nextDate = getCycleEndDate(currentDate, group.frequency);
+
+      // Determine the actual end date (earlier of calculated end or boundary end)
+      const actualEndDate = nextDate < cycleEnd ? nextDate : cycleEnd;
+
+      // Create cycle if it doesn't exist
+      await this.findOrCreateCycle(
+        group.id,
+        device.externalId,
+        DateTime.fromJSDate(currentDate).toUTC(),
+        DateTime.fromJSDate(actualEndDate).toUTC(),
+      );
+
+      // Move to next period
+      currentDate = nextDate;
+    }
+  }
+
+  /**
+   * Retrieves the most recently issued certificate cycles for each unique device-group combination
+   *
+   * @returns Promise resolving to an array of the latest issued certificate cycles
+   */
+  async findLatestIssuedCyclesByDeviceAndGroup(): Promise<any> {
+    return this.lateDeviceCertificateRepository
+      .createQueryBuilder('cycle')
+      .distinctOn(['cycle.device_externalid', 'cycle.groupId'])
+      .where('cycle.certificate_issued = :issued', { issued: true })
+      .andWhere('cycle.archived_at IS NULL')
+      .orderBy('cycle.device_externalid', 'ASC')
+      .addOrderBy('cycle.groupId', 'ASC')
+      .addOrderBy('cycle.late_end_date', 'DESC')
+      .getMany();
+  }
+
+  /**
+   * Archives all outdated certificate cycles for a specific device-group combination
+   *
+   * @param cycle - The reference cycle used to determine which older cycles to archive
+   * @returns Promise resolving when the update operation completes
+   */
+  async archiveOutdatedLateOngoingCycles(
+    cycle: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<any> {
+    await this.lateDeviceCertificateRepository.update(
+      {
+        device_externalid: cycle.device_externalid,
+        groupId: cycle.groupId,
+        certificate_issued: false,
+        late_end_date: LessThanOrEqual(cycle.late_start_date),
+        archived_at: null,
+      },
+      {
+        archived_at: new Date(),
+      },
     );
   }
 }

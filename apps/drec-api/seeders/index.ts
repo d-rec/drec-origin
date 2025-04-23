@@ -11,7 +11,7 @@ async function run() {
   const seeders: SeederInterface[] = [
     app.get(PermissionsSeeder),
     // Add more seeders here
-    // For dummy data seeders add them in ./dummy-data/index.ts 
+    // For dummy data seeders add them in ./dummy-data/index.ts
   ];
 
   console.log('Seeding data...');

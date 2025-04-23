@@ -1,4 +1,4 @@
-name: Staging Deployment
+name: Staging - Build, Push to ECR & Deploy to Kubernetes
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       aws-region: ${{ secrets.AWS_REGION }}
       ecr-registry: ${{ secrets.ECR_REGISTRY }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
   deploy:
     needs: build

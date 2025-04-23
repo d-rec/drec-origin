@@ -2,37 +2,90 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/d-rec/drec-origin/compare/v0.1.3...v0.3.0) (2025-04-22)
+
+### Features
+
+- add and integrate Redocly library for documenting api endpoints… ([#520](https://github.com/d-rec/drec-origin/issues/520)) ([fb4dbea](https://github.com/d-rec/drec-origin/commit/fb4dbea3fe49cdbc25a5e430971623de31eb81bd))
+- add certificate generation requirement on the documentation ([#551](https://github.com/d-rec/drec-origin/issues/551)) ([f08967b](https://github.com/d-rec/drec-origin/commit/f08967bca78ab93914110dd4603357642d0dd1ea))
+- add cron jobs ([#523](https://github.com/d-rec/drec-origin/issues/523)) ([8701f2c](https://github.com/d-rec/drec-origin/commit/8701f2c3e94181f245904e6cb3c08b6c5ec28e11))
+- add dependency md file ([#519](https://github.com/d-rec/drec-origin/issues/519)) ([6004c1d](https://github.com/d-rec/drec-origin/commit/6004c1da0108c445041625f06c292cd9fd56efd1))
+- create organization type enum ([#544](https://github.com/d-rec/drec-origin/issues/544)) ([a8274d4](https://github.com/d-rec/drec-origin/commit/a8274d4c727a7dd78e45a5800b2447a177020442))
+- load late ongoing queries in parallel ([1de8328](https://github.com/d-rec/drec-origin/commit/1de8328dca154f6ee904ce2c999173d6fc4c2733))
+- trigger the late ongoing issuance in a queue ([46d0623](https://github.com/d-rec/drec-origin/commit/46d06231c48b87de032928d9c006c6fe2579118d))
+
+### Bug Fixes
+
+- organizationType import ([#550](https://github.com/d-rec/drec-origin/issues/550)) ([fc8255f](https://github.com/d-rec/drec-origin/commit/fc8255f0c195a29d1838dd074bc08f279bb6b78c))
+- redocly loading delay ([95a53e8](https://github.com/d-rec/drec-origin/commit/95a53e8439426737804c25f67ce9c4749fb2d0a0))
+
+### Improvements
+
+- add SDG Benefits and Off Takers to the documentation ([#522](https://github.com/d-rec/drec-origin/issues/522)) ([9591b30](https://github.com/d-rec/drec-origin/commit/9591b30dffe898f50b8539277600198f519cd4af))
+- console log http 500 error only ([e316a8d](https://github.com/d-rec/drec-origin/commit/e316a8d3aa861f070a6b9fae0c18c2e40fac766f))
+- fix linting config ([5fb8b82](https://github.com/d-rec/drec-origin/commit/5fb8b82c77280d3f977f2b07d23f6d02c214f999))
+- reduce timeout between late ongoing processing ([f0bf022](https://github.com/d-rec/drec-origin/commit/f0bf022bd9f36b5c946f696dbcda707fea274254))
+- **release:** 0.2.0 ([0580404](https://github.com/d-rec/drec-origin/commit/0580404ed50c92b005849aab54a7d76b3eec3099))
+- show progress in terminal ([70eaa61](https://github.com/d-rec/drec-origin/commit/70eaa6172164436aa551351044fedccfdfe4ecf0))
+- temporary disable the late ongoing cronjob ([5175126](https://github.com/d-rec/drec-origin/commit/5175126eb1f477c6c729291729a2cf62ab5e79e4))
+
+## [0.2.0](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.2.0) (2025-04-10)
+
+### Features
+
+- load late ongoing queries in parallel ([1de8328](https://github.com/d-rec/drec-origin/commit/1de8328dca154f6ee904ce2c999173d6fc4c2733))
+- trigger the late ongoing issuance in a queue ([46d0623](https://github.com/d-rec/drec-origin/commit/46d06231c48b87de032928d9c006c6fe2579118d))
+
+### Improvements
+
+- add standard versioning ([f98d72e](https://github.com/d-rec/drec-origin/commit/f98d72ede10656f4c5ffa9b1f387aaf878f2ee39))
+- console log http 500 error only ([e316a8d](https://github.com/d-rec/drec-origin/commit/e316a8d3aa861f070a6b9fae0c18c2e40fac766f))
+- ignore changelog in markdown lint ([a1c045e](https://github.com/d-rec/drec-origin/commit/a1c045e1e7bc2a36fb69c4d67a0d31a57a14c9e6))
+- reduce timeout between late ongoing processing ([f0bf022](https://github.com/d-rec/drec-origin/commit/f0bf022bd9f36b5c946f696dbcda707fea274254))
+- **release:** 0.1.3 ([d859e8f](https://github.com/d-rec/drec-origin/commit/d859e8fb8955bb2e088672c6481fc2e208701b8f))
+- **sentry:** merge sentry filter with global filter ([#555](https://github.com/d-rec/drec-origin/issues/555)) ([b6b1b5e](https://github.com/d-rec/drec-origin/commit/b6b1b5e9293f88656e380b51b9cfcda5b98b9387))
+- show progress in terminal ([70eaa61](https://github.com/d-rec/drec-origin/commit/70eaa6172164436aa551351044fedccfdfe4ecf0))
+- temporary disable the late ongoing cronjob ([5175126](https://github.com/d-rec/drec-origin/commit/5175126eb1f477c6c729291729a2cf62ab5e79e4))
+
+### [0.1.3](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.1.3) (2025-04-05)
+
+### Improvements
+
+- add standard versioning ([f98d72e](https://github.com/d-rec/drec-origin/commit/f98d72ede10656f4c5ffa9b1f387aaf878f2ee39))
+- ignore changelog in markdown lint ([a1c045e](https://github.com/d-rec/drec-origin/commit/a1c045e1e7bc2a36fb69c4d67a0d31a57a14c9e6))
+- **sentry:** merge sentry filter with global filter ([#555](https://github.com/d-rec/drec-origin/issues/555)) ([b6b1b5e](https://github.com/d-rec/drec-origin/commit/b6b1b5e9293f88656e380b51b9cfcda5b98b9387))
+
 ### [0.1.2](https://github.com/d-rec/drec-origin/compare/v0.1.1...v0.1.2) (2025-04-01)
 
 ### Bug Fixes
 
-* sentry activation issue ([f9df80c](https://github.com/d-rec/drec-origin/commit/f9df80c1770073aa658f8c571a00934b4e1926a9))
+- sentry activation issue ([f9df80c](https://github.com/d-rec/drec-origin/commit/f9df80c1770073aa658f8c571a00934b4e1926a9))
 
 ### [0.1.1](https://github.com/d-rec/drec-origin/compare/v0.1.0...v0.1.1) (2025-04-01)
 
 ### Features
 
-* Add a new platform overview section ([#497](https://github.com/d-rec/drec-origin/issues/497)) ([f1a23a1](https://github.com/d-rec/drec-origin/commit/f1a23a1f3b51979ab4a759be6a8a0dd634677f2c))
-* Add bug and feature request issue forms ([#475](https://github.com/d-rec/drec-origin/issues/475)) ([2ca30a7](https://github.com/d-rec/drec-origin/commit/2ca30a7021b41a5d78de916dba2c42d66d4a9674))
-* Add dummy data seeds ([#499](https://github.com/d-rec/drec-origin/issues/499)) ([4100ed3](https://github.com/d-rec/drec-origin/commit/4100ed360f768354d9742eaa1f1ce17e972dddb7)), closes [#463](https://github.com/d-rec/drec-origin/issues/463) [#451](https://github.com/d-rec/drec-origin/issues/451)
-* Add fuel and device types codes on documentation ([#517](https://github.com/d-rec/drec-origin/issues/517)) ([6cadecd](https://github.com/d-rec/drec-origin/commit/6cadecd1371c43cbd35f5aaef3549277966894cb))
-* Add iso_8601 format ([#518](https://github.com/d-rec/drec-origin/issues/518)) ([f1020f8](https://github.com/d-rec/drec-origin/commit/f1020f86f22896f2b24081ec715a41ffc98545d1))
-* Create permission seeder ([#501](https://github.com/d-rec/drec-origin/issues/501)) ([6f09bbb](https://github.com/d-rec/drec-origin/commit/6f09bbb8bb03fe1f9058ef288e47407f6d8ec7a8))
-* GitHub pipeline to build docker image ([#445](https://github.com/d-rec/drec-origin/issues/445)) ([d7519ba](https://github.com/d-rec/drec-origin/commit/d7519baf5fdc5dcce515be3a4cf2fd0961699777))
-* Improve-device-bulk-upload-error ([#500](https://github.com/d-rec/drec-origin/issues/500)) ([a9f2008](https://github.com/d-rec/drec-origin/commit/a9f200864f54066b41fadd62a7191cf31db119e7))
-* Remove hardcoded jwt_secret ([#480](https://github.com/d-rec/drec-origin/issues/480)) ([69b9287](https://github.com/d-rec/drec-origin/commit/69b9287dcd21ed4f55b3eb17f21bf996a380019d))
-* Sentry integration ([#470](https://github.com/d-rec/drec-origin/issues/470)) ([ecd27c6](https://github.com/d-rec/drec-origin/commit/ecd27c693e6efc32ec53eb666fe0bdf23eb7b1cd))
-* Storing failed meter reads ([#451](https://github.com/d-rec/drec-origin/issues/451)) ([d16c6c2](https://github.com/d-rec/drec-origin/commit/d16c6c2fe1a0eeeb58f5060e790f6d23ca16eb2f))
-* Bulk upload job refactoring ([9d96866](https://github.com/d-rec/drec-origin/commit/9d96866e6944e4ccbb7ca84c70f02192aba7c7da))
+- Add a new platform overview section ([#497](https://github.com/d-rec/drec-origin/issues/497)) ([f1a23a1](https://github.com/d-rec/drec-origin/commit/f1a23a1f3b51979ab4a759be6a8a0dd634677f2c))
+- Add bug and feature request issue forms ([#475](https://github.com/d-rec/drec-origin/issues/475)) ([2ca30a7](https://github.com/d-rec/drec-origin/commit/2ca30a7021b41a5d78de916dba2c42d66d4a9674))
+- Add dummy data seeds ([#499](https://github.com/d-rec/drec-origin/issues/499)) ([4100ed3](https://github.com/d-rec/drec-origin/commit/4100ed360f768354d9742eaa1f1ce17e972dddb7)), closes [#463](https://github.com/d-rec/drec-origin/issues/463) [#451](https://github.com/d-rec/drec-origin/issues/451)
+- Add fuel and device types codes on documentation ([#517](https://github.com/d-rec/drec-origin/issues/517)) ([6cadecd](https://github.com/d-rec/drec-origin/commit/6cadecd1371c43cbd35f5aaef3549277966894cb))
+- Add iso_8601 format ([#518](https://github.com/d-rec/drec-origin/issues/518)) ([f1020f8](https://github.com/d-rec/drec-origin/commit/f1020f86f22896f2b24081ec715a41ffc98545d1))
+- Create permission seeder ([#501](https://github.com/d-rec/drec-origin/issues/501)) ([6f09bbb](https://github.com/d-rec/drec-origin/commit/6f09bbb8bb03fe1f9058ef288e47407f6d8ec7a8))
+- GitHub pipeline to build docker image ([#445](https://github.com/d-rec/drec-origin/issues/445)) ([d7519ba](https://github.com/d-rec/drec-origin/commit/d7519baf5fdc5dcce515be3a4cf2fd0961699777))
+- Improve-device-bulk-upload-error ([#500](https://github.com/d-rec/drec-origin/issues/500)) ([a9f2008](https://github.com/d-rec/drec-origin/commit/a9f200864f54066b41fadd62a7191cf31db119e7))
+- Remove hardcoded jwt_secret ([#480](https://github.com/d-rec/drec-origin/issues/480)) ([69b9287](https://github.com/d-rec/drec-origin/commit/69b9287dcd21ed4f55b3eb17f21bf996a380019d))
+- Sentry integration ([#470](https://github.com/d-rec/drec-origin/issues/470)) ([ecd27c6](https://github.com/d-rec/drec-origin/commit/ecd27c693e6efc32ec53eb666fe0bdf23eb7b1cd))
+- Storing failed meter reads ([#451](https://github.com/d-rec/drec-origin/issues/451)) ([d16c6c2](https://github.com/d-rec/drec-origin/commit/d16c6c2fe1a0eeeb58f5060e790f6d23ca16eb2f))
+- Bulk upload job refactoring ([9d96866](https://github.com/d-rec/drec-origin/commit/9d96866e6944e4ccbb7ca84c70f02192aba7c7da))
 
 ### Bug Fixes
 
-* Date range from year tests ([f64099b](https://github.com/d-rec/drec-origin/commit/f64099b7dc306bc9af7ec7280acb8096933d753e))
-* Fix gh pages deployment pipeline ([d88ec84](https://github.com/d-rec/drec-origin/commit/d88ec84986e1eb555955da19530775989e95713e))
-* Invalid offset error on redemption report ([#541](https://github.com/d-rec/drec-origin/issues/541)) ([5f77896](https://github.com/d-rec/drec-origin/commit/5f7789666e1fc1e9b7fa263c6bbd5fc1e4fa9331))
-* Meter reads endpoint ([7c3adb6](https://github.com/d-rec/drec-origin/commit/7c3adb6a8a2e7f2e72a082e41719c55dc8d776b9))
-* Missing tsconfig-paths library ([21dab73](https://github.com/d-rec/drec-origin/commit/21dab73dae2ae44d996ed76bd2d6ef39339ca875))
-* OrganizationId handling ([ff0031f](https://github.com/d-rec/drec-origin/commit/ff0031fe427fdcc22b8839baca648e08c5a0bf96))
-* Reset password invalid link error ([#493](https://github.com/d-rec/drec-origin/issues/493)) ([de8b9f2](https://github.com/d-rec/drec-origin/commit/de8b9f265b586b10939a93bea55a231c06493c0c))
-* Unhandled errors ([f3e3480](https://github.com/d-rec/drec-origin/commit/f3e3480575207a0debaf211bc3df4fe6c0b6caa2))
-* Validation error for bulk device upload ([#509](https://github.com/d-rec/drec-origin/issues/509)) ([8c17a0d](https://github.com/d-rec/drec-origin/commit/8c17a0da51a13da9a91a63b6bc92251a42497f38))
+- Date range from year tests ([f64099b](https://github.com/d-rec/drec-origin/commit/f64099b7dc306bc9af7ec7280acb8096933d753e))
+- Fix gh pages deployment pipeline ([d88ec84](https://github.com/d-rec/drec-origin/commit/d88ec84986e1eb555955da19530775989e95713e))
+- Invalid offset error on redemption report ([#541](https://github.com/d-rec/drec-origin/issues/541)) ([5f77896](https://github.com/d-rec/drec-origin/commit/5f7789666e1fc1e9b7fa263c6bbd5fc1e4fa9331))
+- Meter reads endpoint ([7c3adb6](https://github.com/d-rec/drec-origin/commit/7c3adb6a8a2e7f2e72a082e41719c55dc8d776b9))
+- Missing tsconfig-paths library ([21dab73](https://github.com/d-rec/drec-origin/commit/21dab73dae2ae44d996ed76bd2d6ef39339ca875))
+- OrganizationId handling ([ff0031f](https://github.com/d-rec/drec-origin/commit/ff0031fe427fdcc22b8839baca648e08c5a0bf96))
+- Reset password invalid link error ([#493](https://github.com/d-rec/drec-origin/issues/493)) ([de8b9f2](https://github.com/d-rec/drec-origin/commit/de8b9f265b586b10939a93bea55a231c06493c0c))
+- Unhandled errors ([f3e3480](https://github.com/d-rec/drec-origin/commit/f3e3480575207a0debaf211bc3df4fe6c0b6caa2))
+- Validation error for bulk device upload ([#509](https://github.com/d-rec/drec-origin/issues/509)) ([8c17a0d](https://github.com/d-rec/drec-origin/commit/8c17a0da51a13da9a91a63b6bc92251a42497f38))

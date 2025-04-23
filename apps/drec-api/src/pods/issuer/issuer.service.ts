@@ -22,7 +22,6 @@ import { BASE_READ_SERVICE } from '../reads/constants';
 import { OrganizationService } from '../organization/organization.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import {
-  BuyerReservationCertificateGenerationFrequency,
   IDevice,
 } from '../../models';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -44,6 +43,7 @@ import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuan
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
 import { Queues } from '../../../src/utils/enums/queues.enum';
 import { Mutex } from 'async-mutex'; // npm install async-mutex
+import { CertificateGenerationFrequency } from '../../utils/enums/certificate-generation-frequency.enum';
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 @Injectable()
 export class IssuerService {
@@ -131,20 +131,20 @@ export class IssuerService {
           let hours = 1;
           const frequency = group.frequency.toLowerCase();
           if (
-            frequency === BuyerReservationCertificateGenerationFrequency.daily
+            frequency === CertificateGenerationFrequency.daily
           ) {
             hours = 1 * 24;
           } else if (
-            frequency === BuyerReservationCertificateGenerationFrequency.monthly
+            frequency === CertificateGenerationFrequency.monthly
           ) {
             hours = 30 * 24;
           } else if (
-            frequency === BuyerReservationCertificateGenerationFrequency.weekly
+            frequency === CertificateGenerationFrequency.weekly
           ) {
             hours = 7 * 24;
           } else if (
             frequency ===
-            BuyerReservationCertificateGenerationFrequency.quarterly
+            CertificateGenerationFrequency.quarterly
           ) {
             hours = 91 * 24;
           }
@@ -578,7 +578,7 @@ export class IssuerService {
           if (deviceReadValue === 0) {
             filteredDevicesIndexesListIfMeterReadsNotAvailable.push(index);
             const isLateOngoingCycle =
-              await this.deviceService.findDeviceLateCycleOfDateRange(
+              await this.deviceService.findLateCycleByDateRange(
                 group.id,
                 device.externalId,
                 startDate,
@@ -606,7 +606,7 @@ export class IssuerService {
               const newStartDate = new Date(lastRead[0].timestamp);
               newStartDate.setTime(newStartDate.getTime() + 1);
               const isLateOngoingCycle =
-                await this.deviceService.findDeviceLateCycleOfDateRange(
+                await this.deviceService.findLateCycleByDateRange(
                   group.id,
                   device.externalId,
                   DateTime.fromISO(newStartDate.toISOString()).toUTC(),
@@ -1214,7 +1214,7 @@ export class IssuerService {
             );
 
             const isLateOngoingCycle =
-              await this.deviceService.findDeviceLateCycleOfDateRange(
+              await this.deviceService.findLateCycleByDateRange(
                 group.id,
                 device.externalId,
                 DateTime.fromISO(
@@ -1594,7 +1594,7 @@ export class IssuerService {
               const endDate = (nextDate < end ? nextDate : end).toISOString();
               const endDate1 = DateTime.fromISO(endDate).toUTC();
               const isLateOngoingCycle =
-                await this.deviceService.findDeviceLateCycleOfDateRange(
+                await this.deviceService.findLateCycleByDateRange(
                   group.id,
                   element.externalId,
                   startDate,

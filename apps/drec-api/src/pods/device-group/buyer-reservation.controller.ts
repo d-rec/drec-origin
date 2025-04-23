@@ -43,10 +43,8 @@ import { Role } from '../../utils/enums';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import {
-  BuyerReservationCertificateGenerationFrequency,
-  ILoggedInUser,
-} from '../../models';
+import { ILoggedInUser } from '../../models';
+import { CertificateGenerationFrequency } from '../../utils/enums';
 import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
@@ -574,9 +572,9 @@ export class BuyerReservationController {
     }
     const frequency = deviceGroupToRegister.frequency.toLowerCase();
     if (
-      frequency === BuyerReservationCertificateGenerationFrequency.monthly ||
-      frequency === BuyerReservationCertificateGenerationFrequency.quarterly ||
-      frequency === BuyerReservationCertificateGenerationFrequency.weekly
+      frequency === CertificateGenerationFrequency.monthly ||
+      frequency === CertificateGenerationFrequency.quarterly ||
+      frequency === CertificateGenerationFrequency.weekly
     ) {
       this.logger.error(`This frequency is currently not supported`);
       throw new ConflictException({

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@energyweb/origin-drec-api",
-  "version": "0.1.2",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/js/src/index.js",
   "author": "EnergyWeb DevHub GmbH; Florin Georgescu, florin.georgescu@energyweb.org",
@@ -19,12 +19,13 @@
     "clean": "shx rm -rf dist",
     "drop": "pnpm redis:drop && pnpm typeorm:drop && pnpm typeorm:drop:issuer",
     "redis:drop": "redis-cli flushall",
-    "prettier": "prettier --check --config-precedence file-override './{src,migrations,test}/**/*'",
-    "prettier:fix": "prettier --write --config-precedence file-override './{src,migrations,test}/**/*'",
-    "lint": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --max-warnings=0",
-    "lint:error": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --quiet",
-    "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix",
+    "prettier": "prettier --check ./",
+    "prettier:fix": "prettier --write ./",
+    "lint": "eslint \"**/*{.ts,.tsx}\" --max-warnings=0",
+    "lint:error": "eslint \"**/*{.ts,.tsx}\" --quiet",
+    "lint:fix": "eslint \"**/*{.ts,.tsx}\" --fix",
     "migrate": "pnpm typeorm:run:issuer && pnpm typeorm:run && pnpm typeorm:run:certificate",
+    "migration:create": "typeorm migration:create -d ./migrations",
     "migrate:docker": "pnpm typeorm:run:issuer && node_modules/typeorm/cli.js --config dist/js/ormconfig.js migration:run",
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js --config ormconfig-dev.ts",
     "typeorm:migrate": "pnpm typeorm migration:generate -- -n",
@@ -42,7 +43,12 @@
     "compodoc": "npx compodoc -p tsconfig.json -n \"Drec api documentation\"",
     "coverage:jest": "jest --coverage",
     "seed": "ts-node seeders",
-    "seed:dummy-data": "ts-node seeders/dummy-data"
+    "seed:dummy-data": "ts-node seeders/dummy-data",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org d-rec --project drec-origin ./dist && sentry-cli sourcemaps upload --org d-rec --project drec-origin ./dist",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
@@ -74,6 +80,7 @@
     "@nestjs/swagger": "5.2.1",
     "@nestjs/terminus": "8.1.1",
     "@nestjs/typeorm": "8.0.2",
+    "@sentry/cli": "^2.43.0",
     "@sentry/nestjs": "^8.42.0",
     "@sentry/node": "^8.42.0",
     "ansi-regex": "^4.1.1",
@@ -168,8 +175,14 @@
     "prettier": "~3.2.5",
     "shx": "0.3.3",
     "sinon": "^17.0.1",
+    "standard-version": "^9.5.0",
     "supertest": "6.0.1",
     "ts-jest": "29.2.3"
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "prettier --write ./CHANGELOG.md"
+    }
   },
   "jest": {
     "moduleFileExtensions": [

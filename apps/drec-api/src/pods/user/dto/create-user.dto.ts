@@ -38,7 +38,13 @@ import { OrganizationType } from '../../../utils/enums/organization-type.enum';
 // }
 
 export class CreateUserOrgDTO
-  extends PickType(UserDTO, ['firstName', 'lastName', 'email'] as const)
+  extends PickType(UserDTO, [
+    'firstName',
+    'lastName',
+    'email',
+    'phoneNumber',
+    'termsAndConditions',
+  ] as const)
   implements UserOrgRegistrationData
 {
   @ApiProperty({ type: String })
