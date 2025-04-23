@@ -1,48 +1,49 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronExpression } from '@nestjs/schedule';
+import { NonConcurrentCron } from '../../lib/cron';
 
+import {
+  ReadsService as BaseReadsService,
+  FilterDTO,
+} from '@energyweb/energy-api-influxdb';
 import {
   IGetAllCertificatesOptions,
   IIssueCommandParams,
   OffChainCertificateService,
 } from '@energyweb/origin-247-certificate';
-import { ICertificateMetadata } from '../../utils/types';
-import { DateTime } from 'luxon';
-import {
-  FilterDTO,
-  ReadsService as BaseReadsService,
-} from '@energyweb/energy-api-influxdb';
-import { v4 as uuid } from 'uuid';
+import { HttpService } from '@nestjs/axios';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { HttpService } from '@nestjs/axios';
+import { DateTime } from 'luxon';
+import { v4 as uuid } from 'uuid';
+import { ICertificateMetadata } from '../../utils/types';
 
-import { DeviceService } from '../device/device.service';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { OrganizationService } from '../organization/organization.service';
-import { DeviceGroupService } from '../device-group/device-group.service';
+import { Queues } from '../../../src/utils/enums/queues.enum';
 import {
   BuyerReservationCertificateGenerationFrequency,
   IDevice,
 } from '../../models';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
-import { EndReservationDateDTO } from '../device-group/dto';
 import {
   CertificateType,
   ReadType,
   SingleDeviceIssuanceStatus,
   StandardCompliance,
 } from '../../utils/enums';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
-import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
-import { ReadsService } from '../reads/reads.service';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Device } from '../device';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { Device } from '../device';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../device-group/device_group_issuecertificate.entity';
+import { EndReservationDateDTO } from '../device-group/dto';
+import { HistoryDeviceGroupNextIssueCertificate } from '../device-group/history_next_issuance_date_log.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { DeviceService } from '../device/device.service';
 import { DeviceLateOngoingIssueCertificateEntity } from '../device/device_lateongoing_certificate.entity';
-import { Queues } from '../../../src/utils/enums/queues.enum';
+import { OrganizationService } from '../organization/organization.service';
+import { BASE_READ_SERVICE } from '../reads/constants';
+import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
+import { ReadsService } from '../reads/reads.service';
 
 @Injectable()
 export class IssuerService {
@@ -77,7 +78,7 @@ export class IssuerService {
       .subscribe();
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @NonConcurrentCron(CronExpression.EVERY_30_SECONDS)
   async handleCron(): Promise<void> {
     this.logger.debug('Ongoing Cycle');
     this.logger.debug(
@@ -295,7 +296,7 @@ export class IssuerService {
     );
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @NonConcurrentCron(CronExpression.EVERY_30_SECONDS)
   async handleCronForHistoricalIssuance(): Promise<void> {
     this.logger.debug('History Cycle');
     this.logger.verbose(`With in handleCronForHistoricalIssuance`);
@@ -1089,7 +1090,7 @@ export class IssuerService {
     );
   }
 
-  @Cron('0 0 */8 * * *')
+  @NonConcurrentCron('0 0 */8 * * *')
   async scheduleLateOngoingIssuance(): Promise<void> {
     try {
       const activeDeviceGroups =
@@ -1529,7 +1530,7 @@ export class IssuerService {
     return;
   }
 
-  // @Cron('*/2 * * * * ')
+  // @NonConcurrentCron('*/2 * * * * ')
   async getMissingCycleBeforeLateOngoing(): Promise<void> {
     this.logger.debug('Called every 4pm to check for issuance of certificates');
     const deviceGroups = await this.groupService.getAllReservationActive();
