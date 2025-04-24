@@ -148,7 +148,9 @@ Example synchronizing code using NestJS scheduler [https://docs.nestjs.com/techn
 ```ts
 import { Injectable, Logger } from '@nestjs/common';
 
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronExpression } from '@nestjs/schedule';
+
+import { NonConcurrentCron } from 'src/lib/cron';
 
 import { BlockchainSynchronizeService } from '@energyweb/origin-247-certificate';
 
@@ -158,8 +160,8 @@ export class SynchronizeBlockchainTask {
 
   constructor(private synchronizationService: BlockchainSynchronizeService) {}
 
-  @Cron(CronExpression.EVERY_2_HOURS)
-  public async synchronizeblockchain() {
+  @NonConcurrentCron(CronExpression.EVERY_MINUTE)
+  public async synchronizeBlockchain(): Promise<void> {
     this.logger.log(`Synchronizing blockchain started`);
 
     await this.synchronizationService.synchronize();

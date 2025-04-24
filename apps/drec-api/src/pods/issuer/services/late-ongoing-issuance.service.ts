@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { NonConcurrentCron } from '../../../lib/cron';
 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
@@ -35,7 +35,7 @@ export class LateOngoingIssuanceService {
    *
    * @returns Promise that resolves when all jobs are queued
    */
-  @Cron('0 0 */8 * * *')
+  @NonConcurrentCron('0 0 */8 * * *')
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/8h]: Late ongoing certificate issuance check');
     try {
@@ -107,6 +107,9 @@ export class LateOngoingIssuanceService {
 
       await this.processIssuanceForCycle(cycle);
     }
+
+    // Update the last checked timestamp for the group
+    groupId && (await this.deviceService.updateLateCycleCheckedAt(groupId));
   }
 
   /**
@@ -259,32 +262,33 @@ export class LateOngoingIssuanceService {
       return;
     }
 
-    await Promise.all([
-      this.deviceService.updateLateOngoing(
-        device.externalId,
-        cycle.id,
-        lastReadDate.toISOString(),
-      ),
-      this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        DateTime.fromJSDate(newStartDate).toUTC(),
-        cycle.lateEndDateUTC,
-      ),
-    ]);
+    await this.deviceService.updateLateOngoing(
+      device.externalId,
+      cycle.id,
+      lastReadDate.toISOString(),
+    );
 
     this.logger.debug(
       'Late ongoing Issue Certificate For::',
       cycle.device_externalid,
     );
 
-    await this.issuerService.issueCertificate(
-      group,
-      nextIssuance,
-      cycle.lateStartDateUTC,
-      DateTime.fromJSDate(lastReadDate).toUTC(),
-      device.countryCode,
-    );
+    await Promise.all([
+      this.deviceService.findOrCreateCycle(
+        group.id,
+        device.externalId,
+        DateTime.fromJSDate(newStartDate).toUTC(),
+        cycle.lateEndDateUTC,
+      ),
+      this.issueCertificate(
+        group,
+        nextIssuance,
+        cycle.lateStartDateUTC,
+        DateTime.fromJSDate(lastReadDate).toUTC(),
+        device.countryCode,
+        cycle,
+      ),
+    ]);
   }
 
   /**
@@ -324,18 +328,79 @@ export class LateOngoingIssuanceService {
     if (!allReadsForDeviceBetweenTimeRange?.length) {
       return;
     }
-    await this.deviceService.updateLateOngoing(
-      device.externalId,
-      cycle.id,
-      cycle.late_end_date,
-    );
 
+    await Promise.all([
+      this.deviceService.updateLateOngoing(
+        device.externalId,
+        cycle.id,
+        cycle.late_end_date,
+      ),
+      this.issueCertificate(
+        group,
+        nextIssuance,
+        cycle.lateStartDateUTC,
+        cycle.lateEndDateUTC,
+        device.countryCode,
+        cycle,
+      ),
+    ]);
+  }
+
+  /**
+   * Issues a new certificate for a device group and archives the related late ongoing cycle
+   *
+   * @param group - The device group for which to issue a certificate
+   * @param nextIssuance - Information about the next certificate issuance
+   * @param startDate - The start date for the certificate validity period
+   * @param endDate - The end date for the certificate validity period
+   * @param countryCodeKey - The country code key used for certificate issuance
+   * @param cycle - The late ongoing certificate cycle entity to be archived after issuance
+   * @returns A Promise that resolves when both the certificate issuance and cycle archiving are complete
+   */
+  private async issueCertificate(
+    group: DeviceGroup,
+    nextIssuance: DeviceGroupNextIssueCertificate,
+    startDate: DateTime,
+    endDate: DateTime,
+    countryCodeKey: string,
+    cycle: DeviceLateOngoingIssueCertificateEntity,
+  ): Promise<void> {
+    // Issue the certificate for the specified device group
     await this.issuerService.issueCertificate(
       group,
       nextIssuance,
-      cycle.lateStartDateUTC,
-      cycle.lateEndDateUTC,
-      device.countryCode,
+      startDate,
+      endDate,
+      countryCodeKey,
     );
+
+    // Archive the late ongoing cycle now that a certificate has been issued
+    await this.deviceService.archiveOutdatedLateOngoingCycles(cycle);
+  }
+
+  /**
+   * Archives all inactive late ongoing certificate cycles
+   *
+   * @returns A Promise that resolves when all inactive cycles have been processed
+   */
+  async removeInactiveCycles(): Promise<void> {
+    // Retrieve the latest issued certificate cycles grouped by device and group
+    const cycles =
+      await this.deviceService.findLatestIssuedCyclesByDeviceAndGroup();
+
+    // Exit early if no cycles were found
+    if (!cycles?.length) {
+      this.logger.error('No late ongoing read cycles found');
+      return;
+    }
+
+    this.logger.debug(`Found ${cycles.length} cycles to process`);
+
+    // Process each cycle to archive it
+    for (const cycle of cycles) {
+      this.deviceService.archiveOutdatedLateOngoingCycles(cycle);
+    }
+
+    this.logger.debug('Removed inactive cycles');
   }
 }
