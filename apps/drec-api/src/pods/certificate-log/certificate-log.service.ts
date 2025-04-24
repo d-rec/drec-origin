@@ -462,7 +462,6 @@ export class CertificateLogService {
     return redemptionReports;
   }
 
-  //@Cron(CronExpression.EVERY_30_SECONDS)
   async getsCertificateReadModule(
     userOrgId: string,
     pageNumber: number,

@@ -61,6 +61,7 @@ specifiers:
   '@typescript-eslint/eslint-plugin': 3.10.1
   '@typescript-eslint/parser': 3.10.1
   ansi-regex: ^4.1.1
+  async-mutex: ^0.5.0
   aws-sdk: ^2.1272.0
   axios: 0.28.0
   bcryptjs: 2.4.3
@@ -191,6 +192,7 @@ dependencies:
   '@typescript-eslint/eslint-plugin': 3.10.1_pdeq5ma4onwkr7eui6hc4ks77e
   '@typescript-eslint/parser': 3.10.1_aumck3adhgdxzbq4vr6p4tbife
   ansi-regex: 4.1.1
+  async-mutex: 0.5.0
   aws-sdk: 2.1648.0
   axios: 0.28.0
   bcryptjs: 2.4.3
@@ -5706,6 +5708,12 @@ packages:
   /astral-regex/1.0.0:
     resolution: {integrity: sha512-+Ryf6g3BKoRc7jfp7ad8tM4TtMiaWvbF/1/sQcZPkkS7ag3D5nMBCe2UfOTONtAkaG0tO0ij3C5Lwmf1EiyjHg==}
     engines: {node: '>=4'}
+    dev: false
+
+  /async-mutex/0.5.0:
+    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
+    dependencies:
+      tslib: 2.6.3
     dev: false
 
   /async/0.2.10:
@@ -15243,7 +15251,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-QRkkoZcba5D9vpCL+SL9Zpun/3nF5dlxoUvouPqYGC8DAAx0ZWwYTvRAr4KqMss92KTwIDHhKKgyMMVlbv7KcQ==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-3omM5xyuYCVXxqzClEUaTq67iPzLB44NjZ3Rxq/gA1Fj2mThV/5f5jyO6Ts8ERLMtzPyz48o8Z1LcZkILQENpA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15300,6 +15308,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 3.10.1_pdeq5ma4onwkr7eui6hc4ks77e
       '@typescript-eslint/parser': 3.10.1_aumck3adhgdxzbq4vr6p4tbife
       ansi-regex: 4.1.1
+      async-mutex: 0.5.0
       aws-sdk: 2.1648.0
       axios: 0.28.0
       bcryptjs: 2.4.3
