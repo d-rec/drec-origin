@@ -43,6 +43,7 @@ export interface IDevice {
   createdAt?: Date;
   version?: string;
   timezone?: string;
+  postCode?: string;
 }
 
 export enum DeviceDescription {

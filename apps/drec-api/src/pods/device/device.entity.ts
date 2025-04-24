@@ -181,4 +181,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   api_user_id: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  post_code: string;
 }

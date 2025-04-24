@@ -221,4 +221,9 @@ export class NewDeviceDTO
   @IsOptional()
   @IsNumber()
   yieldValue?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  postCode?: string | null;
 }
