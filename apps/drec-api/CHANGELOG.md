@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/d-rec/drec-origin/compare/v0.3.1...v0.3.2) (2025-04-24)
+
+### Features
+
+- add root route handler ([#573](https://github.com/d-rec/drec-origin/issues/573)) ([4a936d8](https://github.com/d-rec/drec-origin/commit/4a936d87fa7d40ed30f5cafb697acc6eef295fe7))
+
+### Improvements
+
+- add missing changelog ([e8d2f13](https://github.com/d-rec/drec-origin/commit/e8d2f13bfb648c78411058beb6ab4ad924e50a75))
+
 ### [0.3.1](https://github.com/d-rec/drec-origin/compare/v0.3.0...v0.3.1) (2025-04-23)
 
 ### Bug Fixes
