@@ -16,6 +16,7 @@ import {
   ApiConsumes,
   ApiBody,
   ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { DocumentUploadsService } from './document-uploads.service';
 import {
@@ -58,40 +59,70 @@ export class DocumentUploadsController {
     }),
   )
   @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload a document',
+    description:
+      'Upload a single document file (PDF, JPEG, or PNG) associated with a specific target type and document type. The file will be linked to the authenticated user.',
+  })
   @ApiQuery({
     name: 'targetType',
     enum: DocumentTargetType,
-    description: 'Type of the target entity',
+    description: 'Type of entity the document belongs to (e.g., ORGANIZATION)',
+    required: true,
     example: DocumentTargetType.ORGANIZATION,
   })
   @ApiQuery({
     name: 'documentType',
     enum: DocumentType,
-    description: 'Type of the document',
+    description:
+      'Category or type of the document being uploaded (e.g., INCORPORATION_CERTIFICATE)',
+    required: true,
     example: DocumentType.INCORPORATION_CERTIFICATE,
   })
-  @ApiOperation({ summary: 'Upload a document' })
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['document'],
       properties: {
         document: {
           type: 'string',
           format: 'binary',
-          description: 'Document file to upload',
+          description:
+            'The document file to upload (PDF, JPEG, or PNG format only)',
         },
       },
     },
   })
   @ApiResponse({
     status: 201,
-    description: 'The document has been successfully uploaded.',
+    description: 'Document has been successfully uploaded and processed.',
     type: DocumentEntity,
   })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 404, description: 'Target entity not found.' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - Invalid file type, missing document, or invalid parameters.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Forbidden - User does not have permission to upload documents.',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Not Found - Target entity specified in targetType does not exist.',
+  })
+  @ApiParam({
+    name: 'user',
+    type: 'object',
+    description: 'Currently logged in user details (automatically injected)',
+    required: true,
+  })
   uploadDocuments(
     @UploadedFiles() files: { document?: Express.Multer.File[] },
     @UserDecorator() user: ILoggedInUser,
@@ -113,11 +144,31 @@ export class DocumentUploadsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all documents' })
+  @ApiOperation({
+    summary: 'Get all documents',
+    description:
+      "Retrieves all documents associated with the authenticated user. This includes any uploaded files or documents linked to the user's account.",
+  })
   @ApiResponse({
     status: 200,
-    description: 'The documents have been successfully retrieved.',
+    description: 'List of documents successfully retrieved.',
     type: DocumentEntity,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Forbidden - User does not have permission to access these documents.',
+  })
+  @ApiParam({
+    name: 'user',
+    type: 'object',
+    description: 'Currently logged in user details (automatically injected)',
+    required: true,
   })
   getDocuments(
     @UserDecorator() user: ILoggedInUser,
