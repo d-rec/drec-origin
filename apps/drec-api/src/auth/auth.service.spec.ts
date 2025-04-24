@@ -35,6 +35,7 @@ describe('AuthService', () => {
             createUserSession: jest.fn(),
             removeUserSession: jest.fn(),
             hasValidUserSession: jest.fn(),
+            sendOtp: jest.fn(),
           } as any,
         },
         {
@@ -133,7 +134,9 @@ describe('AuthService', () => {
         ...userDTO,
         is_phone_verified: true,
       };
-
+      jest
+        .spyOn(userService, 'findById')
+        .mockResolvedValue(userWithoutPassword);
       const response = await service.login(userWithoutPassword);
 
       expect(response).toBeDefined();
@@ -148,7 +151,9 @@ describe('AuthService', () => {
         ...userDTO,
         is_phone_verified: true, // Ensure is_phone_verified is not optional
       };
-
+      jest
+        .spyOn(userService, 'findById')
+        .mockResolvedValue(userWithoutPassword);
       const result = await service.login(userWithoutPassword);
 
       expect(result).toEqual({ accessToken: token });
@@ -163,7 +168,9 @@ describe('AuthService', () => {
         ...userDTO,
         is_phone_verified: true, // Ensure is_phone_verified is not optional
       };
-
+      jest
+        .spyOn(userService, 'findById')
+        .mockResolvedValue(userWithoutPassword);
       await service.login(userWithoutPassword);
 
       expect(userService.createUserSession).toHaveBeenCalledWith(

@@ -434,7 +434,7 @@ export class UserService {
     });
 
     const params = {
-      Message: `Your OTP is: ${otp}. Please enter it to verify your phone number.`,
+      Message: `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`,
       PhoneNumber: formatted,
       MessageAttributes: {
         'AWS.SNS.SMS.SMSType': {
@@ -450,7 +450,7 @@ export class UserService {
     try {
       await sns.publish(params).promise();
       this.currentOtp = otp;
-      this.otpExpirationTime = Date.now() + 5 * 60 * 1000;
+      this.otpExpirationTime = Date.now() + 10 * 60 * 1000;
       return { message: 'OTP sent via message.' };
     } catch (error) {
       console.error('Error sending OTP:', error);
