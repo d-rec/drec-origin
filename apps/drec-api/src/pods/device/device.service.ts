@@ -542,6 +542,7 @@ export class DeviceService {
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
+    console.log('newDevice', newDevice);
     this.logger.verbose(`With in register`);
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenefitList = SDGBenefits;

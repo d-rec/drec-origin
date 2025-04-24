@@ -225,5 +225,5 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
-  postCode?: string | null;
+  postalCode?: string | null;
 }
