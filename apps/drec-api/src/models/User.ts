@@ -28,6 +28,7 @@ export interface IUserSeed extends IUser {
 }
 
 export interface IUser extends IUserProperties {
+  is_phone_verified: boolean;
   organization: IFullOrganization;
 
   moduleName?: string;

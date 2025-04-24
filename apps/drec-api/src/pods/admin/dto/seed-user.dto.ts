@@ -18,6 +18,7 @@ export class SeedUserDTO
       'lastName',
       'email',
       'phoneNumber',
+      'is_phone_verified',
       'notifications',
       'status',
       'role',

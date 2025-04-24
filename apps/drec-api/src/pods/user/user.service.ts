@@ -174,7 +174,7 @@ export class UserService {
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
-        isPhoneVerified: false,
+        is_phone_verified: false,
       });
       const { ...userData } = user;
       this.logger.debug(
@@ -466,7 +466,7 @@ export class UserService {
       if (!user) {
         throw new ConflictException('User not found.');
       }
-      user.isPhoneVerified = true;
+      user.is_phone_verified = true;
       user.phone_number_verified_at = new Date();
       await this.repository.save(user);
       return true;

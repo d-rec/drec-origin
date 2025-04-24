@@ -101,7 +101,7 @@ export class User extends ExtendedBaseEntity implements IUser {
   // }
 
   @Column({ default: false })
-  isPhoneVerified: boolean;
+  is_phone_verified: boolean;
 
   @Column({ nullable: true })
   phone_number_verified_at: Date;

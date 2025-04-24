@@ -211,13 +211,13 @@ export class UserController {
     description:
       'Bad Request. The provided phone number is invalid or missing.',
   })
-  @Post('send-otp')
   @ApiBody({ type: SendOtpDTO })
   async sendOtp(
     @Body('phoneNumber') phoneNumber: string,
   ): Promise<{ message: string }> {
     return this.userService.sendOtp(phoneNumber);
   }
+
   @Post('verify-otp')
   @ApiOperation({
     summary: 'Verify OTP Code',
@@ -242,7 +242,6 @@ export class UserController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad Request. Invalid or expired OTP code provided.',
   })
-  @Post('verify-otp')
   @ApiBody({ type: SendOtpDTO })
   async verifyOtp(
     @Body('phoneNumber') phoneNumber: string,

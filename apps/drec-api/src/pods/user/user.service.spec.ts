@@ -409,6 +409,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        is_phone_verified: true,
       },
       {
         id: 2,
@@ -422,6 +423,7 @@ describe('UserService', () => {
         roleId: 4,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        is_phone_verified: true,
       },
       {
         id: 3,
@@ -435,6 +437,7 @@ describe('UserService', () => {
         roleId: 3,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        is_phone_verified: true,
       },
       {
         id: 4,
@@ -448,6 +451,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        is_phone_verified: true,
       },
       {
         id: 5,
@@ -461,6 +465,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        is_phone_verified: true,
       },
     ];
 
