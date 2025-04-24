@@ -220,7 +220,6 @@ export class DeviceService {
     return result;
   }
 
-  //@Cron('*/30 * * * * *')
   async irecPostData(deviceId: number): Promise<any> {
     this.logger.verbose(`With in I_recPostData`);
     const device = await this.repository.findOne({
@@ -1434,6 +1433,12 @@ export class DeviceService {
       success: true,
       message: 'device deleted Successfully',
     };
+  }
+  async updateLateCycleCheckedAt(groupId: number): Promise<any> {
+    await this.lateDeviceCertificateRepository.update(
+      { groupId: groupId, certificate_issued: false },
+      { checked_at: new Date() },
+    );
   }
   async updateLateOngoing(
     externalId: string,

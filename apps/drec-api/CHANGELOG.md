@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/d-rec/drec-origin/compare/v0.3.0...v0.3.1) (2025-04-23)
+
+### Bug Fixes
+
+- prevent cron reentry ([#571](https://github.com/d-rec/drec-origin/issues/571)) ([5441f29](https://github.com/d-rec/drec-origin/commit/5441f29b4b54ccbaeabfc29897c9f4c167fdd3e8))
+
+## [0.3.0](https://github.com/d-rec/drec-origin/compare/v0.1.3...v0.3.0) (2025-04-22)
+
+### Features
+
+- add and integrate Redocly library for documenting api endpoints… ([#520](https://github.com/d-rec/drec-origin/issues/520)) ([fb4dbea](https://github.com/d-rec/drec-origin/commit/fb4dbea3fe49cdbc25a5e430971623de31eb81bd))
+- add certificate generation requirement on the documentation ([#551](https://github.com/d-rec/drec-origin/issues/551)) ([f08967b](https://github.com/d-rec/drec-origin/commit/f08967bca78ab93914110dd4603357642d0dd1ea))
+- add cron jobs ([#523](https://github.com/d-rec/drec-origin/issues/523)) ([8701f2c](https://github.com/d-rec/drec-origin/commit/8701f2c3e94181f245904e6cb3c08b6c5ec28e11))
+- add dependency md file ([#519](https://github.com/d-rec/drec-origin/issues/519)) ([6004c1d](https://github.com/d-rec/drec-origin/commit/6004c1da0108c445041625f06c292cd9fd56efd1))
+- create organization type enum ([#544](https://github.com/d-rec/drec-origin/issues/544)) ([a8274d4](https://github.com/d-rec/drec-origin/commit/a8274d4c727a7dd78e45a5800b2447a177020442))
+- load late ongoing queries in parallel ([1de8328](https://github.com/d-rec/drec-origin/commit/1de8328dca154f6ee904ce2c999173d6fc4c2733))
+- trigger the late ongoing issuance in a queue ([46d0623](https://github.com/d-rec/drec-origin/commit/46d06231c48b87de032928d9c006c6fe2579118d))
+
+### Bug Fixes
+
+- organizationType import ([#550](https://github.com/d-rec/drec-origin/issues/550)) ([fc8255f](https://github.com/d-rec/drec-origin/commit/fc8255f0c195a29d1838dd074bc08f279bb6b78c))
+- redocly loading delay ([95a53e8](https://github.com/d-rec/drec-origin/commit/95a53e8439426737804c25f67ce9c4749fb2d0a0))
+
+### Improvements
+
+- add SDG Benefits and Off Takers to the documentation ([#522](https://github.com/d-rec/drec-origin/issues/522)) ([9591b30](https://github.com/d-rec/drec-origin/commit/9591b30dffe898f50b8539277600198f519cd4af))
+- console log http 500 error only ([e316a8d](https://github.com/d-rec/drec-origin/commit/e316a8d3aa861f070a6b9fae0c18c2e40fac766f))
+- fix linting config ([5fb8b82](https://github.com/d-rec/drec-origin/commit/5fb8b82c77280d3f977f2b07d23f6d02c214f999))
+- reduce timeout between late ongoing processing ([f0bf022](https://github.com/d-rec/drec-origin/commit/f0bf022bd9f36b5c946f696dbcda707fea274254))
+- **release:** 0.2.0 ([0580404](https://github.com/d-rec/drec-origin/commit/0580404ed50c92b005849aab54a7d76b3eec3099))
+- show progress in terminal ([70eaa61](https://github.com/d-rec/drec-origin/commit/70eaa6172164436aa551351044fedccfdfe4ecf0))
+- temporary disable the late ongoing cronjob ([5175126](https://github.com/d-rec/drec-origin/commit/5175126eb1f477c6c729291729a2cf62ab5e79e4))
+
 ## [0.2.0](https://github.com/d-rec/drec-origin/compare/v0.1.2...v0.2.0) (2025-04-10)
 
 ### Features

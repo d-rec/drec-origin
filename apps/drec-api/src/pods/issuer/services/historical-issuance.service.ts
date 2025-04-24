@@ -1,10 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { CronExpression } from '@nestjs/schedule';
+import { NonConcurrentCron } from '../../../lib/cron';
 
 import { v4 as uuid } from 'uuid';
 
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { IDevice } from '../../../models';
 import { HistoryNextIssuanceStatus } from '../../../utils/enums/history_next_issuance.enum';
+import { Queues } from '../../../utils/enums/queues.enum';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
 import { Device } from '../../device';
 import { DeviceGroup } from '../../device-group/device-group.entity';
@@ -15,9 +19,6 @@ import { OrganizationService } from '../../organization/organization.service';
 import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { InjectQueue } from '@nestjs/bull';
-import { Queues } from '../../../utils/enums/queues.enum';
-import { Queue } from 'bull';
 
 @Injectable()
 export class HistoricalIssuanceService {
@@ -34,7 +35,7 @@ export class HistoricalIssuanceService {
     private readonly certificateLogService: CertificateLogService,
   ) {}
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/5m]: Historical certificate issuance check');
 
