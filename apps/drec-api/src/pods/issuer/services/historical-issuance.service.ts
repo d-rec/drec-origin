@@ -19,6 +19,7 @@ import { OrganizationService } from '../../organization/organization.service';
 import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { delay } from '../../../lib/helpers/delay';
 
 @Injectable()
 export class HistoricalIssuanceService {
@@ -164,19 +165,15 @@ export class HistoricalIssuanceService {
     // Convert to MWh and update group totals if needed
     const totalReadValueMegaWattHour = totalReadsValue / 10 ** 6;
 
-    if (totalReadValueMegaWattHour != 0) {
-      // Use a consistent delay based on request index
-      setTimeout(
-        () => {
-          this.groupService.updateTotalReadingRequestedForCertificateIssuance(
-            group.id,
-            group.organizationId,
-            totalReadValueMegaWattHour,
-          );
-        },
-        1000 * (requestIndex + 1),
-      );
-    }
+    if (totalReadValueMegaWattHour === 0) return;
+
+    // Use a consistent delay based on request index
+    await delay(1000 * (requestIndex + 1));
+    await this.groupService.updateTotalReadingRequestedForCertificateIssuance(
+      group.id,
+      group.organizationId,
+      totalReadValueMegaWattHour,
+    );
   }
 
   /**
@@ -190,6 +187,7 @@ export class HistoricalIssuanceService {
     const reservationEndTime = group.reservationEndDate.getTime();
     const deviceCreatedTime = new Date(device.createdAt).getTime();
 
+    // Check if device should be removed based on expiry date
     if (group.reservationExpiryDate) {
       const expiryTime = group.reservationExpiryDate.getTime();
 

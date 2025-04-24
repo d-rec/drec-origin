@@ -8,6 +8,7 @@ import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
 import { customizeDocument, getDocumentBuilder } from './docs/swagger';
+import { version } from '../package.json';
 
 import './sentry';
 export { DRECModule };
@@ -45,6 +46,16 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   if (logger) {
     app.useLogger(logger);
   }
+
+  // Root route handler
+  app.getHttpAdapter().get('/', (req, res) => {
+    res.json({
+      name: 'DREC API',
+      version,
+      status: 'operational',
+      documentation: 'd-rec.github.io/drec-origin',
+    });
+  });
 
   const documentBuilder = getDocumentBuilder();
   const options = documentBuilder.build();
