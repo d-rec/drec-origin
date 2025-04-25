@@ -425,8 +425,8 @@ export class UserService {
   }
   async sendOtp(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
-
     const otp = this.generateOtp();
+
     const sns = new AWS.SNS({
       region: process.env.region,
       accessKeyId: process.env.accessKeyId,

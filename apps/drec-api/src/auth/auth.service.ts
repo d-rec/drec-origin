@@ -52,10 +52,6 @@ export class AuthService {
     };
     const token = this.jwtService.sign(payload);
     await this.userService.createUserSession(user, token);
-    const loggedInUser = await this.userService.findById(user.id);
-    if (loggedInUser.is_phone_verified === false) {
-      await this.userService.sendOtp(loggedInUser.phoneNumber);
-    }
     return {
       accessToken: token,
     };
