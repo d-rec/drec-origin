@@ -789,7 +789,7 @@ export class UserService {
     return Boolean(await this.userLoginSessionRepository.findOne(conditions));
   }
 
-  async updateUserEmailVerification(userId: number): Promise<User> {
+  async verifyEmail(userId: number): Promise<User> {
     this.logger.verbose(`Updating emailVerifiedAt for user ${userId}`);
 
     await this.repository.update(

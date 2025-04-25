@@ -335,7 +335,7 @@ describe('EmailConfirmationService', () => {
         .mockResolvedValueOnce({} as any);
 
       const updateUserEmailVerificationSpy = jest
-        .spyOn(userService, 'updateUserEmailVerification')
+        .spyOn(userService, 'verifyEmail')
         .mockResolvedValueOnce({} as any);
 
       const loginSpy = jest

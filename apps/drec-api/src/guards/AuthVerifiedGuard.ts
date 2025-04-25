@@ -37,7 +37,10 @@ function createAuthVerifiedGuard(type?: string | string[]): Type<IAuthGuard> {
   class AuthVerifiedGuard extends AuthGuard(type) implements CanActivate {
     private logger = new Logger(AuthVerifiedGuard.name);
 
-    constructor(@Optional() options?: AuthModuleOptions, private reflector: Reflector) {
+    constructor(
+      private reflector: Reflector,
+      @Optional() options?: AuthModuleOptions,
+    ) {
       super(options);
     }
 
@@ -46,10 +49,8 @@ function createAuthVerifiedGuard(type?: string | string[]): Type<IAuthGuard> {
 
       if (!isAuthenticated) return false;
 
-      const isActive = this.reflector.get<boolean>(
-        ActiveUserGuard,
-        context.getHandler(),
-      );
+      const activeUserGuard = new ActiveUserGuard(this.reflector);
+      const isActive = await activeUserGuard.canActivate(context);
 
       if (!isActive) return false;
 

@@ -183,9 +183,7 @@ export class EmailConfirmationService {
       confirmed: true,
     });
 
-    await this.userService.updateUserEmailVerification(
-      emailConfirmation.user.id,
-    );
+    await this.userService.verifyEmail(emailConfirmation.user.id);
 
     const loginData = await this.authService.login(emailConfirmation.user);
 

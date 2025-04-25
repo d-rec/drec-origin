@@ -15,7 +15,6 @@ import {
   ConflictException,
   Res,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiResponse,
@@ -36,6 +35,7 @@ import {
 } from '../../models';
 import {
   ActiveUserGuard,
+  AuthVerifiedGuard,
   PermissionGuard,
   RolesGuard,
   WithoutAuthGuard,
@@ -58,7 +58,6 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
-import { Public } from '../../decorators/public.decorator';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -77,8 +76,9 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get('me')
-  @Public()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password'])) /*,PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+  ) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiOperation({
@@ -111,9 +111,8 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get(':id')
-  @Public()
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     ActiveUserGuard,
     PermissionGuard,
   )
@@ -157,7 +156,6 @@ export class UserController {
    * @body {CreateUserORGDTO}
    * @returns {UserDTO}
    */
-  @Public()
   @Post('register')
   @ApiBody({ type: CreateUserOrgDTO })
   @UseGuards(WithoutAuthGuard, PermissionGuard)
@@ -205,7 +203,7 @@ export class UserController {
    */
   @Put('profile')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     ActiveUserGuard,
     PermissionGuard,
   )
@@ -249,7 +247,7 @@ export class UserController {
    */
   @Put('password')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     ActiveUserGuard,
     PermissionGuard,
   )
@@ -281,7 +279,6 @@ export class UserController {
    * This api route to update the password by validating token .
    * @returns {UserDTO} .
    */
-  @Public()
   @Put('reset/password/:token')
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   //@UseGuards(PermissionGuard)
@@ -329,7 +326,6 @@ export class UserController {
    * @param token :stirng
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
-  @Public()
   @Put('confirm-email/:token')
   @UseGuards(WithoutAuthGuard)
   //@UseGuards(PermissionGuard)
@@ -359,7 +355,7 @@ export class UserController {
    * @returns
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -386,7 +382,6 @@ export class UserController {
    * @param body
    * @returns {SuccessResponseDTO}
    */
-  @Public()
   @Post('forget-password')
   @UseGuards(WithoutAuthGuard, PermissionGuard)
   /*@UseGuards(PermissionGuard) */

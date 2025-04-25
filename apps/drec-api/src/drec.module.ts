@@ -14,8 +14,6 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
-import { APP_GUARD } from '@nestjs/core';
-
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -71,7 +69,6 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
-import { AuthVerifiedGuard } from './guards/AuthVerifiedGuard';
 
 const getEnvFilePath = () => {
   const pathsToTest = [

@@ -502,7 +502,10 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Post()
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
