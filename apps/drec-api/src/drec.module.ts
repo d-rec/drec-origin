@@ -71,7 +71,7 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
-import { VerifiedUserGuard } from './guards/VerifiedUserGuard';
+import { AuthVerifiedGuard } from './guards/AuthVerifiedGuard';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -203,10 +203,6 @@ const queueModule = () => {
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: VerifiedUserGuard,
     },
   ],
 })
