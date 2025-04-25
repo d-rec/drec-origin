@@ -58,6 +58,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -77,7 +78,7 @@ export class UserController {
    */
   @Get('me')
   @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    AuthGuard(['jwt', 'oauth2-client-password']),
   ) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
@@ -112,7 +113,7 @@ export class UserController {
    */
   @Get(':id')
   @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    AuthGuard(['jwt', 'oauth2-client-password']),
     ActiveUserGuard,
     PermissionGuard,
   )
@@ -372,7 +373,6 @@ export class UserController {
   public async reSendEmailConfirmation(
     @UserDecorator() user: LoggedInUser,
   ): Promise<SuccessResponseDTO> {
-    console.log('user', user);
     return this.emailConfirmationService.sendConfirmationEmail(user.email);
   }
 

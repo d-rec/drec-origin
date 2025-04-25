@@ -16,7 +16,6 @@ import {
   Post,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -34,7 +33,12 @@ import {
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
-import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
+import {
+  ActiveUserGuard,
+  AuthVerifiedGuard,
+  PermissionGuard,
+  RolesGuard,
+} from '../../guards';
 import { OrganizationService } from '../organization/organization.service';
 import { Role } from '../../utils/enums';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -55,7 +59,12 @@ import { Organization } from '../organization/organization.entity';
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+@UseGuards(
+  AuthVerifiedGuard('jwt'),
+  ActiveUserGuard,
+  RolesGuard,
+  PermissionGuard,
+)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class AdminController {
   constructor(
@@ -101,7 +110,12 @@ export class AdminController {
   }
 
   @Get('/organizations')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -178,7 +192,12 @@ export class AdminController {
     );
   }
   @Get('/organizations/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT-CRUDL')
@@ -207,7 +226,12 @@ export class AdminController {
   }
 
   @Post('/users')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -237,7 +261,12 @@ export class AdminController {
   }
 
   @Post('/seed/users')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -278,7 +307,12 @@ export class AdminController {
   }
 
   @Post('/seed/organizations')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -316,7 +350,12 @@ export class AdminController {
   }
 
   @Put('/users/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
@@ -350,7 +389,12 @@ export class AdminController {
   }
 
   @Patch('/organizations/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Update')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -384,7 +428,12 @@ export class AdminController {
   }
 
   @Delete('/organizations/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -420,7 +469,12 @@ export class AdminController {
   }
 
   @Delete('/user/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Delete')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -491,7 +545,12 @@ export class AdminController {
   }
   // api for device registration into I-REC
   @Post('/add/device-into-Irec/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -524,7 +583,12 @@ export class AdminController {
   }
 
   @Get('/devices/autocomplete')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
@@ -559,7 +623,12 @@ export class AdminController {
    * It is GET api to list all ApiUsers with pagination and filteration by Organization.
    */
   @Get('/apiusers')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard('jwt'),
+    ActiveUserGuard,
+    RolesGuard,
+    PermissionGuard,
+  )
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
