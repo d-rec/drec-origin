@@ -6,5 +6,6 @@
   "orgName": "SuperOrg",
   "orgAddress": "local",
   "status": "Active",
-  "permission_status": "Request"
+  "permission_status": "Request",
+  "is_phone_verified": true
 }

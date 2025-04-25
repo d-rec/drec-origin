@@ -223,7 +223,8 @@ export class Seed9999999999999 implements MigrationInterface {
         "role",
         "organizationId",
         "roleId",
-        "api_user_id"
+        "api_user_id",
+        "is_phone_verified"
         ) VALUES (
             '${AdminJSON.id}',
             '${AdminJSON.firstName}',
@@ -234,7 +235,8 @@ export class Seed9999999999999 implements MigrationInterface {
             '${RoleJSON[0].name}',    
             '${organizationId}',
             '${RoleJSON[0].id}',
-            '${apiUserId}'
+            '${apiUserId}',
+            '${AdminJSON.is_phone_verified}'
         )`);
     }
   }
