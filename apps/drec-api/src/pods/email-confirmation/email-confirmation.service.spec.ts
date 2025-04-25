@@ -335,8 +335,10 @@ describe('EmailConfirmationService', () => {
         .spyOn(repository, 'update')
         .mockResolvedValueOnce({} as any);
 
-      (userService as any).verifyEmail = jest.fn().mockResolvedValueOnce({} as any);
-      
+      (userService as any).verifyEmail = jest
+        .fn()
+        .mockResolvedValueOnce({} as any);
+
       const updateUserEmailVerificationSpy = jest
         .spyOn(userService, 'verifyEmail')
         .mockResolvedValueOnce({} as any);
