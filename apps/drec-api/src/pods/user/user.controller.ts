@@ -354,7 +354,7 @@ export class UserController {
    * @returns
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @Permission('Write')
   @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
