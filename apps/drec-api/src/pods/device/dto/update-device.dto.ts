@@ -190,4 +190,8 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   organizationId?: number;
+
+  @IsString()
+  @IsOptional()
+  postalCode?: string;
 }
