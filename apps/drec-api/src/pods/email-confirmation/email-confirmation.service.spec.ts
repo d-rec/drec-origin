@@ -33,6 +33,7 @@ describe('EmailConfirmationService', () => {
             findOne: jest.fn(),
             save: jest.fn(),
             updateUserEmailVerification: jest.fn(),
+            verifyEmail: jest.fn(),
           } as any,
         },
         {
@@ -334,6 +335,8 @@ describe('EmailConfirmationService', () => {
         .spyOn(repository, 'update')
         .mockResolvedValueOnce({} as any);
 
+      (userService as any).verifyEmail = jest.fn().mockResolvedValueOnce({} as any);
+      
       const updateUserEmailVerificationSpy = jest
         .spyOn(userService, 'verifyEmail')
         .mockResolvedValueOnce({} as any);
