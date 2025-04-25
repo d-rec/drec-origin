@@ -77,9 +77,7 @@ export class UserController {
    * @returns {UserDTO}
    */
   @Get('me')
-  @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-  ) /*,PermissionGuard)
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password'])) /*,PermissionGuard)
   @Permission('Read')
   @ACLModules('USER_MANAGEMENT_CRUDL') */
   @ApiOperation({
