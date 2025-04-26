@@ -203,7 +203,6 @@ export class UserController {
   @Put('profile')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
     PermissionGuard,
   )
   @Permission('Write')
@@ -247,7 +246,6 @@ export class UserController {
   @Put('password')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
     PermissionGuard,
   )
   @Permission('Write')

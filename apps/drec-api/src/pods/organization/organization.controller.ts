@@ -48,12 +48,7 @@ import {
   IUser,
   responseSuccess,
 } from '../../models';
-import {
-  ActiveUserGuard,
-  AuthVerifiedGuard,
-  PermissionGuard,
-  RolesGuard,
-} from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
@@ -386,7 +381,7 @@ export class OrganizationController {
    * @returns {SuccessResponseDTO}
    */
   @Put(':id/change-role/:userId')
-  @UseGuards(AuthVerifiedGuard(), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthVerifiedGuard(), RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -444,7 +439,7 @@ export class OrganizationController {
    * @returns {BindBlockchainAccountDTO}
    */
   @Post('chain-address')
-  @UseGuards(AuthVerifiedGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: BindBlockchainAccountDTO })
@@ -498,7 +493,6 @@ export class OrganizationController {
   @Delete('/user/:id')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
     PermissionGuard,
   )
   @Permission('Delete')

@@ -52,7 +52,7 @@ export class AccessControlLayerModuleServiceController {
    * in response of query and returns null when there is no list of ACLModules or empty.
    * */
   @Get()
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @UseGuards(AuthVerifiedGuard(['jwt']), RolesGuard)
 
   //@Roles(Role.Admin)
   @ApiOperation({

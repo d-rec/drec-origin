@@ -18,7 +18,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { YieldConfigService } from './yieldconfig.service';
 import { NewYieldConfigDTO, UpdateYieldValueDTO, YieldConfigDTO } from './dto';
 import { countryCodesList } from '../../models/country-code';
@@ -27,7 +26,7 @@ import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser } from '../../models';
 import { UserDecorator } from '../user/decorators/user.decorator';
-import { ActiveUserGuard, PermissionGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
@@ -43,7 +42,7 @@ export class YieldConfigController {
    * @returns {YieldConfigDTO[]}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
@@ -71,7 +70,7 @@ export class YieldConfigController {
    * @returns {YieldConfigDTO}
    */
   @Get('/:id')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
@@ -103,7 +102,7 @@ export class YieldConfigController {
    * @returns {YieldConfigDTO}
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Write')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -167,7 +166,7 @@ export class YieldConfigController {
    */
   @Patch('/update/:id')
   @Roles(Role.Admin)
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Update')
   @ACLModules('YIELD_CONFIG_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateYieldValueDTO })
