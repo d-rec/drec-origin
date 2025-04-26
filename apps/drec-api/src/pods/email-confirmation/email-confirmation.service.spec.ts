@@ -548,7 +548,7 @@ describe('EmailConfirmationService', () => {
       const uiBaseUrl = 'http://localhost:3000'; // Example base URL
       process.env.UI_BASE_URL = uiBaseUrl; // Mocking environment variable
 
-      const expectedUrl = `${uiBaseUrl}/login?token=${token}`;
+      const expectedUrl = `${uiBaseUrl}/email-confirmed?token=${token}`;
       const expectedHtml = `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${expectedUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`;
       const sendSpy = jest.spyOn(mailService, 'send').mockResolvedValue(true);
       await service['sendConfirmEmailRequest'](email, token);
