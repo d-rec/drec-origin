@@ -28,7 +28,7 @@ export interface IUserSeed extends IUser {
 }
 
 export interface IUser extends IUserProperties {
-  phone_number_verified_at: Date | null;
+  phoneNumberVerifiedAt: Date | null;
   organization: IFullOrganization;
 
   moduleName?: string;

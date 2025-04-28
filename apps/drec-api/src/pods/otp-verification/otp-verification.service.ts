@@ -40,7 +40,6 @@ export class OtpService {
   async sendOtp(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
     const otp = this.generateOtp();
-
     const message = `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`;
     try {
       await sendSms({ phoneNumber: formatted, message });
@@ -70,7 +69,7 @@ export class OtpService {
     if (!user) {
       throw new ConflictException('User not found.');
     }
-    user.phone_number_verified_at = new Date();
+    user.phoneNumberVerifiedAt = new Date();
     await this.userRepository.save(user);
     return { message: 'Phone number verified successfully.' };
   }

@@ -72,7 +72,7 @@ export class UserDTO implements Omit<IUser, 'password' | 'phone_number'> {
 
   @ApiProperty({ type: Boolean, required: false })
   @IsBoolean()
-  phone_number_verified_at: Date | null;
+  phoneNumberVerifiedAt: Date | null;
 
   // @IsOptional()
   //  permissions: IModulePermissionsConfig;

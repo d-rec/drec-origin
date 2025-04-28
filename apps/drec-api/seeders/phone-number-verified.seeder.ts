@@ -12,22 +12,22 @@ export class PhoneNumberVerifiedAtSeeder implements SeederInterface {
   ) {}
 
   async run(): Promise<void> {
-    // Set phone_number_verified_at to '0001-01-01T00:00:00Z' for all users who did not verify
+    // Set phoneNumberVerifiedAt to '0001-01-01T00:00:00Z' for all users who did not verify
     await this.userRepository
       .createQueryBuilder()
       .update(User)
-      .set({ phone_number_verified_at: '0001-01-01T00:00:00Z' })
-      .where('phone_number_verified_at IS NULL')
+      .set({ phoneNumberVerifiedAt: '0001-01-01T00:00:00Z' })
+      .where('phoneNumberVerifiedAt IS NULL')
       .execute();
   }
 
   async drop(): Promise<void> {
-    // Reverse the seed: set phone_number_verified_at back to NULL where it is '0001-01-01T00:00:00Z'
+    // Reverse the seed: set phoneNumberVerifiedAt back to NULL where it is '0001-01-01T00:00:00Z'
     await this.userRepository
       .createQueryBuilder()
       .update(User)
-      .set({ phone_number_verified_at: null })
-      .where('phone_number_verified_at = :date', {
+      .set({ phoneNumberVerifiedAt: null })
+      .where('phoneNumberVerifiedAt = :date', {
         date: '0001-01-01T00:00:00Z',
       })
       .execute();
