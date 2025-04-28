@@ -5,7 +5,7 @@ export class addPostalCodeToDeviceTable1745482937188
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device" ADD COLUMN "postal_code" character varying`,
+      `ALTER TABLE "device" ADD COLUMN "postal_code" character varying DEFAULT NULL`,
     );
   }
 
