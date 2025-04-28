@@ -151,10 +151,10 @@ export class EmailConfirmationService {
     });
 
     if (!emailConfirmation) {
-      this.logger.error(`Email confirmation doesn't exist`);
+      this.logger.error(`Invalid email confirmation token`);
       throw new BadRequestException({
         success: false,
-        message: `Email confirmation doesn't exist`,
+        message: `Invalid email confirmation token`,
       });
     }
 

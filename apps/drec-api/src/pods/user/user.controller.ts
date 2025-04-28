@@ -324,7 +324,6 @@ export class UserController {
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
   @Put('confirm-email/:token')
-  @UseGuards(WithoutAuthGuard)
   @ApiOperation({
     summary: 'Confirm Email Address',
     description:
