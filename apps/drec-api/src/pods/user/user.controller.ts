@@ -325,9 +325,6 @@ export class UserController {
    */
   @Put('confirm-email/:token')
   @UseGuards(WithoutAuthGuard)
-  //@UseGuards(PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Confirm Email Address',
     description:
@@ -353,8 +350,6 @@ export class UserController {
    */
   @Put('resend-confirm-email')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Resend Confirmation Email',
     description:

@@ -281,7 +281,7 @@ export class EmailConfirmationService {
     token: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendConfirmEmailRequest`);
-    const url = `${process.env.UI_BASE_URL}/email-confirmed?token=${token}`;
+    const url = `${process.env.UI_BASE_URL}/confirm-email?token=${token}`;
 
     const result = await this.mailService.send({
       to: email,
