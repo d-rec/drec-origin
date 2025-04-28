@@ -16,7 +16,6 @@ import {
   Res,
   Patch,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiResponse,
@@ -37,6 +36,7 @@ import {
 } from '../../models';
 import {
   ActiveUserGuard,
+  AuthVerifiedGuard,
   PermissionGuard,
   RolesGuard,
   WithoutAuthGuard,
@@ -59,6 +59,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -202,8 +203,7 @@ export class UserController {
    */
   @Put('profile')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Write')
@@ -246,8 +246,7 @@ export class UserController {
    */
   @Put('password')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Write')
@@ -326,10 +325,6 @@ export class UserController {
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
   @Put('confirm-email/:token')
-  @UseGuards(WithoutAuthGuard, PermissionGuard)
-  //@UseGuards(PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Confirm Email Address',
     description:
@@ -354,9 +349,7 @@ export class UserController {
    * @returns
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({
     summary: 'Resend Confirmation Email',
     description:
@@ -369,9 +362,9 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    @UserDecorator() { email }: ILoggedInUser,
+    @UserDecorator() user: LoggedInUser,
   ): Promise<SuccessResponseDTO> {
-    return this.emailConfirmationService.sendConfirmationEmail(email);
+    return this.emailConfirmationService.sendConfirmationEmail(user.email);
   }
 
   /**

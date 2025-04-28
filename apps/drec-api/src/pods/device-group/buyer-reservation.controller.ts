@@ -28,7 +28,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
@@ -51,7 +50,7 @@ import { parse } from 'csv-parse';
 import csv from 'csv-parser';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { PermissionGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
@@ -82,7 +81,7 @@ export class BuyerReservationController {
    */
   @Get()
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
   )
@@ -212,7 +211,7 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
@@ -284,7 +283,10 @@ export class BuyerReservationController {
    * @returns {DeviceGroupDTO | null} DeviceGroupDTO is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @ApiQuery({
@@ -358,7 +360,7 @@ export class BuyerReservationController {
    * @returns {ResponseDeviceGroupDTO | null}
    */
   @Post()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), RolesGuard)
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
   @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
   @ApiQuery({
@@ -599,7 +601,7 @@ export class BuyerReservationController {
    * @returns
    */
   @Patch('/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
     summary: 'Update buyer reservation by ID',
     description: 'Modify an existing buyer reservation using its ID.',
@@ -662,7 +664,7 @@ export class BuyerReservationController {
    * @returns {void}
    */
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)
   @ApiOperation({
     summary: 'Remove buyer reservation by ID',
@@ -730,7 +732,7 @@ export class BuyerReservationController {
    * @returns {void}
    */
   @Delete('endreservation/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
     summary: 'End reservation by ID',
     description:
@@ -773,7 +775,7 @@ export class BuyerReservationController {
    * @returns {any}
    */
   @Get('current-information/:groupUid')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch current reservation information',

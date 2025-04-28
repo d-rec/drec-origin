@@ -102,5 +102,8 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @IsEnum(UserPermissionStatus)
   permission_status?: UserPermissionStatus;
+
+  @Column({ name: 'email_verified_at', nullable: true })
+  emailVerifiedAt: Date;
 }
 export { Role };

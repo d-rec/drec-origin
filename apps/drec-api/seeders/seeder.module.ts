@@ -10,6 +10,8 @@ import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
 import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
+import { VerifyEmailsSeeder } from './verify-emails.seeder';
+
 @Module({
   imports: [
     originAppTypeOrmModule(),
@@ -21,6 +23,7 @@ import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
     UsersSeeder,
     DevicesSeeder,
     TermsAndConditionsSeeder,
+    VerifyEmailsSeeder,
   ],
 })
 export class SeederModule {}

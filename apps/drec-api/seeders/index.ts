@@ -3,6 +3,8 @@ import { SeederModule } from './seeder.module';
 import { PermissionsSeeder } from './permissions.seeder';
 import { SeederInterface } from './seeder-interface';
 import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
+import { VerifyEmailsSeeder } from './verify-emails.seeder';
+
 async function run() {
   console.log('Initializing seeder...');
 
@@ -11,6 +13,7 @@ async function run() {
   const seeders: SeederInterface[] = [
     app.get(PermissionsSeeder),
     app.get(TermsAndConditionsSeeder),
+    app.get(VerifyEmailsSeeder),
     // Add more seeders here
     // For dummy data seeders add them in ./dummy-data/index.ts
   ];
