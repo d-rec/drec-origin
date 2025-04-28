@@ -42,7 +42,6 @@ export class OtpService {
     const otp = this.generateOtp();
 
     const message = `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`;
-    console.log('otpppppppppp', otp);
     try {
       await sendSms({ phoneNumber: formatted, message });
 
