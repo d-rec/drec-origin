@@ -12,12 +12,12 @@ export class TermsAndConditionsSeeder implements SeederInterface {
   ) {}
 
   async run(): Promise<void> {
-    console.log('Starting to update terms_accept_at field...');
+    console.log('Starting to update terms_accepted_at field...');
     const result = await this.userRepository
       .createQueryBuilder()
       .update()
-      .set({ terms_accept_at: '0001-01-01 00:00:00+00' })
-      .where('terms_accept_at IS NULL')
+      .set({ termsAcceptedAt: '0001-01-01 00:00:00+00' })
+      .where('terms_accepted_at IS NULL')
       .execute();
     console.log('Update result:', result);
   }
@@ -26,7 +26,7 @@ export class TermsAndConditionsSeeder implements SeederInterface {
     await this.userRepository
       .createQueryBuilder()
       .update()
-      .set({ terms_accept_at: null })
+      .set({ termsAcceptedAt: null })
       .execute();
   }
 }
