@@ -154,9 +154,6 @@ describe('UserService', () => {
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
       };
-      jest
-        .spyOn(service, 'sendOtp')
-        .mockResolvedValue({ message: 'OTP sent successfully' });
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest

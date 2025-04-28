@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   forwardRef,
   Inject,
@@ -46,15 +45,12 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import * as AWS from 'aws-sdk';
 import { OtpService } from '../otp-verification/otp-verification.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-  private currentOtp: string | null = null;
-  private otpExpirationTime: number | null = null;
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserRole)
@@ -421,65 +417,6 @@ export class UserService {
     await this.repository.update(id, updateEntity);
 
     return this.findOne({ id });
-  }
-  private generateOtp(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-  async sendOtp(phoneNumber: string): Promise<{ message: string }> {
-    const formatted = phoneNumber.replace(/\s+/g, '');
-    const otp = this.generateOtp();
-
-    const sns = new AWS.SNS({
-      region: process.env.region,
-      accessKeyId: process.env.accessKeyId,
-      secretAccessKey: process.env.secretAccessKey,
-    });
-
-    const params = {
-      Message: `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`,
-      PhoneNumber: formatted,
-      MessageAttributes: {
-        'AWS.SNS.SMS.SMSType': {
-          DataType: 'String',
-          StringValue: 'Transactional',
-        },
-        'AWS.SNS.SMS.SenderID': {
-          DataType: 'String',
-          StringValue: 'DREC',
-        },
-      },
-    };
-    try {
-      await sns.publish(params).promise();
-      this.currentOtp = otp;
-      this.otpExpirationTime = Date.now() + 10 * 60 * 1000;
-      return { message: 'OTP sent via message.' };
-    } catch (error) {
-      console.error('Error sending OTP:', error);
-      throw new Error('Failed to send OTP via SMS');
-    }
-  }
-  async verifyOtp(phoneNumber: string, otp: string): Promise<boolean> {
-    if (!this.checkOtpValidity()) {
-      throw new BadRequestException('OTP has expired.');
-    }
-    const user = await this.repository.findOne({ where: { phoneNumber } });
-    if (this.currentOtp !== otp) {
-      throw new BadRequestException('Invalid OTP.');
-    }
-    if (!user) {
-      throw new ConflictException('User not found.');
-    }
-    user.phone_number_verified_at = new Date();
-    await this.repository.save(user);
-    return true;
-  }
-  private checkOtpValidity(): boolean {
-    return (
-      this.currentOtp !== null &&
-      this.otpExpirationTime !== null &&
-      Date.now() < this.otpExpirationTime
-    );
   }
 
   async updatePassword(
