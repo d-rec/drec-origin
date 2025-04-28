@@ -5,17 +5,11 @@ export class AddisPhoneVerifiedStatus1744269974495
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "user" ADD "is_phone_verified" boolean DEFAULT false `,
-    );
-    await queryRunner.query(
       `ALTER TABLE "user" ADD "phone_number_verified_at" TIMESTAMP WITH TIME ZONE DEFAULT NULL`,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "user" DROP COLUMN "is_phone_verified"`,
-    );
     await queryRunner.query(
       `ALTER TABLE "user" DROP COLUMN 'phone_number_verified_at'`,
     );

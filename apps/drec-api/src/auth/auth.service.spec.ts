@@ -110,7 +110,7 @@ describe('AuthService', () => {
       lastName: 'lName',
       email: 'test@example.com',
       phoneNumber: '+250788496001', // Rwanda number
-      is_phone_verified: true,
+      phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
       notifications: true,
       status: UserStatus.Active,
       role: Role.OrganizationAdmin,
@@ -132,7 +132,7 @@ describe('AuthService', () => {
 
       const userWithoutPassword = {
         ...userDTO,
-        is_phone_verified: true,
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
       };
       jest
         .spyOn(userService, 'findById')
@@ -149,7 +149,7 @@ describe('AuthService', () => {
 
       const userWithoutPassword = {
         ...userDTO,
-        is_phone_verified: true, // Ensure is_phone_verified is not optional
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
       };
       jest
         .spyOn(userService, 'findById')
@@ -166,7 +166,7 @@ describe('AuthService', () => {
 
       const userWithoutPassword = {
         ...userDTO,
-        is_phone_verified: true, // Ensure is_phone_verified is not optional
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
       };
       jest
         .spyOn(userService, 'findById')
@@ -333,7 +333,7 @@ describe('AuthService', () => {
         lastName: 'lName',
         email: 'test@example.com',
         phoneNumber: '+250784496001', // Rwanda number
-        is_phone_verified: true,
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -374,7 +374,7 @@ describe('AuthService', () => {
         lastName: 'lName',
         email: 'test@example.com',
         phoneNumber: '+447911123456', // UK number
-        is_phone_verified: true,
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -411,7 +411,7 @@ describe('AuthService', () => {
         lastName: 'lName',
         email: 'test@example.com',
         phoneNumber: '+14155552671',
-        is_phone_verified: true, // US number
+        phone_number_verified_at: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,

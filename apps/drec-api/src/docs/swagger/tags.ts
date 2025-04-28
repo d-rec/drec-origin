@@ -93,6 +93,11 @@ const tags: { name: string; description: string }[] = [
     description:
       "Endpoints related to checking the health and status of the application and it's related services",
   },
+  {
+    name: 'OTP',
+    description:
+      'Endpoints related to OTP (One-Time Password) verification. This includes functionalities for sending OTPs to users, verifying OTPs for authentication, and managing OTP expiration times. These endpoints are essential for securing user actions and ensuring that only verified users can proceed with sensitive operations.',
+  },
 ];
 
 export default tags;

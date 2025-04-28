@@ -7,5 +7,5 @@
   "orgAddress": "local",
   "status": "Active",
   "permission_status": "Request",
-  "is_phone_verified": true
+  "phone_number_verified_at": "0001-01-01T00:00:00Z"
 }

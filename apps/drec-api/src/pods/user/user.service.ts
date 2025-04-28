@@ -47,6 +47,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import * as AWS from 'aws-sdk';
+import { OtpService } from '../otp-verification/otp-verification.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -66,6 +67,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
+    private otpService: OtpService,
   ) {}
 
   public async seed(
@@ -174,7 +176,7 @@ export class UserService {
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
-        is_phone_verified: false,
+        phone_number_verified_at: null,
       });
       const { ...userData } = user;
       this.logger.debug(
@@ -182,7 +184,7 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
-      await this.sendOtp(user.phoneNumber);
+      await this.otpService.sendOtp(user.phoneNumber);
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {
@@ -461,18 +463,16 @@ export class UserService {
     if (!this.checkOtpValidity()) {
       throw new BadRequestException('OTP has expired.');
     }
-    if (this.currentOtp === otp) {
-      const user = await this.repository.findOne({ where: { phoneNumber } });
-      if (!user) {
-        throw new ConflictException('User not found.');
-      }
-      user.is_phone_verified = true;
-      user.phone_number_verified_at = new Date();
-      await this.repository.save(user);
-      return true;
+    const user = await this.repository.findOne({ where: { phoneNumber } });
+    if (this.currentOtp !== otp) {
+      throw new BadRequestException('Invalid OTP.');
     }
-
-    throw new BadRequestException('Invalid OTP.');
+    if (!user) {
+      throw new ConflictException('User not found.');
+    }
+    user.phone_number_verified_at = new Date();
+    await this.repository.save(user);
+    return true;
   }
   private checkOtpValidity(): boolean {
     return (

@@ -100,9 +100,6 @@ export class User extends ExtendedBaseEntity implements IUser {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
   // }
 
-  @Column({ default: false })
-  is_phone_verified: boolean;
-
   @Column({ nullable: true })
   phone_number_verified_at: Date;
 
