@@ -21,7 +21,6 @@ import { AuthService } from '../../auth/auth.service';
 export interface SuccessResponse {
   success: boolean;
   message: string;
-  accessToken?: string;
 }
 @Injectable()
 export class EmailConfirmationService {
@@ -33,7 +32,6 @@ export class EmailConfirmationService {
     private mailService: MailService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly authService: AuthService,
   ) {}
 
   public async create(user: User): Promise<EmailConfirmation | null> {
@@ -184,14 +182,11 @@ export class EmailConfirmationService {
     });
 
     await this.userService.verifyEmail(emailConfirmation.user.id);
-    
-    const loginResult = await this.authService.login(emailConfirmation.user);
 
     this.logger.warn(EmailConfirmationResponse.Success);
     return {
       success: true,
       message: EmailConfirmationResponse.Success,
-      accessToken: loginResult.accessToken,
     };
   }
 
