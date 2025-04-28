@@ -314,7 +314,7 @@ describe('EmailConfirmationService', () => {
       });
     });
 
-    it('should confirm email and return success response with access token', async () => {
+    it('should confirm email and return success response', async () => {
       const token = 'validToken';
       const user = { id: 1, email: 'test@example.com' } as User;
       const emailConfirmation = {
@@ -343,10 +343,6 @@ describe('EmailConfirmationService', () => {
         .spyOn(userService, 'verifyEmail')
         .mockResolvedValueOnce({} as any);
 
-      const loginSpy = jest
-        .spyOn(authService, 'login')
-        .mockResolvedValueOnce({ accessToken: 'test-token' });
-
       const result = await service.confirmEmail(token);
 
       expect(findOneSpy).toHaveBeenCalledWith({
@@ -357,11 +353,9 @@ describe('EmailConfirmationService', () => {
         confirmed: true,
       });
       expect(updateUserEmailVerificationSpy).toHaveBeenCalledWith(user.id);
-      expect(loginSpy).toHaveBeenCalledWith(user);
       expect(result).toEqual({
         success: true,
         message: EmailConfirmationResponse.Success,
-        accessToken: 'test-token',
       });
     });
   });
