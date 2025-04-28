@@ -17,7 +17,6 @@ import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
-import { AuthService } from '../../auth/auth.service';
 export interface SuccessResponse {
   success: boolean;
   message: string;

@@ -10,14 +10,12 @@ import { User } from '../user/user.entity';
 import { EmailConfirmationResponse } from '../../utils/enums';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import { DateTime } from 'luxon';
-import { AuthService } from '../../auth/auth.service';
 
 describe('EmailConfirmationService', () => {
   let service: EmailConfirmationService;
   let repository: Repository<EmailConfirmation>;
   let userService: UserService;
   let mailService: MailService; // eslint-disable-line @typescript-eslint/no-unused-vars
-  let authService: AuthService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -46,12 +44,6 @@ describe('EmailConfirmationService', () => {
           provide: OauthClientCredentialsService,
           useValue: {} as any,
         },
-        {
-          provide: AuthService,
-          useValue: {
-            login: jest.fn().mockResolvedValue({ accessToken: 'test-token' }),
-          } as any,
-        },
       ],
     }).compile();
 
@@ -61,7 +53,6 @@ describe('EmailConfirmationService', () => {
     );
     userService = module.get<UserService>(UserService); // eslint-disable-line @typescript-eslint/no-unused-vars
     mailService = module.get<MailService>(MailService);
-    authService = module.get<AuthService>(AuthService);
   });
 
   it('should be defined', () => {
