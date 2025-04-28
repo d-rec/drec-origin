@@ -17,7 +17,6 @@ import { User } from '../user/user.entity';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { UserService } from '../user/user.service';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
-
 export interface SuccessResponse {
   success: boolean;
   message: string;
@@ -148,13 +147,14 @@ export class EmailConfirmationService {
       where: {
         token,
       },
+      relations: ['user'],
     });
 
     if (!emailConfirmation) {
-      this.logger.error(`Email confirmation doesn't exist`);
+      this.logger.error(`Invalid email confirmation token`);
       throw new BadRequestException({
         success: false,
-        message: `Email confirmation doesn't exist`,
+        message: `Invalid email confirmation token`,
       });
     }
 
@@ -179,6 +179,8 @@ export class EmailConfirmationService {
     await this.repository.update(emailConfirmation.id, {
       confirmed: true,
     });
+
+    await this.userService.verifyEmail(emailConfirmation.user.id);
 
     this.logger.warn(EmailConfirmationResponse.Success);
     return {

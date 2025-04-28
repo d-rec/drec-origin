@@ -30,6 +30,8 @@ describe('EmailConfirmationService', () => {
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
+            updateUserEmailVerification: jest.fn(),
+            verifyEmail: jest.fn(),
           } as any,
         },
         {
@@ -250,6 +252,7 @@ describe('EmailConfirmationService', () => {
 
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
+        relations: ['user'],
       });
     });
 
@@ -268,6 +271,7 @@ describe('EmailConfirmationService', () => {
 
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
+        relations: ['user'],
       });
       expect(result).toEqual({
         success: false,
@@ -293,10 +297,56 @@ describe('EmailConfirmationService', () => {
 
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
+        relations: ['user'],
       });
       expect(result).toEqual({
         success: false,
         message: EmailConfirmationResponse.Expired,
+      });
+    });
+
+    it('should confirm email and return success response', async () => {
+      const token = 'validToken';
+      const user = { id: 1, email: 'test@example.com' } as User;
+      const emailConfirmation = {
+        id: 1,
+        token,
+        confirmed: false,
+        user,
+        expiryTimestamp: Math.floor(
+          DateTime.now().plus({ hours: 1 }).toSeconds(),
+        ), // Valid timestamp
+      } as EmailConfirmation;
+
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValueOnce(emailConfirmation);
+
+      const updateSpy = jest
+        .spyOn(repository, 'update')
+        .mockResolvedValueOnce({} as any);
+
+      (userService as any).verifyEmail = jest
+        .fn()
+        .mockResolvedValueOnce({} as any);
+
+      const updateUserEmailVerificationSpy = jest
+        .spyOn(userService, 'verifyEmail')
+        .mockResolvedValueOnce({} as any);
+
+      const result = await service.confirmEmail(token);
+
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { token },
+        relations: ['user'],
+      });
+      expect(updateSpy).toHaveBeenCalledWith(emailConfirmation.id, {
+        confirmed: true,
+      });
+      expect(updateUserEmailVerificationSpy).toHaveBeenCalledWith(user.id);
+      expect(result).toEqual({
+        success: true,
+        message: EmailConfirmationResponse.Success,
       });
     });
   });

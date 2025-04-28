@@ -4,6 +4,8 @@ import { SeederInterface } from '../seeder-interface';
 import { OrganizationsSeeder } from '../organizations.seeder';
 import { UsersSeeder } from '../user.seeder';
 import { DevicesSeeder } from '../devices.seeder';
+import { VerifyEmailsSeeder } from '../verify-emails.seeder';
+
 async function run() {
   console.log('Initializing dummy data seeding...');
 
@@ -13,6 +15,7 @@ async function run() {
     app.get(OrganizationsSeeder),
     app.get(UsersSeeder),
     app.get(DevicesSeeder),
+    app.get(VerifyEmailsSeeder),
   ];
 
   console.log('Seeding dummy data...');
