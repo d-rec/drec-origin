@@ -16,7 +16,7 @@ export class TermsAndConditionsSeeder implements SeederInterface {
     const result = await this.userRepository
       .createQueryBuilder()
       .update()
-      .set({ terms_accept_at: '0001-01-01 00:00:00+02' })
+      .set({ terms_accept_at: '0001-01-01 00:00:00+00' })
       .where('terms_accept_at IS NULL')
       .execute();
     console.log('Update result:', result);
