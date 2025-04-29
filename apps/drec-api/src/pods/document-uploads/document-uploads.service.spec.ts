@@ -3,6 +3,7 @@ import { DocumentUploadsService } from './document-uploads.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DocumentEntity } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
+import { Organization } from '../organization/organization.entity';
 
 describe('DocumentUploadsService', () => {
   let service: DocumentUploadsService;
@@ -16,12 +17,19 @@ describe('DocumentUploadsService', () => {
           useValue: {
             create: jest.fn(),
             save: jest.fn(),
+            findOne: jest.fn(),
           },
         },
         {
           provide: FileService,
           useValue: {
             upload: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Organization),
+          useValue: {
+            update: jest.fn(),
           },
         },
       ],
