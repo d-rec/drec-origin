@@ -10,6 +10,7 @@ import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
 import { VerifyOrganizationsSeeder } from './verify-organizations.seeder';
+import { VerifyEmailsSeeder } from './verify-emails.seeder';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { VerifyOrganizationsSeeder } from './verify-organizations.seeder';
     UsersSeeder,
     DevicesSeeder,
     VerifyOrganizationsSeeder,
+    VerifyEmailsSeeder,
   ],
 })
 export class SeederModule {}

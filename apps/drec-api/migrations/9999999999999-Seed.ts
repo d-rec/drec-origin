@@ -37,11 +37,7 @@ import { PermissionString } from '../src/utils/enums';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
 
-const issuerAccount = Wallet.fromMnemonic(
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  process.env.MNEMONIC!,
-  `m/44'/60'/0'/0/${0}`,
-); // Index 0 account
+const issuerAccount = new Wallet(process.env.ISSUER_PRIVATE_KEY!);
 
 export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
@@ -223,7 +219,8 @@ export class Seed9999999999999 implements MigrationInterface {
         "role",
         "organizationId",
         "roleId",
-        "api_user_id"
+        "api_user_id",
+        "email_verified_at"
         ) VALUES (
             '${AdminJSON.id}',
             '${AdminJSON.firstName}',
@@ -234,7 +231,8 @@ export class Seed9999999999999 implements MigrationInterface {
             '${RoleJSON[0].name}',    
             '${organizationId}',
             '${RoleJSON[0].id}',
-            '${apiUserId}'
+            '${apiUserId}',
+            '${new Date().toISOString()}'
         )`);
     }
   }

@@ -70,7 +70,7 @@ const tags: { name: string; description: string }[] = [
       'Endpoints related to managing meter reads. This includes functionalities for retrieving time-series data of meter reads, adding new meter reads, and accessing the latest meter read for devices. These endpoints are essential for monitoring and analyzing energy consumption data.',
   },
   {
-    name: 'Issue',
+    name: 'Issuer',
     description:
       'Endpoints related to the Issuer functionality. This includes functionalities for triggering ongoing and historical certificate issuance processes, re-issuing certificates for failed data, and handling late or missed issuance cycles. These endpoints are critical for managing the issuance of Distributed Renewable Energy Certificates (DRECs) and ensuring the integrity and timeliness of the issuance process.',
   },

@@ -14,7 +14,6 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
-
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -72,6 +71,7 @@ import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
 import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
 import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',

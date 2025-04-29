@@ -29,8 +29,6 @@ import {
   ApiQuery,
   ApiOperation,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-
 import {
   OrganizationDTO,
   NewOrganizationDTO,
@@ -50,7 +48,7 @@ import {
   IUser,
   responseSuccess,
 } from '../../models';
-import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '@energyweb/origin-backend-utils';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
@@ -63,7 +61,7 @@ import { Organization } from './organization.entity';
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/Organization')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
+@UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
@@ -114,7 +112,10 @@ export class OrganizationController {
    * @returns
    */
   @Get('/apiuser/all_organization')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -170,7 +171,10 @@ export class OrganizationController {
    * @returns
    */
   @Get('/users')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -235,7 +239,10 @@ export class OrganizationController {
    * and undefined when there is no particular record not available.
    */
   @Get('/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   //  @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -277,7 +284,7 @@ export class OrganizationController {
    * @returns
    */
   @Get('/:id/invitations')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -374,7 +381,7 @@ export class OrganizationController {
    * @returns {SuccessResponseDTO}
    */
   @Put(':id/change-role/:userId')
-  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthVerifiedGuard(), RolesGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -432,7 +439,7 @@ export class OrganizationController {
    * @returns {BindBlockchainAccountDTO}
    */
   @Post('chain-address')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: BindBlockchainAccountDTO })
@@ -485,8 +492,7 @@ export class OrganizationController {
   }
   @Delete('/user/:id')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Delete')
