@@ -13,7 +13,7 @@ export class AddTermsAcceptedAtToUser1745858763089
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             ALTER TABLE "public"."user"
-              DROP COLUMN "termsAcceptedAt"
+              DROP COLUMN "terms_accepted_at"
           `);
   }
 }

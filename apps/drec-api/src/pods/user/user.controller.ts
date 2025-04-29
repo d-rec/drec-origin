@@ -401,7 +401,7 @@ export class UserController {
     return this.userService.getTokenForResetPassword(body.email);
   }
 
-  @Patch('accept-terms-and-conditons')
+  @Patch('accept-terms-and-conditions')
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: 'Accept terms and conditions for existing user',

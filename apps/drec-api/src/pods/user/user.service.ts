@@ -453,7 +453,7 @@ export class UserService {
   async acceptTermsAndCondition(email: string): Promise<User> {
     const user = await this.repository.findOne({ where: { email: email } });
     if (!user) throw new NotFoundException('User not found');
-    user.terms_accepted_at = new Date();
+    user.termsAcceptedAt = new Date();
     return await this.repository.save(user);
   }
   async changePassword(
