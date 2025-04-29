@@ -43,7 +43,7 @@ export interface IDevice {
   createdAt?: Date;
   version?: string;
   timezone?: string;
-  stateProvince?: string
+  stateProvince?: string;
   postcode?: string;
 }
 

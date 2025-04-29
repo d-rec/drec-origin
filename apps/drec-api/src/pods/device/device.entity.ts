@@ -184,7 +184,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true, name: 'state_province' })
   stateProvince: string | null;
-  
+
   @Column({ type: 'varchar', nullable: true, name: 'postcode' })
   postcode: string;
 }
