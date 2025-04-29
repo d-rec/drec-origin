@@ -1,17 +1,15 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class addStateOrProvinceToDevice1745572957756
+export class addPostcodeToDeviceTable1745482937188
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device" ADD COLUMN "state_province" character varying NULL`,
+      `ALTER TABLE "device" ADD COLUMN "postcode" character varying DEFAULT NULL`,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "device" DROP COLUMN "state_province"`,
-    );
+    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "postcode"`);
   }
 }

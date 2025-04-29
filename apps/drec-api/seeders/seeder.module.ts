@@ -9,6 +9,7 @@ import { Device } from '../src/pods/device/device.entity';
 import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
+import { VerifyEmailsSeeder } from './verify-emails.seeder';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DevicesSeeder } from './devices.seeder';
     OrganizationsSeeder,
     UsersSeeder,
     DevicesSeeder,
+    VerifyEmailsSeeder,
   ],
 })
 export class SeederModule {}

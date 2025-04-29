@@ -299,9 +299,8 @@ export class UserService {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  public async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
-
     return this.findOne({ email: lowerCaseEmail });
   }
 
@@ -788,5 +787,16 @@ export class UserService {
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
     return Boolean(await this.userLoginSessionRepository.findOne(conditions));
+  }
+
+  async verifyEmail(userId: number): Promise<User> {
+    this.logger.verbose(`Updating emailVerifiedAt for user ${userId}`);
+
+    await this.repository.update(
+      { id: userId },
+      { emailVerifiedAt: new Date() },
+    );
+
+    return this.repository.findOne({ id: userId });
   }
 }

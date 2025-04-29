@@ -14,7 +14,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -41,6 +40,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
 import { OrganizationType } from '../../utils/enums/organization-type.enum';
+import { AuthVerifiedGuard } from '../../guards';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -54,7 +54,7 @@ export class BulkUploadController {
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthVerifiedGuard())
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -152,7 +152,10 @@ export class BulkUploadController {
   }
 
   @Get()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
@@ -205,7 +208,10 @@ export class BulkUploadController {
   }
 
   @Get('/bulk-upload-log/:bulkUploadId')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ApiQuery({

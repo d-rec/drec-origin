@@ -226,4 +226,9 @@ export class NewDeviceDTO
   @IsOptional()
   @IsString()
   stateProvince?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  postcode?: string | null;
 }

@@ -18,7 +18,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -30,7 +29,7 @@ import {
 import { plainToClass } from 'class-transformer';
 
 import { FindOneOptions } from 'typeorm';
-import { ActiveUserGuard } from '../../guards';
+import { AuthVerifiedGuard } from '../../guards';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser } from '../../models';
@@ -77,7 +76,7 @@ export class DeviceController {
    * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDTO
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -118,7 +117,7 @@ export class DeviceController {
    */
   @Get('/ungrouped/buyerreservation')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
     RolesGuard,
   )
@@ -201,7 +200,7 @@ export class DeviceController {
    * @return {GroupedDevicesDTO} returns ungrouped devices
    */
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -283,8 +282,7 @@ export class DeviceController {
    */
   @Get('/my')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Read')
@@ -400,8 +398,7 @@ export class DeviceController {
    */
   @Get('/:id')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Read')
@@ -450,7 +447,7 @@ export class DeviceController {
    * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('externalId/:id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -505,7 +502,10 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Post()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -556,7 +556,7 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Patch('/:externalId')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -649,7 +649,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.OrganizationAdmin, Role.Admin)
@@ -697,7 +697,7 @@ export class DeviceController {
    * @returns {Array<DeviceDTO>}
    */
   @Get('/my/totalamountread')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -729,7 +729,7 @@ export class DeviceController {
    * @returns {}
    */
   @Put('/my/deviceOnBoardingDate')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -788,7 +788,7 @@ export class DeviceController {
    * @returns {}
    */
   @Get('/my/autocomplete')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -823,7 +823,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'externalId', type: Number, required: false })

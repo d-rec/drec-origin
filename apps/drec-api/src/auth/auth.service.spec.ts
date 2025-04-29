@@ -32,6 +32,7 @@ describe('AuthService', () => {
           useValue: {
             getUserAndPasswordByEmail: jest.fn(), // Mock method
             findById: jest.fn(), // Include other methods if needed
+            findByEmail: jest.fn(),
             createUserSession: jest.fn(),
             removeUserSession: jest.fn(),
             hasValidUserSession: jest.fn(),
@@ -124,19 +125,24 @@ describe('AuthService', () => {
       },
     };
     it('should get result', async () => {
-      //const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
       const response = await service.login(userDTO);
 
       expect(response).toBeDefined();
     });
-
     it('should return an access token', async () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
 
       const result = await service.login(userDTO);
 
@@ -147,6 +153,10 @@ describe('AuthService', () => {
       const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(userService, 'findByEmail').mockResolvedValue({
+        ...userDTO,
+        emailConfirmed: true,
+      });
 
       await service.login(userDTO);
 
@@ -323,6 +333,7 @@ describe('AuthService', () => {
           organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
@@ -363,6 +374,7 @@ describe('AuthService', () => {
           organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
@@ -399,6 +411,7 @@ describe('AuthService', () => {
           organizationType: OrganizationType.Developer,
           status: OrganizationStatus.Active,
         },
+        emailConfirmed: true,
       };
       const fileData = 'file-data';
 
