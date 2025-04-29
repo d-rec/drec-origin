@@ -10,7 +10,6 @@ import {
   UseGuards,
   Logger,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiResponse,
@@ -35,7 +34,7 @@ import { ILoggedInUser } from '../../models';
 import { ACLModulePermission } from './permission.entity';
 import { Permission } from './decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { PermissionGuard } from '../../guards'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards'; // eslint-disable-line @typescript-eslint/no-unused-vars
 @ApiTags('Permissions')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
@@ -50,7 +49,7 @@ export class PermissionController {
    * @returns {ACLModulePermission[]}
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -81,7 +80,7 @@ export class PermissionController {
    * @returns {ACLModulePermission[]}
    */
   @Get('/role/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.OrganizationAdmin)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -120,7 +119,7 @@ export class PermissionController {
    * @returns {ACLModulePermission[]}
    */
   @Get('/user/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -158,7 +157,7 @@ export class PermissionController {
    * @returns {PermissionDTO}
    */
   @Post('/module')
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.OrganizationAdmin)
   @ApiBody({ type: NewPermissionDTO })
   @Permission('Write')
@@ -196,7 +195,7 @@ export class PermissionController {
    * @returns
    */
   @Put('/update/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @ApiBody({ type: UpdatePermissionDTO })
   @Permission('Write')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -238,7 +237,7 @@ export class PermissionController {
    * @returns {PermissionDTO}
    */
   @Post('/module/apiuser/request')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), RolesGuard)
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   @Roles(Role.ApiUser)
   @ApiBody({ type: [NewApiUserPermissionDTO] })
   @ApiOperation({
@@ -278,7 +277,7 @@ export class PermissionController {
    * @returns {status:string,message:string}
    */
   @Put('/module/verify/ByAdmin/:apiUserId')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiBody({ type: ApiUserPermissionUpdateDTO })
   @ApiOperation({

@@ -19,7 +19,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -28,7 +27,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import * as momentTimeZone from 'moment-timezone';
-import { PermissionGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser, IUser } from '../../models';
 import { Role } from '../../utils/enums';
@@ -129,7 +128,7 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden. User does not have the required permissions.',
   })
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
@@ -182,7 +181,10 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Device not found for the given external ID.',
   })
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newGetReads(
@@ -378,7 +380,7 @@ export class ReadsController extends BaseReadsController {
     description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
   )
@@ -440,7 +442,7 @@ export class ReadsController extends BaseReadsController {
     type: Number,
     description: 'This query parameter is used to for admin...',
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
@@ -488,7 +490,10 @@ export class ReadsController extends BaseReadsController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden. User does not have the required permissions.',
   })
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
