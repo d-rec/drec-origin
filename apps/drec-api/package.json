@@ -44,7 +44,6 @@
     "coverage:jest": "jest --coverage",
     "seed": "ts-node seeders",
     "seed:dummy-data": "ts-node seeders/dummy-data",
-    "seed:verify-organizations": "ts-node seeders/verify-organizations.ts",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org d-rec --project drec-origin ./dist && sentry-cli sourcemaps upload --org d-rec --project drec-origin ./dist",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",

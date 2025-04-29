@@ -7,12 +7,13 @@ import {
   DocumentType,
 } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
-import { ILoggedInUser } from '../../models';
+import { Organization } from '../organization/organization.entity';
+import { ILoggedInUser } from '../../models/LoggedInUser';
 interface UploadDocumentPayload {
   user: ILoggedInUser;
   targetType: DocumentTargetType;
   documentType: DocumentType;
-  document: Express.Multer.File;
+  documents: Express.Multer.File;
 }
 
 @Injectable()
@@ -23,21 +24,21 @@ export class DocumentUploadsService {
     @InjectRepository(DocumentEntity)
     private readonly documentUploadsRepository: Repository<DocumentEntity>,
     private readonly fileService: FileService,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
-  async uploadDocument(
-    documentUploads: UploadDocumentPayload,
-  ): Promise<DocumentEntity> {
+  async upload(documents: UploadDocumentPayload): Promise<DocumentEntity> {
     let targetId: number;
-    switch (documentUploads.targetType) {
+    switch (documents.targetType) {
       case DocumentTargetType.USER:
-        targetId = documentUploads.user.id;
+        targetId = documents.user.id;
         break;
       case DocumentTargetType.ORGANIZATION:
-        targetId = documentUploads.user.organizationId;
+        targetId = documents.user.organizationId;
         break;
       case DocumentTargetType.DEVICE:
-        targetId = documentUploads.user.id;
+        targetId = documents.user.id;
         break;
       default:
         throw new BadRequestException('Invalid target type');
@@ -48,40 +49,39 @@ export class DocumentUploadsService {
     const checkIfDocumentExists = await this.documentUploadsRepository.findOne({
       where: {
         targetId: targetId,
-        targetType: documentUploads.targetType,
-        type: documentUploads.documentType,
+        targetType: documents.targetType,
+        type: documents.documentType,
       },
     });
 
     if (checkIfDocumentExists) {
       throw new BadRequestException({
-        message: 'Document already uploaded',
+        message: `Document ${documents.documentType} already uploaded`,
         statusCode: 400,
-        errorType: 'DOCUMENT_ALREADY_UPLOADED',
       });
     }
 
-    const documentPath = await this.fileService.upload(
-      documentUploads.document,
-    );
+    const documentPath = await this.fileService.upload(documents.documents);
 
     const documentUpload = this.documentUploadsRepository.create({
       targetId: targetId,
-      targetType: documentUploads.targetType,
-      type: documentUploads.documentType,
-      extension: documentUploads.document.mimetype.split('/')[1],
+      targetType: documents.targetType,
+      type: documents.documentType,
+      extension: documents.documents.mimetype.split('/')[1],
       url: documentPath,
     });
 
-    return this.documentUploadsRepository.save(documentUpload);
-  }
+    if (!documentUpload) {
+      throw new BadRequestException({
+        message: `Failed to upload document ${documents.documentType}`,
+        statusCode: 400,
+      });
+    }
 
-  async getDocuments(user: ILoggedInUser): Promise<DocumentEntity[]> {
-    return this.documentUploadsRepository.find({
-      where: {
-        targetId: user.organizationId,
-        targetType: DocumentTargetType.ORGANIZATION,
-      },
+    this.organizationRepository.update(targetId, {
+      verifiedAt: new Date(),
     });
+
+    return this.documentUploadsRepository.save(documentUpload);
   }
 }

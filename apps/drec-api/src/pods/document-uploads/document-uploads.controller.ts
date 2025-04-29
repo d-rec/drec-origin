@@ -6,7 +6,6 @@ import {
   Query,
   UploadedFiles,
   UseGuards,
-  Get,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
@@ -123,7 +122,7 @@ export class DocumentUploadsController {
     description: 'Currently logged in user details (automatically injected)',
     required: true,
   })
-  uploadDocuments(
+  upload(
     @UploadedFiles() files: { document?: Express.Multer.File[] },
     @UserDecorator() user: ILoggedInUser,
     @Query('targetType') targetType: DocumentTargetType,
@@ -133,46 +132,13 @@ export class DocumentUploadsController {
       throw new BadRequestException('No document provided');
     }
 
-    const document = files.document[0];
+    const documents = files.document[0];
 
-    return this.documentUploadsService.uploadDocument({
+    return this.documentUploadsService.upload({
       user,
       targetType,
       documentType,
-      document,
+      documents,
     });
-  }
-
-  @Get()
-  @ApiOperation({
-    summary: 'Get all documents',
-    description:
-      "Retrieves all documents associated with the authenticated user. This includes any uploaded files or documents linked to the user's account.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of documents successfully retrieved.',
-    type: DocumentEntity,
-    isArray: true,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - User is not authenticated.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Forbidden - User does not have permission to access these documents.',
-  })
-  @ApiParam({
-    name: 'user',
-    type: 'object',
-    description: 'Currently logged in user details (automatically injected)',
-    required: true,
-  })
-  getDocuments(
-    @UserDecorator() user: ILoggedInUser,
-  ): Promise<DocumentEntity[]> {
-    return this.documentUploadsService.getDocuments(user);
   }
 }
