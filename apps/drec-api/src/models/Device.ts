@@ -43,7 +43,7 @@ export interface IDevice {
   createdAt?: Date;
   version?: string;
   timezone?: string;
-  postalCode?: string;
+  postcode?: string;
 }
 
 export enum DeviceDescription {
@@ -72,7 +72,7 @@ export type DeviceKey =
   | 'standardCompliance'
   | 'yieldValue'
   | 'deviceDescription'
-  | 'postalCode';
+  | 'postcode';
 
 export type DeviceSortTypeValuedKeys = { [K in DeviceOrderBy]?: DeviceKey };
 

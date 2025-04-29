@@ -182,6 +182,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   api_user_id: string;
 
-  @Column({ type: 'varchar', nullable: true, name: 'postal_code' })
-  postalCode: string;
+  @Column({ type: 'varchar', nullable: true, name: 'postcode' })
+  postcode: string;
 }
