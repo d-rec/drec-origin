@@ -5,7 +5,7 @@ export class addStateOrProvinceToDevice1745572957756
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `ALTER TABLE "device" ADD COLUMN "state_or_province" character varying`,
+      `ALTER TABLE "device" ADD COLUMN "state_province" character varying NULL`,
     );
   }
 

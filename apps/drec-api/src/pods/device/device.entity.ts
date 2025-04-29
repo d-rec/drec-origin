@@ -183,5 +183,5 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   api_user_id: string;
 
   @Column({ nullable: true, name: 'state_or_province' })
-  stateOrProvince: string;
+  stateProvince: string | null;
 }

@@ -225,5 +225,5 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsOptional()
   @IsString()
-  stateOrProvince?: string | null;
+  stateProvince?: string | null;
 }
