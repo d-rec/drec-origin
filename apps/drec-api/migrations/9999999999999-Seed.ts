@@ -76,6 +76,22 @@ export class Seed9999999999999 implements MigrationInterface {
   ): Promise<IContractsLookup> {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
+
+    const existing = await queryRunner.query(`
+    SELECT * FROM public.issuer_blockchain_properties
+    WHERE "rpcNode" = '${primaryRpc}'
+  `);
+
+    if (existing.length > 0) {
+      this.logger.log(
+        `Blockchain properties already exist for RPC node ${primaryRpc}, skipping deployment.`,
+      );
+
+      return {
+        registry: existing[0].registry,
+        issuer: existing[0].issuer,
+      };
+    }
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
     if (provider && contractsLookup) {
