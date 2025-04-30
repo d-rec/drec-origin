@@ -78,12 +78,8 @@ export class Seed9999999999999 implements MigrationInterface {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
 
-    if (CERTIFICATE_REGISTRY_ADDRESS && ISSUER_CONTRACT_ADDRESS) {
-      return {
-        registry: CERTIFICATE_REGISTRY_ADDRESS,
-        issuer: ISSUER_CONTRACT_ADDRESS,
-      };
-    }
+    // wait for the provider to be ready
+    await provider?.ready;
 
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
@@ -137,6 +133,13 @@ export class Seed9999999999999 implements MigrationInterface {
     deployer: Wallet,
     provider: providers.FallbackProvider,
   ): Promise<IContractsLookup> {
+    if (CERTIFICATE_REGISTRY_ADDRESS && ISSUER_CONTRACT_ADDRESS) {
+      return {
+        registry: CERTIFICATE_REGISTRY_ADDRESS,
+        issuer: ISSUER_CONTRACT_ADDRESS,
+      };
+    }
+
     const adminPK = deployer.privateKey.startsWith('0x')
       ? deployer.privateKey
       : `0x${deployer.privateKey}`;
