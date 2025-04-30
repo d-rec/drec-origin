@@ -38,7 +38,8 @@ import { PermissionString } from '../src/utils/enums';
 require('dotenv').config({ path: '../../../.env' });
 
 const issuerAccount = new Wallet(process.env.ISSUER_PRIVATE_KEY!);
-
+const CERTIFICATE_REGISTRY_ADDRESS= process.env.CERTIFICATE_REGISTRY_ADDRESS
+const ISSUER_CONTRACT_ADDRES= process.env.ISSUER_CONTRACT_ADDRES
 export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
 
@@ -77,21 +78,13 @@ export class Seed9999999999999 implements MigrationInterface {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
 
-    const existing = await queryRunner.query(`
-    SELECT * FROM public.issuer_blockchain_properties
-    WHERE "rpcNode" = '${primaryRpc}'
-  `);
-
-    if (existing.length > 0) {
-      this.logger.log(
-        `Blockchain properties already exist for RPC node ${primaryRpc}, skipping deployment.`,
-      );
-
+    if(ISSUER_CONTRACT_ADDRES && CERTIFICATE_REGISTRY_ADDRESS){
       return {
-        registry: existing[0].registry,
-        issuer: existing[0].issuer,
+      registry: CERTIFICATE_REGISTRY_ADDRESS,
+      issuer: ISSUER_CONTRACT_ADDRES,
       };
     }
+
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
     if (provider && contractsLookup) {
