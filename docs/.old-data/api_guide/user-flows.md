@@ -863,7 +863,7 @@ API Input
     "latitude": "34.921213",
     "longitude": "135.717309",
     "countryCode": "DE",
-    "postalCode": "",
+    "postcode": "",
     "fuelCode": "ES200",
     "deviceTypeCode": "T020001",
     "deviceDescription": "solar home system",
@@ -885,7 +885,7 @@ API Input
 
 **File Header:**
 
-`“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postalCode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
+`“version” |”externalId” |“deviceGrpId” |”orgId” |”organisationName” |”deviceOnBoardedBy” | ”deviceOEM” |”address” |”latitude” |”longitude” |”countryCode” |”postcode” |”fuelCode” | ”deviceTypeCode” | ”capacity”| ”commissioningDate”| ”gridInterconnection”| ”energyStorage”| ”energyStorageCapacity”| ”offTaker”| ”qualityLabels”| ”SDGBenefits”| ”impactStory”| ”images”`
 
 **Content:**
 
