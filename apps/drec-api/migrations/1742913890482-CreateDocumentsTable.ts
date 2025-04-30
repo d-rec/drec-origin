@@ -16,7 +16,7 @@ export class CreateDocumentsTable1742913890482 implements MigrationInterface {
         "target_type" document_target_type NOT NULL,
         "type" document_type NOT NULL,
         "extension" VARCHAR(255) NOT NULL,
-        "url" VARCHAR(500) NOT NULL,
+        "url" VARCHAR(2000) NOT NULL,
         CONSTRAINT "PK_documents" PRIMARY KEY ("id")
       )
     `);

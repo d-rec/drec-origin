@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Connection } from 'typeorm';
 import {
   DocumentEntity,
   DocumentTargetType,
@@ -9,6 +9,7 @@ import {
 import { FileService } from '../file/file.service';
 import { Organization } from '../organization/organization.entity';
 import { ILoggedInUser } from '../../models/LoggedInUser';
+
 interface UploadDocumentPayload {
   user: ILoggedInUser;
   targetType: DocumentTargetType;
@@ -26,6 +27,7 @@ export class DocumentUploadsService {
     private readonly fileService: FileService,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
+    private readonly connection: Connection,
   ) {}
 
   async upload(documents: UploadDocumentPayload): Promise<DocumentEntity> {
@@ -46,42 +48,71 @@ export class DocumentUploadsService {
 
     this.logger.log(`Uploading document for target ID: ${targetId}`);
 
-    const checkIfDocumentExists = await this.documentUploadsRepository.findOne({
-      where: {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    let uploadedFileKey: string | null = null;
+
+    try {
+      const checkIfDocumentExists =
+        await this.documentUploadsRepository.findOne({
+          where: {
+            targetId: targetId,
+            targetType: documents.targetType,
+            type: documents.documentType,
+          },
+        });
+
+      if (checkIfDocumentExists) {
+        throw new BadRequestException({
+          message: `Document ${documents.documentType} already uploaded`,
+          statusCode: 400,
+        });
+      }
+
+      const uploadResult = await this.fileService.upload(documents.documents);
+      uploadedFileKey = uploadResult.key;
+
+      this.logger.log(`Uploaded file key: ${uploadResult}`);
+
+      const storeDocument = this.documentUploadsRepository.create({
         targetId: targetId,
         targetType: documents.targetType,
         type: documents.documentType,
-      },
-    });
-
-    if (checkIfDocumentExists) {
-      throw new BadRequestException({
-        message: `Document ${documents.documentType} already uploaded`,
-        statusCode: 400,
+        extension: documents.documents.mimetype.split('/')[1],
+        url: uploadResult.Location,
       });
-    }
 
-    const documentPath = await this.fileService.upload(documents.documents);
+      if (!storeDocument) {
+        throw new BadRequestException({
+          message: `Failed to upload document ${documents.documentType}`,
+          statusCode: 400,
+        });
+      }
 
-    const documentUpload = this.documentUploadsRepository.create({
-      targetId: targetId,
-      targetType: documents.targetType,
-      type: documents.documentType,
-      extension: documents.documents.mimetype.split('/')[1],
-      url: documentPath,
-    });
+      const saveDocument =
+        await this.documentUploadsRepository.save(storeDocument);
 
-    if (!documentUpload) {
-      throw new BadRequestException({
-        message: `Failed to upload document ${documents.documentType}`,
-        statusCode: 400,
+      await this.organizationRepository.update(targetId, {
+        verifiedAt: new Date(),
       });
+
+      await queryRunner.commitTransaction();
+
+      return saveDocument;
+    } catch (error) {
+      if (uploadedFileKey) {
+        await this.fileService.deleteFileFromS3(uploadedFileKey);
+      }
+
+      await queryRunner.rollbackTransaction();
+      this.logger.error(
+        `Failed to upload document: ${documents.documentType} ${error.message}`,
+      );
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    this.organizationRepository.update(targetId, {
-      verifiedAt: new Date(),
-    });
-
-    return this.documentUploadsRepository.save(documentUpload);
   }
 }
