@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '../src/pods/user/user.entity';
 
 @Injectable()
-export class PhoneNumberVerifiedAtSeeder implements SeederInterface {
+export class VerifyPhoneNumbersSeeder implements SeederInterface {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

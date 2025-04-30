@@ -18,11 +18,11 @@ export class OtpService {
     private readonly otpRepository: Repository<OtpVerification>,
   ) {}
 
-  private generateOtp(): string {
+  private generate(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  private async checkOtpValidity(
+  private async checkValidity(
     phoneNumber: string,
     otp: string,
   ): Promise<boolean> {
@@ -37,9 +37,10 @@ export class OtpService {
     return true;
   }
 
-  async sendOtp(phoneNumber: string): Promise<{ message: string }> {
+  async send(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
-    const otp = this.generateOtp();
+    const otp = this.generate();
+    console.log("otpppppp",otp)
     const message = `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`;
     try {
       await sendSms({ phoneNumber: formatted, message });
@@ -57,11 +58,8 @@ export class OtpService {
     }
   }
 
-  async verifyOtp(
-    phoneNumber: string,
-    otp: string,
-  ): Promise<{ message: string }> {
-    const isValidOtp = await this.checkOtpValidity(phoneNumber, otp);
+  async verify(phoneNumber: string, otp: string): Promise<{ message: string }> {
+    const isValidOtp = await this.checkValidity(phoneNumber, otp);
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP or OTP has expired.');
     }

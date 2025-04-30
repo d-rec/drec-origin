@@ -180,7 +180,7 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
-      await this.otpService.sendOtp(user.phoneNumber);
+      await this.otpService.send(user.phoneNumber);
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {

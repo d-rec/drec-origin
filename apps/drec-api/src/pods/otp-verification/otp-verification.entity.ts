@@ -6,21 +6,21 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
-@Entity('otp_verification')
+@Entity('otp')
 export class OtpVerification {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'phone_number' })
   phoneNumber: string;
 
   @Column()
   otp: string;
 
-  @Column({ type: 'bigint' })
+  @Column({ name: 'expiration_time', type: 'bigint' })
   expirationTime: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 }
