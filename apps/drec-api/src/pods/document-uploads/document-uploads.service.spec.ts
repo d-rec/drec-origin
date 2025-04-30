@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentUploadsService } from './document-uploads.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { DocumentEntity } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
+import { Connection } from 'typeorm';
 import { Organization } from '../organization/organization.entity';
 
 describe('DocumentUploadsService', () => {
@@ -13,7 +13,7 @@ describe('DocumentUploadsService', () => {
       providers: [
         DocumentUploadsService,
         {
-          provide: getRepositoryToken(DocumentEntity),
+          provide: DocumentEntity,
           useValue: {
             create: jest.fn(),
             save: jest.fn(),
@@ -27,9 +27,24 @@ describe('DocumentUploadsService', () => {
           },
         },
         {
-          provide: getRepositoryToken(Organization),
+          provide: Organization,
           useValue: {
             update: jest.fn(),
+          },
+        },
+        {
+          provide: Connection,
+          useValue: {
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+              manager: {
+                // Add any manager methods used in your service
+              },
+            }),
           },
         },
       ],
