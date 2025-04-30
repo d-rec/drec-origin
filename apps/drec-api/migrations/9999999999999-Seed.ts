@@ -37,12 +37,9 @@ import { PermissionString } from '../src/utils/enums';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({ path: '../../../.env' });
 
-const issuerAccount = Wallet.fromMnemonic(
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  process.env.MNEMONIC!,
-  `m/44'/60'/0'/0/${0}`,
-); // Index 0 account
-
+const issuerAccount = new Wallet(process.env.ISSUER_PRIVATE_KEY!);
+const CERTIFICATE_REGISTRY_ADDRESS = process.env.CERTIFICATE_REGISTRY_ADDRESS;
+const ISSUER_CONTRACT_ADDRESS = process.env.ISSUER_CONTRACT_ADDRESS;
 export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
 
@@ -80,6 +77,14 @@ export class Seed9999999999999 implements MigrationInterface {
   ): Promise<IContractsLookup> {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
+
+    if (CERTIFICATE_REGISTRY_ADDRESS && ISSUER_CONTRACT_ADDRESS) {
+      return {
+        registry: CERTIFICATE_REGISTRY_ADDRESS,
+        issuer: ISSUER_CONTRACT_ADDRESS,
+      };
+    }
+
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
     if (provider && contractsLookup) {
