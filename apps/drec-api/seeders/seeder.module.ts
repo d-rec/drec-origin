@@ -9,6 +9,7 @@ import { Device } from '../src/pods/device/device.entity';
 import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
+import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
 import { VerifyEmailsSeeder } from './verify-emails.seeder';
 
 @Module({
@@ -21,6 +22,7 @@ import { VerifyEmailsSeeder } from './verify-emails.seeder';
     OrganizationsSeeder,
     UsersSeeder,
     DevicesSeeder,
+    TermsAndConditionsSeeder,
     VerifyEmailsSeeder,
   ],
 })

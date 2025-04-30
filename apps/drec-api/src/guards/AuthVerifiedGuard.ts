@@ -29,6 +29,10 @@ const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
     throw new UnauthorizedException('Please verify your email address');
   }
 
+  if (!user.termsAcceptedAt) {
+    throw new UnauthorizedException('Please accept the terms and conditions');
+  }
+
   return true;
 };
 

@@ -165,7 +165,7 @@ export class UserService {
         email: data.email.toLowerCase(),
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
-        terms_accept_at: data.termsAndConditions ? new Date() : null,
+        termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
         status: status || UserStatus.Active,
         role: role,
@@ -450,7 +450,12 @@ export class UserService {
       errors: `Incorrect current password.`,
     });
   }
-
+  async acceptTermsAndCondition(email: string): Promise<User> {
+    const user = await this.repository.findOne({ where: { email: email } });
+    if (!user) throw new NotFoundException('User not found');
+    user.termsAcceptedAt = new Date();
+    return await this.repository.save(user);
+  }
   async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
