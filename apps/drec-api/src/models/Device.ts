@@ -43,6 +43,7 @@ export interface IDevice {
   createdAt?: Date;
   version?: string;
   timezone?: string;
+  stateProvince?: string;
   postcode?: string;
 }
 
@@ -72,6 +73,7 @@ export type DeviceKey =
   | 'standardCompliance'
   | 'yieldValue'
   | 'deviceDescription'
+  | 'stateProvince'
   | 'postcode';
 
 export type DeviceSortTypeValuedKeys = { [K in DeviceOrderBy]?: DeviceKey };
