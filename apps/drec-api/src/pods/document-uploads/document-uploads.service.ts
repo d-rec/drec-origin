@@ -76,7 +76,7 @@ export class DocumentUploadsService {
 
       this.logger.log(`Uploaded file key: ${uploadResult}`);
 
-      const storeDocument = this.documentUploadsRepository.create({
+      const store = this.documentUploadsRepository.create({
         targetId: targetId,
         targetType: documents.targetType,
         type: documents.documentType,
@@ -84,15 +84,14 @@ export class DocumentUploadsService {
         url: uploadResult.Location,
       });
 
-      if (!storeDocument) {
+      if (!store) {
         throw new BadRequestException({
           message: `Failed to upload document ${documents.documentType}`,
           statusCode: 400,
         });
       }
 
-      const saveDocument =
-        await this.documentUploadsRepository.save(storeDocument);
+      const save = await this.documentUploadsRepository.save(store);
 
       await this.organizationRepository.update(targetId, {
         verifiedAt: new Date(),
@@ -100,7 +99,7 @@ export class DocumentUploadsService {
 
       await queryRunner.commitTransaction();
 
-      return saveDocument;
+      return save;
     } catch (error) {
       if (uploadedFileKey) {
         await this.fileService.deleteFileFromS3(uploadedFileKey);

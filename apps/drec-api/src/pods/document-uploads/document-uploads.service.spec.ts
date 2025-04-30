@@ -2,18 +2,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentUploadsService } from './document-uploads.service';
 import { DocumentEntity } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
-import { Connection } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Organization } from '../organization/organization.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('DocumentUploadsService', () => {
   let service: DocumentUploadsService;
+  let documentRepository: Repository<DocumentEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DocumentUploadsService,
         {
-          provide: DocumentEntity,
+          provide: getRepositoryToken(DocumentEntity),
           useValue: {
             create: jest.fn(),
             save: jest.fn(),
@@ -24,12 +26,14 @@ describe('DocumentUploadsService', () => {
           provide: FileService,
           useValue: {
             upload: jest.fn(),
+            deleteFileFromS3: jest.fn(),
           },
         },
         {
-          provide: Organization,
+          provide: getRepositoryToken(Organization),
           useValue: {
             update: jest.fn(),
+            findOne: jest.fn(),
           },
         },
         {
@@ -51,9 +55,16 @@ describe('DocumentUploadsService', () => {
     }).compile();
 
     service = module.get<DocumentUploadsService>(DocumentUploadsService);
+    documentRepository = module.get<Repository<DocumentEntity>>(
+      getRepositoryToken(DocumentEntity),
+    );
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should have a valid document repository', () => {
+    expect(documentRepository).toBeDefined();
   });
 });
