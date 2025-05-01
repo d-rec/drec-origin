@@ -66,6 +66,8 @@ export class OtpService {
     if (!user) {
       throw new ConflictException('User not found.');
     }
+    if (user.phoneNumberVerifiedAt)
+      return { message: 'user already verified.' };
     user.phoneNumberVerifiedAt = new Date();
     await this.userRepository.save(user);
     return { message: 'Phone number verified successfully.' };
