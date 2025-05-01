@@ -1,4 +1,11 @@
-import { Controller, Post, Body, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { OtpService } from './otp-verification.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OtpDTO } from './send-otp-dto';
@@ -30,9 +37,7 @@ export class OtpController {
       'Bad Request. The provided phone number is invalid or missing.',
   })
   @ApiBody({ type: OtpDTO })
-  async sendOtp(
-    @Req() req: any,
-  ): Promise<{ message: string }> {
+  async sendOtp(@Req() req: any): Promise<{ message: string }> {
     const phoneNumber = req.user?.phoneNumber;
     return this.otpService.send(phoneNumber);
   }
@@ -67,7 +72,6 @@ export class OtpController {
     @Req() req: any,
     @Body('otp') otp: string,
   ): Promise<{ message: string }> {
-    console.log("requessst",req.user,req)
     const phoneNumber = req.user?.phoneNumber;
     return this.otpService.verify(phoneNumber, otp);
   }

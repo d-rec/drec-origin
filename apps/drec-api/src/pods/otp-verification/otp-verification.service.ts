@@ -40,7 +40,6 @@ export class OtpService {
   async send(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
     const otp = this.generate();
-    console.log("otpppppp",otp)
     const message = `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`;
     try {
       await sendSms({ phoneNumber: formatted, message });
