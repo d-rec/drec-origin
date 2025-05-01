@@ -165,7 +165,7 @@ export class UserService {
         email: data.email.toLowerCase(),
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
-        terms_accept_at: data.termsAndConditions ? new Date() : null,
+        termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
         status: status || UserStatus.Active,
         role: role,
@@ -301,9 +301,8 @@ export class UserService {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  public async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
-
     return this.findOne({ email: lowerCaseEmail });
   }
 
@@ -453,7 +452,12 @@ export class UserService {
       errors: `Incorrect current password.`,
     });
   }
-
+  async acceptTermsAndCondition(email: string): Promise<User> {
+    const user = await this.repository.findOne({ where: { email: email } });
+    if (!user) throw new NotFoundException('User not found');
+    user.termsAcceptedAt = new Date();
+    return await this.repository.save(user);
+  }
   async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
@@ -790,5 +794,16 @@ export class UserService {
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
     return Boolean(await this.userLoginSessionRepository.findOne(conditions));
+  }
+
+  async verifyEmail(userId: number): Promise<User> {
+    this.logger.verbose(`Updating emailVerifiedAt for user ${userId}`);
+
+    await this.repository.update(
+      { id: userId },
+      { emailVerifiedAt: new Date() },
+    );
+
+    return this.repository.findOne({ id: userId });
   }
 }

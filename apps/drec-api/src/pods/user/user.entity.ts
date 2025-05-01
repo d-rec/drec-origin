@@ -49,8 +49,8 @@ export class User extends ExtendedBaseEntity implements IUser {
   email: string;
 
   @ApiProperty({ type: Date, required: true })
-  @Column({ type: 'timestamp', nullable: false })
-  terms_accept_at: Date;
+  @Column({ name: 'terms_accepted_at', type: 'timestamp', nullable: false })
+  termsAcceptedAt: Date;
 
   @ApiProperty({ type: String })
   @Column({ select: false })
@@ -105,5 +105,8 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @IsEnum(UserPermissionStatus)
   permission_status?: UserPermissionStatus;
+
+  @Column({ name: 'email_verified_at', nullable: true })
+  emailVerifiedAt: Date;
 }
 export { Role };

@@ -19,6 +19,8 @@ export interface IUserProperties {
   permissions?: PermissionString;
   api_user_id?: string;
   permission_status?: UserPermissionStatus;
+  emailVerifiedAt?: Date;
+  termsAcceptedAt?: Date;
 }
 
 export interface IUserSeed extends IUser {

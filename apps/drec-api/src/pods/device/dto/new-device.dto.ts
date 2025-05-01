@@ -221,4 +221,14 @@ export class NewDeviceDTO
   @IsOptional()
   @IsNumber()
   yieldValue?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  stateProvince?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  postcode?: string | null;
 }

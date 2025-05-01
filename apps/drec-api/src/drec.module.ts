@@ -14,7 +14,6 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
-
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
