@@ -130,14 +130,6 @@ describe('AuthService', () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
-      // const userWithoutPassword = {
-      //   ...userDTO,
-      //   phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
-      // };
-      // jest
-      //   .spyOn(userService, 'findById')
-      //   .mockResolvedValue(userWithoutPassword);
-      // const response = await service.login(userWithoutPassword);
       jest.spyOn(userService, 'findByEmail').mockResolvedValue({
         ...userDTO,
         emailConfirmed: true,
