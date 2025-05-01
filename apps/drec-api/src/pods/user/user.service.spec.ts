@@ -85,8 +85,8 @@ describe('UserService', () => {
         {
           provide: OtpService,
           useValue: {
-            sendOtp: jest.fn(),
-            verifyOtp: jest.fn(),
+            send: jest.fn(),
+            verify: jest.fn(),
           } as any,
         },
       ],
