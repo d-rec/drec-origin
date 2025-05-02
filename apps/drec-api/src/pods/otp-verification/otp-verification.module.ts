@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
-import { OtpService } from './otp-verification.service';
-import { OtpController } from './otp.contoller';
+import { OtpVerificationService } from './otp-verification.service';
+import { OtpVerificationController } from './otp-verification.contoller';
 import { OtpVerification } from './otp-verification.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, OtpVerification])],
-  controllers: [OtpController],
-  providers: [OtpService],
-  exports: [OtpService],
+  controllers: [OtpVerificationController],
+  providers: [OtpVerificationService],
+  exports: [OtpVerificationService],
 })
-export class OtpModule {}
+export class OtpVerificationModule {}

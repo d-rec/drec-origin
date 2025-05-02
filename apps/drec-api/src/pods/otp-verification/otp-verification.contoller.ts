@@ -6,15 +6,15 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { OtpService } from './otp-verification.service';
+import { OtpVerificationService } from './otp-verification.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OtpDTO } from './send-otp-dto';
+import { OtpDTO } from './otp-dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 @ApiTags('OTP')
 @Controller('otp')
-export class OtpController {
-  constructor(private readonly otpService: OtpService) {}
+export class OtpVerificationController {
+  constructor(private readonly otpService: OtpVerificationService) {}
 
   @Post('send-otp')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))

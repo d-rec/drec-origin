@@ -45,7 +45,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { OtpService } from '../otp-verification/otp-verification.service';
+import { OtpVerificationService } from '../otp-verification/otp-verification.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -63,7 +63,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
-    private otpService: OtpService,
+    private otpVerificationService: OtpVerificationService,
   ) {}
 
   public async seed(
@@ -172,7 +172,7 @@ export class UserService {
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
-        phone_number_verified_at: null,
+        phoneNumberVerifiedAt: null,
       });
       const { ...userData } = user;
       this.logger.debug(
@@ -180,7 +180,7 @@ export class UserService {
       );
 
       await this.emailConfirmationService.create(user);
-      await this.otpService.send(user.phoneNumber);
+      await this.otpVerificationService.send(user.phoneNumber);
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {

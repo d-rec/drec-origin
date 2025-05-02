@@ -10,7 +10,7 @@ import { OtpVerification } from './otp-verification.entity';
 import { sendSms } from '../../lib/aws';
 
 @Injectable()
-export class OtpService {
+export class OtpVerificationService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

@@ -29,7 +29,7 @@ import { v4 as uuid } from 'uuid';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
-import { OtpService } from '../otp-verification/otp-verification.service';
+import { OtpVerificationService } from '../otp-verification/otp-verification.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -83,7 +83,7 @@ describe('UserService', () => {
           useClass: Repository,
         },
         {
-          provide: OtpService,
+          provide: OtpVerificationService,
           useValue: {
             send: jest.fn(),
             verify: jest.fn(),
