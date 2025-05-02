@@ -38,7 +38,8 @@ import { PermissionString } from '../src/utils/enums';
 require('dotenv').config({ path: '../../../.env' });
 
 const issuerAccount = new Wallet(process.env.ISSUER_PRIVATE_KEY!);
-
+const CERTIFICATE_REGISTRY_ADDRESS = process.env.CERTIFICATE_REGISTRY_ADDRESS;
+const ISSUER_CONTRACT_ADDRESS = process.env.ISSUER_CONTRACT_ADDRESS;
 export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
 
@@ -76,6 +77,10 @@ export class Seed9999999999999 implements MigrationInterface {
   ): Promise<IContractsLookup> {
     const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
     const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
+
+    // wait for the provider to be ready
+    await provider?.ready;
+
     const contractsLookup = await this.deployContracts(issuerAccount, provider);
 
     if (provider && contractsLookup) {
@@ -128,6 +133,13 @@ export class Seed9999999999999 implements MigrationInterface {
     deployer: Wallet,
     provider: providers.FallbackProvider,
   ): Promise<IContractsLookup> {
+    if (CERTIFICATE_REGISTRY_ADDRESS && ISSUER_CONTRACT_ADDRESS) {
+      return {
+        registry: CERTIFICATE_REGISTRY_ADDRESS,
+        issuer: ISSUER_CONTRACT_ADDRESS,
+      };
+    }
+
     const adminPK = deployer.privateKey.startsWith('0x')
       ? deployer.privateKey
       : `0x${deployer.privateKey}`;
@@ -220,7 +232,7 @@ export class Seed9999999999999 implements MigrationInterface {
         "organizationId",
         "roleId",
         "api_user_id",
-        "email_verified_at"
+        "email_verified_at",
         "terms_accepted_at"
         ) VALUES (
             '${AdminJSON.id}',
