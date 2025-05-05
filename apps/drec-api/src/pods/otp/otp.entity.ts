@@ -4,10 +4,11 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('otp')
-export class OtpVerification {
+export class Otp {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,11 +17,14 @@ export class OtpVerification {
   phoneNumber: string;
 
   @Column()
-  otp: string;
+  code: string;
 
   @Column({ name: 'expiration_time', type: 'bigint' })
   expirationTime: number;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt: Date;
 }

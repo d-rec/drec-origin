@@ -11,5 +11,5 @@ export class OtpDTO {
 
   @ApiProperty({ type: String })
   @IsString()
-  otp?: string;
+  code?: string;
 }

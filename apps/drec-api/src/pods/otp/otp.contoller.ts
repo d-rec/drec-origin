@@ -6,17 +6,17 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { OtpVerificationService } from './otp-verification.service';
+import { OtpService } from './otp.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OtpDTO } from './otp-dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 @ApiTags('OTP')
 @Controller('otp')
-export class OtpVerificationController {
-  constructor(private readonly otpService: OtpVerificationService) {}
+export class OtpController {
+  constructor(private readonly otpService: OtpService) {}
 
-  @Post('send-otp')
+  @Post('send')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({
     summary: 'Send OTP to Phone Number',
@@ -37,12 +37,12 @@ export class OtpVerificationController {
       'Bad Request. The provided phone number is invalid or missing.',
   })
   @ApiBody({ type: OtpDTO })
-  async sendOtp(@Req() request: Request): Promise<{ message: string }> {
+  async send(@Req() request: Request): Promise<{ message: string }> {
     const phoneNumber = (request.user as any).phoneNumber;
     return this.otpService.send(phoneNumber);
   }
 
-  @Post('verify-otp')
+  @Post('verify')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({
     summary: 'Verify OTP Code',
@@ -68,11 +68,11 @@ export class OtpVerificationController {
     description: 'Bad Request. Invalid or expired OTP code provided.',
   })
   @ApiBody({ type: OtpDTO })
-  async verifyOtp(
+  async verify(
     @Req() request: Request,
-    @Body('otp') otp: string,
+    @Body('code') code: string,
   ): Promise<{ message: string }> {
     const phoneNumber = (request.user as any).phoneNumber;
-    return this.otpService.verify(phoneNumber, otp);
+    return this.otpService.verify(phoneNumber, code);
   }
 }

@@ -6,16 +6,16 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
-import { OtpVerification } from './otp-verification.entity';
+import { Otp } from './otp.entity';
 import { sendSms } from '../../lib/aws';
 
 @Injectable()
-export class OtpVerificationService {
+export class OtpService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(OtpVerification)
-    private readonly otpRepository: Repository<OtpVerification>,
+    @InjectRepository(Otp)
+    private readonly otpRepository: Repository<Otp>,
   ) {}
 
   private generate(): string {
@@ -24,10 +24,10 @@ export class OtpVerificationService {
 
   private async checkValidity(
     phoneNumber: string,
-    otp: string,
+    code: string,
   ): Promise<boolean> {
     const otpRecord = await this.otpRepository.findOne({
-      where: { phoneNumber, otp },
+      where: { phoneNumber, code },
       order: { createdAt: 'DESC' },
     });
 
@@ -39,15 +39,15 @@ export class OtpVerificationService {
 
   async send(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
-    const otp = this.generate();
-    const message = `Use code ${otp} to verify your D-REC account. Expires in 10 minutes`;
+    const code = this.generate();
+    const message = `Use code ${code} to verify your D-REC account. Expires in 10 minutes`;
     try {
       await sendSms({ phoneNumber: formatted, message });
 
       const expirationTime = Date.now() + 10 * 60 * 1000;
       await this.otpRepository.save({
         phoneNumber: formatted,
-        otp,
+        code,
         expirationTime,
       });
       return { message: 'OTP sent via message.' };
@@ -57,8 +57,8 @@ export class OtpVerificationService {
     }
   }
 
-  async verify(phoneNumber: string, otp: string): Promise<{ message: string }> {
-    const isValidOtp = await this.checkValidity(phoneNumber, otp);
+  async verify(phoneNumber: string, code: string): Promise<{ message: string }> {
+    const isValidOtp = await this.checkValidity(phoneNumber, code);
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP or OTP has expired.');
     }
