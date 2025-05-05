@@ -11,7 +11,7 @@ export const sendSms = async ({ phoneNumber, message }: SmsParams): Promise<void
     accessKeyId: process.env.accessKeyId,
     secretAccessKey: process.env.secretAccessKey,
   });
-
+  
   const params = {
     Message: message,
     PhoneNumber: phoneNumber,
@@ -22,7 +22,7 @@ export const sendSms = async ({ phoneNumber, message }: SmsParams): Promise<void
       },
       'AWS.SNS.SMS.SenderID': {
         DataType: 'String',
-        StringValue: 'DREC',
+        StringValue: 'D-REC',
       },
     },
   };
