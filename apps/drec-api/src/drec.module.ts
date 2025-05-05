@@ -69,7 +69,8 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
-
+import { OtpModule } from './pods/otp/otp.module';
+import { Otp } from './pods/otp/otp.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -121,6 +122,7 @@ export const entities = [
   ...OffChainCertificateEntities,
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
+  Otp,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -194,6 +196,7 @@ const queueModule = () => {
     BlockchainPropertiesModule,
     BulkUploadModule,
     HealthModule,
+    OtpModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

@@ -100,6 +100,9 @@ export class User extends ExtendedBaseEntity implements IUser {
   //   this.updatedAt = new Date(); // Set the updatedAt field to the current date and time
   // }
 
+  @Column({ nullable: true, name: 'phone_number_verified_at' })
+  phoneNumberVerifiedAt: Date;
+
   @IsEnum(UserPermissionStatus)
   permission_status?: UserPermissionStatus;
 

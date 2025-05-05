@@ -120,6 +120,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
+        phoneNumber: '+1234567890',
       } as CreateUserOrgDTO;
 
       const orgData: Organization = {
@@ -405,6 +406,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 2,
@@ -418,6 +420,7 @@ describe('UserService', () => {
         roleId: 4,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 3,
@@ -431,6 +434,7 @@ describe('UserService', () => {
         roleId: 3,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 4,
@@ -444,6 +448,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 5,
@@ -457,6 +462,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
     ];
 

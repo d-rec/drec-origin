@@ -30,6 +30,7 @@ export interface IUserSeed extends IUser {
 }
 
 export interface IUser extends IUserProperties {
+  phoneNumberVerifiedAt: Date | null;
   organization: IFullOrganization;
 
   moduleName?: string;

@@ -232,6 +232,7 @@ export class Seed9999999999999 implements MigrationInterface {
         "organizationId",
         "roleId",
         "api_user_id",
+        "phone_number_verified_at",
         "email_verified_at",
         "terms_accepted_at"
         ) VALUES (
@@ -245,6 +246,7 @@ export class Seed9999999999999 implements MigrationInterface {
             '${organizationId}',
             '${RoleJSON[0].id}',
             '${apiUserId}',
+            '${AdminJSON.phone_number_verified_at}',
             '${new Date().toISOString()}',
             '${new Date().toISOString()}'
         )`);
