@@ -5,6 +5,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { OtpService } from './otp.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -39,6 +40,9 @@ export class OtpController {
   @ApiBody({ type: OtpDTO })
   async send(@Req() request: Request): Promise<{ message: string }> {
     const phoneNumber = (request.user as any).phoneNumber;
+    if (!phoneNumber) {
+      throw new BadRequestException('Phone number not set.');
+    }
     return this.otpService.send(phoneNumber);
   }
 
@@ -73,6 +77,9 @@ export class OtpController {
     @Body('code') code: string,
   ): Promise<{ message: string }> {
     const phoneNumber = (request.user as any).phoneNumber;
+    if (!phoneNumber) {
+      throw new BadRequestException('Phone number not set.');
+    }
     return this.otpService.verify(phoneNumber, code);
   }
 }
