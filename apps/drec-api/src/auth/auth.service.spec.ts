@@ -36,6 +36,7 @@ describe('AuthService', () => {
             createUserSession: jest.fn(),
             removeUserSession: jest.fn(),
             hasValidUserSession: jest.fn(),
+            sendOtp: jest.fn(),
           } as any,
         },
         {
@@ -110,6 +111,7 @@ describe('AuthService', () => {
       lastName: 'lName',
       email: 'test@example.com',
       phoneNumber: '+250788496001', // Rwanda number
+      phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       notifications: true,
       status: UserStatus.Active,
       role: Role.OrganizationAdmin,
@@ -127,6 +129,7 @@ describe('AuthService', () => {
     it('should get result', async () => {
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+
       jest.spyOn(userService, 'findByEmail').mockResolvedValue({
         ...userDTO,
         emailConfirmed: true,
@@ -144,7 +147,14 @@ describe('AuthService', () => {
         emailConfirmed: true,
       });
 
-      const result = await service.login(userDTO);
+      const userWithoutPassword = {
+        ...userDTO,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
+      };
+      jest
+        .spyOn(userService, 'findById')
+        .mockResolvedValue(userWithoutPassword);
+      const result = await service.login(userWithoutPassword);
 
       expect(result).toEqual({ accessToken: token });
     });
@@ -158,10 +168,17 @@ describe('AuthService', () => {
         emailConfirmed: true,
       });
 
-      await service.login(userDTO);
+      const userWithoutPassword = {
+        ...userDTO,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
+      };
+      jest
+        .spyOn(userService, 'findById')
+        .mockResolvedValue(userWithoutPassword);
+      await service.login(userWithoutPassword);
 
       expect(userService.createUserSession).toHaveBeenCalledWith(
-        userDTO,
+        userWithoutPassword,
         token,
       );
     });
@@ -320,6 +337,7 @@ describe('AuthService', () => {
         lastName: 'lName',
         email: 'test@example.com',
         phoneNumber: '+250784496001', // Rwanda number
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -361,6 +379,7 @@ describe('AuthService', () => {
         lastName: 'lName',
         email: 'test@example.com',
         phoneNumber: '+447911123456', // UK number
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
@@ -397,7 +416,8 @@ describe('AuthService', () => {
         firstName: 'fName',
         lastName: 'lName',
         email: 'test@example.com',
-        phoneNumber: '+14155552671', // US number
+        phoneNumber: '+14155552671',
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
         role: Role.OrganizationAdmin,
