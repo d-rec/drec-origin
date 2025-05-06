@@ -417,6 +417,7 @@ describe('EmailConfirmationService', () => {
       expect(sendConfirmEmailRequestSpy).toHaveBeenCalledWith(
         email.toLowerCase(),
         generatedToken.token,
+        firstName,
       );
       expect(result).toEqual({
         success: true,
