@@ -196,6 +196,7 @@ export class UserController {
     }
     return this.userService.newCreateUser(userRegistrationData);
   }
+
   /**
    * this api route using for update Profile.
    * @body { 'firstName':string,'lastName':string,'email':string}.

@@ -33,6 +33,10 @@ const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
     throw new UnauthorizedException('Please accept the terms and conditions');
   }
 
+  if (!user.phoneNumberVerifiedAt) {
+    throw new UnauthorizedException('Please verify your phone number');
+  }
+
   return true;
 };
 
