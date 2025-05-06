@@ -280,11 +280,13 @@ describe('EmailConfirmationService', () => {
       const mockUser = { email: 'test@example.com' } as User;
       const mockEmailConfirmation = {
         user: mockUser,
+        confirmed: false,
+        expiryTimestamp: Math.floor(DateTime.now().plus({ hours: 1 }).toSeconds()),
       } as EmailConfirmation;
 
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
-        .mockResolvedValueOnce(mockEmailConfirmation); // Return an object with user property
+        .mockResolvedValueOnce(undefined); // Return undefined to trigger BadRequestException
 
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
