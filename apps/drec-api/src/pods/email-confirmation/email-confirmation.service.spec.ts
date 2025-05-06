@@ -259,11 +259,12 @@ describe('EmailConfirmationService', () => {
 
     it('should return a response indicating email is already confirmed', async () => {
       const token = 'alreadyConfirmedToken';
-      const mockUser = { 
-        id: 1, 
+      const mockUser: User = {
+        id: 1,
         email: 'test@example.com',
       } as User;
-      const emailConfirmation = {
+      const emailConfirmation: EmailConfirmation = {
+        id: 1,
         token,
         confirmed: true,
         user: mockUser,
@@ -275,6 +276,9 @@ describe('EmailConfirmationService', () => {
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
         .mockResolvedValueOnce(mockUser);
+      const updateSpy = jest
+        .spyOn(repository, 'update')
+        .mockResolvedValueOnce({ affected: 1 } as any);
 
       const result = await service.confirmEmail(token);
 
@@ -283,6 +287,9 @@ describe('EmailConfirmationService', () => {
         relations: ['user'],
       });
       expect(findByEmailSpy).toHaveBeenCalledWith(mockUser.email);
+      expect(updateSpy).toHaveBeenCalledWith(emailConfirmation.id, {
+        confirmed: true,
+      });
       expect(result).toEqual({
         success: false,
         message: EmailConfirmationResponse.AlreadyConfirmed,
