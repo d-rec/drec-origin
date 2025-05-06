@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository} from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
@@ -7,7 +7,7 @@ import { EmailConfirmationService } from './email-confirmation.service';
 import { EmailConfirmation } from './email-confirmation.entity';
 import { OauthClientCredentialsService } from '../user/oauth_client.service';
 import { User } from '../user/user.entity';
-import { EmailConfirmationResponse, Role } from '../../utils/enums';
+import { EmailConfirmationResponse } from '../../utils/enums';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 
