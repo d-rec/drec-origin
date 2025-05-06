@@ -408,6 +408,7 @@ describe('EmailConfirmationService', () => {
       const result = await service.generateToken(currentToken, id);
 
       expect(result).toEqual({
+        id: currentToken.id,
         token: currentToken.token,
         expiryTimestamp: currentToken.expiryTimestamp,
       });
