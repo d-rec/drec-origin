@@ -282,9 +282,14 @@ describe('EmailConfirmationService', () => {
 
     it('should return a response indicating email confirmation is expired', async () => {
       const token = 'expiredToken';
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+      } as User;
       const emailConfirmation = {
         token,
         confirmed: false,
+        user: mockUser,
         expiryTimestamp: Math.floor(
           DateTime.now().minus({ minutes: 1 }).toSeconds(),
         ), // Expired timestamp
@@ -293,6 +298,9 @@ describe('EmailConfirmationService', () => {
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValueOnce(emailConfirmation);
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce(mockUser);
 
       const result = await service.confirmEmail(token);
 
@@ -300,6 +308,7 @@ describe('EmailConfirmationService', () => {
         where: { token },
         relations: ['user'],
       });
+      expect(findByEmailSpy).toHaveBeenCalledWith(mockUser.email);
       expect(result).toEqual({
         success: false,
         message: EmailConfirmationResponse.Expired,
