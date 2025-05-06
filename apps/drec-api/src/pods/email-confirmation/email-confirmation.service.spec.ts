@@ -537,7 +537,14 @@ describe('EmailConfirmationService', () => {
       process.env.UI_BASE_URL = uiBaseUrl; // Mocking environment variable
 
       const expectedUrl = `${uiBaseUrl}/confirm-email?token=${token}`;
-      const expectedHtml = `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${expectedUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`;
+      const expectedHtml = `
+      <p>Hi ${firstName},</p>
+      <p>Thanks for signing up with D-REC!</p>
+      <p>To complete your account setup, please verify your email address by clicking the button below:</p>
+      <a href="${expectedUrl}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify My Email</a>
+      <p>If you didn’t create an account with us, please disregard this message.</p>
+      <p>Welcome aboard!<br/>D-REC Team</p>
+    `;
       const sendSpy = jest.spyOn(mailService, 'send').mockResolvedValue(true);
       await service['sendConfirmEmailRequest'](email, token, firstName);
 
