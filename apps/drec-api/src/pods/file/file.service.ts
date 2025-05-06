@@ -257,6 +257,19 @@ export class FileService {
     this.logger.error(`Object not found`);
     throw new NotFoundException();
   }
+  public async deleteFileFromS3(key: string): Promise<void> {
+    try {
+      const s3 = this.getS3();
+      await s3
+        .deleteObject({
+          Bucket: process.env.bucketname,
+          Key: key,
+        })
+        .promise();
+    } catch (error) {
+      this.logger.error(`Failed to delete file from S3: ${error.message}`);
+    }
+  }
 
   // public async getPrivateFile(key: string) {
   //   const s3 = this.getS3();
