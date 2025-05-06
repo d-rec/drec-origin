@@ -294,12 +294,12 @@ describe('EmailConfirmationService', () => {
 
     it('should return a response indicating email is already confirmed', async () => {
       const token = 'alreadyConfirmedToken';
+      const user = { id: 1, email: 'test@example.com', emailVerifiedAt: new Date() } as User;
       const emailConfirmation = {
+        id: 1,
         token,
         confirmed: true,
-        user: {
-          email: 'test@example.com',
-        } as User,
+        user,
       } as EmailConfirmation;
 
       const findOneSpy = jest
@@ -308,7 +308,7 @@ describe('EmailConfirmationService', () => {
 
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce({ email: 'test@example.com' } as User);
+        .mockResolvedValueOnce(user);
 
       const result = await service.confirmEmail(token);
 
@@ -324,12 +324,12 @@ describe('EmailConfirmationService', () => {
 
     it('should return a response indicating email confirmation is expired', async () => {
       const token = 'expiredToken';
+      const user = { id: 1, email: 'test@example.com' } as User;
       const emailConfirmation = {
+        id: 1,
         token,
         confirmed: false,
-        user: {
-          email: 'test@example.com',
-        } as User,
+        user,
         expiryTimestamp: Math.floor(
           DateTime.now().minus({ minutes: 1 }).toSeconds(),
         ), // Expired timestamp
@@ -341,7 +341,7 @@ describe('EmailConfirmationService', () => {
 
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce({ email: 'test@example.com' } as User);
+        .mockResolvedValueOnce(user);
 
       const result = await service.confirmEmail(token);
 
