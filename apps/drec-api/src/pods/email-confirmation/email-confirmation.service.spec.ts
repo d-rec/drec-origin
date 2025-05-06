@@ -262,6 +262,7 @@ describe('EmailConfirmationService', () => {
       const mockUser: User = {
         id: 1,
         email: 'test@example.com',
+        emailVerifiedAt: new Date(),
       } as User;
       const emailConfirmation: EmailConfirmation = {
         id: 1,
