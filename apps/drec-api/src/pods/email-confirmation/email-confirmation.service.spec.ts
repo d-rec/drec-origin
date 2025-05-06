@@ -155,26 +155,37 @@ describe('EmailConfirmationService', () => {
   });
 
   describe('getByEmail', () => {
-    it('should return email confirmation if email matches', async () => {
+    it('should return the email confirmation if the email matches (case-sensitive)', async () => {
       const email = 'test@example.com';
-      const emailConfirmation = {
-        user: { email } as User,
+      const matchingConfirmation = {
+        user: { email: 'test@example.com' } as User,
+      } as EmailConfirmation;
+
+      const nonMatchingConfirmation = {
+        user: { email: 'other@example.com' } as User,
       } as EmailConfirmation;
 
       const findSpy = jest
         .spyOn(repository, 'find')
-        .mockResolvedValueOnce([emailConfirmation]);
+        .mockResolvedValueOnce([nonMatchingConfirmation, matchingConfirmation]);
 
       const result = await service.getByEmail(email);
 
       expect(findSpy).toHaveBeenCalledWith({ relations: ['user'] });
-      expect(result).toEqual(emailConfirmation);
+      expect(result).toEqual(matchingConfirmation);
     });
 
-    it('should return undefined if no email confirmation matches the email', async () => {
-      const email = 'notfound@example.com';
+    it('should return undefined if no confirmation matches the email', async () => {
+      const email = 'absent@example.com';
 
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValueOnce([]); // No email confirmations found
+      const confirmations = [
+        { user: { email: 'one@example.com' } } as EmailConfirmation,
+        { user: { email: 'two@example.com' } } as EmailConfirmation,
+      ];
+
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValueOnce(confirmations);
 
       const result = await service.getByEmail(email);
 
@@ -182,20 +193,40 @@ describe('EmailConfirmationService', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should handle case-insensitive email matching', async () => {
-      const email = 'Test@Example.com';
-      const emailConfirmation = {
-        user: { email: 'test@example.com' } as User,
+    it('should return confirmation even if email matches case-insensitively', async () => {
+      const inputEmail = 'Test@Example.com';
+      const storedEmail = 'test@example.com';
+
+      const confirmation = {
+        user: { email: storedEmail } as User,
       } as EmailConfirmation;
 
       const findSpy = jest
         .spyOn(repository, 'find')
-        .mockResolvedValueOnce([emailConfirmation]);
+        .mockResolvedValueOnce([confirmation]);
+
+      const result = await service.getByEmail(inputEmail);
+
+      expect(findSpy).toHaveBeenCalledWith({ relations: ['user'] });
+      expect(result).toEqual(confirmation);
+    });
+
+    it('should return the first matching confirmation if multiple matches exist', async () => {
+      const email = 'test@example.com';
+
+      const confirmations = [
+        { user: { email: 'test@example.com' } } as EmailConfirmation,
+        { user: { email: 'TEST@example.com' } } as EmailConfirmation,
+      ];
+
+      const findSpy = jest
+        .spyOn(repository, 'find')
+        .mockResolvedValueOnce(confirmations);
 
       const result = await service.getByEmail(email);
 
       expect(findSpy).toHaveBeenCalledWith({ relations: ['user'] });
-      expect(result).toEqual(emailConfirmation);
+      expect(result).toEqual(confirmations[0]);
     });
   });
 
