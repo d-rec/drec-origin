@@ -551,7 +551,7 @@ describe('EmailConfirmationService', () => {
 
       expect(sendSpy).toHaveBeenCalledWith({
         to: email,
-        subject: `[Origin] Confirm your email address`,
+        subject: `[D-REC] Please verify your email address`,
         html: expectedHtml,
       });
     });
