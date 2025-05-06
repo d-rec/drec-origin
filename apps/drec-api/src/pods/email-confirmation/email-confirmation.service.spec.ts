@@ -375,16 +375,25 @@ describe('EmailConfirmationService', () => {
         id: 1,
         confirmed: true,
       } as EmailConfirmation;
+      const mockUser = {
+        id: 1,
+        email: 'test@example.com',
+        emailVerifiedAt: new Date(),
+      } as User;
 
       const getByEmailSpy = jest
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(currentToken);
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce(mockUser);
 
       await expect(service.sendConfirmationEmail(email)).rejects.toThrow(
         BadRequestException,
       );
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
+      expect(findByEmailSpy).toHaveBeenCalledWith(email);
     });
     it('should generate a new token and send a confirmation email if valid', async () => {
       const email = 'test@example.com';
