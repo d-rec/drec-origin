@@ -384,80 +384,97 @@ describe('EmailConfirmationService', () => {
   });
 
   describe('sendConfirmationEmail', () => {
-    it('should return an error response if no token is found', async () => {
-      const email = 'test@example.com';
+  it('should return an error response if no token is found', async () => {
+    const email = 'test@example.com';
 
-      const getByEmailSpy = jest
-        .spyOn(service, 'getByEmail')
-        .mockResolvedValueOnce(undefined); // No token found
+    const getByEmailSpy = jest
+      .spyOn(service, 'getByEmail')
+      .mockResolvedValueOnce(undefined); // ❗ No token found
 
-      const result = await service.sendConfirmationEmail(email);
+    const result = await service.sendConfirmationEmail(email);
 
-      expect(getByEmailSpy).toHaveBeenCalledWith(email);
-      expect(result).toEqual({
-        success: false,
-        message: 'Token not found',
-      });
-    });
-
-    it('should throw a BadRequestException if email is already confirmed', async () => {
-      const email = 'test@example.com';
-      const currentToken = {
-        id: 1,
-        confirmed: true,
-      } as EmailConfirmation;
-
-      const getByEmailSpy = jest
-        .spyOn(service, 'getByEmail')
-        .mockResolvedValueOnce(currentToken);
-
-      await expect(service.sendConfirmationEmail(email)).rejects.toThrow(
-        BadRequestException,
-      );
-
-      expect(getByEmailSpy).toHaveBeenCalledWith(email);
-    });
-    it('should generate a new token and send a confirmation email if valid', async () => {
-      const email = 'test@example.com';
-      const currentToken = {
-        id: 1,
-        confirmed: false,
-      } as EmailConfirmation;
-      const generatedToken = { token: 'newToken' };
-      const mockUser = { id: 1, email: 'test@example.com' } as User;
-
-      const getByEmailSpy = jest
-        .spyOn(service, 'getByEmail')
-        .mockResolvedValueOnce(currentToken);
-      const generateTokenSpy = jest
-        .spyOn(service, 'generateToken')
-        .mockResolvedValueOnce(generatedToken);
-      const findByEmailSpy = jest
-        .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce(mockUser);
-
-      // TypeScript workaround: Cast service to 'any' to bypass typing issues
-      const sendConfirmEmailRequestSpy = jest
-        .spyOn<any, any>(service, 'sendConfirmEmailRequest')
-        .mockResolvedValueOnce(undefined);
-
-      const result = await service.sendConfirmationEmail(email);
-
-      expect(getByEmailSpy).toHaveBeenCalledWith(email);
-      expect(findByEmailSpy).toHaveBeenCalledWith(email);
-      expect(generateTokenSpy).toHaveBeenCalledWith(
-        currentToken,
-        currentToken.id,
-      );
-      expect(sendConfirmEmailRequestSpy).toHaveBeenCalledWith(
-        email.toLowerCase(),
-        generatedToken.token,
-      );
-      expect(result).toEqual({
-        success: true,
-      });
+    expect(getByEmailSpy).toHaveBeenCalledWith(email);
+    expect(result).toEqual({
+      success: false,
+      message: 'Token not found',
     });
   });
+
+  it('should throw a BadRequestException if email is already confirmed', async () => {
+    const email = 'test@example.com';
+    const currentToken = {
+      id: 1,
+      confirmed: true,
+      user: { email } as User,
+    } as EmailConfirmation;
+
+    const getByEmailSpy = jest
+      .spyOn(service, 'getByEmail')
+      .mockResolvedValueOnce(currentToken);
+
+    // ❗ Simulate verified user
+    const verifiedUser = {
+      id: 1,
+      email,
+      emailVerifiedAt: new Date(),
+    } as User;
+
+    const findByEmailSpy = jest
+      .spyOn(userService, 'findByEmail')
+      .mockResolvedValueOnce(verifiedUser);
+
+    await expect(service.sendConfirmationEmail(email)).rejects.toThrow(
+      BadRequestException,
+    );
+
+    expect(getByEmailSpy).toHaveBeenCalledWith(email);
+    expect(findByEmailSpy).toHaveBeenCalledWith(email);
+  });
+
+  it('should generate a new token and send a confirmation email if valid', async () => {
+    const email = 'test@example.com';
+    const currentToken = {
+      id: 1,
+      confirmed: false,
+      user: { id: 1, email } as User,
+    } as EmailConfirmation;
+
+    const generatedToken = { token: 'newToken' };
+    const mockUser = {
+      id: 1,
+      email,
+      emailVerifiedAt: null, // Not verified yet
+    } as User;
+
+    const getByEmailSpy = jest
+      .spyOn(service, 'getByEmail')
+      .mockResolvedValueOnce(currentToken);
+
+    const findByEmailSpy = jest
+      .spyOn(userService, 'findByEmail')
+      .mockResolvedValueOnce(mockUser);
+
+    const generateTokenSpy = jest
+      .spyOn(service, 'generateToken')
+      .mockResolvedValueOnce(generatedToken);
+
+    const sendConfirmEmailRequestSpy = jest
+      .spyOn<any, any>(service, 'sendConfirmEmailRequest')
+      .mockResolvedValueOnce(undefined);
+
+    const result = await service.sendConfirmationEmail(email);
+
+    expect(getByEmailSpy).toHaveBeenCalledWith(email);
+    expect(findByEmailSpy).toHaveBeenCalledWith(email);
+    expect(generateTokenSpy).toHaveBeenCalledWith(currentToken, currentToken.id);
+    expect(sendConfirmEmailRequestSpy).toHaveBeenCalledWith(
+      email.toLowerCase(),
+      generatedToken.token,
+    );
+    expect(result).toEqual({ success: true });
+  });
+});
+
 
   describe('ConfirmationEmailForResetPassword', () => {
     it('should return a failure response if email not found', async () => {
