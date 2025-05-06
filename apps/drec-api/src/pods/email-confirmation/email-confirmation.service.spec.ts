@@ -23,7 +23,11 @@ describe('EmailConfirmationService', () => {
         EmailConfirmationService,
         {
           provide: getRepositoryToken(EmailConfirmation),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            update: jest.fn(),
+          },
         },
         {
           provide: UserService,
