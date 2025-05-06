@@ -293,11 +293,18 @@ describe('EmailConfirmationService', () => {
       const emailConfirmation = {
         token,
         confirmed: true,
+        user: {
+          email: 'test@example.com',
+        } as User,
       } as EmailConfirmation;
 
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValueOnce(emailConfirmation);
+
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce({ email: 'test@example.com' } as User);
 
       const result = await service.confirmEmail(token);
 
@@ -316,6 +323,9 @@ describe('EmailConfirmationService', () => {
       const emailConfirmation = {
         token,
         confirmed: false,
+        user: {
+          email: 'test@example.com',
+        } as User,
         expiryTimestamp: Math.floor(
           DateTime.now().minus({ minutes: 1 }).toSeconds(),
         ), // Expired timestamp
@@ -324,6 +334,10 @@ describe('EmailConfirmationService', () => {
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValueOnce(emailConfirmation);
+
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce({ email: 'test@example.com' } as User);
 
       const result = await service.confirmEmail(token);
 
@@ -354,12 +368,12 @@ describe('EmailConfirmationService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValueOnce(emailConfirmation);
 
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce(user);
+
       const updateSpy = jest
         .spyOn(repository, 'update')
-        .mockResolvedValueOnce({} as any);
-
-      (userService as any).verifyEmail = jest
-        .fn()
         .mockResolvedValueOnce({} as any);
 
       const updateUserEmailVerificationSpy = jest
