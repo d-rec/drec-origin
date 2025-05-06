@@ -32,6 +32,7 @@ describe('EmailConfirmationService', () => {
             save: jest.fn(),
             updateUserEmailVerification: jest.fn(),
             verifyEmail: jest.fn(),
+            findByEmail: jest.fn(),
           } as any,
         },
         {
@@ -392,6 +393,7 @@ describe('EmailConfirmationService', () => {
         confirmed: false,
       } as EmailConfirmation;
       const generatedToken = { token: 'newToken' };
+      const mockUser = { id: 1, email: 'test@example.com' } as User;
 
       const getByEmailSpy = jest
         .spyOn(service, 'getByEmail')
@@ -399,6 +401,9 @@ describe('EmailConfirmationService', () => {
       const generateTokenSpy = jest
         .spyOn(service, 'generateToken')
         .mockResolvedValueOnce(generatedToken);
+      const findByEmailSpy = jest
+        .spyOn(userService, 'findByEmail')
+        .mockResolvedValueOnce(mockUser);
 
       // TypeScript workaround: Cast service to 'any' to bypass typing issues
       const sendConfirmEmailRequestSpy = jest
@@ -408,6 +413,7 @@ describe('EmailConfirmationService', () => {
       const result = await service.sendConfirmationEmail(email);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
+      expect(findByEmailSpy).toHaveBeenCalledWith(email);
       expect(generateTokenSpy).toHaveBeenCalledWith(
         currentToken,
         currentToken.id,
