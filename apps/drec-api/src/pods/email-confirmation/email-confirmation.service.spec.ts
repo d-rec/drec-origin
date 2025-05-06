@@ -277,20 +277,10 @@ describe('EmailConfirmationService', () => {
   describe('confirmEmail', () => {
     it('should throw BadRequestException if email confirmation does not exist', async () => {
       const token = 'nonExistentToken';
-      const mockUser = { email: 'test@example.com' } as User;
-      const mockEmailConfirmation = {
-        user: mockUser,
-        confirmed: false,
-        expiryTimestamp: Math.floor(DateTime.now().plus({ hours: 1 }).toSeconds()),
-      } as EmailConfirmation;
 
       const findOneSpy = jest
         .spyOn(repository, 'findOne')
         .mockResolvedValueOnce(undefined); // Return undefined to trigger BadRequestException
-
-      const findByEmailSpy = jest
-        .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce(mockUser);
 
       await expect(service.confirmEmail(token)).rejects.toThrow(
         BadRequestException,

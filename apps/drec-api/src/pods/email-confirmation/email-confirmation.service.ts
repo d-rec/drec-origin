@@ -150,10 +150,6 @@ export class EmailConfirmationService {
       relations: ['user'],
     });
 
-    const user = await this.userService.findByEmail(
-      emailConfirmation.user.email,
-    );
-
     if (!emailConfirmation) {
       this.logger.error(`Invalid email confirmation token`);
       throw new BadRequestException({
@@ -161,6 +157,10 @@ export class EmailConfirmationService {
         message: `Invalid email confirmation token`,
       });
     }
+
+    const user = await this.userService.findByEmail(
+      emailConfirmation.user.email,
+    );
 
     if (emailConfirmation.confirmed === true && user.emailVerifiedAt) {
       this.logger.warn('EmailConfirmationResponse.AlreadyConfirmed');
