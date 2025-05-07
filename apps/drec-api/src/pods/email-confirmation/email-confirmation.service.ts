@@ -162,7 +162,7 @@ export class EmailConfirmationService {
       emailConfirmation.user.email,
     );
 
-    if (emailConfirmation.confirmed === true && user.emailVerifiedAt) {
+    if (user.emailVerifiedAt) {
       this.logger.warn('EmailConfirmationResponse.AlreadyConfirmed');
       return {
         success: false,
@@ -209,7 +209,7 @@ export class EmailConfirmationService {
     }
 
     const { id, confirmed } = currentToken;
-    if (confirmed === true && user.emailVerifiedAt) {
+    if (user.emailVerifiedAt) {
       this.logger.error(`Email already confirmed`);
       throw new BadRequestException({
         success: false,
