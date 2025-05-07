@@ -208,7 +208,7 @@ export class EmailConfirmationService {
       };
     }
 
-    const { id, confirmed } = currentToken;
+    const { id } = currentToken;
     if (user.emailVerifiedAt) {
       this.logger.error(`Email already confirmed`);
       throw new BadRequestException({
