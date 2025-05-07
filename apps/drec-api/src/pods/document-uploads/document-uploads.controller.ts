@@ -40,6 +40,7 @@ export class DocumentUploadsController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'document', maxCount: 1 }], {
       storage: multer.memoryStorage(),
