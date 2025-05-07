@@ -158,7 +158,11 @@ export class EmailConfirmationService {
       });
     }
 
-    if (emailConfirmation.confirmed === true) {
+    const user = await this.userService.findByEmail(
+      emailConfirmation.user.email,
+    );
+
+    if (user.emailVerifiedAt) {
       this.logger.warn('EmailConfirmationResponse.AlreadyConfirmed');
       return {
         success: false,
@@ -194,6 +198,7 @@ export class EmailConfirmationService {
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in sendConfirmationEmail`);
     const currentToken = await this.getByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!currentToken) {
       this.logger.error(`Token not found`);
@@ -203,8 +208,8 @@ export class EmailConfirmationService {
       };
     }
 
-    const { id, confirmed } = currentToken;
-    if (confirmed === true) {
+    const { id } = currentToken;
+    if (user.emailVerifiedAt) {
       this.logger.error(`Email already confirmed`);
       throw new BadRequestException({
         success: false,
