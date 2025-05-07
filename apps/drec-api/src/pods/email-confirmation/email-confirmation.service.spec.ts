@@ -411,12 +411,12 @@ describe('EmailConfirmationService', () => {
   describe('sendConfirmationEmail', () => {
     it('should return an error response if no token is found', async () => {
       const email = 'test@example.com';
-
+      const firstName = 'John';
       const getByEmailSpy = jest
         .spyOn(service, 'getByEmail')
         .mockResolvedValueOnce(undefined); // ❗ No token found
 
-      const result = await service.sendConfirmationEmail(email);
+      const result = await service.sendConfirmationEmail(email, firstName);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
       expect(result).toEqual({
@@ -427,6 +427,7 @@ describe('EmailConfirmationService', () => {
 
     it('should throw a BadRequestException if email is already confirmed', async () => {
       const email = 'test@example.com';
+      const firstName = 'John';
       const currentToken = {
         id: 1,
         confirmed: true,
@@ -441,6 +442,7 @@ describe('EmailConfirmationService', () => {
       const verifiedUser = {
         id: 1,
         email,
+        firstName,
         emailVerifiedAt: new Date(),
       } as User;
 
@@ -448,9 +450,9 @@ describe('EmailConfirmationService', () => {
         .spyOn(userService, 'findByEmail')
         .mockResolvedValueOnce(verifiedUser);
 
-      await expect(service.sendConfirmationEmail(email)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.sendConfirmationEmail(email, firstName),
+      ).rejects.toThrow(BadRequestException);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
       expect(findByEmailSpy).toHaveBeenCalledWith(email);
@@ -458,6 +460,7 @@ describe('EmailConfirmationService', () => {
 
     it('should generate a new token and send a confirmation email if valid', async () => {
       const email = 'test@example.com';
+      const firstName = 'John';
       const currentToken = {
         id: 1,
         confirmed: false,
@@ -487,7 +490,7 @@ describe('EmailConfirmationService', () => {
         .spyOn<any, any>(service, 'sendConfirmEmailRequest')
         .mockResolvedValueOnce(undefined);
 
-      const result = await service.sendConfirmationEmail(email);
+      const result = await service.sendConfirmationEmail(email, firstName);
 
       expect(getByEmailSpy).toHaveBeenCalledWith(email);
       expect(findByEmailSpy).toHaveBeenCalledWith(email);
@@ -498,6 +501,7 @@ describe('EmailConfirmationService', () => {
       expect(sendConfirmEmailRequestSpy).toHaveBeenCalledWith(
         email.toLowerCase(),
         generatedToken.token,
+        firstName,
       );
       expect(result).toEqual({ success: true });
     });
@@ -610,18 +614,26 @@ describe('EmailConfirmationService', () => {
   describe('sendConfirmEmailRequest', () => {
     it('should send a confirmation email with correct details', async () => {
       const email = 'test@example.com';
+      const firstName = 'John';
       const token = 'sampleToken';
       const uiBaseUrl = 'http://localhost:3000'; // Example base URL
       process.env.UI_BASE_URL = uiBaseUrl; // Mocking environment variable
 
       const expectedUrl = `${uiBaseUrl}/confirm-email?token=${token}`;
-      const expectedHtml = `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${expectedUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`;
+      const expectedHtml = `
+      <p>Hi ${firstName},</p>
+      <p>Thanks for signing up with D-REC!</p>
+      <p>To complete your account setup, please verify your email address by clicking the button below:</p>
+      <a href="${expectedUrl}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify My Email</a>
+      <p>If you didn’t create an account with us, please disregard this message.</p>
+      <p>Welcome aboard!<br/>D-REC Team</p>
+    `;
       const sendSpy = jest.spyOn(mailService, 'send').mockResolvedValue(true);
-      await service['sendConfirmEmailRequest'](email, token);
+      await service['sendConfirmEmailRequest'](email, token, firstName);
 
       expect(sendSpy).toHaveBeenCalledWith({
         to: email,
-        subject: `[Origin] Confirm your email address`,
+        subject: `[D-REC] Please verify your email address`,
         html: expectedHtml,
       });
     });
@@ -629,15 +641,15 @@ describe('EmailConfirmationService', () => {
     it('should log a success message when email is sent successfully', async () => {
       const email = 'test@example.com';
       const token = 'sampleToken';
-
-      await service['sendConfirmEmailRequest'](email, token);
+      const firstName = 'John';
+      await service['sendConfirmEmailRequest'](email, token, firstName);
     });
 
     it('should log a verbose message at the start', async () => {
       const email = 'test@example.com';
       const token = 'sampleToken';
-
-      await service['sendConfirmEmailRequest'](email, token);
+      const firstName = 'John';
+      await service['sendConfirmEmailRequest'](email, token, firstName);
     });
   });
 });
