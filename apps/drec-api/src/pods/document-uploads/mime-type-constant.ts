@@ -1,0 +1,25 @@
+export const ALLOWED_MIME_TYPES = [
+  'image/avif',
+  'image/bmp',
+  'image/gif',
+  'image/x-icon',
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/svg+xml',
+  'image/tiff',
+  'image/tif',
+  'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/plain',
+  'text/csv',
+  'application/vnd.google-apps.document',
+  'application/vnd.google-apps.spreadsheet',
+] as const;
+
+export type AllowedMimeType = typeof ALLOWED_MIME_TYPES[number];

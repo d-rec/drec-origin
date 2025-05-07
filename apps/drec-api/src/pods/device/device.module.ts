@@ -14,6 +14,8 @@ import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
+import { DeviceDocumentsModule } from '../document-uploads/device-document.module';
+
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
@@ -30,6 +32,7 @@ import { HttpModule } from '@nestjs/axios';
     ]),
     UserModule,
     OrganizationModule,
+    DeviceDocumentsModule,
   ],
   providers: [DeviceService],
   exports: [DeviceService],

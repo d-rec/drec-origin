@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
@@ -11,6 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   Between,
   Brackets,
+  Connection,
   FindConditions,
   FindManyOptions,
   FindOneOptions,
@@ -71,7 +73,10 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
-
+import { DocumentType } from '../document-uploads/entities/device-documents.entity';
+import { FileService } from '../file';
+import { DeviceDocumentsService } from '../document-uploads/device-document.service';
+import * as path from 'path';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -91,6 +96,8 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
+    private readonly connection: Connection,
+    private readonly deviceDocumentsService: DeviceDocumentsService,
   ) {}
 
   public async find(
@@ -539,12 +546,49 @@ export class DeviceService {
   public async register(
     orgCode: number,
     newDevice: NewDeviceDTO,
+    files?: {
+      productionFacilityRegistration?: Express.Multer.File[];
+      ownershipProof?: Express.Multer.File[];
+      meteringEvidence?: Express.Multer.File[];
+      singleLineDiagram?: Express.Multer.File[];
+      projectPhotos?: Express.Multer.File[];
+    },
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
-    newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    console.log("nedeviceee",newDevice)
+    if (newDevice && newDevice.countryCode) {
+      newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    } else {
+      this.logger.error('Country code is undefined or missing');
+      throw new BadRequestException('Country code is required');
+    }
     const sdgBenefitList = SDGBenefits;
+    if (files) {
+    const requiredDocuments = [
+      'productionFacilityRegistration',
+      'ownershipProof',
+      'meteringEvidence',
+      'singleLineDiagram',
+      'projectPhotos'
+    ];
+    
+    for (const docType of requiredDocuments) {
+      if (!files[docType] || files[docType].length === 0) {
+        throw new BadRequestException(`Missing required document: ${docType}`);
+      }
+      // Validate file formats and sizes
+      for (const file of files[docType]) {
+        const validFormats = ['.avif', '.bmp', '.gif', '.ico', '.jpeg', '.jpg', '.png', '.svg', '.tif', '.tiff', '.webp', '.pdf', '.doc', '.xls', '.docx', '.xlsx', '.pptx', '.gsheet', '.gdoc', '.txt', '.csv'];
+        const fileFormat = path.extname(file.originalname).toLowerCase();
+        if (!validFormats.includes(fileFormat) || file.size > 20 * 1024 * 1024) {
+          throw new BadRequestException(`Invalid file format or size for document: ${docType}`);
+        }
+      }
+    }
+  }
+
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
@@ -588,6 +632,10 @@ export class DeviceService {
     } else {
       newDevice.SDGBenefits = [];
     }
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
@@ -615,6 +663,31 @@ export class DeviceService {
         organizationId: orgCode,
       });
     }
+    if (files) {
+    const documentTypes = {
+      productionFacilityRegistration: DocumentType.FORM_SF_02,
+      ownershipProof: DocumentType.SF_02C,
+      meteringEvidence: DocumentType.METERING_EVIDENCE,
+      singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
+      projectPhotos: DocumentType.PROJECT_PHOTOS,
+    };
+
+   
+    for (const [field, documentType] of Object.entries(documentTypes)) {
+      for (const file of files[field]) {
+        try {
+          await this.deviceDocumentsService.upload({
+            deviceId: result.id,
+            documentType,
+            file,
+          });
+        } catch (error) {
+          this.logger.error(`Failed to upload ${field}: ${error.message}`);
+          throw error; 
+        }
+      }
+    }}
+    await queryRunner.commitTransaction();
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];

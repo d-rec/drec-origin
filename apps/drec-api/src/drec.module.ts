@@ -71,6 +71,8 @@ import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
 import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
+import { DeviceDocumentsModule } from './pods/document-uploads/device-document.module';
+import { DeviceDocument } from './pods/document-uploads/entities/device-documents.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -123,6 +125,7 @@ export const entities = [
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
   Otp,
+  DeviceDocument,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -197,6 +200,7 @@ const queueModule = () => {
     BulkUploadModule,
     HealthModule,
     OtpModule,
+    DeviceDocumentsModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

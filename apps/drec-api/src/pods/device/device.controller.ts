@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -14,12 +15,16 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -37,7 +42,7 @@ import { countryCodesList } from '../../models/country-code';
 import { Role } from '../../utils/enums';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { DeviceGroupService } from '../device-group/device-group.service';
+// import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -54,7 +59,8 @@ import {
   UpdateDeviceDTO,
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
-
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {ALLOWED_MIME_TYPES} from '../document-uploads/mime-type-constant'
 /**
  * It is Controller of device with the endpoints of device operations.
  */
@@ -66,7 +72,7 @@ export class DeviceController {
   private readonly logger = new Logger(DeviceController.name);
 
   constructor(
-    private readonly deviceGroupService: DeviceGroupService,
+    // private readonly deviceGroupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
@@ -508,6 +514,72 @@ export class DeviceController {
   )
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'productionFacilityRegistration', maxCount: 10 },
+      { name: 'ownershipProof', maxCount: 10 },
+      { name: 'meteringEvidence', maxCount: 10 },
+      { name: 'singleLineDiagram', maxCount: 10 },
+      { name: 'projectPhotos', maxCount: 10 },
+    ], {
+      
+      fileFilter: (req, file, callback) => {
+        const ALLOWED_MIME_TYPES = [
+          'image/jpeg', 'image/png', 'image/gif', 'application/pdf',
+          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'text/plain', 'text/csv', 'image/svg+xml', 'image/webp', 'image/tiff', 'image/bmp', 'image/ico',
+          'application/vnd.google-apps.document', 'application/vnd.google-apps.spreadsheet',
+        ];
+        if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+          return callback(
+            new BadRequestException(`Unsupported file type: ${file.originalname}`),
+            false,
+          );
+        }
+        if (file.size > 20 * 1024 * 1024) {
+          return callback(
+            new BadRequestException(`${file.originalname} exceeds max file size of 20MB`),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    })
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Device registration with documents',
+    schema: {
+      type: 'object',
+      properties: {
+        productionFacilityRegistration: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        ownershipProof: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        meteringEvidence: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        singleLineDiagram: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        projectPhotos: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        deviceToRegister: {
+          $ref: '#/components/schemas/NewDeviceDTO',
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary: 'Create a new device',
     description: 'Register a new device in the system.',
@@ -523,9 +595,30 @@ export class DeviceController {
   })
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Body() deviceToRegister: NewDeviceDTO,
+    @Body() body: any,
+    @UploadedFiles() files?: { // Make files optional
+      productionFacilityRegistration?: Express.Multer.File[];
+      ownershipProof?: Express.Multer.File[];
+      meteringEvidence?: Express.Multer.File[];
+      singleLineDiagram?: Express.Multer.File[];
+      projectPhotos?: Express.Multer.File[];
+    },
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
+    let deviceToRegister: NewDeviceDTO;
+  
+    // Check if deviceToRegister exists and parse it if it's a string
+    if (typeof body.deviceToRegister === 'string') {
+      try {
+        deviceToRegister = JSON.parse(body.deviceToRegister);
+        console.log("Parsed device data:", deviceToRegister);
+      } catch (e) {
+        this.logger.error(`Error parsing deviceToRegister: ${e.message}`);
+        throw new BadRequestException(`Invalid device data format: ${e.message}`);
+      }
+    } else {
+      deviceToRegister = body.deviceToRegister;
+    }
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -540,9 +633,23 @@ export class DeviceController {
         });
       }
     }
+    const requiredDocuments = [
+      'productionFacilityRegistration',
+      'ownershipProof',
+      'meteringEvidence',
+      'singleLineDiagram',
+      'projectPhotos'
+    ];
+  
+    for (const docType of requiredDocuments) {
+      if (!files[docType] || files[docType].length === 0) {
+        throw new BadRequestException(`Missing required document: ${docType}`);
+      }
+    } 
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
+      files,
       api_user_id,
       role,
     );
@@ -849,41 +956,41 @@ export class DeviceController {
   ): Promise<any> {
     this.logger.verbose(`With in certifiedLogDateRange`);
 
-    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupId,
-    });
-    if (
-      group === null ||
-      (group.buyerId != user.id && user.role != 'ApiUser') ||
-      group.api_user_id != user.api_user_id
-    ) {
-      this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: 'Group UId is not of this buyer, invalid value was sent',
-      });
-    }
-    if (externalId != null || externalId != undefined) {
-      const device: DeviceDTO | null =
-        await this.deviceService.findOne(externalId);
-      if (device === null) {
-        this.logger.error(`device not found, invalid value was sent`);
-        throw new ConflictException({
-          success: false,
-          message: 'device not found, invalid value was sent',
-        });
-      }
-      return await this.deviceService.getCertifiedDeviceDateRange(
-        group.id,
-        device,
-      );
-    } else {
-      return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
-        group.id,
-        pageNumber,
-      );
-    }
+    // const group: DeviceGroup | null = await this.deviceGroupService.findOne({
+    //   devicegroup_uid: groupId,
+    // });
+    // if (
+    //   group === null ||
+    //   (group.buyerId != user.id && user.role != 'ApiUser') ||
+    //   group.api_user_id != user.api_user_id
+    // ) {
+    //   this.logger.error(
+    //     `Group UId is not of this buyer, invalid value was sent`,
+    //   );
+    //   throw new ConflictException({
+    //     success: false,
+    //     message: 'Group UId is not of this buyer, invalid value was sent',
+    //   });
+    // }
+  //   if (externalId != null || externalId != undefined) {
+  //     const device: DeviceDTO | null =
+  //       await this.deviceService.findOne(externalId);
+  //     if (device === null) {
+  //       this.logger.error(`device not found, invalid value was sent`);
+  //       throw new ConflictException({
+  //         success: false,
+  //         message: 'device not found, invalid value was sent',
+  //       });
+  //     }
+  //     return await this.deviceService.getCertifiedDeviceDateRange(
+  //       group.id,
+  //       device,
+  //     );
+  //   } else {
+  //     return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
+  //       group.id,
+  //       pageNumber,
+  //     );
+  //   }
   }
 }

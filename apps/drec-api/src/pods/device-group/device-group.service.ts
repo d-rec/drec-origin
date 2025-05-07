@@ -1189,6 +1189,7 @@ export class DeviceGroupService {
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    files?:any,
     api_user_id?: string,
   ): Promise<
     (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
@@ -1198,11 +1199,12 @@ export class DeviceGroupService {
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
           if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
+            return await this.deviceService.register(orgCode, device,files);
           } else {
             return await this.deviceService.register(
               orgCode,
               device,
+              files,
               api_user_id,
               Role.ApiUser,
             );
@@ -1432,6 +1434,7 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
+    files?:any,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1747,6 +1750,7 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
+          files,
         );
 
         devicesRegistered
