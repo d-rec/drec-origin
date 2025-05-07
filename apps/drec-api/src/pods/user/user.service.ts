@@ -45,13 +45,11 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserRole)
@@ -172,12 +170,12 @@ export class UserService {
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
+        phoneNumberVerifiedAt: null,
       });
       const { ...userData } = user;
       this.logger.debug(
         `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
-
       await this.emailConfirmationService.create(user);
       return user;
     } catch (error) {

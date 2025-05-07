@@ -10,6 +10,7 @@ import { OrganizationsSeeder } from './organizations.seeder';
 import { UsersSeeder } from './user.seeder';
 import { DevicesSeeder } from './devices.seeder';
 import { VerifyOrganizationsSeeder } from './verify-organizations.seeder';
+import { VerifyPhoneNumbersSeeder } from './verify-phone-number';
 import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
 import { VerifyEmailsSeeder } from './verify-emails.seeder';
 
@@ -24,6 +25,7 @@ import { VerifyEmailsSeeder } from './verify-emails.seeder';
     UsersSeeder,
     DevicesSeeder,
     VerifyOrganizationsSeeder,
+    VerifyPhoneNumbersSeeder,
     TermsAndConditionsSeeder,
     VerifyEmailsSeeder,
   ],
