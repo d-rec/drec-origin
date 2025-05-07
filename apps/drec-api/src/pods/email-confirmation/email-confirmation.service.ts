@@ -69,7 +69,7 @@ export class EmailConfirmationService {
       //   //  await this.sendResetPasswordRequest(user.email, token);
       //   await this.sendInvitation(orgname, user.email, token);
       // } else {
-      await this.sendConfirmationEmail(user.email);
+      await this.sendConfirmationEmail(user.email, user.firstName);
       // }
       return emailConfirmation;
     }
@@ -158,7 +158,11 @@ export class EmailConfirmationService {
       });
     }
 
-    if (emailConfirmation.confirmed === true) {
+    const user = await this.userService.findByEmail(
+      emailConfirmation.user.email,
+    );
+
+    if (user.emailVerifiedAt) {
       this.logger.warn('EmailConfirmationResponse.AlreadyConfirmed');
       return {
         success: false,
@@ -191,9 +195,11 @@ export class EmailConfirmationService {
 
   public async sendConfirmationEmail(
     email: IUser['email'],
+    firstName: string,
   ): Promise<ISuccessResponse> {
     this.logger.verbose(`With in sendConfirmationEmail`);
     const currentToken = await this.getByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (!currentToken) {
       this.logger.error(`Token not found`);
@@ -203,8 +209,8 @@ export class EmailConfirmationService {
       };
     }
 
-    const { id, confirmed } = currentToken;
-    if (confirmed === true) {
+    const { id } = currentToken;
+    if (user.emailVerifiedAt) {
       this.logger.error(`Email already confirmed`);
       throw new BadRequestException({
         success: false,
@@ -213,7 +219,7 @@ export class EmailConfirmationService {
     }
     const { token } = await this.generateToken(currentToken, id);
 
-    await this.sendConfirmEmailRequest(email.toLowerCase(), token);
+    await this.sendConfirmEmailRequest(email.toLowerCase(), token, firstName);
 
     return {
       success: true,
@@ -279,14 +285,22 @@ export class EmailConfirmationService {
   private async sendConfirmEmailRequest(
     email: string,
     token: string,
+    firstName: string,
   ): Promise<void> {
     this.logger.verbose(`With in sendConfirmEmailRequest`);
     const url = `${process.env.UI_BASE_URL}/confirm-email?token=${token}`;
 
     const result = await this.mailService.send({
       to: email,
-      subject: `[Origin] Confirm your email address`,
-      html: `Welcome to the marketplace! Please click the link below to verify your email address: <br/> <br/> <a href="${url}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Confirm</a>.`,
+      subject: `[D-REC] Please verify your email address`,
+      html: `
+      <p>Hi ${firstName},</p>
+      <p>Thanks for signing up with D-REC!</p>
+      <p>To complete your account setup, please verify your email address by clicking the button below:</p>
+      <a href="${url}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Verify My Email</a>
+      <p>If you didn’t create an account with us, please disregard this message.</p>
+      <p>Welcome aboard!<br/>D-REC Team</p>
+    `,
     });
 
     if (result) {
