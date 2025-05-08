@@ -4,13 +4,9 @@ import { DeviceDocument } from './entities/device-documents.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileModule } from '../file';
 
-
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([DeviceDocument]),
-    FileModule,
-  ],
+  imports: [TypeOrmModule.forFeature([DeviceDocument]), FileModule],
   providers: [DeviceDocumentsService],
-  exports: [DeviceDocumentsService], 
+  exports: [DeviceDocumentsService],
 })
 export class DeviceDocumentsModule {}

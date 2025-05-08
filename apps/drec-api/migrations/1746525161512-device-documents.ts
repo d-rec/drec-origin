@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class deviceDocuments1746525161512 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

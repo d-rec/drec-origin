@@ -74,9 +74,7 @@ import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { DocumentType } from '../document-uploads/entities/device-documents.entity';
-import { FileService } from '../file';
 import { DeviceDocumentsService } from '../document-uploads/device-document.service';
-import * as path from 'path';
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -556,38 +554,16 @@ export class DeviceService {
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
-    this.logger.verbose(`With in register`);
-    console.log("nedeviceee",newDevice)
+    this.logger.verbose(`Within register`);
+
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
     } else {
       this.logger.error('Country code is undefined or missing');
       throw new BadRequestException('Country code is required');
     }
+
     const sdgBenefitList = SDGBenefits;
-    if (files) {
-    const requiredDocuments = [
-      'productionFacilityRegistration',
-      'ownershipProof',
-      'meteringEvidence',
-      'singleLineDiagram',
-      'projectPhotos'
-    ];
-    
-    for (const docType of requiredDocuments) {
-      if (!files[docType] || files[docType].length === 0) {
-        throw new BadRequestException(`Missing required document: ${docType}`);
-      }
-      // Validate file formats and sizes
-      for (const file of files[docType]) {
-        const validFormats = ['.avif', '.bmp', '.gif', '.ico', '.jpeg', '.jpg', '.png', '.svg', '.tif', '.tiff', '.webp', '.pdf', '.doc', '.xls', '.docx', '.xlsx', '.pptx', '.gsheet', '.gdoc', '.txt', '.csv'];
-        const fileFormat = path.extname(file.originalname).toLowerCase();
-        if (!validFormats.includes(fileFormat) || file.size > 20 * 1024 * 1024) {
-          throw new BadRequestException(`Invalid file format or size for document: ${docType}`);
-        }
-      }
-    }
-  }
 
     const checkExternalId = await this.repository.findOne({
       where: {
@@ -595,16 +571,18 @@ export class DeviceService {
         organizationId: orgCode,
       },
     });
-    if (checkExternalId != undefined) {
+
+    if (checkExternalId) {
       this.logger.debug('Line No: 236');
       this.logger.error(
-        `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
       );
       throw new ConflictException({
         success: false,
-        message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        message: `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
       });
     }
+
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
@@ -620,23 +598,47 @@ export class DeviceService {
           (ele) =>
             ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
-        if (foundEle) {
-          newDevice.SDGBenefits[index] = foundEle.value;
-        } else {
-          newDevice.SDGBenefits[index] = 'invalid';
-        }
+        newDevice.SDGBenefits[index] = foundEle ? foundEle.value : 'invalid';
       });
+
       newDevice.SDGBenefits = newDevice.SDGBenefits.filter(
         (ele) => ele !== 'invalid',
       );
     } else {
       newDevice.SDGBenefits = [];
     }
+
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     let result: any;
+
+    if (files) {
+      const documentTypes = {
+        productionFacilityRegistration: DocumentType.FORM_SF_02,
+        ownershipProof: DocumentType.SF_02C,
+        meteringEvidence: DocumentType.METERING_EVIDENCE,
+        singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
+        projectPhotos: DocumentType.PROJECT_PHOTOS,
+      };
+
+      for (const [field, documentType] of Object.entries(documentTypes)) {
+        for (const file of files[field]) {
+          try {
+            await this.deviceDocumentsService.upload({
+              organizationId: orgCode,
+              documentType,
+              file,
+            });
+          } catch (error) {
+            this.logger.error(`Failed to upload ${field}: ${error.message}`);
+            throw error;
+          }
+        }
+      }
+    }
+
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
         api_user_id: api_user_id,
@@ -644,7 +646,7 @@ export class DeviceService {
 
       const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-      if (orgUser.role != Role.OrganizationAdmin) {
+      if (orgUser.role !== Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,
@@ -663,37 +665,16 @@ export class DeviceService {
         organizationId: orgCode,
       });
     }
-    if (files) {
-    const documentTypes = {
-      productionFacilityRegistration: DocumentType.FORM_SF_02,
-      ownershipProof: DocumentType.SF_02C,
-      meteringEvidence: DocumentType.METERING_EVIDENCE,
-      singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
-      projectPhotos: DocumentType.PROJECT_PHOTOS,
-    };
-
-   
-    for (const [field, documentType] of Object.entries(documentTypes)) {
-      for (const file of files[field]) {
-        try {
-          await this.deviceDocumentsService.upload({
-            deviceId: result.id,
-            documentType,
-            file,
-          });
-        } catch (error) {
-          this.logger.error(`Failed to upload ${field}: ${error.message}`);
-          throw error; 
-        }
-      }
-    }}
     await queryRunner.commitTransaction();
+
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];
     delete result['organization'];
+
     return result;
   }
+
   async update(
     organizationId: number,
     role: Role,

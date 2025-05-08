@@ -60,7 +60,6 @@ import {
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import {ALLOWED_MIME_TYPES} from '../document-uploads/mime-type-constant'
 /**
  * It is Controller of device with the endpoints of device operations.
  */
@@ -515,38 +514,62 @@ export class DeviceController {
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'productionFacilityRegistration', maxCount: 10 },
-      { name: 'ownershipProof', maxCount: 10 },
-      { name: 'meteringEvidence', maxCount: 10 },
-      { name: 'singleLineDiagram', maxCount: 10 },
-      { name: 'projectPhotos', maxCount: 10 },
-    ], {
-      
-      fileFilter: (req, file, callback) => {
-        const ALLOWED_MIME_TYPES = [
-          'image/jpeg', 'image/png', 'image/gif', 'application/pdf',
-          'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-          'text/plain', 'text/csv', 'image/svg+xml', 'image/webp', 'image/tiff', 'image/bmp', 'image/ico',
-          'application/vnd.google-apps.document', 'application/vnd.google-apps.spreadsheet',
-        ];
-        if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-          return callback(
-            new BadRequestException(`Unsupported file type: ${file.originalname}`),
-            false,
-          );
-        }
-        if (file.size > 20 * 1024 * 1024) {
-          return callback(
-            new BadRequestException(`${file.originalname} exceeds max file size of 20MB`),
-            false,
-          );
-        }
-        callback(null, true);
+    FileFieldsInterceptor(
+      [
+        { name: 'productionFacilityRegistration', maxCount: 10 },
+        { name: 'ownershipProof', maxCount: 10 },
+        { name: 'meteringEvidence', maxCount: 10 },
+        { name: 'singleLineDiagram', maxCount: 10 },
+        { name: 'projectPhotos', maxCount: 10 },
+      ],
+      {
+        fileFilter: (req, file, callback) => {
+          const allowedExtensions = [
+            'avif',
+            'bmp',
+            'gif',
+            'ico',
+            'jpeg',
+            'jpg',
+            'png',
+            'svg',
+            'tif',
+            'tiff',
+            'webp',
+            'pdf',
+            'doc',
+            'xls',
+            'docx',
+            'xlsx',
+            'pptx',
+            'gsheet',
+            'gdoc',
+            'txt',
+            'csv',
+          ];
+          const extension = file.originalname.split('.').pop()?.toLowerCase();
+          const sizeInMB = file.size / (1024 * 1024);
+
+          if (!extension || !allowedExtensions.includes(extension)) {
+            return callback(
+              new BadRequestException(
+                `${file.originalname} has unsupported file type: .${extension}`,
+              ),
+              false,
+            );
+          }
+          if (sizeInMB > 20) {
+            return callback(
+              new BadRequestException(
+                `${file.originalname} exceeds max file size of 20MB`,
+              ),
+              false,
+            );
+          }
+          callback(null, true);
+        },
       },
-    })
+    ),
   )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -596,7 +619,9 @@ export class DeviceController {
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Body() body: any,
-    @UploadedFiles() files?: { // Make files optional
+    @UploadedFiles()
+    files?: {
+      // Make files optional
       productionFacilityRegistration?: Express.Multer.File[];
       ownershipProof?: Express.Multer.File[];
       meteringEvidence?: Express.Multer.File[];
@@ -606,15 +631,16 @@ export class DeviceController {
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
     let deviceToRegister: NewDeviceDTO;
-  
+
     // Check if deviceToRegister exists and parse it if it's a string
     if (typeof body.deviceToRegister === 'string') {
       try {
         deviceToRegister = JSON.parse(body.deviceToRegister);
-        console.log("Parsed device data:", deviceToRegister);
       } catch (e) {
         this.logger.error(`Error parsing deviceToRegister: ${e.message}`);
-        throw new BadRequestException(`Invalid device data format: ${e.message}`);
+        throw new BadRequestException(
+          `Invalid device data format: ${e.message}`,
+        );
       }
     } else {
       deviceToRegister = body.deviceToRegister;
@@ -633,19 +659,6 @@ export class DeviceController {
         });
       }
     }
-    const requiredDocuments = [
-      'productionFacilityRegistration',
-      'ownershipProof',
-      'meteringEvidence',
-      'singleLineDiagram',
-      'projectPhotos'
-    ];
-  
-    for (const docType of requiredDocuments) {
-      if (!files[docType] || files[docType].length === 0) {
-        throw new BadRequestException(`Missing required document: ${docType}`);
-      }
-    } 
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
@@ -972,25 +985,25 @@ export class DeviceController {
     //     message: 'Group UId is not of this buyer, invalid value was sent',
     //   });
     // }
-  //   if (externalId != null || externalId != undefined) {
-  //     const device: DeviceDTO | null =
-  //       await this.deviceService.findOne(externalId);
-  //     if (device === null) {
-  //       this.logger.error(`device not found, invalid value was sent`);
-  //       throw new ConflictException({
-  //         success: false,
-  //         message: 'device not found, invalid value was sent',
-  //       });
-  //     }
-  //     return await this.deviceService.getCertifiedDeviceDateRange(
-  //       group.id,
-  //       device,
-  //     );
-  //   } else {
-  //     return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
-  //       group.id,
-  //       pageNumber,
-  //     );
-  //   }
+    //   if (externalId != null || externalId != undefined) {
+    //     const device: DeviceDTO | null =
+    //       await this.deviceService.findOne(externalId);
+    //     if (device === null) {
+    //       this.logger.error(`device not found, invalid value was sent`);
+    //       throw new ConflictException({
+    //         success: false,
+    //         message: 'device not found, invalid value was sent',
+    //       });
+    //     }
+    //     return await this.deviceService.getCertifiedDeviceDateRange(
+    //       group.id,
+    //       device,
+    //     );
+    //   } else {
+    //     return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
+    //       group.id,
+    //       pageNumber,
+    //     );
+    //   }
   }
 }
