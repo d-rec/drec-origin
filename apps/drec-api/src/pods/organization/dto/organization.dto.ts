@@ -63,4 +63,9 @@ export class OrganizationDTO
   @IsString()
   @IsOptional()
   blockchainAccountSignedMessage?: string;
+
+  @ApiPropertyOptional({ type: Date })
+  @IsString()
+  @IsOptional()
+  verifiedAt?: Date;
 }

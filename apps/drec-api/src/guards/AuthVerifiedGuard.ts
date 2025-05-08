@@ -37,6 +37,10 @@ const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
     throw new UnauthorizedException('Please verify your phone number');
   }
 
+  if (!user.organization.verifiedAt) {
+    throw new UnauthorizedException('Please verify your organization');
+  }
+
   return true;
 };
 
