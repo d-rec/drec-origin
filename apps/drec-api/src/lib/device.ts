@@ -7,7 +7,6 @@ interface DeviceFingerprintInput {
   capacity: number;
   fuelCode: string;
   deviceTypeCode: string;
-  energyStorageCapacity: number | null;
 }
 
 export function generateDeviceFingerprint(input: DeviceFingerprintInput): string {
@@ -18,21 +17,19 @@ export function generateDeviceFingerprint(input: DeviceFingerprintInput): string
     capacity,
     fuelCode,
     deviceTypeCode,
-    energyStorageCapacity,
   } = input;
 
   // Normalize and sanitize inputs
   const normalizedCapacity = removeTrailingZeroes(capacity);
-  const normalizedEnergyStorageCapacity = energyStorageCapacity == null ? 0 : removeTrailingZeroes(energyStorageCapacity);
-
+  const dateOnly = new Date(commissioningDate).toISOString().split('T')[0];
+  
   const combinedString = [
     latitude,
     longitude,
-    commissioningDate,
+    dateOnly,
     normalizedCapacity,
     fuelCode.trim(),
     deviceTypeCode.trim(),
-    normalizedEnergyStorageCapacity,
   ].join('|');
 
   return createHash('sha256').update(combinedString).digest('hex');
