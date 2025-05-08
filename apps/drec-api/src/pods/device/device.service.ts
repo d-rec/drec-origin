@@ -544,6 +544,7 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
+
     const fingerprint = generateDeviceFingerprint({
       latitude: newDevice.latitude,
       longitude: newDevice.longitude,
@@ -551,10 +552,11 @@ export class DeviceService {
       capacity: newDevice.capacity,
       fuelCode: newDevice.fuelCode,
       deviceTypeCode: newDevice.deviceTypeCode,
-      energyStorage: newDevice.energyStorageCapacity
+      energyStorage: newDevice.energyStorageCapacity,
     });
-    console.log('fingeprint', fingerprint)
+
     newDevice.fingerprint = fingerprint;
+
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenefitList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({

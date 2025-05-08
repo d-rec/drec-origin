@@ -22,8 +22,8 @@ export function generateDeviceFingerprint(input: DeviceFingerprintInput): string
   } = input;
 
   // Normalize and sanitize inputs
-  const normalizedCapacity = stripTrailingZeroes(capacity);
-  const normalizedEnergyStorage = energyStorage == null ? 0 : stripTrailingZeroes(energyStorage);
+  const normalizedCapacity = removeTrailingZeroes(capacity);
+  const normalizedEnergyStorage = energyStorage == null ? 0 : removeTrailingZeroes(energyStorage);
 
   const combinedString = [
     latitude,
@@ -35,12 +35,10 @@ export function generateDeviceFingerprint(input: DeviceFingerprintInput): string
     normalizedEnergyStorage,
   ].join('|');
 
-  console.log("data", combinedString)
-
   return createHash('sha256').update(combinedString).digest('hex');
 }
 
 // Helper to normalize decimal values (e.g., 10.0 → 10, 10.50 → 10.5)
-function stripTrailingZeroes(value: number): string {
+function removeTrailingZeroes(value: number): string {
   return parseFloat(value.toString()).toString();
 }
