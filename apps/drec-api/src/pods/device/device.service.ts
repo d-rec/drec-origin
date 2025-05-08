@@ -650,6 +650,19 @@ export class DeviceService {
             },
           }
         : undefined;
+
+    const fingerprint = generateDeviceFingerprint({
+      latitude: updateDeviceDTO.latitude,
+      longitude: updateDeviceDTO.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate,
+      capacity: updateDeviceDTO.capacity,
+      fuelCode: updateDeviceDTO.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+      energyStorage: updateDeviceDTO.energyStorageCapacity,
+    });
+
+    updateDeviceDTO.fingerprint = fingerprint;
+
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,

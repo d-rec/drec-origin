@@ -131,6 +131,19 @@ export class UpdateDeviceDTO
   @IsOptional()
   offTaker: OffTaker;
 
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Min(0, {
+    message:
+      'Invalid Energy Storage Capacity, it should be equal or greater than 0',
+  })
+  @Transform((value) => {
+    if (!value) return value;
+    return parseFloat(value);
+  })
+  energyStorageCapacity?: number | null;
+
   // @ApiProperty()
   // @IsEnum(Sector)
   // @IsOptional()
@@ -194,4 +207,9 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }
