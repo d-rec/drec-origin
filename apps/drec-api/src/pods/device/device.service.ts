@@ -552,7 +552,7 @@ export class DeviceService {
       capacity: newDevice.capacity,
       fuelCode: newDevice.fuelCode,
       deviceTypeCode: newDevice.deviceTypeCode,
-      energyStorage: newDevice.energyStorageCapacity,
+      energyStorageCapacity: newDevice.energyStorageCapacity,
     });
 
     newDevice.fingerprint = fingerprint;
@@ -658,7 +658,7 @@ export class DeviceService {
       capacity: updateDeviceDTO.capacity,
       fuelCode: updateDeviceDTO.fuelCode,
       deviceTypeCode: updateDeviceDTO.deviceTypeCode,
-      energyStorage: updateDeviceDTO.energyStorageCapacity,
+      energyStorageCapacity: updateDeviceDTO.energyStorageCapacity,
     });
 
     updateDeviceDTO.fingerprint = fingerprint;
