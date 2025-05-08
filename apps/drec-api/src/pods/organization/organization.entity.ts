@@ -1,6 +1,12 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { IsArray, IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsISO31661Alpha2,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
 import { OrganizationStatus, OrganizationType } from '../../utils/enums';
@@ -137,4 +143,8 @@ export class Organization
 
   @Column()
   api_user_id: string;
+
+  @Column({ name: 'verified_at', default: null })
+  @IsDate()
+  verifiedAt: Date;
 }
