@@ -4,6 +4,7 @@ const tags: { name: string; description: string }[] = [
     description:
       'All endpoints related to user authentication and authorization. It covers functionalities such as login, registration, token issuance and verification, password recovery, and session management. Endpoints under this tag are designed to secure the API by verifying user credentials, managing access tokens, and ensuring that only authenticated users can interact with protected resources. This separation helps developers quickly identify and integrate security-related operations within the API.',
   },
+
   {
     name: 'User',
     description:
@@ -92,6 +93,11 @@ const tags: { name: string; description: string }[] = [
     name: 'Health',
     description:
       "Endpoints related to checking the health and status of the application and it's related services",
+  },
+  {
+    name: 'document-uploads',
+    description:
+      'Endpoints related to document management and file uploads. This includes functionalities for uploading various types of documents (PDF, JPEG, PNG) associated with different entities (e.g., organizations), retrieving uploaded documents, and managing document metadata. These endpoints ensure secure handling of document uploads with proper validation of file types, sizes, and user permissions. The system supports different document categories and maintains associations between documents and their respective target entities.',
   },
   {
     name: 'OTP',
