@@ -363,7 +363,6 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    // @UserDecorator() user: LoggedInUser,
     @Req() request: Request,
   ): Promise<SuccessResponseDTO> {
     const user = request.user as any;

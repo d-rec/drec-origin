@@ -205,11 +205,20 @@ export class FileService {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
-    const a = name.substr(0, name.indexOf('.csv'));
-    this.logger.debug(a);
+
+    // Extract file extension
+    const fileExtension = name.includes('.') ? name.split('.').pop() : '';
+    const fileNameWithoutExtension = name.includes('.')
+      ? name.substring(0, name.lastIndexOf('.'))
+      : name;
+
+    this.logger.debug(
+      `File name without extension: ${fileNameWithoutExtension}`,
+    );
+
     const params = {
       Bucket: bucket,
-      Key: `${a}-${uuid()}.csv`,
+      Key: `${fileNameWithoutExtension}-${uuid()}${fileExtension ? `.${fileExtension}` : ''}`,
       Body: file,
       ACL: 'public-read',
     };
@@ -266,6 +275,20 @@ export class FileService {
       await s3
         .deleteObject({
           Bucket: process.env.S3_BUCKET,
+          Key: key,
+        })
+        .promise();
+    } catch (error) {
+      this.logger.error(`Failed to delete file from S3: ${error.message}`);
+    }
+  }
+
+  public async deleteFileFromS3(key: string): Promise<void> {
+    try {
+      const s3 = this.getS3();
+      await s3
+        .deleteObject({
+          Bucket: process.env.bucketname,
           Key: key,
         })
         .promise();
