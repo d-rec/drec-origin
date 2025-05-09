@@ -655,7 +655,24 @@ export class DeviceController {
         });
       }
     }
-    console.log('bodyyyyy', body);
+    const allFileTypes = [
+      'productionFacilityRegistration',
+      'ownershipProof',
+      'meteringEvidence',
+      'singleLineDiagram',
+      'projectPhotos',
+    ];
+    const missingFiles = allFileTypes.filter((fileType) => {
+      const fileArray = files[fileType];
+      return !Array.isArray(fileArray) || fileArray.length === 0;
+    });
+
+    if (missingFiles.length > 0) {
+      throw new BadRequestException(
+        `Missing required file types: ${missingFiles.join(', ')}`,
+      );
+    }
+
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
