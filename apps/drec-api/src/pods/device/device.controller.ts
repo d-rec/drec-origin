@@ -42,7 +42,7 @@ import { countryCodesList } from '../../models/country-code';
 import { Role } from '../../utils/enums';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceGroup } from '../device-group/device-group.entity';
-// import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { Roles } from '../user/decorators/roles.decorator';
@@ -52,7 +52,9 @@ import { Device } from './device.entity';
 import { DeviceService } from './device.service';
 import {
   DeviceDTO,
+  DeviceFiles,
   DeviceGroupByDTO,
+  DeviceRegistrationBody,
   FilterDTO,
   GroupedDevicesDTO,
   NewDeviceDTO,
@@ -60,6 +62,7 @@ import {
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+
 /**
  * It is Controller of device with the endpoints of device operations.
  */
@@ -71,7 +74,7 @@ export class DeviceController {
   private readonly logger = new Logger(DeviceController.name);
 
   constructor(
-    // private readonly deviceGroupService: DeviceGroupService,
+    private readonly deviceGroupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
@@ -618,16 +621,9 @@ export class DeviceController {
   })
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Body() body: any,
+    @Body() body: DeviceRegistrationBody,
     @UploadedFiles()
-    files?: {
-      // Make files optional
-      productionFacilityRegistration?: Express.Multer.File[];
-      ownershipProof?: Express.Multer.File[];
-      meteringEvidence?: Express.Multer.File[];
-      singleLineDiagram?: Express.Multer.File[];
-      projectPhotos?: Express.Multer.File[];
-    },
+    files: DeviceFiles,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
     let deviceToRegister: NewDeviceDTO;
@@ -659,6 +655,7 @@ export class DeviceController {
         });
       }
     }
+    console.log('bodyyyyy', body);
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
@@ -969,41 +966,41 @@ export class DeviceController {
   ): Promise<any> {
     this.logger.verbose(`With in certifiedLogDateRange`);
 
-    // const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-    //   devicegroup_uid: groupId,
-    // });
-    // if (
-    //   group === null ||
-    //   (group.buyerId != user.id && user.role != 'ApiUser') ||
-    //   group.api_user_id != user.api_user_id
-    // ) {
-    //   this.logger.error(
-    //     `Group UId is not of this buyer, invalid value was sent`,
-    //   );
-    //   throw new ConflictException({
-    //     success: false,
-    //     message: 'Group UId is not of this buyer, invalid value was sent',
-    //   });
-    // }
-    //   if (externalId != null || externalId != undefined) {
-    //     const device: DeviceDTO | null =
-    //       await this.deviceService.findOne(externalId);
-    //     if (device === null) {
-    //       this.logger.error(`device not found, invalid value was sent`);
-    //       throw new ConflictException({
-    //         success: false,
-    //         message: 'device not found, invalid value was sent',
-    //       });
-    //     }
-    //     return await this.deviceService.getCertifiedDeviceDateRange(
-    //       group.id,
-    //       device,
-    //     );
-    //   } else {
-    //     return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
-    //       group.id,
-    //       pageNumber,
-    //     );
-    //   }
+    const group: DeviceGroup | null = await this.deviceGroupService.findOne({
+      devicegroup_uid: groupId,
+    });
+    if (
+      group === null ||
+      (group.buyerId != user.id && user.role != 'ApiUser') ||
+      group.api_user_id != user.api_user_id
+    ) {
+      this.logger.error(
+        `Group UId is not of this buyer, invalid value was sent`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
+      });
+    }
+    if (externalId != null || externalId != undefined) {
+      const device: DeviceDTO | null =
+        await this.deviceService.findOne(externalId);
+      if (device === null) {
+        this.logger.error(`device not found, invalid value was sent`);
+        throw new ConflictException({
+          success: false,
+          message: 'device not found, invalid value was sent',
+        });
+      }
+      return await this.deviceService.getCertifiedDeviceDateRange(
+        group.id,
+        device,
+      );
+    } else {
+      return await this.deviceService.getCertifiedDeviceDateRangeByGroupId(
+        group.id,
+        pageNumber,
+      );
+    }
   }
 }

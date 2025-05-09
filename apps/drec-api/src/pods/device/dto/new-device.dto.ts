@@ -232,3 +232,19 @@ export class NewDeviceDTO
   @IsString()
   postcode?: string | null;
 }
+export class DeviceRegistrationBody {
+  productionFacilityRegistration: Array<File>;
+  ownershipProof: Array<File>;
+  meteringEvidence: Array<File>;
+  singleLineDiagram: Array<File>;
+  projectPhotos: Array<File>;
+  deviceToRegister: NewDeviceDTO;
+}
+
+export type DeviceFiles = {
+  productionFacilityRegistration: Express.Multer.File[];
+  ownershipProof: Express.Multer.File[];
+  meteringEvidence: Express.Multer.File[];
+  singleLineDiagram: Express.Multer.File[];
+  projectPhotos: Express.Multer.File[];
+};

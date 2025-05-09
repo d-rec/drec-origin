@@ -544,12 +544,12 @@ export class DeviceService {
   public async register(
     orgCode: number,
     newDevice: NewDeviceDTO,
-    files?: {
-      productionFacilityRegistration?: Express.Multer.File[];
-      ownershipProof?: Express.Multer.File[];
-      meteringEvidence?: Express.Multer.File[];
-      singleLineDiagram?: Express.Multer.File[];
-      projectPhotos?: Express.Multer.File[];
+    files: {
+      productionFacilityRegistration: Express.Multer.File[];
+      ownershipProof: Express.Multer.File[];
+      meteringEvidence: Express.Multer.File[];
+      singleLineDiagram: Express.Multer.File[];
+      projectPhotos: Express.Multer.File[];
     },
     api_user_id?: string,
     role?: Role,

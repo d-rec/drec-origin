@@ -797,7 +797,7 @@ export class UserService {
 
     await this.repository.update(
       { id: userId },
-      { emailVerifiedAt: null },
+      { emailVerifiedAt: new Date() },
     );
 
     return this.repository.findOne({ id: userId });

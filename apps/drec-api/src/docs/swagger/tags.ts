@@ -98,11 +98,6 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to OTP (One-Time Password) verification. This includes functionalities for sending OTPs to users, verifying OTPs for authentication, and managing OTP expiration times. These endpoints are essential for securing user actions and ensuring that only verified users can proceed with sensitive operations.',
   },
-  {
-    name: 'Device-documents',
-    description:
-      'Endpoints related to document management and file uploads. This includes functionalities for uploading various types of documents (PDF, JPEG, PNG) associated with different entities (e.g., organizations), retrieving uploaded documents, and managing document metadata. These endpoints ensure secure handling of document uploads with proper validation of file types, sizes, and user permissions. The system supports different document categories and maintains associations between documents and their respective target entities.',
-  },
 ];
 
 export default tags;
