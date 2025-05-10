@@ -43,7 +43,7 @@ export class DeviceDocumentsService {
 
       const newDocument = this.documentRepository.create({
         targetId: organizationId,
-        TargetType: DocumentTargetType.DEVICE,
+        TargetType: DocumentTargetType.ORGANIZATION,
         type: documentType,
         extension: extension,
         url: uploadResult.Location,

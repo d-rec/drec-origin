@@ -3,8 +3,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class deviceDocuments1746525161512 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TYPE document_target_type AS ENUM ('device');
-      CREATE TYPE document_type AS ENUM (
+      CREATE TYPE device_document_target_type AS ENUM ('organization');
+      CREATE TYPE device_document_type AS ENUM (
         'Form SF-02 - Production Facility Registration',
         'SF-02C Owner''s Declaration or Proof of Ownership',
         'Metering Evidence',
@@ -17,8 +17,8 @@ export class deviceDocuments1746525161512 implements MigrationInterface {
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
         "target_id" INTEGER NOT NULL,
-        "target_type" document_target_type NOT NULL,
-        "type" document_type NOT NULL,
+        "target_type" device_document_target_type NOT NULL,
+        "type" device_document_type NOT NULL,
         "extension" VARCHAR(255) NOT NULL,
         "url" VARCHAR(2000) NOT NULL
       );
@@ -26,14 +26,14 @@ export class deviceDocuments1746525161512 implements MigrationInterface {
 
     await queryRunner.query(`
       CREATE INDEX "IDX_device_documents_device" ON "deviceDocuments" ("target_id")
-      WHERE "target_type" = 'device';
+      WHERE "target_type" = 'organization';
     `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX "IDX_device_documents_device"`);
     await queryRunner.query(`DROP TABLE "deviceDocuments"`);
-    await queryRunner.query(`DROP TYPE document_type`);
-    await queryRunner.query(`DROP TYPE document_target_type`);
+    await queryRunner.query(`DROP TYPE device_document_type`);
+    await queryRunner.query(`DROP TYPE device_document_target_type`);
   }
 }

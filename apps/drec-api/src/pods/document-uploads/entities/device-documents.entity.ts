@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 export enum DocumentTargetType {
-  DEVICE = 'device',
+  ORGANIZATION = 'organization',
 }
 
 export enum DocumentType {
