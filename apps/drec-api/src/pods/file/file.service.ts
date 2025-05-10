@@ -197,7 +197,7 @@ export class FileService {
     this.logger.verbose(`With in upload`);
     this.logger.debug(file);
     const { originalname } = file;
-    const bucketS3 = process.env.S3_BUCKET;
+    const bucketS3 = process.env.bucketname;
     return await this.uploadS3(file.buffer, bucketS3, originalname);
   }
 
@@ -235,11 +235,8 @@ export class FileService {
 
   getS3(): any {
     return new S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION,
-      endpoint: process.env.AWS_ENDPOINT,
-      s3ForcePathStyle: true,
+      accessKeyId: process.env.accessKeyId,
+      secretAccessKey: process.env.secretAccessKey,
     });
   }
 
@@ -252,7 +249,7 @@ export class FileService {
       this.logger.debug(key);
       return new Promise((resolve, reject) => {
         s3.getObject(
-          { Bucket: process.env.S3_BUCKET, Key: key },
+          { Bucket: process.env.bucketname, Key: key },
           (err, data) => {
             if (err) {
               this.logger.error(err);
@@ -268,19 +265,6 @@ export class FileService {
     }
     this.logger.error(`Object not found`);
     throw new NotFoundException();
-  }
-  public async deleteFileFromS3(key: string): Promise<void> {
-    try {
-      const s3 = this.getS3();
-      await s3
-        .deleteObject({
-          Bucket: process.env.S3_BUCKET,
-          Key: key,
-        })
-        .promise();
-    } catch (error) {
-      this.logger.error(`Failed to delete file from S3: ${error.message}`);
-    }
   }
 
   public async deleteFileFromS3(key: string): Promise<void> {
@@ -302,7 +286,7 @@ export class FileService {
   // if (key) {
 
   //     return s3.getSignedUrlPromise('getObject', {
-  //       Bucket: process.env.S3_BUCKET,
+  //       Bucket: process.env.bucketname,
   //       Key: key
   //     })
   //   }
