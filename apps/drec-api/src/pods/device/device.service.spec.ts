@@ -76,7 +76,12 @@ describe('DeviceService', () => {
         {
           provide: FileService,
           useValue: {
-            upload: jest.fn(),
+            upload: jest
+              .fn()
+              .mockResolvedValue({
+                key: 'mock-file-key',
+                Location: 'mock-url',
+              }),
             deleteFileFromS3: jest.fn(),
           },
         },
