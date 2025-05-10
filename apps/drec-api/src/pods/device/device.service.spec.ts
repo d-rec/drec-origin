@@ -42,11 +42,14 @@ import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
+import { DeviceDocumentsService } from '../document-uploads/device-document.service';
+import { DeviceDocument } from '../document-uploads/entities/device-documents.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
   let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
+  let deviceDocumentRepository: Repository<DeviceDocument>;
   let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
   let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
@@ -59,6 +62,15 @@ describe('DeviceService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeviceService,
+        DeviceDocumentsService,
+        {
+          provide: getRepositoryToken(DeviceDocument),
+          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+          } as any,
+        },
         {
           provide: getRepositoryToken(Device),
           useClass: Repository,
