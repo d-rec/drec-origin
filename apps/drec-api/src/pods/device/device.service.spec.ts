@@ -70,11 +70,10 @@ describe('DeviceService', () => {
         DeviceDocumentsService,
         {
           provide: getRepositoryToken(DeviceDocument),
-          useClass: Repository,
           useValue: {
-            findOne: jest.fn(),
+            create: jest.fn(),
             save: jest.fn(),
-          } as any,
+          },
         },
         {
           provide: FileService,
