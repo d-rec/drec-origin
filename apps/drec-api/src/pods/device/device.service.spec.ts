@@ -9,6 +9,7 @@ import {
   MoreThanOrEqual,
   In,
   FindOneOptions,
+  Connection,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
@@ -44,6 +45,7 @@ import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 import { DeviceDocumentsService } from '../document-uploads/device-document.service';
 import { DeviceDocument } from '../document-uploads/entities/device-documents.entity';
+import { FileService } from '../file';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -57,7 +59,7 @@ describe('DeviceService', () => {
   let organizationService: OrganizationService;
   let userService: UserService;
   let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
-
+  let fileService: FileService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -70,6 +72,13 @@ describe('DeviceService', () => {
             findOne: jest.fn(),
             save: jest.fn(),
           } as any,
+        },
+        {
+          provide: FileService,
+          useValue: {
+            upload: jest.fn(),
+            deleteFileFromS3: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(Device),
@@ -92,6 +101,18 @@ describe('DeviceService', () => {
         {
           provide: HttpService,
           useValue: {} as any,
+        },
+        {
+          provide: Connection,
+          useValue: {
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+            }),
+          },
         },
         {
           provide: getRepositoryToken(IRECDevicesInformationEntity),
