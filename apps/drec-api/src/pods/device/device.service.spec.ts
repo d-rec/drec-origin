@@ -60,6 +60,9 @@ describe('DeviceService', () => {
   let userService: UserService;
   let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
   let fileService: FileService;
+  let connection: Connection;
+  let documentService: DeviceDocumentsService;
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -76,12 +79,10 @@ describe('DeviceService', () => {
         {
           provide: FileService,
           useValue: {
-            upload: jest
-              .fn()
-              .mockResolvedValue({
-                key: 'mock-file-key',
-                Location: 'mock-url',
-              }),
+            upload: jest.fn().mockResolvedValue({
+              key: 'mock-file-key',
+              Location: 'mock-url',
+            }),
             deleteFileFromS3: jest.fn(),
           },
         },
@@ -144,6 +145,14 @@ describe('DeviceService', () => {
 
     service = module.get<DeviceService>(DeviceService);
     repository = module.get<Repository<Device>>(getRepositoryToken(Device));
+    documentService = module.get<DeviceDocumentsService>(
+      DeviceDocumentsService,
+    );
+    deviceDocumentRepository = module.get<Repository<DeviceDocument>>(
+      getRepositoryToken(DeviceDocument),
+    );
+    fileService = module.get<FileService>(FileService);
+    connection = module.get<Connection>(Connection);
   });
 
   it('should be defined', () => {
