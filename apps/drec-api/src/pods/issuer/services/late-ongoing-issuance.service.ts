@@ -198,11 +198,12 @@ export class LateOngoingIssuanceService {
    *
    * @returns Promise that resolves when all missing cycles are processed
    */
-  async getMissingCycle(): Promise<void> {
+  async createMissingCycles(groupId?: number | string): Promise<void> {
     this.logger.debug('Checking for missing certificate cycles');
 
     // Get active device groups
-    const activeGroups = await this.groupService.getAllReservationActive();
+    const activeGroups =
+      await this.groupService.getAllReservationActive(groupId);
 
     // Process each group sequentially to avoid overwhelming the system
     for (const group of activeGroups) {
