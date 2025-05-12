@@ -10,7 +10,7 @@ The D-REC API provides developers with programmatic access to D-REC functionalit
 
 All API requests should be made to the following base URL:
 
-```
+```plaintext
 https://dev-api.drecs.org/docs
 ```
 
@@ -18,7 +18,7 @@ https://dev-api.drecs.org/docs
 
 The D-REC API uses API keys for authentication. To access the API, you must include your API key in the header of each request:
 
-```
+```plaintext
 X-API-Key: your_api_key_here
 ```
 
