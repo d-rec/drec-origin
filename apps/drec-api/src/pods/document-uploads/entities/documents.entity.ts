@@ -12,6 +12,11 @@ export enum DocumentType {
   LEGAL_REPRESENTATIVE_PASSPORT = 'legal representative passport',
   ADDRESS_PROOF = 'address proof',
   OWNERS_DECLARATION = 'owners declaration',
+  FORM_SF_02 = 'Form SF-02 - Production Facility Registration',
+  SF_02C = "SF-02C Owner's Declaration or Proof of Ownership",
+  METERING_EVIDENCE = 'Metering Evidence',
+  SINGLE_LINE_DIAGRAM = 'Single Line Diagram',
+  PROJECT_PHOTOS = 'Project Photos',
 }
 
 export enum DocumentTargetType {

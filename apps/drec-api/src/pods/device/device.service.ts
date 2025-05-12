@@ -73,7 +73,7 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
-import { DocumentType } from '../document-uploads/entities/device-documents.entity';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { DeviceDocumentsService } from '../document-uploads/device-document.service';
 @Injectable()
 export class DeviceService {

@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Connection } from 'typeorm';
 import {
-  DeviceDocument,
+  DocumentEntity,
   DocumentTargetType,
   DocumentType,
-} from './entities/device-documents.entity';
+} from './entities/documents.entity';
 import { FileService } from '../file/file.service';
 
 interface UploadDeviceDocumentPayload {
@@ -18,8 +18,8 @@ interface UploadDeviceDocumentPayload {
 export class DeviceDocumentsService {
   private readonly logger = new Logger(DeviceDocumentsService.name);
   constructor(
-    @InjectRepository(DeviceDocument)
-    private readonly documentRepository: Repository<DeviceDocument>,
+    @InjectRepository(DocumentEntity)
+    private readonly documentRepository: Repository<DocumentEntity>,
     private readonly fileService: FileService,
     private readonly connection: Connection,
   ) {}
@@ -28,7 +28,7 @@ export class DeviceDocumentsService {
     organizationId,
     documentType,
     file,
-  }: UploadDeviceDocumentPayload): Promise<DeviceDocument> {
+  }: UploadDeviceDocumentPayload): Promise<DocumentEntity> {
     const extension = file.originalname.split('.').pop()?.toLowerCase();
 
     const queryRunner = this.connection.createQueryRunner();

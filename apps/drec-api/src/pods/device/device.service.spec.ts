@@ -44,14 +44,14 @@ import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 import { DeviceDocumentsService } from '../document-uploads/device-document.service';
-import { DeviceDocument } from '../document-uploads/entities/device-documents.entity';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 import { FileService } from '../file';
 
 describe('DeviceService', () => {
   let service: DeviceService;
   let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
-  let deviceDocumentRepository: Repository<DeviceDocument>;
+  let deviceDocumentRepository: Repository<DocumentEntity>;
   let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
   let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
@@ -69,7 +69,7 @@ describe('DeviceService', () => {
         DeviceService,
         DeviceDocumentsService,
         {
-          provide: getRepositoryToken(DeviceDocument),
+          provide: getRepositoryToken(DocumentEntity),
           useValue: {
             create: jest.fn(),
             save: jest.fn(),
@@ -147,8 +147,8 @@ describe('DeviceService', () => {
     documentService = module.get<DeviceDocumentsService>(
       DeviceDocumentsService,
     );
-    deviceDocumentRepository = module.get<Repository<DeviceDocument>>(
-      getRepositoryToken(DeviceDocument),
+    deviceDocumentRepository = module.get<Repository<DocumentEntity>>(
+      getRepositoryToken(DocumentEntity),
     );
     fileService = module.get<FileService>(FileService);
     connection = module.get<Connection>(Connection);

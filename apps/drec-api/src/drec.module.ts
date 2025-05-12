@@ -74,7 +74,6 @@ import { DocumentEntity } from './pods/document-uploads/entities/documents.entit
 import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
 import { DeviceDocumentsModule } from './pods/document-uploads/device-document.module';
-import { DeviceDocument } from './pods/document-uploads/entities/device-documents.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -128,7 +127,6 @@ export const entities = [
   BulkUploadFailedLogEntity,
   DocumentEntity,
   Otp,
-  DeviceDocument,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
