@@ -4,12 +4,12 @@ order: 1
 
 # Overview
 
-
 The D-REC API provides developers with programmatic access to D-REC functionality. This guide will help you understand how to use the API effectively, authenticate your requests, and work with the available endpoints.
 
 ### Base URL
 
 All API requests should be made to the following base URL:
+
 ```
 https://dev-api.drecs.org/docs
 ```
@@ -27,12 +27,14 @@ To obtain an API key, please contact the DRECS administration team.
 ### Request Format
 
 The API accepts requests with the following content types:
+
 - `application/json` for JSON payloads
 - `multipart/form-data` for file uploads and form submissions
 
 ### Response Format
 
 All responses are returned in JSON format. Each response includes:
+
 - HTTP status code indicating success or failure
 - Response body containing the requested data or error details
 
@@ -58,10 +60,12 @@ All responses are returned in JSON format. Each response includes:
 For endpoints that return multiple items, the API supports pagination:
 
 **Request Parameters:**
+
 - `page`
 - `limit`
 
 **Response Metadata:**
+
 ```json
 "meta": {
   "pagination": {
@@ -82,6 +86,7 @@ The API uses standard HTTP status codes to indicate the success or failure of re
 - 5xx: Server errors
 
 Common error codes include:
+
 - `400 Bad Request`: The request could not be understood or was missing required parameters
 - `401 Unauthorized`: Authentication failed
 - `403 Forbidden`: The API key doesn't have permission for the requested operation
@@ -91,10 +96,10 @@ Common error codes include:
 ### Data Types
 
 The API uses the following data types:
+
 - String: Text values
 - Number: Numerical values
 - Boolean: true/false values
 - Array: Ordered list of items
 - Object: Collection of key-value pairs
 - Date: ISO 8601 formatted dates (YYYY-MM-DDTHH:MM:SSZ)
-
