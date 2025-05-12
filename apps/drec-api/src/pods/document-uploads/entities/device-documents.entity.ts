@@ -37,7 +37,7 @@ export class DeviceDocument {
     enum: DocumentTargetType,
     name: 'target_type',
   })
-  TargetType: DocumentTargetType;
+  targetType: DocumentTargetType;
 
   @Column({
     type: 'enum',
