@@ -356,12 +356,20 @@ export class IssuerService {
       );
     }
 
+    this.logger.debug(
+      `Filtered out ${filteredReadings.length}/${deviceReadings.length} readings for ${device.externalId}`,
+    );
+
     const certifiedDevices =
       await this.deviceService.getCheckCertificateIssueDateLogForDevice(
         device.externalId,
         new Date(startDate.toString()),
         new Date(endDate.toString()),
       );
+
+    this.logger.debug(
+      `Found ${certifiedDevices.length} certified devices for ${device.externalId}`,
+    );
 
     if (certifiedDevices.length > 0) {
       const certifiedRanges = certifiedDevices.map((cert) => ({
@@ -379,9 +387,17 @@ export class IssuerService {
       });
     }
 
+    this.logger.debug(
+      `Filtered out ${filteredReadings.length}/${deviceReadings.length} readings for ${device.externalId}`,
+    );
+
     const totalReadValue = filteredReadings.reduce(
       (sum, reading) => sum + reading.value,
       0,
+    );
+
+    this.logger.debug(
+      `Total read value for ${device.externalId} is ${totalReadValue}`,
     );
 
     return {
