@@ -215,8 +215,6 @@ export class LateOngoingIssuanceService {
       // Get devices for this group
       const devicesInGroup = await this.deviceService.findForGroup(group.id);
 
-      // Pre-fetch next certificate request
-      await this.groupService.getNextRequestCertificateByGroupId(group.id);
       await Promise.all(
         devicesInGroup.map(async (device) =>
           this.deviceService.checkForDeviceMissingCycles(group, device),
