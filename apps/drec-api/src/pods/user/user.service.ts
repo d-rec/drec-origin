@@ -165,7 +165,7 @@ export class UserService {
         email: data.email.toLowerCase(),
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
-        terms_accept_at: data.termsAndConditions ? new Date() : null,
+        terms_accepted_at: data.termsAndConditions ? new Date() : null,
         notifications: true,
         status: status || UserStatus.Active,
         role: role,

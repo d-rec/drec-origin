@@ -50,7 +50,7 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @ApiProperty({ type: Date, required: true })
   @Column({ type: 'timestamp', nullable: false })
-  terms_accept_at: Date;
+  terms_accepted_at: Date;
 
   @ApiProperty({ type: String })
   @Column({ select: false })
