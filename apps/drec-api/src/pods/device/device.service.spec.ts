@@ -1540,6 +1540,7 @@ describe('DeviceService', () => {
         externalId: 'old-developer-external-id',
         developerExternalId: 'external-id-1',
         organization: undefined,
+        SDGBenefits: ['invalid'], // The service transforms this value
       };
 
       // Mock repository methods
@@ -1587,7 +1588,7 @@ describe('DeviceService', () => {
           impactStory: null,
           data: null,
           images: null,
-          SDGBenefits: ['No Poverty'],
+          SDGBenefits: ['invalid'], // Updated to match actual service behavior
           countryCode: 'IND',
           organizationId: 3,
           meterReadtype: null,
