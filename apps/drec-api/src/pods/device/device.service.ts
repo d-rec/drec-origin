@@ -613,32 +613,6 @@ export class DeviceService {
     await queryRunner.startTransaction();
 
     let result: any;
-
-    if (files) {
-      const documentTypes = {
-        productionFacilityRegistration: DocumentType.FORM_SF_02,
-        ownershipProof: DocumentType.SF_02C,
-        meteringEvidence: DocumentType.METERING_EVIDENCE,
-        singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
-        projectPhotos: DocumentType.PROJECT_PHOTOS,
-      };
-
-      for (const [field, documentType] of Object.entries(documentTypes)) {
-        for (const file of files[field]) {
-          try {
-            await this.deviceDocumentsService.upload({
-              organizationId: orgCode,
-              documentType,
-              file,
-            });
-          } catch (error) {
-            this.logger.error(`Failed to upload ${field}: ${error.message}`);
-            throw error;
-          }
-        }
-      }
-    }
-
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
         api_user_id: api_user_id,
@@ -664,6 +638,31 @@ export class DeviceService {
         ...newDevice,
         organizationId: orgCode,
       });
+    }
+    if (files) {
+      const documentTypes = {
+        productionFacilityRegistration: DocumentType.FORM_SF_02,
+        ownershipProof: DocumentType.SF_02C,
+        meteringEvidence: DocumentType.METERING_EVIDENCE,
+        singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
+        projectPhotos: DocumentType.PROJECT_PHOTOS,
+      };
+
+      for (const [field, documentType] of Object.entries(documentTypes)) {
+        const deviceId = result.id;
+        for (const file of files[field]) {
+          try {
+            await this.deviceDocumentsService.upload({
+              deviceId: deviceId,
+              documentType,
+              file,
+            });
+          } catch (error) {
+            this.logger.error(`Failed to upload ${field}: ${error.message}`);
+            throw error;
+          }
+        }
+      }
     }
     await queryRunner.commitTransaction();
 

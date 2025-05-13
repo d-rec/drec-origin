@@ -9,7 +9,7 @@ import {
 import { FileService } from '../file/file.service';
 
 interface UploadDeviceDocumentPayload {
-  organizationId: number;
+  deviceId: number;
   documentType: DocumentType;
   file: Express.Multer.File;
 }
@@ -25,7 +25,7 @@ export class DeviceDocumentsService {
   ) {}
 
   async upload({
-    organizationId,
+    deviceId,
     documentType,
     file,
   }: UploadDeviceDocumentPayload): Promise<DocumentEntity> {
@@ -42,8 +42,8 @@ export class DeviceDocumentsService {
       uploadedFileKey = uploadResult.key;
 
       const newDocument = this.documentRepository.create({
-        targetId: organizationId,
-        targetType: DocumentTargetType.ORGANIZATION,
+        targetId: deviceId,
+        targetType: DocumentTargetType.DEVICE,
         type: documentType,
         extension: extension,
         url: uploadResult.Location,
