@@ -1544,13 +1544,14 @@ describe('DeviceService', () => {
       };
 
       // Mock repository methods
-      const findOneSpy = jest.spyOn(repository, 'findOne')
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
         .mockResolvedValue(null); // Mock fingerprint check to return null
-      
+
       const findDeviceByDeveloperExternalIdSpy = jest
         .spyOn(service, 'findDeviceByDeveloperExternalId')
         .mockResolvedValue(currentDevice);
-      
+
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedDevice as unknown as Device);
