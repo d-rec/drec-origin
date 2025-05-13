@@ -261,11 +261,8 @@ export class LateOngoingIssuanceService {
       return;
     }
 
-    await this.deviceService.updateLateOngoing(
-      device.externalId,
-      cycle.id,
-      lastReadDate.toISOString(),
-    );
+    const newEndDate = cycle.lateEndDateUTC;
+    cycle.late_end_date = lastReadDate.toISOString();
 
     this.logger.debug(
       'Late ongoing Issue Certificate For::',
@@ -277,7 +274,7 @@ export class LateOngoingIssuanceService {
         group.id,
         device.externalId,
         DateTime.fromJSDate(newStartDate).toUTC(),
-        cycle.lateEndDateUTC,
+        newEndDate,
       ),
       this.issueCertificate(
         group,
@@ -328,21 +325,14 @@ export class LateOngoingIssuanceService {
       return;
     }
 
-    await Promise.all([
-      this.deviceService.updateLateOngoing(
-        device.externalId,
-        cycle.id,
-        cycle.late_end_date,
-      ),
-      this.issueCertificate(
-        group,
-        nextIssuance,
-        cycle.lateStartDateUTC,
-        cycle.lateEndDateUTC,
-        device.countryCode,
-        cycle,
-      ),
-    ]);
+    await this.issueCertificate(
+      group,
+      nextIssuance,
+      cycle.lateStartDateUTC,
+      cycle.lateEndDateUTC,
+      device.countryCode,
+      cycle,
+    );
   }
 
   /**
@@ -371,6 +361,12 @@ export class LateOngoingIssuanceService {
       startDate,
       endDate,
       countryCodeKey,
+    );
+
+    await this.deviceService.updateLateOngoing(
+      cycle.device_externalid,
+      cycle.id,
+      cycle.late_end_date,
     );
 
     // Archive the late ongoing cycle now that a certificate has been issued

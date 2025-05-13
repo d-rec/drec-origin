@@ -101,6 +101,7 @@ export class IssuerService {
       previousReadings,
       completeMeterReads,
     );
+    const certificateTransactionUID = uuid();
 
     // Log the certificate details
     await Promise.all(
@@ -117,8 +118,6 @@ export class IssuerService {
         ),
       ),
     );
-
-    const certificateTransactionUID = uuid();
 
     // Prepare certificate issuance parameters
     const issuance = this.certificateService.getIssuanceParams(
