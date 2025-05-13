@@ -71,6 +71,7 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
+import { generateDeviceFingerprint } from '../../lib/device';
 
 @Injectable()
 export class DeviceService {
@@ -543,6 +544,18 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
+
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+    });
+
+    newDevice.fingerprint = fingerprint;
+
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenefitList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
@@ -636,6 +649,18 @@ export class DeviceService {
             },
           }
         : undefined;
+
+    const fingerprint = generateDeviceFingerprint({
+      latitude: updateDeviceDTO.latitude,
+      longitude: updateDeviceDTO.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate,
+      capacity: updateDeviceDTO.capacity,
+      fuelCode: updateDeviceDTO.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+    });
+
+    updateDeviceDTO.fingerprint = fingerprint;
+
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
