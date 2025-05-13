@@ -6,6 +6,7 @@ import { VerifyPhoneNumbersSeeder } from './verify-phone-number';
 import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
 import { VerifyEmailsSeeder } from './verify-emails.seeder';
 import { VerifyOrganizationsSeeder } from './verify-organizations.seeder';
+import { FingerprintSeeder } from './fingerprint.seeder';
 async function run() {
   console.log('Initializing seeder...');
 
@@ -17,6 +18,7 @@ async function run() {
     app.get(TermsAndConditionsSeeder),
     app.get(VerifyEmailsSeeder),
     app.get(VerifyOrganizationsSeeder),
+    app.get(FingerprintSeeder),
     // Add more seeders here
     // For dummy data seeders add them in ./dummy-data/index.ts
   ];
