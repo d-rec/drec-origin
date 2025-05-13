@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.2](https://github.com/d-rec/drec-origin/compare/v0.4.1...v0.4.2) (2025-05-13)
+
+### Bug Fixes
+
+- issue valid device calculation ([c7ee189](https://github.com/d-rec/drec-origin/commit/c7ee18945d5d6c261e8069aa9635c422940c602e))
+
+### Improvements
+
+- temporary disable issuance ([3222767](https://github.com/d-rec/drec-origin/commit/32227673ff86f3e2403fa7a7c448bbc4506abd7e))
+
 ### [0.4.1](https://github.com/d-rec/drec-origin/compare/v0.4.0...v0.4.1) (2025-05-13)
 
 ### Bug Fixes
