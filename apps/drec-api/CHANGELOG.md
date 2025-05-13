@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/d-rec/drec-origin/compare/v0.3.2...v0.4.0) (2025-05-13)
+
+### Features
+
+- Add terms and condition ([#548](https://github.com/d-rec/drec-origin/issues/548)) ([b7d0e3c](https://github.com/d-rec/drec-origin/commit/b7d0e3c2d6cd96ef67c0c7c053062a79f6c44a00))
+- archive outdated late ongoing cycles ([#569](https://github.com/d-rec/drec-origin/issues/569)) ([0a9311c](https://github.com/d-rec/drec-origin/commit/0a9311ce061f2759c7dbccb43ff97e6cc6d703de))
+- improve documentation ([#568](https://github.com/d-rec/drec-origin/issues/568)) ([853a7b2](https://github.com/d-rec/drec-origin/commit/853a7b27a301c0c0925988712e1dee1bda13ba1e))
+
+### Bug Fixes
+
+- naming for avoid confusion ([#527](https://github.com/d-rec/drec-origin/issues/527)) ([4756284](https://github.com/d-rec/drec-origin/commit/47562842d177c96ba92691f6dadbe3c295cf917c))
+
+### Improvements
+
+- cleanup ([d2d3afb](https://github.com/d-rec/drec-origin/commit/d2d3afb9702ed2b4f71d50276c3a07646c18a9fa))
+- cleanup historical reads service ([a6701ae](https://github.com/d-rec/drec-origin/commit/a6701aeb7e60d7f431d0db19e017382e66eff3d1))
+- fix linting config ([25012cc](https://github.com/d-rec/drec-origin/commit/25012ccdbb8316445b3772999901898f26ffee5b))
+- fix linting issues ([6cd9376](https://github.com/d-rec/drec-origin/commit/6cd93769c782032ff5cfbdfa840003035055597f))
+- fix terms accepted at column name ([9b2082e](https://github.com/d-rec/drec-origin/commit/9b2082eb572db0e932bb91efbd71ae428b038ee5))
+- improve the check missing cycles logic ([d3e7e56](https://github.com/d-rec/drec-origin/commit/d3e7e566dc57ff06cf8687c0b1ca71eab6de4cb5))
+- Issuer service and divide Issuing process into dedicated files ([#562](https://github.com/d-rec/drec-origin/issues/562)) ([5bb9a53](https://github.com/d-rec/drec-origin/commit/5bb9a5392af987ff37a30ad90220ba493bd2a076)), closes [#561](https://github.com/d-rec/drec-origin/issues/561)
+- store existing registry and issuer in the database ([810aff0](https://github.com/d-rec/drec-origin/commit/810aff02e55401ca4eb3b93c70041c94a0a57c29))
+
 ### [0.3.2](https://github.com/d-rec/drec-origin/compare/v0.3.1...v0.3.2) (2025-04-24)
 
 ### Features
