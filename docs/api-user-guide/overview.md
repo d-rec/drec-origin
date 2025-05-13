@@ -11,18 +11,16 @@ The D-REC API provides developers with programmatic access to D-REC functionalit
 All API requests should be made to the following base URL:
 
 ```plaintext
-https://dev-api.drecs.org/docs
+https://dev-api.drecs.org/swagger/
 ```
 
 ## Authentication
 
-The D-REC API uses API keys for authentication. To access the API, you must include your API key in the header of each request:
+The DRECS API uses bearer tokens for authentication. To access the API, you must include your token in the Authorization header of each request:
 
 ```plaintext
-X-API-Key: your_api_key_here
+Authorization: Bearer your_token_here
 ```
-
-To obtain an API key, please contact the DRECS administration team.
 
 ## Request Format
 
@@ -42,38 +40,14 @@ All responses are returned in JSON format. Each response includes:
 
 ```json
 {
-  "success": true/false,
-  "data": { ... },  // Present when success is true
-  "error": {        // Present when success is false
+  // Present when success is true
+ { ... },
+  // Present when success is false
+  {
     "code": "ERROR_CODE",
-    "message": "Error description"
+    "message": "Error description",
+    "error": " Error message",
   },
-  "meta": {         // Optional metadata about the request/response
-    "pagination": { ... },
-    "timestamp": "2025-05-12T10:30:45Z"
-  }
-}
-```
-
-## Pagination
-
-For endpoints that return multiple items, the API supports pagination:
-
-**Request Parameters:**
-
-- `page`
-- `limit`
-
-**Response Metadata:**
-
-```json
-"meta": {
-  "pagination": {
-    "total": 24,
-    "page": 2,
-    "limit": 20,
-    "pages": 13
-  }
 }
 ```
 
@@ -103,3 +77,5 @@ The API uses the following data types:
 - Array: Ordered list of items
 - Object: Collection of key-value pairs
 - Date: ISO 8601 formatted dates (YYYY-MM-DDTHH:MM:SSZ)
+
+Find the api endpoint documentation via this url [Endpoints Reference](endpoints-reference.md)
