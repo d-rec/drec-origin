@@ -187,4 +187,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true, name: 'postcode' })
   postcode: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'fingerprint' })
+  fingerprint: string;
 }
