@@ -294,6 +294,9 @@ export class IssuerService {
     const DEFAULT_MIN_DATE = new Date('1970-04-01T12:51:51.112Z');
     const DEFAULT_MAX_DATE = new Date('1990-04-01T12:51:51.112Z');
 
+    this.logger.debug(`Previous readings: ${JSON.stringify(previousReadings)}`);
+    this.logger.debug(`Complete reads: ${JSON.stringify(completeReads)}`);
+
     const minTimestamp = previousReadings
       .map((r) => r.timestamp.getTime())
       .sort((a, b) => a - b)[0];
@@ -315,6 +318,10 @@ export class IssuerService {
         : DEFAULT_MAX_DATE.getTime();
 
     const maximumEndDate = new Date(maxTimestamp);
+
+    throw new Error(
+      `Maximum end date: ${maximumEndDate.toISOString()}, Minimum start date: ${minimumStartDate.toISOString()}`,
+    );
 
     return { minimumStartDate, maximumEndDate };
   }
