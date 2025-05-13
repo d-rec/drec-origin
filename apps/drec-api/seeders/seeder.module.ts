@@ -13,6 +13,7 @@ import { VerifyOrganizationsSeeder } from './verify-organizations.seeder';
 import { VerifyPhoneNumbersSeeder } from './verify-phone-number';
 import { TermsAndConditionsSeeder } from './terms-and-condition-seeder';
 import { VerifyEmailsSeeder } from './verify-emails.seeder';
+import { FingerprintSeeder } from './fingerprint.seeder';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { VerifyEmailsSeeder } from './verify-emails.seeder';
     VerifyPhoneNumbersSeeder,
     TermsAndConditionsSeeder,
     VerifyEmailsSeeder,
+    FingerprintSeeder,
   ],
 })
 export class SeederModule {}
