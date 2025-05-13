@@ -544,18 +544,6 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
-
-    const fingerprint = generateDeviceFingerprint({
-      latitude: newDevice.latitude,
-      longitude: newDevice.longitude,
-      commissioningDate: newDevice.commissioningDate,
-      capacity: newDevice.capacity,
-      fuelCode: newDevice.fuelCode,
-      deviceTypeCode: newDevice.deviceTypeCode,
-    });
-
-    newDevice.fingerprint = fingerprint;
-
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenefitList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
@@ -601,6 +589,31 @@ export class DeviceService {
     } else {
       newDevice.SDGBenefits = [];
     }
+    
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+    });
+
+    newDevice.fingerprint = fingerprint;
+
+    const fingerprintExists = await this.repository.findOne({
+      where:{
+        fingerprint: fingerprint,
+      }
+    })
+
+    if(fingerprintExists){
+      throw new ConflictException({
+        message:'There is a device with matching details',
+        statusCode:409
+      })
+    }
+
     let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
