@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SeederInterface } from './seeder-interface';
+import { SeederInterface } from '../core/seeder-interface';
 import { InjectConnection } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
-import { generateDeviceFingerprint } from '../src/lib/device';
+import { generateDeviceFingerprint } from '../../src/lib/device';
 
 @Injectable()
 export class FingerprintSeeder implements SeederInterface {
