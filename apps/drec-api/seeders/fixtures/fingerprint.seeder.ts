@@ -16,17 +16,28 @@ export class FingerprintSeeder implements SeederInterface {
       const devices = await this.connection.query(
         `SELECT * FROM "device" WHERE "fingerprint" IS NULL`,
       );
-      for (const device of devices) {
-        const fingerprint = generateDeviceFingerprint({
-          latitude: device.latitude,
-          longitude: device.longitude,
-          commissioningDate: device.commissioningDate,
-          capacity: device.capacity,
-          fuelCode: device.fuelCode,
-          deviceTypeCode: device.deviceTypeCode,
-        });
-        await this.connection.query(
-          `UPDATE "device" SET "fingerprint" = '${fingerprint}' WHERE id = ${device.id}`,
+      const chunks = [];
+      const chunkSize = 1500;
+
+      for (let i = 0; i < devices.length; i += chunkSize) {
+        chunks.push(devices.slice(i, i + chunkSize));
+      }
+
+      for (const chunk of chunks) {
+        await Promise.all(
+          chunk.map(async (device) => {
+            const fingerprint = generateDeviceFingerprint({
+              latitude: device.latitude,
+              longitude: device.longitude,
+              commissioningDate: device.commissioningDate,
+              capacity: device.capacity,
+              fuelCode: device.fuelCode,
+              deviceTypeCode: device.deviceTypeCode,
+            });
+            await this.connection.query(
+              `UPDATE "device" SET "fingerprint" = '${fingerprint}' WHERE id = ${device.id}`,
+            );
+          }),
         );
       }
     } catch (error) {
