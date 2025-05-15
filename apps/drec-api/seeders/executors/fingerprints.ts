@@ -1,7 +1,4 @@
-import { SeederExecutor } from "../core/seeder-executor";
-import { FingerprintSeeder } from "../fixtures/fingerprint.seeder";
+import { SeederExecutor } from '../core/seeder-executor';
+import { FingerprintSeeder } from '../fixtures/fingerprint.seeder';
 
-
-SeederExecutor.run([
-  FingerprintSeeder,
-]);
+SeederExecutor.run([FingerprintSeeder]);
