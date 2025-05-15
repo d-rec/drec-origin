@@ -18,6 +18,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Raw,
   Repository,
   SelectQueryBuilder,
@@ -545,17 +546,6 @@ export class DeviceService {
   ): Promise<Device> {
     this.logger.verbose(`With in register`);
 
-    const fingerprint = generateDeviceFingerprint({
-      latitude: newDevice.latitude,
-      longitude: newDevice.longitude,
-      commissioningDate: newDevice.commissioningDate,
-      capacity: newDevice.capacity,
-      fuelCode: newDevice.fuelCode,
-      deviceTypeCode: newDevice.deviceTypeCode,
-    });
-
-    newDevice.fingerprint = fingerprint;
-
     newDevice.countryCode = newDevice.countryCode.toUpperCase();
     const sdgBenefitList = SDGBenefits;
     const checkExternalId = await this.repository.findOne({
@@ -601,6 +591,30 @@ export class DeviceService {
     } else {
       newDevice.SDGBenefits = [];
     }
+
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    newDevice.fingerprint = fingerprint;
+
     let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(orgCode, {
@@ -650,17 +664,6 @@ export class DeviceService {
           }
         : undefined;
 
-    const fingerprint = generateDeviceFingerprint({
-      latitude: updateDeviceDTO.latitude,
-      longitude: updateDeviceDTO.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate,
-      capacity: updateDeviceDTO.capacity,
-      fuelCode: updateDeviceDTO.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
-    });
-
-    updateDeviceDTO.fingerprint = fingerprint;
-
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
@@ -699,6 +702,30 @@ export class DeviceService {
     } else {
       updateDeviceDTO.SDGBenefits = [];
     }
+    const fingerprint = generateDeviceFingerprint({
+      latitude: updateDeviceDTO.latitude,
+      longitude: updateDeviceDTO.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate,
+      capacity: updateDeviceDTO.capacity,
+      fuelCode: updateDeviceDTO.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+        externalId: Not(updateDeviceDTO.externalId),
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    updateDeviceDTO.fingerprint = fingerprint;
+
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
     result['internalexternalId'] = result.externalId;
