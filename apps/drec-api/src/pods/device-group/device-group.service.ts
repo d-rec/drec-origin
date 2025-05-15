@@ -2065,12 +2065,18 @@ export class DeviceGroupService {
     return updatedIssueDateStatus;
   }
 
-  async getAllReservationActive(): Promise<DeviceGroup[]> {
+  async getAllReservationActive(
+    groupId?: number | string,
+  ): Promise<DeviceGroup[]> {
     this.logger.verbose(`With in getallReservationactive`);
+    const where = {
+      reservationActive: true,
+    };
+    if (groupId) {
+      where['id'] = groupId;
+    }
     return await this.repository.find({
-      where: {
-        reservationActive: true,
-      },
+      where,
     });
   }
 

@@ -1643,21 +1643,12 @@ export class DeviceService {
     group: DeviceGroup,
     device: Device,
   ): Promise<void> {
-    // Find the latest ongoing cycle
-    const latestCycles = await this.findOneLateCycle(
-      group.id,
-      device.externalId,
-    );
-
-    if (!latestCycles?.length) {
-      this.logger.error(
-        `No ongoing cycle found for device: ${device.externalId}`,
-      );
-      return;
-    }
-
     // Get cycle boundaries
-    const cycleEnd = new Date(latestCycles[0].late_start_date);
+    const reservationEndDate = new Date(group.reservationEndDate);
+    const now = new Date();
+
+    const cycleEnd = reservationEndDate > now ? now : reservationEndDate;
+
     const deviceCreationDate = new Date(device.createdAt);
 
     // Iterate through time periods to find and fill gaps
