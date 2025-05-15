@@ -28,8 +28,8 @@ export function generateDeviceFingerprint(input: DeviceFingerprintInput): string
     longitude,
     dateOnly,
     normalizedCapacity,
-    fuelCode.trim(),
-    deviceTypeCode.trim(),
+    fuelCode?.trim() || "ES100",
+    deviceTypeCode?.trim() || "TC110",
   ].join('|');
 
   return createHash('sha256').update(combinedString).digest('hex');

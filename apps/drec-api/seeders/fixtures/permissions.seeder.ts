@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ACLModulePermission } from '../src/pods/permission/permission.entity';
-import { EntityType } from '../src/utils/enums';
-import { SeederInterface } from './seeder-interface';
+import { ACLModulePermission } from '../../src/pods/permission/permission.entity';
+import { EntityType } from '../../src/utils/enums';
+import { SeederInterface } from '../core/seeder-interface';
 
 @Injectable()
 export class PermissionsSeeder implements SeederInterface {
