@@ -233,7 +233,7 @@ export class FileService {
     });
   }
 
- getS3(): any {
+  getS3(): any {
     return new S3({
       accessKeyId: process.env.accessKeyId,
       secretAccessKey: process.env.secretAccessKey,
