@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm';
-import { SeederInterface } from './seeder-interface';
+import { SeederInterface } from '../core/seeder-interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { User } from '../src/pods/user/user.entity';
+import { User } from '../../src/pods/user/user.entity';
 
 @Injectable()
 export class TermsAndConditionsSeeder implements SeederInterface {
@@ -12,14 +12,12 @@ export class TermsAndConditionsSeeder implements SeederInterface {
   ) {}
 
   async run(): Promise<void> {
-    console.log('Starting to update terms_accepted_at field...');
-    const result = await this.userRepository
+    await this.userRepository
       .createQueryBuilder()
       .update()
       .set({ termsAcceptedAt: '0001-01-01 00:00:00+00' })
       .where('terms_accepted_at IS NULL')
       .execute();
-    console.log('Update result:', result);
   }
 
   async drop(): Promise<any> {

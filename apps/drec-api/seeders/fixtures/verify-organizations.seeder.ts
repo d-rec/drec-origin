@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { InjectConnection } from '@nestjs/typeorm';
-import { SeederInterface } from './seeder-interface';
+import { SeederInterface } from '../core/seeder-interface';
 
 @Injectable()
 export class VerifyOrganizationsSeeder implements SeederInterface {
