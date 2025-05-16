@@ -29,13 +29,13 @@ import {
   ApiBody,
   ApiQuery,
   ApiOperation,
-  ApiParam,
   ApiConsumes,
 } from '@nestjs/swagger';
 import {
   OrganizationDTO,
   NewOrganizationDTO,
   BindBlockchainAccountDTO,
+  organizationDocuments,
 } from './dto';
 import { OrganizationService } from './organization.service';
 import { UserService } from '../user/user.service';
@@ -96,22 +96,37 @@ export class OrganizationController {
 
   @Post('/upload/verification-documents')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  @Roles(Role.OrganizationAdmin)
+  @Permission('Write')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'document', maxCount: 1 }], {
-      storage: multer.memoryStorage(),
-      fileFilter: (req, file, callback) => {
-        const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-          return callback(
-            new BadRequestException(
-              'Invalid file type. Only PDF, JPEG, and PNG files are allowed.',
-            ),
-            false,
-          );
-        }
-        callback(null, true);
+    FileFieldsInterceptor(
+      [
+        { name: 'incorporationCertificate', maxCount: 1 },
+        { name: 'legalRepresentativePassport', maxCount: 1 },
+        { name: 'addressProof', maxCount: 1 },
+        { name: 'ownersDeclaration', maxCount: 1 },
+      ],
+      {
+        storage: multer.memoryStorage(),
+        fileFilter: (req, file, callback) => {
+          const allowedMimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+          ];
+          if (!allowedMimeTypes.includes(file.mimetype)) {
+            return callback(
+              new BadRequestException(
+                'Invalid file type. Only PDF, JPEG, and PNG files are allowed.',
+              ),
+              false,
+            );
+          }
+          callback(null, true);
+        },
       },
-    }),
+    ),
   )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
@@ -126,24 +141,26 @@ export class OrganizationController {
     required: true,
     example: DocumentTargetType.ORGANIZATION,
   })
-  @ApiQuery({
-    name: 'documentType',
-    enum: DocumentType,
-    description:
-      'Category or type of the document being uploaded (e.g., INCORPORATION_CERTIFICATE)',
-    required: true,
-    example: DocumentType.INCORPORATION_CERTIFICATE,
-  })
   @ApiBody({
+    description: 'Device registration with documents',
     schema: {
       type: 'object',
-      required: ['document'],
       properties: {
-        document: {
-          type: 'string',
-          format: 'binary',
-          description:
-            'The document file to upload (PDF, JPEG, or PNG format only)',
+        incorporationCertificate: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        legalRepresentativePassport: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        addressProof: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        ownersDeclaration: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
         },
       },
     },
@@ -172,34 +189,48 @@ export class OrganizationController {
     description:
       'Not Found - Target entity specified in targetType does not exist.',
   })
-  @ApiParam({
-    name: 'user',
-    type: 'object',
-    description: 'Currently logged in user details (automatically injected)',
-    required: true,
-  })
-  async upload(
-    @UploadedFiles() files: { document?: Express.Multer.File[] },
+  async uploadVerificationDocuments(
+    @UploadedFiles() files: organizationDocuments,
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('targetType') targetType: DocumentTargetType,
-    @Query('documentType') documentType: DocumentType,
-  ): Promise<DocumentEntity[]> {
-    if (!files || !files.document || files.document.length === 0) {
-      throw new BadRequestException('No document provided');
-    }
-
+  ): Promise<void[]> {
     const organization = await this.organizationService.findOne(organizationId);
     const targetId = organization.id;
-    const uploadPromises = files.document.map(async (document) => {
-      return await this.documentUploadsService.upload(
-        targetId,
-        targetType,
-        documentType,
-        document,
-      );
+    const allFileTypes = [
+      'incorporationCertificate',
+      'legalRepresentativePassport',
+      'addressProof',
+      'ownersDeclaration',
+    ];
+    const missingFiles = allFileTypes.filter((fileType) => {
+      const fileArray = files[fileType];
+      return !Array.isArray(fileArray) || fileArray.length === 0;
     });
 
-    const uploadedDocuments = await Promise.all(uploadPromises);
+    if (missingFiles.length > 0) {
+      throw new BadRequestException(
+        `Missing required file types: ${missingFiles.join(', ')}`,
+      );
+    }
+    const documentTypeMap: Record<string, DocumentType> = {
+      incorporationCertificate: DocumentType.INCORPORATION_CERTIFICATE,
+      legalRepresentativePassport: DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      addressProof: DocumentType.ADDRESS_PROOF,
+      ownersDeclaration: DocumentType.OWNERS_DECLARATION,
+    };
+    const uploadedDocuments = await Promise.all(
+      Object.entries(files).flatMap(([fileKey, fileArray]) => {
+        const documentType = documentTypeMap[fileKey];
+        return fileArray.map((file) =>
+          this.documentUploadsService.upload(
+            targetId,
+            targetType,
+            documentType,
+            file,
+          ),
+        );
+      }),
+    );
 
     await this.organizationRepository.update(targetId, {
       verifiedAt: new Date(),
