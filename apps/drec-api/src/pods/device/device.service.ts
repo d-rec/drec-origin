@@ -20,6 +20,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Raw,
   Repository,
   SelectQueryBuilder,
@@ -75,6 +76,8 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { DeviceDocumentsService } from '../document-uploads/device-document.service';
+import { generateDeviceFingerprint } from '../../lib/device';
+
 @Injectable()
 export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
@@ -611,6 +614,28 @@ export class DeviceService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    newDevice.fingerprint = fingerprint;
 
     let result: any;
     if (role === Role.ApiUser) {
@@ -689,6 +714,7 @@ export class DeviceService {
             },
           }
         : undefined;
+
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
@@ -727,6 +753,30 @@ export class DeviceService {
     } else {
       updateDeviceDTO.SDGBenefits = [];
     }
+    const fingerprint = generateDeviceFingerprint({
+      latitude: updateDeviceDTO.latitude,
+      longitude: updateDeviceDTO.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate,
+      capacity: updateDeviceDTO.capacity,
+      fuelCode: updateDeviceDTO.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+        externalId: Not(updateDeviceDTO.externalId),
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    updateDeviceDTO.fingerprint = fingerprint;
+
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
     result['internalexternalId'] = result.externalId;
@@ -1644,21 +1694,12 @@ export class DeviceService {
     group: DeviceGroup,
     device: Device,
   ): Promise<void> {
-    // Find the latest ongoing cycle
-    const latestCycles = await this.findOneLateCycle(
-      group.id,
-      device.externalId,
-    );
-
-    if (!latestCycles?.length) {
-      this.logger.error(
-        `No ongoing cycle found for device: ${device.externalId}`,
-      );
-      return;
-    }
-
     // Get cycle boundaries
-    const cycleEnd = new Date(latestCycles[0].late_start_date);
+    const reservationEndDate = new Date(group.reservationEndDate);
+    const now = new Date();
+
+    const cycleEnd = reservationEndDate > now ? now : reservationEndDate;
+
     const deviceCreationDate = new Date(device.createdAt);
 
     // Iterate through time periods to find and fill gaps

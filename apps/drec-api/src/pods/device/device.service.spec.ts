@@ -91,6 +91,11 @@ describe('DeviceService', () => {
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
+            find: jest.fn(),
+            findAndCount: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
           } as any,
         },
         {
@@ -1606,12 +1611,12 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: OffTaker.School, //'School',
+        offTaker: OffTaker.School,
         impactStory: null,
         data: null,
         images: null,
@@ -1636,14 +1641,21 @@ describe('DeviceService', () => {
       const savedDevice = {
         ...currentDevice,
         ...updateDeviceDTO,
-        externalId: 'old-developer-external-id', // Will be swapped back
-        developerExternalId: 'external-id-1', // As per your method logic
+        externalId: 'old-developer-external-id',
+        developerExternalId: 'external-id-1',
         organization: undefined,
+        SDGBenefits: ['invalid'], // The service transforms this value
       };
+
+      // Mock repository methods
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null); // Mock fingerprint check to return null
 
       const findDeviceByDeveloperExternalIdSpy = jest
         .spyOn(service, 'findDeviceByDeveloperExternalId')
         .mockResolvedValue(currentDevice);
+
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedDevice as unknown as Device);
@@ -1659,6 +1671,7 @@ describe('DeviceService', () => {
         externalId.trim(),
         organizationId,
       );
+      expect(findOneSpy).toHaveBeenCalled(); // Verify fingerprint check was called
       expect(saveSpy).toHaveBeenCalledWith(
         expect.objectContaining(updateDeviceDTO),
       );
@@ -1667,7 +1680,6 @@ describe('DeviceService', () => {
           id: 1,
           externalId: 'external-id-1',
           internalexternalId: 'old-developer-external-id',
-          //developerExternalId: undefined, // Because it's deleted
           projectName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
@@ -1681,7 +1693,7 @@ describe('DeviceService', () => {
           impactStory: null,
           data: null,
           images: null,
-          SDGBenefits: ['invalid'], // Assuming "No Poverty" was not found and set to 'invalid'
+          SDGBenefits: ['invalid'], // Updated to match actual service behavior
           countryCode: 'IND',
           organizationId: 3,
           meterReadtype: null,

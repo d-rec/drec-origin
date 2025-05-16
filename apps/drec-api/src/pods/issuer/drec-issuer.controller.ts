@@ -210,23 +210,27 @@ export class DRECIssuerController {
     description:
       'The request is invalid or missing required parameters. Please check the request and try again.',
   })
-  async simpleGetCallForMissingLateOngoing(): Promise<any> {
+  async simpleGetCallForMissingLateOngoing(
+    @Query('groupId') groupId?: number,
+  ): Promise<any> {
     this.logger.verbose(
       `With in simpleGetCallForLateOngoing`,
       `got hit from cloudwatch ongoing`,
     );
 
     return new Promise((resolve) => {
-      this.invokeIssuerCronMissingLateOngoing();
+      this.invokeIssuerCronMissingLateOngoing(groupId);
       this.logger.log(`successfully Hitddd the late ongoing API`);
       resolve('successfully Hitddd  and added the missed late ongoing cycle');
     });
   }
 
-  async invokeIssuerCronMissingLateOngoing(): Promise<void> {
+  async invokeIssuerCronMissingLateOngoing(
+    groupId?: number | string,
+  ): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.lateOngoingIssuanceService.getMissingCycle();
+      await this.lateOngoingIssuanceService.createMissingCycles(groupId);
     } catch (e) {
       this.logger.error('caught exception in getting missing cycles', e);
     }
