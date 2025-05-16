@@ -1,10 +1,10 @@
 import { Repository } from 'typeorm';
-import { SeederInterface } from './seeder-interface';
+import { SeederInterface } from '../core/seeder-interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { User } from '../src/pods/user/user.entity';
-import { Role, UserStatus } from '../src/utils/enums';
-import { Organization } from '../src/pods/organization/organization.entity';
+import { User } from '../../src/pods/user/user.entity';
+import { Role, UserStatus } from '../../src/utils/enums';
+import { Organization } from '../../src/pods/organization/organization.entity';
 
 @Injectable()
 export class UsersSeeder implements SeederInterface {
