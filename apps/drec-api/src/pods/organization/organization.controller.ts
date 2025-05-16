@@ -94,7 +94,7 @@ export class OrganizationController {
    * @returns
    */
 
-  @Post('verify-organization')
+  @Post('/upload/verification-documents')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @UseInterceptors(
     FileFieldsInterceptor([{ name: 'document', maxCount: 1 }], {
@@ -183,24 +183,29 @@ export class OrganizationController {
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query('targetType') targetType: DocumentTargetType,
     @Query('documentType') documentType: DocumentType,
-  ): Promise<DocumentEntity> {
+  ): Promise<DocumentEntity[]> {
     if (!files || !files.document || files.document.length === 0) {
       throw new BadRequestException('No document provided');
     }
 
-    const documents = files.document[0];
     const organization = await this.organizationService.findOne(organizationId);
     const targetId = organization.id;
-    const uploadDocument = await this.documentUploadsService.upload(
-      targetId,
-      targetType,
-      documentType,
-      documents,
-    );
+    const uploadPromises = files.document.map(async (document) => {
+      return await this.documentUploadsService.upload(
+        targetId,
+        targetType,
+        documentType,
+        document,
+      );
+    });
+
+    const uploadedDocuments = await Promise.all(uploadPromises);
+
     await this.organizationRepository.update(targetId, {
       verifiedAt: new Date(),
     });
-    return uploadDocument;
+
+    return uploadedDocuments;
   }
 
   @Get('/me')

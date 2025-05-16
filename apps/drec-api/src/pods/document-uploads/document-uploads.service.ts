@@ -40,7 +40,7 @@ export class DocumentUploadsService {
 
       this.logger.log(`Uploaded file key: ${uploadResult}`);
 
-      const store = this.documentUploadsRepository.create({
+      const newDocumentUpload = this.documentUploadsRepository.create({
         targetId: targetId,
         targetType: targetType,
         type: documentType,
@@ -48,11 +48,12 @@ export class DocumentUploadsService {
         url: uploadResult.Location,
       });
 
-      const save = await this.documentUploadsRepository.save(store);
+      const savedDocumentUpload =
+        await this.documentUploadsRepository.save(newDocumentUpload);
 
       await queryRunner.commitTransaction();
 
-      return save;
+      return savedDocumentUpload;
     } catch (error) {
       if (uploadedFileKey) {
         await this.fileService.deleteFileFromS3(uploadedFileKey);
