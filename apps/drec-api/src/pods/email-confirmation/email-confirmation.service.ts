@@ -144,13 +144,23 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
-    console.log('heellooo')
-    const emailConfirmation = await this.repository.findOne({
+
+    let emailConfirmation = await this.repository.findOne({
       where: {
         token,
       },
       relations: ['user'],
     });
+    if(process.env.MODE === 'test'){
+      emailConfirmation = await this.repository.findOne({
+        where: {
+          token,
+        },
+        relations: ['user'],
+        order: { createdAt: 'DESC' }
+      });
+    }
+
 
     if (!emailConfirmation) {
       this.logger.error(`Invalid email confirmation token`);

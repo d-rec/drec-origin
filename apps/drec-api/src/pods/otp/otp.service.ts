@@ -30,7 +30,6 @@ export class OtpService {
       where: { phoneNumber, code },
       order: { createdAt: 'DESC' },
     });
-
     if (!otpRecord || Date.now() > otpRecord.expirationTime) {
       return false;
     }
