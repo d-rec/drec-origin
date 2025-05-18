@@ -5,7 +5,10 @@ interface SmsParams {
   message: string;
 }
 
-export const sendSms = async ({ phoneNumber, message }: SmsParams): Promise<void> => {
+export const sendSms = async ({
+  phoneNumber,
+  message,
+}: SmsParams): Promise<void> => {
   const sns = new AWS.SNS({
     region: process.env.region,
     accessKeyId: process.env.accessKeyId,
