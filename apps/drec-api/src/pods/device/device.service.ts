@@ -74,9 +74,12 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
-import { DocumentType } from '../document-uploads/entities/documents.entity';
-import { DeviceDocumentsService } from '../document-uploads/device-document.service';
+import {
+  DocumentTargetType,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 
 @Injectable()
 export class DeviceService {
@@ -98,7 +101,7 @@ export class DeviceService {
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
-    private readonly deviceDocumentsService: DeviceDocumentsService,
+    private readonly documentsService: DocumentUploadsService,
   ) {}
 
   public async find(
@@ -677,11 +680,12 @@ export class DeviceService {
         const deviceId = result.id;
         for (const file of files[field]) {
           try {
-            await this.deviceDocumentsService.upload({
-              deviceId: deviceId,
+            await this.documentsService.upload(
+              deviceId,
+              DocumentTargetType.DEVICE,
               documentType,
               file,
-            });
+            );
           } catch (error) {
             this.logger.error(`Failed to upload ${field}: ${error.message}`);
             throw error;

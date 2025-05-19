@@ -43,7 +43,7 @@ import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
-import { DeviceDocumentsService } from '../document-uploads/device-document.service';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 import { FileService } from '../file';
 
@@ -61,13 +61,13 @@ describe('DeviceService', () => {
   let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
   let fileService: FileService;
   let connection: Connection;
-  let documentService: DeviceDocumentsService;
+  let documentService: DocumentUploadsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeviceService,
-        DeviceDocumentsService,
+        DocumentUploadsService,
         {
           provide: getRepositoryToken(DocumentEntity),
           useValue: {
@@ -149,8 +149,8 @@ describe('DeviceService', () => {
 
     service = module.get<DeviceService>(DeviceService);
     repository = module.get<Repository<Device>>(getRepositoryToken(Device));
-    documentService = module.get<DeviceDocumentsService>(
-      DeviceDocumentsService,
+    documentService = module.get<DocumentUploadsService>(
+      DocumentUploadsService,
     );
     deviceDocumentRepository = module.get<Repository<DocumentEntity>>(
       getRepositoryToken(DocumentEntity),
