@@ -9,7 +9,9 @@ interface DeviceFingerprintInput {
   deviceTypeCode: string;
 }
 
-export function generateDeviceFingerprint(input: DeviceFingerprintInput): string {
+export function generateDeviceFingerprint(
+  input: DeviceFingerprintInput,
+): string {
   const {
     latitude,
     longitude,
@@ -22,14 +24,14 @@ export function generateDeviceFingerprint(input: DeviceFingerprintInput): string
   // Normalize and sanitize inputs
   const normalizedCapacity = removeTrailingZeroes(capacity);
   const dateOnly = new Date(commissioningDate).toISOString().split('T')[0];
-  
+
   const combinedString = [
     latitude,
     longitude,
     dateOnly,
     normalizedCapacity,
-    fuelCode?.trim() || "ES100",
-    deviceTypeCode?.trim() || "TC110",
+    fuelCode?.trim() || 'ES100',
+    deviceTypeCode?.trim() || 'TC110',
   ].join('|');
 
   return createHash('sha256').update(combinedString).digest('hex');
