@@ -6,7 +6,6 @@ export class CreateDocumentsTable1742913890482 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TYPE document_target_type AS ENUM ('organization', 'device', 'user');
-      CREATE TYPE document_type AS ENUM ('incorporation certificate', 'legal representative passport', 'address proof', 'owners declaration');
       
       CREATE TABLE "documents" (
         "id" SERIAL NOT NULL,
@@ -39,7 +38,6 @@ export class CreateDocumentsTable1742913890482 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "IDX_documents_device"`);
     await queryRunner.query(`DROP INDEX "IDX_documents_organization"`);
     await queryRunner.query(`DROP TABLE "documents"`);
-    await queryRunner.query(`DROP TYPE document_type`);
     await queryRunner.query(`DROP TYPE document_target_type`);
   }
 }

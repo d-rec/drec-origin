@@ -1,21 +1,12 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Connection } from 'typeorm';
 import {
   DocumentEntity,
-  DocumentTargetType,
   DocumentType,
+  DocumentTargetType,
 } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
-import { Organization } from '../organization/organization.entity';
-import { ILoggedInUser } from '../../models/LoggedInUser';
-
-interface UploadDocumentPayload {
-  user: ILoggedInUser;
-  targetType: DocumentTargetType;
-  documentType: DocumentType;
-  documents: Express.Multer.File;
-}
 
 @Injectable()
 export class DocumentUploadsService {
@@ -25,27 +16,16 @@ export class DocumentUploadsService {
     @InjectRepository(DocumentEntity)
     private readonly documentUploadsRepository: Repository<DocumentEntity>,
     private readonly fileService: FileService,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
     private readonly connection: Connection,
   ) {}
 
-  async upload(documents: UploadDocumentPayload): Promise<DocumentEntity> {
-    let targetId: number;
-    switch (documents.targetType) {
-      case DocumentTargetType.USER:
-        targetId = documents.user.id;
-        break;
-      case DocumentTargetType.ORGANIZATION:
-        targetId = documents.user.organizationId;
-        break;
-      case DocumentTargetType.DEVICE:
-        targetId = documents.user.id;
-        break;
-      default:
-        throw new BadRequestException('Invalid target type');
-    }
-
+  async upload(
+    targetId: number,
+    targetType: DocumentTargetType,
+    documentType: DocumentType,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    const extension = file.originalname.split('.').pop()?.toLowerCase();
     this.logger.log(`Uploading document for target ID: ${targetId}`);
 
     const queryRunner = this.connection.createQueryRunner();
@@ -55,51 +35,25 @@ export class DocumentUploadsService {
     let uploadedFileKey: string | null = null;
 
     try {
-      const checkIfDocumentExists =
-        await this.documentUploadsRepository.findOne({
-          where: {
-            targetId: targetId,
-            targetType: documents.targetType,
-            type: documents.documentType,
-          },
-        });
-
-      if (checkIfDocumentExists) {
-        throw new BadRequestException({
-          message: `Document ${documents.documentType} already uploaded`,
-          statusCode: 400,
-        });
-      }
-
-      const uploadResult = await this.fileService.upload(documents.documents);
+      const uploadResult = await this.fileService.upload(file);
       uploadedFileKey = uploadResult.key;
 
       this.logger.log(`Uploaded file key: ${uploadResult}`);
 
-      const store = this.documentUploadsRepository.create({
+      const newDocumentUpload = this.documentUploadsRepository.create({
         targetId: targetId,
-        targetType: documents.targetType,
-        type: documents.documentType,
-        extension: documents.documents.mimetype.split('/')[1],
+        targetType: targetType,
+        type: documentType,
+        extension: extension,
         url: uploadResult.Location,
       });
 
-      if (!store) {
-        throw new BadRequestException({
-          message: `Failed to upload document ${documents.documentType}`,
-          statusCode: 400,
-        });
-      }
-
-      const save = await this.documentUploadsRepository.save(store);
-
-      await this.organizationRepository.update(targetId, {
-        verifiedAt: new Date(),
-      });
+      const savedDocumentUpload =
+        await this.documentUploadsRepository.save(newDocumentUpload);
 
       await queryRunner.commitTransaction();
 
-      return save;
+      return savedDocumentUpload;
     } catch (error) {
       if (uploadedFileKey) {
         await this.fileService.deleteFileFromS3(uploadedFileKey);
@@ -107,7 +61,7 @@ export class DocumentUploadsService {
 
       await queryRunner.rollbackTransaction();
       this.logger.error(
-        `Failed to upload document: ${documents.documentType} ${error.message}`,
+        `Failed to upload document: ${documentType} ${error.message}`,
       );
       throw error;
     } finally {
