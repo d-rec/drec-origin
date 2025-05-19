@@ -65,7 +65,6 @@ export class EmailConfirmationService {
         token,
         expiryTimestamp,
       });
-      console.log("token",token)
       // if (inviteUser) {
       //   //  await this.sendResetPasswordRequest(user.email, token);
       //   await this.sendInvitation(orgname, user.email, token);
@@ -145,22 +144,13 @@ export class EmailConfirmationService {
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
 
-    let emailConfirmation = await this.repository.findOne({
+    const emailConfirmation = await this.repository.findOne({
       where: {
         token,
       },
       relations: ['user'],
+      order: { createdAt: 'DESC' },
     });
-    if(process.env.MODE === 'test'){
-      emailConfirmation = await this.repository.findOne({
-        where: {
-          token,
-        },
-        relations: ['user'],
-        order: { createdAt: 'DESC' }
-      });
-    }
-
 
     if (!emailConfirmation) {
       this.logger.error(`Invalid email confirmation token`);
@@ -286,9 +276,12 @@ export class EmailConfirmationService {
   }
   generateEmailToken(): IEmailConfirmationToken {
     this.logger.verbose(`With in generateEmailToken`);
-    const MOCK_EMAIL_TOKEN = '123456'
+    const MOCK_EMAIL_TOKEN = '123456';
     return {
-      token: process.env.MODE === 'test' ? MOCK_EMAIL_TOKEN : crypto.randomBytes(64).toString('hex'),
+      token:
+        process.env.MODE === 'test'
+          ? MOCK_EMAIL_TOKEN
+          : crypto.randomBytes(64).toString('hex'),
       expiryTimestamp: Math.floor(
         DateTime.now().plus({ hours: 8 }).toSeconds(),
       ),
