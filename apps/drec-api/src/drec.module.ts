@@ -155,7 +155,7 @@ export const originAppTypeOrmModule = (): DynamicModule => {
 
 export const redisOptions = {
   host: process.env.REDIS_URL ?? 'localhost',
-  port: 6379,
+  port: Number(process.env.REDIS_PORT ?? 6379),
 };
 
 const queueModule = () => {
