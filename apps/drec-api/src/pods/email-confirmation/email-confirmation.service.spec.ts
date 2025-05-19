@@ -289,7 +289,7 @@ describe('EmailConfirmationService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
         relations: ['user'],
-        order: { createdAt: 'DESC' }
+        order: { createdAt: 'DESC' },
       });
     });
 
@@ -321,7 +321,7 @@ describe('EmailConfirmationService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
         relations: ['user'],
-        order: { createdAt: 'DESC' }
+        order: { createdAt: 'DESC' },
       });
       expect(result).toEqual({
         success: false,
@@ -356,7 +356,7 @@ describe('EmailConfirmationService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
         relations: ['user'],
-        order: { createdAt: 'DESC' }
+        order: { createdAt: 'DESC' },
       });
       expect(result).toEqual({
         success: false,
@@ -399,7 +399,7 @@ describe('EmailConfirmationService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
         relations: ['user'],
-        order: { createdAt: 'DESC' }
+        order: { createdAt: 'DESC' },
       });
       expect(updateSpy).toHaveBeenCalledWith(emailConfirmation.id, {
         confirmed: true,
