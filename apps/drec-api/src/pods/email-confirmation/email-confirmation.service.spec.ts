@@ -354,6 +354,7 @@ describe('EmailConfirmationService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({
         where: { token },
         relations: ['user'],
+        order: { createdAt: 'DESC' }
       });
       expect(result).toEqual({
         success: false,
