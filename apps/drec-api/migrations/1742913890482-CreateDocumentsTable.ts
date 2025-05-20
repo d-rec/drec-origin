@@ -13,7 +13,7 @@ export class CreateDocumentsTable1742913890482 implements MigrationInterface {
         "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
         "target_id" INTEGER NOT NULL,
         "target_type" document_target_type NOT NULL,
-        "type" VARCHAR NOT NULL,
+        "type" document_type NOT NULL,
         "extension" VARCHAR(255) NOT NULL,
         "url" VARCHAR(2000) NOT NULL,
         CONSTRAINT "PK_documents" PRIMARY KEY ("id")
