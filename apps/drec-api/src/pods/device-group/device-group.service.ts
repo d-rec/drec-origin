@@ -1786,7 +1786,12 @@ export class DeviceGroupService {
 
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
-          { status: listOfExistingDevices.length === 0 ? BulkUploadStatus.Completed : BulkUploadStatus.Failed},
+          {
+            status:
+              listOfExistingDevices.length === 0
+                ? BulkUploadStatus.Completed
+                : BulkUploadStatus.Failed,
+          },
         );
       });
   }
