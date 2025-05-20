@@ -62,6 +62,9 @@ import {
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from '../../validations/file';
+import { parseMetadata } from '../../lib/helpers/parseMetadata';
+import { FileTypes } from '../../utils/enums/file-types.enum';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -526,51 +529,7 @@ export class DeviceController {
         { name: 'projectPhotos', maxCount: 10 },
       ],
       {
-        fileFilter: (req, file, callback) => {
-          const allowedExtensions = [
-            'avif',
-            'bmp',
-            'gif',
-            'ico',
-            'jpeg',
-            'jpg',
-            'png',
-            'svg',
-            'tif',
-            'tiff',
-            'webp',
-            'pdf',
-            'doc',
-            'xls',
-            'docx',
-            'xlsx',
-            'pptx',
-            'gsheet',
-            'gdoc',
-            'txt',
-            'csv',
-          ];
-          const extension = file.originalname.split('.').pop()?.toLowerCase();
-          const sizeInMB = file.size / (1024 * 1024);
-
-          if (!extension || !allowedExtensions.includes(extension)) {
-            return callback(
-              new BadRequestException(
-                `${file.originalname} has unsupported file type: .${extension}`,
-              ),
-              false,
-            );
-          }
-          if (sizeInMB > 20) {
-            return callback(
-              new BadRequestException(
-                `${file.originalname} exceeds max file size of 20MB`,
-              ),
-              false,
-            );
-          }
-          callback(null, true);
-        },
+        fileFilter: fileFilter,
       },
     ),
   )
@@ -631,7 +590,7 @@ export class DeviceController {
     // Check if deviceToRegister exists and parse it if it's a string
     if (typeof body.deviceToRegister === 'string') {
       try {
-        deviceToRegister = JSON.parse(body.deviceToRegister);
+        deviceToRegister = parseMetadata(body.deviceToRegister);
       } catch (e) {
         this.logger.error(`Error parsing deviceToRegister: ${e.message}`);
         throw new BadRequestException(
@@ -656,11 +615,11 @@ export class DeviceController {
       }
     }
     const allFileTypes = [
-      'productionFacilityRegistration',
-      'ownershipProof',
-      'meteringEvidence',
-      'singleLineDiagram',
-      'projectPhotos',
+      FileTypes.ProductionFacilityRegistration,
+      FileTypes.OwnershipProof,
+      FileTypes.MeteringEvidence,
+      FileTypes.SingleLineDiagram,
+      FileTypes.ProjectPhotos,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];
