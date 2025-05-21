@@ -1475,6 +1475,7 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          fingerprint: '',
         };
         for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
@@ -1720,7 +1721,7 @@ export class DeviceGroupService {
             }
           }
         }
-
+        
         const successfullyAddedRowsAndExternalIds: Array<{
           rowNumber: number;
           externalId: string;
@@ -1743,7 +1744,7 @@ export class DeviceGroupService {
             }
           } else return true;
         });
-
+        
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
@@ -1760,6 +1761,31 @@ export class DeviceGroupService {
               ),
             });
           });
+        
+        devicesRegistered.forEach((device)=>{
+          if('isError' in device && device.isError){
+            const developerExternalId = device.device?.developerExternalId;
+
+            const matchingErrorRecord = recordsErrors.find(
+              (record) => record.externalId === developerExternalId
+            );
+
+            if(matchingErrorRecord){
+              matchingErrorRecord.isError = true;
+              matchingErrorRecord.errorsList.push(
+                {
+                  value: matchingErrorRecord.externalId,
+                  property: 'fingerprint',
+                  constraints: {
+                    fingerprint:
+                      'There is a device with matching details',
+                  },
+                }
+              )
+            }
+
+          }
+        })
 
         recordsErrors.forEach((ele, index) => {
           if (ele.isError === false) {
@@ -1778,17 +1804,20 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
+
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
-
+        const failedRowsSize = devicesRegistered.filter((row): row is { isError: boolean; device: NewDeviceDTO; errorDetail: any } => {
+          return 'isError' in row && row.isError === true;
+        }).length;
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
           {
             status:
-              listOfExistingDevices.length === 0
+            failedRowsSize === 0
                 ? BulkUploadStatus.Completed
                 : BulkUploadStatus.Failed,
           },
