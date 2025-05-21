@@ -1748,8 +1748,7 @@ export class DeviceGroupService {
           organizationId,
           recordsToRegister,
         );
-        console.log(devicesRegistered);
-        console.log(recordsErrors, '111111');
+
         devicesRegistered
           .filter((ele) => (ele as any).isError === undefined)
           .forEach((ele) => {
@@ -1774,9 +1773,9 @@ export class DeviceGroupService {
               matchingErrorRecord.isError = true;
               matchingErrorRecord.errorsList.push({
                 value: matchingErrorRecord.externalId,
-                property: 'fingerprint',
+                property: 'Device error',
                 constraints: {
-                  fingerprint: 'There is a device with matching details',
+                  error: device.errorDetail.response.message,
                 },
               });
             }
@@ -1800,16 +1799,17 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
-        console.log(recordsErrors);
+
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
+
         const failedRowsSize = recordsErrors.filter(
           (row) => row.isError,
         ).length;
-        console.log(failedRowsSize, 'size');
+
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
           {
