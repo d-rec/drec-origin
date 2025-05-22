@@ -63,7 +63,6 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
-    private readonly jwtService: JwtService,
   ) {}
 
   public async seed(
