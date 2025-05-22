@@ -45,7 +45,6 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { IJWTPayload } from '../../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
@@ -390,12 +389,11 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email }: UpdateUserProfileDTO,
-  ): Promise<{ updatedUser: UserDTO; accessToken: string }> {
+    { firstName, lastName }: UpdateUserProfileDTO,
+  ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
       firstName,
       lastName,
-      email: email.toLowerCase(),
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -408,24 +406,10 @@ export class UserService {
         errors: validationErrors,
       });
     }
-    const updateUser = await this.findById(id);
-    if (!(updateUser.email === email.toLowerCase())) {
-      await this.checkForExistingUser(email.toLowerCase());
-    }
+
     await this.repository.update(id, updateEntity);
 
-    const updatedUser = await this.findOne({ id });
-    const payload: IJWTPayload = {
-      email: updatedUser.email.toLowerCase(),
-      id: updatedUser.id,
-      role: updatedUser.role,
-    };
-    const token = this.jwtService.sign(payload);
-    await this.createUserSession(updatedUser, token);
-    return {
-      updatedUser,
-      accessToken: token,
-    };
+    return this.findOne({ id });
   }
 
   async updatePassword(
