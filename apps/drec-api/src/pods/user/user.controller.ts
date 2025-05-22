@@ -238,7 +238,7 @@ export class UserController {
   public async updateOwnProfile(
     @UserDecorator() { id }: ILoggedInUser,
     @Body() dto: UpdateUserProfileDTO,
-  ): Promise<UserDTO> {
+  ): Promise<{ updatedUser: UserDTO; accessToken: string }> {
     return this.userService.updateProfile(id, dto);
   }
   /**
