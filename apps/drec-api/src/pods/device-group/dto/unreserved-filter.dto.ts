@@ -1,6 +1,7 @@
-import { IsOptional } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { OffTaker, FuelCode, SDGBenefitsList } from '../../../utils/enums';
+import { Transform } from 'class-transformer';
 
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
@@ -9,6 +10,15 @@ export class UnreservedDeviceGroupsFilterDTO {
     description: 'string',
   })
   name: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Filter by device IDs - accepts array of device IDs as strings. Can be sent as comma-separated string or array',
+    type: [String],
+    example: ['6', '3', '4', '16'],
+  })
+  @IsString({ each: true })
+  deviceIds: string[];
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -33,6 +43,14 @@ export class UnreservedDeviceGroupsFilterDTO {
     isArray: true,
   })
   offTaker: OffTaker;
+
+  // @IsOptional()
+  // @IsArray()
+  // @ApiPropertyOptional({
+  //   description: 'developerExternalId',
+  // })
+  // @IsString({ each: true })
+  // deviceIds: string[];
 
   @IsOptional()
   @ApiPropertyOptional({

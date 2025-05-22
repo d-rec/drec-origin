@@ -213,6 +213,13 @@ export class BuyerReservationController {
   @Get('/my')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+  @ApiQuery({
+    name: 'deviceIds',
+    required: false,
+    type: String, // Swagger treats query params as strings by default
+    isArray: true, // Explicitly declare this as an array parameter
+    description: 'Filter by device IDs (e.g., `3` or `3,6`)',
+  })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch my reservations',
