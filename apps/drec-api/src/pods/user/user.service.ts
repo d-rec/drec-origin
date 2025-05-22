@@ -45,7 +45,6 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-import { JwtService } from '@nestjs/jwt';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
