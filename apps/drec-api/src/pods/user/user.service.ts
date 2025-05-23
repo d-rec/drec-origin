@@ -814,13 +814,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.phoneNumber === phoneNumber) {
-      throw new ConflictException({
-        success: false,
-        message:
-          'This phone number is already registered. Please use a different phone number.',
-      });
-    }
+    await this.checkIfPhoneNumberExists(phoneNumber);
 
     const updateEntity = new User({
       phoneNumber: phoneNumber,
