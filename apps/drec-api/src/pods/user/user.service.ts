@@ -45,6 +45,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
+import { OtpService } from '../otp/otp.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -62,6 +63,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly otpService: OtpService,
   ) {}
 
   public async seed(
@@ -807,12 +809,12 @@ export class UserService {
   async updatePhoneNumber(
     email: string,
     phoneNumber: string,
-  ): Promise<ExtendedBaseEntity & IUser> {
+  ): Promise<{ message: string }> {
     const user = await this.findByEmail(email);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
+
     if(user.phoneNumber === phoneNumber) {
       throw new ConflictException({
         success: false,
@@ -821,8 +823,7 @@ export class UserService {
     }
 
     const updateEntity = new User({
-      phoneNumber: phoneNumber,
-      phoneNumberVerifiedAt: null,
+      phoneNumber: phoneNumber
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -838,7 +839,9 @@ export class UserService {
 
     await this.repository.update(user.id, updateEntity);
 
-    return this.findOne({ id: user.id });
+    await this.otpService.send(phoneNumber);
+
+    return { message: 'Phone number updated successfully' };
   }
 }
   

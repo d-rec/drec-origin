@@ -453,11 +453,11 @@ export class UserController {
   }
 
   @Patch('update-phone-number')
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   public async updatePhoneNumber(
     @UserDecorator() user: LoggedInUser,
     @Body() body: { phoneNumber: string },
-  ): Promise<UserDTO | null> {
+  ): Promise<{ message: string }> {
     return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
   }
 }
