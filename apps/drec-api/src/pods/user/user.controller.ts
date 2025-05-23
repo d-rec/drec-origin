@@ -456,7 +456,7 @@ export class UserController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   public async updatePhoneNumber(
     @UserDecorator() user: LoggedInUser,
-    @Body() body: { phoneNumber: string },
+    @Body() body: Pick<UserDTO, 'phoneNumber'>,
   ): Promise<{ message: string }> {
     return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
   }

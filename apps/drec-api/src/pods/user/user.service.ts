@@ -805,7 +805,6 @@ export class UserService {
     return this.repository.findOne({ id: userId });
   }
 
-
   async updatePhoneNumber(
     email: string,
     phoneNumber: string,
@@ -815,15 +814,16 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    if(user.phoneNumber === phoneNumber) {
+    if (user.phoneNumber === phoneNumber) {
       throw new ConflictException({
         success: false,
-        message: 'This phone number is already registered. Please use a different phone number.',
+        message:
+          'This phone number is already registered. Please use a different phone number.',
       });
     }
 
     const updateEntity = new User({
-      phoneNumber: phoneNumber
+      phoneNumber: phoneNumber,
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -844,4 +844,3 @@ export class UserService {
     return { message: 'Phone number updated successfully' };
   }
 }
-  
