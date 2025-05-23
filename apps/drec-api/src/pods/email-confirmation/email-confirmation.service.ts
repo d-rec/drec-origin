@@ -143,11 +143,13 @@ export class EmailConfirmationService {
     token: IEmailConfirmationToken['token'],
   ): Promise<SuccessResponse> {
     this.logger.verbose(`With in confirmEmail`);
+
     const emailConfirmation = await this.repository.findOne({
       where: {
         token,
       },
       relations: ['user'],
+      order: { createdAt: 'DESC' },
     });
 
     if (!emailConfirmation) {
@@ -274,8 +276,12 @@ export class EmailConfirmationService {
   }
   generateEmailToken(): IEmailConfirmationToken {
     this.logger.verbose(`With in generateEmailToken`);
+    const MOCK_EMAIL_TOKEN = '123456';
     return {
-      token: crypto.randomBytes(64).toString('hex'),
+      token:
+        process.env.MODE === 'test'
+          ? MOCK_EMAIL_TOKEN
+          : crypto.randomBytes(64).toString('hex'),
       expiryTimestamp: Math.floor(
         DateTime.now().plus({ hours: 8 }).toSeconds(),
       ),
