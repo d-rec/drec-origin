@@ -802,4 +802,43 @@ export class UserService {
 
     return this.repository.findOne({ id: userId });
   }
+
+
+  async updatePhoneNumber(
+    email: string,
+    phoneNumber: string,
+  ): Promise<ExtendedBaseEntity & IUser> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    
+    if(user.phoneNumber === phoneNumber) {
+      throw new ConflictException({
+        success: false,
+        message: 'This phone number is already registered. Please use a different phone number.',
+      });
+    }
+
+    const updateEntity = new User({
+      phoneNumber: phoneNumber,
+      phoneNumberVerifiedAt: null,
+    });
+
+    const validationErrors = await validate(updateEntity, {
+      skipUndefinedProperties: true,
+    });
+
+    if (validationErrors.length > 0) {
+      throw new UnprocessableEntityException({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+
+    await this.repository.update(user.id, updateEntity);
+
+    return this.findOne({ id: user.id });
+  }
 }
+  

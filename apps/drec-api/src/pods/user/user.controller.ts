@@ -451,4 +451,13 @@ export class UserController {
   ): Promise<any> {
     return await this.oauthClientService.createKeyFile(api_user_id, res);
   }
+
+  @Patch('update-phone-number')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  public async updatePhoneNumber(
+    @UserDecorator() user: LoggedInUser,
+    @Body() body: { phoneNumber: string },
+  ): Promise<UserDTO | null> {
+    return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
+  }
 }
