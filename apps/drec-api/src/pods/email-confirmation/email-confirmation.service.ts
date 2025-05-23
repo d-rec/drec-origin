@@ -279,7 +279,7 @@ export class EmailConfirmationService {
     const MOCK_EMAIL_TOKEN = '123456';
     return {
       token:
-        process.env.NODE_ENV === 'test'
+        process.env.MODE === 'test'
           ? MOCK_EMAIL_TOKEN
           : crypto.randomBytes(64).toString('hex'),
       expiryTimestamp: Math.floor(
