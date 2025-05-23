@@ -320,13 +320,6 @@ export class DeviceGroupService {
         const baseQuery = 'group.name ILIKE :name';
         query.andWhere(baseQuery, { name: `%${name}%` });
       }
-      // if (filterDTO.deviceIds?.length) {
-      //   const deviceIds = filterDTO.deviceIds.map(Number);
-
-      //   query.andWhere('group.deviceIdsInt && ARRAY[:...deviceIds]::int[]', {
-      //     deviceIds,
-      //   });
-      // }
 
       if (filterDTO.reservationActive) {
         if (filterDTO.reservationActive === 'Active') {

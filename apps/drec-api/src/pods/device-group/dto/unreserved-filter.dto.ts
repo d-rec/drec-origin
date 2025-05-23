@@ -44,14 +44,6 @@ export class UnreservedDeviceGroupsFilterDTO {
   })
   offTaker: OffTaker;
 
-  // @IsOptional()
-  // @IsArray()
-  // @ApiPropertyOptional({
-  //   description: 'developerExternalId',
-  // })
-  // @IsString({ each: true })
-  // deviceIds: string[];
-
   @IsOptional()
   @ApiPropertyOptional({
     description: 'Start date reservationStartDate filter',

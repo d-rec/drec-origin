@@ -216,8 +216,8 @@ export class BuyerReservationController {
   @ApiQuery({
     name: 'deviceIds',
     required: false,
-    type: String, // Swagger treats query params as strings by default
-    isArray: true, // Explicitly declare this as an array parameter
+    type: String,
+    isArray: true,
     description: 'Filter by device IDs (e.g., `3` or `3,6`)',
   })
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
