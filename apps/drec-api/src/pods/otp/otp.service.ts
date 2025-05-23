@@ -30,7 +30,6 @@ export class OtpService {
       where: { phoneNumber, code },
       order: { createdAt: 'DESC' },
     });
-
     if (!otpRecord || Date.now() > otpRecord.expirationTime) {
       return false;
     }
@@ -39,17 +38,20 @@ export class OtpService {
 
   async send(phoneNumber: string): Promise<{ message: string }> {
     const formatted = phoneNumber.replace(/\s+/g, '');
-    const code = this.generate();
+    const MOCK_OTP_CODE = '123456';
+    const code = process.env.MODE === 'test' ? MOCK_OTP_CODE : this.generate();
     const message = `Use code ${code} to verify your D-REC account. Expires in 10 minutes`;
     try {
-      await sendSms({ phoneNumber: formatted, message });
-
       const expirationTime = Date.now() + 10 * 60 * 1000;
       await this.otpRepository.save({
         phoneNumber: formatted,
         code,
         expirationTime,
       });
+      if (process.env.MODE === 'test') {
+        return { message: 'OTP sent via message.' };
+      }
+      await sendSms({ phoneNumber: formatted, message });
       return { message: 'OTP sent via message.' };
     } catch (error) {
       console.error('Error sending OTP:', error);

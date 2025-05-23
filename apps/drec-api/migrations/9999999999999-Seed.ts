@@ -205,7 +205,8 @@ export class Seed9999999999999 implements MigrationInterface {
         "organizationType",
         "orgEmail",
         "status",
-        "api_user_id"
+        "api_user_id",
+        "verified_at"
         ) VALUES (
             '${AdminJSON.id}',
             '${AdminJSON.orgName}',
@@ -213,7 +214,8 @@ export class Seed9999999999999 implements MigrationInterface {
             '${AdminJSON.organizationType}',
             '${process.env.ADMIN_EMAIL.toLowerCase()}',
             '${AdminJSON.status}',
-            '${apiUserId}'
+            '${apiUserId}',
+            '${new Date().toISOString()}'
         )
         RETURNING "id"
     `);
