@@ -481,6 +481,15 @@ export class CertificateLogController {
       );
     }
 
+    if (filterDTO.reservationId) {
+      certificateLogs.certificatelog = (
+        certificateLogs.certificatelog as CertificateNewWithPerDeviceLog[]
+      ).filter(
+        (log) =>
+          log.metadata?.buyerReservationId === String(filterDTO.reservationId),
+      );
+    }
+
     return certificateLogs;
   }
 

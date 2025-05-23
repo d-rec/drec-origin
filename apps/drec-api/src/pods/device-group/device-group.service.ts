@@ -322,13 +322,12 @@ export class DeviceGroupService {
       }
       // if (filterDTO.deviceIds?.length) {
       //   const deviceIds = filterDTO.deviceIds.map(Number);
-      
+
       //   query.andWhere('group.deviceIdsInt && ARRAY[:...deviceIds]::int[]', {
       //     deviceIds,
       //   });
       // }
-      
-      
+
       if (filterDTO.reservationActive) {
         if (filterDTO.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -479,7 +478,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in getBuyerDeviceGroups`);
     let queryBuilder: any;
     const pageSize = 10;
-  
+
     if (!groupFilterDTO || Object.keys(groupFilterDTO).length === 0) {
       queryBuilder = this.repository
         .createQueryBuilder('dg')
@@ -507,7 +506,7 @@ export class DeviceGroupService {
             message: `End Date should be mandatory`,
           });
         }
-  
+
         if (
           !(
             new Date(groupFilterDTO.start_date).getTime() <
@@ -528,7 +527,7 @@ export class DeviceGroupService {
         .addSelect('ARRAY_AGG(d."SDGBenefits")', 'sdgBenefits')
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id');
-  
+
       queryBuilder.where((qb) => {
         qb.where(`dg.buyerId = :buyerid `, {
           buyerid: buyerId,
@@ -592,26 +591,25 @@ export class DeviceGroupService {
                 }),
               );
             }
-  
+
             if (groupFilterDTO.deviceIds) {
-              // Convert to array if it's a string
-              console.log("in deviceidssss")
-              const deviceIdsArray = typeof groupFilterDTO.deviceIds === 'string' 
-                ? [groupFilterDTO.deviceIds]
-                : groupFilterDTO.deviceIds;
-                console.log("in deviceidssss111111111111111111",groupFilterDTO)
+              const deviceIdsArray =
+                typeof groupFilterDTO.deviceIds === 'string'
+                  ? [groupFilterDTO.deviceIds]
+                  : groupFilterDTO.deviceIds;
               const deviceIdsAsNumbers = deviceIdsArray
-                .map(id => parseInt(id.trim(), 10))
-                .filter(id => !isNaN(id) && id > 0);
-                console.log("in deviceidssss222222222222222222",deviceIdsAsNumbers)
+                .map((id) => parseInt(id.trim(), 10))
+                .filter((id) => !isNaN(id) && id > 0);
               if (deviceIdsAsNumbers.length > 0) {
-                console.log("in deviceidssss33333333333333333",deviceIdsAsNumbers)
-                qb.andWhere('dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]', {
-                  deviceIds: deviceIdsAsNumbers,
-                });
+                qb.andWhere(
+                  'dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]',
+                  {
+                    deviceIds: deviceIdsAsNumbers,
+                  },
+                );
               }
             }
-  
+
             if (groupFilterDTO.start_date && groupFilterDTO.end_date) {
               qb.orWhere(
                 new Brackets((db) => {
@@ -649,14 +647,14 @@ export class DeviceGroupService {
                 }),
               );
             }
-  
+
             if (groupFilterDTO.sdgbenefit) {
               const newSDG = groupFilterDTO.sdgbenefit.toString();
-  
+
               const sdgBenefitsArray = newSDG.split(',');
-  
+
               sdgBenefitsArray.map((benefit) => benefit).join(',');
-  
+
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray.forEach((benefit, index) => {
@@ -678,7 +676,7 @@ export class DeviceGroupService {
               const baseQuery = 'dg.name ILIKE :name';
               qb.andWhere(baseQuery, { name: `%${name}%` });
             }
-            
+
             if (groupFilterDTO.reservationActive) {
               if (groupFilterDTO.reservationActive === 'Active') {
                 qb.orWhere('dg.reservationActive = :active', { active: true });
@@ -693,14 +691,14 @@ export class DeviceGroupService {
       await queryBuilder.getSql();
     }
     const skip = (pageNumber - 1) * pageSize;
-  
+
     const groupedData = await queryBuilder
       .offset(skip)
       .limit(pageSize)
       .getRawMany();
     this.logger.debug(queryBuilder.getSql());
     const totalCountQuery = await queryBuilder.getCount();
-  
+
     const totalPages = Math.ceil(totalCountQuery / pageSize);
     if (totalCountQuery > 0) {
       if (pageNumber > totalPages) {
@@ -711,7 +709,7 @@ export class DeviceGroupService {
         );
       }
     }
-  
+
     // If deviceGroups is not an array, return an empty array
     const finalReservation = groupedData.map((deviceGroup) => ({
       id: deviceGroup.dg_id,
