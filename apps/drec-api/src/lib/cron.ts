@@ -55,13 +55,14 @@ function NonConcurrentCron(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
+    const key = `${target?.constructor?.name}.${propertyKey}`;
     // Store the original method
     const originalMethod = descriptor.value;
 
     // Replace with our wrapped implementation
     descriptor.value = function (...args: any[]) {
       // Acquire the lock and execute the method
-      return runExclusive(propertyKey, async () => {
+      return runExclusive(key, async () => {
         // Execute the original method with the same context and arguments
         return originalMethod.apply(this, args);
       });
