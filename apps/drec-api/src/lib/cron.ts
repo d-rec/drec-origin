@@ -3,7 +3,7 @@ import { getRedisClient } from './redis';
 import { Logger } from '@nestjs/common';
 
 // Lock expiration time in seconds
-const LOCK_TTL = 60;
+const LOCK_TTL = 600;
 
 /**
  * Executes a function with Redis-based distributed locking
@@ -13,17 +13,20 @@ const LOCK_TTL = 60;
  * @returns Promise resolved with the return value of fn, or undefined if already locked
  */
 const runExclusive = async <T>(
-  key: string,
+  context: string,
+  functionName: string,
   fn: () => Promise<T>,
 ): Promise<T | undefined> => {
   const redis = getRedisClient();
-  const logger = new Logger(key);
+  const logger = new Logger(context);
+
+  const key = `cron-lock:${context}:${functionName}`;
 
   // Try to acquire the lock
   const isLocked = await redis.set(key, 'locked', 'EX', LOCK_TTL, 'NX');
 
   if (!isLocked) {
-    logger.debug('This cron job is already running on another instance.');
+    logger.log(`${functionName}: Already running on another instance.`);
     return;
   }
 
@@ -55,14 +58,14 @@ function NonConcurrentCron(
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ) {
-    const key = `${target?.constructor?.name}.${propertyKey}`;
+    const className = target?.constructor?.name || '';
     // Store the original method
     const originalMethod = descriptor.value;
 
     // Replace with our wrapped implementation
     descriptor.value = function (...args: any[]) {
       // Acquire the lock and execute the method
-      return runExclusive(key, async () => {
+      return runExclusive(className, propertyKey, async () => {
         // Execute the original method with the same context and arguments
         return originalMethod.apply(this, args);
       });
