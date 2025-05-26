@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.3](https://github.com/d-rec/drec-origin/compare/v0.4.2...v0.4.3) (2025-05-26)
+
+### Bug Fixes
+
+- add error handling for empty certificate logs ([d761e18](https://github.com/d-rec/drec-origin/commit/d761e18fc05e0043c9bc1dee886a93a228091ea1))
+
 ### [0.4.2](https://github.com/d-rec/drec-origin/compare/v0.4.1...v0.4.2) (2025-05-13)
 
 ### Bug Fixes
