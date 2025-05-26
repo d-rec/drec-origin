@@ -80,6 +80,7 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { FileTypes } from '../.../../../utils/enums/file-types.enum';
 
 @Injectable()
 export class DeviceService {
@@ -551,11 +552,11 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
     files: {
-      productionFacilityRegistration: Express.Multer.File[];
-      ownershipProof: Express.Multer.File[];
-      meteringEvidence: Express.Multer.File[];
-      singleLineDiagram: Express.Multer.File[];
-      projectPhotos: Express.Multer.File[];
+      [FileTypes.ProductionFacilityRegistration]: Express.Multer.File[];
+      [FileTypes.OwnershipProof]: Express.Multer.File[];
+      [FileTypes.MeteringEvidence]: Express.Multer.File[];
+      [FileTypes.SingleLineDiagram]: Express.Multer.File[];
+      [FileTypes.ProjectPhotos]: Express.Multer.File[];
     },
     api_user_id?: string,
     role?: Role,

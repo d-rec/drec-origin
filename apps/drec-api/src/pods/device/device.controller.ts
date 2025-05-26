@@ -522,11 +522,11 @@ export class DeviceController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [
-        { name: 'productionFacilityRegistration', maxCount: 10 },
-        { name: 'ownershipProof', maxCount: 10 },
-        { name: 'meteringEvidence', maxCount: 10 },
-        { name: 'singleLineDiagram', maxCount: 10 },
-        { name: 'projectPhotos', maxCount: 10 },
+        { name: FileTypes.ProductionFacilityRegistration, maxCount: 10 },
+        { name: FileTypes.OwnershipProof, maxCount: 10 },
+        { name: FileTypes.MeteringEvidence, maxCount: 10 },
+        { name: FileTypes.SingleLineDiagram, maxCount: 10 },
+        { name: FileTypes.ProjectPhotos, maxCount: 10 },
       ],
       {
         fileFilter: fileFilter,
@@ -539,23 +539,23 @@ export class DeviceController {
     schema: {
       type: 'object',
       properties: {
-        productionFacilityRegistration: {
+        [FileTypes.ProductionFacilityRegistration]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        ownershipProof: {
+        [FileTypes.OwnershipProof]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        meteringEvidence: {
+        [FileTypes.MeteringEvidence]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        singleLineDiagram: {
+        [FileTypes.SingleLineDiagram]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        projectPhotos: {
+        [FileTypes.ProjectPhotos]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
