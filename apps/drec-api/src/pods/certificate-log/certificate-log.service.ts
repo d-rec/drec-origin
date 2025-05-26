@@ -726,7 +726,7 @@ export class CertificateLogService {
                     //     deviceReadStartDate,
                     //     deviceReadEndDate,
                     //   );
-                    deviceLog.forEach((singleDeviceLogEle) => {
+                    deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId =
                         device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
@@ -769,7 +769,7 @@ export class CertificateLogService {
                       deviceReadStartDate,
                       deviceReadEndDate,
                     );
-                  deviceLog.forEach((singleDeviceLogEle) => {
+                  deviceLog?.forEach((singleDeviceLogEle) => {
                     singleDeviceLogEle.externalId = device.developerExternalId;
                     singleDeviceLogEle['deviceId'] = device.id;
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(
@@ -824,7 +824,7 @@ export class CertificateLogService {
         const result = await newQuery.getMany();
         const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
           [];
-        result.forEach((ele) =>
+        result?.forEach((ele) =>
           certificatesInReservationWithLog.push({
             ...ele,
             perDeviceCertificateLog: [],
@@ -893,7 +893,7 @@ export class CertificateLogService {
                           deviceReadEndDate,
                           certificateTransactionUID,
                         );
-                      deviceLog.forEach((singleDeviceLogEle) => {
+                      deviceLog?.forEach((singleDeviceLogEle) => {
                         singleDeviceLogEle.externalId =
                           device.developerExternalId;
                         singleDeviceLogEle['deviceId'] = device.id;
@@ -940,7 +940,7 @@ export class CertificateLogService {
                         deviceReadEndDate,
                         certificateTransactionUID,
                       );
-                    deviceLog.forEach((singleDeviceLogEle) => {
+                    deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId =
                         device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
