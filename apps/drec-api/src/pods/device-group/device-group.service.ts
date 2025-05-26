@@ -1761,26 +1761,33 @@ export class DeviceGroupService {
             });
           });
 
-        devicesRegistered.forEach((device) => {
-          if ('isError' in device && device.isError) {
+        devicesRegistered
+          .filter(
+            (
+              device,
+            ): device is {
+              isError: boolean;
+              device: NewDeviceDTO;
+              errorDetail: any;
+            } => 'isError' in device && device.isError,
+          )
+          .forEach((device) => {
             const developerExternalId = device.device?.developerExternalId;
-
-            const matchingErrorRecord = recordsErrors.find(
+            const errorIndex = recordsErrors.findIndex(
               (record) => record.externalId === developerExternalId,
             );
 
-            if (matchingErrorRecord) {
-              matchingErrorRecord.isError = true;
-              matchingErrorRecord.errorsList.push({
-                value: matchingErrorRecord.externalId,
+            if (errorIndex !== -1) {
+              recordsErrors[errorIndex].isError = true;
+              recordsErrors[errorIndex].errorsList.push({
+                value: recordsErrors[errorIndex].externalId,
                 property: 'Device error',
                 constraints: {
-                  error: device.errorDetail.response.message,
+                  error: device.errorDetail?.response?.message,
                 },
               });
             }
-          }
-        });
+          });
 
         recordsErrors.forEach((ele, index) => {
           if (ele.isError === false) {
