@@ -50,7 +50,9 @@
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "release:major": "standard-version --release-as major",
+    "start:profiler": "node --prof dist/js/src/main.js",
+    "process:profiler": "node --prof-process isolate-*.log > processed.txt"
   },
   "bin": {
     "drec-backend": "./bin/drec-api"
