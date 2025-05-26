@@ -170,6 +170,7 @@
     "@typescript-eslint/eslint-plugin": "3.10.1",
     "@typescript-eslint/parser": "3.10.1",
     "chai": "4.2.0",
+    "clinic": "^13.0.0",
     "eslint": "7.15.0",
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-config-prettier": "7.0.0",
