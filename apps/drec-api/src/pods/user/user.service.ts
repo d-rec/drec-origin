@@ -45,6 +45,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
+import { OtpService } from '../otp/otp.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -62,6 +63,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly otpService: OtpService,
   ) {}
 
   public async seed(
@@ -801,5 +803,38 @@ export class UserService {
     );
 
     return this.repository.findOne({ id: userId });
+  }
+
+  async updatePhoneNumber(
+    email: string,
+    phoneNumber: string,
+  ): Promise<{ message: string }> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.checkIfPhoneNumberExists(phoneNumber);
+
+    const updateEntity = new User({
+      phoneNumber: phoneNumber,
+    });
+
+    const validationErrors = await validate(updateEntity, {
+      skipUndefinedProperties: true,
+    });
+
+    if (validationErrors.length > 0) {
+      throw new UnprocessableEntityException({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+
+    await this.repository.update(user.id, updateEntity);
+
+    await this.otpService.send(phoneNumber);
+
+    return { message: 'Phone number updated successfully' };
   }
 }
