@@ -88,6 +88,12 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 
+type DeviceRegistrationError = {
+  isError: boolean;
+  device: NewDeviceDTO;
+  errorDetail: any;
+};
+
 @Injectable()
 export class DeviceGroupService {
   csvParser = csv({ separator: ',' });
@@ -1210,9 +1216,7 @@ export class DeviceGroupService {
     orgCode: number,
     newDevices: NewDeviceDTO[],
     api_user_id?: string,
-  ): Promise<
-    (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
-  > {
+  ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
@@ -1781,6 +1785,26 @@ export class DeviceGroupService {
             });
           });
 
+        devicesRegistered
+          .filter((device: DeviceRegistrationError) => device.isError)
+          .forEach((device: DeviceRegistrationError) => {
+            const developerExternalId = device.device?.developerExternalId;
+            const errorIndex = recordsErrors.findIndex(
+              (record) => record.externalId === developerExternalId,
+            );
+
+            if (errorIndex !== -1) {
+              recordsErrors[errorIndex].isError = true;
+              recordsErrors[errorIndex].errorsList.push({
+                value: recordsErrors[errorIndex].externalId,
+                property: 'Device error',
+                constraints: {
+                  error: device.errorDetail?.response?.message,
+                },
+              });
+            }
+          });
+
         recordsErrors.forEach((ele, index) => {
           if (ele.isError === false) {
             ele['status'] = 'Success';
@@ -1798,15 +1822,25 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
+
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
 
+        const failedRowsSize = recordsErrors.filter(
+          (row) => row.isError,
+        ).length;
+
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
-          { status: BulkUploadStatus.Completed },
+          {
+            status:
+              failedRowsSize === 0
+                ? BulkUploadStatus.Completed
+                : BulkUploadStatus.Failed,
+          },
         );
       });
   }

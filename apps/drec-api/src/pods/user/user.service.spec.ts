@@ -29,6 +29,7 @@ import { v4 as uuid } from 'uuid';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
+import { OtpService } from '../otp/otp.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -80,6 +81,12 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(UserLoginSessionEntity),
           useClass: Repository,
+        },
+        {
+          provide: OtpService,
+          useValue: {
+            send: jest.fn(),
+          },
         },
       ],
     }).compile();

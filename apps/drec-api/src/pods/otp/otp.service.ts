@@ -64,6 +64,7 @@ export class OtpService {
     code: string,
   ): Promise<{ message: string }> {
     const isValidOtp = await this.checkValidity(phoneNumber, code);
+
     if (!isValidOtp) {
       throw new BadRequestException('Invalid OTP or OTP has expired.');
     }
