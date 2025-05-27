@@ -670,11 +670,11 @@ export class DeviceService {
     }
     if (files) {
       const documentTypes = {
-        productionFacilityRegistration: DocumentType.FORM_SF_02,
-        ownershipProof: DocumentType.SF_02C,
-        meteringEvidence: DocumentType.METERING_EVIDENCE,
-        singleLineDiagram: DocumentType.SINGLE_LINE_DIAGRAM,
-        projectPhotos: DocumentType.PROJECT_PHOTOS,
+        [FileTypes.ProductionFacilityRegistration]: DocumentType.FORM_SF_02,
+        [FileTypes.OwnershipProof]: DocumentType.SF_02C,
+        [FileTypes.MeteringEvidence]: DocumentType.METERING_EVIDENCE,
+        [FileTypes.SingleLineDiagram]: DocumentType.SINGLE_LINE_DIAGRAM,
+        [FileTypes.ProjectPhotos]: DocumentType.PROJECT_PHOTOS,
       };
 
       for (const [field, documentType] of Object.entries(documentTypes)) {
