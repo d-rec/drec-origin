@@ -50,4 +50,25 @@ const fetchAllMeterReads = async (): Promise<any[]> => {
   return results;
 };
 
-export { dbReader, dbWriter, writePoints, executeQuery, fetchAllMeterReads };
+const mapMeterReads = async () => {
+  const reads = await fetchAllMeterReads();
+  return reads.map(read => {
+    return {
+     externalId: read.meter,
+      type: 'Delta',
+      unit: 'Wh',
+      value: read.read,
+      startDate: read.time._nanoISO,
+      endDate: read.time._nanoISO,
+      groupIdCertificateIssuedFor: null,
+      certificateIssued: false,
+      IssuerCertificateId: null,
+      certificateIssuanceStartDate: read.time._nanoISO,
+      certificateIssuanceEndDate: read.time._nanoISO,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+  });
+};
+
+export { dbReader, dbWriter, writePoints, executeQuery, fetchAllMeterReads, mapMeterReads };
