@@ -587,16 +587,10 @@ export class DeviceController {
     this.logger.verbose(`With in create`);
     let deviceToRegister: NewDeviceDTO;
 
-    // Check if deviceToRegister exists and parse it if it's a string
     if (typeof body.deviceToRegister === 'string') {
-      try {
-        deviceToRegister = parseMetadata(body.deviceToRegister);
-      } catch (e) {
-        this.logger.error(`Error parsing deviceToRegister: ${e.message}`);
-        throw new BadRequestException(
-          `Invalid device data format: ${e.message}`,
-        );
-      }
+      deviceToRegister = parseMetadata(body.deviceToRegister);
+      if (!deviceToRegister)
+        throw new BadRequestException('Invalid device data format');
     } else {
       deviceToRegister = body.deviceToRegister;
     }

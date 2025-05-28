@@ -20,6 +20,7 @@ import { Exclude, Transform } from 'class-transformer';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { countryCodesList } from '../../../models/country-code';
+import { FileTypes } from '../../../utils/enums/file-types.enum';
 
 export class NewDeviceDTO
   implements
@@ -238,18 +239,18 @@ export class NewDeviceDTO
   fingerprint?: string | null;
 }
 export class DeviceRegistrationBody {
-  productionFacilityRegistration: Array<File>;
-  ownershipProof: Array<File>;
-  meteringEvidence: Array<File>;
-  singleLineDiagram: Array<File>;
-  projectPhotos: Array<File>;
+  [FileTypes.ProductionFacilityRegistration]: File[];
+  [FileTypes.OwnershipProof]: File[];
+  [FileTypes.MeteringEvidence]: File[];
+  [FileTypes.SingleLineDiagram]: File[];
+  [FileTypes.ProjectPhotos]: File[];
   deviceToRegister: NewDeviceDTO;
 }
 
 export type DeviceFiles = {
-  productionFacilityRegistration: Express.Multer.File[];
-  ownershipProof: Express.Multer.File[];
-  meteringEvidence: Express.Multer.File[];
-  singleLineDiagram: Express.Multer.File[];
-  projectPhotos: Express.Multer.File[];
+  [FileTypes.ProductionFacilityRegistration]: Express.Multer.File[];
+  [FileTypes.OwnershipProof]: Express.Multer.File[];
+  [FileTypes.MeteringEvidence]: Express.Multer.File[];
+  [FileTypes.SingleLineDiagram]: Express.Multer.File[];
+  [FileTypes.ProjectPhotos]: Express.Multer.File[];
 };
