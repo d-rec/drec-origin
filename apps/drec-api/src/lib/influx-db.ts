@@ -4,6 +4,7 @@ import {
   QueryApi,
   WriteApi,
 } from '@influxdata/influxdb-client';
+import { InfluxDB as InfluxV1 } from 'influx';
 
 export const influxDBConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
@@ -35,4 +36,18 @@ const executeQuery = async (query: string): Promise<any[]> => {
   return results;
 };
 
-export { dbReader, dbWriter, writePoints, executeQuery };
+const influx = new InfluxV1({
+  host: process.env.INFLUXDB_HOST || 'localhost',
+  port: 8086,
+  database: process.env.INFLUXDB_DB || 'energy',
+  username: process.env.INFLUXDB_ADMIN_USER || 'admin',
+  password: process.env.INFLUXDB_ADMIN_PASSWORD || 'admin',
+});
+
+// Fetch all meter reads from InfluxDB v1.x
+const fetchAllMeterReads = async (): Promise<any[]> => {
+  const results = await influx.query('SELECT * FROM "read"');
+  return results;
+};
+
+export { dbReader, dbWriter, writePoints, executeQuery, fetchAllMeterReads };
