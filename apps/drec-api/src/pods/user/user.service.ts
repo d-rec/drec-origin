@@ -389,12 +389,11 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email }: UpdateUserProfileDTO,
+    { firstName, lastName }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
       firstName,
       lastName,
-      email: email.toLowerCase(),
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -407,10 +406,7 @@ export class UserService {
         errors: validationErrors,
       });
     }
-    const updateUser = await this.findById(id);
-    if (!(updateUser.email === email.toLowerCase())) {
-      await this.checkForExistingUser(email.toLowerCase());
-    }
+
     await this.repository.update(id, updateEntity);
 
     return this.findOne({ id });
