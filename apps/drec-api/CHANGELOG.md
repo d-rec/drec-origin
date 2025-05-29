@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.4](https://github.com/d-rec/drec-origin/compare/v0.4.3...v0.4.4) (2025-05-29)
+
+### Features
+
+- create device indexes for lateongoing certificates ([#624](https://github.com/d-rec/drec-origin/issues/624)) ([5eb8dc8](https://github.com/d-rec/drec-origin/commit/5eb8dc8043683ffe8ba4e370674280879dd4816c))
+
 ### [0.4.3](https://github.com/d-rec/drec-origin/compare/v0.4.2...v0.4.3) (2025-05-26)
 
 ### Bug Fixes
