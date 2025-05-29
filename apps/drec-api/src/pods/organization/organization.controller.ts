@@ -197,10 +197,10 @@ export class OrganizationController {
     const organization = await this.organizationService.findOne(organizationId);
     const targetId = organization.id;
     const allFileTypes = [
-      'incorporationCertificate',
-      'legalRepresentativePassport',
-      'addressProof',
-      'ownersDeclaration',
+      DocumentType.INCORPORATION_CERTIFICATE,
+      DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      DocumentType.ADDRESS_PROOF,
+      DocumentType.OWNERS_DECLARATION,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];

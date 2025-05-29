@@ -32,7 +32,7 @@ import {
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
-import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceDTO, DeviceFiles, NewDeviceDTO } from '../device/dto';
 import { DeviceGroup } from './device-group.entity';
 import {
   AddGroupDTO,
@@ -1195,6 +1195,7 @@ export class DeviceGroupService {
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    files: DeviceFiles,
     api_user_id?: string,
   ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
@@ -1202,11 +1203,12 @@ export class DeviceGroupService {
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
           if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
+            return await this.deviceService.register(orgCode, device, files);
           } else {
             return await this.deviceService.register(
               orgCode,
               device,
+              files,
               api_user_id,
               Role.ApiUser,
             );
@@ -1436,6 +1438,7 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
+    files: DeviceFiles,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1751,6 +1754,7 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
+          files,
         );
 
         devicesRegistered
