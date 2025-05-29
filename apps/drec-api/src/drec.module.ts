@@ -73,6 +73,7 @@ import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.
 import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
 import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
+import { MeterRead } from './pods/reads/meter-reads.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -108,6 +109,7 @@ export const entities = [
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
+  MeterRead,
   HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,

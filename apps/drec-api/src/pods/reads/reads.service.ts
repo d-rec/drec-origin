@@ -74,6 +74,7 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { MeterRead } from './meter-reads.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -83,6 +84,8 @@ export class ReadsService {
   private readonly queryApi: QueryApi;
 
   constructor(
+    @InjectRepository(MeterRead)
+    private readonly readsRepository: Repository<MeterRead>,
     @InjectRepository(AggregateMeterRead)
     private readonly repository: Repository<AggregateMeterRead>,
     @InjectRepository(HistoryIntermediateMeterRead)
@@ -263,6 +266,7 @@ export class ReadsService {
         value: Math.round(r.value * multiplier),
       })),
       unit: Unit.Wh,
+      externalId:measurement.externalId,
       type: measurement.type,
     };
   }
@@ -1671,7 +1675,7 @@ export class ReadsService {
         message: `Invalid device id`,
       });
     }
-
+    measurements.externalId= device.externalId
     if (measurements.timezone) {
       measurements.timezone = validateTimezone(measurements.timezone);
 
@@ -1973,6 +1977,19 @@ export class ReadsService {
         message: `can not allow multiple reads simultaneously `,
       });
     }
-    return await this.storeRead(device.externalId, measurements);
+    console.log("extermmmm",measurements)
+
+    const meterReadToSave = {
+      externalId: measurements.externalId,
+      type: measurements.type,      
+      value: measurements.reads[0].value,      
+      unit: measurements.unit,   
+      startDate: measurements.reads[0].starttimestamp, 
+      endDate: measurements.reads[0].endtimestamp,     
+      certified: false,             
+      device: { id: device.id }     
+    };
+    console.log("meterReadToSave",meterReadToSave)
+    await this.readsRepository.save(meterReadToSave);
   }
 }

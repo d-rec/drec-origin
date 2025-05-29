@@ -61,6 +61,9 @@ export class NewIntermediateMeterReadDTO
   @IsEnum(Unit)
   unit: Unit;
 
+  @ApiProperty({ name:'external_id' })
+externalId:string;
+
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
   @ValidateNested()
