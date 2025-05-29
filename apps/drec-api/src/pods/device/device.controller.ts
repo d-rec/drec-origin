@@ -64,7 +64,7 @@ import { CodeNameDTO } from './dto/code-name.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
-import { FileTypes } from '../../utils/enums/file-types.enum';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -522,11 +522,11 @@ export class DeviceController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [
-        { name: FileTypes.ProductionFacilityRegistration, maxCount: 10 },
-        { name: FileTypes.OwnershipProof, maxCount: 10 },
-        { name: FileTypes.MeteringEvidence, maxCount: 10 },
-        { name: FileTypes.SingleLineDiagram, maxCount: 10 },
-        { name: FileTypes.ProjectPhotos, maxCount: 10 },
+        { name: DocumentType.FORM_SF_02, maxCount: 10 },
+        { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
+        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
+        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
       ],
       {
         fileFilter: fileFilter,
@@ -539,23 +539,23 @@ export class DeviceController {
     schema: {
       type: 'object',
       properties: {
-        [FileTypes.ProductionFacilityRegistration]: {
+        [DocumentType.FORM_SF_02]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        [FileTypes.OwnershipProof]: {
+        [DocumentType.SF_02C]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        [FileTypes.MeteringEvidence]: {
+        [DocumentType.METERING_EVIDENCE]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        [FileTypes.SingleLineDiagram]: {
+        [DocumentType.SINGLE_LINE_DIAGRAM]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        [FileTypes.ProjectPhotos]: {
+        [DocumentType.PROJECT_PHOTOS]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -585,15 +585,12 @@ export class DeviceController {
     files: DeviceFiles,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    let deviceToRegister: NewDeviceDTO;
-
-    if (typeof body.deviceToRegister === 'string') {
-      deviceToRegister = parseMetadata(body.deviceToRegister);
-      if (!deviceToRegister)
-        throw new BadRequestException('Invalid device data format');
-    } else {
-      deviceToRegister = body.deviceToRegister;
-    }
+    const deviceToRegister = parseMetadata(
+      body.deviceToRegister as unknown as Record<string, unknown>,
+    );
+    console.log('deviceToRegister', deviceToRegister);
+    if (!deviceToRegister)
+      throw new BadRequestException('Invalid device data format');
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -609,11 +606,11 @@ export class DeviceController {
       }
     }
     const allFileTypes = [
-      FileTypes.ProductionFacilityRegistration,
-      FileTypes.OwnershipProof,
-      FileTypes.MeteringEvidence,
-      FileTypes.SingleLineDiagram,
-      FileTypes.ProjectPhotos,
+      DocumentType.FORM_SF_02,
+      DocumentType.SF_02C,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.SINGLE_LINE_DIAGRAM,
+      DocumentType.PROJECT_PHOTOS,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];

@@ -80,7 +80,6 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
-import { FileTypes } from '../.../../../utils/enums/file-types.enum';
 
 @Injectable()
 export class DeviceService {
@@ -552,11 +551,11 @@ export class DeviceService {
     orgCode: number,
     newDevice: NewDeviceDTO,
     files: {
-      [FileTypes.ProductionFacilityRegistration]: Express.Multer.File[];
-      [FileTypes.OwnershipProof]: Express.Multer.File[];
-      [FileTypes.MeteringEvidence]: Express.Multer.File[];
-      [FileTypes.SingleLineDiagram]: Express.Multer.File[];
-      [FileTypes.ProjectPhotos]: Express.Multer.File[];
+      [DocumentType.FORM_SF_02]: Express.Multer.File[];
+      [DocumentType.SF_02C]: Express.Multer.File[];
+      [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+      [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+      [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
     },
     api_user_id?: string,
     role?: Role,
@@ -670,11 +669,11 @@ export class DeviceService {
     }
     if (files) {
       const documentTypes = {
-        [FileTypes.ProductionFacilityRegistration]: DocumentType.FORM_SF_02,
-        [FileTypes.OwnershipProof]: DocumentType.SF_02C,
-        [FileTypes.MeteringEvidence]: DocumentType.METERING_EVIDENCE,
-        [FileTypes.SingleLineDiagram]: DocumentType.SINGLE_LINE_DIAGRAM,
-        [FileTypes.ProjectPhotos]: DocumentType.PROJECT_PHOTOS,
+        [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+        [DocumentType.SF_02C]: DocumentType.SF_02C,
+        [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+        [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+        [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
       };
 
       for (const [field, documentType] of Object.entries(documentTypes)) {

@@ -70,7 +70,6 @@ import { Repository } from 'typeorm';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
-import { FileTypes } from '../../utils/enums/file-types.enum';
 
 @ApiTags('Organization')
 @ApiBearerAuth('access-token')
@@ -198,10 +197,10 @@ export class OrganizationController {
     const organization = await this.organizationService.findOne(organizationId);
     const targetId = organization.id;
     const allFileTypes = [
-      FileTypes.IncorporationCertificate,
-      FileTypes.LegalRepresentativePassport,
-      FileTypes.AddressProof,
-      FileTypes.OwnersDeclaration,
+      DocumentType.INCORPORATION_CERTIFICATE,
+      DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      DocumentType.ADDRESS_PROOF,
+      DocumentType.OWNERS_DECLARATION,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];

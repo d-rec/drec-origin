@@ -44,7 +44,10 @@ import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
-import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import {
+  DocumentEntity,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
 import { FileService } from '../file';
 
 describe('DeviceService', () => {
@@ -226,64 +229,92 @@ describe('DeviceService', () => {
         id: 44,
         yieldValue: 1500,
       };
-      const files = {
-        productionFacilityRegistration: [
+
+      type RequiredDocumentType =
+        | DocumentType.FORM_SF_02
+        | DocumentType.SF_02C
+        | DocumentType.METERING_EVIDENCE
+        | DocumentType.SINGLE_LINE_DIAGRAM
+        | DocumentType.PROJECT_PHOTOS;
+
+      const files: Record<RequiredDocumentType, Express.Multer.File[]> = {
+        [DocumentType.FORM_SF_02]: [
           {
-            fieldname: 'productionFacilityRegistration',
+            fieldname: DocumentType.FORM_SF_02,
             originalname: 'file1.pdf',
             encoding: '7bit',
             mimetype: 'application/pdf',
             buffer: Buffer.from('file content'),
             size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
           },
-        ] as Express.Multer.File[],
-        ownershipProof: [
+        ],
+        [DocumentType.SF_02C]: [
           {
-            fieldname: 'ownershipProof',
+            fieldname: DocumentType.SF_02C,
             originalname: 'file2.pdf',
             encoding: '7bit',
             mimetype: 'application/pdf',
             buffer: Buffer.from('file content'),
             size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
           },
-        ] as Express.Multer.File[],
-        meteringEvidence: [
+        ],
+        [DocumentType.METERING_EVIDENCE]: [
           {
-            fieldname: 'meteringEvidence',
+            fieldname: DocumentType.METERING_EVIDENCE,
             originalname: 'file3.pdf',
             encoding: '7bit',
             mimetype: 'application/pdf',
             buffer: Buffer.from('file content'),
             size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
           },
-        ] as Express.Multer.File[],
-        singleLineDiagram: [
+        ],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [
           {
-            fieldname: 'singleLineDiagram',
+            fieldname: DocumentType.SINGLE_LINE_DIAGRAM,
             originalname: 'file4.pdf',
             encoding: '7bit',
             mimetype: 'application/pdf',
             buffer: Buffer.from('file content'),
             size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
           },
-        ] as Express.Multer.File[],
-        projectPhotos: [
+        ],
+        [DocumentType.PROJECT_PHOTOS]: [
           {
-            fieldname: 'projectPhotos',
+            fieldname: DocumentType.PROJECT_PHOTOS,
             originalname: 'file5.jpg',
             encoding: '7bit',
             mimetype: 'image/jpeg',
             buffer: Buffer.from('file content'),
             size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
           },
-        ] as Express.Multer.File[],
+        ],
       };
       jest.spyOn(repository, 'findOne').mockReturnValue(undefined);
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(deviceEntity as any);
 
-      const result = await service.register(orgCode, newDevice, files);
+      const result = await service.register(orgCode, newDevice, files as any);
 
       const options = {
         where: {
@@ -363,11 +394,11 @@ describe('DeviceService', () => {
         .mockResolvedValue(deviceEntity as any);
 
       const files = {
-        productionFacilityRegistration: [],
-        ownershipProof: [],
-        meteringEvidence: [],
-        singleLineDiagram: [],
-        projectPhotos: [],
+        [DocumentType.FORM_SF_02]: [],
+        [DocumentType.SF_02C]: [],
+        [DocumentType.METERING_EVIDENCE]: [],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+        [DocumentType.PROJECT_PHOTOS]: [],
       };
       const options = {
         where: {
@@ -375,9 +406,17 @@ describe('DeviceService', () => {
           organizationId: orgCode,
         },
       };
+      const correctedFiles = {
+        [DocumentType.FORM_SF_02]: files[DocumentType.FORM_SF_02],
+        [DocumentType.SF_02C]: files[DocumentType.SF_02C],
+        [DocumentType.METERING_EVIDENCE]: files[DocumentType.METERING_EVIDENCE],
+        [DocumentType.SINGLE_LINE_DIAGRAM]:
+          files[DocumentType.SINGLE_LINE_DIAGRAM],
+        [DocumentType.PROJECT_PHOTOS]: files[DocumentType.PROJECT_PHOTOS],
+      };
 
       await expect(
-        service.register(orgCode, newDevice, files, apiUserId, role),
+        service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
       await expect(findOneSpy).toHaveBeenCalledWith(options);

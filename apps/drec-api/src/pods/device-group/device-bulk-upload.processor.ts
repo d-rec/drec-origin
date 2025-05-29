@@ -7,7 +7,7 @@ import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 import { Queues } from '../../utils/enums/queues.enum';
 import { DeviceFiles } from '../device/dto';
-import { FileTypes } from '../../utils/enums/file-types.enum';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Processor(Queues.DeviceBulkUpload)
 export class DeviceBulkUploadProcessor {
@@ -27,11 +27,11 @@ export class DeviceBulkUploadProcessor {
         where: { jobId: job.id.toString() },
       });
     const files: DeviceFiles = {
-      [FileTypes.ProductionFacilityRegistration]: [],
-      [FileTypes.OwnershipProof]: [],
-      [FileTypes.MeteringEvidence]: [],
-      [FileTypes.SingleLineDiagram]: [],
-      [FileTypes.ProjectPhotos]: [],
+      [DocumentType.FORM_SF_02]: [],
+      [DocumentType.SF_02C]: [],
+      [DocumentType.METERING_EVIDENCE]: [],
+      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+      [DocumentType.PROJECT_PHOTOS]: [],
     };
 
     if (!bulkUpload) {
