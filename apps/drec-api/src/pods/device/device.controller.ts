@@ -588,7 +588,6 @@ export class DeviceController {
     const deviceToRegister = parseMetadata(
       body.deviceToRegister as unknown as Record<string, unknown>,
     );
-    console.log('deviceToRegister', deviceToRegister);
     if (!deviceToRegister)
       throw new BadRequestException('Invalid device data format');
     if (role === Role.Admin || role === Role.ApiUser) {
