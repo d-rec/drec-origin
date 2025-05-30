@@ -8,10 +8,15 @@ import {
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export enum DocumentType {
-  INCORPORATION_CERTIFICATE = 'incorporation certificate',
-  LEGAL_REPRESENTATIVE_PASSPORT = 'legal representative passport',
-  ADDRESS_PROOF = 'address proof',
-  OWNERS_DECLARATION = 'owners declaration',
+  INCORPORATION_CERTIFICATE = 'INCORPORATION_CERTIFICATE',
+  LEGAL_REPRESENTATIVE_PASSPORT = 'LEGAL_REPRESENTATIVE_PASSPORT',
+  ADDRESS_PROOF = 'ADDRESS_PROOF',
+  OWNERS_DECLARATION = 'OWNERS_DECLARATION ',
+  FORM_SF_02 = 'FORM_SF_02', //Form SF-02 - Production Facility Registration
+  SF_02C = 'SF_02C', //SF-02C Owner's Declaration or Proof of Ownership
+  METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
+  SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
+  PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
 }
 
 export enum DocumentTargetType {
