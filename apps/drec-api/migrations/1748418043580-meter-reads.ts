@@ -6,7 +6,7 @@ export class meterReads1748418043580 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "meter_reads" (
               id SERIAL PRIMARY KEY,
-              external_id UUID NOT NULL UNIQUE,
+              external_id UUID NOT NULL,
               type VARCHAR NOT NULL,
               value DOUBLE PRECISION NOT NULL,
               unit VARCHAR NOT NULL,

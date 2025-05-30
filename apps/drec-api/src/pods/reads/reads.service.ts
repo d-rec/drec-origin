@@ -266,7 +266,6 @@ export class ReadsService {
         value: Math.round(r.value * multiplier),
       })),
       unit: Unit.Wh,
-      externalId:measurement.externalId,
       type: measurement.type,
     };
   }
@@ -711,30 +710,30 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): SelectQueryBuilder<HistoryIntermediateMeterRead> {
+  ): SelectQueryBuilder<any> {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
-    return this.historyRepository
+    return this.readsRepository
       .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId })
+      .where('devicehistory.external_id = :deviceId', { deviceId })
       .andWhere(
-        new Brackets((db) => {
-          db.where(
-            'devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
-            { startDateFirstWhere: startDate, endDateFirstWhere: endDate },
+        new Brackets((qb) => {
+          qb.where(
+            'devicehistory.start_date BETWEEN :startDate AND :endDate',
+            { startDate, endDate },
           )
             .orWhere(
-              'devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
-              { startDateSecondtWhere: startDate, endDateSecondWhere: endDate },
+              'devicehistory.end_date BETWEEN :startDate AND :endDate',
+              { startDate, endDate },
             )
             .orWhere(
-              ':startdateThirdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-              { startdateThirdWhere: startDate },
+              ':startDate BETWEEN devicehistory.start_date AND devicehistory.end_date',
+              { startDate },
             )
             .orWhere(
-              ':enddateforthdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-              { enddateforthdWhere: endDate },
+              ':endDate BETWEEN devicehistory.start_date AND devicehistory.end_date',
+              { endDate },
             );
         }),
       );
@@ -1167,9 +1166,10 @@ export class ReadsService {
 
         await rawHistoryReads.forEach((element) => {
           historyReads.push({
-            startdate: element.devicehistory_readsStartDate,
-            enddate: element.devicehistory_readsEndDate,
-            value: element.devicehistory_readsvalue,
+            type:element.devicehistory_type,
+            startdate: element.devicehistory_start_date,
+            enddate: element.devicehistory_end_date,
+            value: element.devicehistory_value,
           });
         });
       } catch (error) {
@@ -1217,11 +1217,6 @@ export class ReadsService {
           new Date(deviceOnboarded).getTime() ||
         new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()
       ) {
-        const finalOngoingRead = await this.getPaginatedData(
-          externalId,
-          readsFilter,
-          pageNumber,
-        );
 
         let previousReadTime;
         if (pageNumber > 1) {
@@ -1241,38 +1236,6 @@ export class ReadsService {
             previousReadTime = null;
           }
         }
-        const transformedFinalOngoing = [];
-        for (let i = 0; i < finalOngoingRead.length; i++) {
-          const currentRead = finalOngoingRead[i];
-          let startDate;
-          if (i === 0 && pageNumber == 1) {
-            startDate = new Date(
-              Math.max(
-                new Date(deviceOnboarded).getTime(),
-                new Date(filter.start).getTime(),
-              ),
-            );
-          } else if (i == 0 && pageNumber != 1) {
-            startDate = previousReadTime;
-          } else {
-            startDate = transformedFinalOngoing[i - 1].enddate;
-          }
-          const endDate = (finalOngoingRead[i] as any).timestamp;
-          if (i > 1) {
-            transformedFinalOngoing.push({
-              startdate: transformedFinalOngoing[i - 1].enddate,
-              enddate: endDate,
-              value: (currentRead as any).value,
-            });
-          } else {
-            transformedFinalOngoing.push({
-              startdate: startDate,
-              enddate: endDate,
-              value: (currentRead as any).value,
-            });
-          }
-        }
-        ongoing = transformedFinalOngoing;
       }
     }
 
@@ -1288,7 +1251,6 @@ export class ReadsService {
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
         historyread: historyReads,
-        ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
         currentPageNumber: pageNumber,
@@ -1296,7 +1258,6 @@ export class ReadsService {
     } else {
       return {
         historyread: historyReads,
-        ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
         currentPageNumber: 1,
@@ -1309,11 +1270,11 @@ export class ReadsService {
     startDate: Date | string,
     endDate: Date | string,
   ): Promise<any> {
-    const query = this.historyRepository
+    const query = this.readsRepository
       .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId })
-      .andWhere('devicehistory.readsStartDate <= :endDate', { endDate })
-      .andWhere('devicehistory.readsEndDate >= :startDate', { startDate });
+      .where('devicehistory.external_id = :deviceId', { deviceId })
+      .andWhere('devicehistory.start_date <= :endDate', { endDate })
+      .andWhere('devicehistory.end_date >= :startDate', { startDate });
 
     return await query.getCount();
   }
@@ -1675,7 +1636,7 @@ export class ReadsService {
         message: `Invalid device id`,
       });
     }
-    measurements.externalId= device.externalId
+
     if (measurements.timezone) {
       measurements.timezone = validateTimezone(measurements.timezone);
 
@@ -1980,7 +1941,7 @@ export class ReadsService {
     console.log("extermmmm",measurements)
 
     const meterReadToSave = {
-      externalId: measurements.externalId,
+      externalId: device.externalId,
       type: measurements.type,      
       value: measurements.reads[0].value,      
       unit: measurements.unit,   

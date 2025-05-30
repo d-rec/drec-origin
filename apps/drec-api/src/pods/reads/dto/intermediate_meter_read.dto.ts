@@ -60,9 +60,7 @@ export class NewIntermediateMeterReadDTO
   @ApiProperty({ enum: Unit })
   @IsEnum(Unit)
   unit: Unit;
-
-  @ApiProperty({ name:'external_id' })
-externalId:string;
+  
 
   @ApiProperty({ type: () => [NewReadDTO] })
   @IsArray()
