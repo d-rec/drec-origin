@@ -40,8 +40,8 @@ const influx = new InfluxV1({
   host: process.env.INFLUXDB_HOST || 'localhost',
   port: 8086,
   database: process.env.INFLUXDB_DB || 'energy',
-  username: process.env.INFLUXDB_ADMIN_USER || 'admin',
-  password: process.env.INFLUXDB_ADMIN_PASSWORD || 'admin',
+  username: process.env.INFLUXDB_ADMIN_USER || 'test',
+  password: process.env.INFLUXDB_ADMIN_PASSWORD || 'test',
 });
 
 // Fetch all meter reads from InfluxDB v1.x
@@ -52,13 +52,18 @@ const fetchAllMeterReads = async (): Promise<any[]> => {
 
 const mapMeterReads = async () => {
   const reads = await fetchAllMeterReads();
-  return reads.map(read => {
+
+  return reads.map((read, idx) => {
+    const prevReadEndDate = idx === 0
+      ? Date.now()
+      : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
+
     return {
-     externalId: read.meter,
+      externalId: read.meter,
       type: 'Delta',
       unit: 'Wh',
       value: read.read,
-      startDate: read.time._nanoISO,
+      startDate: prevReadEndDate,
       endDate: read.time._nanoISO,
       groupIdCertificateIssuedFor: null,
       certificateIssued: false,
@@ -70,5 +75,4 @@ const mapMeterReads = async () => {
     };
   });
 };
-
 export { dbReader, dbWriter, writePoints, executeQuery, fetchAllMeterReads, mapMeterReads };

@@ -466,6 +466,24 @@ export class DeviceService {
     return result ?? null;
   }
 
+  async findDeviceByExternalId(meterId:string):Promise<Device | null>{
+    this.logger.verbose(`With in findDeviceByExternalId`);
+    const device: Device = await this.repository.findOne({
+      where: {
+        externalId: meterId,
+      },
+    });
+    if (!device) {
+      this.logger.warn(`Returning null`);
+      return null;
+    }
+    device.timezone = await getLocalTimeZoneFromDevice(
+      device.createdAt,
+      device,
+    );
+    return device;
+  }
+
   async findDeviceByDeveloperExternalId(
     meterId: string,
     organizationId: number,
