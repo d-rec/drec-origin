@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { OffTaker, FuelCode, SDGBenefitsList } from '../../../utils/enums';
 import { Transform } from 'class-transformer';
