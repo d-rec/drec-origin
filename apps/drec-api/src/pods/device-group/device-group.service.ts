@@ -32,7 +32,7 @@ import {
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
-import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceDTO, DeviceFiles, NewDeviceDTO } from '../device/dto';
 import { DeviceGroup } from './device-group.entity';
 import {
   AddGroupDTO,
@@ -87,6 +87,12 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+
+type DeviceRegistrationError = {
+  isError: boolean;
+  device: NewDeviceDTO;
+  errorDetail: any;
+};
 
 @Injectable()
 export class DeviceGroupService {
@@ -1209,20 +1215,20 @@ export class DeviceGroupService {
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    files: DeviceFiles,
     api_user_id?: string,
-  ): Promise<
-    (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
-  > {
+  ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
           if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
+            return await this.deviceService.register(orgCode, device, files);
           } else {
             return await this.deviceService.register(
               orgCode,
               device,
+              files,
               api_user_id,
               Role.ApiUser,
             );
@@ -1452,6 +1458,7 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
+    files: DeviceFiles,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1767,6 +1774,7 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
+          files,
         );
 
         devicesRegistered
@@ -1779,6 +1787,26 @@ export class DeviceGroupService {
                   recEle.developerExternalId === (ele as any).externalId,
               ),
             });
+          });
+
+        devicesRegistered
+          .filter((device: DeviceRegistrationError) => device.isError)
+          .forEach((device: DeviceRegistrationError) => {
+            const developerExternalId = device.device?.developerExternalId;
+            const errorIndex = recordsErrors.findIndex(
+              (record) => record.externalId === developerExternalId,
+            );
+
+            if (errorIndex !== -1) {
+              recordsErrors[errorIndex].isError = true;
+              recordsErrors[errorIndex].errorsList.push({
+                value: recordsErrors[errorIndex].externalId,
+                property: 'Device error',
+                constraints: {
+                  error: device.errorDetail?.response?.message,
+                },
+              });
+            }
           });
 
         recordsErrors.forEach((ele, index) => {
@@ -1798,15 +1826,25 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
+
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
 
+        const failedRowsSize = recordsErrors.filter(
+          (row) => row.isError,
+        ).length;
+
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
-          { status: BulkUploadStatus.Completed },
+          {
+            status:
+              failedRowsSize === 0
+                ? BulkUploadStatus.Completed
+                : BulkUploadStatus.Failed,
+          },
         );
       });
   }
