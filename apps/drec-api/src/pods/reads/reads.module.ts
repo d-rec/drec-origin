@@ -21,7 +21,6 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
-import { MigrateInfluxDBReads } from './migrate-influxDB-reads.controller.service';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -56,7 +55,7 @@ const baseReadServiceProvider = {
     forwardRef(() => BulkUploadModule),
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, ReadsBulkUploadProcessor, MigrateInfluxDBReads],
+  providers: [baseReadServiceProvider, ReadsService, ReadsBulkUploadProcessor],
   exports: [baseReadServiceProvider, ReadsService, BullModule],
 })
 export class ReadsModule {}

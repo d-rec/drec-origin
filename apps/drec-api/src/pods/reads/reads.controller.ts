@@ -44,7 +44,6 @@ import { UserService } from '../user/user.service';
 import { BASE_READ_SERVICE } from './constants';
 import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { ReadsService } from './reads.service';
-import { MigrateInfluxDBReads } from './migrate-influxDB-reads.controller.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -59,7 +58,6 @@ export class ReadsController extends BaseReadsController {
     baseReadsService: BaseReadsService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-    private readonly migrateInfluxDBReads: MigrateInfluxDBReads,
   ) {
     super(baseReadsService);
   }
@@ -107,7 +105,7 @@ export class ReadsController extends BaseReadsController {
 
   @Get('device-by-read')
   getDeviceByRead() {
-    this.migrateInfluxDBReads.getDeviceByRead();
+    this.internalReadsService.getDeviceByRead();
     return { message: 'Check your console for the log.' };
   }
 
