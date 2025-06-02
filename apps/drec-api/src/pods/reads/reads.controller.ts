@@ -103,12 +103,6 @@ export class ReadsController extends BaseReadsController {
     }
   }
 
-  @Get('device-by-read')
-  getDeviceByRead() {
-    this.internalReadsService.getDeviceByRead();
-    return { message: 'Check your console for the log.' };
-  }
-
   /**
    * This api route use for to get all read of device
    * @param meterId :string

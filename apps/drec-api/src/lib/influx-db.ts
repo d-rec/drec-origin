@@ -50,13 +50,14 @@ const fetchAllMeterReads = async (): Promise<any[]> => {
   return results;
 };
 
-const mapMeterReads = async () => {
+const mapInfluxMeterReadsToHistoryFormat = async (): Promise<any[]> => {
   const reads = await fetchAllMeterReads();
 
   return reads.map((read, idx) => {
-    const prevReadEndDate = idx === 0
-      ? Date.now()
-      : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
+    const prevReadEndDate =
+      idx === 0
+        ? Date.now()
+        : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
 
     return {
       externalId: read.meter,
@@ -75,4 +76,11 @@ const mapMeterReads = async () => {
     };
   });
 };
-export { dbReader, dbWriter, writePoints, executeQuery, fetchAllMeterReads, mapMeterReads };
+export {
+  dbReader,
+  dbWriter,
+  writePoints,
+  executeQuery,
+  fetchAllMeterReads,
+  mapInfluxMeterReadsToHistoryFormat,
+};

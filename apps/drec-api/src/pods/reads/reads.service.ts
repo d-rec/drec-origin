@@ -37,7 +37,7 @@ import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { DateTime } from 'luxon';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { mapMeterReads, writePoints } from '../../lib/influx-db';
+import { writePoints } from '../../lib/influx-db';
 import { IAggregateIntermediate } from '../../models';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { convertToWh } from '../../utils/convert-to-power-units';
@@ -141,30 +141,6 @@ export class ReadsService {
       },
     );
   }
-
-   async getDeviceByRead(){
-            try{
-                const reads = await mapMeterReads();
-                if (reads.length === 0) return null;
-                const readExternalId = reads[10].externalId;
-                console.log(`Fetching device for read with externalId: ${readExternalId}`);
-                const device = await this.deviceService.findDeviceByExternalId(readExternalId);
-                if (device) {
-                    console.log(`Device found: ${device.id}`);
-                    reads[0].startDate = device.createdAt;
-                    console.log(`Updated read startDate to device createdAt: ${device.createdAt}`);
-                    console.log(reads)
-                    return reads;
-                } else {
-                    console.log(`No device found for read with externalId: ${readExternalId}`);
-                    return null;
-                }
-            }
-            catch (error) {
-                console.error("Error fetching device by read:", error);
-                throw error;
-            }
-        }
 
   public async find(
     meterId: string,
