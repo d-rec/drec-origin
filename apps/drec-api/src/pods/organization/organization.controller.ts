@@ -102,10 +102,10 @@ export class OrganizationController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [
-        { name: 'incorporationCertificate', maxCount: 1 },
-        { name: 'legalRepresentativePassport', maxCount: 1 },
-        { name: 'addressProof', maxCount: 1 },
-        { name: 'ownersDeclaration', maxCount: 1 },
+        { name: DocumentType.INCORPORATION_CERTIFICATE, maxCount: 1 },
+        { name: DocumentType.LEGAL_REPRESENTATIVE_PASSPORT, maxCount: 1 },
+        { name: DocumentType.ADDRESS_PROOF, maxCount: 1 },
+        { name: DocumentType.OWNERS_DECLARATION, maxCount: 1 },
       ],
       {
         storage: multer.memoryStorage(),
@@ -146,19 +146,19 @@ export class OrganizationController {
     schema: {
       type: 'object',
       properties: {
-        incorporationCertificate: {
+        [DocumentType.INCORPORATION_CERTIFICATE]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        legalRepresentativePassport: {
+        [DocumentType.LEGAL_REPRESENTATIVE_PASSPORT]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        addressProof: {
+        [DocumentType.ADDRESS_PROOF]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        ownersDeclaration: {
+        [DocumentType.OWNERS_DECLARATION]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -197,10 +197,10 @@ export class OrganizationController {
     const organization = await this.organizationService.findOne(organizationId);
     const targetId = organization.id;
     const allFileTypes = [
-      'incorporationCertificate',
-      'legalRepresentativePassport',
-      'addressProof',
-      'ownersDeclaration',
+      DocumentType.INCORPORATION_CERTIFICATE,
+      DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      DocumentType.ADDRESS_PROOF,
+      DocumentType.OWNERS_DECLARATION,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];
@@ -213,10 +213,12 @@ export class OrganizationController {
       );
     }
     const documentTypeMap: Record<string, DocumentType> = {
-      incorporationCertificate: DocumentType.INCORPORATION_CERTIFICATE,
-      legalRepresentativePassport: DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
-      addressProof: DocumentType.ADDRESS_PROOF,
-      ownersDeclaration: DocumentType.OWNERS_DECLARATION,
+      [DocumentType.INCORPORATION_CERTIFICATE]:
+        DocumentType.INCORPORATION_CERTIFICATE,
+      [DocumentType.LEGAL_REPRESENTATIVE_PASSPORT]:
+        DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      [DocumentType.ADDRESS_PROOF]: DocumentType.ADDRESS_PROOF,
+      [DocumentType.OWNERS_DECLARATION]: DocumentType.OWNERS_DECLARATION,
     };
     const uploadedDocuments = await Promise.all(
       Object.entries(files).flatMap(([fileKey, fileArray]) => {
