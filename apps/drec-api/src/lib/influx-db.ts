@@ -44,7 +44,6 @@ const influx = new InfluxV1({
   password: process.env.INFLUXDB_ADMIN_PASSWORD || 'test',
 });
 
-// Fetch all meter reads from InfluxDB v1.x
 const fetchAllMeterReads = async (): Promise<any[]> => {
   const results = await influx.query('SELECT * FROM "read"');
   return results;
