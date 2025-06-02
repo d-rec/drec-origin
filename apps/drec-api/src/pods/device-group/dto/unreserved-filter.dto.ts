@@ -1,6 +1,7 @@
 import { IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { OffTaker, FuelCode, SDGBenefitsList } from '../../../utils/enums';
+import { Transform } from 'class-transformer';
 
 export class UnreservedDeviceGroupsFilterDTO {
   @IsOptional()
@@ -17,7 +18,12 @@ export class UnreservedDeviceGroupsFilterDTO {
     type: [String],
     example: ['6', '3'],
   })
-  @IsString({ each: true })
+  @Transform((value) => {
+    if(!value) return [];
+    const values = Array.isArray(value) ? value : [value];
+    const output = values.map((id)=> parseInt(id,10)).filter((id)=>!isNaN(id) && id>0);
+    return output
+  })
   deviceIds: string[];
 
   @IsOptional()

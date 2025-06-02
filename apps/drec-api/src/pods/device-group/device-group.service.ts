@@ -591,23 +591,15 @@ export class DeviceGroupService {
               );
             }
 
-            if (groupFilterDTO.deviceIds) {
-              const deviceIdsArray =
-                typeof groupFilterDTO.deviceIds === 'string'
-                  ? [groupFilterDTO.deviceIds]
-                  : groupFilterDTO.deviceIds;
-              const deviceIdsAsNumbers = deviceIdsArray
-                .map((id) => parseInt(id.trim(), 10))
-                .filter((id) => !isNaN(id) && id > 0);
-              if (deviceIdsAsNumbers.length > 0) {
-                qb.andWhere(
-                  'dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]',
-                  {
-                    deviceIds: deviceIdsAsNumbers,
-                  },
-                );
-              }
+            if (groupFilterDTO.deviceIds?.length > 0) {
+              qb.andWhere(
+                'dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]',
+                {
+                  deviceIds: groupFilterDTO.deviceIds,
+                },
+              );
             }
+            
 
             if (groupFilterDTO.start_date && groupFilterDTO.end_date) {
               qb.orWhere(
