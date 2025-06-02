@@ -19,10 +19,12 @@ export class UnreservedDeviceGroupsFilterDTO {
     example: ['6', '3'],
   })
   @Transform((value) => {
-    if(!value) return [];
+    if (!value) return [];
     const values = Array.isArray(value) ? value : [value];
-    const output = values.map((id)=> parseInt(id,10)).filter((id)=>!isNaN(id) && id>0);
-    return output
+    const output = values
+      .map((id) => parseInt(id, 10))
+      .filter((id) => !isNaN(id) && id > 0);
+    return output;
   })
   deviceIds: string[];
 

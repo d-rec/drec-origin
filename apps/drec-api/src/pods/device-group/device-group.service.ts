@@ -599,7 +599,6 @@ export class DeviceGroupService {
                 },
               );
             }
-            
 
             if (groupFilterDTO.start_date && groupFilterDTO.end_date) {
               qb.orWhere(
