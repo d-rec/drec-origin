@@ -208,40 +208,6 @@ export class ReadsService {
     });
   }
 
-  public async storeRead(
-    id: string,
-    measurements: NewIntermediateMeterReadDTO,
-  ): Promise<void> {
-    this.logger.debug('DREC is storing smart meter reads:');
-    this.logger.debug(JSON.stringify(measurements));
-    const device = await this.deviceService.findReads(id);
-    if (!device) {
-      throw new NotFoundException(`No device found with external id ${id}`);
-    }
-
-    if (
-      device.timezone === null &&
-      measurements.timezone !== null &&
-      measurements.timezone !== undefined &&
-      measurements.timezone.toString().trim() !== ''
-    ) {
-      await this.deviceService.updateTimezone(
-        device.externalId,
-        measurements.timezone,
-      );
-    }
-
-    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-
-    const filteredMeasurements = await this.filterMeasurements(
-      id,
-      roundedMeasurements,
-      device,
-    );
-    this.logger.verbose(filteredMeasurements);
-    await this.storeGenerationReading(id, filteredMeasurements, device);
-  }
-
   private roundMeasurementsToUnit(
     measurement: NewIntermediateMeterReadDTO,
   ): NewIntermediateMeterReadDTO {
@@ -715,24 +681,24 @@ export class ReadsService {
     this.logger.verbose(endDate);
 
     return this.readsRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.external_id = :deviceId', { deviceId })
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :deviceId', { deviceId })
       .andWhere(
         new Brackets((qb) => {
           qb.where(
-            'devicehistory.start_date BETWEEN :startDate AND :endDate',
+            'reads.start_date BETWEEN :startDate AND :endDate',
             { startDate, endDate },
           )
             .orWhere(
-              'devicehistory.end_date BETWEEN :startDate AND :endDate',
+              'reads.end_date BETWEEN :startDate AND :endDate',
               { startDate, endDate },
             )
             .orWhere(
-              ':startDate BETWEEN devicehistory.start_date AND devicehistory.end_date',
+              ':startDate BETWEEN reads.start_date AND reads.end_date',
               { startDate },
             )
             .orWhere(
-              ':endDate BETWEEN devicehistory.start_date AND devicehistory.end_date',
+              ':endDate BETWEEN reads.start_date AND reads.end_date',
               { endDate },
             );
         }),
@@ -915,40 +881,6 @@ export class ReadsService {
     }
   }
 
-  private async storeGenerationReading(
-    id: string,
-    measurements: MeasurementDTO,
-    device: DeviceDTO,
-  ): Promise<void> {
-    const organization = await this.organizationService.findOne(
-      device.organizationId,
-    );
-
-    if (!organization) {
-      throw new NotFoundException(
-        `No organization found with device organization code ${device.organizationId}`,
-      );
-    }
-    await this.store(id, measurements);
-
-    for (const measurement of measurements.reads) {
-      const startTime = DateTime.fromJSDate(measurement.timestamp)
-        .minus({ minutes: 30 })
-        .toJSDate();
-      const endTime = DateTime.fromJSDate(measurement.timestamp).toJSDate();
-
-      this.eventBus.publish(
-        new GenerationReadingStoredEvent({
-          deviceId: id,
-          energyValue: BigNumber.from(measurement.value),
-          fromTime: startTime,
-          toTime: endTime,
-          organizationId: organization.id.toString(),
-        }),
-      );
-    }
-  }
-
   private aggregateArray(aggregate: Aggregate, array: number[]): number {
     switch (aggregate) {
       case Aggregate.Mean:
@@ -991,22 +923,22 @@ export class ReadsService {
     endDate: Date,
   ): SelectQueryBuilder<HistoryIntermediateMeterRead> {
     return this.historyRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId })
+      .createQueryBuilder('reads')
+      .where('reads.externalId = :deviceId', { deviceId })
       .andWhere(
         new Brackets((db) => {
           db.where(
             new Brackets((db1) => {
               db1
                 .where(
-                  'devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
+                  'reads.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
                   {
                     reservationStartDate1: startDate,
                     reservationEndDate1: endDate,
                   },
                 )
                 .orWhere(
-                  'devicehistory.readsStartDate = :reservationStartDate',
+                  'reads.readsStartDate = :reservationStartDate',
                   { reservationStartDate: startDate },
                 );
             }),
@@ -1014,20 +946,20 @@ export class ReadsService {
             new Brackets((db2) => {
               db2
                 .where(
-                  'devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
+                  'reads.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
                   {
                     reservationStartDate2: startDate,
                     reservationEndDate2: endDate,
                   },
                 )
-                .orWhere('devicehistory.readsEndDate = :reservationEndDate ', {
+                .orWhere('reads.readsEndDate = :reservationEndDate ', {
                   reservationEndDate: endDate,
                 });
             }),
           );
         }),
       )
-      .andWhere('devicehistory.certificate_issued != true');
+      .andWhere('reads.certificate_issued != true');
   }
 
   async getDeviceHistoryCertificateIssueDate(
@@ -1166,10 +1098,10 @@ export class ReadsService {
 
         await rawHistoryReads.forEach((element) => {
           historyReads.push({
-            type:element.devicehistory_type,
-            startdate: element.devicehistory_start_date,
-            enddate: element.devicehistory_end_date,
-            value: element.devicehistory_value,
+            type:element.reads_type,
+            startdate: element.reads_start_date,
+            enddate: element.reads_end_date,
+            value: element.reads_value,
           });
         });
       } catch (error) {
@@ -1271,10 +1203,10 @@ export class ReadsService {
     endDate: Date | string,
   ): Promise<any> {
     const query = this.readsRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.external_id = :deviceId', { deviceId })
-      .andWhere('devicehistory.start_date <= :endDate', { endDate })
-      .andWhere('devicehistory.end_date >= :startDate', { startDate });
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :deviceId', { deviceId })
+      .andWhere('reads.start_date <= :endDate', { endDate })
+      .andWhere('reads.end_date >= :startDate', { startDate });
 
     return await query.getCount();
   }
@@ -1950,7 +1882,6 @@ export class ReadsService {
       certified: false,             
       device: { id: device.id }     
     };
-    console.log("meterReadToSave",meterReadToSave)
     await this.readsRepository.save(meterReadToSave);
   }
 }

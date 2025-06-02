@@ -344,6 +344,7 @@ export class ReadsController extends BaseReadsController {
       this.logger.log(
         'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
       );
+      console.log("returnedObject",returnedObject)
       return returnedObject;
     } else {
       this.logger.error(`Invalid readType parameter`);
