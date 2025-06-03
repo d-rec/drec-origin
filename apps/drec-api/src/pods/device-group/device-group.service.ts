@@ -721,8 +721,6 @@ export class DeviceGroupService {
           deviceGroup.dg_deviceIdsInt,
         );
 
-        const firstDevice = deviceDetails[0];
-
         return {
           id: deviceGroup.dg_id,
           createdAt: deviceGroup.dg_createdAt,
@@ -757,7 +755,8 @@ export class DeviceGroupService {
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
-          developerExternalId: firstDevice?.device_developerExternalId || null,
+          developerExternalId:
+            deviceDetails[0]?.device_developerExternalId || null,
         };
       }),
     );
