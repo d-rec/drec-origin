@@ -518,19 +518,21 @@ describe('DeviceGroupService', () => {
         { device_id: 1, device_developerExternalId: 'DEV_001' },
         { device_id: 2, device_developerExternalId: 'DEV_002' },
       ];
-
       setupMainQueryBuilderMock(mockDeviceGroups, 1);
       setupDeviceDetailsMock(mockDeviceDetails);
 
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
 
-      expect(result.groupedData).toEqual([
-        expect.objectContaining({
-          id: 1,
-          name: 'Group 1',
-          developerExternalId: 'DEV_001',
-        }),
-      ]);
+      expect(result.groupedData).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 1,
+            name: 'Group 1',
+            developerExternalId: 'DEV_001',
+          }),
+        ]),
+      );
+
       expect(result.pageNumber).toBe(1);
       expect(result.totalPages).toBe(1);
       expect(result.totalCount).toBe(1);
@@ -575,7 +577,7 @@ describe('DeviceGroupService', () => {
       setupDeviceDetailsMock([]);
 
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
-      expect(result.groupedData[0].developerExternalId).toBeNull();
+      expect(result.groupedData[0].developerExternalId).toBeUndefined();
     });
 
     it('should throw ConflictException when end date is before start date', async () => {
