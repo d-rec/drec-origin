@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Logger,
   Query,
+  Get,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -23,7 +24,6 @@ import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { WithoutAuthGuard } from '../guards';
-@ApiTags('Auth')
 @ApiBearerAuth('access-token')
 @Controller()
 export class AuthController {
