@@ -28,6 +28,7 @@ import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { Device } from '../device/device.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -483,8 +484,15 @@ describe('DeviceGroupService', () => {
         },
       ];
 
-      const mockCount = 1;
+      const mockDeviceDetails = [
+        {
+          device_id: 1,
+          device_externalId: 'EXT_001',
+          device_developerExternalId: 'DEV_001',
+        },
+      ];
 
+      const mockCount = 1;
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -500,9 +508,16 @@ describe('DeviceGroupService', () => {
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
 
-      // Calling the service function with necessary parameters
-      const result = await service.getBuyerDeviceGroups(buyerId, 1);
+      const mockDeviceQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(mockDeviceDetails),
+      };
 
+      jest.spyOn(repository, 'manager', 'get').mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
+      } as any);
+      const result = await service.getBuyerDeviceGroups(buyerId, 1);
       expect(result.groupedData).toEqual([
         {
           id: 1,
@@ -531,49 +546,69 @@ describe('DeviceGroupService', () => {
           type: 'typeA',
           deviceIds: [1, 2],
           SDGBenefits: ['Benefit1', 'Benefit2'],
+          developerExternalId: 'DEV_001',
         },
       ]);
 
       expect(result.pageNumber).toEqual(1);
       expect(result.totalPages).toEqual(1);
       expect(result.totalCount).toEqual(mockCount);
-    });
-    it('should throw ConflictException when end date is before start date', async () => {
-      const buyerId = 1;
 
-      // Add all required properties to groupFilterDTO
-      const groupFilterDTO = {
-        name: null, // Adjust based on the actual type, use '' or null if appropriate
-        country: null, // Same here, adjust accordingly
-        fuelCode: null,
-        offTaker: null,
-        type: null,
-        deviceTypeCodes: null,
-        start_date: '2024-08-01',
-        end_date: '2024-07-01',
-      };
-
-      // Mocking createQueryBuilder and its chained methods if needed
-      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
-        where: jest.fn().mockReturnThis(),
-        andWhere: jest.fn().mockReturnThis(),
-        orWhere: jest.fn().mockReturnThis(),
-        getRawMany: jest.fn(),
-      } as any);
-
-      await expect(
-        service.getBuyerDeviceGroups(
-          buyerId,
-          1,
-          groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
-        ),
-      ).rejects.toThrow(ConflictException);
+      expect(repository.manager.createQueryBuilder).toHaveBeenCalledWith(
+        Device,
+        'device',
+      );
+      expect(mockDeviceQueryBuilder.select).toHaveBeenCalledWith([
+        'device.id',
+        'device.externalId',
+        'device.developerExternalId',
+      ]);
+      expect(mockDeviceQueryBuilder.where).toHaveBeenCalledWith(
+        'device.id IN (:...ids)',
+        { ids: [1, 2] },
+      );
     });
 
-    it('should throw HttpException if page number is out of range', async () => {
+    it('should handle case when no device details are found', async () => {
       const buyerId = 1;
-      const mockDeviceGroups: any = [];
-      const mockCount = 10;
+      const mockDeviceGroups: any = [
+        {
+          dg_id: 1,
+          dg_createdAt: new Date('2024-01-01'),
+          dg_name: 'Group 1',
+          dg_organizationId: 1,
+          dg_countryCode: ['IND'],
+          dg_fuelCode: ['TS100'],
+          dg_deviceTypeCodes: ['type1'],
+          dg_offTakers: ['Agriculture'],
+          dg_gridInterconnection: true,
+          dg_aggregatedCapacity: 200,
+          dg_commissioningDateRange: ['Year_3'],
+          dg_yieldValue: 150,
+          dg_buyerId: 1,
+          dg_buyerAddress: 'buyers addr',
+          dg_leftoverReads: 90,
+          dg_capacityRange: '100-300',
+          dg_frequency: 'Monthly',
+          dg_reservationStartDate: new Date('2024-08-01'),
+          dg_reservationEndDate: new Date('2024-08-30'),
+          dg_reservationActive: true,
+          dg_targetVolumeInMegaWattHour: 100,
+          dg_targetVolumeCertificateGenerationRequestedInMegaWattHour: 80,
+          dg_targetVolumeCertificateGenerationSucceededInMegaWattHour: 70,
+          dg_targetVolumeCertificateGenerationFailedInMegaWattHour: 10,
+          dg_authorityToExceed: false,
+          dg_leftoverReadsByCountryCode: { IND: 30 },
+          dg_devicegroup_uid: 'UID-123',
+          dg_type: 'typeA',
+          dg_deviceIdsInt: [999], // Non-existent device ID
+          sdgBenefits: ['Benefit1', 'Benefit2'],
+        },
+      ];
+
+      const mockCount = 1;
+
+      const mockDeviceDetails: any[] = [];
 
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
@@ -588,6 +623,86 @@ describe('DeviceGroupService', () => {
         getRawMany: jest.fn().mockResolvedValue(mockDeviceGroups),
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
+      } as any);
+
+      const mockDeviceQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(mockDeviceDetails),
+      };
+
+      jest.spyOn(repository, 'manager', 'get').mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
+      } as any);
+
+      const result = await service.getBuyerDeviceGroups(buyerId, 1);
+      expect(result.groupedData[0].externalId).toBeNull();
+      expect(result.groupedData[0].developerExternalId).toBeNull();
+    });
+
+    it('should throw ConflictException when end date is before start date', async () => {
+      const buyerId = 1;
+
+      // Add all required properties to groupFilterDTO
+      const groupFilterDTO = {
+        name: null,
+        country: null,
+        fuelCode: null,
+        offTaker: null,
+        type: null,
+        deviceTypeCodes: null,
+        start_date: '2024-08-01',
+        end_date: '2024-07-01',
+      };
+
+      // Mocking createQueryBuilder and its chained methods if needed
+      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orWhere: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn(),
+        getSql: jest.fn().mockReturnThis(),
+      } as any);
+
+      await expect(
+        service.getBuyerDeviceGroups(
+          buyerId,
+          1,
+          groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
+        ),
+      ).rejects.toThrow(ConflictException);
+    });
+    it('should throw HttpException if page number is out of range', async () => {
+      const buyerId = 1;
+      const mockDeviceGroups: any = [];
+      const mockCount = 10;
+      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orWhere: jest.fn().mockReturnThis(),
+        offset: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(mockDeviceGroups),
+        getSql: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(mockCount),
+      } as any);
+
+      const mockDeviceQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+
+      jest.spyOn(repository, 'manager', 'get').mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
       } as any);
 
       await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
