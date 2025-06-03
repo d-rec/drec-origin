@@ -1884,4 +1884,11 @@ export class ReadsService {
     };
     await this.readsRepository.save(meterReadToSave);
   }
+  async getByExternalId(externalId: string): Promise<any> {
+    const query = this.readsRepository
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :externalId', { externalId });
+
+    return await query.getMany();
+  }
 }

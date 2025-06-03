@@ -434,6 +434,7 @@ export class DeviceService {
     options?: FindOneOptions<Device>,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findOne`);
+    console.log("id and options",id,options)
     const device: Device = await this.repository.findOne({
       where: {
         id: id,
@@ -457,6 +458,7 @@ export class DeviceService {
     const result = await this.repository.findOne({
       where: { externalId: meterId },
     });
+    console.log("result",meterId,result)
     result.timezone = await getLocalTimeZoneFromDevice(
       result.createdAt,
       result,
@@ -471,6 +473,7 @@ export class DeviceService {
     organizationId: number,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findDeviceByDeveloperExternalId`);
+    console.log("device",meterId)
     const device: Device = await this.repository.findOne({
       where: {
         developerExternalId: meterId,

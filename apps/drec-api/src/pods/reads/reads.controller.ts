@@ -131,10 +131,9 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async getReads(
+  public async getReadsWithPagination(
     @Param('externalId') meterId: string,
-    @Query() filter: FilterDTO,
-  ): Promise<ReadDTO[]> {
+  ): Promise<any> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
       await this.deviceService.findReads(meterId);
@@ -146,7 +145,9 @@ export class ReadsController extends BaseReadsController {
         message: `Invalid device id`,
       });
     }
-    return super.getReads(device.externalId, filter);
+return await this.internalReadsService.getByExternalId(
+      device.externalId
+    );
   }
 
   /**
@@ -266,6 +267,7 @@ export class ReadsController extends BaseReadsController {
           message: `The URL param externalId should be number.. please provide the device id of which you want to query`,
         });
       }
+      console.log("in controller",meterId)
       device = await this.deviceService.findOne(parseInt(meterId));
       if (
         orgUser != undefined &&
@@ -305,6 +307,7 @@ export class ReadsController extends BaseReadsController {
         }
       }
     } else {
+      console.log("meter",meterId)
       device = await this.deviceService.findDeviceByDeveloperExternalId(
         meterId,
         user.organizationId,
