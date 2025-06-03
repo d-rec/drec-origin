@@ -514,9 +514,9 @@ describe('DeviceGroupService', () => {
         getRawMany: jest.fn().mockResolvedValue(mockDeviceDetails),
       };
 
-      jest.spyOn(repository, 'manager', 'get').mockReturnValue({
+      (repository as any).manager = {
         createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
-      } as any);
+      };
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
       expect(result.groupedData).toEqual([
         {
@@ -701,9 +701,9 @@ describe('DeviceGroupService', () => {
         getRawMany: jest.fn().mockResolvedValue([]),
       };
 
-      jest.spyOn(repository, 'manager', 'get').mockReturnValue({
+      (repository as any).manager = {
         createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
-      } as any);
+      };
 
       await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
         HttpException,
