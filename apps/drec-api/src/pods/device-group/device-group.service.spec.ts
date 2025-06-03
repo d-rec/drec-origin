@@ -548,8 +548,9 @@ describe('DeviceGroupService', () => {
       );
       expect(mockDeviceQueryBuilder.select).toHaveBeenCalledWith([
         'device.id',
+        'device.projectName',
         'device.developerExternalId',
-      ]);
+      ]);      
       expect(mockDeviceQueryBuilder.where).toHaveBeenCalledWith(
         'device.id IN (:...ids)',
         { ids: [1, 2] },
