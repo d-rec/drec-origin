@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Logger,
   Query,
-  Get,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request as ExpressRequest } from 'express';
@@ -17,7 +16,6 @@ import {
   ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiTags,
 } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
