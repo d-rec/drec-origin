@@ -700,14 +700,18 @@ export class DeviceGroupService {
       }
     }
 
-    const getDeviceDetails = async (deviceIds: string[]) => {
+    const getDevices = async (deviceIds: string[]) => {
       if (!deviceIds || deviceIds.length === 0) return [];
       const numericIds = deviceIds
         .map((id) => parseInt(id, 10))
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select(['device.id', 'device.developerExternalId'])
+        .select([
+          'device.id',
+          'device.projectName',
+          'device.developerExternalId',
+        ])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -715,9 +719,7 @@ export class DeviceGroupService {
 
     const finalReservation = await Promise.all(
       groupedData.map(async (deviceGroup) => {
-        const deviceDetails = await getDeviceDetails(
-          deviceGroup.dg_deviceIdsInt,
-        );
+        const devices = await getDevices(deviceGroup.dg_deviceIdsInt);
         return {
           id: deviceGroup.dg_id,
           createdAt: deviceGroup.dg_createdAt,
@@ -752,8 +754,13 @@ export class DeviceGroupService {
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
-          developerExternalId:
-            deviceDetails[0]?.device_developerExternalId || null,
+          devices: devices.map((device) => {
+            return {
+              id: device.device_id,
+              externalId: device.device_developerExternalId,
+              projectName: device.device_projectName,
+            };
+          }),
         };
       }),
     );
