@@ -483,15 +483,18 @@ describe('DeviceGroupService', () => {
           sdgBenefits: ['Benefit1', 'Benefit2'],
         },
       ];
-  
+
       const mockDeviceDetails = [
         {
           device_id: 1,
-          device_externalId: 'EXT_001',
           device_developerExternalId: 'DEV_001',
         },
+        {
+          device_id: 2,
+          device_developerExternalId: 'DEV_002',
+        },
       ];
-  
+
       const mockCount = 1;
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
@@ -507,17 +510,19 @@ describe('DeviceGroupService', () => {
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
-  
+
       const mockDeviceQueryBuilder = {
         select: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
         getRawMany: jest.fn().mockResolvedValue(mockDeviceDetails),
       };
-  
+
       (repository as any).manager = {
         createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
       };
+
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
+
       expect(result.groupedData).toEqual([
         expect.objectContaining({
           id: 1,
@@ -525,26 +530,27 @@ describe('DeviceGroupService', () => {
           developerExternalId: 'DEV_001',
         }),
       ]);
-  
+
       expect(result.pageNumber).toBe(1);
       expect(result.totalPages).toBe(1);
       expect(result.totalCount).toBe(mockCount);
-  
+
       expect(repository.manager.createQueryBuilder).toHaveBeenCalledWith(
         Device,
         'device',
       );
+
       expect(mockDeviceQueryBuilder.select).toHaveBeenCalledWith([
         'device.id',
-        'device.externalId',
         'device.developerExternalId',
       ]);
+
       expect(mockDeviceQueryBuilder.where).toHaveBeenCalledWith(
         'device.id IN (:...ids)',
         { ids: [1, 2] },
       );
     });
-  
+
     it('should handle case when no device details are found', async () => {
       const buyerId = 1;
       const mockDeviceGroups: any = [
@@ -581,9 +587,9 @@ describe('DeviceGroupService', () => {
           sdgBenefits: ['Benefit1', 'Benefit2'],
         },
       ];
-  
+
       const mockDeviceDetails: any[] = [];
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -598,21 +604,21 @@ describe('DeviceGroupService', () => {
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(1),
       } as any);
-  
+
       const mockDeviceQueryBuilder = {
         select: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
         getRawMany: jest.fn().mockResolvedValue(mockDeviceDetails),
       };
+
       (repository as any).manager = {
         createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
       };
-  
+
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
-      expect(result.groupedData[0].externalId).toBeNull();
       expect(result.groupedData[0].developerExternalId).toBeNull();
     });
-  
+
     it('should throw ConflictException when end date is before start date', async () => {
       const buyerId = 1;
       const groupFilterDTO = {
@@ -625,7 +631,7 @@ describe('DeviceGroupService', () => {
         start_date: '2024-08-01',
         end_date: '2024-07-01',
       };
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -637,7 +643,7 @@ describe('DeviceGroupService', () => {
         getRawMany: jest.fn(),
         getSql: jest.fn().mockReturnThis(),
       } as any);
-  
+
       await expect(
         service.getBuyerDeviceGroups(
           buyerId,
@@ -646,11 +652,11 @@ describe('DeviceGroupService', () => {
         ),
       ).rejects.toThrow(ConflictException);
     });
-  
+
     it('should throw HttpException if page number is out of range', async () => {
       const buyerId = 1;
       const mockCount = 10;
-  
+
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
         innerJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
@@ -665,17 +671,17 @@ describe('DeviceGroupService', () => {
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
-  
+
       const mockDeviceQueryBuilder = {
         select: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
         getRawMany: jest.fn().mockResolvedValue([]),
       };
-  
+
       (repository as any).manager = {
         createQueryBuilder: jest.fn().mockReturnValue(mockDeviceQueryBuilder),
       };
-  
+
       await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
         HttpException,
       );
