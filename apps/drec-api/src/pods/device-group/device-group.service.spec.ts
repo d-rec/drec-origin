@@ -483,6 +483,7 @@ describe('DeviceGroupService', () => {
 
     it('should return device groups for a given buyerId without filters', async () => {
       const buyerId = 1;
+
       const mockDeviceGroups: any[] = [
         {
           dg_id: 1,
@@ -518,6 +519,7 @@ describe('DeviceGroupService', () => {
         { device_id: 1, device_developerExternalId: 'DEV_001' },
         { device_id: 2, device_developerExternalId: 'DEV_002' },
       ];
+
       setupMainQueryBuilderMock(mockDeviceGroups, 1);
       setupDeviceDetailsMock(mockDeviceDetails);
 
@@ -528,7 +530,10 @@ describe('DeviceGroupService', () => {
           expect.objectContaining({
             id: 1,
             name: 'Group 1',
-            developerExternalId: 'DEV_001',
+            devices: expect.arrayContaining([
+              expect.objectContaining({ externalId: 'DEV_001' }),
+              expect.objectContaining({ externalId: 'DEV_002' }),
+            ]),
           }),
         ]),
       );
@@ -553,6 +558,7 @@ describe('DeviceGroupService', () => {
 
     it('should handle case when no device details are found', async () => {
       const buyerId = 1;
+
       const mockDeviceGroups: any[] = [
         {
           dg_id: 1,
@@ -577,7 +583,7 @@ describe('DeviceGroupService', () => {
       setupDeviceDetailsMock([]);
 
       const result = await service.getBuyerDeviceGroups(buyerId, 1);
-      expect(result.groupedData[0].developerExternalId).toBeUndefined();
+      expect(result.groupedData[0].devices).toEqual([]);
     });
 
     it('should throw ConflictException when end date is before start date', async () => {
@@ -588,6 +594,7 @@ describe('DeviceGroupService', () => {
       };
 
       setupMainQueryBuilderMock([], 0);
+
       await expect(
         service.getBuyerDeviceGroups(
           buyerId,
@@ -599,8 +606,10 @@ describe('DeviceGroupService', () => {
 
     it('should throw HttpException if page number is out of range', async () => {
       const buyerId = 1;
+
       setupMainQueryBuilderMock([], 10);
       setupDeviceDetailsMock([]);
+
       await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
         HttpException,
       );
