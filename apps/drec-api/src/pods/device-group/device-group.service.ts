@@ -705,8 +705,6 @@ export class DeviceGroupService {
       const numericIds = deviceIds
         .map((id) => parseInt(id, 10))
         .filter((id) => !isNaN(id));
-
-      if (numericIds.length === 0) return [];
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
         .select(['device.id', 'device.developerExternalId'])
@@ -720,7 +718,6 @@ export class DeviceGroupService {
         const deviceDetails = await getDeviceDetails(
           deviceGroup.dg_deviceIdsInt,
         );
-
         return {
           id: deviceGroup.dg_id,
           createdAt: deviceGroup.dg_createdAt,
