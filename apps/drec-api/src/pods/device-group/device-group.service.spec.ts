@@ -550,7 +550,7 @@ describe('DeviceGroupService', () => {
         'device.id',
         'device.projectName',
         'device.developerExternalId',
-      ]);      
+      ]);
       expect(mockDeviceQueryBuilder.where).toHaveBeenCalledWith(
         'device.id IN (:...ids)',
         { ids: [1, 2] },
