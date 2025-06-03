@@ -23,7 +23,6 @@ import { AuthService } from './auth.service';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { WithoutAuthGuard } from '../guards';
-
 @ApiTags('Auth')
 @ApiBearerAuth('access-token')
 @Controller()
