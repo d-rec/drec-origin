@@ -3,16 +3,19 @@ import axios, { AxiosInstance } from 'axios';
 import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
 import { RedisEvident } from '../../utils/enums/evident.enum';
+import { getRedisClient } from '../../lib/redis';
 
 @Injectable()
 export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
   private email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
   private apiToken = process.env.IREC_EVIDENT_API_Token || null;
-  private redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+  private redis: ReturnType<typeof getRedisClient>;
   private axiosInstance: AxiosInstance;
 
   constructor() {
+    this.redis = getRedisClient();
+
     this.axiosInstance = axios.create({ baseURL: this.apiUrl });
 
     axiosRetry(this.axiosInstance, {
