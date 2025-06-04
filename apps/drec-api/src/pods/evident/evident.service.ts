@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
+import { Device } from '../device';
 
 @Injectable()
 export class EvidentService {
@@ -61,5 +62,13 @@ export class EvidentService {
 
   async storeAuthToken(token: string): Promise<void> {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
+  }
+
+  async registerDevice(device: Device): Promise<any>{
+    const response = await this.axiosInstance.post('/devices',{
+      "name":device.projectName,
+      "fuel": device.fuelCode
+    })
+    return response.data
   }
 }

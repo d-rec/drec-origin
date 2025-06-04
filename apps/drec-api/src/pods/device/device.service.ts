@@ -80,6 +80,7 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { EvidentService } from '../evident/evident.service';
 
 @Injectable()
 export class DeviceService {
@@ -102,6 +103,7 @@ export class DeviceService {
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
+    private readonly evidentService: EvidentService,
   ) {}
 
   public async find(
@@ -694,6 +696,8 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
+
+    await this.evidentService.registerDevice(result);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;

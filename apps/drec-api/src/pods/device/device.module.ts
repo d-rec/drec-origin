@@ -15,6 +15,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
+import { EvidentService } from '../evident/evident.service';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { DocumentUploadsModule } from '../document-uploads/document-uploads.modu
     OrganizationModule,
     DocumentUploadsModule,
   ],
-  providers: [DeviceService],
+  providers: [DeviceService, EvidentService],
   exports: [DeviceService],
   controllers: [DeviceController],
 })
