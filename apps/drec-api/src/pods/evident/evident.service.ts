@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
-import { RedisEvident } from '../../utils/enums/evident.enum';
 import { getRedisClient } from '../../lib/redis';
+import { RedisKeys } from 'src/utils/enums/redis-keys.enum';
+import { EVIDENT_TOKEN_EXPIRATION_TIME } from '../../constants';
 
 @Injectable()
 export class EvidentService {
@@ -23,24 +24,18 @@ export class EvidentService {
       retryCondition: (error) => {
         return error.response && error.response.status === 401;
       },
-      onRetry: async (retryCount, error, requestConfig) => {
-        if (error.response && error.response.status === 401) {
-          const newToken = await this.getAuthToken();
-          await this.storeAuthToken(newToken);
-          requestConfig.headers = requestConfig.headers || {};
-          requestConfig.headers['Authorization'] = `Bearer ${newToken}`;
-        }
+      onRetry: async (_retryCount, _error, requestConfig) => {
+        const newToken = await this.getAuthToken();
+        requestConfig.headers['Authorization'] = `Bearer ${newToken}`;
       },
     });
 
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        let token = await this.redis.get(RedisEvident.key);
+        let token = await this.redis.get(RedisKeys.EvidentToken);
         if (!token) {
           token = await this.getAuthToken();
-          await this.storeAuthToken(token);
         }
-        config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${token}`;
         return config;
       },
@@ -53,21 +48,21 @@ export class EvidentService {
       email: this.email,
       token: this.apiToken,
     });
-    this.storeAuthToken(response.data.token);
+    await this.storeAuthToken(response.data.token);
     return response.data.token;
+  }
+
+  private async storeAuthToken(token: string): Promise<void> {
+    await this.redis.set(
+      RedisKeys.EvidentToken,
+      token,
+      'EX',
+      EVIDENT_TOKEN_EXPIRATION_TIME,
+    );
   }
 
   async fetchDevices(): Promise<any> {
     const response = await this.axiosInstance.get('/devices');
     return response.data;
-  }
-
-  async storeAuthToken(token: string): Promise<void> {
-    await this.redis.set(
-      RedisEvident.key,
-      token,
-      RedisEvident.expiration,
-      RedisEvident.expirationTime,
-    );
   }
 }
