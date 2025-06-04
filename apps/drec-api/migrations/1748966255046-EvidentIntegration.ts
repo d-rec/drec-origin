@@ -9,8 +9,8 @@ export class EvidentIntegration1748966255046 implements MigrationInterface {
               api_key TEXT NOT NULL,
               default_trading_account VARCHAR(255) NOT NULL,
               default_beneficiary_account VARCHAR(255) NOT NULL,
-              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+              "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
               CONSTRAINT fk_organization FOREIGN KEY (organization_id) REFERENCES organization(id) ON DELETE CASCADE
             );
           `);
