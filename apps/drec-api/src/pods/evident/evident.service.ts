@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { SettingsDTO } from './settings.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EvidentIntegration } from './evident.entity';
+import { EvidentSettings } from './evident.entity';
 import { Repository } from 'typeorm';
 import { maskToken } from '../../utils/mask-token';
+import { encrypt, decrypt } from '../../utils/crypto';
 
 @Injectable()
 export class EvidentService {
+  private secretKey = process.env.ENCRYPTION_SECRET;
   constructor(
-    @InjectRepository(EvidentIntegration)
-    private readonly repository: Repository<EvidentIntegration>,
+    @InjectRepository(EvidentSettings)
+    private readonly repository: Repository<EvidentSettings>,
   ) {}
 
   async save(
@@ -20,6 +22,11 @@ export class EvidentService {
       where: { organizationId },
     });
 
+    settings = {
+      ...settings,
+      apiKey: encrypt(settings.apiKey, this.secretKey),
+    };
+
     if (!settingsExist) {
       return await this.repository.save({
         ...settings,
@@ -27,7 +34,7 @@ export class EvidentService {
       });
     }
 
-    const updatedFields: Partial<EvidentIntegration> = {};
+    const updatedFields: Partial<EvidentSettings> = {};
     let settingschanged = false;
 
     for (const key of Object.keys(settings)) {
@@ -47,8 +54,7 @@ export class EvidentService {
   async findByOrganizationId(organizationId: number): Promise<SettingsDTO> {
     const data = await this.repository.findOne({ where: { organizationId } });
     if (!data) return null;
-    const maskedApiKey = maskToken(data.apiKey);
-
+    const maskedApiKey = maskToken(decrypt(data.apiKey, this.secretKey));
     return {
       ...data,
       apiKey: maskedApiKey,

@@ -74,7 +74,7 @@ import { DocumentEntity } from './pods/document-uploads/entities/documents.entit
 import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
 import { EvidentModule } from './pods/evident/evident.module';
-import { EvidentIntegration } from './pods/evident/evident.entity';
+import { EvidentSettings } from './pods/evident/evident.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -128,7 +128,7 @@ export const entities = [
   BulkUploadFailedLogEntity,
   DocumentEntity,
   Otp,
-  EvidentIntegration,
+  EvidentSettings,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {

@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
 
-@Entity('evident_integration')
+@Entity('evident_settings')
 @Unique(['organizationId'])
-export class EvidentIntegration {
+export class EvidentSettings {
   @PrimaryGeneratedColumn()
   id: number;
 
