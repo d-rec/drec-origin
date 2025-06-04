@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
+import { RedisEvident } from '../../utils/enums/evident.enum';
 
 @Injectable()
 export class EvidentService {
@@ -32,7 +33,7 @@ export class EvidentService {
 
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        let token = await this.redis.get('evident_auth_token');
+        let token = await this.redis.get(RedisEvident.key);
         if (!token) {
           token = await this.getAuthToken();
           await this.storeAuthToken(token);
@@ -60,6 +61,11 @@ export class EvidentService {
   }
 
   async storeAuthToken(token: string): Promise<void> {
-    await this.redis.set('evident_auth_token', token, 'EX', 3600);
+    await this.redis.set(
+      RedisEvident.key,
+      token,
+      RedisEvident.expiration,
+      RedisEvident.expirationTime,
+    );
   }
 }
