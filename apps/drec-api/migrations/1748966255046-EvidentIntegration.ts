@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class EvidentIntegration1748966255046 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            CREATE TABLE evident_integration (
+            CREATE TABLE EvidentIntegration (
               id SERIAL NOT NULL PRIMARY KEY,
               organization_id INTEGER NOT NULL UNIQUE,
               api_key TEXT NOT NULL,
