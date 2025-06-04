@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
 import { RedisEvident } from '../../utils/enums/evident.enum';
 import { getRedisClient } from '../../lib/redis';
