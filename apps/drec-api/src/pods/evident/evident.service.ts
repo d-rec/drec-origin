@@ -16,7 +16,8 @@ export class EvidentService {
   private axiosInstance: AxiosInstance;
 
   constructor(
-    @InjectQueue(Queues.EvidentDeviceRegistration) private readonly evidentDeviceRegistrationQueue: Queue,
+    @InjectQueue(Queues.EvidentDeviceRegistration)
+    private readonly evidentDeviceRegistrationQueue: Queue,
   ) {
     this.axiosInstance = axios.create({ baseURL: this.apiUrl });
 
@@ -69,17 +70,15 @@ export class EvidentService {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
   }
 
-  async registerDevice(device: Device): Promise<any>{
-    const response = await this.axiosInstance.post('/devices',{
-      "name":device.projectName,
-      "fuel": device.fuelCode
-    })
-    return response.data
+  async registerDevice(device: Device): Promise<any> {
+    const response = await this.axiosInstance.post('/devices', {
+      name: device.projectName,
+      fuel: device.fuelCode,
+    });
+    return response.data;
   }
 
   async registerDeviceQueue(device: Device): Promise<void> {
-    await this.evidentDeviceRegistrationQueue.add(
-      { device }
-    );
+    await this.evidentDeviceRegistrationQueue.add({ device });
   }
 }

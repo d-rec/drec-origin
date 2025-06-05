@@ -41,9 +41,13 @@ import { defaultBullJobOptions } from '../../config/bull.config';
     BullModule.registerQueue({
       name: Queues.EvidentDeviceRegistration,
       defaultJobOptions: defaultBullJobOptions,
-    })
+    }),
   ],
-  providers: [DeviceService, EvidentService, EvidentDeviceRegistrationProcessor],
+  providers: [
+    DeviceService,
+    EvidentService,
+    EvidentDeviceRegistrationProcessor,
+  ],
   exports: [DeviceService, BullModule],
   controllers: [DeviceController],
 })
