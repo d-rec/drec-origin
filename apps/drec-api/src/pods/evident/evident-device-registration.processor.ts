@@ -1,0 +1,14 @@
+import { Process } from '@nestjs/bull';
+import { Job } from 'bull';
+import { Device } from '../device/device.entity';
+import { EvidentService } from './evident.service';
+
+export class EvidentDeviceRegistrationProcessor {
+  constructor(private readonly evidentService: EvidentService) {}
+
+  @Process({ concurrency: 1 })
+  async handleRegisterDevice(job: Job<{ device: Device }>) {
+    const { device } = job.data;
+    await this.evidentService.registerDevice(device);
+  }
+}

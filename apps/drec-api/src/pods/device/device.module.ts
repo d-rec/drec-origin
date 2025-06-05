@@ -16,6 +16,10 @@ import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_ce
 import { HttpModule } from '@nestjs/axios';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { EvidentService } from '../evident/evident.service';
+import { BullModule } from '@nestjs/bull';
+import { EvidentDeviceRegistrationProcessor } from '../evident/evident-device-registration.processor';
+import { Queues } from '../../utils/enums/queues.enum';
+import { defaultBullJobOptions } from '../../config/bull.config';
 
 @Module({
   imports: [
@@ -34,9 +38,13 @@ import { EvidentService } from '../evident/evident.service';
     UserModule,
     OrganizationModule,
     DocumentUploadsModule,
+    BullModule.registerQueue({
+      name: Queues.EvidentDeviceRegistration,
+      defaultJobOptions: defaultBullJobOptions,
+    })
   ],
-  providers: [DeviceService, EvidentService],
-  exports: [DeviceService],
+  providers: [DeviceService, EvidentService, EvidentDeviceRegistrationProcessor],
+  exports: [DeviceService, BullModule],
   controllers: [DeviceController],
 })
 export class DeviceModule {}

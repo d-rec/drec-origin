@@ -3,6 +3,9 @@ import axios, { AxiosInstance } from 'axios';
 import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
 import { Device } from '../device';
+import { InjectQueue } from '@nestjs/bull';
+import { Queues } from '../../utils/enums/queues.enum';
+import { Queue } from 'bull';
 
 @Injectable()
 export class EvidentService {
@@ -12,7 +15,9 @@ export class EvidentService {
   private redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   private axiosInstance: AxiosInstance;
 
-  constructor() {
+  constructor(
+    @InjectQueue(Queues.EvidentDeviceRegistration) private readonly evidentDeviceRegistrationQueue: Queue,
+  ) {
     this.axiosInstance = axios.create({ baseURL: this.apiUrl });
 
     axiosRetry(this.axiosInstance, {
@@ -70,5 +75,11 @@ export class EvidentService {
       "fuel": device.fuelCode
     })
     return response.data
+  }
+
+  async registerDeviceQueue(device: Device): Promise<void> {
+    await this.evidentDeviceRegistrationQueue.add(
+      { device }
+    );
   }
 }
