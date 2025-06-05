@@ -32,7 +32,7 @@ import {
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
-import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceDTO, DeviceFiles, NewDeviceDTO } from '../device/dto';
 import { DeviceGroup } from './device-group.entity';
 import {
   AddGroupDTO,
@@ -326,6 +326,7 @@ export class DeviceGroupService {
         const baseQuery = 'group.name ILIKE :name';
         query.andWhere(baseQuery, { name: `%${name}%` });
       }
+
       if (filterDTO.reservationActive) {
         if (filterDTO.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -590,6 +591,15 @@ export class DeviceGroupService {
               );
             }
 
+            if (groupFilterDTO.deviceIds?.length > 0) {
+              qb.andWhere(
+                'dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]',
+                {
+                  deviceIds: groupFilterDTO.deviceIds,
+                },
+              );
+            }
+
             if (groupFilterDTO.start_date && groupFilterDTO.end_date) {
               qb.orWhere(
                 new Brackets((db) => {
@@ -656,6 +666,7 @@ export class DeviceGroupService {
               const baseQuery = 'dg.name ILIKE :name';
               qb.andWhere(baseQuery, { name: `%${name}%` });
             }
+
             if (groupFilterDTO.reservationActive) {
               if (groupFilterDTO.reservationActive === 'Active') {
                 qb.orWhere('dg.reservationActive = :active', { active: true });
@@ -689,42 +700,71 @@ export class DeviceGroupService {
       }
     }
 
-    // If deviceGroups is not an array, return an empty array
-    const finalReservation = groupedData.map((deviceGroup) => ({
-      id: deviceGroup.dg_id,
-      createdAt: deviceGroup.dg_createdAt,
-      name: deviceGroup.dg_name,
-      organizationId: deviceGroup.dg_organizationId,
-      fuelCode: deviceGroup.dg_fuelCode,
-      countryCode: deviceGroup.dg_countryCode,
-      deviceTypeCodes: deviceGroup.dg_deviceTypeCodes,
-      offTakers: deviceGroup.dg_offTakers,
-      commissioningDateRange: deviceGroup.dg_commissioningDateRange,
-      gridInterconnection: deviceGroup.dg_gridInterconnection,
-      aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
-      yieldValue: deviceGroup.dg_yieldValue,
-      buyerId: deviceGroup.dg_buyerId,
-      buyerAddress: deviceGroup.dg_buyerAddress,
-      leftoverReads: deviceGroup.dg_leftoverReads,
-      capacityRange: deviceGroup.dg_capacityRange,
-      frequency: deviceGroup.dg_frequency,
-      reservationStartDate: deviceGroup.dg_reservationStartDate,
-      reservationEndDate: deviceGroup.dg_reservationEndDate,
-      reservationActive: deviceGroup.dg_reservationActive,
-      targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
-      targetVolumeCertificateGenerationRequestedInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
-      targetVolumeCertificateGenerationSucceededInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
-      targetVolumeCertificateGenerationFailedInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
-      authorityToExceed: deviceGroup.dg_authorityToExceed,
-      leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-      devicegroup_uid: deviceGroup.dg_devicegroup_uid,
-      type: deviceGroup.dg_type,
-      deviceIds: deviceGroup.dg_deviceIdsInt,
-      SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
-    }));
+    const getDevices = async (deviceIds: string[]) => {
+      if (!deviceIds || deviceIds.length === 0) return [];
+      const numericIds = deviceIds
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      const deviceQuery = this.repository.manager
+        .createQueryBuilder(Device, 'device')
+        .select([
+          'device.id',
+          'device.projectName',
+          'device.developerExternalId',
+        ])
+        .where('device.id IN (:...ids)', { ids: numericIds });
+
+      return await deviceQuery.getRawMany();
+    };
+
+    const finalReservation = await Promise.all(
+      groupedData.map(async (deviceGroup) => {
+        const devices = await getDevices(deviceGroup.dg_deviceIdsInt);
+        return {
+          id: deviceGroup.dg_id,
+          createdAt: deviceGroup.dg_createdAt,
+          name: deviceGroup.dg_name,
+          organizationId: deviceGroup.dg_organizationId,
+          fuelCode: deviceGroup.dg_fuelCode,
+          countryCode: deviceGroup.dg_countryCode,
+          deviceTypeCodes: deviceGroup.dg_deviceTypeCodes,
+          offTakers: deviceGroup.dg_offTakers,
+          commissioningDateRange: deviceGroup.dg_commissioningDateRange,
+          gridInterconnection: deviceGroup.dg_gridInterconnection,
+          aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
+          yieldValue: deviceGroup.dg_yieldValue,
+          buyerId: deviceGroup.dg_buyerId,
+          buyerAddress: deviceGroup.dg_buyerAddress,
+          leftoverReads: deviceGroup.dg_leftoverReads,
+          capacityRange: deviceGroup.dg_capacityRange,
+          frequency: deviceGroup.dg_frequency,
+          reservationStartDate: deviceGroup.dg_reservationStartDate,
+          reservationEndDate: deviceGroup.dg_reservationEndDate,
+          reservationActive: deviceGroup.dg_reservationActive,
+          targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
+          targetVolumeCertificateGenerationRequestedInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
+          targetVolumeCertificateGenerationSucceededInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
+          targetVolumeCertificateGenerationFailedInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
+          authorityToExceed: deviceGroup.dg_authorityToExceed,
+          leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
+          devicegroup_uid: deviceGroup.dg_devicegroup_uid,
+          type: deviceGroup.dg_type,
+          deviceIds: deviceGroup.dg_deviceIdsInt,
+          SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
+          devices: devices.map((device) => {
+            return {
+              id: device.device_id,
+              externalId: device.device_developerExternalId,
+              projectName: device.device_projectName,
+            };
+          }),
+        };
+      }),
+    );
+
     return {
       groupedData: finalReservation,
       pageNumber,
@@ -1195,6 +1235,7 @@ export class DeviceGroupService {
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    files: DeviceFiles,
     api_user_id?: string,
   ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
@@ -1202,11 +1243,12 @@ export class DeviceGroupService {
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
           if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
+            return await this.deviceService.register(orgCode, device, files);
           } else {
             return await this.deviceService.register(
               orgCode,
               device,
+              files,
               api_user_id,
               Role.ApiUser,
             );
@@ -1436,6 +1478,7 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
+    files: DeviceFiles,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1751,6 +1794,7 @@ export class DeviceGroupService {
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
+          files,
         );
 
         devicesRegistered

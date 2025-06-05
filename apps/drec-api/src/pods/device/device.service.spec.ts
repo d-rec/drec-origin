@@ -9,6 +9,7 @@ import {
   MoreThanOrEqual,
   In,
   FindOneOptions,
+  Connection,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
@@ -42,11 +43,18 @@ import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import {
+  DocumentEntity,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
+import { FileService } from '../file';
 
 describe('DeviceService', () => {
   let service: DeviceService;
   let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
+  let deviceDocumentRepository: Repository<DocumentEntity>;
   let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
   let httpService: HttpService;
   let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
@@ -54,11 +62,32 @@ describe('DeviceService', () => {
   let organizationService: OrganizationService;
   let userService: UserService;
   let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
+  let fileService: FileService;
+  let connection: Connection;
+  let documentService: DocumentUploadsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeviceService,
+        DocumentUploadsService,
+        {
+          provide: getRepositoryToken(DocumentEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+          },
+        },
+        {
+          provide: FileService,
+          useValue: {
+            upload: jest.fn().mockResolvedValue({
+              key: 'mock-file-key',
+              Location: 'mock-url',
+            }),
+            deleteFileFromS3: jest.fn(),
+          },
+        },
         {
           provide: getRepositoryToken(Device),
           useClass: Repository,
@@ -87,6 +116,18 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
+          provide: Connection,
+          useValue: {
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+            }),
+          },
+        },
+        {
           provide: getRepositoryToken(IRECDevicesInformationEntity),
           useClass: Repository,
         },
@@ -111,6 +152,14 @@ describe('DeviceService', () => {
 
     service = module.get<DeviceService>(DeviceService);
     repository = module.get<Repository<Device>>(getRepositoryToken(Device));
+    documentService = module.get<DocumentUploadsService>(
+      DocumentUploadsService,
+    );
+    deviceDocumentRepository = module.get<Repository<DocumentEntity>>(
+      getRepositoryToken(DocumentEntity),
+    );
+    fileService = module.get<FileService>(FileService);
+    connection = module.get<Connection>(Connection);
   });
 
   it('should be defined', () => {
@@ -181,12 +230,91 @@ describe('DeviceService', () => {
         yieldValue: 1500,
       };
 
+      type RequiredDocumentType =
+        | DocumentType.FORM_SF_02
+        | DocumentType.SF_02C
+        | DocumentType.METERING_EVIDENCE
+        | DocumentType.SINGLE_LINE_DIAGRAM
+        | DocumentType.PROJECT_PHOTOS;
+
+      const files: Record<RequiredDocumentType, Express.Multer.File[]> = {
+        [DocumentType.FORM_SF_02]: [
+          {
+            fieldname: DocumentType.FORM_SF_02,
+            originalname: 'file1.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.SF_02C]: [
+          {
+            fieldname: DocumentType.SF_02C,
+            originalname: 'file2.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.METERING_EVIDENCE]: [
+          {
+            fieldname: DocumentType.METERING_EVIDENCE,
+            originalname: 'file3.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [
+          {
+            fieldname: DocumentType.SINGLE_LINE_DIAGRAM,
+            originalname: 'file4.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.PROJECT_PHOTOS]: [
+          {
+            fieldname: DocumentType.PROJECT_PHOTOS,
+            originalname: 'file5.jpg',
+            encoding: '7bit',
+            mimetype: 'image/jpeg',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+      };
       jest.spyOn(repository, 'findOne').mockReturnValue(undefined);
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(deviceEntity as any);
 
-      const result = await service.register(orgCode, newDevice);
+      const result = await service.register(orgCode, newDevice, files as any);
 
       const options = {
         where: {
@@ -265,15 +393,30 @@ describe('DeviceService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValue(deviceEntity as any);
 
+      const files = {
+        [DocumentType.FORM_SF_02]: [],
+        [DocumentType.SF_02C]: [],
+        [DocumentType.METERING_EVIDENCE]: [],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+        [DocumentType.PROJECT_PHOTOS]: [],
+      };
       const options = {
         where: {
           developerExternalId: newDevice.externalId,
           organizationId: orgCode,
         },
       };
+      const correctedFiles = {
+        [DocumentType.FORM_SF_02]: files[DocumentType.FORM_SF_02],
+        [DocumentType.SF_02C]: files[DocumentType.SF_02C],
+        [DocumentType.METERING_EVIDENCE]: files[DocumentType.METERING_EVIDENCE],
+        [DocumentType.SINGLE_LINE_DIAGRAM]:
+          files[DocumentType.SINGLE_LINE_DIAGRAM],
+        [DocumentType.PROJECT_PHOTOS]: files[DocumentType.PROJECT_PHOTOS],
+      };
 
       await expect(
-        service.register(orgCode, newDevice, apiUserId, role),
+        service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
       await expect(findOneSpy).toHaveBeenCalledWith(options);
