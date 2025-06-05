@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { EvidentService } from './evident.service';
+import { EvidentSettingsService } from './evidentSettings.service';
 import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -9,10 +9,10 @@ import { AuthVerifiedGuard } from '../../guards';
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
 @Controller('evident')
-export class EvidentController {
-  private readonly logger = new Logger(EvidentController.name);
+export class EvidentSettingsController {
+  private readonly logger = new Logger(EvidentSettingsController.name);
 
-  constructor(private readonly eviidentService: EvidentService) {}
+  constructor(private readonly eviidentService: EvidentSettingsService) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Post()

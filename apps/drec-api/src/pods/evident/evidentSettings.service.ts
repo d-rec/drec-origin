@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { SettingsDTO } from './settings.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EvidentSettings } from './evident.entity';
+import { EvidentSettings } from './evidentSettings.entity';
 import { Repository } from 'typeorm';
 import { maskToken } from '../../utils/mask-token';
 import { encrypt, decrypt } from '../../utils/crypto';
 
 @Injectable()
-export class EvidentService {
+export class EvidentSettingsService {
   private secretKey = process.env.ENCRYPTION_SECRET;
   constructor(
     @InjectRepository(EvidentSettings)

@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/user.entity';
-import { EvidentSettings } from './evident.entity';
-import { EvidentController } from './evident.controller';
-import { EvidentService } from './evident.service';
+import { EvidentSettings } from './evidentSettings.entity';
+import { EvidentSettingsController } from './evidentSettings.controller';
+import { EvidentSettingsService } from './evidentSettings.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, EvidentSettings])],
-  controllers: [EvidentController],
-  providers: [EvidentService],
-  exports: [EvidentService],
+  controllers: [EvidentSettingsController],
+  providers: [EvidentSettingsService],
+  exports: [EvidentSettingsService],
 })
 export class EvidentModule {}
