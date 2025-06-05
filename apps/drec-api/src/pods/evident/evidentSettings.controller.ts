@@ -12,7 +12,9 @@ import { AuthVerifiedGuard } from '../../guards';
 export class EvidentSettingsController {
   private readonly logger = new Logger(EvidentSettingsController.name);
 
-  constructor(private readonly evidentService: EvidentSettingsService) {}
+  constructor(
+    private readonly evidentSettingsService: EvidentSettingsService,
+  ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Post()
@@ -22,7 +24,7 @@ export class EvidentSettingsController {
     @Body() settings: SettingsDTO,
   ): Promise<SettingsDTO> {
     this.logger.verbose(`About to save settings`);
-    return this.evidentService.save(organizationId, settings);
+    return this.evidentSettingsService.save(organizationId, settings);
   }
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
@@ -31,6 +33,6 @@ export class EvidentSettingsController {
   async getSettings(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.evidentService.findByOrganizationId(organizationId);
+    return this.evidentSettingsService.findByOrganizationId(organizationId);
   }
 }
