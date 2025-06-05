@@ -254,7 +254,7 @@ export class IssuerService {
     // Get the latest read for the device
     const lastReads = await this.readsService.latestRead(
       device.externalId,
-      device.createdAt,
+      device.id,
     );
 
     if (!lastReads.length) return output;

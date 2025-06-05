@@ -1043,12 +1043,12 @@ export class ReadsService {
       filter.offset = sizeOfPage * (pageNumber - 1);
       filter.limit = sizeOfPage;
     }
-    numberOfOngReads = await this.getNumberOfOngoingReads(
-      filter.start,
-      filter.end,
-      externalId,
-      deviceOnboarded,
-    );
+    // numberOfOngReads = await this.getNumberOfOngoingReads(
+    //   filter.start,
+    //   filter.end,
+    //   externalId,
+    //   deviceOnboarded,
+    // );
     this.logger.verbose(numberOfOngReads);
     if (numberOfOngReads > numberOfHistoryReads) {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
@@ -1171,15 +1171,15 @@ export class ReadsService {
       }
     }
 
-    this.logger.verbose(
-      'count of ong reads:::::::::::::::::::::::::::::::::::' +
-        (await this.getNumberOfOngoingReads(
-          filter.start,
-          filter.end,
-          externalId,
-          deviceOnboarded,
-        )),
-    );
+    // this.logger.verbose(
+    //   'count of ong reads:::::::::::::::::::::::::::::::::::' +
+    //     (await this.getNumberOfOngoingReads(
+    //       filter.start,
+    //       filter.end,
+    //       externalId,
+    //       deviceOnboarded,
+    //     )),
+    // );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
         historyread: historyReads,
@@ -1207,35 +1207,35 @@ export class ReadsService {
       .where('reads.external_id = :deviceId', { deviceId })
       .andWhere('reads.start_date <= :endDate', { endDate })
       .andWhere('reads.end_date >= :startDate', { startDate });
-
+console.log("44444444444444444444444444",await query.getCount())
     return await query.getCount();
   }
 
-  async getNumberOfOngoingReads(
-    start: Date,
-    end: Date,
-    externalId: string,
-    onboarded: Date,
-  ): Promise<number> {
-    this.logger.verbose(externalId);
-    if (new Date(onboarded).getTime() > new Date(end).getTime()) {
-      this.logger.verbose('The given dates are not for on-going reads');
-      return 0;
-    }
-    let fluxQuery = ``;
-    if (new Date(start).getTime() > new Date(onboarded).getTime()) {
-      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  |> range(start: ${start}, stop: ${end})
-  |> filter(fn: (r) => r._measurement == "read" and r.meter == "${externalId}")
-  |> count()`;
-    } else {
-      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  |> range(start: ${onboarded}, stop: ${end})
-  |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
-  |> count()`;
-    }
-    return await this.ongExecute(fluxQuery);
-  }
+  // async getNumberOfOngoingReads(
+  //   start: Date,
+  //   end: Date,
+  //   externalId: string,
+  //   onboarded: Date,
+  // ): Promise<number> {
+  //   this.logger.verbose(externalId);
+  //   if (new Date(onboarded).getTime() > new Date(end).getTime()) {
+  //     this.logger.verbose('The given dates are not for on-going reads');
+  //     return 0;
+  //   }
+  //   let fluxQuery = ``;
+  //   if (new Date(start).getTime() > new Date(onboarded).getTime()) {
+  //     fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  // |> range(start: ${start}, stop: ${end})
+  // |> filter(fn: (r) => r._measurement == "read" and r.meter == "${externalId}")
+  // |> count()`;
+  //   } else {
+  //     fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+  // |> range(start: ${onboarded}, stop: ${end})
+  // |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
+  // |> count()`;
+  //   }
+  //   return await this.ongExecute(fluxQuery);
+  // }
 
   async ongExecute(query: string | any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
@@ -1246,21 +1246,14 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
-  async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
-    try {
-      const query = `
-        from(bucket: "${process.env.INFLUXDB_BUCKET}")
-        |> range(start: ${deviceOnboarded}, stop: now())
-        |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-        |> last()
-        `;
-      return await this.execute(query);
-    } catch (error) {
-      this.logger.error(
-        `Error in influxdb query: ${error.message}`, //Please include the whole stack
-        error.stack,
-      );
-    }
+  async latestRead(meterId: string, deviceId: number): Promise<any> {
+    console.log("in herelatest field")
+    return this.readsRepository
+    .createQueryBuilder('reads')
+    .where('reads.external_id = :meterId', { meterId })
+    .andWhere('reads.device_id = :deviceId', { deviceId })
+    .orderBy('reads.start_date', 'DESC')
+    .getOne();
   }
 
   async getAccumulatedReads(

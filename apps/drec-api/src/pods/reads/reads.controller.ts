@@ -313,7 +313,7 @@ return await this.internalReadsService.getByExternalId(
         user.organizationId,
       );
     }
-
+    console.log("11111111111111111111111",user.organizationId)
     if (device === null) {
       this.logger.error(`Invalid device id`);
       throw new ConflictException({
@@ -332,6 +332,7 @@ return await this.internalReadsService.getByExternalId(
         year,
       );
     } else if (filter.readType === 'meterReads') {
+      console.log("22222222222222222222222222222222222")
       const timezone = getLocalTimeZoneFromDevice(filter.start, device);
       this.logger.log('the timezone we got from all reads is:::' + timezone);
       const returnedObject = await this.internalReadsService.getAllRead(
@@ -340,10 +341,11 @@ return await this.internalReadsService.getByExternalId(
         device.createdAt,
         pageNumber,
       );
+      console.log("3333333333333333333333333333333333333333333333")
       this.logger.log(
         'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
       );
-      Object.assign(returnedObject, { timezone: timezone });
+      // Object.assign(returnedObject, { timezone: timezone });
       this.logger.log(
         'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
       );
@@ -512,7 +514,7 @@ return await this.internalReadsService.getByExternalId(
       user.role === 'ApiUser'
     ) {
       // in buyer case externalid means insert id
-      device = await this.deviceService.findOne(parseInt(externalId));
+      // device = await this.deviceService.findOne(parseInt(externalId));
     } else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(
         externalId,
@@ -530,16 +532,16 @@ return await this.internalReadsService.getByExternalId(
     let latestReadObject;
 
     const deviceExternalId = device.externalId;
-
-    if (!device.meterReadtype) {
-      this.logger.error(`Read not found`);
-      throw new HttpException('Read not found', 400);
-    } else {
+console.log("deviceExternalId",deviceExternalId,device.id)
+    // if (!device.meterReadtype) {
+    //   this.logger.error(`Read not found`);
+    //   throw new HttpException('Read not found', 400);
+    // } else {
       latestReadObject = await this.internalReadsService.latestRead(
         deviceExternalId,
-        device.createdAt,
+        device.id,
       );
-
+console.log("latess",latestReadObject)
       if (
         typeof latestReadObject === 'undefined' ||
         latestReadObject.length == 0
@@ -556,9 +558,9 @@ return await this.internalReadsService.getByExternalId(
       }
 
       return {
-        enddate: latestReadObject[0].timestamp,
-        value: latestReadObject[0].value,
+        enddate: latestReadObject.endDate,
+        value: latestReadObject.value,
       };
-    }
+    // }
   }
 }
