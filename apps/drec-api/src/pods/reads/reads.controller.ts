@@ -131,8 +131,9 @@ export class ReadsController extends BaseReadsController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async getReadsWithPagination(
+  public async getReads(
     @Param('externalId') meterId: string,
+    @Query() filter: FilterDTO,
   ): Promise<any> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -145,8 +146,9 @@ export class ReadsController extends BaseReadsController {
         message: `Invalid device id`,
       });
     }
-return await this.internalReadsService.getByExternalId(
-      device.externalId
+    return await this.internalReadsService.getByExternalId(
+      device.externalId,
+      filter,
     );
   }
 
@@ -267,7 +269,6 @@ return await this.internalReadsService.getByExternalId(
           message: `The URL param externalId should be number.. please provide the device id of which you want to query`,
         });
       }
-      console.log("in controller",meterId)
       device = await this.deviceService.findOne(parseInt(meterId));
       if (
         orgUser != undefined &&
@@ -307,13 +308,11 @@ return await this.internalReadsService.getByExternalId(
         }
       }
     } else {
-      console.log("meter",meterId)
       device = await this.deviceService.findDeviceByDeveloperExternalId(
         meterId,
         user.organizationId,
       );
     }
-    console.log("11111111111111111111111",user.organizationId)
     if (device === null) {
       this.logger.error(`Invalid device id`);
       throw new ConflictException({
@@ -332,7 +331,6 @@ return await this.internalReadsService.getByExternalId(
         year,
       );
     } else if (filter.readType === 'meterReads') {
-      console.log("22222222222222222222222222222222222")
       const timezone = getLocalTimeZoneFromDevice(filter.start, device);
       this.logger.log('the timezone we got from all reads is:::' + timezone);
       const returnedObject = await this.internalReadsService.getAllRead(
@@ -341,15 +339,9 @@ return await this.internalReadsService.getByExternalId(
         device.createdAt,
         pageNumber,
       );
-      console.log("3333333333333333333333333333333333333333333333")
       this.logger.log(
         'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
       );
-      // Object.assign(returnedObject, { timezone: timezone });
-      this.logger.log(
-        'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
-      );
-      console.log("returnedObject",returnedObject)
       return returnedObject;
     } else {
       this.logger.error(`Invalid readType parameter`);
@@ -514,7 +506,7 @@ return await this.internalReadsService.getByExternalId(
       user.role === 'ApiUser'
     ) {
       // in buyer case externalid means insert id
-      // device = await this.deviceService.findOne(parseInt(externalId));
+      device = await this.deviceService.findOne(parseInt(externalId));
     } else {
       device = await this.deviceService.findDeviceByDeveloperExternalId(
         externalId,
@@ -529,38 +521,28 @@ return await this.internalReadsService.getByExternalId(
       });
     }
 
-    let latestReadObject;
-
     const deviceExternalId = device.externalId;
-console.log("deviceExternalId",deviceExternalId,device.id)
-    // if (!device.meterReadtype) {
-    //   this.logger.error(`Read not found`);
-    //   throw new HttpException('Read not found', 400);
-    // } else {
-      latestReadObject = await this.internalReadsService.latestRead(
-        deviceExternalId,
-        device.id,
-      );
-console.log("latess",latestReadObject)
-      if (
-        typeof latestReadObject === 'undefined' ||
-        latestReadObject.length == 0
-      ) {
-        this.logger.error(`Read Not found`);
-        throw new HttpException('Read Not found', 400);
-      }
-      if (user.role === 'Buyer' || user.role === 'ApiUser') {
-        return {
-          externalId: device.developerExternalId,
-          timestamp: latestReadObject[0].timestamp,
-          value: latestReadObject[0].value,
-        };
-      }
-
+    const latestReadObject =
+      await this.internalReadsService.latestRead(deviceExternalId);
+    if (
+      typeof latestReadObject === 'undefined' ||
+      latestReadObject.length == 0
+    ) {
+      this.logger.error(`Read Not found`);
+      throw new HttpException('Read Not found', 400);
+    }
+    if (user.role === 'Buyer' || user.role === 'ApiUser') {
       return {
-        enddate: latestReadObject.endDate,
-        value: latestReadObject.value,
+        externalId: device.developerExternalId,
+        timestamp: latestReadObject[0].timestamp,
+        value: latestReadObject[0].value,
       };
+    }
+
+    return {
+      enddate: latestReadObject.endDate,
+      value: latestReadObject.value,
+    };
     // }
   }
 }

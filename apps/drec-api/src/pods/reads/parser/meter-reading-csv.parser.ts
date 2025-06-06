@@ -9,7 +9,7 @@ export interface MeterReadingCSV {
     unit: Unit;
     type: ReadType;
     timezone: string;
-    externalId:string;
+    externalId: string;
   };
 }
 
