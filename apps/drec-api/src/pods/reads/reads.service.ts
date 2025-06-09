@@ -1024,15 +1024,14 @@ export class ReadsService {
 
     const sizeOfPage = 5;
     let numberOfPages = 0;
-    const numberOfHistoryReads = await this.getNumberOfHistoryReads(
+    const numberOfReads = await this.getNumberOfHistoryReads(
       externalId,
       filter.start,
       filter.end,
     );
     const numberOfOngReads = 0;
-    let numberOfReads = numberOfHistoryReads + numberOfOngReads;
-    if (numberOfHistoryReads > 0) {
-      numberOfPages = Math.ceil(numberOfHistoryReads / sizeOfPage);
+    if (numberOfReads > 0) {
+      numberOfPages = Math.ceil(numberOfReads / sizeOfPage);
     }
 
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
@@ -1040,11 +1039,7 @@ export class ReadsService {
       filter.limit = sizeOfPage;
     }
     this.logger.verbose(numberOfOngReads);
-    if (numberOfOngReads > numberOfHistoryReads) {
-      numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
-    }
-    numberOfReads = numberOfHistoryReads + numberOfOngReads;
-    if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
+    if (numberOfReads == 0) {
       return {
         reads: reads,
         ongoing,
@@ -1081,12 +1076,12 @@ export class ReadsService {
       );
       this.logger.verbose('historyexistdevicequery');
       try {
-        const rawHistoryReads = await query
+        const rawReads = await query
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
 
-        await rawHistoryReads.forEach((element) => {
+        await rawReads.forEach((element) => {
           reads.push({
             type: element.reads_type,
             startdate: element.reads_start_date,

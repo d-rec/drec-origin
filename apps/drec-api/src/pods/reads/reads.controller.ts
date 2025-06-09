@@ -531,13 +531,13 @@ export class ReadsController extends BaseReadsController {
     if (user.role === 'Buyer' || user.role === 'ApiUser') {
       return {
         externalId: device.developerExternalId,
-        timestamp: latestReadObject.endDate,
+        endDate: latestReadObject.endDate,
         value: latestReadObject.value,
       };
     }
 
     return {
-      timestamp: latestReadObject.endDate,
+      endDate: latestReadObject.endDate,
       value: latestReadObject.value,
     };
   }
