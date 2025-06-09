@@ -152,7 +152,7 @@ export class LateOngoingIssuanceService {
 
     // Fetch last read and next issuance data in parallel
     const [lastRead, nextIssuance] = await Promise.all([
-      this.readsService.latestRead(device.externalId, device.createdAt),
+      this.readsService.latestRead(device.externalId),
       this.groupService.getGroupCertificateIssueDate({ groupId: group.id }),
     ]);
 

@@ -21,6 +21,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeviceModule } from '../device/device.module';
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
+import { MeterRead } from './meter-reads.entity';
 
 const baseReadServiceProvider = {
   provide: BASE_READ_SERVICE,
@@ -39,6 +40,7 @@ const baseReadServiceProvider = {
     TypeOrmModule.forFeature([
       AggregateMeterRead,
       HistoryIntermediateMeterRead,
+      MeterRead,
       DeltaFirstRead,
     ]),
     BullModule.registerQueue({

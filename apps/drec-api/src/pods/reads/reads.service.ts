@@ -29,14 +29,12 @@ import { InfluxDB, Point, QueryApi } from '@influxdata/influxdb-client';
 import { EventBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
-import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { flattenDeep, values, groupBy, mean, sum } from 'lodash';
 import { DeltaFirstRead } from './delta_firstread.entity';
 import { DateTime } from 'luxon';
-import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { IAggregateIntermediate } from '../../models';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
@@ -74,6 +72,7 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { MeterRead } from './meter-reads.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -83,6 +82,8 @@ export class ReadsService {
   private readonly queryApi: QueryApi;
 
   constructor(
+    @InjectRepository(MeterRead)
+    private readonly readsRepository: Repository<MeterRead>,
     @InjectRepository(AggregateMeterRead)
     private readonly repository: Repository<AggregateMeterRead>,
     @InjectRepository(HistoryIntermediateMeterRead)
@@ -203,40 +204,6 @@ export class ReadsService {
       },
       take: 1,
     });
-  }
-
-  public async storeRead(
-    id: string,
-    measurements: NewIntermediateMeterReadDTO,
-  ): Promise<void> {
-    this.logger.debug('DREC is storing smart meter reads:');
-    this.logger.debug(JSON.stringify(measurements));
-    const device = await this.deviceService.findReads(id);
-    if (!device) {
-      throw new NotFoundException(`No device found with external id ${id}`);
-    }
-
-    if (
-      device.timezone === null &&
-      measurements.timezone !== null &&
-      measurements.timezone !== undefined &&
-      measurements.timezone.toString().trim() !== ''
-    ) {
-      await this.deviceService.updateTimezone(
-        device.externalId,
-        measurements.timezone,
-      );
-    }
-
-    const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-
-    const filteredMeasurements = await this.filterMeasurements(
-      id,
-      roundedMeasurements,
-      device,
-    );
-    this.logger.verbose(filteredMeasurements);
-    await this.storeGenerationReading(id, filteredMeasurements, device);
   }
 
   private roundMeasurementsToUnit(
@@ -707,31 +674,29 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): SelectQueryBuilder<HistoryIntermediateMeterRead> {
+  ): SelectQueryBuilder<any> {
     this.logger.verbose(startDate);
     this.logger.verbose(endDate);
 
-    return this.historyRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId })
+    return this.readsRepository
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :deviceId', { deviceId })
       .andWhere(
-        new Brackets((db) => {
-          db.where(
-            'devicehistory.readsStartDate BETWEEN :startDateFirstWhere AND :endDateFirstWhere ',
-            { startDateFirstWhere: startDate, endDateFirstWhere: endDate },
-          )
-            .orWhere(
-              'devicehistory.readsEndDate BETWEEN :startDateSecondtWhere AND :endDateSecondWhere',
-              { startDateSecondtWhere: startDate, endDateSecondWhere: endDate },
-            )
-            .orWhere(
-              ':startdateThirdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-              { startdateThirdWhere: startDate },
-            )
-            .orWhere(
-              ':enddateforthdWhere BETWEEN devicehistory.readsStartDate AND devicehistory.readsEndDate',
-              { enddateforthdWhere: endDate },
-            );
+        new Brackets((qb) => {
+          qb.where('reads.start_date BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          })
+            .orWhere('reads.end_date BETWEEN :startDate AND :endDate', {
+              startDate,
+              endDate,
+            })
+            .orWhere(':startDate BETWEEN reads.start_date AND reads.end_date', {
+              startDate,
+            })
+            .orWhere(':endDate BETWEEN reads.start_date AND reads.end_date', {
+              endDate,
+            });
         }),
       );
   }
@@ -912,40 +877,6 @@ export class ReadsService {
     }
   }
 
-  private async storeGenerationReading(
-    id: string,
-    measurements: MeasurementDTO,
-    device: DeviceDTO,
-  ): Promise<void> {
-    const organization = await this.organizationService.findOne(
-      device.organizationId,
-    );
-
-    if (!organization) {
-      throw new NotFoundException(
-        `No organization found with device organization code ${device.organizationId}`,
-      );
-    }
-    await this.store(id, measurements);
-
-    for (const measurement of measurements.reads) {
-      const startTime = DateTime.fromJSDate(measurement.timestamp)
-        .minus({ minutes: 30 })
-        .toJSDate();
-      const endTime = DateTime.fromJSDate(measurement.timestamp).toJSDate();
-
-      this.eventBus.publish(
-        new GenerationReadingStoredEvent({
-          deviceId: id,
-          energyValue: BigNumber.from(measurement.value),
-          fromTime: startTime,
-          toTime: endTime,
-          organizationId: organization.id.toString(),
-        }),
-      );
-    }
-  }
-
   private aggregateArray(aggregate: Aggregate, array: number[]): number {
     switch (aggregate) {
       case Aggregate.Mean:
@@ -1085,8 +1016,8 @@ export class ReadsService {
         400,
       );
     }
-    const historyReads = [];
-    let ongoing = [];
+    const reads = [];
+    const ongoing = [];
     this.logger.verbose(
       'page number:::::::::::::::::::::::::::::::::::::::::::' + pageNumber,
     );
@@ -1098,7 +1029,7 @@ export class ReadsService {
       filter.start,
       filter.end,
     );
-    let numberOfOngReads = 0;
+    const numberOfOngReads = 0;
     let numberOfReads = numberOfHistoryReads + numberOfOngReads;
     if (numberOfHistoryReads > 0) {
       numberOfPages = Math.ceil(numberOfHistoryReads / sizeOfPage);
@@ -1108,12 +1039,6 @@ export class ReadsService {
       filter.offset = sizeOfPage * (pageNumber - 1);
       filter.limit = sizeOfPage;
     }
-    numberOfOngReads = await this.getNumberOfOngoingReads(
-      filter.start,
-      filter.end,
-      externalId,
-      deviceOnboarded,
-    );
     this.logger.verbose(numberOfOngReads);
     if (numberOfOngReads > numberOfHistoryReads) {
       numberOfPages = Math.ceil(numberOfOngReads / sizeOfPage);
@@ -1121,7 +1046,7 @@ export class ReadsService {
     numberOfReads = numberOfHistoryReads + numberOfOngReads;
     if (numberOfHistoryReads == 0 && numberOfOngReads == 0) {
       return {
-        historyread: historyReads,
+        reads: reads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: 0,
@@ -1134,7 +1059,7 @@ export class ReadsService {
       pageNumber > numberOfPages
     ) {
       return {
-        historyread: historyReads,
+        reads: reads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1162,10 +1087,11 @@ export class ReadsService {
           .getRawMany();
 
         await rawHistoryReads.forEach((element) => {
-          historyReads.push({
-            startdate: element.devicehistory_readsStartDate,
-            enddate: element.devicehistory_readsEndDate,
-            value: element.devicehistory_readsvalue,
+          reads.push({
+            type: element.reads_type,
+            startdate: element.reads_start_date,
+            enddate: element.reads_end_date,
+            value: element.reads_value,
           });
         });
       } catch (error) {
@@ -1184,106 +1110,11 @@ export class ReadsService {
           '\nend:::::::::' +
           filter.end.toString(),
       );
-
-      let readsFilter: FilterDTO = {
-        offset: filter.offset,
-        limit: filter.limit,
-        start: filter.start.toString(),
-        end: filter.end.toString(),
-      };
-      if (
-        new Date(filter.start).getTime() > new Date(deviceOnboarded).getTime()
-      ) {
-        readsFilter = {
-          offset: filter.offset,
-          limit: filter.limit,
-          start: filter.start.toString(),
-          end: filter.end.toString(),
-        };
-      } else {
-        readsFilter = {
-          offset: filter.offset,
-          limit: filter.limit,
-          start: deviceOnboarded.toString(),
-          end: filter.end.toString(),
-        };
-      }
-      if (
-        new Date(filter.start).getTime() <
-          new Date(deviceOnboarded).getTime() ||
-        new Date(filter.end).getTime() > new Date(deviceOnboarded).getTime()
-      ) {
-        const finalOngoingRead = await this.getPaginatedData(
-          externalId,
-          readsFilter,
-          pageNumber,
-        );
-
-        let previousReadTime;
-        if (pageNumber > 1) {
-          const previousPage = pageNumber - 1;
-          const previousPageData = await this.getPaginatedData(
-            externalId,
-            readsFilter,
-            previousPage,
-          );
-          if (previousPageData.length > 0) {
-            previousReadTime = (previousPageData[0] as any).timestamp;
-            this.logger.verbose(
-              'previous page read data[0]::::' +
-                (previousPageData[0] as any).timestamp,
-            );
-          } else {
-            previousReadTime = null;
-          }
-        }
-        const transformedFinalOngoing = [];
-        for (let i = 0; i < finalOngoingRead.length; i++) {
-          const currentRead = finalOngoingRead[i];
-          let startDate;
-          if (i === 0 && pageNumber == 1) {
-            startDate = new Date(
-              Math.max(
-                new Date(deviceOnboarded).getTime(),
-                new Date(filter.start).getTime(),
-              ),
-            );
-          } else if (i == 0 && pageNumber != 1) {
-            startDate = previousReadTime;
-          } else {
-            startDate = transformedFinalOngoing[i - 1].enddate;
-          }
-          const endDate = (finalOngoingRead[i] as any).timestamp;
-          if (i > 1) {
-            transformedFinalOngoing.push({
-              startdate: transformedFinalOngoing[i - 1].enddate,
-              enddate: endDate,
-              value: (currentRead as any).value,
-            });
-          } else {
-            transformedFinalOngoing.push({
-              startdate: startDate,
-              enddate: endDate,
-              value: (currentRead as any).value,
-            });
-          }
-        }
-        ongoing = transformedFinalOngoing;
-      }
     }
 
-    this.logger.verbose(
-      'count of ong reads:::::::::::::::::::::::::::::::::::' +
-        (await this.getNumberOfOngoingReads(
-          filter.start,
-          filter.end,
-          externalId,
-          deviceOnboarded,
-        )),
-    );
     if (typeof pageNumber === 'number' && !isNaN(pageNumber)) {
       return {
-        historyread: historyReads,
+        reads: reads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1291,7 +1122,7 @@ export class ReadsService {
       };
     } else {
       return {
-        historyread: historyReads,
+        reads: reads,
         ongoing,
         numberOfReads: numberOfReads,
         numberOfPages: numberOfPages,
@@ -1305,65 +1136,21 @@ export class ReadsService {
     startDate: Date | string,
     endDate: Date | string,
   ): Promise<any> {
-    const query = this.historyRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId })
-      .andWhere('devicehistory.readsStartDate <= :endDate', { endDate })
-      .andWhere('devicehistory.readsEndDate >= :startDate', { startDate });
+    const query = this.readsRepository
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :deviceId', { deviceId })
+      .andWhere('reads.start_date <= :endDate', { endDate })
+      .andWhere('reads.end_date >= :startDate', { startDate });
 
     return await query.getCount();
   }
 
-  async getNumberOfOngoingReads(
-    start: Date,
-    end: Date,
-    externalId: string,
-    onboarded: Date,
-  ): Promise<number> {
-    this.logger.verbose(externalId);
-    if (new Date(onboarded).getTime() > new Date(end).getTime()) {
-      this.logger.verbose('The given dates are not for on-going reads');
-      return 0;
-    }
-    let fluxQuery = ``;
-    if (new Date(start).getTime() > new Date(onboarded).getTime()) {
-      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  |> range(start: ${start}, stop: ${end})
-  |> filter(fn: (r) => r._measurement == "read" and r.meter == "${externalId}")
-  |> count()`;
-    } else {
-      fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-  |> range(start: ${onboarded}, stop: ${end})
-  |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
-  |> count()`;
-    }
-    return await this.ongExecute(fluxQuery);
-  }
-
-  async ongExecute(query: string | any): Promise<number> {
-    const data: any = await this.dbReader.collectRows(query);
-    if (typeof data[0] === 'undefined' || data.length == 0) {
-      this.logger.verbose('type of data is undefined');
-      return 0;
-    }
-    return Number(data[0]._value);
-  }
-
-  async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
-    try {
-      const query = `
-        from(bucket: "${process.env.INFLUXDB_BUCKET}")
-        |> range(start: ${deviceOnboarded}, stop: now())
-        |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
-        |> last()
-        `;
-      return await this.execute(query);
-    } catch (error) {
-      this.logger.error(
-        `Error in influxdb query: ${error.message}`, //Please include the whole stack
-        error.stack,
-      );
-    }
+  async latestRead(meterId: string): Promise<any> {
+    return this.readsRepository
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :meterId', { meterId })
+      .orderBy('reads.start_date', 'DESC')
+      .getOne();
   }
 
   async getAccumulatedReads(
@@ -1973,6 +1760,25 @@ export class ReadsService {
         message: `can not allow multiple reads simultaneously `,
       });
     }
-    return await this.storeRead(device.externalId, measurements);
+    await this.readsRepository.save({
+      externalId: device.externalId,
+      type: measurements.type,
+      value: measurements.reads[0].value,
+      unit: measurements.unit,
+      startDate: measurements.reads[0].starttimestamp,
+      endDate: measurements.reads[0].endtimestamp,
+      certified: false,
+    });
+  }
+  async getByExternalId(externalId: string, filter: FilterDTO): Promise<any> {
+    const query = this.readsRepository
+      .createQueryBuilder('reads')
+      .where('reads.external_id = :externalId', { externalId })
+      .andWhere('reads.start_date BETWEEN :start AND :end', {
+        start: new Date(filter.start),
+        end: new Date(filter.end),
+      });
+
+    return await query.getMany();
   }
 }
