@@ -7,6 +7,12 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
 
+enum EvidentRegistrationStatus {
+  draft = 'Draft',
+  submitted = 'Submitted',
+  approved = 'Approved',
+}
+
 @Injectable()
 export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
