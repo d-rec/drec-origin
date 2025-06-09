@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SettingsDTO } from './settings.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EvidentSettings } from './evidentSettings.entity';
+import { EvidentSettings } from './evident-settings.entity';
 import { Repository } from 'typeorm';
 import { maskToken } from '../../utils/mask-token';
 import { encrypt, decrypt } from '../../utils/crypto';

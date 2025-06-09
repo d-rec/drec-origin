@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { EvidentSettingsService } from './evidentSettings.service';
+import { EvidentSettingsService } from './evident-settings.service';
 import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
