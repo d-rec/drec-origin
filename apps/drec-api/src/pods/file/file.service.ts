@@ -66,7 +66,7 @@ export class FileService {
     this.logger.debug(
       `User ${
         user ? JSON.stringify(user) : 'Anonymous'
-      } has stored ${JSON.stringify(storedFile)}`,
+      } has stored ${JSON.stringify(storedFile.length)}`,
     );
 
     return storedFile;
@@ -195,7 +195,7 @@ export class FileService {
 
   async upload(file: Express.Multer.File): Promise<any> {
     this.logger.verbose(`With in upload`);
-    this.logger.debug(file);
+    this.logger.debug(`Uploading file: ${file.fieldname}`);
     const { originalname } = file;
     const bucketS3 = process.env.bucketname;
     return await this.uploadS3(file.buffer, bucketS3, originalname);
