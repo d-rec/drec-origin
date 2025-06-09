@@ -135,7 +135,7 @@ export class ReadsController extends BaseReadsController {
   public async getReads(
     @Param('externalId') meterId: string,
     @Query() filter: FilterDTO,
-  ): Promise<ReadDTO[]> {
+  ): Promise<any> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
       await this.deviceService.findReads(meterId);
@@ -147,7 +147,10 @@ export class ReadsController extends BaseReadsController {
         message: `Invalid device id`,
       });
     }
-    return super.getReads(device.externalId, filter);
+    return await this.internalReadsService.getByExternalId(
+      device.externalId,
+      filter,
+    );
   }
 
   /**
@@ -338,10 +341,6 @@ export class ReadsController extends BaseReadsController {
       this.logger.log(
         'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
       );
-      Object.assign(returnedObject, { timezone: timezone });
-      this.logger.log(
-        'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
-      );
       return returnedObject;
     } else {
       this.logger.error(`Invalid readType parameter`);
@@ -518,38 +517,28 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    let latestReadObject;
-
     const deviceExternalId = device.externalId;
+    const latestReadObject =
+      await this.internalReadsService.latestRead(deviceExternalId);
 
-    if (!device.meterReadtype) {
-      this.logger.error(`Read not found`);
-      throw new HttpException('Read not found', 400);
-    } else {
-      latestReadObject = await this.internalReadsService.latestRead(
-        deviceExternalId,
-        device.createdAt,
-      );
-
-      if (
-        typeof latestReadObject === 'undefined' ||
-        latestReadObject.length == 0
-      ) {
-        this.logger.error(`Read Not found`);
-        throw new HttpException('Read Not found', 400);
-      }
-      if (user.role === 'Buyer' || user.role === 'ApiUser') {
-        return {
-          externalId: device.developerExternalId,
-          timestamp: latestReadObject[0].timestamp,
-          value: latestReadObject[0].value,
-        };
-      }
-
+    if (
+      typeof latestReadObject === 'undefined' ||
+      latestReadObject.length == 0
+    ) {
+      this.logger.error(`Read Not found`);
+      throw new HttpException('Read Not found', 400);
+    }
+    if (user.role === 'Buyer' || user.role === 'ApiUser') {
       return {
-        enddate: latestReadObject[0].timestamp,
-        value: latestReadObject[0].value,
+        externalId: device.developerExternalId,
+        timestamp: latestReadObject.endDate,
+        value: latestReadObject.value,
       };
     }
+
+    return {
+      enddate: latestReadObject.endDate,
+      value: latestReadObject.value,
+    };
   }
 }
