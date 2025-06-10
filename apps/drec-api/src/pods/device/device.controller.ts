@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -14,12 +15,16 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -47,13 +52,19 @@ import { Device } from './device.entity';
 import { DeviceService } from './device.service';
 import {
   DeviceDTO,
+  DeviceFiles,
   DeviceGroupByDTO,
+  DeviceRegistrationBody,
   FilterDTO,
   GroupedDevicesDTO,
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from '../../validations/file';
+import { parseMetadata } from '../../lib/helpers/parseMetadata';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -508,6 +519,52 @@ export class DeviceController {
   )
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: DocumentType.FORM_SF_02, maxCount: 10 },
+        { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
+        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
+        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+      ],
+      {
+        fileFilter: fileFilter,
+      },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Device registration with documents',
+    schema: {
+      type: 'object',
+      properties: {
+        [DocumentType.FORM_SF_02]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.SF_02C]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.METERING_EVIDENCE]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.SINGLE_LINE_DIAGRAM]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.PROJECT_PHOTOS]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        deviceToRegister: {
+          $ref: '#/components/schemas/NewDeviceDTO',
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary: 'Create a new device',
     description: 'Register a new device in the system.',
@@ -523,9 +580,16 @@ export class DeviceController {
   })
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Body() deviceToRegister: NewDeviceDTO,
+    @Body() body: DeviceRegistrationBody,
+    @UploadedFiles()
+    files: DeviceFiles,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
+    const deviceToRegister = parseMetadata(
+      body.deviceToRegister as unknown as Record<string, unknown>,
+    );
+    if (!deviceToRegister)
+      throw new BadRequestException('Invalid device data format');
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -540,9 +604,28 @@ export class DeviceController {
         });
       }
     }
+    const allFileTypes = [
+      DocumentType.FORM_SF_02,
+      DocumentType.SF_02C,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.SINGLE_LINE_DIAGRAM,
+      DocumentType.PROJECT_PHOTOS,
+    ];
+    const missingFiles = allFileTypes.filter((fileType) => {
+      const fileArray = files[fileType];
+      return !Array.isArray(fileArray) || fileArray.length === 0;
+    });
+
+    if (missingFiles.length > 0) {
+      throw new BadRequestException(
+        `Missing required file types: ${missingFiles.join(', ')}`,
+      );
+    }
+
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
+      files,
       api_user_id,
       role,
     );

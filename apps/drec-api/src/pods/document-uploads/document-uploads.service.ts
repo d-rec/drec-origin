@@ -38,8 +38,6 @@ export class DocumentUploadsService {
       const uploadResult = await this.fileService.upload(file);
       uploadedFileKey = uploadResult.key;
 
-      this.logger.log(`Uploaded file key: ${uploadResult}`);
-
       const newDocumentUpload = this.documentUploadsRepository.create({
         targetId: targetId,
         targetType: targetType,

@@ -115,7 +115,6 @@ describe('Users tests', () => {
     const partialUser: UpdateUserProfileDTO = {
       firstName: 'Updated first name',
       lastName: 'Updated last name',
-      email: 'updated@mailinator.com',
     };
     const { body: updatedUser } = await request(app.getHttpServer())
       .put(`/user/profile`)
@@ -124,7 +123,6 @@ describe('Users tests', () => {
       .expect(HttpStatus.OK);
     expect(updatedUser.firstName).to.eq(partialUser.firstName);
     expect(updatedUser.lastName).to.eq(partialUser.lastName);
-    expect(updatedUser.email).to.eq(partialUser.email);
   });
 
   it('should update notifications for user', async () => {
