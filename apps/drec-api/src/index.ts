@@ -9,6 +9,7 @@ import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
 import { customizeDocument, getDocumentBuilder } from './docs/swagger';
 import { version } from '../package.json';
+import { ProfilingInterceptor } from './interceptors/profiling.interceptor';
 
 import './sentry';
 export { DRECModule };
@@ -36,6 +37,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   const app = await NestFactory.create(DRECModule);
 
   app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
+  app.useGlobalInterceptors(new ProfilingInterceptor());
 
   app.enableShutdownHooks();
   app.enableCors();
@@ -46,7 +48,6 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   if (logger) {
     app.useLogger(logger);
   }
-
   // Root route handler
   app.getHttpAdapter().get('/', (req, res) => {
     res.json({
