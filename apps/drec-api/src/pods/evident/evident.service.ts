@@ -76,12 +76,50 @@ export class EvidentService {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
   }
 
+  async registerDeviceDetails(device: Device, code: string): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/device_details', {
+        deviceType: `/device_types/${device.deviceTypeCode}`,
+        fuel: `/fuels/${device.fuelCode}`,
+        device: `/devices/${code}`,
+        registrant: '/organisations/01JPQDGB2R8J17VEKQ17V7E6YK',
+        issuer: '/organisations/01JPQDGJC8D5CQSBTA6FSNGA8W',
+        name: device.projectName,
+        capacity: device.capacity.toString(),
+        supported: true,
+        latitude: device.latitude,
+        longitude: device.longitude,
+        registrationDate: new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
+        commissioningDate: device.commissioningDate.split('T')[0], // should also be "YYYY-MM-DD"
+        expiryDate: new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
+        status: EvidentRegistrationStatus.draft,
+        active: true,
+        address1: device.address,
+        postcode: device.postcode,
+        stateProvince: device.stateProvince,
+        country: `/countries/GB`,
+        notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
+        issuerNotes: 'Notes made by the Issuer Cedrick',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error registering device details:', error);
+      throw error;
+    }
+  }
+
   async registerDevice(device: Device): Promise<any> {
-    const response = await this.axiosInstance.post('/devices', {
-      name: device.projectName,
-      fuel: device.fuelCode,
-    });
-    return response.data;
+    try {
+      const response = await this.axiosInstance.post('/devices', {
+        name: device.projectName,
+        fuel: `/fuels/${device.fuelCode}`,
+      });
+      await this.registerDeviceDetails(device, response.data.code);
+      return response.data;
+    } catch (error) {
+      console.error('Error registering device:', error.message);
+      throw error;
+    }
   }
 
   async registerDeviceQueue(device: Device): Promise<void> {

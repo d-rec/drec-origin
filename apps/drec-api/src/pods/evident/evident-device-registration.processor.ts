@@ -1,8 +1,10 @@
-import { Process } from '@nestjs/bull';
+import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import { Device } from '../device/device.entity';
 import { EvidentService } from './evident.service';
+import { Queues } from '../../utils/enums/queues.enum';
 
+@Processor(Queues.EvidentDeviceRegistration)
 export class EvidentDeviceRegistrationProcessor {
   constructor(private readonly evidentService: EvidentService) {}
 
