@@ -6,6 +6,7 @@ import { Device } from '../device';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
+import { getCountryCodeAlpha2 } from '../../utils/get-country-code-alpha-2';
 
 enum EvidentRegistrationStatus {
   draft = 'Draft',
@@ -78,6 +79,7 @@ export class EvidentService {
 
   async registerDeviceDetails(device: Device, code: string): Promise<any> {
     try {
+      const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       const response = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
@@ -97,7 +99,7 @@ export class EvidentService {
         address1: device.address,
         postcode: device.postcode,
         stateProvince: device.stateProvince,
-        country: `/countries/GB`,
+        country: `/countries/${alpha2CountryCode}`,
         notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
         issuerNotes: 'Notes made by the Issuer Cedrick',
       });
