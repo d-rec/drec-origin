@@ -30,7 +30,10 @@ export class EvidentSettingsService {
       });
     }
 
-    const apiKey = isMasked(settings.apiKey) ? existingSettings.apiKey : encrypt(settings.apiKey);
+    const apiKey = isMasked(settings.apiKey)
+      ? existingSettings.apiKey
+      : encrypt(settings.apiKey);
+
     const updated = this.repository.merge(existingSettings, {
       ...settings,
       apiKey,
