@@ -1,10 +1,10 @@
 import { mapInfluxMeterReadsToHistoryFormat } from '../src/lib/influx-db';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class MigrateReadsFromInfluxDBToReadsServices1748439569729
+export class MigrateReadsFromInfluxDBToMeterReadsTable1748439569729
   implements MigrationInterface
 {
-  name = 'MigrateReadsFromInfluxDBToReadsServices1748439569729';
+  name = 'MigrateReadsFromInfluxDBToMeterReadsTable1748439569729';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     const readsArray = await mapInfluxMeterReadsToHistoryFormat();
