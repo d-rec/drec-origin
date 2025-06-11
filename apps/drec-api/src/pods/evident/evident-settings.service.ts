@@ -8,7 +8,6 @@ import { encrypt, decrypt } from '../../utils/crypto';
 
 @Injectable()
 export class EvidentSettingsService {
-  private secretKey = process.env.ENCRYPTION_SECRET;
   constructor(
     @InjectRepository(EvidentSettings)
     private readonly repository: Repository<EvidentSettings>,
