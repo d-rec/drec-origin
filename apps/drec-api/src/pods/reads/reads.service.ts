@@ -147,8 +147,6 @@ export class ReadsService {
     filter: FilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     try {
-      this.logger.log(`Finding reads for meterId: ${meterId}`);
-      this.logger.log(`Filter details: ${JSON.stringify(filter)}`);
       return await this.baseReadsService.find(meterId, filter);
     } catch (e) {
       this.logger.error(
@@ -1828,7 +1826,6 @@ export class ReadsService {
       measurements.type === ReadType.Delta ||
       measurements.type === ReadType.ReadMeter
     ) {
-      this.logger.log('Line No: 505');
       let datesContainingNullOrEmptyValues = false;
       let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
@@ -1837,7 +1834,6 @@ export class ReadsService {
       let endDate: any;
       let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
-        this.logger.log('Line No: 512');
         if (
           ele.endtimestamp instanceof Date &&
           (ele.endtimestamp === null ||
