@@ -697,7 +697,7 @@ export class DeviceService {
     }
     await queryRunner.commitTransaction();
 
-    await this.evidentService.registerDeviceQueue(result);
+    await this.evidentService.registerDeviceQueue(result, files);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;

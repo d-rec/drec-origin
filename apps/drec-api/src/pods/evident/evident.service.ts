@@ -19,6 +19,8 @@ export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
   private email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
   private apiToken = process.env.IREC_EVIDENT_API_Token || null;
+  private registrantId = process.env.IREC_EVIDENT_REGISTRANT_ID || null;
+  private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
   private redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   private axiosInstance: AxiosInstance;
 
@@ -77,46 +79,84 @@ export class EvidentService {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
   }
 
-  async registerDeviceDetails(device: Device, code: string): Promise<any> {
+  async updateDeviceStatus(device: any,deviceStatus:string, deviceCode: string): Promise<any> {
     try {
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       const response = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
-        device: `/devices/${code}`,
-        registrant: '/organisations/01JPQDGB2R8J17VEKQ17V7E6YK',
-        issuer: '/organisations/01JPQDGJC8D5CQSBTA6FSNGA8W',
+        device: `/devices/${deviceCode}`,
+        registrant: `/organisations/${this.registrantId}`,
+        issuer: `/organisations/${this.issuerId}`,
         name: device.projectName,
         capacity: device.capacity.toString(),
         supported: true,
         latitude: device.latitude,
         longitude: device.longitude,
-        registrationDate: new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
-        commissioningDate: device.commissioningDate.split('T')[0], // should also be "YYYY-MM-DD"
-        expiryDate: new Date().toISOString().split('T')[0], // "YYYY-MM-DD"
-        status: EvidentRegistrationStatus.draft,
+        registrationDate: new Date().toISOString().split('T')[0],
+        commissioningDate: device.commissioningDate.split('T')[0],
+        expiryDate: new Date().toISOString().split('T')[0],
+        status: EvidentRegistrationStatus.submitted, 
         active: true,
         address1: device.address,
         postcode: device.postcode,
         stateProvince: device.stateProvince,
         country: `/countries/${alpha2CountryCode}`,
         notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
-        issuerNotes: 'Notes made by the Issuer Cedrick',
+        issuerNotes: 'Notes made by the Issuer',
       });
       return response.data;
+    }
+    catch (error) {
+      console.error('Error updating device status:', error);
+      throw error;
+    }
+  }
+
+  async registerDeviceDetails(device: Device, deviceCode: string, files: any): Promise<any> {
+    try {
+      const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
+      //console.log(files, 'files');
+      await this.axiosInstance.post('/device_details', {
+        deviceType: `/device_types/${device.deviceTypeCode}`,
+        fuel: `/fuels/${device.fuelCode}`,
+        device: `/devices/${deviceCode}`,
+        registrant: `/organisations/${this.registrantId}`,
+        issuer: `/organisations/${this.issuerId}`,
+        name: device.projectName,
+        capacity: device.capacity.toString(),
+        supported: true,
+        latitude: device.latitude,
+        longitude: device.longitude,
+        registrationDate: new Date().toISOString().split('T')[0],
+        commissioningDate: device.commissioningDate.split('T')[0],
+        expiryDate: new Date().toISOString().split('T')[0],
+        status: EvidentRegistrationStatus.draft,
+        active: true,
+        address1: device.address,
+        postcode: device.postcode,
+        stateProvince: device.stateProvince,
+        country: `/countries/${alpha2CountryCode}`,
+        notes: 'Notes made by the Issuer',
+        issuerNotes: 'Notes made by the Issuer',
+      });
+      // if (device.capacity > 250) {
+      //   await this.updateDeviceStatus(device, EvidentRegistrationStatus.submitted, deviceCode);
+      // }
     } catch (error) {
       console.error('Error registering device details:', error);
       throw error;
     }
   }
+  //https://api-internal.sandbox.evident.dev/organisations/role?role=issuer&pagination=false
 
-  async registerDevice(device: Device): Promise<any> {
+  async registerDevice(device: Device, files:any): Promise<any> {
     try {
       const response = await this.axiosInstance.post('/devices', {
         name: device.projectName,
         fuel: `/fuels/${device.fuelCode}`,
       });
-      await this.registerDeviceDetails(device, response.data.code);
+      await this.registerDeviceDetails(device, response.data.code, files);
       return response.data;
     } catch (error) {
       console.error('Error registering device:', error.message);
@@ -124,7 +164,7 @@ export class EvidentService {
     }
   }
 
-  async registerDeviceQueue(device: Device): Promise<void> {
-    await this.evidentDeviceRegistrationQueue.add({ device });
+  async registerDeviceQueue(device: Device, files: any): Promise<void> {
+    await this.evidentDeviceRegistrationQueue.add({ device, files });
   }
 }
