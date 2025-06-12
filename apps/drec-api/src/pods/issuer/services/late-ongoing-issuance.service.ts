@@ -101,8 +101,12 @@ export class LateOngoingIssuanceService {
     for (let index = 0; index < cycles.length; index++) {
       const cycle = cycles[index];
 
-      this.logger.debug(
-        `Processing cycle ${index + 1} of ${cycles.length} for device: ${cycle.device_externalid}`,
+      this.logger.log(
+        `Processing cycle ${index + 1} of ${cycles.length}`,
+        `Group:: ${cycle.groupId}`,
+        'Device:: ' + cycle.device_externalid,
+        'From: ' + cycle.lateStartDateUTC.toString(),
+        'To: ' + cycle.lateEndDateUTC.toString(),
       );
 
       await this.processIssuanceForCycle(cycle);
@@ -302,7 +306,7 @@ export class LateOngoingIssuanceService {
     group: DeviceGroup,
     nextIssuance: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
-    this.logger.verbose('dLast read greater then from late_end_date');
+    this.logger.verbose('Last read greater then from late_end_date');
 
     const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
@@ -315,10 +319,7 @@ export class LateOngoingIssuanceService {
     );
 
     this.logger.debug(
-      'Device Reads For:: ' + cycle.device_externalid,
-      'From: ' + cycle.lateStartDateUTC.toString(),
-      'To: ' + cycle.lateEndDateUTC.toString(),
-      'Equal to ' + allReadsForDeviceBetweenTimeRange?.length,
+      'Reads founds: ' + allReadsForDeviceBetweenTimeRange?.length,
     );
 
     if (!allReadsForDeviceBetweenTimeRange?.length) {
