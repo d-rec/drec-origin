@@ -147,6 +147,7 @@ export class ReadsService {
     filter: FilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     try {
+      this.logger.log(`Finding reads for meterId: ${meterId} with filter: ${JSON.stringify(filter)}`);
       return await this.baseReadsService.find(meterId, filter);
     } catch (e) {
       this.logger.error(
