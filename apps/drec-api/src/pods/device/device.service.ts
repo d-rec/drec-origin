@@ -37,6 +37,7 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
+  DeviceStatus,
   IRECDeviceStatus,
   ReadType,
   Role,
@@ -80,6 +81,7 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { SynchronizeDeviceStatusTaskService } from '../evident/evident.service';
 
 @Injectable()
 export class DeviceService {
@@ -102,6 +104,7 @@ export class DeviceService {
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
+    private readonly evidentService: SynchronizeDeviceStatusTaskService,
   ) {}
 
   public async find(
@@ -534,6 +537,25 @@ export class DeviceService {
     );
   }
 
+  async syncDeviceStatusesWithEvident(): Promise<void> {
+    const devices = await this.repository.find({
+      where: { status: DeviceStatus.Submitted },
+    });
+
+    for (const device of devices) {
+      try {
+        const updatedStatus = await this.evidentService.getDeviceStatus(device.id);
+
+        if (updatedStatus && updatedStatus !== device.status) {
+          this.logger.log(`Updating device ${device.id} status: ${device.status} → ${updatedStatus}`);
+          device.status = updatedStatus;
+          await this.repository.save(device);
+        }
+      } catch (error) {
+        this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
+      }
+    }
+  }
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
