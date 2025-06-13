@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AxiosInstance } from 'axios';
-import { EvidentSettingsService } from './evident-settings.service';
 import { createEvidentAxiosInstance } from '../../utils/axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EvidentSettings } from './evident-settings.entity';
 import { decrypt } from '../../utils/crypto';
-
 
 @Injectable()
 export class EvidentService {
@@ -17,16 +15,12 @@ export class EvidentService {
   constructor(
     @InjectRepository(EvidentSettings)
     private readonly evidentSettingRepository: Repository<EvidentSettings>,
-  ) {
-    // this.axiosInstance = createEvidentAxiosInstance({
-    //   baseURL: this.apiUrl,
-    //   getApiKey: () => this.apiKey
-    // });
-  }
+  ) {}
 
-
-  async getDecryptedApiKey(organizationId: number):Promise<void> {
-    const data = await this.evidentSettingRepository.findOne({ where: { organizationId } });
+  async getDecryptedApiKey(organizationId: number): Promise<void> {
+    const data = await this.evidentSettingRepository.findOne({
+      where: { organizationId },
+    });
     if (!data) return null;
     this.apiKey = decrypt(data.apiKey);
     this.axiosInstance = createEvidentAxiosInstance({
@@ -34,7 +28,7 @@ export class EvidentService {
       getApiKey: () => this.apiKey,
     });
   }
-  async fetchDevices(organizationId:number): Promise<any> {
+  async fetchDevices(organizationId: number): Promise<any> {
     await this.getDecryptedApiKey(organizationId);
     const response = await this.axiosInstance.get('/devices');
     return response.data;

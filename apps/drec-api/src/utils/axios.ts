@@ -5,13 +5,15 @@ import { RedisKeys } from '../utils/enums/redis-keys.enum';
 import { EVIDENT_TOKEN_EXPIRATION_TIME } from '../constants';
 import { BadRequestException } from '@nestjs/common';
 
-
 interface CreateAxiosInstanceOptions {
   baseURL: string;
   getApiKey: () => string | null;
 }
 
-export function createEvidentAxiosInstance({ baseURL, getApiKey }: CreateAxiosInstanceOptions): AxiosInstance {
+export function createEvidentAxiosInstance({
+  baseURL,
+  getApiKey,
+}: CreateAxiosInstanceOptions): AxiosInstance {
   const redis = getRedisClient();
   const axiosInstance = axios.create({ baseURL });
 
@@ -51,16 +53,15 @@ export function createEvidentAxiosInstance({ baseURL, getApiKey }: CreateAxiosIn
 }
 
 async function getAuthToken(apiUrl: string, apiKey: string): Promise<string> {
-    console.log("apiKey",apiKey)
-    try{
-  const response = await axios.post(`${apiUrl}/auth/token`, {
-    email:'irecregistrantuser9dec8@mail.com',
-    token:apiKey
-  });
-  await storeAuthToken(response.data.token);
-  return response.data.token;
-  }catch(error){
-    throw new  BadRequestException('invalid credentials')
+  try {
+    const response = await axios.post(`${apiUrl}/auth/token`, {
+      email: 'irecregistrantuser9dec8@mail.com',
+      token: apiKey,
+    });
+    await storeAuthToken(response.data.token);
+    return response.data.token;
+  } catch (error) {
+    throw new BadRequestException('Invalid credentials');
   }
 }
 

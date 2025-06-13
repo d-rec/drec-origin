@@ -5,7 +5,6 @@ import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
-import { EvidentService } from './evident.service';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -15,7 +14,6 @@ export class EvidentSettingsController {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
-    private readonly evidentService: EvidentService,
   ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
@@ -36,15 +34,5 @@ export class EvidentSettingsController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
     return this.evidentSettingsService.findByOrganizationId(organizationId);
-  }
-
-
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
-  @Get('/devices')
-  @ApiOperation({ summary: 'Get Evident settings' })
-  async getDevices(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<any> {
-return this.evidentService.fetchDevices(organizationId)
   }
 }
