@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import Redis from 'ioredis';
 import axiosRetry from 'axios-retry';
-import { Device } from '../device';
+import { Device, DeviceService } from '../device';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
@@ -27,6 +27,8 @@ export class EvidentService {
   constructor(
     @InjectQueue(Queues.EvidentDeviceRegistration)
     private readonly evidentDeviceRegistrationQueue: Queue,
+    @Inject(forwardRef(() => DeviceService))
+    private readonly deviceService: DeviceService,
   ) {
     this.axiosInstance = axios.create({ baseURL: this.apiUrl });
 
@@ -79,7 +81,7 @@ export class EvidentService {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
   }
 
-  async updateDeviceStatus(device: any,deviceStatus:string, deviceCode: string): Promise<any> {
+  async updateDeviceStatus(device: any,deviceStatus:string, deviceCode: string): Promise<string> {
     try {
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       const response = await this.axiosInstance.post('/device_details', {
@@ -105,7 +107,7 @@ export class EvidentService {
         notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
         issuerNotes: 'Notes made by the Issuer',
       });
-      return response.data;
+      return deviceCode;
     }
     catch (error) {
       console.error('Error updating device status:', error);
@@ -117,7 +119,7 @@ export class EvidentService {
     try {
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       //console.log(files, 'files');
-      await this.axiosInstance.post('/device_details', {
+      const deviceResponse = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
         device: `/devices/${deviceCode}`,
@@ -140,9 +142,13 @@ export class EvidentService {
         notes: 'Notes made by the Issuer',
         issuerNotes: 'Notes made by the Issuer',
       });
-      // if (device.capacity > 250) {
-      //   await this.updateDeviceStatus(device, EvidentRegistrationStatus.submitted, deviceCode);
-      // }
+      if(deviceResponse){
+        return this.deviceService.updateDeviceEvidentInfo(device.externalId,deviceResponse.data.code)
+      }
+      if (device.capacity > 250) {
+        await this.updateDeviceStatus(device, EvidentRegistrationStatus.submitted, deviceCode);
+      }
+      return deviceCode;
     } catch (error) {
       console.error('Error registering device details:', error);
       throw error;

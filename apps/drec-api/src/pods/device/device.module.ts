@@ -15,15 +15,16 @@ import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
-import { EvidentService } from '../evident/evident.service';
 import { BullModule } from '@nestjs/bull';
 import { EvidentDeviceRegistrationProcessor } from '../evident/evident-device-registration.processor';
 import { Queues } from '../../utils/enums/queues.enum';
 import { defaultBullJobOptions } from '../../config/bull.config';
+import { EvidentModule } from '../evident/evident.module';
 
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
+    forwardRef(() => EvidentModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([
@@ -38,17 +39,11 @@ import { defaultBullJobOptions } from '../../config/bull.config';
     UserModule,
     OrganizationModule,
     DocumentUploadsModule,
-    BullModule.registerQueue({
-      name: Queues.EvidentDeviceRegistration,
-      defaultJobOptions: defaultBullJobOptions,
-    }),
   ],
   providers: [
     DeviceService,
-    EvidentService,
-    EvidentDeviceRegistrationProcessor,
   ],
-  exports: [DeviceService, BullModule],
+  exports: [DeviceService],
   controllers: [DeviceController],
 })
 export class DeviceModule {}
