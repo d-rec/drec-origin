@@ -72,7 +72,7 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
-import { MeterRead } from './meter-reads.entity';
+import { MeterRead } from './reads.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
