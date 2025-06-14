@@ -9,7 +9,7 @@ interface CreateAxiosInstanceOptions {
   baseURL: string;
   getApiKey: () => string | null;
 }
-
+const email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
 export function createEvidentAxiosInstance({
   baseURL,
   getApiKey,
@@ -55,7 +55,7 @@ export function createEvidentAxiosInstance({
 async function getAuthToken(apiUrl: string, apiKey: string): Promise<string> {
   try {
     const response = await axios.post(`${apiUrl}/auth/token`, {
-      email: 'irecregistrantuser9dec8@mail.com',
+      email: email,
       token: apiKey,
     });
     await storeAuthToken(response.data.token);
