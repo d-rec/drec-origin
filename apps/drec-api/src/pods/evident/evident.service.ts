@@ -33,4 +33,27 @@ export class EvidentService {
     const response = await this.axiosInstance.get('/devices');
     return response.data;
   }
+  async getDeviceStatus(code: string): Promise<string> {
+    try {
+      const response = await this.axiosInstance.get(`/devices/${code}`);
+      const externalStatus = response.data?.status;
+      return this.mapStatus(externalStatus);
+    } catch (error) {
+      console.error(
+        `Failed to fetch device status for ID ${code}:`,
+        error.message,
+      );
+      throw new Error(`Failed to fetch status from Evident`);
+    }
+  }
+
+  private mapStatus(externalStatus: string): string {
+    const statusMap = {
+      approved: 'APPROVED',
+      submitted: 'SUBMITTED',
+      draft: 'DRAFT',
+    };
+
+    return statusMap[externalStatus?.toLowerCase()] ?? 'UNKNOWN';
+  }
 }
