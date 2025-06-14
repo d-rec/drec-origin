@@ -99,6 +99,11 @@ const tags: { name: string; description: string }[] = [
     description:
       'Endpoints related to OTP (One-Time Password) verification. This includes functionalities for sending OTPs to users, verifying OTPs for authentication, and managing OTP expiration times. These endpoints are essential for securing user actions and ensuring that only verified users can proceed with sensitive operations.',
   },
+  {
+    name: 'Evident',
+    description:
+      'Evident is a platform providing secure integration and data verification services. This API group covers operations related to connecting with Evident, managing integration settings, and handling authentication tokens securely to enable seamless communication between D-REC platform and the Evident platform.',
+  },
 ];
 
 export default tags;

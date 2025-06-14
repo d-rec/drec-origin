@@ -690,7 +690,9 @@ export class DeviceService {
             );
           } catch (error) {
             this.logger.error(`Failed to upload ${field}: ${error.message}`);
-            throw error;
+            throw new BadRequestException(
+              `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+            );
           }
         }
       }
