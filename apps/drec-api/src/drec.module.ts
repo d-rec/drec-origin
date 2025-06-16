@@ -128,7 +128,7 @@ export const originAppTypeOrmModule = (): DynamicModule => {
   const options: TypeOrmModuleOptions = {
     ...getTypeOrmConfig(),
     entities,
-  }
+  };
 
   return TypeOrmModule.forRoot(options);
 };

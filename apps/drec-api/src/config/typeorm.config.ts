@@ -1,4 +1,4 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 const getDBConfig = () => ({
   port: Number(process.env.DB_PORT) ?? 5432,
