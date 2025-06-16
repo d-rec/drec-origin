@@ -1875,7 +1875,6 @@ export class DeviceGroupService {
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
-    this.logger.log('Line No: 1883');
     return (
       (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
       null
