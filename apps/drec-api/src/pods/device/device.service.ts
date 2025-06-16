@@ -388,7 +388,7 @@ export class DeviceService {
     groupDevice = groupDevice.filter(
       (ele) =>
         ele.meterReadtype == ReadType.Delta ||
-        ele.meterReadtype == ReadType.ReadMeter,
+        ele.meterReadtype == ReadType.Aggregate,
     );
 
     const deviceGroupedByCountry = this.groupBy(groupDevice, 'countryCode');

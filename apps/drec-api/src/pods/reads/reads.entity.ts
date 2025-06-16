@@ -54,4 +54,12 @@ export class MeterRead {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
+
+  get timestamp(): Date {
+    return this.endDate;
+  }
+
+  set timestamp(value: Date) {
+    this.endDate = value;
+  }
 }

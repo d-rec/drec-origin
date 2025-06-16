@@ -444,7 +444,7 @@ export class IssuerService {
         return { timestamp: new Date(createdAt), value: 0 };
       }
 
-      if (meterReadtype === ReadType.ReadMeter) {
+      if (meterReadtype === ReadType.Aggregate) {
         const aggregateReadings =
           await this.readsService.getAggregateMeterReadsFirstEntryOfDevice(
             externalId,
