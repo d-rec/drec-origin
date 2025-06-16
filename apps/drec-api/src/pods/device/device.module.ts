@@ -36,9 +36,7 @@ import { EvidentModule } from '../evident/evident.module';
     OrganizationModule,
     DocumentUploadsModule,
   ],
-  providers: [
-    DeviceService,
-  ],
+  providers: [DeviceService],
   exports: [DeviceService],
   controllers: [DeviceController],
 })

@@ -698,6 +698,7 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
+    await this.evidentService.registerDeviceQueue(result, files);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
@@ -1773,7 +1774,11 @@ export class DeviceService {
     );
   }
 
-  async updateDeviceEvidentInfo(deviceExternalId: string, deviceId: string): Promise<void> {
+  async updateDeviceEvidentInfo(
+    deviceExternalId: string,
+    deviceId: string,
+    evidentStatus: string,
+  ): Promise<void> {
     this.logger.verbose(`With in updateDeviceEvidentInfo`);
     const devices = await this.repository.find({
       where: {
@@ -1782,10 +1787,9 @@ export class DeviceService {
     });
     for (const device of devices) {
       device.evidentDeviceId = deviceId;
-      device.evidentStatus = "Submitted";
+      device.evidentStatus = evidentStatus;
       await this.repository.save(device);
     }
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
-
 }

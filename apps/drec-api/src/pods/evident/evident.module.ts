@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common';
 import { DeviceModule } from '../device/device.module';
 import { EvidentService } from './evident.service';
 import { BullModule } from '@nestjs/bull';
@@ -12,16 +12,20 @@ import { EvidentSettingsController } from './evident-settings.controller';
 import { EvidentSettingsService } from './evident-settings.service';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([User, EvidentSettings]),
-        forwardRef(() => DeviceModule),
-        BullModule.registerQueue({
-            name: Queues.EvidentDeviceRegistration,
-            defaultJobOptions: defaultBullJobOptions,
-        }),
-    ],
-    controllers: [EvidentSettingsController],
-    providers: [EvidentService, EvidentDeviceRegistrationProcessor, EvidentSettingsService],
-    exports: [EvidentService],
+  imports: [
+    TypeOrmModule.forFeature([User, EvidentSettings]),
+    forwardRef(() => DeviceModule),
+    BullModule.registerQueue({
+      name: Queues.EvidentDeviceRegistration,
+      defaultJobOptions: defaultBullJobOptions,
+    }),
+  ],
+  controllers: [EvidentSettingsController],
+  providers: [
+    EvidentService,
+    EvidentDeviceRegistrationProcessor,
+    EvidentSettingsService,
+  ],
+  exports: [EvidentService],
 })
 export class EvidentModule {}

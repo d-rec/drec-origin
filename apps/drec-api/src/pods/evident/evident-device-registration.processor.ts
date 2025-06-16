@@ -9,7 +9,9 @@ export class EvidentDeviceRegistrationProcessor {
   constructor(private readonly evidentService: EvidentService) {}
 
   @Process({ concurrency: 1 })
-  async handleRegisterDevice(job: Job<{ device: Device, files: any }>): Promise<any> {
+  async handleRegisterDevice(
+    job: Job<{ device: Device; files: any }>,
+  ): Promise<any> {
     const { device, files } = job.data;
     await this.evidentService.registerDevice(device, files);
   }
