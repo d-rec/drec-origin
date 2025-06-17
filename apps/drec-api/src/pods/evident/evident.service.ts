@@ -24,10 +24,8 @@ enum EvidentRegistrationStatus {
 export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
   private email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
-  private registrantId = process.env.IREC_EVIDENT_REGISTRANT_ID || null;
   private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
   private uploadedFiles = [];
-  private userUid = '';
 
   constructor(
     @InjectRepository(EvidentSettings)
@@ -60,14 +58,7 @@ export class EvidentService {
   async getUserProfile(email: string, organizationId: number): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      if (!evidentInstance) {
-        throw new Error('Evident instance not found for organization');
-      }
       const user = await evidentInstance.get(`/users?q=${email}`);
-      const userMember =
-        user.data['hydra:member'] && user.data['hydra:member'][0];
-      const userId = userMember ? userMember.uid : null;
-      this.userUid = userId;
       return user.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -119,9 +110,10 @@ export class EvidentService {
   //     throw error;
   //   }
   // }
-  async mapDevices(
+  async mapDeviceDocuments(
     organizationId: number,
     files: Record<string, Express.Multer.File[]>,
+    userUid: string,
   ): Promise<void> {
     for (const [documentType, fileArray] of Object.entries(files)) {
       if (!Array.isArray(fileArray)) continue;
@@ -129,6 +121,7 @@ export class EvidentService {
         try {
           await this.uploadEvidentFiles(
             organizationId,
+            userUid,
             file,
             documentType as DocumentType,
           );
@@ -141,6 +134,7 @@ export class EvidentService {
 
   async uploadEvidentFiles(
     organizationId: number,
+    userUid: string,
     file: Express.Multer.File,
     documentType: DocumentType,
   ): Promise<any> {
@@ -171,8 +165,8 @@ export class EvidentService {
         contentType: file.mimetype,
       });
       form.append('name', file.originalname);
-      form.append('notes', 'testing documents');
-      form.append('userUid', this.userUid);
+      form.append('notes', '');
+      form.append('userUid', userUid);
       form.append('category', documentType);
       const uploadFile = await evidentInstance.post('/files', form, {
         headers: {
@@ -214,18 +208,18 @@ export class EvidentService {
   ): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      if (!evidentInstance) {
-        throw new Error('Evident instance not found for organization');
-      }
       this.uploadedFiles = [];
-      await this.getUserProfile(this.email, organizationId);
-      await this.mapDevices(organizationId, files);
+      const user = await this.getUserProfile(this.email, organizationId);
+      const userMember = user['hydra:member'][0];
+      const userUid = userMember.uid;
+      const registrantId = userMember.organisation.uid;
+      await this.mapDeviceDocuments(organizationId, files, userUid);
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       const deviceResponse = await evidentInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
         device: `/devices/${deviceCode}`,
-        registrant: `/organisations/${this.registrantId}`,
+        registrant: `/organisations/${registrantId}`,
         issuer: `/organisations/${this.issuerId}`,
         name: device.projectName,
         capacity: device.capacity.toString(),
