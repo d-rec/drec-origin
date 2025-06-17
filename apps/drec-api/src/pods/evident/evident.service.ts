@@ -144,7 +144,7 @@ export class EvidentService {
       throw error;
     }
   }
-  async mapDevices(
+  async mapDeviceFiles(
     files: Record<string, Express.Multer.File[]>,
   ): Promise<void> {
     for (const [documentType, fileArray] of Object.entries(files)) {
@@ -230,7 +230,7 @@ export class EvidentService {
     try {
       this.uploadedFiles = [];
       await this.getUserProfile(this.email);
-      await this.mapDevices(files);
+      await this.mapDeviceFiles(files);
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
       const deviceResponse = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
