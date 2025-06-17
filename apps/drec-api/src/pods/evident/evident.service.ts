@@ -28,7 +28,7 @@ export class EvidentService {
   private redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   private axiosInstance: AxiosInstance;
   private uploadedFiles = [];
-
+  private userUid = '';
   constructor(
     @InjectQueue(Queues.EvidentDeviceRegistration)
     private readonly evidentDeviceRegistrationQueue: Queue,
@@ -55,7 +55,6 @@ export class EvidentService {
 
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        console.log('Outgoing request:', config);
         let token = await this.redis.get('evident_auth_token');
         if (!token) {
           token = await this.getAuthToken();
@@ -85,12 +84,12 @@ export class EvidentService {
 
   async getUserProfile(email: string): Promise<any> {
     try {
-      const response = await this.axiosInstance.get(`/users?q=${email}`);
+      const user = await this.axiosInstance.get(`/users?q=${email}`);
       const userMember =
-        response.data['hydra:member'] && response.data['hydra:member'][0];
+        user.data['hydra:member'] && user.data['hydra:member'][0];
       const userId = userMember ? userMember.uid : null;
-      console.log('userId', userId);
-      return response.data;
+      this.userUid = userId;
+      return user.data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
       throw error;
@@ -101,14 +100,9 @@ export class EvidentService {
     await this.redis.set('evident_auth_token', token, 'EX', 3600);
   }
 
-  async updateDeviceStatus(
-    device: any,
-    deviceStatus: string,
-    deviceCode: string,
-  ): Promise<any> {
+  async updateDeviceStatus(device: Device, deviceCode: string): Promise<any> {
     try {
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-      console.log('Updating device status:', deviceStatus, deviceCode);
       const response = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
@@ -151,9 +145,8 @@ export class EvidentService {
     }
   }
   async mapDevices(
-    deviceCode: string,
     files: Record<string, Express.Multer.File[]>,
-  ) {
+  ): Promise<void> {
     for (const [documentType, fileArray] of Object.entries(files)) {
       if (!Array.isArray(fileArray)) continue;
       for (const file of fileArray) {
@@ -174,7 +167,6 @@ export class EvidentService {
       if (!file) {
         throw new Error('No file provided');
       }
-      console.log('Uploading file:', file);
 
       const form = new FormData();
       let fileData: any;
@@ -195,20 +187,18 @@ export class EvidentService {
       });
       form.append('name', file.originalname);
       form.append('notes', 'testing documents');
-      form.append('userUid', '01JWE2T7514TEC15D68JSJSPC1');
+      form.append('userUid', this.userUid);
       form.append('category', documentType);
 
       const uploadFile = await this.axiosInstance.post('/files', form, {
         headers: {
-          ...form.getHeaders(), // Important: This sets correct Content-Type with boundary
+          ...form.getHeaders(),
         },
-        timeout: 30000, // 30 second timeout
+        timeout: 30000,
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
       });
 
-      console.log('uploaded file', uploadFile.data);
-      // In uploadEvidentFiles
       if (uploadFile && uploadFile.data && uploadFile.data['@id']) {
         this.uploadedFiles.push(uploadFile.data['@id']);
       }
@@ -235,16 +225,13 @@ export class EvidentService {
   async registerDeviceDetails(
     device: Device,
     deviceCode: string,
-    files: any,
+    files: Record<string, Express.Multer.File[]>,
   ): Promise<any> {
     try {
       this.uploadedFiles = [];
-      await this.mapDevices(deviceCode, files);
-      console.log('fils', this.uploadedFiles);
+      await this.getUserProfile(this.email);
+      await this.mapDevices(files);
       const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-      const user = await this.getUserProfile(this.email);
-      const userMember = user['hydra:member'] && user['hydra:member'][0];
-      const userId = userMember ? userMember.uid : null;
       const deviceResponse = await this.axiosInstance.post('/device_details', {
         deviceType: `/device_types/${device.deviceTypeCode}`,
         fuel: `/fuels/${device.fuelCode}`,
@@ -277,11 +264,7 @@ export class EvidentService {
         );
       }
       if (device.capacity > 250) {
-        await this.updateDeviceStatus(
-          device,
-          EvidentRegistrationStatus.submitted,
-          deviceCode,
-        );
+        await this.updateDeviceStatus(device, deviceCode);
       }
       return deviceCode;
     } catch (error) {
@@ -291,7 +274,10 @@ export class EvidentService {
   }
   //https://api-internal.sandbox.evident.dev/organisations/role?role=issuer&pagination=false
 
-  async registerDevice(device: Device, files: any): Promise<any> {
+  async registerDevice(
+    device: Device,
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<any> {
     try {
       const response = await this.axiosInstance.post('/devices', {
         name: device.projectName,
