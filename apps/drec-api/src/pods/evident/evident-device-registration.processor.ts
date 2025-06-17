@@ -10,9 +10,9 @@ export class EvidentDeviceRegistrationProcessor {
 
   @Process({ concurrency: 1 })
   async handleRegisterDevice(
-    job: Job<{ device: Device; files: any }>,
+    job: Job<{ organizationId: number; device: Device; files: any }>,
   ): Promise<any> {
-    const { device, files } = job.data;
-    await this.evidentService.registerDevice(device, files);
+    const { organizationId, device, files } = job.data;
+    await this.evidentService.registerDevice(organizationId, device, files);
   }
 }
