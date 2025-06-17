@@ -64,6 +64,7 @@ specifiers:
   async-mutex: ^0.5.0
   aws-sdk: ^2.1272.0
   axios: 0.28.0
+  axios-retry: ^4.5.0
   bcryptjs: 2.4.3
   chai: 4.2.0
   class-transformer: 0.3.1
@@ -196,6 +197,7 @@ dependencies:
   async-mutex: 0.5.0
   aws-sdk: 2.1692.0
   axios: 0.28.0
+  axios-retry: 4.5.0_axios@0.28.0
   bcryptjs: 2.4.3
   chai: 4.2.0
   class-transformer: 0.3.1
@@ -5730,6 +5732,15 @@ packages:
       xml2js: 0.6.2
     dev: false
 
+  /axios-retry/4.5.0_axios@0.28.0:
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 0.28.0
+      is-retry-allowed: 2.2.0
+    dev: false
+
   /axios/0.23.0:
     resolution: {integrity: sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==}
     dependencies:
@@ -9756,6 +9767,11 @@ packages:
       gopd: 1.2.0
       has-tostringtag: 1.0.2
       hasown: 2.0.2
+    dev: false
+
+  /is-retry-allowed/2.2.0:
+    resolution: {integrity: sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==}
+    engines: {node: '>=10'}
     dev: false
 
   /is-set/2.0.3:
@@ -15425,7 +15441,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-/xeE+urJJBoAVJoBHAxCuOyeuronqwrGtGiAdPBQUo4sv0g+ER+4k7gLSniBuUtz1PSdLf4NtMzRW3rksXMT3Q==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-pWw8MlfBd1g9OtMZN8exTNedrPIMDDz6NbJhWv+PLBROiAcvTgtDo7ofawHx47X8KG5BmELJaQ+eLFHyy58nuA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15485,6 +15501,7 @@ packages:
       async-mutex: 0.5.0
       aws-sdk: 2.1692.0
       axios: 0.28.0
+      axios-retry: 4.5.0_axios@0.28.0
       bcryptjs: 2.4.3
       chai: 4.2.0
       class-transformer: 0.3.1
