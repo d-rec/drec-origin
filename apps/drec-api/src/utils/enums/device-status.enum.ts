@@ -2,6 +2,7 @@ export enum DeviceStatus {
   Submitted = 'Submitted',
   Denied = 'Denied',
   Active = 'Active',
+  Draft = 'Draft',
 }
 export enum IRECDeviceStatus {
   NotRegistered = 'NotRegistered', //(these for D-rec purpose not I-rec status)

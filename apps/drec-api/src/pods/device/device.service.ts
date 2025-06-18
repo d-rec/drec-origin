@@ -539,24 +539,22 @@ export class DeviceService {
 
   async syncDeviceStatusesWithEvident(): Promise<void> {
     const devices = await this.repository.find({
-      where: { evidentStatus: DeviceStatus.Submitted },
+      where: { evidentStatus: DeviceStatus.Draft },
     });
 
     for (const device of devices) {
-      console.log("device satus",device.evidentDeviceId)
       try {
         const updatedStatus = await this.evidentService.getDeviceStatus(
+          device.organizationId,
           device.evidentDeviceId,
         );
-
-        if (updatedStatus && updatedStatus !== device.evidentStatus) {
+        if (updatedStatus !== device.evidentStatus) {
           this.logger.log(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
           );
           device.evidentStatus = updatedStatus;
           await this.repository.save(device);
         }
-
       } catch (error) {
         this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
       }
@@ -576,7 +574,7 @@ export class DeviceService {
   }
 
   public async register(
-    orgCode: number,
+    organizationId: number,
     newDevice: NewDeviceDTO,
     files: {
       [DocumentType.FORM_SF_02]: Express.Multer.File[];
@@ -602,7 +600,7 @@ export class DeviceService {
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
-        organizationId: orgCode,
+        organizationId: organizationId,
       },
     });
 
@@ -670,7 +668,7 @@ export class DeviceService {
 
     let result: any;
     if (role === Role.ApiUser) {
-      const org = await this.organizationService.findOne(orgCode, {
+      const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);
 
@@ -686,13 +684,13 @@ export class DeviceService {
 
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
         api_user_id: api_user_id,
       });
     } else {
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
       });
     }
     if (files) {
@@ -724,7 +722,12 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
-    await this.evidentService.registerDeviceQueue(result, files);
+
+    await this.evidentService.registerDeviceQueue(
+      organizationId,
+      result,
+      files,
+    );
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;

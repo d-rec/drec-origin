@@ -9,17 +9,15 @@ export class SynchronizeDeviceStatusTaskService {
 
   constructor(private readonly deviceService: DeviceService) {}
 
-  @NonConcurrentCron(CronExpression.EVERY_10_MINUTES)
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   public async synchronizeDeviceStatuses(): Promise<void> {
     this.logger.log('Device status synchronization started');
 
     try {
       await this.deviceService.syncDeviceStatusesWithEvident();
-      console.log("after one minutes")
     } catch (error) {
       this.logger.error('Device status synchronization failed', error.stack);
     }
-
     this.logger.log('Device status synchronization ended');
   }
 }
