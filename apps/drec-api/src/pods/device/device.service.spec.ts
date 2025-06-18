@@ -151,7 +151,7 @@ describe('DeviceService', () => {
         {
           provide: EvidentService,
           useValue: {
-            registerDeviceQueue: jest.fn(),
+            queueDeviceRegistration: jest.fn(),
             registerDevice: jest.fn(),
           },
         },
