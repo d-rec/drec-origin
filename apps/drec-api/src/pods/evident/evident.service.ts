@@ -255,7 +255,6 @@ export class EvidentService {
       throw error;
     }
   }
-  //https://api-internal.sandbox.evident.dev/organisations/role?role=issuer&pagination=false
 
   async registerDevice(
     organizationId: number,
