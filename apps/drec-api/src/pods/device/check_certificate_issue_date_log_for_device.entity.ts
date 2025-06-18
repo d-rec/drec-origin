@@ -1,6 +1,6 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { IsString, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsNumber, IsDate, IsBoolean } from 'class-validator';
 
 @Entity('check_certificate_issue_date_log_for_device')
 export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {
@@ -46,4 +46,8 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @Column()
   @IsDate()
   ongoing_end_date: string;
+
+  @Column({name:'evident_synced'})
+  @IsBoolean()
+  evidentSynced: boolean;
 }
