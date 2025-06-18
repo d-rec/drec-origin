@@ -10,6 +10,7 @@ import { User } from '../user/user.entity';
 import { EvidentSettings } from './evident-settings.entity';
 import { EvidentSettingsController } from './evident-settings.controller';
 import { EvidentSettingsService } from './evident-settings.service';
+import { SynchronizeDeviceStatusTaskService } from './synchronize-device-status-task.service';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { EvidentSettingsService } from './evident-settings.service';
     EvidentService,
     EvidentDeviceRegistrationProcessor,
     EvidentSettingsService,
+    SynchronizeDeviceStatusTaskService,
   ],
   exports: [EvidentService],
 })

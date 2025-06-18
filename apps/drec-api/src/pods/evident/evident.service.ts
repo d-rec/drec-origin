@@ -303,4 +303,29 @@ export class EvidentService {
   ): Promise<void> {
     await this.evidentDeviceRegistrationQueue.add({ device, files });
   }
+  async getDeviceStatus(code:string): Promise<string> {
+    try {
+      const response = await this.axiosInstance.get(`/devices/TESTES10735/device_details`);
+      console.log(response)
+      const members = response.data["hydra:member"];
+      console.log("members", members);
+      
+      if (members && members.length > 0) {
+        const status = members[0].status;
+        console.log("device status:", status);
+        return status;
+      }
+      
+      throw new Error("No device details found");
+      
+    } catch (error) {
+      console.error(
+        `Failed to fetch device status for ID ${code}:`,
+        error.message,
+      );
+    //  return `Failed to fetch status from Evident`;
+      
+    }
+  }
+
 }

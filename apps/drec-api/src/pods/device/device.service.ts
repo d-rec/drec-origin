@@ -37,6 +37,7 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
+  DeviceStatus,
   IRECDeviceStatus,
   ReadType,
   Role,
@@ -536,6 +537,31 @@ export class DeviceService {
     );
   }
 
+  async syncDeviceStatusesWithEvident(): Promise<void> {
+    const devices = await this.repository.find({
+      where: { evidentStatus: DeviceStatus.Submitted },
+    });
+
+    for (const device of devices) {
+      console.log("device satus",device.evidentDeviceId)
+      try {
+        const updatedStatus = await this.evidentService.getDeviceStatus(
+          device.evidentDeviceId,
+        );
+
+        if (updatedStatus && updatedStatus !== device.evidentStatus) {
+          this.logger.log(
+            `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
+          );
+          device.evidentStatus = updatedStatus;
+          await this.repository.save(device);
+        }
+
+      } catch (error) {
+        this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
+      }
+    }
+  }
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
