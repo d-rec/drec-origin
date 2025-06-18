@@ -15,9 +15,10 @@ import { decrypt } from '../../utils/crypto';
 import { EvidentSettings } from './evident-settings.entity';
 
 enum EvidentRegistrationStatus {
-  draft = 'Draft',
-  submitted = 'Submitted',
-  approved = 'Approved',
+  Draft = 'Draft',
+  InProgress = 'In Progress',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
 }
 
 @Injectable()
@@ -66,50 +67,6 @@ export class EvidentService {
     }
   }
 
-  // async updateDeviceStatus(device: Device, deviceCode: string): Promise<any> {
-  //   try {
-  //     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-  //     const response = await this.axiosInstance.post('/device_details', {
-  //       deviceType: `/device_types/${device.deviceTypeCode}`,
-  //       fuel: `/fuels/${device.fuelCode}`,
-  //       device: `/devices/${deviceCode}`,
-  //       registrant: `/organisations/${this.registrantId}`,
-  //       issuer: `/organisations/${this.issuerId}`,
-  //       name: device.projectName,
-  //       capacity: device.capacity.toString(),
-  //       supported: true,
-  //       latitude: device.latitude,
-  //       longitude: device.longitude,
-  //       registrationDate: new Date().toISOString().split('T')[0],
-  //       commissioningDate: device.commissioningDate.split('T')[0],
-  //       expiryDate: new Date().toISOString().split('T')[0],
-  //       status: EvidentRegistrationStatus.submitted,
-  //       active: true,
-  //       address1: device.address,
-  //       postcode: device.postcode,
-  //       stateProvince: device.stateProvince,
-  //       country: `/countries/${alpha2CountryCode}`,
-  //       notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
-  //       issuerNotes: 'Notes made by the Issuer',
-  //       files: [],
-  //     });
-  //     if (response) {
-  //       console.log(
-  //         'Device status updated successfully:',
-  //         EvidentRegistrationStatus.submitted,
-  //       );
-  //       return this.deviceService.updateDeviceEvidentInfo(
-  //         device.externalId,
-  //         response.data.code,
-  //         EvidentRegistrationStatus.submitted,
-  //       );
-  //     }
-  //     return deviceCode;
-  //   } catch (error) {
-  //     console.error('Error updating device status:', error);
-  //     throw error;
-  //   }
-  // }
   async mapDeviceDocuments(
     organizationId: number,
     files: Record<string, Express.Multer.File[]>,
@@ -226,29 +183,24 @@ export class EvidentService {
         supported: true,
         latitude: device.latitude,
         longitude: device.longitude,
-        registrationDate: new Date().toISOString().split('T')[0],
+        registrationDate: new Date(device.createdAt).toISOString().split('T')[0],
         commissioningDate: device.commissioningDate.split('T')[0],
-        expiryDate: new Date().toISOString().split('T')[0],
-        status: EvidentRegistrationStatus.draft,
+        status: EvidentRegistrationStatus.Draft,
         active: true,
         address1: device.address,
         postcode: device.postcode,
         stateProvince: device.stateProvince,
         country: `/countries/${alpha2CountryCode}`,
-        notes: 'Notes made by the Issuer',
-        issuerNotes: 'Notes made by the Issuer',
+        notes: JSON.stringify({ drecId: device.externalId }),
         files: this.uploadedFiles,
       });
       if (deviceResponse) {
         this.deviceService.updateDeviceEvidentInfo(
           device.externalId,
           deviceCode,
-          EvidentRegistrationStatus.draft,
+          EvidentRegistrationStatus.Draft,
         );
       }
-      // if (device.capacity > 250) {
-      //   await this.updateDeviceStatus(device, deviceCode);
-      // }
       return deviceCode;
     } catch (error) {
       console.error('Error registering device details:', error);
@@ -283,7 +235,7 @@ export class EvidentService {
     }
   }
 
-  async registerDeviceQueue(
+  async queueDeviceRegistration(
     organizationId: number,
     device: Device,
     files: {
