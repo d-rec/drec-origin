@@ -5,6 +5,7 @@ import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
+
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
 @Controller('evident')

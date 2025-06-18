@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Device } from '../device';
 import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
@@ -304,17 +310,16 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       const response = await evidentInstance.get(
-        `/devices/TESTES10735/device_details`,
+        `/devices/{code}/device_details`,
       );
       console.log(response);
       const members = response.data['hydra:member'];
       return members[0].status;
     } catch (error) {
-      console.error(
-        `Failed to fetch device status for ID ${code}:`,
-        error.message,
+      throw new HttpException(
+        `Failed to fetch device status for ID ${code}: ${error.message}`,
+        HttpStatus.BAD_GATEWAY,
       );
-      return 'Draft';
     }
   }
 }
