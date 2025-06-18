@@ -183,7 +183,9 @@ export class EvidentService {
         supported: true,
         latitude: device.latitude,
         longitude: device.longitude,
-        registrationDate: new Date(device.createdAt).toISOString().split('T')[0],
+        registrationDate: new Date(device.createdAt)
+          .toISOString()
+          .split('T')[0],
         commissioningDate: device.commissioningDate.split('T')[0],
         status: EvidentRegistrationStatus.Draft,
         active: true,
