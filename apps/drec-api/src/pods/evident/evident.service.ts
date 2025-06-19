@@ -193,8 +193,6 @@ export class EvidentService {
     device: Device,
     deviceCode: string,
     registrantId: string,
-    issuerId: string,
-    uploadedFiles: string[],
   ): any {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
     return {
@@ -202,7 +200,7 @@ export class EvidentService {
       fuel: `/fuels/${device.fuelCode}`,
       device: `/devices/${deviceCode}`,
       registrant: `/organisations/${registrantId}`,
-      issuer: `/organisations/${issuerId}`,
+      issuer: `/organisations/${this.issuerId}`,
       name: device.projectName,
       capacity: device.capacity.toString(),
       supported: true,
@@ -217,7 +215,7 @@ export class EvidentService {
       stateProvince: device.stateProvince,
       country: `/countries/${alpha2CountryCode}`,
       notes: JSON.stringify({ drecId: device.externalId }),
-      files: uploadedFiles,
+      files: this.uploadedFiles,
     };
   }
 
@@ -242,8 +240,6 @@ export class EvidentService {
         device,
         deviceCode,
         registrantId,
-        this.issuerId,
-        this.uploadedFiles,
       );
 
       const deviceResponse = await evidentInstance.post(
