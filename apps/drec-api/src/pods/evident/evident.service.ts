@@ -75,6 +75,30 @@ export class EvidentService {
     }
   }
 
+  async registerDevice(
+    organizationId: number,
+    device: Device,
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<any> {
+    try {
+      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const response = await evidentInstance.post('/devices', {
+        name: device.projectName,
+        fuel: `/fuels/${device.fuelCode}`,
+      });
+      await this.registerDeviceDetails(
+        organizationId,
+        device,
+        response.data.code,
+        files,
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error registering device:', error.message);
+      throw error;
+    }
+  }
+
   async mapDeviceDocuments(
     organizationId: number,
     files: Record<string, Express.Multer.File[]>,
@@ -165,6 +189,38 @@ export class EvidentService {
     }
   }
 
+  private generateDeviceDetailsPayload(
+    device: Device,
+    deviceCode: string,
+    registrantId: string,
+    issuerId: string,
+    uploadedFiles: string[],
+  ): any {
+    const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
+    return {
+      deviceType: `/device_types/${device.deviceTypeCode}`,
+      fuel: `/fuels/${device.fuelCode}`,
+      device: `/devices/${deviceCode}`,
+      registrant: `/organisations/${registrantId}`,
+      issuer: `/organisations/${issuerId}`,
+      name: device.projectName,
+      capacity: device.capacity.toString(),
+      supported: true,
+      latitude: device.latitude,
+      longitude: device.longitude,
+      registrationDate: new Date(device.createdAt).toISOString().split('T')[0],
+      commissioningDate: device.commissioningDate.split('T')[0],
+      status: EvidentRegistrationStatus.Draft,
+      active: true,
+      address1: device.address,
+      postcode: device.postcode,
+      stateProvince: device.stateProvince,
+      country: `/countries/${alpha2CountryCode}`,
+      notes: JSON.stringify({ drecId: device.externalId }),
+      files: uploadedFiles,
+    };
+  }
+
   async registerDeviceDetails(
     organizationId: number,
     device: Device,
@@ -172,8 +228,8 @@ export class EvidentService {
     files: Record<string, Express.Multer.File[]>,
   ): Promise<any> {
     try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
       this.uploadedFiles = [];
+      const evidentInstance = await this.getEvidentInstance(organizationId);
       const userEvidentEmail = (await this.getEvidentSettings(organizationId))
         .evidentEmail;
       const user = await this.getUserProfile(userEvidentEmail, organizationId);
@@ -181,31 +237,20 @@ export class EvidentService {
       const userUid = userMember.uid;
       const registrantId = userMember.organisation.uid;
       await this.mapDeviceDocuments(organizationId, files, userUid);
-      const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-      const deviceResponse = await evidentInstance.post('/device_details', {
-        deviceType: `/device_types/${device.deviceTypeCode}`,
-        fuel: `/fuels/${device.fuelCode}`,
-        device: `/devices/${deviceCode}`,
-        registrant: `/organisations/${registrantId}`,
-        issuer: `/organisations/${this.issuerId}`,
-        name: device.projectName,
-        capacity: device.capacity.toString(),
-        supported: true,
-        latitude: device.latitude,
-        longitude: device.longitude,
-        registrationDate: new Date(device.createdAt)
-          .toISOString()
-          .split('T')[0],
-        commissioningDate: device.commissioningDate.split('T')[0],
-        status: EvidentRegistrationStatus.Draft,
-        active: true,
-        address1: device.address,
-        postcode: device.postcode,
-        stateProvince: device.stateProvince,
-        country: `/countries/${alpha2CountryCode}`,
-        notes: JSON.stringify({ drecId: device.externalId }),
-        files: this.uploadedFiles,
-      });
+
+      const payload = this.generateDeviceDetailsPayload(
+        device,
+        deviceCode,
+        registrantId,
+        this.issuerId,
+        this.uploadedFiles,
+      );
+
+      const deviceResponse = await evidentInstance.post(
+        '/device_details',
+        payload,
+      );
+
       if (deviceResponse) {
         this.deviceService.updateDeviceEvidentInfo(
           device.externalId,
@@ -216,33 +261,6 @@ export class EvidentService {
       return deviceCode;
     } catch (error) {
       console.error('Error registering device details:', error);
-      throw error;
-    }
-  }
-
-  async registerDevice(
-    organizationId: number,
-    device: Device,
-    files: Record<string, Express.Multer.File[]>,
-  ): Promise<any> {
-    try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
-      if (!evidentInstance) {
-        throw new Error('Evident instance not found for organization');
-      }
-      const response = await evidentInstance.post('/devices', {
-        name: device.projectName,
-        fuel: `/fuels/${device.fuelCode}`,
-      });
-      await this.registerDeviceDetails(
-        organizationId,
-        device,
-        response.data.code,
-        files,
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error registering device:', error.message);
       throw error;
     }
   }
