@@ -26,4 +26,10 @@ export class SettingsDTO {
   @IsNotEmpty()
   @Column({ name: 'email' })
   email: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Column({ name: 'frequency' })
+  frequency: string;
 }

@@ -24,6 +24,9 @@ export class EvidentSettings {
   @Column({ type: 'varchar', name: 'email' })
   email: string;
 
+  @Column({ type: 'varchar', name: 'frequency' })
+  frequency: string;
+
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
