@@ -24,7 +24,6 @@ enum EvidentRegistrationStatus {
 @Injectable()
 export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
-  private email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
   private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
   private uploadedFiles = [];
 
@@ -48,6 +47,15 @@ export class EvidentService {
       apiKey,
       organizationId: organizationId.toString(),
     });
+  }
+
+  private async getEvidentSettings(
+    organizationId: number,
+  ): Promise<EvidentSettings> {
+    const data = await this.evidentSettingRepository.findOne({
+      where: { organizationId },
+    });
+    return data;
   }
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -166,7 +174,9 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       this.uploadedFiles = [];
-      const user = await this.getUserProfile(this.email, organizationId);
+      const userEvidentEmail = (await this.getEvidentSettings(organizationId))
+        .evidentEmail;
+      const user = await this.getUserProfile(userEvidentEmail, organizationId);
       const userMember = user['hydra:member'][0];
       const userUid = userMember.uid;
       const registrantId = userMember.organisation.uid;
