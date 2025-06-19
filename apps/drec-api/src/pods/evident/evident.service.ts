@@ -191,14 +191,14 @@ export class EvidentService {
 
   private generateDeviceDetailsPayload(
     device: Device,
-    deviceCode: string,
+    evidentDeviceId: string,
     registrantId: string,
   ): any {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,
       fuel: `/fuels/${device.fuelCode}`,
-      device: `/devices/${deviceCode}`,
+      device: `/devices/${evidentDeviceId}`,
       registrant: `/organisations/${registrantId}`,
       issuer: `/organisations/${this.issuerId}`,
       name: device.projectName,
@@ -222,14 +222,14 @@ export class EvidentService {
   async registerDeviceDetails(
     organizationId: number,
     device: Device,
-    deviceCode: string,
+    evidentDeviceId: string,
     files: Record<string, Express.Multer.File[]>,
   ): Promise<any> {
     try {
       this.uploadedFiles = [];
       const evidentInstance = await this.getEvidentInstance(organizationId);
       const userEvidentEmail = (await this.getEvidentSettings(organizationId))
-        .evidentEmail;
+        .email;
       const user = await this.getUserProfile(userEvidentEmail, organizationId);
       const userMember = user['hydra:member'][0];
       const userUid = userMember.uid;
@@ -238,7 +238,7 @@ export class EvidentService {
 
       const payload = this.generateDeviceDetailsPayload(
         device,
-        deviceCode,
+        evidentDeviceId,
         registrantId,
       );
 
@@ -250,11 +250,11 @@ export class EvidentService {
       if (deviceResponse) {
         this.deviceService.updateDeviceEvidentInfo(
           device.externalId,
-          deviceCode,
+          evidentDeviceId,
           EvidentRegistrationStatus.Draft,
         );
       }
-      return deviceCode;
+      return evidentDeviceId;
     } catch (error) {
       console.error('Error registering device details:', error);
       throw error;

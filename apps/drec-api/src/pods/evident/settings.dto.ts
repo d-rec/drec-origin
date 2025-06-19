@@ -24,6 +24,6 @@ export class SettingsDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @Column({ name: 'evident_email' })
-  evidentEmail: string;
+  @Column({ name: 'email' })
+  email: string;
 }
