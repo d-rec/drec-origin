@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Device } from '../device';
 import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
@@ -17,13 +17,21 @@ import { convertToWh } from '../../utils/convert-to-power-units';
 
 enum EvidentRegistrationStatus {
   Draft = 'Draft',
-  InProgress = 'In Progress',
+  InProgress = 'Submitted',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
+
+enum EvidentRegistrationStatusDREC {
+  Draft = 'Draft',
+  InProgress = 'Waiting for Review',
   Approved = 'Approved',
   Rejected = 'Rejected',
 }
 
 @Injectable()
 export class EvidentService {
+  private readonly logger = new Logger(EvidentService.name);
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
   private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
   private uploadedFiles = [];
@@ -251,11 +259,28 @@ export class EvidentService {
         payload,
       );
 
+      if (device.capacity <= 250) {
+        this.logger.log('Within device status update');
+        payload.status = EvidentRegistrationStatus.InProgress;
+        const updateDeviceResponse = await evidentInstance.post(
+          '/device_details',
+          payload,
+        );
+        if (updateDeviceResponse) {
+          this.deviceService.updateDeviceEvidentInfo(
+            device.externalId,
+            evidentDeviceId,
+            EvidentRegistrationStatusDREC.InProgress,
+          );
+        }
+        return evidentDeviceId;
+      }
+
       if (deviceResponse) {
         this.deviceService.updateDeviceEvidentInfo(
           device.externalId,
           evidentDeviceId,
-          EvidentRegistrationStatus.Draft,
+          EvidentRegistrationStatusDREC.Draft,
         );
       }
       return evidentDeviceId;
