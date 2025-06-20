@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { decrypt } from '../../utils/crypto';
 import { EvidentSettings } from './evident-settings.entity';
+import { Issuer } from './evident-issuer';
 
 @Injectable()
 export class EvidentService {
@@ -31,5 +32,50 @@ export class EvidentService {
     const evidentInstance = await this.getEvidentInstance(organizationId);
     const response = await evidentInstance.get('/devices');
     return response.data;
+  }
+
+  async registeIssuance(
+    organizationId: number,
+    code: string,
+    issuer: Issuer,
+  ): Promise<any> {
+    try {
+      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const response = await evidentInstance.post('/issues', {
+        name: `/devices/${code}`,
+      });
+
+      await this.registerIssuanceDetails(organizationId, response, issuer);
+      return response;
+    } catch (error) {
+      console.error('Error registering issuance:', error.message);
+      throw error;
+    }
+  }
+
+  async registerIssuanceDetails(
+    organizationId: number,
+    data: any,
+    issuer: Issuer,
+  ): Promise<any> {
+    const evidentInstance = await this.getEvidentInstance(organizationId);
+    try {
+      const details = await evidentInstance.post('/issue_details', {
+        endDate: issuer.endDate,
+        files: [],
+        fuel: data.deviceDetails.fuel['@id'],
+        issue: data['@id'],
+        issuerNotes: '',
+        notes: issuer.notes,
+        productionVolume: issuer.productionVolume,
+        recipientAccount: issuer.recipientAccount,
+        startDate: issuer.startDate,
+        status: 'Draft',
+      });
+      return details;
+    } catch (error) {
+      console.error('Error registering issuance:', error.message);
+      throw error;
+    }
   }
 }

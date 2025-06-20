@@ -47,7 +47,7 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @IsDate()
   ongoing_end_date: string;
 
-  @Column({name:'evident_synced'})
+  @Column({ name: 'evident_synced' })
   @IsBoolean()
   evidentSynced: boolean;
 }

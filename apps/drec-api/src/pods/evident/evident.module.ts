@@ -4,11 +4,12 @@ import { User } from '../user/user.entity';
 import { EvidentSettings } from './evident-settings.entity';
 import { EvidentSettingsController } from './evident-settings.controller';
 import { EvidentSettingsService } from './evident-settings.service';
+import { EvidentService } from './evident.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, EvidentSettings])],
   controllers: [EvidentSettingsController],
-  providers: [EvidentSettingsService],
+  providers: [EvidentSettingsService,EvidentService],
   exports: [EvidentSettingsService],
 })
 export class EvidentModule {}

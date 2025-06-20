@@ -1577,7 +1577,7 @@ export class ReadsService {
     const influxDB = new InfluxDB({ url, token });
     influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
-
+    console.log('results', result);
     return result.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
