@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -14,13 +15,16 @@ import {
   Put,
   Query,
   UnauthorizedException,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -30,7 +34,7 @@ import {
 import { plainToClass } from 'class-transformer';
 
 import { FindOneOptions } from 'typeorm';
-import { ActiveUserGuard } from '../../guards';
+import { AuthVerifiedGuard } from '../../guards';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser } from '../../models';
@@ -48,13 +52,19 @@ import { Device } from './device.entity';
 import { DeviceService } from './device.service';
 import {
   DeviceDTO,
+  DeviceFiles,
   DeviceGroupByDTO,
+  DeviceRegistrationBody,
   FilterDTO,
   GroupedDevicesDTO,
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { fileFilter } from '../../validations/file';
+import { parseMetadata } from '../../lib/helpers/parseMetadata';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -77,7 +87,7 @@ export class DeviceController {
    * It is GET api to list all devices with paginatiion and fiteration by organization and filterationDTO
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -118,7 +128,7 @@ export class DeviceController {
    */
   @Get('/ungrouped/buyerreservation')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
     RolesGuard,
   )
@@ -201,7 +211,7 @@ export class DeviceController {
    * @return {GroupedDevicesDTO} returns ungrouped devices
    */
   @Get('/ungrouped')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
@@ -283,8 +293,7 @@ export class DeviceController {
    */
   @Get('/my')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Read')
@@ -400,8 +409,7 @@ export class DeviceController {
    */
   @Get('/:id')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Read')
@@ -450,7 +458,7 @@ export class DeviceController {
    * @returns {DeviceDTO | null} DeviceDTO for success response and null when there is no device found by the id
    */
   @Get('externalId/:id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -505,9 +513,58 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Post()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: DocumentType.FORM_SF_02, maxCount: 10 },
+        { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
+        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
+        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+      ],
+      {
+        fileFilter: fileFilter,
+      },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Device registration with documents',
+    schema: {
+      type: 'object',
+      properties: {
+        [DocumentType.FORM_SF_02]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.SF_02C]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.METERING_EVIDENCE]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.SINGLE_LINE_DIAGRAM]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.PROJECT_PHOTOS]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        deviceToRegister: {
+          $ref: '#/components/schemas/NewDeviceDTO',
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary: 'Create a new device',
     description: 'Register a new device in the system.',
@@ -523,9 +580,16 @@ export class DeviceController {
   })
   public async create(
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
-    @Body() deviceToRegister: NewDeviceDTO,
+    @Body() body: DeviceRegistrationBody,
+    @UploadedFiles()
+    files: DeviceFiles,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
+    const deviceToRegister = parseMetadata(
+      body.deviceToRegister as unknown as Record<string, unknown>,
+    );
+    if (!deviceToRegister)
+      throw new BadRequestException('Invalid device data format');
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -540,9 +604,28 @@ export class DeviceController {
         });
       }
     }
+    const allFileTypes = [
+      DocumentType.FORM_SF_02,
+      DocumentType.SF_02C,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.SINGLE_LINE_DIAGRAM,
+      DocumentType.PROJECT_PHOTOS,
+    ];
+    const missingFiles = allFileTypes.filter((fileType) => {
+      const fileArray = files[fileType];
+      return !Array.isArray(fileArray) || fileArray.length === 0;
+    });
+
+    if (missingFiles.length > 0) {
+      throw new BadRequestException(
+        `Missing required file types: ${missingFiles.join(', ')}`,
+      );
+    }
+
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
+      files,
       api_user_id,
       role,
     );
@@ -556,7 +639,7 @@ export class DeviceController {
    * @returns {DeviceDTO}
    */
   @Patch('/:externalId')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -649,7 +732,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @Roles(Role.OrganizationAdmin, Role.Admin)
@@ -697,7 +780,7 @@ export class DeviceController {
    * @returns {Array<DeviceDTO>}
    */
   @Get('/my/totalamountread')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -729,7 +812,7 @@ export class DeviceController {
    * @returns {}
    */
   @Put('/my/deviceOnBoardingDate')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -788,7 +871,7 @@ export class DeviceController {
    * @returns {}
    */
   @Get('/my/autocomplete')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -823,7 +906,7 @@ export class DeviceController {
    * @returns {any}
    */
   @Get('/certifiedlog/first&lastdate')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'externalId', type: Number, required: false })

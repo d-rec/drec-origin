@@ -4,6 +4,7 @@ const tags: { name: string; description: string }[] = [
     description:
       'All endpoints related to user authentication and authorization. It covers functionalities such as login, registration, token issuance and verification, password recovery, and session management. Endpoints under this tag are designed to secure the API by verifying user credentials, managing access tokens, and ensuring that only authenticated users can interact with protected resources. This separation helps developers quickly identify and integrate security-related operations within the API.',
   },
+
   {
     name: 'User',
     description:
@@ -69,7 +70,7 @@ const tags: { name: string; description: string }[] = [
       'Endpoints related to managing meter reads. This includes functionalities for retrieving time-series data of meter reads, adding new meter reads, and accessing the latest meter read for devices. These endpoints are essential for monitoring and analyzing energy consumption data.',
   },
   {
-    name: 'Issue',
+    name: 'Issuer',
     description:
       'Endpoints related to the Issuer functionality. This includes functionalities for triggering ongoing and historical certificate issuance processes, re-issuing certificates for failed data, and handling late or missed issuance cycles. These endpoints are critical for managing the issuance of Distributed Renewable Energy Certificates (DRECs) and ensuring the integrity and timeliness of the issuance process.',
   },
@@ -92,6 +93,16 @@ const tags: { name: string; description: string }[] = [
     name: 'Health',
     description:
       "Endpoints related to checking the health and status of the application and it's related services",
+  },
+  {
+    name: 'OTP',
+    description:
+      'Endpoints related to OTP (One-Time Password) verification. This includes functionalities for sending OTPs to users, verifying OTPs for authentication, and managing OTP expiration times. These endpoints are essential for securing user actions and ensuring that only verified users can proceed with sensitive operations.',
+  },
+  {
+    name: 'Evident',
+    description:
+      'Evident is a platform providing secure integration and data verification services. This API group covers operations related to connecting with Evident, managing integration settings, and handling authentication tokens securely to enable seamless communication between D-REC platform and the Evident platform.',
   },
 ];
 

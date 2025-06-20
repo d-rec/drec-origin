@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { MailModule } from '../../mail';
 import { FileModule } from '../file';
 import { InvitationModule } from '../invitation/invitation.module';
+import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 
 @Module({
   imports: [
@@ -19,9 +20,10 @@ import { InvitationModule } from '../invitation/invitation.module';
     forwardRef(() => UserModule),
     FileModule,
     forwardRef(() => InvitationModule),
+    DocumentUploadsModule,
   ],
   providers: [OrganizationService],
   controllers: [OrganizationController],
-  exports: [OrganizationService],
+  exports: [OrganizationService, TypeOrmModule],
 })
 export class OrganizationModule {}

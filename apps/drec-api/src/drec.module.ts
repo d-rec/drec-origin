@@ -14,7 +14,6 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
-
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -70,6 +69,12 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
+import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
+import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
+import { OtpModule } from './pods/otp/otp.module';
+import { Otp } from './pods/otp/otp.entity';
+import { EvidentModule } from './pods/evident/evident.module';
+import { EvidentSettings } from './pods/evident/evident-settings.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -121,6 +126,9 @@ export const entities = [
   ...OffChainCertificateEntities,
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
+  DocumentEntity,
+  Otp,
+  EvidentSettings,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -150,7 +158,7 @@ export const originAppTypeOrmModule = (): DynamicModule => {
 
 export const redisOptions = {
   host: process.env.REDIS_URL ?? 'localhost',
-  port: 6379,
+  port: Number(process.env.REDIS_PORT ?? 6379),
 };
 
 const queueModule = () => {
@@ -194,6 +202,9 @@ const queueModule = () => {
     BlockchainPropertiesModule,
     BulkUploadModule,
     HealthModule,
+    DocumentUploadsModule,
+    OtpModule,
+    EvidentModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

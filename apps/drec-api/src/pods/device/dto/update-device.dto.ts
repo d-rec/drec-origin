@@ -190,4 +190,13 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   organizationId?: number;
+
+  @IsString()
+  @IsOptional()
+  postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }
