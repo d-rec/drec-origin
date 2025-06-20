@@ -69,7 +69,9 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       const evidentSettings = await this.getEvidentSettings(organizationId);
-      const user = await evidentInstance.get(`/users?q=${evidentSettings.email}`);
+      const user = await evidentInstance.get(
+        `/users?q=${evidentSettings.email}`,
+      );
       const userMember = user.data['hydra:member'][0];
       return {
         profile: user,
@@ -201,7 +203,7 @@ export class EvidentService {
     registrantId: string,
   ): any {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-    const convertCapacityToMwh = convertToWh(device.capacity, "kWh")
+    const convertCapacityToMwh = convertToWh(device.capacity, 'kWh');
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,
       fuel: `/fuels/${device.fuelCode}`,

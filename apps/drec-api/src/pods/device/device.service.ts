@@ -1791,8 +1791,12 @@ export class DeviceService {
       },
     });
     if (!device) {
-      this.logger.error(`Device not found with externalId: ${deviceExternalId}`);
-      throw new NotFoundException(`Device not found with externalId: ${deviceExternalId}`);
+      this.logger.error(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+      throw new NotFoundException(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
     }
     device.evidentDeviceId = evidentDeviceId;
     device.evidentStatus = evidentStatus;
