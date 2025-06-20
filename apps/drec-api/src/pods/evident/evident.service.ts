@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { decrypt } from '../../utils/crypto';
 import { EvidentSettings } from './evident-settings.entity';
+import { convertToWh } from '../../utils/convert-to-power-units';
 
 enum EvidentRegistrationStatus {
   Draft = 'Draft',
@@ -64,13 +65,18 @@ export class EvidentService {
     return response.data;
   }
 
-  async getUserProfile(email: string, organizationId: number): Promise<any> {
+  async getRegistrantInfo(organizationId: number): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      const user = await evidentInstance.get(`/users?q=${email}`);
-      return user.data;
+      const evidentSettings = await this.getEvidentSettings(organizationId);
+      const user = await evidentInstance.get(`/users?q=${evidentSettings.email}`);
+      const userMember = user.data['hydra:member'][0];
+      return {
+        profile: user,
+        member: userMember,
+      };
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error fetching registrant info:', error);
       throw error;
     }
   }
@@ -195,6 +201,7 @@ export class EvidentService {
     registrantId: string,
   ): any {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
+    const convertCapacityToMwh = convertToWh(device.capacity, "kWh")
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,
       fuel: `/fuels/${device.fuelCode}`,
@@ -202,7 +209,7 @@ export class EvidentService {
       registrant: `/organisations/${registrantId}`,
       issuer: `/organisations/${this.issuerId}`,
       name: device.projectName,
-      capacity: device.capacity.toString(),
+      capacity: convertCapacityToMwh.toString(),
       supported: true,
       latitude: device.latitude,
       longitude: device.longitude,
@@ -228,18 +235,13 @@ export class EvidentService {
     try {
       this.uploadedFiles = [];
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      const userEvidentEmail = (await this.getEvidentSettings(organizationId))
-        .email;
-      const user = await this.getUserProfile(userEvidentEmail, organizationId);
-      const userMember = user['hydra:member'][0];
-      const userUid = userMember.uid;
-      const registrantId = userMember.organisation.uid;
-      await this.mapDeviceDocuments(organizationId, files, userUid);
+      const user = await this.getRegistrantInfo(organizationId);
+      await this.mapDeviceDocuments(organizationId, files, user.member.uid);
 
       const payload = this.generateDeviceDetailsPayload(
         device,
         evidentDeviceId,
-        registrantId,
+        user.member.organisation.uid,
       );
 
       const deviceResponse = await evidentInstance.post(
