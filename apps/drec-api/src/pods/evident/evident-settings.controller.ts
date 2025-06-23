@@ -18,7 +18,7 @@ export class EvidentSettingsController {
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
     private readonly evidentService: EvidentService,
-    private readonly trrigerIssuanceRequestForOrganizationsService:TrrigerIssuanceRequestForOrganizationsService
+    private readonly trrigerIssuanceRequestForOrganizationsService: TrrigerIssuanceRequestForOrganizationsService,
   ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
@@ -34,7 +34,7 @@ export class EvidentSettingsController {
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Get()
-  @ApiOperation({ summary: 'Get Evident settings' })
+  @ApiOperation({ summary: 'trigger evident jobs' })
   async getSettings(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
@@ -47,7 +47,9 @@ export class EvidentSettingsController {
   async triggerIssuanceRequests(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.trrigerIssuanceRequestForOrganizationsService.handleCron(organizationId,);
+    return this.trrigerIssuanceRequestForOrganizationsService.handleCron(
+      organizationId,
+    );
   }
 }
 // select * from check_certificate_issue_date_log_for_device

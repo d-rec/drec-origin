@@ -10,10 +10,20 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { Device } from '../device';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, EvidentSettings, Device, CheckCertificateIssueDateLogForDeviceEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      EvidentSettings,
+      Device,
+      CheckCertificateIssueDateLogForDeviceEntity,
+    ]),
+  ],
   controllers: [EvidentSettingsController],
-  providers: [EvidentSettingsService, EvidentService, TrrigerIssuanceRequestForOrganizationsService],
+  providers: [
+    EvidentSettingsService,
+    EvidentService,
+    TrrigerIssuanceRequestForOrganizationsService,
+  ],
   exports: [EvidentSettingsService],
 })
 export class EvidentModule {}
-

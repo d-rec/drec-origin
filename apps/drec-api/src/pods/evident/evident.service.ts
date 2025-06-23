@@ -34,7 +34,7 @@ export class EvidentService {
     return response.data;
   }
 
-  async registeIssuance(
+  async registerIssuance(
     organizationId: number,
     code: string,
     issuer: Issuer,
@@ -42,10 +42,12 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       const response = await evidentInstance.post('/issues', {
-        name: `/devices/${code}`,
+        device: `/devices/CDEVES10003`,
       });
+      console.log('registered issueance succefully');
+      await this.registerIssuanceDetails(organizationId, response.data, issuer);
 
-      await this.registerIssuanceDetails(organizationId, response, issuer);
+      console.log('reached');
       return response;
     } catch (error) {
       console.error('Error registering issuance:', error.message);
@@ -53,6 +55,7 @@ export class EvidentService {
     }
   }
 
+  // draft,in progress, submitted,approved,rejected
   async registerIssuanceDetails(
     organizationId: number,
     data: any,
@@ -63,7 +66,7 @@ export class EvidentService {
       const details = await evidentInstance.post('/issue_details', {
         endDate: issuer.endDate,
         files: [],
-        fuel: data.deviceDetails.fuel['@id'],
+        fuel: issuer.fuel,
         issue: data['@id'],
         issuerNotes: '',
         notes: issuer.notes,
