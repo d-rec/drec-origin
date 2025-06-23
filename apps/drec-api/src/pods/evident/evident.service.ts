@@ -125,7 +125,10 @@ export class EvidentService {
             documentType as DocumentType,
           );
         } catch (error) {
-          console.log('Failed to upload a document during mapping', error);
+          console.log(
+            'Failed to upload a document during documents mapping',
+            error,
+          );
         }
       }
     }
