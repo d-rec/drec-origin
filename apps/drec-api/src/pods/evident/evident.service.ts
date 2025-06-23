@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { Device } from '../device';
 import { DeviceService } from '../device/device.service';
@@ -19,17 +20,26 @@ import { Repository } from 'typeorm';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { decrypt } from '../../utils/crypto';
 import { EvidentSettings } from './evident-settings.entity';
+import { convertToWh } from '../../utils/convert-to-power-units';
 
 enum EvidentRegistrationStatus {
-  draft = 'Draft',
-  submitted = 'Submitted',
-  approved = 'Approved',
+  Draft = 'Draft',
+  InProgress = 'Submitted',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
+
+enum EvidentRegistrationStatusDREC {
+  Draft = 'Draft',
+  InProgress = 'Waiting for Review',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
 }
 
 @Injectable()
 export class EvidentService {
+  private readonly logger = new Logger(EvidentService.name);
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
-  private email = process.env.IREC_EVIDENT_REGISTRANT_EMAIL || null;
   private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
   private uploadedFiles = [];
 
@@ -55,67 +65,63 @@ export class EvidentService {
     });
   }
 
+  private async getEvidentSettings(
+    organizationId: number,
+  ): Promise<EvidentSettings> {
+    const data = await this.evidentSettingRepository.findOne({
+      where: { organizationId },
+    });
+    return data;
+  }
+
   async fetchDevices(organizationId: number): Promise<any> {
     const evidentInstance = await this.getEvidentInstance(organizationId);
     const response = await evidentInstance.get('/devices');
     return response.data;
   }
 
-  async getUserProfile(email: string, organizationId: number): Promise<any> {
+  async getRegistrantInfo(organizationId: number): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      const user = await evidentInstance.get(`/users?q=${email}`);
-      return user.data;
+      const evidentSettings = await this.getEvidentSettings(organizationId);
+      const user = await evidentInstance.get(
+        `/users?q=${evidentSettings.email}`,
+      );
+      const userMember = user.data['hydra:member'][0];
+      return {
+        profile: user,
+        member: userMember,
+      };
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error fetching registrant info:', error);
       throw error;
     }
   }
 
-  // async updateDeviceStatus(device: Device, deviceCode: string): Promise<any> {
-  //   try {
-  //     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-  //     const response = await this.axiosInstance.post('/device_details', {
-  //       deviceType: `/device_types/${device.deviceTypeCode}`,
-  //       fuel: `/fuels/${device.fuelCode}`,
-  //       device: `/devices/${deviceCode}`,
-  //       registrant: `/organisations/${this.registrantId}`,
-  //       issuer: `/organisations/${this.issuerId}`,
-  //       name: device.projectName,
-  //       capacity: device.capacity.toString(),
-  //       supported: true,
-  //       latitude: device.latitude,
-  //       longitude: device.longitude,
-  //       registrationDate: new Date().toISOString().split('T')[0],
-  //       commissioningDate: device.commissioningDate.split('T')[0],
-  //       expiryDate: new Date().toISOString().split('T')[0],
-  //       status: EvidentRegistrationStatus.submitted,
-  //       active: true,
-  //       address1: device.address,
-  //       postcode: device.postcode,
-  //       stateProvince: device.stateProvince,
-  //       country: `/countries/${alpha2CountryCode}`,
-  //       notes: 'DREC_ID: 01JPQDGJC8D5CQSB',
-  //       issuerNotes: 'Notes made by the Issuer',
-  //       files: [],
-  //     });
-  //     if (response) {
-  //       console.log(
-  //         'Device status updated successfully:',
-  //         EvidentRegistrationStatus.submitted,
-  //       );
-  //       return this.deviceService.updateDeviceEvidentInfo(
-  //         device.externalId,
-  //         response.data.code,
-  //         EvidentRegistrationStatus.submitted,
-  //       );
-  //     }
-  //     return deviceCode;
-  //   } catch (error) {
-  //     console.error('Error updating device status:', error);
-  //     throw error;
-  //   }
-  // }
+  async registerDevice(
+    organizationId: number,
+    device: Device,
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<any> {
+    try {
+      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const response = await evidentInstance.post('/devices', {
+        name: device.projectName,
+        fuel: `/fuels/${device.fuelCode}`,
+      });
+      await this.registerDeviceDetails(
+        organizationId,
+        device,
+        response.data.code,
+        files,
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error registering device:', error.message);
+      throw error;
+    }
+  }
+
   async mapDeviceDocuments(
     organizationId: number,
     files: Record<string, Express.Multer.File[]>,
@@ -206,90 +212,92 @@ export class EvidentService {
     }
   }
 
+  private generateDeviceDetailsPayload(
+    device: Device,
+    evidentDeviceId: string,
+    registrantId: string,
+  ): any {
+    const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
+    const convertCapacityToMwh = convertToWh(device.capacity, 'kWh');
+    return {
+      deviceType: `/device_types/${device.deviceTypeCode}`,
+      fuel: `/fuels/${device.fuelCode}`,
+      device: `/devices/${evidentDeviceId}`,
+      registrant: `/organisations/${registrantId}`,
+      issuer: `/organisations/${this.issuerId}`,
+      name: device.projectName,
+      capacity: convertCapacityToMwh.toString(),
+      supported: true,
+      latitude: device.latitude,
+      longitude: device.longitude,
+      registrationDate: new Date(device.createdAt).toISOString().split('T')[0],
+      commissioningDate: device.commissioningDate.split('T')[0],
+      status: EvidentRegistrationStatus.Draft,
+      active: true,
+      address1: device.address,
+      postcode: device.postcode,
+      stateProvince: device.stateProvince,
+      country: `/countries/${alpha2CountryCode}`,
+      notes: JSON.stringify({ drecId: device.externalId }),
+      files: this.uploadedFiles,
+    };
+  }
+
   async registerDeviceDetails(
     organizationId: number,
     device: Device,
-    deviceCode: string,
+    evidentDeviceId: string,
     files: Record<string, Express.Multer.File[]>,
   ): Promise<any> {
     try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
       this.uploadedFiles = [];
-      const user = await this.getUserProfile(this.email, organizationId);
-      const userMember = user['hydra:member'][0];
-      const userUid = userMember.uid;
-      const registrantId = userMember.organisation.uid;
-      await this.mapDeviceDocuments(organizationId, files, userUid);
-      const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-      const deviceResponse = await evidentInstance.post('/device_details', {
-        deviceType: `/device_types/${device.deviceTypeCode}`,
-        fuel: `/fuels/${device.fuelCode}`,
-        device: `/devices/${deviceCode}`,
-        registrant: `/organisations/${registrantId}`,
-        issuer: `/organisations/${this.issuerId}`,
-        name: device.projectName,
-        capacity: device.capacity.toString(),
-        supported: true,
-        latitude: device.latitude,
-        longitude: device.longitude,
-        registrationDate: new Date().toISOString().split('T')[0],
-        commissioningDate: device.commissioningDate.split('T')[0],
-        expiryDate: new Date().toISOString().split('T')[0],
-        status: EvidentRegistrationStatus.draft,
-        active: true,
-        address1: device.address,
-        postcode: device.postcode,
-        stateProvince: device.stateProvince,
-        country: `/countries/${alpha2CountryCode}`,
-        notes: 'Notes made by the Issuer',
-        issuerNotes: 'Notes made by the Issuer',
-        files: this.uploadedFiles,
-      });
+      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const user = await this.getRegistrantInfo(organizationId);
+      await this.mapDeviceDocuments(organizationId, files, user.member.uid);
+
+      const payload = this.generateDeviceDetailsPayload(
+        device,
+        evidentDeviceId,
+        user.member.organisation.uid,
+      );
+
+      const deviceResponse = await evidentInstance.post(
+        '/device_details',
+        payload,
+      );
+
+      if (device.capacity <= 250) {
+        this.logger.log('Within device status update');
+        payload.status = EvidentRegistrationStatus.InProgress;
+        const updateDeviceResponse = await evidentInstance.post(
+          '/device_details',
+          payload,
+        );
+        if (updateDeviceResponse) {
+          this.deviceService.updateDeviceEvidentInfo(
+            device.externalId,
+            evidentDeviceId,
+            EvidentRegistrationStatusDREC.InProgress,
+          );
+        }
+        return evidentDeviceId;
+      }
+
       if (deviceResponse) {
         this.deviceService.updateDeviceEvidentInfo(
           device.externalId,
-          deviceCode,
-          EvidentRegistrationStatus.draft,
+          evidentDeviceId,
+          EvidentRegistrationStatusDREC.Draft,
         );
       }
-      // if (device.capacity > 250) {
-      //   await this.updateDeviceStatus(device, deviceCode);
-      // }
-      return deviceCode;
+      return evidentDeviceId;
     } catch (error) {
       console.error('Error registering device details:', error);
       throw error;
     }
   }
 
-  async registerDevice(
-    organizationId: number,
-    device: Device,
-    files: Record<string, Express.Multer.File[]>,
-  ): Promise<any> {
-    try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
-      if (!evidentInstance) {
-        throw new Error('Evident instance not found for organization');
-      }
-      const response = await evidentInstance.post('/devices', {
-        name: device.projectName,
-        fuel: `/fuels/${device.fuelCode}`,
-      });
-      await this.registerDeviceDetails(
-        organizationId,
-        device,
-        response.data.code,
-        files,
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error registering device:', error.message);
-      throw error;
-    }
-  }
-
-  async registerDeviceQueue(
+  async queueDeviceRegistration(
     organizationId: number,
     device: Device,
     files: {

@@ -722,7 +722,7 @@ export class DeviceService {
     }
     await queryRunner.commitTransaction();
 
-    await this.evidentService.registerDeviceQueue(
+    await this.evidentService.queueDeviceRegistration(
       organizationId,
       result,
       files,
@@ -1804,20 +1804,26 @@ export class DeviceService {
 
   async updateDeviceEvidentInfo(
     deviceExternalId: string,
-    deviceId: string,
+    evidentDeviceId: string,
     evidentStatus: string,
   ): Promise<void> {
     this.logger.verbose(`With in updateDeviceEvidentInfo`);
-    const devices = await this.repository.find({
+    const device = await this.repository.findOne({
       where: {
         externalId: deviceExternalId,
       },
     });
-    for (const device of devices) {
-      device.evidentDeviceId = deviceId;
-      device.evidentStatus = evidentStatus;
-      await this.repository.save(device);
+    if (!device) {
+      this.logger.error(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+      throw new NotFoundException(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
     }
+    device.evidentDeviceId = evidentDeviceId;
+    device.evidentStatus = evidentStatus;
+    await this.repository.save(device);
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
 }
