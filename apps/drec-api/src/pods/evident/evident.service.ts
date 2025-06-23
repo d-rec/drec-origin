@@ -70,7 +70,7 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       const evidentSettings =
-        await this.evidentSettingsService.getEvidentSettings(organizationId);
+        await this.evidentSettingsService.getSettings(organizationId);
       const user = await evidentInstance.get(
         `/users?q=${evidentSettings.email}`,
       );
