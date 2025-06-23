@@ -14,17 +14,18 @@ import { createEvidentAxiosInstance } from '../../lib/evident';
 import { decrypt } from '../../utils/crypto';
 import { EvidentSettings } from './evident-settings.entity';
 import { convertToWh } from '../../utils/convert-to-power-units';
+import { EvidentSettingsService } from './evident-settings.service';
 
 enum EvidentRegistrationStatus {
   Draft = 'Draft',
-  InProgress = 'Submitted',
+  Submitted = 'Submitted',
   Approved = 'Approved',
   Rejected = 'Rejected',
 }
 
 enum EvidentRegistrationStatusDREC {
   Draft = 'Draft',
-  InProgress = 'Waiting for Review',
+  Submitted = 'Waiting for Review',
   Approved = 'Approved',
   Rejected = 'Rejected',
 }
@@ -43,6 +44,7 @@ export class EvidentService {
     private readonly evidentDeviceRegistrationQueue: Queue,
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
+    private readonly evidentSettingsService: EvidentSettingsService,
   ) {}
 
   private async getEvidentInstance(organizationId: number) {
@@ -58,15 +60,6 @@ export class EvidentService {
     });
   }
 
-  private async getEvidentSettings(
-    organizationId: number,
-  ): Promise<EvidentSettings> {
-    const data = await this.evidentSettingRepository.findOne({
-      where: { organizationId },
-    });
-    return data;
-  }
-
   async fetchDevices(organizationId: number): Promise<any> {
     const evidentInstance = await this.getEvidentInstance(organizationId);
     const response = await evidentInstance.get('/devices');
@@ -76,7 +69,8 @@ export class EvidentService {
   async getRegistrantInfo(organizationId: number): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      const evidentSettings = await this.getEvidentSettings(organizationId);
+      const evidentSettings =
+        await this.evidentSettingsService.getEvidentSettings(organizationId);
       const user = await evidentInstance.get(
         `/users?q=${evidentSettings.email}`,
       );
@@ -261,7 +255,7 @@ export class EvidentService {
 
       if (device.capacity <= 250) {
         this.logger.log('Within device status update');
-        payload.status = EvidentRegistrationStatus.InProgress;
+        payload.status = EvidentRegistrationStatus.Submitted;
         const updateDeviceResponse = await evidentInstance.post(
           '/device_details',
           payload,
@@ -270,7 +264,7 @@ export class EvidentService {
           this.deviceService.updateDeviceEvidentInfo(
             device.externalId,
             evidentDeviceId,
-            EvidentRegistrationStatusDREC.InProgress,
+            EvidentRegistrationStatusDREC.Submitted,
           );
         }
         return evidentDeviceId;

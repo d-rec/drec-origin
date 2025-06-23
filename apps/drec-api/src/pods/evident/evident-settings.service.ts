@@ -50,4 +50,11 @@ export class EvidentSettingsService {
       apiKey: maskedApiKey,
     };
   }
+
+  async getEvidentSettings(organizationId: number): Promise<EvidentSettings> {
+    const data = await this.repository.findOne({
+      where: { organizationId },
+    });
+    return data;
+  }
 }
