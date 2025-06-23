@@ -541,7 +541,6 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: { evidentStatus: DeviceStatus.Draft },
     });
-
     for (const device of devices) {
       try {
         const updatedStatus = await this.evidentService.getDeviceStatus(

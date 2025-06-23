@@ -309,16 +309,12 @@ export class EvidentService {
   async getDeviceStatus(organizationId: number, code: string): Promise<string> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      const response = await evidentInstance.get(
-        `/devices/{code}/device_details`,
-      );
-      console.log(response);
-      const members = response.data['hydra:member'];
-      return members[0].status;
+      const response = await evidentInstance.get(`/devices/${code}`);
+      return response.data.latestDeviceDetails.status;
     } catch (error) {
       throw new HttpException(
         `Failed to fetch device status for ID ${code}: ${error.message}`,
-        HttpStatus.BAD_GATEWAY,
+        HttpStatus.NOT_FOUND,
       );
     }
   }
