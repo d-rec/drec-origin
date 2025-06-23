@@ -537,7 +537,7 @@ export class DeviceService {
     );
   }
 
-  async syncDeviceStatusesWithEvident(): Promise<void> {
+  async syncStatusesWithEvident(): Promise<void> {
     const devices = await this.repository.find({
       where: { evidentStatus: DeviceStatus.Draft },
     });

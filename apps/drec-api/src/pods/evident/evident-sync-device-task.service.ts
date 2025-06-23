@@ -14,7 +14,7 @@ export class EvidentSyncDeviceTaskService {
     this.logger.log('Device status synchronization started');
 
     try {
-      await this.deviceService.syncDeviceStatusesWithEvident();
+      await this.deviceService.syncStatusesWithEvident();
     } catch (error) {
       this.logger.error('Device status synchronization failed', error.stack);
     }
