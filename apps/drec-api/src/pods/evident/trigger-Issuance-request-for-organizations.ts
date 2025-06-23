@@ -106,43 +106,35 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         if (!groupedByDevice[externalId]) {
           groupedByDevice[externalId] = {
             certificates: [],
-            minStartDate: DateTime.fromJSDate(
-              new Date(certificate_issuance_startdate),
-            )
-              .toUTC()
-              .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
-            maxEndDate: DateTime.fromJSDate(
-              new Date(certificate_issuance_enddate),
-            )
-              .toUTC()
-              .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+            minStartDate: DateTime
+            .fromJSDate(new Date(certificate_issuance_startdate))
+            .toUTC()
+            .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+            maxEndDate:DateTime.fromJSDate(new Date(certificate_issuance_enddate))
+            .toUTC()
+            .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+            
           };
         }
 
         // Update min start date
         if (
-          new Date(certificate_issuance_startdate)
-            .toISOString()
-            .replace('Z', '+00:00') < groupedByDevice[externalId].minStartDate
+          new Date(certificate_issuance_startdate).toISOString().replace('Z', '+00:00') <
+          groupedByDevice[externalId].minStartDate
         ) {
           groupedByDevice[externalId].minStartDate = new Date(
             certificate_issuance_startdate,
-          )
-            .toISOString()
-            .replace('Z', '+00:00');
+          ).toISOString().replace('Z', '+00:00');
         }
 
         // Update max end date
         if (
-          new Date(certificate_issuance_enddate)
-            .toISOString()
-            .replace('Z', '+00:00') > groupedByDevice[externalId].maxEndDate
+          new Date(certificate_issuance_enddate).toISOString().replace('Z', '+00:00') >
+          groupedByDevice[externalId].maxEndDate
         ) {
           groupedByDevice[externalId].maxEndDate = new Date(
             certificate_issuance_enddate,
-          )
-            .toISOString()
-            .replace('Z', '+00:00');
+          ).toISOString().replace('Z', '+00:00');
         }
 
         groupedByDevice[externalId].certificates.push(cert);
@@ -157,8 +149,8 @@ export class TrrigerIssuanceRequestForOrganizationsService {
       const queryApi = influxDB.getQueryApi(org);
       for (const [externalId, deviceData] of Object.entries(groupedByDevice)) {
         const { minStartDate, maxEndDate } = deviceData;
-        console.log();
-
+        console.log()
+    
         const readsQuery = `
             from(bucket: "${process.env.INFLUXDB_BUCKET}")
               |> range(start: ${new Date(minStartDate).toISOString()}, stop: ${new Date(maxEndDate).toISOString()})
@@ -169,86 +161,78 @@ export class TrrigerIssuanceRequestForOrganizationsService {
               )
               |> drop(columns: ["_start", "_stop"])
         `;
-
+    
         const result = await this.deviceRepository
-          .createQueryBuilder('device')
-          .select('device.evidentDeviceId', 'evidentDeviceId')
-          .where('device.externalId = :externalId', { externalId })
-          .getRawOne();
-
+            .createQueryBuilder('device')
+            .select('device.evidentDeviceId', 'evidentDeviceId')
+            .where('device.externalId = :externalId', { externalId })
+            .getRawOne();
+    
         const evidentDeviceId = result?.evidentDeviceId;
-
+    
         (groupedByDevice[externalId] as any).evidentDeviceId = evidentDeviceId;
-
+    
         try {
-          const records = await queryApi.collectRows(readsQuery);
-          const totalReadValue = records.reduce(
-            (sum: any, r: any) => sum + (r._value || 0),
-            0,
-          );
-          (groupedByDevice[externalId] as any).productionVolume =
-            totalReadValue;
-
-          console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
-
-          // Get recipient account settings for this organization
-          const recipientAccountSettings =
-            await this.evidentSettingsRepository.findOne({
-              where: {
-                organizationId: organizationId,
-              },
+            const records = await queryApi.collectRows(readsQuery);
+            const totalReadValue = records.reduce(
+                (sum: any, r: any) => sum + (r._value || 0),
+                0,
+            );
+            (groupedByDevice[externalId] as any).productionVolume = totalReadValue;
+    
+            console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
+    
+            // Get recipient account settings for this organization
+            const recipientAccountSettings = await this.evidentSettingsRepository.findOne({
+                where: {
+                    organizationId: organizationId,
+                },
             });
-
-          if (!recipientAccountSettings) {
-            console.error(
-              `❌ No recipient account settings found for organization ${organizationId}`,
-            );
-            continue;
-          }
-
-          const recipientAccount =
-            recipientAccountSettings.defaultTradingAccount;
-
-          // Create payload for each device
-          const payload: Issuer = {
-            startDate: DateTime.fromJSDate(new Date(minStartDate))
-              .toUTC()
-              .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
-            endDate: DateTime.fromJSDate(new Date(maxEndDate))
-              .toUTC()
-              .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
-            productionVolume: String(totalReadValue),
-            notes: '',
-            recipientAccount: '/accounts/TKF8Q35B',
-            code: evidentDeviceId,
-            files: [],
-            fuel: '/fuels/ES100',
-            status: 'Draft',
-          };
-          //    console.log("payload",payload)
-          //   this.logger.log('Processing data completed:', {
-          //     groupedByDevice,
-          // });
-          // console.log("payload",payload)
-          // Register issuance for this device
-          if (evidentDeviceId) {
-            await this.evidentService.registerIssuance(
-              organizationId,
-              evidentDeviceId,
-              payload,
-            );
-          }
+            
+            if (!recipientAccountSettings) {
+                console.error(`❌ No recipient account settings found for organization ${organizationId}`);
+                continue;
+            }
+    
+            const recipientAccount = recipientAccountSettings.defaultTradingAccount;
+            
+            // Create payload for each device
+            const payload: Issuer = {
+                startDate: DateTime.fromJSDate(new Date(minStartDate))
+                .toUTC()
+                .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+                endDate: DateTime.fromJSDate(new Date(maxEndDate))
+                .toUTC()
+                .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+                productionVolume: String(totalReadValue),
+                notes: '',
+                recipientAccount:"/accounts/TKF8Q35B",
+                code: evidentDeviceId,
+                files:[],
+                fuel:"/fuels/ES100",
+                status:"Draft"
+            };
+            if (evidentDeviceId) {
+                await this.evidentService.registerIssuance(
+                    organizationId,
+                    evidentDeviceId,
+                    payload
+                );
+            } else {
+                console.error(`❌ No evidentDeviceId found for externalId ${externalId}`);
+            
+            }
         } catch (error) {
-          console.error(`❌ Error processing ${externalId}:`, error);
-          throw error;
+            console.error(`❌ Error processing ${externalId}:`, error);
+            throw error;
         }
-      }
-
-      // this.logger.log('Processing data completed:', {
-      //     unsyncedCertificates,
-      //     unsyncedExternalIds,
-      //     groupedByDevice,
-      // });
+    }
+    
+    // this.logger.log('Processing data completed:', {
+    //     unsyncedCertificates,
+    //     unsyncedExternalIds,
+    //     groupedByDevice,
+    // });
     }
   }
 }
