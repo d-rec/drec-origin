@@ -140,7 +140,9 @@ export class EvidentService {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
       if (!evidentInstance) {
-        throw new Error('Evident instance not found for organization');
+        throw new Error(
+          `Evident instance not found for organization ${organizationId}`,
+        );
       }
       if (!file) {
         throw new Error('No file provided');
