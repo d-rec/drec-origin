@@ -4,8 +4,8 @@ import { NonConcurrentCron } from '../../lib/cron';
 import { DeviceService } from '../device';
 
 @Injectable()
-export class SynchronizeDeviceStatusTaskService {
-  private readonly logger = new Logger(SynchronizeDeviceStatusTaskService.name);
+export class EvidentSyncDeviceTaskService {
+  private readonly logger = new Logger(EvidentSyncDeviceTaskService.name);
 
   constructor(private readonly deviceService: DeviceService) {}
 
