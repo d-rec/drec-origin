@@ -51,7 +51,7 @@ export class EvidentSettingsService {
     };
   }
 
-  async getSettings(organizationId: number): Promise<EvidentSettings> {
+  async find(organizationId: number): Promise<EvidentSettings> {
     const data = await this.repository.findOne({
       where: { organizationId },
     });
