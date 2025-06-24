@@ -1,4 +1,5 @@
 name: Demo - Build, Push to ECR & Deploy to Kubernetes
+# Check if the image can be build and deployed to the demo environment
 
 on:
   push:
