@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { DeviceModule } from '../device/device.module';
+import { DeviceModule } from '../device';
 import { EvidentService } from './evident.service';
 import { BullModule } from '@nestjs/bull';
 import { EvidentDeviceRegistrationProcessor } from './evident-device-registration.processor';
@@ -10,6 +10,7 @@ import { User } from '../user/user.entity';
 import { EvidentSettings } from './evident-settings.entity';
 import { EvidentSettingsController } from './evident-settings.controller';
 import { EvidentSettingsService } from './evident-settings.service';
+import { EvidentDeviceService } from './evident-device.service';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EvidentSettingsService } from './evident-settings.service';
   providers: [
     EvidentService,
     EvidentDeviceRegistrationProcessor,
+    EvidentDeviceService,
     EvidentSettingsService,
   ],
   exports: [EvidentService],
