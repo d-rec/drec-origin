@@ -3,8 +3,8 @@ import { SettingsDTO } from './settings.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EvidentSettings } from './evident-settings.entity';
 import { Repository } from 'typeorm';
-import { mask, isMasked } from '../../utils/mask';
-import { encrypt, decrypt } from '../../utils/crypto';
+import { isMasked, mask } from '../../utils/mask';
+import { decrypt, encrypt } from '../../utils/crypto';
 
 @Injectable()
 export class EvidentSettingsService {
@@ -52,9 +52,8 @@ export class EvidentSettingsService {
   }
 
   async find(organizationId: number): Promise<EvidentSettings> {
-    const data = await this.repository.findOne({
+    return await this.repository.findOne({
       where: { organizationId },
     });
-    return data;
   }
 }

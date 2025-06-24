@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Device } from '../device';
-import { DeviceService } from '../device/device.service';
+import { DeviceService } from '../device';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
@@ -80,7 +80,7 @@ export class EvidentService {
         member: userMember,
       };
     } catch (error) {
-      console.error('Error fetching registrant info:', error);
+      this.logger.error('Error fetching registrant info:', error);
       throw error;
     }
   }
@@ -104,7 +104,7 @@ export class EvidentService {
       );
       return response.data;
     } catch (error) {
-      console.error('Error registering device:', error.message);
+      this.logger.error('Error registering device:', error.message);
       throw error;
     }
   }
@@ -125,7 +125,7 @@ export class EvidentService {
             documentType as DocumentType,
           );
         } catch (error) {
-          console.log(
+          this.logger.error(
             'Failed to upload a document during documents mapping',
             error,
           );
@@ -191,7 +191,7 @@ export class EvidentService {
         fileId: uploadFile.data.id,
       };
     } catch (error) {
-      console.error(
+      this.logger.error(
         'Failed to upload file:',
         error.response?.data || error.message,
       );
@@ -284,7 +284,7 @@ export class EvidentService {
       }
       return evidentDeviceId;
     } catch (error) {
-      console.error('Error registering device details:', error);
+      this.logger.error('Error registering device details:', error);
       throw error;
     }
   }
