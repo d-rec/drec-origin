@@ -47,9 +47,7 @@ export class EvidentSettingsController {
   async triggerIssuanceRequests(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.trrigerIssuanceRequestForOrganizationsService.handleCron(
-      organizationId,
-    );
+    return this.trrigerIssuanceRequestForOrganizationsService.handleCron();
   }
 }
 // select * from check_certificate_issue_date_log_for_device

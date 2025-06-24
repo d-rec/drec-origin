@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createEvidentAxiosInstance } from '../../lib/evident';
@@ -41,8 +41,9 @@ export class EvidentService {
   ): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
+      // const data = await evidentInstance.post('/issues?status=draft,submitted,rejected,referred,verified,approved,in_progress,issued&excludeFiles=1&page=1&itemsPerPage=10&order[latestIssueDetails.timestamp]=desc');
       const response = await evidentInstance.post('/issues', {
-        device: `/devices/CDEVES10003`,
+        device: `/devices/${code}`,
       });
       console.log('registered issueance succefully');
       await this.registerIssuanceDetails(organizationId, response.data, issuer);
@@ -51,7 +52,9 @@ export class EvidentService {
       return response;
     } catch (error) {
       console.error('Error registering issuance:', error.message);
-      throw error;
+      throw new BadRequestException(
+        error.response?.data?.['hydra:description'],
+      );
     }
   }
 
@@ -75,6 +78,7 @@ export class EvidentService {
         startDate: issuer.startDate,
         status: 'Draft',
       });
+      console.log('details in success', details);
       return details;
     } catch (error) {
       console.error('Error registering issuance:', error.message);
