@@ -1052,6 +1052,7 @@ export class DeviceService {
     });
   }
 
+  @Profile()
   public async findAllLateCycle(
     groupId?: number,
   ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {

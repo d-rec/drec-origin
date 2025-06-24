@@ -13,7 +13,7 @@ function Profile(): MethodDecorator {
 
       const end = performance.now();
       const duration = (end - start).toFixed(2);
-      logger.warn(`[${name}] executed in ${duration} ms`);
+      logger.warn(`${name}: Executed in ${duration} ms`);
 
       return result;
     };
