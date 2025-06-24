@@ -14,6 +14,7 @@ import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { Profile } from '../../../lib/profile';
 
 type DeviceReading = {
   timestamp: Date;
@@ -41,6 +42,7 @@ export class IssuerService {
    * @param endDate - End date for the issuance period
    * @param countryCodeKey - Country code for the issuance
    */
+  @Profile()
   public async issueCertificate(
     group: DeviceGroup,
     groupRequest: DeviceGroupNextIssueCertificate,
@@ -170,6 +172,7 @@ export class IssuerService {
     return this.certificateService.issue(issuance);
   }
 
+  @Profile()
   private async processGroupDeviceReads(
     group: DeviceGroup,
     startDate: DateTime,
@@ -287,6 +290,7 @@ export class IssuerService {
    * @param completeReads - Array of arrays containing complete readings for each device
    * @returns Object containing minimumStartDate and maximumEndDate
    */
+  @Profile()
   private calculateDateRanges(
     previousReadings: Array<{ timestamp: Date; value: number }>,
     completeReads: Array<Array<{ timestamp: Date; value: number }>>,
@@ -328,6 +332,7 @@ export class IssuerService {
    * @param deviceReadings - Array of device readings to filter
    * @returns Promise resolving to filtered readings and total value, or null if no valid readings
    */
+  @Profile()
   private async filterOutCertifiedReads(
     device: Device | IDevice,
     startDate: DateTime,
@@ -411,6 +416,7 @@ export class IssuerService {
    * @param deviceReadings - Recent device readings within time range
    * @returns Promise resolving to an array of previous readings
    */
+  @Profile()
   private async getPreviousReading(
     device: IDevice,
     deviceReadings: DeviceReading[],
@@ -473,6 +479,7 @@ export class IssuerService {
   /**
    * Processes device reads to identify valid devices and collect reading data
    */
+  @Profile()
   private async getDeviceReading(
     device: IDevice,
     startDate: DateTime,

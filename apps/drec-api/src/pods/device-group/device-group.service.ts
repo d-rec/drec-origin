@@ -87,6 +87,7 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceGroupService {
@@ -727,6 +728,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
@@ -1093,6 +1095,7 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
+  @Profile()
   async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
@@ -1871,6 +1874,8 @@ export class DeviceGroupService {
       return false;
     }
   }
+
+  @Profile()
   async getGroupCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
@@ -1943,6 +1948,7 @@ export class DeviceGroupService {
     }
   }
 
+  @Profile()
   async endReservation(
     groupId: number,
     group: DeviceGroup,
@@ -2787,6 +2793,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   public async processLeftOverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,

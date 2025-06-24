@@ -74,6 +74,7 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { Profile } from '../../lib/profile';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -142,6 +143,7 @@ export class ReadsService {
     );
   }
 
+  @Profile()
   public async find(
     meterId: string,
     filter: FilterDTO,
@@ -654,6 +656,7 @@ export class ReadsService {
     return reads[0];
   }
 
+  @Profile()
   async findLastReadForMeterWithinRange(
     meterId: string,
     startDate: Date,
@@ -1049,6 +1052,8 @@ export class ReadsService {
     }
     return updatedHistoryIssue;
   }
+
+  @Profile()
   async getAggregateMeterReadsFirstEntryOfDevice(
     meterId: string,
   ): Promise<AggregateMeterRead[]> {
@@ -1060,6 +1065,7 @@ export class ReadsService {
     });
   }
   // add new function for Delta firstread filter
+  @Profile()
   async getDeltaMeterReadsFirstEntryOfDevice(
     meterId: string,
   ): Promise<DeltaFirstRead[]> {
@@ -1349,6 +1355,7 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
+  @Profile()
   async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
     try {
       const query = `

@@ -15,6 +15,7 @@ import { DeviceLateOngoingIssueCertificateEntity } from '../../device/device_lat
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
+import { Profile } from '../../../lib/profile';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -84,6 +85,7 @@ export class LateOngoingIssuanceService {
    * @param groupId - Optional group ID to filter cycles
    * @returns Promise that resolves when processing completes
    */
+  @Profile()
   async processIssuance(groupId?: number): Promise<void> {
     this.logger.debug('Starting late ongoing issuance processing');
 
@@ -123,6 +125,7 @@ export class LateOngoingIssuanceService {
    * @param index - The index of the cycle in the array
    * @returns Promise that resolves when processing is complete
    */
+  @Profile()
   private async processIssuanceForCycle(
     cycle: DeviceLateOngoingIssueCertificateEntity,
   ): Promise<void> {
@@ -237,6 +240,7 @@ export class LateOngoingIssuanceService {
    * @param nextIssuance - Next issuance information
    * @returns Promise resolving when processing is complete
    */
+  @Profile()
   private async issueForInRangeLastRead(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
@@ -300,6 +304,7 @@ export class LateOngoingIssuanceService {
    * @param nextIssuance - Next issuance information
    * @returns Promise that resolves when the process is complete
    */
+  @Profile()
   private async issueForRecentLastRead(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
@@ -347,6 +352,7 @@ export class LateOngoingIssuanceService {
    * @param cycle - The late ongoing certificate cycle entity to be archived after issuance
    * @returns A Promise that resolves when both the certificate issuance and cycle archiving are complete
    */
+  @Profile()
   private async issueCertificate(
     group: DeviceGroup,
     nextIssuance: DeviceGroupNextIssueCertificate,
