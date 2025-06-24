@@ -251,7 +251,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           );
           console.log('csvContent', csvContent, 'csvFilePath', csvFilePath);
           this.logger.log(`📄 Generated CSV file: ${csvFilePath}`);
-          // Get recipient account settings for this organization
           const recipientAccountSettings =
             await this.evidentSettingsRepository.findOne({
               where: {
@@ -277,8 +276,8 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           // .toUTC()
           // .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
           const payload: Issuer = {
-            startDate: '2025-06-21T12:05:23+00:00',
-            endDate: '2025-06-23T12:05:23+00:00',
+            startDate: '2025-06-24T11:05:23+00:00',
+            endDate: '2025-06-24T12:05:23+00:00',
             productionVolume: String(totalReadValue),
             notes: '',
             recipientAccount: `/accounts/${recipientAccount}`,
@@ -302,12 +301,12 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         } catch (error) {
           console.error(`❌ Error processing ${externalId}:`, error);
           throw error;
-        } finally {
-          // Clean up the temporary CSV file
-          if (csvFilePath) {
-            await this.cleanupCsvFile(csvFilePath);
-          }
         }
+        // } finally {
+        //   // Clean up the temporary CSV file
+        //   if (csvFilePath) {
+        //     await this.cleanupCsvFile(csvFilePath);
+        //   }
       }
 
       this.logger.log('Processing data completed:', {
