@@ -1,5 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { DeviceModule } from '../device';
+import { DeviceModule } from '../device/device.module';
 import { EvidentService } from './evident.service';
 import { BullModule } from '@nestjs/bull';
 import { EvidentDeviceRegistrationProcessor } from './evident-device-registration.processor';
@@ -28,6 +28,6 @@ import { EvidentDeviceService } from './evident-device.service';
     EvidentDeviceService,
     EvidentSettingsService,
   ],
-  exports: [EvidentService],
+  exports: [EvidentService, EvidentDeviceService, EvidentSettingsService],
 })
 export class EvidentModule {}

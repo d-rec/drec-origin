@@ -6,7 +6,6 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
 import { mask } from '../../utils/mask';
-import { decrypt } from '../../utils/crypto';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -36,6 +35,7 @@ export class EvidentSettingsController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
     const settings = await this.evidentSettingsService.find(organizationId);
+    if (!settings) return null;
     const maskedApiKey = mask(settings.apiKey);
     return {
       ...settings,

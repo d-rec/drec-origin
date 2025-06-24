@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EvidentSettings } from './evident-settings.entity';
 import { Repository } from 'typeorm';
 import { isMasked } from '../../utils/mask';
-import { decrypt, encrypt } from '../../utils/crypto';
+import { encrypt } from '../../utils/crypto';
 import { getRedisClient } from '../../lib/redis';
 import { RedisKeys } from '../../utils/enums/redis-keys.enum';
 
@@ -53,7 +53,6 @@ export class EvidentSettingsService {
     if (!data) return null;
     return {
       ...data,
-      apiKey: decrypt(data.apiKey),
     };
   }
 
@@ -64,7 +63,9 @@ export class EvidentSettingsService {
       return JSON.parse(cachedData);
     }
 
-    const settings = await this.find(organizationId);
+    const settings = await this.repository.findOne({
+      where: { organizationId },
+    });
     if (!settings) return null;
 
     await this.redis.set(cacheKey, JSON.stringify(settings), 'EX', 600); // Cache for 10 minutes

@@ -1,5 +1,6 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { Device, DeviceService } from '../device';
+import { Device } from '../device';
+import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
@@ -100,6 +101,7 @@ export class EvidentDeviceService {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
+    payload.status = EvidentRegistrationStatus.Submitted;
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateDeviceEvidentInfo(
