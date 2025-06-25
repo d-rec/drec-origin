@@ -37,7 +37,6 @@ import {
 } from './dto';
 import {
   DeviceOrderBy,
-  DeviceStatus,
   IRECDeviceStatus,
   ReadType,
   Role,
@@ -549,7 +548,7 @@ export class DeviceService {
           device.evidentDeviceId,
         );
         if (updatedStatus !== device.evidentStatus) {
-          this.logger.log(
+          this.logger.verbose(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
           );
           device.evidentStatus = updatedStatus;

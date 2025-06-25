@@ -252,14 +252,9 @@ export class EvidentDeviceService {
   }
 
   async getStatus(organizationId: number, code: string): Promise<string> {
-    try {
-      const evidentInstance =
-        await this.evidentService.getApiInstance(organizationId);
-      const response = await evidentInstance.get(`/devices/${code}`);
-      console.log('response', response);
-      return response.data.latestDeviceDetails.status;
-    } catch (error) {
-      throw error;
-    }
+    const evidentInstance =
+      await this.evidentService.getApiInstance(organizationId);
+    const response = await evidentInstance.get(`/devices/${code}`);
+    return response.data.latestDeviceDetails.status;
   }
 }

@@ -11,13 +11,13 @@ export class EvidentSyncDeviceTaskService {
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   public async synchronizeDeviceStatuses(): Promise<void> {
-    this.logger.log('Device status synchronization started');
+    this.logger.verbose('Device status synchronization started');
 
     try {
       await this.deviceService.syncStatusesWithEvident();
     } catch (error) {
       this.logger.error('Device status synchronization failed', error.stack);
     }
-    this.logger.log('Device status synchronization ended');
+    this.logger.verbose('Device status synchronization ended');
   }
 }
