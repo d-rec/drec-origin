@@ -3,15 +3,21 @@ import { SettingsDTO } from './settings.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EvidentSettings } from './evident-settings.entity';
 import { Repository } from 'typeorm';
-import { mask, isMasked } from '../../utils/mask';
-import { encrypt, decrypt } from '../../utils/crypto';
+import { isMasked } from '../../utils/mask';
+import { decrypt, encrypt } from '../../utils/crypto';
+import { getRedisClient } from '../../lib/redis';
+import { RedisKeys } from '../../utils/enums/redis-keys.enum';
 
 @Injectable()
 export class EvidentSettingsService {
+  private redis = null;
+
   constructor(
     @InjectRepository(EvidentSettings)
     private readonly repository: Repository<EvidentSettings>,
-  ) {}
+  ) {
+    this.redis = getRedisClient();
+  }
 
   async save(
     organizationId: number,
@@ -38,16 +44,36 @@ export class EvidentSettingsService {
       apiKey,
       organizationId,
     });
+    await this.redis.del(this.getRedisKey(organizationId));
     return await this.repository.save(updated);
   }
 
-  async findByOrganizationId(organizationId: number): Promise<SettingsDTO> {
-    const data = await this.repository.findOne({ where: { organizationId } });
+  async find(organizationId: number): Promise<SettingsDTO> {
+    const data = await this.findCached(organizationId);
     if (!data) return null;
-    const maskedApiKey = mask(decrypt(data.apiKey));
     return {
       ...data,
-      apiKey: maskedApiKey,
+      apiKey: decrypt(data.apiKey),
     };
+  }
+
+  private async findCached(organizationId: number): Promise<SettingsDTO> {
+    const cacheKey = this.getRedisKey(organizationId);
+    const cachedData = await this.redis.get(cacheKey);
+    if (cachedData) {
+      return JSON.parse(cachedData);
+    }
+
+    const settings = await this.repository.findOne({
+      where: { organizationId },
+    });
+    if (!settings) return null;
+
+    await this.redis.set(cacheKey, JSON.stringify(settings), 'EX', 600); // Cache for 10 minutes
+    return settings;
+  }
+
+  private getRedisKey(organizationId: number): string {
+    return `${RedisKeys.EvidentSettings}:${organizationId}`;
   }
 }

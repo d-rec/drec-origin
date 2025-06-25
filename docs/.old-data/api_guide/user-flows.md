@@ -601,7 +601,6 @@ flowchart TD
 ```
 
 - Buyer should be able to filter the devices on the below listed parameters while making a reservation:
-
   1. Country Code
 
   2. Fuel Type (Fuel Code)
@@ -908,7 +907,6 @@ API Input
 Validation:
 
 - **Validations on Requirements collected during February Meetings:**
-
   - Old devices registered before shall also be able to send the meter reads data
 
   - New devices registered shall also be able to send the meter reads data.
@@ -936,7 +934,6 @@ Invite user: here, there should be following text fields to enter by the user:
 - Email address
 
 - Role (should be drop down) to choose roles from
-
   - Device owner
 
   - User
@@ -1004,7 +1001,6 @@ Invite user: here, there should be following text fields to enter by the user:
 - Email address
 
 - Role (should be drop down) to choose roles from
-
   - sub buyer
 
   - User

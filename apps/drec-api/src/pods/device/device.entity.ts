@@ -190,4 +190,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true, name: 'fingerprint' })
   fingerprint: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'evident_device_id' })
+  evidentDeviceId: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'evident_status' })
+  evidentStatus: string | null;
 }

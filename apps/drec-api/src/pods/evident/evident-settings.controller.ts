@@ -5,6 +5,7 @@ import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
+import { mask } from '../../utils/mask';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -33,6 +34,12 @@ export class EvidentSettingsController {
   async getSettings(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.evidentSettingsService.findByOrganizationId(organizationId);
+    const settings = await this.evidentSettingsService.find(organizationId);
+    if (!settings) return null;
+    const maskedApiKey = mask(settings.apiKey);
+    return {
+      ...settings,
+      apiKey: maskedApiKey,
+    };
   }
 }
