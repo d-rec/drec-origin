@@ -250,4 +250,16 @@ export class EvidentDeviceService {
   private getNotes(device: Device): string {
     return JSON.stringify({ 'D-REC ID': device.externalId });
   }
+
+  async getStatus(organizationId: number, code: string): Promise<string> {
+    try {
+      const evidentInstance =
+        await this.evidentService.getApiInstance(organizationId);
+      const response = await evidentInstance.get(`/devices/${code}`);
+      console.log('response', response);
+      return response.data.latestDeviceDetails.status;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

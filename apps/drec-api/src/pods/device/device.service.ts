@@ -81,8 +81,8 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
-import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -105,7 +105,6 @@ export class DeviceService {
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
-    private readonly evidentService: EvidentService,
     private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
@@ -541,11 +540,11 @@ export class DeviceService {
 
   async syncStatusesWithEvident(): Promise<void> {
     const devices = await this.repository.find({
-      where: { evidentStatus: DeviceStatus.Draft },
+      where: { evidentStatus: EvidentRegistrationStatus.Draft },
     });
     for (const device of devices) {
       try {
-        const updatedStatus = await this.evidentService.getDeviceStatus(
+        const updatedStatus = await this.evidentDeviceService.getStatus(
           device.organizationId,
           device.evidentDeviceId,
         );

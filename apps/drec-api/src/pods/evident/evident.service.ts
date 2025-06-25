@@ -1,6 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
-import { Queues } from '../../utils/enums/queues.enum';
+import { Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
@@ -11,7 +9,6 @@ export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
 
   constructor(
-    @InjectQueue(Queues.EvidentDeviceRegistration)
     private readonly evidentSettingsService: EvidentSettingsService,
   ) {}
 
@@ -44,19 +41,6 @@ export class EvidentService {
     } catch (error) {
       this.logger.error('Error fetching registrant info:', error);
       throw error;
-    }
-  }
-
-  async getDeviceStatus(organizationId: number, code: string): Promise<string> {
-    try {
-      const evidentInstance = await this.getApiInstance(organizationId);
-      const response = await evidentInstance.get(`/devices/${code}`);
-      return response.data.latestDeviceDetails.status;
-    } catch (error) {
-      throw new HttpException(
-        `Failed to fetch device status for ID ${code}: ${error.message}`,
-        HttpStatus.NOT_FOUND,
-      );
     }
   }
 }

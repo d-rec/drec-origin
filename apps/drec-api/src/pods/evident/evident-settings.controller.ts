@@ -7,6 +7,7 @@ import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
 import { mask } from '../../utils/mask';
 import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service';
+import { DeviceService } from '../device/device.service';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -16,7 +17,7 @@ export class EvidentSettingsController {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
-    private readonly synchronizeDeviceStatuses: EvidentSyncDeviceTaskService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
@@ -49,6 +50,6 @@ export class EvidentSettingsController {
   @Get('issuer-id')
   @ApiOperation({ summary: 'Get Evident issuer ID' })
   async getIssuerId(): Promise<any> {
-    return await this.synchronizeDeviceStatuses.synchronizeDeviceStatuses();
+    return await this.deviceService.syncStatusesWithEvident();
   }
 }

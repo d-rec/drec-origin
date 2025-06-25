@@ -30,6 +30,11 @@ import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service
     EvidentDeviceService,
     EvidentSyncDeviceTaskService,
   ],
-  exports: [EvidentService, EvidentDeviceService, EvidentSettingsService],
+  exports: [
+    EvidentService,
+    EvidentDeviceService,
+    EvidentSettingsService,
+    EvidentSyncDeviceTaskService,
+  ],
 })
 export class EvidentModule {}
