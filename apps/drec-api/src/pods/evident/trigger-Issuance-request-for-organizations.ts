@@ -32,12 +32,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
 
   // @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 
-  private generateCsvContent(
-    records: any[],
-    externalId: string,
-    startDate: string,
-    endDate: string,
-  ): string {
+  private generateCsvContent(records: any[]): string {
     const headers = ['timestamp', 'meter_id', 'read_value'];
 
     const csvRows = [headers.join(',')];
@@ -131,10 +126,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         `Found ${unsyncedCertificates.length} unsynced certificates`,
       );
 
-      // const unsyncedExternalIds = unsyncedCertificates.map(
-      //   (cert) => cert.externalId,
-      // );
-
       // Step 5: Group certificates by device and compute date ranges
       const groupedByDevice: Record<
         string,
@@ -191,18 +182,23 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         groupedByDevice[externalId].certificates.push(cert);
       }
 
-      //     // Step 6: Fetch meter reads from InfluxDB and sum power for the certificate time range
+      // Step 6: Fetch meter reads from InfluxDB and sum power for the certificate time range
       const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
       const token = process.env.INFLUXDB_TOKEN || 'your-token';
       const org = process.env.INFLUXDB_ORG || 'your-org';
 
       const influxDB = new InfluxDB({ url, token });
       const queryApi = influxDB.getQueryApi(org);
+
+      // Array to store successfully processed certificate IDs
+      const successfullyProcessedCertificateIds: number[] = [];
+
       for (const [externalId, deviceData] of Object.entries(groupedByDevice)) {
-        const { minStartDate, maxEndDate } = deviceData;
+        const { minStartDate, maxEndDate, certificates } = deviceData;
         let csvFilePath: string | null = null;
 
-        const readsQuery = `
+        try {
+          const readsQuery = `
             from(bucket: "${process.env.INFLUXDB_BUCKET}")
               |> range(start: ${new Date(minStartDate).toISOString()}, stop: ${new Date(maxEndDate).toISOString()})
               |> filter(fn: (r) => 
@@ -211,19 +207,19 @@ export class TrrigerIssuanceRequestForOrganizationsService {
                   r._field == "read"
               )
               |> drop(columns: ["_start", "_stop"])
-        `;
+          `;
 
-        const result = await this.deviceRepository
-          .createQueryBuilder('device')
-          .select('device.evidentDeviceId', 'evidentDeviceId')
-          .where('device.externalId = :externalId', { externalId })
-          .getRawOne();
+          const result = await this.deviceRepository
+            .createQueryBuilder('device')
+            .select('device.evidentDeviceId', 'evidentDeviceId')
+            .where('device.externalId = :externalId', { externalId })
+            .getRawOne();
 
-        const evidentDeviceId = result?.evidentDeviceId;
-        (groupedByDevice[externalId] as any).evidentDeviceId = evidentDeviceId;
-        console.log('evidentDeviceId', evidentDeviceId);
+          const evidentDeviceId = result?.evidentDeviceId;
+          (groupedByDevice[externalId] as any).evidentDeviceId =
+            evidentDeviceId;
+          console.log('evidentDeviceId', evidentDeviceId);
 
-        try {
           const records = await queryApi.collectRows(readsQuery);
           const totalReadValue = records.reduce(
             (sum: any, r: any) => sum + (r._value || 0),
@@ -235,12 +231,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
 
           // Generate CSV content from meter reads
-          const csvContent = this.generateCsvContent(
-            records,
-            externalId,
-            minStartDate,
-            maxEndDate,
-          );
+          const csvContent = this.generateCsvContent(records);
 
           // Save CSV to temporary file
           csvFilePath = await this.saveCsvToFile(
@@ -251,6 +242,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           );
           console.log('csvContent', csvContent, 'csvFilePath', csvFilePath);
           this.logger.log(`📄 Generated CSV file: ${csvFilePath}`);
+
           const recipientAccountSettings =
             await this.evidentSettingsRepository.findOne({
               where: {
@@ -268,13 +260,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           const recipientAccount =
             recipientAccountSettings.defaultTradingAccount;
 
-          // Create payload for each device
-          // startDate: DateTime.fromJSDate(new Date(minStartDate))
-          // .toUTC()
-          // .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
-          // endDate: DateTime.fromJSDate(new Date(maxEndDate))
-          // .toUTC()
-          // .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
           const payload: Issuer = {
             startDate: '2025-06-24T11:05:23+00:00',
             endDate: '2025-06-24T12:05:23+00:00',
@@ -288,10 +273,19 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           };
           console.log('payload', payload);
           if (evidentDeviceId) {
+            // Register the issuance with Evident
             await this.evidentService.registerIssuance(
               organizationId,
               evidentDeviceId,
               payload,
+            );
+
+            certificates.forEach((cert) => {
+              successfullyProcessedCertificateIds.push(cert.id);
+            });
+
+            this.logger.log(
+              `✅ Successfully registered issuance for device ${externalId}`,
             );
           } else {
             console.error(
@@ -301,13 +295,21 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         } catch (error) {
           console.error(`❌ Error processing ${externalId}:`, error);
           throw error;
+        } finally {
+          // Clean up the temporary CSV file
+          if (csvFilePath) {
+            await this.cleanupCsvFile(csvFilePath);
+          }
         }
-        // } finally {
-        //   // Clean up the temporary CSV file
-        //   if (csvFilePath) {
-        //     await this.cleanupCsvFile(csvFilePath);
-        //   }
       }
+
+      await this.certificateRepository.update(
+        { id: In(successfullyProcessedCertificateIds) },
+        { evidentSynced: true },
+      );
+      this.logger.log(
+        `Updated ${successfullyProcessedCertificateIds.length} certificates as synced`,
+      );
 
       this.logger.log('Processing data completed:', {
         unsyncedCertificates,

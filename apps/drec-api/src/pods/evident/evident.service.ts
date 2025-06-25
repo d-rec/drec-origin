@@ -78,9 +78,9 @@ export class EvidentService {
   ): Promise<any> {
     try {
       const evidentInstance = await this.getEvidentInstance(organizationId);
-      // const data = await evidentInstance.post('/issues?status=draft,submitted,rejected,referred,verified,approved,in_progress,issued&excludeFiles=1&page=1&itemsPerPage=10&order[latestIssueDetails.timestamp]=desc');
+
       const response = await evidentInstance.post('/issues', {
-        device: `/devices/${code}`,
+        device: `/devices/CDEVES10004`,
       });
       console.log('registered issueance succefully');
       await this.registerIssuanceDetails(organizationId, response.data, issuer);
