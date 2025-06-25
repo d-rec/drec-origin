@@ -82,6 +82,7 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentService } from '../evident/evident.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
 
 @Injectable()
 export class DeviceService {
@@ -105,6 +106,7 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentService: EvidentService,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   public async find(
@@ -722,11 +724,7 @@ export class DeviceService {
     }
     await queryRunner.commitTransaction();
 
-    await this.evidentService.queueDeviceRegistration(
-      organizationId,
-      result,
-      files,
-    );
+    await this.evidentDeviceService.queueDeviceRegistration(result, files);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
@@ -1802,7 +1800,7 @@ export class DeviceService {
     );
   }
 
-  async updateDeviceEvidentInfo(
+  async updateEvidentInfo(
     deviceExternalId: string,
     evidentDeviceId: string,
     evidentStatus: string,
