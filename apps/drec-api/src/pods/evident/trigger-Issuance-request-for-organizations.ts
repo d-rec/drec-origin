@@ -296,11 +296,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
       this.logger.log(
         `Updated ${successfullyProcessedCertificateIds.length} certificates as synced`,
       );
-
-      this.logger.log('Processing data completed:', {
-        unsyncedCertificates,
-        groupedByDevice,
-      });
     }
   }
 }
