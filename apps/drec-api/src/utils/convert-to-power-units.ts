@@ -20,9 +20,17 @@ export const convertToWh = (measurement: number, unit: string): number => {
   return measurement * multiplier;
 };
 
-export const convertToPowerUnit = ({ value, unit, targetUnit }: { value: number, unit: Unit, targetUnit: Unit }): number => {
+export const convertToPowerUnit = ({
+  value,
+  unit,
+  targetUnit,
+}: {
+  value: number;
+  unit: Unit;
+  targetUnit: Unit;
+}): number => {
   const valueInWh = convertToWh(value, unit);
   const targetMultiplier = getWhMultiplier(targetUnit);
 
   return valueInWh / targetMultiplier;
-}
+};
