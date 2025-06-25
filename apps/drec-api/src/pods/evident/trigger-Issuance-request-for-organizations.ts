@@ -75,44 +75,32 @@ export class TrrigerIssuanceRequestForOrganizationsService {
    * Clean up temporary CSV file
    */
   private async cleanupCsvFile(filePath: string): Promise<void> {
-    try {
-      const unlink = promisify(fs.unlink);
-      await unlink(filePath);
-      this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
-    } catch (error) {
-      this.logger.warn(`⚠️ Failed to cleanup file ${filePath}:`, error);
-    }
+    const unlink = promisify(fs.unlink);
+    await unlink(filePath);
+    this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
   }
 
   async handleCron() {
     this.logger.log('🔁 Starting daily certificate issuance check...');
 
-    // Step 1: Fetch organizations that have evident settings
+    // Fetch organizations that have evident settings
     const rawOrganizationIds = await this.evidentSettingsRepository
       .createQueryBuilder('es')
       .select('es.organization_id', 'organizationId')
       .getRawMany();
 
     const organizationIds = rawOrganizationIds.map((org) => org.organizationId);
-    this.logger.log(
-      `Found ${organizationIds.length} orgs with evident settings`,
-    );
 
-    // Process each organization
     for (const organizationId of organizationIds) {
-      // Get all devices for this organization
       const devices = await this.deviceRepository.find({
         where: { organizationId: organizationId },
       });
 
-      if (!devices?.length) continue;
+      if (!devices?.length) return;
 
       const externalIds = devices.map((device) => device.externalId);
-      this.logger.log(
-        `Found ${externalIds.length} devices for organization ${organizationId}`,
-      );
 
-      // step2: Get unsynced certificates for all devices at once
+      //  Get unsynced certificates for all devices external id at once
       const unsyncedCertificates = await this.certificateRepository.find({
         where: {
           externalId: In(externalIds),
@@ -120,13 +108,13 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         },
       });
 
-      if (!unsyncedCertificates || unsyncedCertificates.length === 0) continue;
+      if (!unsyncedCertificates || unsyncedCertificates.length === 0) return;
 
       this.logger.log(
         `Found ${unsyncedCertificates.length} unsynced certificates`,
       );
 
-      // Step 5: Group certificates by device and compute date ranges
+      // Group certificates by device and compute date ranges
       const groupedByDevice: Record<
         string,
         {
@@ -160,29 +148,35 @@ export class TrrigerIssuanceRequestForOrganizationsService {
         }
 
         // Update min start date
-        // if (
-        //   new Date(certificate_issuance_startdate).toISOString().replace('Z', '+00:00') <
-        //   groupedByDevice[externalId].minStartDate
-        // ) {
-        //   groupedByDevice[externalId].minStartDate = new Date(
-        //     certificate_issuance_startdate,
-        //   ).toISOString().replace('Z', '+00:00');
-        // }
+        if (
+          new Date(certificate_issuance_startdate)
+            .toISOString()
+            .replace('Z', '+00:00') < groupedByDevice[externalId].minStartDate
+        ) {
+          groupedByDevice[externalId].minStartDate = new Date(
+            certificate_issuance_startdate,
+          )
+            .toISOString()
+            .replace('Z', '+00:00');
+        }
 
-        // // Update max end date
-        // if (
-        //   new Date(certificate_issuance_enddate).toISOString().replace('Z', '+00:00') >
-        //   groupedByDevice[externalId].maxEndDate
-        // ) {
-        //   groupedByDevice[externalId].maxEndDate = new Date(
-        //     certificate_issuance_enddate,
-        //   ).toISOString().replace('Z', '+00:00');
-        // }
+        // Update max end date
+        if (
+          new Date(certificate_issuance_enddate)
+            .toISOString()
+            .replace('Z', '+00:00') > groupedByDevice[externalId].maxEndDate
+        ) {
+          groupedByDevice[externalId].maxEndDate = new Date(
+            certificate_issuance_enddate,
+          )
+            .toISOString()
+            .replace('Z', '+00:00');
+        }
 
         groupedByDevice[externalId].certificates.push(cert);
       }
 
-      // Step 6: Fetch meter reads from InfluxDB and sum power for the certificate time range
+      // Fetch meter reads from InfluxDB and sum power for the certificate time range
       const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
       const token = process.env.INFLUXDB_TOKEN || 'your-token';
       const org = process.env.INFLUXDB_ORG || 'your-org';
@@ -190,13 +184,11 @@ export class TrrigerIssuanceRequestForOrganizationsService {
       const influxDB = new InfluxDB({ url, token });
       const queryApi = influxDB.getQueryApi(org);
 
-      // Array to store successfully processed certificate IDs
       const successfullyProcessedCertificateIds: number[] = [];
 
       for (const [externalId, deviceData] of Object.entries(groupedByDevice)) {
         const { minStartDate, maxEndDate, certificates } = deviceData;
         let csvFilePath: string | null = null;
-
         try {
           const readsQuery = `
             from(bucket: "${process.env.INFLUXDB_BUCKET}")
@@ -218,7 +210,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           const evidentDeviceId = result?.evidentDeviceId;
           (groupedByDevice[externalId] as any).evidentDeviceId =
             evidentDeviceId;
-          console.log('evidentDeviceId', evidentDeviceId);
 
           const records = await queryApi.collectRows(readsQuery);
           const totalReadValue = records.reduce(
@@ -273,7 +264,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           };
           console.log('payload', payload);
           if (evidentDeviceId) {
-            // Register the issuance with Evident
             await this.evidentService.registerIssuance(
               organizationId,
               evidentDeviceId,
@@ -286,10 +276,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
 
             this.logger.log(
               `✅ Successfully registered issuance for device ${externalId}`,
-            );
-          } else {
-            console.error(
-              `❌ No evidentDeviceId found for externalId ${externalId}`,
             );
           }
         } catch (error) {

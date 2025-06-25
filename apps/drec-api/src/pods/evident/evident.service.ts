@@ -80,7 +80,7 @@ export class EvidentService {
       const evidentInstance = await this.getEvidentInstance(organizationId);
 
       const response = await evidentInstance.post('/issues', {
-        device: `/devices/CDEVES10004`,
+        device: `/devices/${code}`,
       });
       console.log('registered issueance succefully');
       await this.registerIssuanceDetails(organizationId, response.data, issuer);
