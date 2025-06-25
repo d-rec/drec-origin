@@ -1775,7 +1775,7 @@ export class DeviceService {
     );
   }
 
-  async updateDeviceEvidentInfo(
+  async updateEvidentInfo(
     deviceExternalId: string,
     evidentDeviceId: string,
     evidentStatus: string,

@@ -80,7 +80,7 @@ export class EvidentDeviceService {
 
     await evidentApiInstance.post('/device_details', payload);
 
-    await this.deviceService.updateDeviceEvidentInfo(
+    await this.deviceService.updateEvidentInfo(
       device.externalId,
       device.evidentDeviceId,
       EvidentRegistrationStatus.Draft,
@@ -104,7 +104,7 @@ export class EvidentDeviceService {
     payload.status = EvidentRegistrationStatus.Submitted;
     await evidentApiInstance.post('/device_details', payload);
 
-    await this.deviceService.updateDeviceEvidentInfo(
+    await this.deviceService.updateEvidentInfo(
       device.externalId,
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
