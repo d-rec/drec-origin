@@ -7,13 +7,14 @@ import { Queue } from 'bull';
 import { getCountryCodeAlpha2 } from '../../utils/get-country-code-alpha-2';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import FormData from 'form-data';
-import { convertToWh } from '../../utils/convert-to-power-units';
+import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import {
   EvidentDeviceDetailsPayload,
   EvidentRegistrationStatus,
 } from '../../types/evident';
 import getFileData from '../../lib/helpers/getFileData';
 import { EvidentService } from './evident.service';
+import { Unit } from '@energyweb/energy-api-influxdb';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -217,7 +218,11 @@ export class EvidentDeviceService {
     files: string[],
   ): any {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
-    const convertCapacityToMwh = convertToWh(device.capacity, 'kWh');
+    const convertCapacityToMwh = convertToPowerUnit({
+      value: device.capacity,
+      unit: Unit.kWh,
+      targetUnit: Unit.MWh,
+    });
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,
       fuel: `/fuels/${device.fuelCode}`,
