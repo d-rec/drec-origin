@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
-import { Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
