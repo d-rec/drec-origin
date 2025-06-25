@@ -13,6 +13,12 @@ import { DateTime } from 'luxon';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
+import { ReadsService } from '../reads/reads.service';
+import {
+  AccumulationType,
+  FilterNoOffLimit,
+  ReadType,
+} from '../reads/dto/filter-no-off-limit.dto';
 
 @Injectable()
 export class TrrigerIssuanceRequestForOrganizationsService {
@@ -28,18 +34,22 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly certificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     private readonly evidentService: EvidentService,
+    private readsService: ReadsService,
   ) {}
 
   // @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 
-  private generateCsvContent(records: any[]): string {
-    const headers = ['timestamp', 'meter_id', 'read_value'];
-
+  private generateCsvContent(csvData: any): string {
+    const headers = ['startdate', 'enddate', 'read_value'];
     const csvRows = [headers.join(',')];
 
-    records.forEach((record) => {
-      // console.log("record",record)
-      const row = [record._time || '', record._value, record.meter || 0];
+    const allReads = [
+      ...(csvData.historyread || []),
+      ...(csvData.ongoing || []),
+    ];
+
+    allReads.forEach((record) => {
+      const row = [record.startdate, record.enddate, record.value];
       csvRows.push(row.join(','));
     });
 
@@ -222,7 +232,26 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
 
           // Generate CSV content from meter reads
-          const csvContent = this.generateCsvContent(records);
+
+          const filter: FilterNoOffLimit = {
+            readType: ReadType.meterReads,
+            start: new Date(minStartDate),
+            end: new Date(maxEndDate),
+            accumulationType: AccumulationType.monthly,
+            limit: 100,
+            offset: 0,
+            organizationId: organizationId,
+          };
+          const pageNumber: number = 1;
+
+          const csvData = await this.readsService.getAllRead(
+            externalId,
+            filter,
+            result.createdAt,
+            pageNumber,
+          );
+
+          const csvContent = this.generateCsvContent(csvData);
 
           // Save CSV to temporary file
           csvFilePath = await this.saveCsvToFile(

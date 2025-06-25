@@ -8,6 +8,7 @@ import { EvidentService } from './evident.service';
 import { TrrigerIssuanceRequestForOrganizationsService } from './trigger-Issuance-request-for-organizations';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { Device } from '../device';
+import { ReadsModule } from '../reads/reads.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Device } from '../device';
       Device,
       CheckCertificateIssueDateLogForDeviceEntity,
     ]),
+    ReadsModule,
   ],
   controllers: [EvidentSettingsController],
   providers: [
