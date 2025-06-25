@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EvidentSettings } from './evident-settings.entity';
 import { Repository } from 'typeorm';
 import { isMasked } from '../../utils/mask';
-import { encrypt } from '../../utils/crypto';
+import { decrypt, encrypt } from '../../utils/crypto';
 import { getRedisClient } from '../../lib/redis';
 import { RedisKeys } from '../../utils/enums/redis-keys.enum';
 
@@ -53,6 +53,7 @@ export class EvidentSettingsService {
     if (!data) return null;
     return {
       ...data,
+      apiKey: decrypt(data.apiKey),
     };
   }
 

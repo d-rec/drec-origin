@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
-import { decrypt } from '../../utils/crypto';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
 
@@ -19,10 +18,9 @@ export class EvidentService {
       throw new Error(
         `Evident instance not found for organization ${organizationId}`,
       );
-    const apiKey = decrypt(data.apiKey);
     return createEvidentAxiosInstance({
       baseURL: this.apiUrl,
-      apiKey,
+      apiKey: data.apiKey,
       organizationId: organizationId.toString(),
     });
   }
