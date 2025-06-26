@@ -14,6 +14,9 @@ import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
+import { BenchmarkService } from './benchmark.service';
+import { BenchmarkController } from './benchmark.controller';
+
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
@@ -31,8 +34,8 @@ import { HttpModule } from '@nestjs/axios';
     UserModule,
     OrganizationModule,
   ],
-  providers: [DeviceService],
+  providers: [DeviceService, BenchmarkService],
   exports: [DeviceService],
-  controllers: [DeviceController],
+  controllers: [DeviceController, BenchmarkController],
 })
 export class DeviceModule {}
