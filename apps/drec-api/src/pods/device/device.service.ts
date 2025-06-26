@@ -551,7 +551,7 @@ export class DeviceService {
           this.logger.verbose(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
           );
-          device.evidentStatus = updatedStatus;
+          device.evidentStatus = updatedStatus === "In Progress" ? EvidentRegistrationStatus.Submitted : updatedStatus;
           await this.repository.save(device);
         }
       } catch (error) {
