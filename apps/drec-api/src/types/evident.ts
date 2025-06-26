@@ -5,6 +5,13 @@ export enum EvidentRegistrationStatus {
   Rejected = 'Rejected',
 }
 
+export enum EvidentIssuanceStatus {
+  Draft = 'Draft',
+  Submitted = 'Submitted',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
+
 export type EvidentDeviceDetailsPayload = {
   deviceType: string;
   fuel: string;
@@ -26,4 +33,17 @@ export type EvidentDeviceDetailsPayload = {
   country: string;
   notes: string;
   files: string[];
+};
+
+
+export type EvidentIssuanceRequest = {
+  code: string;
+  startDate: any;
+  endDate: any;
+  productionVolume: any;
+  notes?: string;
+  recipientAccount: string;
+  files: any[];
+  fuel: string;
+  status: string;
 };

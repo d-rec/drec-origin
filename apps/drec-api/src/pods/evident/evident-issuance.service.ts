@@ -1,20 +1,19 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import FormData from 'form-data';
-import * as fs from 'fs';
-import { promisify } from 'util';
 import { EvidentService } from './evident.service';
-import { Issuer } from './evident-issuer';
+import { EvidentIssuanceRequest, EvidentIssuanceStatus } from '../../types/evident';
+
 @Injectable()
 export class EvidentIssuanceService {
   private readonly logger = new Logger(EvidentIssuanceService.name);
   private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
 
-  constructor(private readonly evidentService: EvidentService) {}
+  constructor(private readonly evidentService: EvidentService) {
+  }
 
-  async registerIssuance(
+  async create(
     organizationId: number,
     code: string,
-    issuer: Issuer,
+    issuance: EvidentIssuanceRequest,
   ): Promise<any> {
     try {
       const evidentInstance =
@@ -26,13 +25,13 @@ export class EvidentIssuanceService {
       console.log('registered issueance succefully');
       const profile =
         await this.evidentService.getRegistrantInfo(organizationId);
-        console.log("response",response.data)
+      console.log('response', response.data);
       const registrantId = profile.member.uid;
-      await this.registerIssuanceDetails(
-        organizationId ,
+      await this.saveDetails(
+        organizationId,
         response.data,
         registrantId,
-        issuer,
+        issuance,
       );
 
       console.log('reached');
@@ -45,44 +44,37 @@ export class EvidentIssuanceService {
     }
   }
 
-  async registerIssuanceDetails(
+  async saveDetails(
     organizationId: number,
-    data: any,
+    data: any, // TODO: define the type
     registrantId: string,
-    issuer: Issuer,
+    issuance: EvidentIssuanceRequest,
   ): Promise<any> {
     const evidentInstance =
       await this.evidentService.getApiInstance(organizationId);
     try {
-      const uploadedFileReferences: string[] = [];
 
-      if (issuer.files) {
-        const filesToUpload = Array.isArray(issuer.files)
-          ? issuer.files
-          : [issuer.files];
+      let uploadedFiles = [];
 
-        for (const filePath of filesToUpload) {
-          const fileReference = await this.evidentService.uploadFile(
-            { organizationId },
-            registrantId,
-            filePath,
-            issuer.notes,
-          );
-          uploadedFileReferences.push(fileReference);
-        }
+      if (issuance.files) {
+        uploadedFiles = await this.uploadFiles(
+          issuance.files,
+          organizationId,
+          registrantId,
+          issuance.notes,
+        );
       }
       //   01JWE2T7514TEC15D68JSJSPC1
       const details = await evidentInstance.post('/issue_details', {
-        files: [uploadedFileReferences],
-        endDate: issuer.endDate,
-        fuel: issuer.fuel,
+        files: [uploadedFiles],
+        endDate: issuance.endDate,
+        fuel: issuance.fuel,
         issue: data['@id'],
-        issuerNotes: '',
-        notes: issuer.notes,
-        productionVolume: issuer.productionVolume,
-        recipientAccount: issuer.recipientAccount,
-        startDate: issuer.startDate,
-        status: 'Draft',
+        notes: issuance.notes,
+        productionVolume: issuance.productionVolume,
+        recipientAccount: issuance.recipientAccount,
+        startDate: issuance.startDate,
+        status: EvidentIssuanceStatus.Draft,
       });
       console.log('details in success', details);
       return details;
@@ -90,5 +82,24 @@ export class EvidentIssuanceService {
       console.error('Error registering issuance:', error.message);
       throw error;
     }
+  }
+
+  private async uploadFiles(files: Express.Multer.File[] | Express.Multer.File, organizationId: number, registrantId: string, notes? = ''): Promise<string[]> {
+    const uploadedFileReferences: string[] = [];
+    const filesToUpload = Array.isArray(files)
+      ? files
+      : [files];
+
+    for (const filePath of filesToUpload) {
+      const fileReference = await this.evidentService.uploadFile(
+        { organizationId },
+        registrantId,
+        filePath,
+        notes,
+      );
+      uploadedFileReferences.push(fileReference);
+    }
+
+    return uploadedFileReferences;
   }
 }

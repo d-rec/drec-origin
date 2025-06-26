@@ -33,7 +33,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     private readonly deviceRepository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly certificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
-    private readonly evidentissunaceService: EvidentIssuanceService,
+    private readonly evidentIssuanceService: EvidentIssuanceService,
     private readsService: ReadsService,
   ) {}
 
@@ -180,14 +180,6 @@ console.log("unsyncedCertificates",unsyncedCertificates)
         groupedByDevice[externalId].certificates.push(cert);
       }
 
-      // Fetch meter reads from InfluxDB and sum power for the certificate time range
-      const url = process.env.INFLUXDB_URL || 'http://localhost:8086';
-      const token = process.env.INFLUXDB_TOKEN || 'your-token';
-      const org = process.env.INFLUXDB_ORG || 'your-org';
-
-      const influxDB = new InfluxDB({ url, token });
-      const queryApi = influxDB.getQueryApi(org);
-
       const successfullyProcessedCertificateIds: number[] = [];
 
       for (const [externalId, deviceData] of Object.entries(groupedByDevice)) {
@@ -288,7 +280,7 @@ console.log("evidentDeviceId",evidentDeviceId)
           };
 console.log("payload",payload)
           if (evidentDeviceId) {
-            await this.evidentissunaceService.registerIssuance(
+            await this.evidentIssuanceService.create(
               organizationId,
               evidentDeviceId,
               payload,

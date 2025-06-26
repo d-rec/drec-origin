@@ -145,12 +145,12 @@ export class EvidentDeviceService {
         });
       }
     }
-    const uploadFiles = await Promise.all(
+    const uploadedFiles = await Promise.all(
       filesToUpload.map(({ file, documentType }) =>
         this.evidentService.uploadFile(device, registrantId, file, this.getNotes(device), documentType),
       ),
     );
-    return uploadFiles
+    return uploadedFiles
       .filter((result) => result.success && result.fileId)
       .map((result) => result.fileId);
   }
