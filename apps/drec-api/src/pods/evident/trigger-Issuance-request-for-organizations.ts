@@ -84,7 +84,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
   }
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  // @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCron():Promise<void> {
     this.logger.verbose('🔁 Starting daily certificate issuance check...');
 
@@ -100,8 +100,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
       const devices = await this.deviceRepository.find({
         where: { organizationId: organizationId },
       });
-
-      if (!devices?.length) return;
+      if (!devices?.length) continue;
 
       const externalIds = devices.map((device) => device.externalId);
 
@@ -112,8 +111,8 @@ export class TrrigerIssuanceRequestForOrganizationsService {
           evidentSynced: false,
         },
       });
-
-      if (!unsyncedCertificates || unsyncedCertificates.length === 0) return;
+console.log("unsyncedCertificates",unsyncedCertificates)
+      if (!unsyncedCertificates || unsyncedCertificates.length === 0) continue;
 
       this.logger.verbose(
         `Found ${unsyncedCertificates.length} unsynced certificates`,
@@ -276,11 +275,11 @@ export class TrrigerIssuanceRequestForOrganizationsService {
             recipientAccountSettings.defaultTradingAccount;
 
           const payload: Issuer = {
-            startDate: minStartDate,
-            endDate: maxEndDate,
-            productionVolume: String(totalReadValue),
+            startDate: '2025-06-25T00:00:00+00:00',
+            endDate: '2025-06-25T23:59:59+00:00',
+            productionVolume: '155',
             notes: '',
-            recipientAccount: `/accounts/${recipientAccount}`,
+            recipientAccount: `/accounts/TKF8Q35B`,
             code: evidentDeviceId,
             files: [csvFilePath],
             fuel: '/fuels/ES100',
@@ -320,6 +319,10 @@ export class TrrigerIssuanceRequestForOrganizationsService {
       this.logger.log(
         `Updated ${successfullyProcessedCertificateIds.length} certificates as synced`,
       );
+            this.logger.log('Processing data completed:', {
+          unsyncedCertificates,
+          groupedByDevice,
+      });
     }
   }
 }
