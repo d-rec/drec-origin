@@ -194,17 +194,18 @@ console.log("unsyncedCertificates",unsyncedCertificates)
         const { minStartDate, maxEndDate, certificates } = deviceData;
         let csvFilePath: string | null = null;
         try {
-          const readsQuery = `
-            from(bucket: "${process.env.INFLUXDB_BUCKET}")
-              |> range(start: ${new Date(minStartDate).toISOString()}, stop: ${new Date(maxEndDate).toISOString()})
-              |> filter(fn: (r) => 
-                  r._measurement == "read" and 
-                  r.meter == "${externalId}" and 
-                  r._field == "read"
-              )
-              |> drop(columns: ["_start", "_stop"])
-          `;
-
+          const startTime = '2025-06-21T00:00:00Z';
+          const stopTime = '2025-06-25T00:00:00Z';
+        //   const readsQuery = `
+        //   from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        //     |> range(start: ${JSON.stringify(new Date(startTime).toISOString())}, stop: ${JSON.stringify(new Date(stopTime).toISOString())})
+        //     |> filter(fn: (r) => 
+        //         r._measurement == "read" and 
+        //         r.meter == "${externalId}" and 
+        //         r._field == "read"
+        //     )
+        //     |> drop(columns: ["_start", "_stop"])
+        // `;
           const result = await this.deviceRepository
             .createQueryBuilder('device')
             .select('device.evidentDeviceId', 'evidentDeviceId')
@@ -214,49 +215,49 @@ console.log("unsyncedCertificates",unsyncedCertificates)
           const evidentDeviceId = result?.evidentDeviceId;
           (groupedByDevice[externalId] as any).evidentDeviceId =
             evidentDeviceId;
+console.log("evidentDeviceId",evidentDeviceId)
+          // const records = await queryApi.collectRows(readsQuery);
+          // const totalReadValue = records.reduce(
+          //   (sum: any, r: any) => sum + (r._value || 0),
+          //   0,
+          // );
+          // (groupedByDevice[externalId] as any).productionVolume =
+          //   totalReadValue;
 
-          const records = await queryApi.collectRows(readsQuery);
-          const totalReadValue = records.reduce(
-            (sum: any, r: any) => sum + (r._value || 0),
-            0,
-          );
-          (groupedByDevice[externalId] as any).productionVolume =
-            totalReadValue;
-
-          console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
+          // console.log(`✅ ${externalId} → totalRead: ${totalReadValue}`);
 
           // Generate CSV content from meter reads
 
           const filter: FilterNoOffLimit = {
             readType: ReadType.meterReads,
-            start: new Date(minStartDate),
-            end: new Date(maxEndDate),
+            start: new Date(1748736000000),
+            end: new Date(1751327999999),  
             accumulationType: AccumulationType.monthly,
             limit: 100,
             offset: 0,
             organizationId: organizationId,
           };
           const pageNumber = 1;
-
-          const csvData = await this.readsService.getAllRead(
-            externalId,
-            filter,
-            result.createdAt,
-            pageNumber,
-          );
-
-          const csvContent = this.generateCsvContent(csvData);
-
-          // Save CSV to temporary file
-          csvFilePath = await this.saveCsvToFile(
-            csvContent,
-            externalId,
-            minStartDate,
-            maxEndDate,
-          );
+          
+          // const csvData = await this.readsService.getAllRead(
+          //   externalId,
+          //   filter,
+          //   result.createdAt,
+          //   pageNumber,
+          // );
+          
+          // console.log("herehere1")        
+          // const csvContent = this.generateCsvContent(csvData);
+          // // Save CSV to temporary file
+          // csvFilePath = await this.saveCsvToFile(
+          //   csvContent,
+          //   externalId,
+          //   minStartDate,
+          //   maxEndDate,
+          // );
 
           this.logger.log(`📄 Generated CSV file: ${csvFilePath}`);
-
+          console.log("herehere12222")
           const recipientAccountSettings =
             await this.evidentSettingsRepository.findOne({
               where: {
@@ -273,19 +274,19 @@ console.log("unsyncedCertificates",unsyncedCertificates)
 
           const recipientAccount =
             recipientAccountSettings.defaultTradingAccount;
-
+            console.log("herehere333333")
           const payload: Issuer = {
             startDate: '2025-06-25T00:00:00+00:00',
             endDate: '2025-06-25T23:59:59+00:00',
             productionVolume: '155',
             notes: '',
-            recipientAccount: `/accounts/TKF8Q35B`,
+            recipientAccount: `/accounts/${recipientAccount}`,
             code: evidentDeviceId,
             files: [csvFilePath],
             fuel: '/fuels/ES100',
             status: 'Draft',
           };
-
+console.log("payload",payload)
           if (evidentDeviceId) {
             await this.evidentissunaceService.registerIssuance(
               organizationId,

@@ -61,6 +61,7 @@ export class EvidentIssuanceService {
       console.log('registered issueance succefully');
       const profile =
         await this.evidentService.getRegistrantInfo(organizationId);
+        console.log("response",response.data)
       const registrantId = profile.member.uid;
       await this.registerIssuanceDetails(
         organizationId,
@@ -90,23 +91,23 @@ export class EvidentIssuanceService {
     try {
       const uploadedFileReferences: string[] = [];
 
-      if (issuer.files) {
-        const filesToUpload = Array.isArray(issuer.files)
-          ? issuer.files
-          : [issuer.files];
+    //   if (issuer.files) {
+    //     const filesToUpload = Array.isArray(issuer.files)
+    //       ? issuer.files
+    //       : [issuer.files];
 
-        for (const filePath of filesToUpload) {
-          const fileReference = await this.uploadFileToEvident(
-            organizationId,
-            registrantId,
-            filePath,
-          );
-          uploadedFileReferences.push(fileReference);
-        }
-      }
+    //     for (const filePath of filesToUpload) {
+    //       const fileReference = await this.uploadFileToEvident(
+    //         organizationId,
+    //         registrantId,
+    //         filePath,
+    //       );
+    //       uploadedFileReferences.push(fileReference);
+    //     }
+    //   }
       //   01JWE2T7514TEC15D68JSJSPC1
       const details = await evidentInstance.post('/issue_details', {
-        files: uploadedFileReferences,
+        files: [uploadedFileReferences],
         endDate: issuer.endDate,
         fuel: issuer.fuel,
         issue: data['@id'],
