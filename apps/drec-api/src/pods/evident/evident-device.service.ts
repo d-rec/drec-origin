@@ -147,69 +147,12 @@ export class EvidentDeviceService {
     }
     const uploadFiles = await Promise.all(
       filesToUpload.map(({ file, documentType }) =>
-        this.uploadFile(device, registrantId, file, documentType),
+        this.evidentService.uploadFile(device, registrantId, file, this.getNotes(device), documentType),
       ),
     );
     return uploadFiles
       .filter((result) => result.success && result.fileId)
       .map((result) => result.fileId);
-  }
-
-  async uploadFile(
-    device: Device,
-    registrantId: string,
-    file: Express.Multer.File,
-    documentType: DocumentType,
-  ): Promise<any> {
-    try {
-      if (!file) {
-        return {
-          success: false,
-          error: 'No file provided for upload',
-        };
-      }
-
-      const evidentApiInstance = await this.evidentService.getApiInstance(
-        device.organizationId,
-      );
-      const fileData = getFileData(file);
-      const form = new FormData();
-
-      form.append('file', fileData, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-      form.append('name', file.originalname);
-      form.append('notes', this.getNotes(device));
-      form.append('userUid', registrantId);
-      form.append('category', documentType);
-
-      const uploadedFile = await evidentApiInstance.post('/files', form, {
-        headers: {
-          ...form.getHeaders(),
-        },
-        timeout: 30000,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      });
-
-      return {
-        success: true,
-        data: uploadedFile.data,
-        fileId: uploadedFile.data?.['@id'],
-      };
-    } catch (error) {
-      this.logger.error(
-        'Failed to upload file:',
-        error.response?.data || error.message,
-      );
-
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || error.message || 'Upload failed',
-      };
-    }
   }
 
   private generateDeviceDetailsPayload(
@@ -246,6 +189,7 @@ export class EvidentDeviceService {
       files,
     };
   }
+
 
   private getNotes(device: Device): string {
     return JSON.stringify({ 'D-REC ID': device.externalId });

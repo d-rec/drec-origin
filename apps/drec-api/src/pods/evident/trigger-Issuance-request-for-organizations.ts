@@ -18,7 +18,7 @@ import {
   FilterNoOffLimit,
   ReadType,
 } from '../reads/dto/filter-no-off-limit.dto';
-import { EvidentIssuanceService } from './evident-issuance-service';
+import { EvidentIssuanceService } from './evident-issuance.service';
 
 @Injectable()
 export class TrrigerIssuanceRequestForOrganizationsService {

@@ -11,41 +11,41 @@ export class EvidentIssuanceService {
 
   constructor(private readonly evidentService: EvidentService) {}
 
-  private async uploadFileToEvident(
-    organizationId: number,
-    registrantId: string,
-    filePath: string,
-  ): Promise<string> {
-    try {
-      const evidentInstance =
-        await this.evidentService.getApiInstance(organizationId);
+  // private async uploadFileToEvident(
+  //   organizationId: number,
+  //   registrantId: string,
+  //   filePath: string,
+  // ): Promise<string> {
+  //   try {
+  //     const evidentInstance =
+  //       await this.evidentService.getApiInstance(organizationId);
 
-      const readFile = promisify(fs.readFile);
-      const fileBuffer = await readFile(filePath);
-      const fileName = filePath.split('/').pop();
+  //     const readFile = promisify(fs.readFile);
+  //     const fileBuffer = await readFile(filePath);
+  //     const fileName = filePath.split('/').pop();
 
-      const form = new FormData();
-      form.append('file', fileBuffer, {
-        filename: fileName,
-        contentType: 'text/csv',
-      });
-      form.append('name', fileName);
-      form.append('notes', '');
-      form.append('userUid', registrantId);
-      form.append('category', '');
-      const response = await evidentInstance.post('/files', form, {
-        headers: {
-          ...form.getHeaders(),
-        },
-      });
+  //     const form = new FormData();
+  //     form.append('file', fileBuffer, {
+  //       filename: fileName,
+  //       contentType: 'text/csv',
+  //     });
+  //     form.append('name', fileName);
+  //     form.append('notes', '');
+  //     form.append('userUid', registrantId);
+  //     form.append('category', '');
+  //     const response = await evidentInstance.post('/files', form, {
+  //       headers: {
+  //         ...form.getHeaders(),
+  //       },
+  //     });
 
-      this.logger.log(`📤 File uploaded successfully: ${fileName}`);
-      return response.data['@id'];
-    } catch (error) {
-      this.logger.error('❌ Failed to upload file to Evident:', error);
-      throw error;
-    }
-  }
+  //     this.logger.log(`📤 File uploaded successfully: ${fileName}`);
+  //     return response.data['@id'];
+  //   } catch (error) {
+  //     this.logger.error('❌ Failed to upload file to Evident:', error);
+  //     throw error;
+  //   }
+  // }
   async registerIssuance(
     organizationId: number,
     code: string,
@@ -64,7 +64,7 @@ export class EvidentIssuanceService {
         console.log("response",response.data)
       const registrantId = profile.member.uid;
       await this.registerIssuanceDetails(
-        organizationId,
+        organizationId ,
         response.data,
         registrantId,
         issuer,
@@ -91,20 +91,21 @@ export class EvidentIssuanceService {
     try {
       const uploadedFileReferences: string[] = [];
 
-    //   if (issuer.files) {
-    //     const filesToUpload = Array.isArray(issuer.files)
-    //       ? issuer.files
-    //       : [issuer.files];
+      if (issuer.files) {
+        const filesToUpload = Array.isArray(issuer.files)
+          ? issuer.files
+          : [issuer.files];
 
-    //     for (const filePath of filesToUpload) {
-    //       const fileReference = await this.uploadFileToEvident(
-    //         organizationId,
-    //         registrantId,
-    //         filePath,
-    //       );
-    //       uploadedFileReferences.push(fileReference);
-    //     }
-    //   }
+        for (const filePath of filesToUpload) {
+          const fileReference = await this.evidentService.uploadFile(
+            { organizationId },
+            registrantId,
+            filePath,
+            issuer.notes,
+          );
+          uploadedFileReferences.push(fileReference);
+        }
+      }
       //   01JWE2T7514TEC15D68JSJSPC1
       const details = await evidentInstance.post('/issue_details', {
         files: [uploadedFileReferences],
