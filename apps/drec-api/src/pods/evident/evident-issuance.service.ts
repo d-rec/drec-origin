@@ -11,41 +11,6 @@ export class EvidentIssuanceService {
 
   constructor(private readonly evidentService: EvidentService) {}
 
-  // private async uploadFileToEvident(
-  //   organizationId: number,
-  //   registrantId: string,
-  //   filePath: string,
-  // ): Promise<string> {
-  //   try {
-  //     const evidentInstance =
-  //       await this.evidentService.getApiInstance(organizationId);
-
-  //     const readFile = promisify(fs.readFile);
-  //     const fileBuffer = await readFile(filePath);
-  //     const fileName = filePath.split('/').pop();
-
-  //     const form = new FormData();
-  //     form.append('file', fileBuffer, {
-  //       filename: fileName,
-  //       contentType: 'text/csv',
-  //     });
-  //     form.append('name', fileName);
-  //     form.append('notes', '');
-  //     form.append('userUid', registrantId);
-  //     form.append('category', '');
-  //     const response = await evidentInstance.post('/files', form, {
-  //       headers: {
-  //         ...form.getHeaders(),
-  //       },
-  //     });
-
-  //     this.logger.log(`📤 File uploaded successfully: ${fileName}`);
-  //     return response.data['@id'];
-  //   } catch (error) {
-  //     this.logger.error('❌ Failed to upload file to Evident:', error);
-  //     throw error;
-  //   }
-  // }
   async registerIssuance(
     organizationId: number,
     code: string,
