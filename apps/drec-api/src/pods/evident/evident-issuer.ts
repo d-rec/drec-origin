@@ -4,8 +4,8 @@ export type Issuer = {
   endDate: any;
   productionVolume: any;
   notes?: string;
-  recipientAccount: any;
+  recipientAccount: string;
   files: any[];
-  fuel: any;
+  fuel: string;
   status: string;
 };

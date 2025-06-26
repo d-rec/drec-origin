@@ -6,7 +6,6 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
 import { EvidentService } from './evident.service';
-import { IssuerDto } from './issue.dto';
 import { TrrigerIssuanceRequestForOrganizationsService } from './trigger-Issuance-request-for-organizations';
 import { mask } from '../../utils/mask';
 
@@ -54,7 +53,8 @@ export class EvidentSettingsController {
   async triggerIssuanceRequests(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.trrigerIssuanceRequestForOrganizationsService.handleCron();
+    return this.evidentService.getRegistrantInfo(organizationId);
+    // return this.trrigerIssuanceRequestForOrganizationsService.handleCron();
   }
 }
 // select * from check_certificate_issue_date_log_for_device

@@ -7,7 +7,6 @@ import { EvidentSettings } from './evident-settings.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { Device } from '../device/device.entity';
 import { InfluxDB } from '@influxdata/influxdb-client';
-import { EvidentService } from './evident.service';
 import { Issuer } from './evident-issuer';
 import { DateTime } from 'luxon';
 import * as fs from 'fs';
@@ -19,6 +18,7 @@ import {
   FilterNoOffLimit,
   ReadType,
 } from '../reads/dto/filter-no-off-limit.dto';
+import { EvidentIssuanceService } from './evident-issuance-service';
 
 @Injectable()
 export class TrrigerIssuanceRequestForOrganizationsService {
@@ -33,11 +33,9 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     private readonly deviceRepository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly certificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
-    private readonly evidentService: EvidentService,
+    private readonly evidentissunaceService: EvidentIssuanceService,
     private readsService: ReadsService,
   ) {}
-
-  // @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 
   private generateCsvContent(csvData: any): string {
     const headers = ['startdate', 'enddate', 'read_value'];
@@ -56,9 +54,6 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     return csvRows.join('\n');
   }
 
-  /**
-   * Save CSV content to temporary file and return file path
-   */
   private async saveCsvToFile(
     csvContent: string,
     externalId: string,
@@ -81,17 +76,17 @@ export class TrrigerIssuanceRequestForOrganizationsService {
     return filePath;
   }
 
-  /**
-   * Clean up temporary CSV file
-   */
+  // Clean up temporary CSV file
+
   private async cleanupCsvFile(filePath: string): Promise<void> {
     const unlink = promisify(fs.unlink);
     await unlink(filePath);
     this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
   }
 
-  async handleCron() {
-    this.logger.log('🔁 Starting daily certificate issuance check...');
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleCron():Promise<void> {
+    this.logger.verbose('🔁 Starting daily certificate issuance check...');
 
     // Fetch organizations that have evident settings
     const rawOrganizationIds = await this.evidentSettingsRepository
@@ -120,7 +115,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
 
       if (!unsyncedCertificates || unsyncedCertificates.length === 0) return;
 
-      this.logger.log(
+      this.logger.verbose(
         `Found ${unsyncedCertificates.length} unsynced certificates`,
       );
 
@@ -242,7 +237,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
             offset: 0,
             organizationId: organizationId,
           };
-          const pageNumber: number = 1;
+          const pageNumber = 1;
 
           const csvData = await this.readsService.getAllRead(
             externalId,
@@ -260,7 +255,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
             minStartDate,
             maxEndDate,
           );
-          console.log('csvContent', csvContent, 'csvFilePath', csvFilePath);
+
           this.logger.log(`📄 Generated CSV file: ${csvFilePath}`);
 
           const recipientAccountSettings =
@@ -281,8 +276,8 @@ export class TrrigerIssuanceRequestForOrganizationsService {
             recipientAccountSettings.defaultTradingAccount;
 
           const payload: Issuer = {
-            startDate: '2025-06-24T11:05:23+00:00',
-            endDate: '2025-06-24T12:05:23+00:00',
+            startDate: minStartDate,
+            endDate: maxEndDate,
             productionVolume: String(totalReadValue),
             notes: '',
             recipientAccount: `/accounts/${recipientAccount}`,
@@ -291,9 +286,9 @@ export class TrrigerIssuanceRequestForOrganizationsService {
             fuel: '/fuels/ES100',
             status: 'Draft',
           };
-          console.log('payload', payload);
+
           if (evidentDeviceId) {
-            await this.evidentService.registerIssuance(
+            await this.evidentissunaceService.registerIssuance(
               organizationId,
               evidentDeviceId,
               payload,
@@ -303,7 +298,7 @@ export class TrrigerIssuanceRequestForOrganizationsService {
               successfullyProcessedCertificateIds.push(cert.id);
             });
 
-            this.logger.log(
+            this.logger.verbose(
               `✅ Successfully registered issuance for device ${externalId}`,
             );
           }

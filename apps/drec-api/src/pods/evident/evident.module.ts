@@ -15,6 +15,7 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { Device } from '../device';
 import { ReadsModule } from '../reads/reads.module';
 import { EvidentDeviceService } from './evident-device.service';
+import { EvidentIssuanceService } from './evident-issuance-service';
 
 @Module({
   imports: [
@@ -35,11 +36,17 @@ import { EvidentDeviceService } from './evident-device.service';
   providers: [
     EvidentSettingsService,
     EvidentService,
+    EvidentIssuanceService,
     TrrigerIssuanceRequestForOrganizationsService,
     EvidentDeviceRegistrationProcessor,
     EvidentDeviceService,
     EvidentSettingsService,
   ],
-  exports: [EvidentService, EvidentDeviceService, EvidentSettingsService],
+  exports: [
+    EvidentService,
+    EvidentIssuanceService,
+    EvidentDeviceService,
+    EvidentSettingsService,
+  ],
 })
 export class EvidentModule {}
