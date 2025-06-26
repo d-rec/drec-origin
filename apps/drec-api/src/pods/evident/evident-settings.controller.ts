@@ -6,7 +6,6 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
 import { EvidentService } from './evident.service';
-import { TrrigerIssuanceRequestForOrganizationsService } from './trigger-Issuance-request-for-organizations';
 import { mask } from '../../utils/mask';
 
 @ApiTags('Evident')
@@ -18,8 +17,8 @@ export class EvidentSettingsController {
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
     private readonly evidentService: EvidentService,
-    private readonly trrigerIssuanceRequestForOrganizationsService: TrrigerIssuanceRequestForOrganizationsService,
-  ) {}
+  ) {
+  }
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Post()
@@ -53,7 +52,8 @@ export class EvidentSettingsController {
   async triggerIssuanceRequests(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.trrigerIssuanceRequestForOrganizationsService.handleCron();
+    return 'hello';
   }
 }
+
 // select * from check_certificate_issue_date_log_for_device

@@ -12,6 +12,8 @@ import { IFullOrganization } from '../../models';
 import { OrganizationStatus, OrganizationType } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { Invitation } from '../invitation/invitation.entity';
+import { Device } from '../device/device.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
 
 @Entity({ name: 'organization' })
 export class Organization
@@ -147,4 +149,10 @@ export class Organization
   @Column({ name: 'verified_at', default: null })
   @IsDate()
   verifiedAt: Date;
+
+  @OneToMany(() => Device, device => device.organization)
+  devices: Device[];
+
+  @OneToMany(() => EvidentSettings, evidentSettings => evidentSettings.organization)
+  evidentSettings: EvidentSettings[];
 }

@@ -4,7 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn,
+  JoinColumn, OneToMany,
 } from 'typeorm';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../utils/enums';
 import {
@@ -17,6 +17,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
 import { Organization } from '../organization/organization.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -43,6 +44,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   organizationId: number;
+  
   @ManyToOne(() => Organization, { eager: true }) // Make sure you have the correct type for Organization
   @JoinColumn({ name: 'organizationId' }) // Make sure the column name matches your database schema
   organization: Organization;
@@ -196,4 +198,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: true, name: 'evident_status' })
   evidentStatus: string | null;
+
+
+  @OneToMany(() => CheckCertificateIssueDateLogForDeviceEntity, certificateLog => certificateLog.device)
+  certificateLogs: CheckCertificateIssueDateLogForDeviceEntity[];
 }

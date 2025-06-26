@@ -1,43 +1,37 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { DeviceModule } from '../device/device.module';
-import { EvidentService } from './evident.service';
 import { BullModule } from '@nestjs/bull';
-import { EvidentDeviceRegistrationProcessor } from './evident-device-registration.processor';
-import { Queues } from '../../utils/enums/queues.enum';
-import { defaultBullJobOptions } from '../../config/bull.config';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../user/user.entity';
-import { EvidentSettings } from './evident-settings.entity';
-import { EvidentSettingsController } from './evident-settings.controller';
-import { EvidentSettingsService } from './evident-settings.service';
-import { TrrigerIssuanceRequestForOrganizationsService } from './trigger-Issuance-request-for-organizations';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
-import { Device } from '../device';
+import { defaultBullJobOptions } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
+import { DeviceModule } from '../device/device.module';
+import { OrganizationModule } from '../organization/organization.module';
 import { ReadsModule } from '../reads/reads.module';
+import { EvidentDeviceRegistrationProcessor } from './evident-device-registration.processor';
 import { EvidentDeviceService } from './evident-device.service';
 import { EvidentIssuanceService } from './evident-issuance.service';
+import { EvidentSettingsController } from './evident-settings.controller';
+import { EvidentSettings } from './evident-settings.entity';
+import { EvidentSettingsService } from './evident-settings.service';
+import { EvidentService } from './evident.service';
+import { Device } from '../device/device.entity';
+import { Organization } from '../organization/organization.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      User,
-      EvidentSettings,
-      Device,
-      CheckCertificateIssueDateLogForDeviceEntity,
-    ]),
+    TypeOrmModule.forFeature([EvidentSettings, Device, Organization]),
     forwardRef(() => DeviceModule),
+    forwardRef(() => OrganizationModule),
+    forwardRef(() => ReadsModule),
     BullModule.registerQueue({
       name: Queues.EvidentDeviceRegistration,
       defaultJobOptions: defaultBullJobOptions,
     }),
-    ReadsModule,
   ],
   controllers: [EvidentSettingsController],
   providers: [
     EvidentSettingsService,
     EvidentService,
     EvidentIssuanceService,
-    TrrigerIssuanceRequestForOrganizationsService,
     EvidentDeviceRegistrationProcessor,
     EvidentDeviceService,
     EvidentSettingsService,

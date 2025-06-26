@@ -81,6 +81,7 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from 'src/types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -104,7 +105,8 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
-  ) {}
+  ) {
+  }
 
   public async find(
     filterDto: FilterDTO,
@@ -388,6 +390,7 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
+
   public async newFindForGroup(
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
@@ -418,6 +421,7 @@ export class DeviceService {
       return result;
     }, {});
   }
+
   public async findByIds(ids: number[]): Promise<Device[]> {
     this.logger.verbose(`With in findByIds`);
     const result = await this.repository.findByIds(ids);
@@ -719,10 +723,10 @@ export class DeviceService {
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
       role === Role.DeviceOwner
         ? {
-            where: {
-              organizationId,
-            },
-          }
+          where: {
+            organizationId,
+          },
+        }
         : undefined;
 
     let currentDevice = await this.findDeviceByDeveloperExternalId(
@@ -807,6 +811,7 @@ export class DeviceService {
     delete devices['organization'];
     return this.groupDevices(orderFilterDto, devices);
   }
+
   async findUngroupedById(id: number): Promise<boolean> {
     this.logger.verbose(`With in findUngroupedById`);
     const devices = await this.repository.find({
@@ -854,7 +859,7 @@ export class DeviceService {
             if (DeviceSortPropertyMapper[order]) {
               const deviceKey: DeviceKey = DeviceSortPropertyMapper[
                 order
-              ] as DeviceKey;
+                ] as DeviceKey;
               return item[deviceKey];
             }
           }),
@@ -888,7 +893,7 @@ export class DeviceService {
     return `${orderByRules.map((orderRule: DeviceOrderBy) => {
       const deviceKey: DeviceKey = DeviceSortPropertyMapper[
         orderRule
-      ] as DeviceKey;
+        ] as DeviceKey;
       if (deviceKey === 'fuelCode') {
         return getFuelNameFromCode(devices[0][deviceKey]);
       }
@@ -961,12 +966,14 @@ export class DeviceService {
       },
     };
   }
+
   private getRawFilter(filter: string): FindOperator<any> {
     this.logger.verbose(`With in getRawFilter`);
     return Raw((alias) => `${alias} = Any(SDGBenefits)`, {
       SDGBenefits: [filter],
     });
   }
+
   public async addGroupIdToDeviceForReserving(
     currentDevice: Device,
     groupId: number,
@@ -1045,6 +1052,7 @@ export class DeviceService {
       },
     });
   }
+
   public async updateReadType(
     deviceId: string,
     meterReadType: string,
@@ -1063,6 +1071,7 @@ export class DeviceService {
 
     return await this.repository.save(deviceReadType);
   }
+
   public async updateTimezone(
     deviceId: string,
     timeZone: string,
@@ -1108,6 +1117,7 @@ export class DeviceService {
       take: limit,
     };
   }
+
   public async findDeviceForBuyer(
     filterDto: FilterDTO,
     pageNumber: number,
@@ -1153,6 +1163,7 @@ export class DeviceService {
       ...params,
     });
   }
+
   //add new fuction for add window cycle date for late certificate
   public async addLateCertificateIssueDateLogForDevice(
     params: DeviceLateOngoingIssueCertificateEntity,
@@ -1199,6 +1210,7 @@ export class DeviceService {
       take: 1,
     });
   }
+
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1211,7 +1223,7 @@ export class DeviceService {
       return device.map((s: any) => {
         const item: any = {
           certificate_issuance_startdate:
-            s.device_certificate_issuance_startdate,
+          s.device_certificate_issuance_startdate,
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
           readvalue_watthour: s.device_readvalue_watthour,
           status: s.device_status,
@@ -1236,7 +1248,7 @@ export class DeviceService {
       .where('device.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
-          db.where("device.status ='Requested' OR device.status ='Succeeded'");
+          db.where('device.status =\'Requested\' OR device.status =\'Succeeded\'');
         }),
       )
       .andWhere(
@@ -1270,6 +1282,7 @@ export class DeviceService {
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`;
     return await this.execute(fluxQuery);
   }
+
   async execute(query: string | any): Promise<any> {
     this.logger.verbose(`With in execute`);
     const data = await this.dbReader.collectRows(query);
@@ -1278,6 +1291,7 @@ export class DeviceService {
       value: Number(record._value),
     }));
   }
+
   get dbReader(): any {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
@@ -1436,6 +1450,7 @@ export class DeviceService {
     });
     return newDevices;
   }
+
   async getLastCertifiedDevicelogByGroupId(
     groupId: number,
     deviceId: string,
@@ -1451,6 +1466,7 @@ export class DeviceService {
       },
     });
   }
+
   async getCertifiedDeviceDateRange(
     groupId: number,
     device?: DeviceDTO,
@@ -1475,6 +1491,7 @@ export class DeviceService {
     const result = await queryBuilder.getRawOne();
     return { ...result, extenalId: device.developerExternalId };
   }
+
   async getCertifiedDeviceDateRangeByGroupId(
     groupId: number,
     pageNumber?: number,
@@ -1547,12 +1564,14 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
+
   async updateLateCycleCheckedAt(groupId: number): Promise<any> {
     await this.lateDeviceCertificateRepository.update(
       { groupId: groupId, certificate_issued: false },
       { checked_at: new Date() },
     );
   }
+
   async updateLateOngoing(
     externalId: string,
     id: number,
@@ -1565,6 +1584,7 @@ export class DeviceService {
       { late_end_date: lateend_date, certificate_issued: true },
     );
   }
+
   async updateLateOngoingIfReservationInactive(
     externalId: string,
   ): Promise<any> {
@@ -1798,5 +1818,31 @@ export class DeviceService {
     device.evidentStatus = evidentStatus;
     await this.repository.save(device);
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
+  }
+
+  async getCertificatesForEvidentIssuance(): Promise<
+    CheckCertificateIssueDateLogForDeviceEntity[]
+  > {
+    this.logger.verbose(`With in getCertificatesForEvidentIssuance`);
+    try {
+      return this.checkDeviceLogCertificateRepository
+        .createQueryBuilder('deviceCertificates')
+        .leftJoinAndSelect('deviceCertificates.device', 'device')
+        .leftJoinAndSelect('device.organization', 'organization')
+        .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
+        .where('deviceCertificates.evidentSynced = :synced', { synced: false })
+        .andWhere('evidentSettings.apiKey IS NOT NULL')
+        .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
+        .andWhere('device.evidentStatus = :status', {
+          status: 'Approved',
+        })
+        .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
+        .getMany();
+    } catch (error) {
+      this.logger.error(
+        `Error fetching certificates for Evident issuance`,
+        error,
+      );
+    }
   }
 }

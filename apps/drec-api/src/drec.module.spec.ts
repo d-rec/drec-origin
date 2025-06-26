@@ -40,7 +40,7 @@ import { IssuerModule } from './pods/issuer/issuer.module';
 import { ReadsModule } from './pods/reads/reads.module';
 import { FileModule } from './pods/file';
 import { DeviceGroupModule } from './pods/device-group/device-group.module';
-import { DeviceModule } from './pods/device';
+import { DeviceModule } from './pods/device/device.module';
 import { UserModule } from './pods/user/user.module';
 import { OrganizationModule } from './pods/organization/organization.module';
 import { MailModule } from './mail';

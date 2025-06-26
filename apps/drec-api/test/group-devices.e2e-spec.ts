@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { after, before } from 'mocha';
 import { OrganizationFilterDTO } from '../src/pods/admin/dto/organization-filter.dto';
 import { IFullOrganization } from '../src/models';
-import { Device } from '../src/pods/device';
+import { Device } from '../src/pods/device/device.entity';
 import {
   AddGroupDTO,
   DeviceIdsDTO,

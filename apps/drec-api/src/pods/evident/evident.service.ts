@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
-import { Device } from '../device';
+import { Device } from '../device/device.entity';
 import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
 

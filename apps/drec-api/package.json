@@ -10,6 +10,7 @@
     "generate-nest": "nest g resource",
     "start": "nest start -p tsconfig.json",
     "start:dev": "pnpm migrate && nest start --watch -p tsconfig.json",
+    "start:watch": "nest start --watch -p tsconfig.json",
     "start:debug": "nest start --debug --watch -p tsconfig.json",
     "start:prod": "node dist/js/src/main",
     "prebuild": "shx rm -rf dist",

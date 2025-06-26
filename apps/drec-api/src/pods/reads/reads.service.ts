@@ -1340,6 +1340,21 @@ export class ReadsService {
     return await this.ongExecute(fluxQuery);
   }
 
+  async getHistoryReads(
+    deviceId: string,
+    startDate: Date | string,
+    endDate: Date | string,
+  ): Promise<HistoryIntermediateMeterRead[]> {
+    const query = this.historyRepository
+      .createQueryBuilder('devicehistory')
+      .where('devicehistory.externalId = :deviceId', { deviceId })
+      .andWhere('devicehistory.readsStartDate <= :endDate', { endDate })
+      .andWhere('devicehistory.readsEndDate >= :startDate', { startDate })
+      .orderBy('devicehistory.readsStartDate', 'ASC');
+
+    return await query.getMany();
+  }
+
   async ongExecute(query: string | any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
     if (typeof data[0] === 'undefined' || data.length == 0) {
