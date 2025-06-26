@@ -80,6 +80,7 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
 
 @Injectable()
 export class DeviceService {
@@ -102,6 +103,7 @@ export class DeviceService {
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   public async find(
@@ -548,7 +550,7 @@ export class DeviceService {
   }
 
   public async register(
-    orgCode: number,
+    organizationId: number,
     newDevice: NewDeviceDTO,
     files: {
       [DocumentType.FORM_SF_02]: Express.Multer.File[];
@@ -574,7 +576,7 @@ export class DeviceService {
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
-        organizationId: orgCode,
+        organizationId: organizationId,
       },
     });
 
@@ -642,7 +644,7 @@ export class DeviceService {
 
     let result: any;
     if (role === Role.ApiUser) {
-      const org = await this.organizationService.findOne(orgCode, {
+      const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);
 
@@ -658,13 +660,13 @@ export class DeviceService {
 
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
         api_user_id: api_user_id,
       });
     } else {
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
       });
     }
     if (files) {
@@ -696,6 +698,8 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
+
+    await this.evidentDeviceService.queueDeviceRegistration(result, files);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
@@ -1769,5 +1773,30 @@ export class DeviceService {
         archived_at: new Date(),
       },
     );
+  }
+
+  async updateEvidentInfo(
+    deviceExternalId: string,
+    evidentDeviceId: string,
+    evidentStatus: string,
+  ): Promise<void> {
+    this.logger.verbose(`With in updateDeviceEvidentInfo`);
+    const device = await this.repository.findOne({
+      where: {
+        externalId: deviceExternalId,
+      },
+    });
+    if (!device) {
+      this.logger.error(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+      throw new NotFoundException(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+    }
+    device.evidentDeviceId = evidentDeviceId;
+    device.evidentStatus = evidentStatus;
+    await this.repository.save(device);
+    this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
 }

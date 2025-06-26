@@ -8,6 +8,8 @@ import { Issuer } from './evident-issuer';
 import FormData from 'form-data';
 import * as fs from 'fs';
 import { promisify } from 'util';
+import { EvidentSettingsService } from './evident-settings.service';
+import { AxiosInstance } from 'axios';
 
 @Injectable()
 export class EvidentService {
@@ -15,18 +17,18 @@ export class EvidentService {
   private apiUrl = process.env.IREC_EVIDENT_API_URL || null;
 
   constructor(
-    @InjectRepository(EvidentSettings)
-    private readonly evidentSettingRepository: Repository<EvidentSettings>,
+    private readonly evidentSettingsService: EvidentSettingsService,
   ) {}
-  private async getEvidentInstance(organizationId: number) {
-    const data = await this.evidentSettingRepository.findOne({
-      where: { organizationId },
-    });
-    if (!data) return null;
-    const apiKey = decrypt(data.apiKey);
+
+  async getApiInstance(organizationId: number): Promise<AxiosInstance> {
+    const data = await this.evidentSettingsService.find(organizationId);
+    if (!data)
+      throw new Error(
+        `Evident instance not found for organization ${organizationId}`,
+      );
     return createEvidentAxiosInstance({
       baseURL: this.apiUrl,
-      apiKey,
+      apiKey: data.apiKey,
       organizationId: organizationId.toString(),
     });
   }
@@ -36,7 +38,7 @@ export class EvidentService {
     filePath: string,
   ): Promise<string> {
     try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const evidentInstance = await this.getApiInstance(organizationId);
 
       const readFile = promisify(fs.readFile);
       const fileBuffer = await readFile(filePath);
@@ -65,10 +67,23 @@ export class EvidentService {
     }
   }
 
-  async fetchDevices(organizationId: number): Promise<any> {
-    const evidentInstance = await this.getEvidentInstance(organizationId);
-    const response = await evidentInstance.get('/devices');
-    return response.data;
+  async getRegistrantInfo(organizationId: number): Promise<any> {
+    try {
+      const evidentApiInstance = await this.getApiInstance(organizationId);
+      const evidentSettings =
+        await this.evidentSettingsService.find(organizationId);
+      const user = await evidentApiInstance.get(
+        `/users?q=${evidentSettings.email}`,
+      );
+      const userMember = user.data['hydra:member'][0];
+      return {
+        profile: user,
+        member: userMember,
+      };
+    } catch (error) {
+      this.logger.error('Error fetching registrant info:', error);
+      throw error;
+    }
   }
 
   async registerIssuance(
@@ -77,7 +92,7 @@ export class EvidentService {
     issuer: Issuer,
   ): Promise<any> {
     try {
-      const evidentInstance = await this.getEvidentInstance(organizationId);
+      const evidentInstance = await this.getApiInstance(organizationId);
 
       const response = await evidentInstance.post('/issues', {
         device: `/devices/${code}`,
@@ -100,7 +115,7 @@ export class EvidentService {
     data: any,
     issuer: Issuer,
   ): Promise<any> {
-    const evidentInstance = await this.getEvidentInstance(organizationId);
+    const evidentInstance = await this.getApiInstance(organizationId);
     try {
       const uploadedFileReferences: string[] = [];
 

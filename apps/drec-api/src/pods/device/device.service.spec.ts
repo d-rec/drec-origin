@@ -49,6 +49,8 @@ import {
   DocumentType,
 } from '../document-uploads/entities/documents.entity';
 import { FileService } from '../file';
+import { EvidentService } from '../evident/evident.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -146,6 +148,20 @@ describe('DeviceService', () => {
         {
           provide: getRepositoryToken(DeviceLateOngoingIssueCertificateEntity),
           useClass: Repository,
+        },
+        {
+          provide: EvidentService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: EvidentDeviceService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
         },
       ],
     }).compile();

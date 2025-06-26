@@ -21,6 +21,9 @@ export class EvidentSettings {
   @Column({ type: 'varchar', name: 'default_beneficiary_account' })
   defaultBeneficiaryAccount: string;
 
+  @Column({ type: 'varchar', name: 'email' })
+  email: string;
+
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

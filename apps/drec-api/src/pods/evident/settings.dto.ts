@@ -20,4 +20,10 @@ export class SettingsDTO {
   @IsNotEmpty()
   @Column({ name: 'default_beneficiary_account' })
   defaultBeneficiaryAccount: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Column({ name: 'email' })
+  email: string;
 }

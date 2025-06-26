@@ -121,19 +121,16 @@ Access Redemption Report from the left sidebar to:
 ## Tips for Buyers
 
 1. **Reservation Planning:**
-
    - Check device availability before making reservations
    - Consider device capacities when setting target volumes
    - Plan reservation periods based on certificate needs
 
 2. **Certificate Management:**
-
    - Regularly review certificate generation status
    - Monitor owned volumes against reservation targets
    - Track certificate expiry dates
 
 3. **Device Selection:**
-
    - Use filters to find devices matching your requirements
    - Consider SDG Benefits for sustainability reporting
    - Check device locations and capacities

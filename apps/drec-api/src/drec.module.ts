@@ -75,6 +75,7 @@ import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
 import { EvidentModule } from './pods/evident/evident.module';
 import { EvidentSettings } from './pods/evident/evident-settings.entity';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',

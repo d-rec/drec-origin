@@ -8,6 +8,7 @@ import { AuthVerifiedGuard } from '../../guards';
 import { EvidentService } from './evident.service';
 import { IssuerDto } from './issue.dto';
 import { TrrigerIssuanceRequestForOrganizationsService } from './trigger-Issuance-request-for-organizations';
+import { mask } from '../../utils/mask';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -38,7 +39,13 @@ export class EvidentSettingsController {
   async getSettings(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
-    return this.evidentSettingsService.findByOrganizationId(organizationId);
+    const settings = await this.evidentSettingsService.find(organizationId);
+    if (!settings) return null;
+    const maskedApiKey = mask(settings.apiKey);
+    return {
+      ...settings,
+      apiKey: maskedApiKey,
+    };
   }
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))

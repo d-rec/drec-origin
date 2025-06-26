@@ -1,3 +1,4 @@
 export enum RedisKeys {
-  EvidentToken = 'evident_auth_token',
+  EvidentToken = 'evident-auth-token',
+  EvidentSettings = 'evident-settings',
 }

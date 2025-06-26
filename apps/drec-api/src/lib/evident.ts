@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
-import { getRedisClient } from '../lib/redis';
+import { getRedisClient } from './redis';
 import { RedisKeys } from '../utils/enums/redis-keys.enum';
 import { EVIDENT_TOKEN_EXPIRATION_TIME } from '../constants';
 import { BadRequestException } from '@nestjs/common';

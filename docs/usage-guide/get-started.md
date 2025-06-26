@@ -32,7 +32,6 @@ All new users follow the same registration process. The only difference occurs d
 
 3. **Organization Information:**  
    Provide your company or organizational details. When prompted, select your organization type:
-
    - **Buyer:** Choose this option if you are registering as a Buyer.
    - **Developer:** Choose this option if you are registering as a DRE Project Developer.
 
@@ -58,7 +57,6 @@ All new users follow the same registration process. The only difference occurs d
    ![Login Page](./dashboard-user-guide-images/login-page.png)
 
 3. **Role-Based Dashboard Redirection:**
-
    - **DRE Project Developers:** Upon logging in, DRE Project Developers are directed to a dashboard that highlights tools for managing devices and meter reads.
 
      ![DRE Developer Dashboard](./dashboard-user-guide-images/developer-login.png)
@@ -77,7 +75,6 @@ Once logged in, you will see a dashboard customized to your role. Below are the 
   Adjust organizational settings, manage team members, and set permissions as needed.
 
 - **Device Management:**
-
   - **Add Devices:** Register new energy generation devices.
   - **View Devices:** Monitor and review details of your registered devices.
   - **Bulk Upload:** Easily add multiple devices at once via CSV upload.
@@ -93,7 +90,6 @@ Once logged in, you will see a dashboard customized to your role. Below are the 
   Update your organizational details and manage team permissions as required.
 
 - **Reservation Management:**
-
   - **Add Reservations:** Create new reservations that link to specific energy consumption commitments.
   - **View Reservations:** Review and monitor your existing reservations.
 
@@ -109,7 +105,6 @@ _Tip:_ Use the help icons and tooltips within the dashboard to get quick guidanc
 
 - **Resetting Your Password:**  
   If you forget your password:
-
   1. Click the **"Forgot Password"** link on the login page.
   2. Enter your registered email address.
   3. Follow the instructions in the email to set a new password.
