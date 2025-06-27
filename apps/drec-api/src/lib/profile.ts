@@ -5,6 +5,11 @@ const PROFILE_CODE = process.env.PROFILE_CODE === 'true';
 
 function Profile(): MethodDecorator {
   return function(target, propertyKey, descriptor: PropertyDescriptor) {
+
+     if(!PROFILE_CODE) {
+      return descriptor;
+    }
+
     const originalMethod = descriptor.value;
     const logger = new Logger(target.constructor.name);
     const isAsync = originalMethod.constructor.name === 'AsyncFunction';
@@ -14,11 +19,7 @@ function Profile(): MethodDecorator {
       const duration = (end - start).toFixed(2);
       logger.warn(`${name}: Executed in ${duration} ms`);
     };
-
-    if(!PROFILE_CODE) {
-      return descriptor;
-    }
-
+    
     descriptor.value = function(...args: any[]) {
       const name = `${String(propertyKey)}`;
       const start = performance.now();
