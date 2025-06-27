@@ -76,4 +76,16 @@ export class EvidentSettingsService {
   private getRedisKey(organizationId: number): string {
     return `${RedisKeys.EvidentSettings}:${organizationId}`;
   }
+
+  public async getRecipientAccount(
+    organizationId: number,
+  ): Promise<string> { 
+    const recipientAccountSettings =
+            await this.repository.findOne({
+              where: {
+                organizationId: organizationId,
+              },
+            })
+            return recipientAccountSettings.defaultTradingAccount;
+  }
 }

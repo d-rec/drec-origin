@@ -1831,6 +1831,7 @@ export class DeviceService {
         .leftJoinAndSelect('device.organization', 'organization')
         .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
         .where('deviceCertificates.evidentSynced = :synced', { synced: false })
+        .andWhere('deviceCertificates.certificate_issuance_startdate >= device.createdAt')
         .andWhere('evidentSettings.apiKey IS NOT NULL')
         .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
         .andWhere('device.evidentStatus = :status', {
