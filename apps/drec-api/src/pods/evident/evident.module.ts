@@ -11,6 +11,7 @@ import { EvidentSettings } from './evident-settings.entity';
 import { EvidentSettingsController } from './evident-settings.controller';
 import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentDeviceService } from './evident-device.service';
+import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service';
 
 @Module({
   imports: [
@@ -25,9 +26,15 @@ import { EvidentDeviceService } from './evident-device.service';
   providers: [
     EvidentService,
     EvidentDeviceRegistrationProcessor,
+    EvidentSettingsService,
+    EvidentDeviceService,
+    EvidentSyncDeviceTaskService,
+  ],
+  exports: [
+    EvidentService,
     EvidentDeviceService,
     EvidentSettingsService,
+    EvidentSyncDeviceTaskService,
   ],
-  exports: [EvidentService, EvidentDeviceService, EvidentSettingsService],
 })
 export class EvidentModule {}
