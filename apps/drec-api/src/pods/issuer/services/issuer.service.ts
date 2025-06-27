@@ -73,13 +73,18 @@ export class IssuerService {
     }
 
     // Process group device readings
-    const { validDevices, completeMeterReads, previousReadings, totalReading, validReadings } =
-      await this.processGroupDeviceReads(
-        group,
-        startDate,
-        endDate,
-        checkForMissingCycles,
-      );
+    const {
+      validDevices,
+      completeMeterReads,
+      previousReadings,
+      totalReading,
+      validReadings,
+    } = await this.processGroupDeviceReads(
+      group,
+      startDate,
+      endDate,
+      checkForMissingCycles,
+    );
 
     if (!totalReading || !validDevices.length) {
       return;
@@ -107,7 +112,7 @@ export class IssuerService {
 
     // Log the certificate details
     await Promise.all(
-      validReadings.map(({device, totalRead}) =>
+      validReadings.map(({ device, totalRead }) =>
         this.certificateLogService.createForDevice(
           group,
           device,
@@ -191,7 +196,9 @@ export class IssuerService {
       ),
     );
 
-    const validReadings = readings.filter((reading) => reading.totalRead !== 0 && reading.device);
+    const validReadings = readings.filter(
+      (reading) => reading.totalRead !== 0 && reading.device,
+    );
 
     const validDevices = validReadings.map((reading) => reading.device);
 
