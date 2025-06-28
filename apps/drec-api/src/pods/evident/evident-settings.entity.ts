@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Unique,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Organization } from '../organization/organization.entity';
 
 @Entity('evident_settings')
@@ -19,8 +26,12 @@ export class EvidentSettings {
   @Column({ type: 'varchar', name: 'default_trading_account' })
   defaultTradingAccount: string;
 
-  @Column({ type: 'varchar', name: 'default_beneficiary_account' })
-  defaultBeneficiaryAccount: string;
+  @Column({
+    type: 'varchar',
+    name: 'default_beneficiary_account',
+    nullable: true,
+  })
+  defaultBeneficiaryAccount: string | null;
 
   @Column({ type: 'varchar', name: 'email' })
   email: string;
@@ -31,7 +42,7 @@ export class EvidentSettings {
   @Column({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => Organization, organization => organization.evidentSettings)
+  @ManyToOne(() => Organization, (organization) => organization.evidentSettings)
   @JoinColumn({ name: 'organization_id', referencedColumnName: 'id' })
   organization: Organization;
 }

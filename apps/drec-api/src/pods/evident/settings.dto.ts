@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Column } from 'typeorm';
 
 export class SettingsDTO {
@@ -17,9 +17,9 @@ export class SettingsDTO {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  @Column({ name: 'default_beneficiary_account' })
-  defaultBeneficiaryAccount: string;
+  @IsOptional()
+  @Column({ name: 'default_beneficiary_account', nullable: true })
+  defaultBeneficiaryAccount?: string;
 
   @ApiProperty()
   @IsString()
