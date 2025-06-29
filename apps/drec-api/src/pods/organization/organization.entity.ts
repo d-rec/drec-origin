@@ -150,9 +150,12 @@ export class Organization
   @IsDate()
   verifiedAt: Date;
 
-  @OneToMany(() => Device, device => device.organization)
+  @OneToMany(() => Device, (device) => device.organization)
   devices: Device[];
 
-  @OneToMany(() => EvidentSettings, evidentSettings => evidentSettings.organization)
+  @OneToMany(
+    () => EvidentSettings,
+    (evidentSettings) => evidentSettings.organization,
+  )
   evidentSettings: EvidentSettings[];
 }

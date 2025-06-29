@@ -35,7 +35,6 @@ export type EvidentDeviceDetailsPayload = {
   files: string[];
 };
 
-
 export type EvidentIssuanceRequest = {
   code: string;
   startDate: any;

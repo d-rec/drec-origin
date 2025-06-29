@@ -6,13 +6,11 @@ import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
 import { getCountryCodeAlpha2 } from '../../utils/get-country-code-alpha-2';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
-import FormData from 'form-data';
 import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import {
   EvidentDeviceDetailsPayload,
   EvidentRegistrationStatus,
 } from '../../types/evident';
-import getFileData from '../../lib/helpers/getFileData';
 import { EvidentService } from './evident.service';
 import { Unit } from '@energyweb/energy-api-influxdb';
 
@@ -147,7 +145,13 @@ export class EvidentDeviceService {
     }
     const uploadedFiles = await Promise.all(
       filesToUpload.map(({ file, documentType }) =>
-        this.evidentService.uploadFile(device, registrantId, file, this.getNotes(device), documentType),
+        this.evidentService.uploadFile(
+          device,
+          registrantId,
+          file,
+          this.getNotes(device),
+          documentType,
+        ),
       ),
     );
     return uploadedFiles
@@ -189,7 +193,6 @@ export class EvidentDeviceService {
       files,
     };
   }
-
 
   private getNotes(device: Device): string {
     return JSON.stringify({ 'D-REC ID': device.externalId });

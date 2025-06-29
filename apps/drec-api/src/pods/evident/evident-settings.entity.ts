@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Unique,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Organization } from '../organization/organization.entity';
 
 @Entity('evident_settings')
@@ -31,7 +38,7 @@ export class EvidentSettings {
   @Column({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => Organization, organization => organization.evidentSettings)
+  @ManyToOne(() => Organization, (organization) => organization.evidentSettings)
   @JoinColumn({ name: 'organization_id', referencedColumnName: 'id' })
   organization: Organization;
 }

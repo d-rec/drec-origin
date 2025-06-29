@@ -81,7 +81,6 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentRegistrationStatus } from 'src/types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -105,8 +104,7 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
-  ) {
-  }
+  ) {}
 
   public async find(
     filterDto: FilterDTO,
@@ -723,10 +721,10 @@ export class DeviceService {
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
       role === Role.DeviceOwner
         ? {
-          where: {
-            organizationId,
-          },
-        }
+            where: {
+              organizationId,
+            },
+          }
         : undefined;
 
     let currentDevice = await this.findDeviceByDeveloperExternalId(
@@ -859,7 +857,7 @@ export class DeviceService {
             if (DeviceSortPropertyMapper[order]) {
               const deviceKey: DeviceKey = DeviceSortPropertyMapper[
                 order
-                ] as DeviceKey;
+              ] as DeviceKey;
               return item[deviceKey];
             }
           }),
@@ -893,7 +891,7 @@ export class DeviceService {
     return `${orderByRules.map((orderRule: DeviceOrderBy) => {
       const deviceKey: DeviceKey = DeviceSortPropertyMapper[
         orderRule
-        ] as DeviceKey;
+      ] as DeviceKey;
       if (deviceKey === 'fuelCode') {
         return getFuelNameFromCode(devices[0][deviceKey]);
       }
@@ -1223,7 +1221,7 @@ export class DeviceService {
       return device.map((s: any) => {
         const item: any = {
           certificate_issuance_startdate:
-          s.device_certificate_issuance_startdate,
+            s.device_certificate_issuance_startdate,
           certificate_issuance_enddate: s.device_certificate_issuance_enddate,
           readvalue_watthour: s.device_readvalue_watthour,
           status: s.device_status,
@@ -1248,7 +1246,7 @@ export class DeviceService {
       .where('device.externalId = :deviceid', { deviceid: deviceid })
       .andWhere(
         new Brackets((db) => {
-          db.where('device.status =\'Requested\' OR device.status =\'Succeeded\'');
+          db.where("device.status ='Requested' OR device.status ='Succeeded'");
         }),
       )
       .andWhere(
@@ -1831,7 +1829,9 @@ export class DeviceService {
         .leftJoinAndSelect('device.organization', 'organization')
         .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
         .where('deviceCertificates.evidentSynced = :synced', { synced: false })
-        .andWhere('deviceCertificates.certificate_issuance_startdate >= device.createdAt')
+        .andWhere(
+          'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
+        )
         .andWhere('evidentSettings.apiKey IS NOT NULL')
         .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
         .andWhere('device.evidentStatus = :status', {

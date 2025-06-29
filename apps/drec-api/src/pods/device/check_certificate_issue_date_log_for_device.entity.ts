@@ -1,5 +1,11 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IsString, IsNumber, IsDate, IsBoolean } from 'class-validator';
 import { Device } from './device.entity';
 
@@ -52,7 +58,7 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @IsBoolean()
   evidentSynced: boolean;
 
-  @ManyToOne(() => Device, device => device.certificateLogs)
+  @ManyToOne(() => Device, (device) => device.certificateLogs)
   @JoinColumn({ name: 'externalId', referencedColumnName: 'externalId' })
   device: Device;
 }

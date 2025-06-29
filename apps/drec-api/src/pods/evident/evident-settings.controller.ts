@@ -5,7 +5,6 @@ import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
-import { EvidentService } from './evident.service';
 import { mask } from '../../utils/mask';
 
 @ApiTags('Evident')
@@ -16,9 +15,7 @@ export class EvidentSettingsController {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
-    private readonly evidentService: EvidentService,
-  ) {
-  }
+  ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Post()
@@ -45,15 +42,4 @@ export class EvidentSettingsController {
       apiKey: maskedApiKey,
     };
   }
-
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
-  @Post('/issuer')
-  @ApiOperation({ summary: 'Get Evident settings' })
-  async triggerIssuanceRequests(
-    @UserDecorator() { organizationId }: ILoggedInUser,
-  ): Promise<any> {
-    return 'hello';
-  }
 }
-
-// select * from check_certificate_issue_date_log_for_device
