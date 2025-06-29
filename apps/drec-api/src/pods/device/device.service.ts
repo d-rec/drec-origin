@@ -81,6 +81,7 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -538,6 +539,31 @@ export class DeviceService {
     );
   }
 
+  async syncStatusesWithEvident(): Promise<void> {
+    const devices = await this.repository.find({
+      where: { evidentStatus: EvidentRegistrationStatus.Draft },
+    });
+    for (const device of devices) {
+      try {
+        const updatedStatus = await this.evidentDeviceService.getStatus(
+          device.organizationId,
+          device.evidentDeviceId,
+        );
+        if (updatedStatus !== device.evidentStatus) {
+          this.logger.verbose(
+            `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
+          );
+          device.evidentStatus =
+            updatedStatus === 'In Progress'
+              ? EvidentRegistrationStatus.Submitted
+              : updatedStatus;
+          await this.repository.save(device);
+        }
+      } catch (error) {
+        this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
+      }
+    }
+  }
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
