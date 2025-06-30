@@ -222,15 +222,16 @@ export class LateOngoingIssuanceService {
         group.frequency,
       );
 
-      await Promise.all(
-        devicesInGroup.map(async (device) =>
-          this.deviceService.checkForDeviceMissingCycles(
-            group,
-            device,
-            startDate,
-          ),
-        ),
-      );
+      for (const device of devicesInGroup) {
+        this.logger.log(
+          `Checking for missing cycles for device: ${device.externalId} in group: ${group.id}`,
+        );
+        await this.deviceService.checkForDeviceMissingCycles(
+          group,
+          device,
+          startDate,
+        );
+      }
     }
   }
 
