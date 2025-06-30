@@ -4,5 +4,4 @@ order: 1
 
 # Overview
 
-> [!WARNING]
-> This section is a work-in-progress.
+Find the api endpoint documentation via this url [Endpoints Reference](endpoints-reference.md)

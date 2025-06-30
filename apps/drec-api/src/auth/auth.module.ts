@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -11,14 +11,13 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { EmailConfirmationModule } from '../pods/email-confirmation/email-confirmation.module';
 import { ClientJwtStrategy } from './client-jwt.strategy';
-
 @Global()
 @Module({
   imports: [
-    UserModule,
+    forwardRef(() => UserModule),
     OrganizationModule,
     PermissionModule,
-    EmailConfirmationModule,
+    forwardRef(() => EmailConfirmationModule),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => {

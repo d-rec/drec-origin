@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   DeviceTypeCode,
@@ -51,6 +56,15 @@ export class FilterDTO {
     enum: OffTaker,
   })
   offTaker: OffTaker;
+
+  @IsOptional()
+  @IsUUID()
+  @ApiPropertyOptional({
+    type: String,
+    format: 'uuid',
+    description: 'reservation UUID',
+  })
+  reservationId?: number;
 
   @IsOptional()
   @ApiPropertyOptional({ description: 'Certificate Start date filter' })

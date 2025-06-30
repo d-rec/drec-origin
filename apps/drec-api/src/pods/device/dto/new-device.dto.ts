@@ -20,7 +20,7 @@ import { Exclude, Transform } from 'class-transformer';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { countryCodesList } from '../../../models/country-code';
-
+import { DocumentType } from '../../document-uploads/entities/documents.entity';
 export class NewDeviceDTO
   implements
     Omit<
@@ -221,4 +221,35 @@ export class NewDeviceDTO
   @IsOptional()
   @IsNumber()
   yieldValue?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  stateProvince?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }
+export class DeviceRegistrationBody {
+  [DocumentType.FORM_SF_02]: Express.Multer.File[];
+  [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+  [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  deviceToRegister: NewDeviceDTO;
+}
+
+export type DeviceFiles = {
+  [DocumentType.FORM_SF_02]: Express.Multer.File[];
+  [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+  [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+};

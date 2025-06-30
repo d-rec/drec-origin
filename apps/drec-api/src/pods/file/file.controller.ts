@@ -13,7 +13,6 @@ import {
   UseInterceptors,
   Logger,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -35,6 +34,7 @@ import { ILoggedInUser } from '../../models';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { AuthVerifiedGuard } from '../../guards';
 
 const maxFilesLimit = parseInt(process.env.FILE_MAX_FILES!, 10) || 20;
 const maxFileSize = parseInt(process.env.FILE_MAX_FILE_SIZE!, 10) || 10485760;
@@ -80,7 +80,7 @@ export class FileController {
       },
     }),
   )
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('FILE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -121,7 +121,7 @@ export class FileController {
    * @param res is Response type
    */
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('FILE_MANAGEMENT_CRUDL')
   @ApiOperation({

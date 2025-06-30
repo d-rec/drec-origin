@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   Injectable,
@@ -11,6 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   Between,
   Brackets,
+  Connection,
   FindConditions,
   FindManyOptions,
   FindOneOptions,
@@ -18,6 +20,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Raw,
   Repository,
   SelectQueryBuilder,
@@ -71,6 +74,14 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
+import {
+  DocumentTargetType,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
+import { generateDeviceFingerprint } from '../../lib/device';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -91,6 +102,9 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
+    private readonly connection: Connection,
+    private readonly documentsService: DocumentUploadsService,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   public async find(
@@ -523,6 +537,31 @@ export class DeviceService {
     );
   }
 
+  async syncStatusesWithEvident(): Promise<void> {
+    const devices = await this.repository.find({
+      where: { evidentStatus: EvidentRegistrationStatus.Draft },
+    });
+    for (const device of devices) {
+      try {
+        const updatedStatus = await this.evidentDeviceService.getStatus(
+          device.organizationId,
+          device.evidentDeviceId,
+        );
+        if (updatedStatus !== device.evidentStatus) {
+          this.logger.verbose(
+            `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
+          );
+          device.evidentStatus =
+            updatedStatus === 'In Progress'
+              ? EvidentRegistrationStatus.Submitted
+              : updatedStatus;
+          await this.repository.save(device);
+        }
+      } catch (error) {
+        this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
+      }
+    }
+  }
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
@@ -537,30 +576,47 @@ export class DeviceService {
   }
 
   public async register(
-    orgCode: number,
+    organizationId: number,
     newDevice: NewDeviceDTO,
+    files: {
+      [DocumentType.FORM_SF_02]: Express.Multer.File[];
+      [DocumentType.SF_02C]: Express.Multer.File[];
+      [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+      [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+      [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+    },
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
-    this.logger.verbose(`With in register`);
-    newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    this.logger.verbose(`Within register`);
+
+    if (newDevice && newDevice.countryCode) {
+      newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    } else {
+      this.logger.error('Country code is undefined or missing');
+      throw new BadRequestException('Country code is required');
+    }
+
     const sdgBenefitList = SDGBenefits;
+
     const checkExternalId = await this.repository.findOne({
       where: {
         developerExternalId: newDevice.externalId,
-        organizationId: orgCode,
+        organizationId: organizationId,
       },
     });
-    if (checkExternalId != undefined) {
+
+    if (checkExternalId) {
       this.logger.debug('Line No: 236');
       this.logger.error(
-        `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
       );
       throw new ConflictException({
         success: false,
-        message: `ExternalId already exist in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        message: `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
       });
     }
+
     newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
@@ -576,27 +632,51 @@ export class DeviceService {
           (ele) =>
             ele.name.toLowerCase() === sdbBenefitName.toString().toLowerCase(),
         );
-        if (foundEle) {
-          newDevice.SDGBenefits[index] = foundEle.value;
-        } else {
-          newDevice.SDGBenefits[index] = 'invalid';
-        }
+        newDevice.SDGBenefits[index] = foundEle ? foundEle.value : 'invalid';
       });
+
       newDevice.SDGBenefits = newDevice.SDGBenefits.filter(
         (ele) => ele !== 'invalid',
       );
     } else {
       newDevice.SDGBenefits = [];
     }
+
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    newDevice.fingerprint = fingerprint;
+
     let result: any;
     if (role === Role.ApiUser) {
-      const org = await this.organizationService.findOne(orgCode, {
+      const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);
 
       const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-      if (orgUser.role != Role.OrganizationAdmin) {
+      if (orgUser.role !== Role.OrganizationAdmin) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,
@@ -606,21 +686,55 @@ export class DeviceService {
 
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
         api_user_id: api_user_id,
       });
     } else {
       result = await this.repository.save({
         ...newDevice,
-        organizationId: orgCode,
+        organizationId: organizationId,
       });
     }
+    if (files) {
+      const documentTypes = {
+        [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+        [DocumentType.SF_02C]: DocumentType.SF_02C,
+        [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+        [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+        [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+      };
+
+      for (const [field, documentType] of Object.entries(documentTypes)) {
+        const deviceId = result.id;
+        for (const file of files[field]) {
+          try {
+            await this.documentsService.upload(
+              deviceId,
+              DocumentTargetType.DEVICE,
+              documentType,
+              file,
+            );
+          } catch (error) {
+            this.logger.error(`Failed to upload ${field}: ${error.message}`);
+            throw new BadRequestException(
+              `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+            );
+          }
+        }
+      }
+    }
+    await queryRunner.commitTransaction();
+
+    await this.evidentDeviceService.queueDeviceRegistration(result, files);
+
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];
     delete result['organization'];
+
     return result;
   }
+
   async update(
     organizationId: number,
     role: Role,
@@ -636,6 +750,7 @@ export class DeviceService {
             },
           }
         : undefined;
+
     let currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
@@ -674,6 +789,30 @@ export class DeviceService {
     } else {
       updateDeviceDTO.SDGBenefits = [];
     }
+    const fingerprint = generateDeviceFingerprint({
+      latitude: updateDeviceDTO.latitude,
+      longitude: updateDeviceDTO.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate,
+      capacity: updateDeviceDTO.capacity,
+      fuelCode: updateDeviceDTO.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+    });
+
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+        externalId: Not(updateDeviceDTO.externalId),
+      },
+    });
+
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
+      });
+    }
+    updateDeviceDTO.fingerprint = fingerprint;
+
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
     result['internalexternalId'] = result.externalId;
@@ -1660,5 +1799,30 @@ export class DeviceService {
         archived_at: new Date(),
       },
     );
+  }
+
+  async updateEvidentInfo(
+    deviceExternalId: string,
+    evidentDeviceId: string,
+    evidentStatus: string,
+  ): Promise<void> {
+    this.logger.verbose(`With in updateDeviceEvidentInfo`);
+    const device = await this.repository.findOne({
+      where: {
+        externalId: deviceExternalId,
+      },
+    });
+    if (!device) {
+      this.logger.error(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+      throw new NotFoundException(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+    }
+    device.evidentDeviceId = evidentDeviceId;
+    device.evidentStatus = evidentStatus;
+    await this.repository.save(device);
+    this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
 }

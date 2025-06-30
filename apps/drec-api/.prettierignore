@@ -24,4 +24,3 @@ node_modules
 # Build outputs
 dist
 bin
-lib

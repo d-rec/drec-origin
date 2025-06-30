@@ -42,7 +42,6 @@ export class WithoutAuthGuard implements CanActivate {
         }
         break;
 
-      case UrlPath.ConfirmEmail:
       case UrlPath.ResetPassword:
         if (isEmail(request.params.token)) {
           this.logger.verbose(`Token is an email: ${request.params.token}`);

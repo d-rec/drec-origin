@@ -10,7 +10,6 @@ import {
   UseGuards,
   Logger,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiResponse,
@@ -28,6 +27,7 @@ import {
 } from './dto/aclmodule.dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
+import { AuthVerifiedGuard } from '../../guards';
 
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
@@ -52,7 +52,7 @@ export class AccessControlLayerModuleServiceController {
    * in response of query and returns null when there is no list of ACLModules or empty.
    * */
   @Get()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard(['jwt']), RolesGuard)
 
   //@Roles(Role.Admin)
   @ApiOperation({
@@ -82,7 +82,7 @@ export class AccessControlLayerModuleServiceController {
    * @return {ACLModuleDTO} when create api is successfull.
    */
   @Post()
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
   @ApiOperation({
     summary: 'Create ACL Module',
@@ -115,7 +115,7 @@ export class AccessControlLayerModuleServiceController {
    * @param {id} is the type of number and identifier of ACl Modules.
    */
   @Put('/update/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @ApiBody({ type: UpdateACLModuleDTO })
   @Roles(Role.Admin)
   @ApiOperation({
