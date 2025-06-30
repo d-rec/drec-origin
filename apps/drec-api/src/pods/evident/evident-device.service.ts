@@ -12,7 +12,7 @@ import {
   EvidentRegistrationStatus,
 } from '../../types/evident';
 import { EvidentService } from './evident.service';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { EnergyUnit } from 'src/types/unit';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -167,8 +167,8 @@ export class EvidentDeviceService {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
     const convertCapacityToMwh = convertToPowerUnit({
       value: device.capacity,
-      unit: Unit.kWh,
-      targetUnit: Unit.MWh,
+      unit: EnergyUnit.kWh,
+      targetUnit: EnergyUnit.MWh,
     });
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,

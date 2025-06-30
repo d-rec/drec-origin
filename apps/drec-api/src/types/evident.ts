@@ -37,9 +37,9 @@ export type EvidentDeviceDetailsPayload = {
 
 export type EvidentIssuanceRequest = {
   code: string;
-  startDate: any;
-  endDate: any;
-  productionVolume: any;
+  startDate: string;
+  endDate: string;
+  productionVolume: number;
   notes?: string;
   recipientAccount: string;
   files: any[];

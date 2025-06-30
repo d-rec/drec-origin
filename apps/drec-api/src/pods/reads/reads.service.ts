@@ -74,6 +74,8 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { Device } from '../device/device.entity';
+import { EnergyUnit } from '../../types/unit';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -1988,5 +1990,57 @@ export class ReadsService {
       });
     }
     return await this.storeRead(device.externalId, measurements);
+  }
+
+  async findAll(
+    device: Device,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<any[]> {
+    const historyReads = await this.getHistoryReads(
+      device.externalId,
+      startDate,
+      endDate,
+    );
+
+    const mappedHistoricalReads = historyReads.map((read) => ({
+      startDate: read.readsStartDate,
+      value: read.readsvalue,
+      unit: read.unit,
+      endDate: read.readsEndDate,
+      deviceId: device.evidentDeviceId,
+      drecDeviceId: device.externalId,
+    }));
+    const deviceCreatedAt = new Date(device.createdAt);
+
+    if (deviceCreatedAt > endDate) return mappedHistoricalReads;
+
+    const ongoingReads = await this.getOngoingReads(device.externalId, {
+      offset: 0,
+      limit: 5000,
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+    });
+
+    const minDate = startDate > deviceCreatedAt ? startDate : deviceCreatedAt;
+
+    const mappedOngoingReads = ongoingReads.map(
+      (read: { _time: any; _value: any }, i: number) => {
+        const _startDate = ongoingReads[i - 1]
+          ? new Date(ongoingReads[i - 1]._time)
+          : minDate;
+
+        return {
+          startDate: _startDate,
+          endDate: read._time,
+          value: read._value,
+          unit: EnergyUnit.Wh,
+          deviceId: device.evidentDeviceId,
+          drecDeviceId: device.externalId,
+        };
+      },
+    );
+
+    return [...mappedOngoingReads, ...mappedHistoricalReads];
   }
 }

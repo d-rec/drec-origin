@@ -5,6 +5,7 @@ import { AxiosInstance } from 'axios';
 import { Device } from '../device/device.entity';
 import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Injectable()
 export class EvidentService {
@@ -40,6 +41,7 @@ export class EvidentService {
       return {
         profile: user,
         member: userMember,
+        id: userMember.uid,
       };
     } catch (error) {
       this.logger.error('Error fetching registrant info:', error);

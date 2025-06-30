@@ -81,7 +81,10 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentRegistrationStatus } from '../../types/evident';
+import {
+  EvidentIssuanceStatus,
+  EvidentRegistrationStatus,
+} from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -564,6 +567,7 @@ export class DeviceService {
       }
     }
   }
+
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
@@ -1844,6 +1848,23 @@ export class DeviceService {
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
 
+  async updateCertificateLogEvidentDetails(
+    id: number,
+    issuanceId: string,
+    status: EvidentIssuanceStatus,
+  ): Promise<any> {
+    return await this.checkDeviceLogCertificateRepository.update(
+      {
+        id: id,
+      },
+      {
+        evidentSyncedAt: Date.now(),
+        evidentIssuanceRequestId: issuanceId,
+        evidentIssuanceRequestStatus: status,
+      },
+    );
+  }
+
   async getCertificatesForEvidentIssuance(): Promise<
     CheckCertificateIssueDateLogForDeviceEntity[]
   > {
@@ -1854,7 +1875,7 @@ export class DeviceService {
         .leftJoinAndSelect('deviceCertificates.device', 'device')
         .leftJoinAndSelect('device.organization', 'organization')
         .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
-        .where('deviceCertificates.evidentSynced = :synced', { synced: false })
+        .where('deviceCertificates.evidentSynced IS NULL')
         .andWhere(
           'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
         )

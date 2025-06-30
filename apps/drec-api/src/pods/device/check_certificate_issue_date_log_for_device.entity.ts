@@ -6,8 +6,9 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IsString, IsNumber, IsDate, IsBoolean } from 'class-validator';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 import { Device } from './device.entity';
+import { EvidentIssuanceStatus } from '../../types/evident';
 
 @Entity('check_certificate_issue_date_log_for_device')
 export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {
@@ -54,9 +55,17 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @IsDate()
   ongoing_end_date: string;
 
-  @Column({ name: 'evident_synced' })
-  @IsBoolean()
-  evidentSynced: boolean;
+  @Column({ name: 'evident_synced_at' })
+  @IsDate()
+  evidentSyncedAt: Date | null;
+
+  @Column({ name: 'evident_issuance_request_id' })
+  @IsString()
+  evidentIssuanceRequestId: string | null;
+
+  @Column({ name: 'evident_issuance_request_status' })
+  @IsString()
+  evidentIssuanceRequestStatus: EvidentIssuanceStatus | null;
 
   @ManyToOne(() => Device, (device) => device.certificateLogs)
   @JoinColumn({ name: 'externalId', referencedColumnName: 'externalId' })
