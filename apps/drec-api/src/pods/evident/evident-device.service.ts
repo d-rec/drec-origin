@@ -62,18 +62,18 @@ export class EvidentDeviceService {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
-    const user = await this.evidentService.getRegistrantInfo(
-      device.organizationId,
-    );
-    const uploadedFiles = await this.uploadFiles(
+    const { registrantId, id: evidentUserId } =
+      await this.evidentService.getRegistrantInfo(device.organizationId);
+    const uploadedFiles = await this.evidentService.uploadFiles(
       device,
       files,
-      user.member.uid,
+      evidentUserId,
+      this.getNotes(device),
     );
 
     const payload = this.generateDeviceDetailsPayload(
       device,
-      user.member.organisation.uid,
+      registrantId,
       uploadedFiles,
     );
 
@@ -126,37 +126,6 @@ export class EvidentDeviceService {
       device,
       files,
     });
-  }
-
-  async uploadFiles(
-    device: Device,
-    files: Record<string, Express.Multer.File[]>,
-    registrantId: string,
-  ): Promise<string[]> {
-    const filesToUpload = [];
-    for (const [documentType, fileArray] of Object.entries(files)) {
-      if (!Array.isArray(fileArray)) continue;
-      for (const file of fileArray) {
-        filesToUpload.push({
-          file,
-          documentType: documentType as DocumentType,
-        });
-      }
-    }
-    const uploadedFiles = await Promise.all(
-      filesToUpload.map(({ file, documentType }) =>
-        this.evidentService.uploadFile(
-          device,
-          registrantId,
-          file,
-          this.getNotes(device),
-          documentType,
-        ),
-      ),
-    );
-    return uploadedFiles
-      .filter((result) => result.success && result.fileId)
-      .map((result) => result.fileId);
   }
 
   private generateDeviceDetailsPayload(

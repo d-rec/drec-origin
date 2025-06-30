@@ -39,10 +39,10 @@ export type EvidentIssuanceRequest = {
   code: string;
   startDate: string;
   endDate: string;
-  productionVolume: number;
+  productionVolume: string;
   notes?: string;
   recipientAccount: string;
-  files: any[];
+  files: Record<string, any[]>;
   fuel: string;
   status: string;
 };

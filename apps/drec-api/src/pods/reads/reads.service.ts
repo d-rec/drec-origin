@@ -1642,18 +1642,12 @@ export class ReadsService {
   }
 
   async getOngoingReads(meter: string, filter: FilterDTO | any): Promise<any> {
-    this.logger.verbose('IN THE FUNCTION TO GET ONGOING READS');
-
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
     const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
-    this.logger.verbose('filter.start:::::::' + filter);
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}") |> range(start:${filter.start} , stop:${filter.end} ) |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read") |> limit(n:${filter.limit} , offset:${filter.offset})`;
-    const result = await queryApi.collectRows(fluxQuery);
-    this.logger.verbose(result);
-    this.logger.verbose('\ncollect-rows query SUCCESS');
-    return result;
+    return queryApi.collectRows(fluxQuery);
   }
 
   async validateAndStoreReads({

@@ -1,26 +1,24 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Injectable, Logger } from '@nestjs/common';
+import { CronExpression } from '@nestjs/schedule';
+import { DateTime } from 'luxon';
+import { NonConcurrentCron } from '../../lib/cron';
 import {
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
-import { DeviceService } from '../device/device.service';
-import { ReadsService } from '../reads/reads.service';
-import { EvidentService } from './evident.service';
-import { Device } from '../device/device.entity';
-import * as fs from 'fs';
-import * as path from 'path';
-import { promisify } from 'util';
-import { EvidentSettingsService } from './evident-settings.service';
-import { convertToPowerUnit } from '../../utils/convert-to-power-units';
-import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { EnergyUnit } from '../../types/units';
-import { DateTime } from 'luxon';
+import { convertToPowerUnit } from '../../utils/convert-to-power-units';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
+import { Device } from '../device/device.entity';
+import { DeviceService } from '../device/device.service';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { ReadsService } from '../reads/reads.service';
+import { EvidentSettingsService } from './evident-settings.service';
+import { EvidentService } from './evident.service';
 
 @Injectable()
 export class EvidentIssuanceService {
   private readonly logger = new Logger(EvidentIssuanceService.name);
-  private issuerId = process.env.IREC_EVIDENT_ISSUER_ID || null;
 
   constructor(
     private readonly evidentService: EvidentService,
@@ -29,20 +27,25 @@ export class EvidentIssuanceService {
     private readonly evidentSettingsService: EvidentSettingsService,
   ) {}
 
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async getCertificatesForIssuance(): Promise<void> {
+    const certificates =
+      await this.deviceService.getCertificatesForEvidentIssuance();
+    for (const certificate of certificates) {
+      await this.processCertificate(certificate);
+    }
+  }
+
   async create(device: Device, issuance: EvidentIssuanceRequest): Promise<any> {
     try {
       const evidentInstance = await this.evidentService.getApiInstance(
         device.organizationId,
       );
-
-      console.log('Creating issuance for device:', device.evidentDeviceId);
-
       const response = await evidentInstance.post('/issues', {
         device: `/devices/${device.evidentDeviceId}`,
       });
 
-      console.log('Issuance created:', response.data);
-      const issuanceId = response.data['@id'];
+      const issuanceId = response.data['uid'];
       const { id: registrantId } = await this.evidentService.getRegistrantInfo(
         device.organizationId,
       );
@@ -60,11 +63,11 @@ export class EvidentIssuanceService {
         details,
       };
     } catch (error) {
-      console.error('Error registering issuance:', error.message);
-      console.log('Error details:', error.response?.data);
-      throw new BadRequestException(
-        error.response?.data?.['hydra:description'],
+      this.logger.error(
+        'Error registering issuance:',
+        error.response?.data ?? error.message,
       );
+      throw error;
     }
   }
 
@@ -77,135 +80,107 @@ export class EvidentIssuanceService {
     const evidentInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
-    try {
-      let uploadedFiles = [];
+    let uploadedFiles = [];
 
-      if (issuance.files) {
-        uploadedFiles = await this.uploadFiles(
-          device,
-          issuance.files,
-          registrantId,
-        );
-      }
-
-      const format = 'yyyy-MM-dd\'T\'HH:mm:ssZZ';
-
-      const startDateFormatted = DateTime.fromISO(issuance.startDate).toFormat(format);
-      const endDateFormatted = DateTime.fromISO(issuance.endDate).toFormat(format);
-
-      const payload =  {
-        files: uploadedFiles,
-        fuel: issuance.fuel,
-        issue: issuanceId,
-        notes: issuance.notes,
-        productionVolume: issuance.productionVolume,
-        recipientAccount: issuance.recipientAccount,
-        startDate: startDateFormatted,
-        endDate: endDateFormatted,
-        status: EvidentIssuanceStatus.Draft,
-      };
-
-      console.log(payload);
-
-      return await evidentInstance.post('/issue_details', payload);
-    } catch (error) {
-      console.error('Error registering issuance:', error.message);
-      throw error;
-    }
-  }
-
-  private async uploadFiles(
-    device: Device | { organizationId: number },
-    files: string[],
-    registrantId: string,
-    notes = '',
-  ): Promise<string[]> {
-    const uploadedFileReferences: string[] = [];
-    const filesToUpload = Array.isArray(files) ? files : [files];
-
-    for (const filePath of filesToUpload) {
-      const file = {
-        path: filePath,
-      } as Express.Multer.File;
-      const fileReference = await this.evidentService.uploadFile(
+    if (issuance.files) {
+      uploadedFiles = await this.evidentService.uploadFiles(
         device,
+        issuance.files,
         registrantId,
-        file,
-        notes,
-        DocumentType.METERING_EVIDENCE,
       );
-      await this.cleanupCsvFile(filePath);
-      uploadedFileReferences.push(fileReference);
     }
 
-    return uploadedFileReferences;
+    const format = "yyyy-MM-dd'T'HH:mm:ssZZ";
+
+    const startDateFormatted = DateTime.fromISO(issuance.startDate).toFormat(
+      format,
+    );
+    const endDateFormatted = DateTime.fromISO(issuance.endDate).toFormat(
+      format,
+    );
+
+    const payload = {
+      files: uploadedFiles,
+      fuel: issuance.fuel,
+      issue: `/issues/${issuanceId}`,
+      notes: issuance.notes,
+      productionVolume: issuance.productionVolume,
+      recipientAccount: issuance.recipientAccount,
+      startDate: startDateFormatted,
+      endDate: endDateFormatted,
+      status: EvidentIssuanceStatus.Draft,
+    };
+
+    return await evidentInstance.post('/issue_details', payload);
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  async getCertificatesForIssuance(): Promise<void> {
-    const certificates =
-      await this.deviceService.getCertificatesForEvidentIssuance();
-    for (const certificate of certificates) {
-      try {
-        const startDate = certificate.certificate_issuance_startdate;
-        const endDate = certificate.certificate_issuance_enddate;
+  private async processCertificate(
+    certificate: CheckCertificateIssueDateLogForDeviceEntity,
+  ) {
+    const startDate = certificate.certificate_issuance_startdate;
+    const endDate = certificate.certificate_issuance_enddate;
 
-        const reads = await this.readService.findAll(
-          certificate.device,
-          startDate,
-          endDate,
-        );
+    const { reads, ...file } = await this.generateReadsCSVFile(
+      certificate.device,
+      startDate,
+      endDate,
+    );
 
-        const csvContent = this.generateCsvContent(reads);
-        const evidentSettings = await this.evidentSettingsService.find(
-          certificate.device.organizationId,
-        );
-        const recipientAccount = evidentSettings.defaultTradingAccount;
-        const csvFilePath = await this.saveCsvToFile(
-          csvContent,
-          certificate.device.evidentDeviceId,
-          startDate,
-          endDate,
-        );
+    const files = {
+      [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
+    };
 
-        const amount = reads.reduce((sum, read) => {
-          return sum + (read.value || 0);
-        }, 0);
-        console.log('Total amount of energy:', amount);
-        const payload: EvidentIssuanceRequest = {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-          productionVolume: convertToPowerUnit({
-            value: amount,
-            unit: EnergyUnit.Wh,
-            targetUnit: EnergyUnit.MWh,
-          }),
-          notes: '',
-          recipientAccount: `/accounts/${recipientAccount}`,
-          code: certificate.device.evidentDeviceId,
-          files: [csvFilePath],
-          fuel: '/fuels/ES100',
-          status: 'Draft',
-        };
+    const { defaultTradingAccount } = await this.evidentSettingsService.find(
+      certificate.device.organizationId,
+    );
 
-        const { issuanceId } = await this.create(certificate.device, payload);
+    const amount = reads.reduce((sum, read) => {
+      return sum + (read.value || 0);
+    }, 0);
 
-        await this.deviceService.updateCertificateLogEvidentDetails(
-          certificate.id,
-          issuanceId,
-          EvidentIssuanceStatus.Draft,
-        );
-      } catch (error) {
-        this.logger.error(
-          `Error processing certificate for device ${certificate.device.id}: ${error.message}`,
-        );
-        throw error;
-        // Optionally, you can log the error to a monitoring service or database
-      }
+    if (amount <= 0) {
+      this.logger.warn(
+        `No valid reads found for device ${certificate.device.externalId} between ${startDate.toISOString()} and ${endDate.toISOString()}. Skipping issuance.`,
+      );
+      return;
     }
+
+    const productionVolume = convertToPowerUnit({
+      value: amount,
+      unit: EnergyUnit.Wh,
+      targetUnit: EnergyUnit.MWh,
+    });
+
+    const payload: EvidentIssuanceRequest = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      productionVolume: productionVolume.toString(),
+      notes: JSON.stringify({
+        'D-REC Device Id': certificate.device.externalId,
+        'D-REC Token': certificate.certificateTransactionUID,
+      }),
+      recipientAccount: `/accounts/${defaultTradingAccount}`,
+      code: certificate.device.evidentDeviceId,
+      files,
+      fuel: '/fuels/ES100',
+      status: EvidentIssuanceStatus.Draft,
+    };
+
+    const { issuanceId } = await this.create(certificate.device, payload);
+
+    await this.deviceService.updateCertificateLogEvidentDetails(
+      certificate.id,
+      issuanceId,
+      EvidentIssuanceStatus.Draft,
+    );
   }
 
-  private generateCsvContent(reads: any[]): string {
+  private async generateReadsCSVFile(
+    device: Device,
+    startDate: Date,
+    endDate: Date,
+  ) {
+    const reads = await this.readService.findAll(device, startDate, endDate);
     const headers = [
       'Device ID',
       'D-REC Device ID',
@@ -227,31 +202,17 @@ export class EvidentIssuanceService {
       ];
       csvRows.push(row.join(','));
     });
-    return csvRows.join('\n');
-  }
 
-  private async saveCsvToFile(
-    csvContent: string,
-    deviceId: string,
-    startDate: Date,
-    endDate: Date,
-  ): Promise<string> {
-    const tempDir = path.join(process.cwd(), 'temp', 'csv-exports');
+    const content = csvRows.join('\n');
 
-    // Ensure temp directory exists
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-    const fileName = `meter-reads-${deviceId}-${startDate.toISOString()}-to-${endDate.toISOString()}.csv`;
-    const filePath = path.join(tempDir, fileName);
-    const writeFile = promisify(fs.writeFile);
-    await writeFile(filePath, csvContent, 'utf8');
-    return filePath;
-  }
+    const fileName = `meter-reads-${device.evidentDeviceId}-${startDate.toISOString()}-to-${endDate.toISOString()}.csv`;
 
-  private async cleanupCsvFile(filePath: string): Promise<void> {
-    const unlink = promisify(fs.unlink);
-    await unlink(filePath);
-    this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
+    return {
+      originalname: fileName,
+      filename: fileName,
+      mimetype: 'text/csv',
+      buffer: Buffer.from(content, 'utf8'),
+      reads,
+    };
   }
 }

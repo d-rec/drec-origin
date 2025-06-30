@@ -1853,12 +1853,13 @@ export class DeviceService {
     issuanceId: string,
     status: EvidentIssuanceStatus,
   ): Promise<any> {
+    const now = new Date();
     return await this.checkDeviceLogCertificateRepository.update(
       {
         id: id,
       },
       {
-        evidentSyncedAt: Date.now(),
+        evidentSyncedAt: now.toISOString(),
         evidentIssuanceRequestId: issuanceId,
         evidentIssuanceRequestStatus: status,
       },
@@ -1868,29 +1869,22 @@ export class DeviceService {
   async getCertificatesForEvidentIssuance(): Promise<
     CheckCertificateIssueDateLogForDeviceEntity[]
   > {
-    this.logger.verbose(`With in getCertificatesForEvidentIssuance`);
-    try {
-      return await this.checkDeviceLogCertificateRepository
-        .createQueryBuilder('deviceCertificates')
-        .leftJoinAndSelect('deviceCertificates.device', 'device')
-        .leftJoinAndSelect('device.organization', 'organization')
-        .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
-        .where('deviceCertificates.evidentSyncedAt IS NULL')
-        .andWhere(
-          'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
-        )
-        .andWhere('evidentSettings.apiKey IS NOT NULL')
-        .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
-        .andWhere('device.evidentStatus = :status', {
-          status: 'Approved',
-        })
-        .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
-        .getMany();
-    } catch (error) {
-      this.logger.error(
-        `Error fetching certificates for Evident issuance`,
-        error,
-      );
-    }
+    return await this.checkDeviceLogCertificateRepository
+      .createQueryBuilder('deviceCertificates')
+      .leftJoinAndSelect('deviceCertificates.device', 'device')
+      .leftJoinAndSelect('device.organization', 'organization')
+      .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
+      .where('deviceCertificates.evidentSyncedAt IS NULL')
+      .andWhere(
+        'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
+      )
+      .andWhere('evidentSettings.apiKey IS NOT NULL')
+      .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
+      .andWhere('device.evidentStatus = :status', {
+        status: 'Approved',
+      })
+      .andWhere('deviceCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
+      .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
   }
 }
