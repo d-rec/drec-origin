@@ -83,52 +83,54 @@ export class EvidentService {
     notes: string,
     documentType?: DocumentType,
   ): Promise<any> {
-    // try {
-    if (!file) {
+    try {
+      if (!file) {
+        return {
+          success: false,
+          error: 'No file provided for upload',
+        };
+      }
+
+      const evidentApiInstance = await this.getApiInstance(
+        device.organizationId,
+      );
+      const fileData = getFileData(file);
+      const form = new FormData();
+
+      form.append('file', fileData, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+      form.append('name', file.originalname);
+      form.append('notes', notes);
+      form.append('userUid', evidentUserId);
+      form.append('category', documentType);
+
+      const uploadedFile = await evidentApiInstance.post('/files', form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+        timeout: 30000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+
+      return {
+        success: true,
+        data: uploadedFile.data,
+        fileId: uploadedFile.data?.['@id'],
+      };
+    } catch (error) {
+      this.logger.error(
+        'Failed to upload file:',
+        error.response?.data || error.message,
+      );
+
       return {
         success: false,
-        error: 'No file provided for upload',
+        error:
+          error.response?.data?.message || error.message || 'Upload failed',
       };
     }
-
-    const evidentApiInstance = await this.getApiInstance(device.organizationId);
-    const fileData = getFileData(file);
-    const form = new FormData();
-
-    form.append('file', fileData, {
-      filename: file.originalname,
-      contentType: file.mimetype,
-    });
-    form.append('name', file.originalname);
-    form.append('notes', notes);
-    form.append('userUid', evidentUserId);
-    form.append('category', documentType);
-
-    const uploadedFile = await evidentApiInstance.post('/files', form, {
-      headers: {
-        ...form.getHeaders(),
-      },
-      timeout: 30000,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
-
-    return {
-      success: true,
-      data: uploadedFile.data,
-      fileId: uploadedFile.data?.['@id'],
-    };
-    // } catch (error) {
-    //   this.logger.error(
-    //     'Failed to upload file:',
-    //     error.response?.data || error.message,
-    //   );
-
-    //   return {
-    //     success: false,
-    //     error:
-    //       error.response?.data?.message || error.message || 'Upload failed',
-    //   };
-    // }
   }
 }
