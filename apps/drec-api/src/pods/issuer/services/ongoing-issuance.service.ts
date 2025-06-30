@@ -6,7 +6,6 @@ import { DateTime } from 'luxon';
 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { getCycleEndDate } from '../../../lib/helpers/getCycleEndDate';
 import { Queues } from '../../../utils/enums/queues.enum';
 import { Device } from '../../device';
 import { DeviceGroup } from '../../device-group/device-group.entity';
