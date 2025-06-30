@@ -223,7 +223,6 @@ export class LateOngoingIssuanceService {
     }
   }
 
-
   /**
    * Issues certificates for readings when the last read is after the late end date
    *

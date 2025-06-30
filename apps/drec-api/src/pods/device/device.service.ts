@@ -71,7 +71,11 @@ import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { getCycleEndDate, getMaxDateByFrequency, getMinDateByFrequency } from '../../lib/helpers/getCycleEndDate';
+import {
+  getCycleEndDate,
+  getMaxDateByFrequency,
+  getMinDateByFrequency,
+} from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
 
 @Injectable()
@@ -1555,7 +1559,6 @@ export class DeviceService {
     // Create and return a new cycle
     return this.createCycle(groupId, deviceExternalId, startDate, endDate);
   }
-
 
   public async findCycleByDateRange(
     groupId: number,

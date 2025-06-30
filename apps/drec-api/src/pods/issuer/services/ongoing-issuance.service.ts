@@ -157,76 +157,12 @@ export class OngoingIssuanceService {
   }
 
   /**
-   * Calculates the optimal end date for a certificate issuance cycle
-   *
-   * @param group - The device group
-   * @param startDateFormatted - Formatted start date string
-   * @param endDate - End date as DateTime object
-   * @returns The optimal end date as ISO string
-   */
-  private async calculateOptimalEndDate(
-    group: DeviceGroup,
-    startDateFormatted: string,
-    endDate: DateTime,
-  ): Promise<string> {
-    // Calculate end date based on group frequency
-    const endDateFormatted = getCycleEndDate(
-      endDate.toJSDate(),
-      group.frequency,
-    ).toISOString();
-
-    // Determine appropriate end date
-    let newEndDate: string;
-
-    if (
-      new Date(endDateFormatted).getTime() < group.reservationEndDate.getTime()
-    ) {
-      newEndDate = endDateFormatted;
-    } else {
-      newEndDate = group.reservationEndDate.toISOString();
-    }
-
-    try {
-      // Check for devices onboarded within the cycle period
-      const allDevicesOfGroup = await this.deviceService.findForGroup(group.id);
-
-      // Sort devices by creation date (newest first)
-      allDevicesOfGroup.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-
-      // Find earliest device created between start and end dates
-      const deviceInCyclePeriod = allDevicesOfGroup.find((device) => {
-        const createdAt = new Date(device.createdAt).getTime();
-        const startTime = new Date(startDateFormatted).getTime();
-        const endTime = new Date(newEndDate).getTime();
-
-        return createdAt > startTime && createdAt < endTime;
-      });
-
-      // If found, use device creation date as end date
-      if (deviceInCyclePeriod) {
-        newEndDate = new Date(deviceInCyclePeriod.createdAt).toISOString();
-      }
-    } catch (error) {
-      this.logger.error(
-        'Error checking for devices onboarded during cycle period',
-        error,
-      );
-    }
-
-    return newEndDate;
-  }
-
-  /**
    * Processes devices with missing meter read type and adds them to a late issuance cycle
    *
    * This function identifies devices that were created before the start date and have
    * a null meter read type, then registers them for late cycle processing.
    *
    * @param group - The device group containing the devices
-   * @param groupRequest - The certificate issuance request
    * @param startDate - Start date for the issuance cycle
    * @param endDate - End date for the issuance cycle
    */
