@@ -1045,15 +1045,17 @@ export class DeviceGroupService {
       : startDate;
 
     const minDate = startDate > minDeviceDate ? startDate : minDeviceDate;
-    const maxEndDate = this.calculateNextIssuanceEndDate(
+    const maxEndDateUTC = this.calculateNextIssuanceEndDate(
       minDate,
       endDate,
       frequency,
     );
 
+    const minDateUTC = DateTime.fromJSDate(minDate).toUTC().toJSDate();
+
     return {
-      startDate: minDate,
-      endDate: maxEndDate,
+      startDate: minDateUTC,
+      endDate: maxEndDateUTC,
     };
   }
 
@@ -1067,7 +1069,7 @@ export class DeviceGroupService {
       Math.min(cycleEndDate.getTime(), reservationEndDate.getTime()),
     );
 
-    return maxEndDate;
+    return DateTime.fromJSDate(maxEndDate).toUTC().toJSDate();
   }
 
   @Profile()
