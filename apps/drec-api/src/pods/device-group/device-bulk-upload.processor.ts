@@ -6,6 +6,8 @@ import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
 import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 import { Queues } from '../../utils/enums/queues.enum';
+import { DeviceFiles } from '../device/dto';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Processor(Queues.DeviceBulkUpload)
 export class DeviceBulkUploadProcessor {
@@ -24,6 +26,13 @@ export class DeviceBulkUploadProcessor {
       await this.bulkUploadService.bulkUploadRepository.findOne({
         where: { jobId: job.id.toString() },
       });
+    const files: DeviceFiles = {
+      [DocumentType.FORM_SF_02]: [],
+      [DocumentType.SF_02C]: [],
+      [DocumentType.METERING_EVIDENCE]: [],
+      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+      [DocumentType.PROJECT_PHOTOS]: [],
+    };
 
     if (!bulkUpload) {
       this.logger.error(`Bulk upload not found for jobId: ${job.id}`);
@@ -35,6 +44,7 @@ export class DeviceBulkUploadProcessor {
         fileContent,
         bulkUpload.organizationId,
         bulkUpload,
+        files,
       );
     } catch (error) {
       this.logger.error(`Failed to process file: ${error}`);

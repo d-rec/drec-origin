@@ -194,4 +194,9 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }

@@ -101,6 +101,7 @@ export class IssuerService {
       previousReadings,
       completeMeterReads,
     );
+    const certificateTransactionUID = uuid();
 
     // Log the certificate details
     await Promise.all(
@@ -117,8 +118,6 @@ export class IssuerService {
         ),
       ),
     );
-
-    const certificateTransactionUID = uuid();
 
     // Prepare certificate issuance parameters
     const issuance = this.certificateService.getIssuanceParams(
@@ -189,22 +188,22 @@ export class IssuerService {
       ),
     );
 
-    const validDevices = readings
-      .filter((reading) => reading.totalRead !== 0)
-      .map((reading) => reading.device);
+    const validReadings = readings.filter((reading) => reading.totalRead !== 0);
 
-    const completeMeterReads = readings
-      .filter((reading) => reading.totalRead === 0)
-      .map((reading) => reading.completeReads);
+    const validDevices = validReadings.map((reading) => reading.device);
+
+    const completeMeterReads = validReadings.map(
+      (reading) => reading.completeReads,
+    );
 
     const totalReading = readings.reduce(
       (acc, reading) => acc + reading.totalRead,
       0,
     );
 
-    const previousReadings = readings
-      .filter((reading) => reading.totalRead === 0)
-      .map((reading) => reading.previousReading);
+    const previousReadings = validReadings.map(
+      (reading) => reading.previousReading,
+    );
 
     return {
       validDevices,
@@ -356,12 +355,20 @@ export class IssuerService {
       );
     }
 
+    this.logger.debug(
+      `Filtered out ${filteredReadings.length}/${deviceReadings.length} readings for ${device.externalId}`,
+    );
+
     const certifiedDevices =
       await this.deviceService.getCheckCertificateIssueDateLogForDevice(
         device.externalId,
         new Date(startDate.toString()),
         new Date(endDate.toString()),
       );
+
+    this.logger.debug(
+      `Found ${certifiedDevices.length} certified devices for ${device.externalId}`,
+    );
 
     if (certifiedDevices.length > 0) {
       const certifiedRanges = certifiedDevices.map((cert) => ({
@@ -379,9 +386,17 @@ export class IssuerService {
       });
     }
 
+    this.logger.debug(
+      `Filtered out ${filteredReadings.length}/${deviceReadings.length} readings for ${device.externalId}`,
+    );
+
     const totalReadValue = filteredReadings.reduce(
       (sum, reading) => sum + reading.value,
       0,
+    );
+
+    this.logger.debug(
+      `Total read value for ${device.externalId} is ${totalReadValue}`,
     );
 
     return {

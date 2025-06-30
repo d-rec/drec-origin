@@ -363,9 +363,13 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    @UserDecorator() user: LoggedInUser,
+    @Req() request: Request,
   ): Promise<SuccessResponseDTO> {
-    return this.emailConfirmationService.sendConfirmationEmail(user.email);
+    const user = request.user as any;
+    return this.emailConfirmationService.sendConfirmationEmail(
+      user.email,
+      user.firstName,
+    );
   }
 
   /**
@@ -446,5 +450,14 @@ export class UserController {
     @Res() res: Response,
   ): Promise<any> {
     return await this.oauthClientService.createKeyFile(api_user_id, res);
+  }
+
+  @Patch('update-phone-number')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  public async updatePhoneNumber(
+    @UserDecorator() user: LoggedInUser,
+    @Body() body: Pick<UserDTO, 'phoneNumber'>,
+  ): Promise<{ message: string }> {
+    return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
   }
 }

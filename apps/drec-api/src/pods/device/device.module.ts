@@ -14,9 +14,13 @@ import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
+import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
+import { EvidentModule } from '../evident/evident.module';
+
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
+    forwardRef(() => EvidentModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([
@@ -30,6 +34,7 @@ import { HttpModule } from '@nestjs/axios';
     ]),
     UserModule,
     OrganizationModule,
+    DocumentUploadsModule,
   ],
   providers: [DeviceService],
   exports: [DeviceService],

@@ -15,7 +15,7 @@ hero:
       link: /usage-guide/get-started
     - theme: alt
       text: API Documentation
-      link: https://dev-api.drecs.org/swagger/
+      link: https://dev-api.drecs.org/docs
   image:
     src: /D-REC-logo.png
     alt: VitePress
