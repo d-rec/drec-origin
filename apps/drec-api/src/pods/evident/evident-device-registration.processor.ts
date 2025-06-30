@@ -1,18 +1,17 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
 import { Device } from '../device/device.entity';
-import { EvidentService } from './evident.service';
 import { Queues } from '../../utils/enums/queues.enum';
-
+import { EvidentDeviceService } from './evident-device.service';
 @Processor(Queues.EvidentDeviceRegistration)
 export class EvidentDeviceRegistrationProcessor {
-  constructor(private readonly evidentService: EvidentService) {}
+  constructor(private readonly evidentDeviceService: EvidentDeviceService) {}
 
   @Process({ concurrency: 1 })
   async handleRegisterDevice(
     job: Job<{ organizationId: number; device: Device; files: any }>,
   ): Promise<any> {
-    const { organizationId, device, files } = job.data;
-    await this.evidentService.registerDevice(organizationId, device, files);
+    const { device, files } = job.data;
+    await this.evidentDeviceService.registerDevice(device, files);
   }
 }

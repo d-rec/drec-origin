@@ -81,6 +81,8 @@ import {
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentService } from '../evident/evident.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -104,6 +106,7 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentService: EvidentService,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   public async find(
@@ -536,6 +539,31 @@ export class DeviceService {
     );
   }
 
+  async syncStatusesWithEvident(): Promise<void> {
+    const devices = await this.repository.find({
+      where: { evidentStatus: EvidentRegistrationStatus.Draft },
+    });
+    for (const device of devices) {
+      try {
+        const updatedStatus = await this.evidentDeviceService.getStatus(
+          device.organizationId,
+          device.evidentDeviceId,
+        );
+        if (updatedStatus !== device.evidentStatus) {
+          this.logger.verbose(
+            `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
+          );
+          device.evidentStatus =
+            updatedStatus === 'In Progress'
+              ? EvidentRegistrationStatus.Submitted
+              : updatedStatus;
+          await this.repository.save(device);
+        }
+      } catch (error) {
+        this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
+      }
+    }
+  }
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
@@ -699,11 +727,7 @@ export class DeviceService {
     }
     await queryRunner.commitTransaction();
 
-    await this.evidentService.queueDeviceRegistration(
-      organizationId,
-      result,
-      files,
-    );
+    await this.evidentDeviceService.queueDeviceRegistration(result, files);
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
@@ -1779,22 +1803,28 @@ export class DeviceService {
     );
   }
 
-  async updateDeviceEvidentInfo(
+  async updateEvidentInfo(
     deviceExternalId: string,
     evidentDeviceId: string,
     evidentStatus: string,
   ): Promise<void> {
     this.logger.verbose(`With in updateDeviceEvidentInfo`);
-    const devices = await this.repository.find({
+    const device = await this.repository.findOne({
       where: {
         externalId: deviceExternalId,
       },
     });
-    for (const device of devices) {
-      device.evidentDeviceId = evidentDeviceId;
-      device.evidentStatus = evidentStatus;
-      await this.repository.save(device);
+    if (!device) {
+      this.logger.error(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
+      throw new NotFoundException(
+        `Device not found with externalId: ${deviceExternalId}`,
+      );
     }
+    device.evidentDeviceId = evidentDeviceId;
+    device.evidentStatus = evidentStatus;
+    await this.repository.save(device);
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
   }
 }

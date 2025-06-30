@@ -5,15 +5,12 @@ order: 1
 # Functional Requirements
 
 - D-REC Platform
-
   - Introduction
 
 - BUSINESS REQUIREMENTS OVERVIEW
-
   - TECHNICAL SPECIFICATIONS
 
   - User registration flow
-
     1. For developers
 
     2. For buyers
@@ -21,19 +18,16 @@ order: 1
   - User login
 
   - User pages for Developers:
-
     1. Organization
 
     2. Devices
 
        My devices:
-
        - here, the developers can see the devices that they have added in a tabular format the fields will contain:
 
        - The user can also use filter menu to view devices according to their preferences. The filter menu contains following fields according to which devices can be filtered
 
        Add devices:
-
        - In this page, developers can add devices by filling the following fields in the form:
 
        - Note- Mandatory field are marked with (\*).
@@ -47,15 +41,12 @@ order: 1
        Bulk upload.
 
     3. Meter reads
-
        - Under this functionality, there are three fields:
 
     All reads:
-
     - After selecting all the fields, the users will have two buttons in UI.
 
     Add meter Read:
-
     - When the developer selects this option, they will be redirected to “Add read” page where they can add the meter reading of their added devices.
 
     - The meter readings will be validated based on the capacity of the devices and the time period for which the electricity is generated.
@@ -74,11 +65,8 @@ order: 1
       $$
 
   Certified meter reads:
-
   - User pages for Buyers
-
     1. My reservation
-
        - After selecting the fields, buyers can select ‘filter’ button to filter the list based on the selected preferences or can click ‘reset’ button to reset the preferences.
 
        - The filter form is not mandatory, buyers can directly see the list of devices from full list.
@@ -86,7 +74,6 @@ order: 1
     2. Certificate
 
     3. Add reservation
-
        - Here, the buyer can make reservations of the devices to obtain certificates. Buyers will have to fill following details from the UI form:
 
        - After filling the reservation form, buyers will have the option to filter the list of devices by selecting following fields:
@@ -102,7 +89,6 @@ order: 1
 #### For developers
 
 - Developer will enter:
-
   1. first name,
 
   2. last name,
@@ -124,7 +110,6 @@ order: 1
 #### For buyers
 
 - Buyer will enter.
-
   1. first name,
 
   2. last name,
@@ -240,7 +225,6 @@ graph TD
 ### User Login
 
 - Before this use case can be initiated, the user must have registered his email ID.
-
   1. User must fill in the registered email ID in the “enter email ID section”.
 
   2. User must fill in the password used during registration and click on Login.
@@ -509,7 +493,6 @@ graph TD
 - Once the file is uploaded, the user can click on “logs” icon to check the status of the bulk uploads
 
 - If the mandatory fields are provided in the schema with proper enum values then the screen will redirected to device bulk registration status log where the user will be provided with table with following fields:
-
   1. ID
 
   2. Externalid: the external id added by the users for the devices.
@@ -517,7 +500,6 @@ graph TD
   3. Error list: will provide user with the list of errors in statement form and will provide correct enum values that system accepts.
 
   4. Status
-
      - Success- in this status all the mandatory fields and enum values are correctly entered by the user
 
      - Success with validation errors, please update fields. – in this error the device will be added to the portal but with error and user can edit the fields that have error by clicking the “edit” button, which will redirect the user to device update form where user can enter and update correct values.
@@ -791,7 +773,6 @@ Users can choose the time zone where the device is located. They will be provide
 - Read Type (\*)
 
 1. History
-
    - History reads are the meter readings between the commissioning date (the date/time when the device started generating electricity) and the onboarding time (the time when the device is registered in the DREC platform).
 
    - History reads start time should always be before the device onboarding time.
@@ -807,7 +788,6 @@ Users can choose the time zone where the device is located. They will be provide
    - The DREC system allows users to submit history meter reads for devices they have registered before and forgot to submit meter reads for.
 
 2. Aggregate
-
    - Aggregate readings are the current readings of the meter.
 
    - Aggregate readings are converted to delta readings in the backend of the system to generate certificates for the buyers.
@@ -829,7 +809,6 @@ Users can choose the time zone where the device is located. They will be provide
    - The DREC platform allows users to provide meter reads late, for which the time cycle has already moved to a different cycle. For this, a cron job will run every 4 hours in the system to include late-submitted meter reads for certificate generation.
 
 3. Delta
-
    - Delta readings are the values pre-calculated by the developer, which will be entered in the system and should be considered for certification.
 
    - Delta = Current Meter Reads – Previous Meter Reads
@@ -928,7 +907,6 @@ Certificates can be filtered based on the filter menu provided in the UI. The fi
 #### Meter Readings Version 1.0
 
 - Meter Reading process is segregated into three main categories:
-
   - Historic Readings
 
   - Delta Readings (Calculated)
@@ -1071,7 +1049,6 @@ Buyer can select from the drop-down country list.
 - Fuel code.
 
   Here the buyer can filter from fuel code from the following options in the drop-down menu:
-
   - Solar
 
   - Co-fired with fossil: solar thermal concentrations.
@@ -1079,7 +1056,6 @@ Buyer can select from the drop-down country list.
 - Off taker.
 
   Here, the buyer can filter from the off taker of the power produced from the device from the drop-down menu, which will contain following options:
-
   1. School
 
   2. Health facility.
@@ -1388,7 +1364,6 @@ Each certificate will display following details:
    Owned volume- the total amount of certified data
 
 2. Per single device contribution: in this user can drop-down to see per device contribution for the certificates, each device will have:
-
    1. start date - the start of the verified meter read period
 
    2. end date- the end of the verified meter read period
