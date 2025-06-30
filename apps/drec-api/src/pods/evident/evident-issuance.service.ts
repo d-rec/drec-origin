@@ -135,10 +135,7 @@ export class EvidentIssuanceService {
         registrantId,
         filePath,
       );
-
-      const unlink = promisify(fs.unlink);
-      await unlink(filePath);
-      this.logger.log(`🗑️ Cleaned up temporary file: ${filePath}`);
+      await this.cleanupCsvFile(filePath);
       uploadedFileReferences.push(fileReference);
     }
 

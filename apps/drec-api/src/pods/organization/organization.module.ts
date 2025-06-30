@@ -25,7 +25,7 @@ import { EvidentSettings } from '../evident/evident-settings.entity';
     FileModule,
     forwardRef(() => InvitationModule),
     forwardRef(() => DeviceModule),
-    forwardRef(() => EvidentModule), // Ensure DocumentUploadsModule is imported correctly
+    forwardRef(() => EvidentModule),
     DocumentUploadsModule,
   ],
   providers: [OrganizationService],
