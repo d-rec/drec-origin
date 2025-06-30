@@ -203,11 +203,10 @@ export class EvidentIssuanceService {
         .sort(
           (a: Date, b: Date) => new Date(b).getTime() - new Date(a).getTime(),
         )[0];
-      const recipientAccount =
-        await this.evidentSettingsService.getRecipientAccount(
-          certificates[0].device.organizationId,
-        );
-
+      const recipientSettings = await this.evidentSettingsService.find(
+        certificates[0].device.organizationId,
+      );
+      const recipientAccount = recipientSettings.defaultTradingAccount;
       const csvFilePath = await this.saveCsvToFile(
         csvContent,
         certificates[0].device.evidentDeviceId,
