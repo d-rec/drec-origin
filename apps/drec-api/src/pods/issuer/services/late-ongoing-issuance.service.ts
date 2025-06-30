@@ -222,9 +222,20 @@ export class LateOngoingIssuanceService {
       // Get devices for this group
       const devicesInGroup = await this.deviceService.findForGroup(group.id);
 
+      const { startDate } = this.groupService.calculateInitialIssuanceRange(
+        devicesInGroup,
+        group.reservationStartDate,
+        group.reservationEndDate,
+        group.frequency,
+      );
+
       await Promise.all(
         devicesInGroup.map(async (device) =>
-          this.deviceService.checkForDeviceMissingCycles(group, device),
+          this.deviceService.checkForDeviceMissingCycles(
+            group,
+            device,
+            startDate,
+          ),
         ),
       );
     }

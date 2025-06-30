@@ -1552,7 +1552,7 @@ export class DeviceService {
     }
 
     // Create and return a new cycle
-    return this.addCycle(groupId, deviceExternalId, startDate, endDate);
+    return this.createCycle(groupId, deviceExternalId, startDate, endDate);
   }
 
   /**
@@ -1565,7 +1565,7 @@ export class DeviceService {
    * @returns Promise resolving to the created certificate cycle entity
    */
   @Profile()
-  public async addCycle(
+  public async createCycle(
     groupId: number,
     deviceExternalId: string,
     lateStartDate: Date | string | DateTime,
@@ -1602,6 +1602,7 @@ export class DeviceService {
   public async checkForDeviceMissingCycles(
     group: DeviceGroup,
     device: Device,
+    startDate: Date,
   ): Promise<void> {
     // Get cycle boundaries
     const reservationEndDate = new Date(group.reservationEndDate);
@@ -1611,8 +1612,11 @@ export class DeviceService {
 
     const deviceCreationDate = new Date(device.createdAt);
 
+    const cycleStart =
+      deviceCreationDate > startDate ? deviceCreationDate : startDate;
+
     // Iterate through time periods to find and fill gaps
-    let currentDate = new Date(deviceCreationDate);
+    let currentDate = new Date(cycleStart);
 
     while (currentDate < cycleEnd) {
       // Calculate the next date based on frequency

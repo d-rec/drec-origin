@@ -108,10 +108,9 @@ export class OngoingIssuanceService {
     // Process dates
     const startDate = DateTime.fromISO(groupRequest.start_date).toUTC();
     const endDate = DateTime.fromISO(groupRequest.end_date).toUTC();
-    const startDateFormatted = endDate.toString();
 
     const isReservationEndDate =
-      new Date(endDate.toString()).getTime() ===
+      new Date(endDate.toString()).getTime() >=
       group.reservationEndDate.getTime();
 
     if (isReservationEndDate) {
@@ -126,17 +125,18 @@ export class OngoingIssuanceService {
         groupRequest,
       );
     } else {
+      const nextStartDate = endDate.toJSDate();
       // Normal certificate issuance case
-      const newEndDate = await this.calculateOptimalEndDate(
-        group,
-        startDateFormatted,
-        endDate,
+      const nextEndDate = await this.groupService.calculateNextIssuanceEndDate(
+        nextStartDate,
+        group.reservationEndDate,
+        group.frequency,
       );
 
       await this.groupService.updateCertificateIssueDate(
         groupRequest.id,
-        startDateFormatted,
-        newEndDate,
+        nextStartDate.toISOString(),
+        nextEndDate.toISOString(),
       );
     }
 
@@ -145,12 +145,7 @@ export class OngoingIssuanceService {
     );
 
     await Promise.all([
-      this.processDevicesWithMissingReadType(
-        group,
-        groupRequest,
-        startDate,
-        endDate,
-      ),
+      this.addCycles(group, startDate, endDate),
       this.processByCountry(
         group,
         countryDeviceGroup,
@@ -230,29 +225,26 @@ export class OngoingIssuanceService {
    * This function identifies devices that were created before the start date and have
    * a null meter read type, then registers them for late cycle processing.
    *
-   * @param group - The device group containing the d evices
+   * @param group - The device group containing the devices
    * @param groupRequest - The certificate issuance request
    * @param startDate - Start date for the issuance cycle
    * @param endDate - End date for the issuance cycle
    */
-  private async processDevicesWithMissingReadType(
+  private async addCycles(
     group: DeviceGroup,
-    groupRequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
   ): Promise<void> {
     const groupDevices = await this.deviceService.findForGroup(group.id);
 
-    const devicesWithMissingReadType = groupDevices.filter(
+    const devices = groupDevices.filter(
       (device) =>
-        device.meterReadtype === null &&
-        new Date(device.createdAt).getTime() <=
-          new Date(groupRequest.start_date).getTime(),
+        new Date(device.createdAt).getTime() <= startDate.toJSDate().getTime(),
     );
 
     await Promise.all(
-      devicesWithMissingReadType.map(async (device) => {
-        await this.deviceService.addCycle(
+      devices.map(async (device) => {
+        await this.deviceService.findOrCreateCycle(
           group.id,
           device.externalId,
           startDate,
