@@ -1644,11 +1644,16 @@ export class DeviceService {
       const nextDate = getCycleEndDate(currentDate, group.frequency);
 
       // Determine the actual end date (earlier of calculated end or boundary end)
-      const actualEndDate = nextDate < cycleEnd ? nextDate : cycleEnd;
+      const actualEndDate =
+        nextDate < reservationEndDate ? nextDate : reservationEndDate;
 
       if (currentDate < deviceCreationDate) {
         currentDate = actualEndDate;
         continue;
+      }
+
+      if (actualEndDate > cycleEnd) {
+        break; // Stop if we exceed the cycle end date
       }
 
       const existingCycle = await this.findCycleByDateRange(
