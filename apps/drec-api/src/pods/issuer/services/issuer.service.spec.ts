@@ -87,6 +87,12 @@ describe('IssuerService', () => {
           },
         },
         {
+          provide: getQueueToken(Queues.MissingCycles),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
           provide: CertificateLogService,
           useValue: {
             createForDevice: jest.fn(),

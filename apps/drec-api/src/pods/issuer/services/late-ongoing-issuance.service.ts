@@ -24,6 +24,8 @@ export class LateOngoingIssuanceService {
   constructor(
     @InjectQueue(Queues.LateOngoingIssuance)
     private readonly lateOngoingQueue: Queue,
+    @InjectQueue(Queues.MissingCycles)
+    private readonly missingCyclesQueue: Queue,
     private readonly groupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
@@ -180,6 +182,15 @@ export class LateOngoingIssuanceService {
     }
 
     await this.processReads(cycle, device, group, nextIssuance);
+  }
+
+  async queueCreateMissingCycles(groupId?: number | string): Promise<void> {
+    await this.missingCyclesQueue.add(
+      { groupId },
+      {
+        lifo: true,
+      },
+    );
   }
 
   /**
