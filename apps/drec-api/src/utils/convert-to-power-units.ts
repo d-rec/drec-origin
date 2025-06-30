@@ -1,12 +1,12 @@
-import { EnergyUnit } from '../types/unit';
+import { EnergyUnit } from '../types/units';
 
 export const getWhMultiplier = (unit: EnergyUnit): number => {
   switch (unit) {
-    case unit.kWh:
+    case EnergyUnit.kWh:
       return 10 ** 3;
-    case unit.MWh:
+    case EnergyUnit.MWh:
       return 10 ** 6;
-    case unit.GWh:
+    case EnergyUnit.GWh:
       return 10 ** 9;
     default:
       return 1;

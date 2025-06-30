@@ -1870,12 +1870,12 @@ export class DeviceService {
   > {
     this.logger.verbose(`With in getCertificatesForEvidentIssuance`);
     try {
-      return this.checkDeviceLogCertificateRepository
+      return await this.checkDeviceLogCertificateRepository
         .createQueryBuilder('deviceCertificates')
         .leftJoinAndSelect('deviceCertificates.device', 'device')
         .leftJoinAndSelect('device.organization', 'organization')
         .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
-        .where('deviceCertificates.evidentSynced IS NULL')
+        .where('deviceCertificates.evidentSyncedAt IS NULL')
         .andWhere(
           'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
         )

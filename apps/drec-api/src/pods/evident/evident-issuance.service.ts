@@ -12,9 +12,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
 import { EvidentSettingsService } from './evident-settings.service';
-import { EnergyUnit } from '../../types/unit';
 import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { EnergyUnit } from '../../types/units';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -34,10 +35,13 @@ export class EvidentIssuanceService {
         device.organizationId,
       );
 
+      console.log('Creating issuance for device:', device.evidentDeviceId);
+
       const response = await evidentInstance.post('/issues', {
         device: `/devices/${device.evidentDeviceId}`,
       });
 
+      console.log('Issuance created:', response.data);
       const issuanceId = response.data['@id'];
       const { id: registrantId } = await this.evidentService.getRegistrantInfo(
         device.organizationId,
@@ -57,6 +61,7 @@ export class EvidentIssuanceService {
       };
     } catch (error) {
       console.error('Error registering issuance:', error.message);
+      console.log('Error details:', error.response?.data);
       throw new BadRequestException(
         error.response?.data?.['hydra:description'],
       );
@@ -83,17 +88,26 @@ export class EvidentIssuanceService {
         );
       }
 
-      return await evidentInstance.post('/issue_details', {
+      const format = 'yyyy-MM-dd\'T\'HH:mm:ssZZ';
+
+      const startDateFormatted = DateTime.fromISO(issuance.startDate).toFormat(format);
+      const endDateFormatted = DateTime.fromISO(issuance.endDate).toFormat(format);
+
+      const payload =  {
         files: uploadedFiles,
         fuel: issuance.fuel,
         issue: issuanceId,
         notes: issuance.notes,
         productionVolume: issuance.productionVolume,
         recipientAccount: issuance.recipientAccount,
-        startDate: issuance.startDate,
-        endDate: issuance.endDate,
+        startDate: startDateFormatted,
+        endDate: endDateFormatted,
         status: EvidentIssuanceStatus.Draft,
-      });
+      };
+
+      console.log(payload);
+
+      return await evidentInstance.post('/issue_details', payload);
     } catch (error) {
       console.error('Error registering issuance:', error.message);
       throw error;
@@ -127,59 +141,67 @@ export class EvidentIssuanceService {
     return uploadedFileReferences;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async getCertificatesForIssuance(): Promise<void> {
     const certificates =
       await this.deviceService.getCertificatesForEvidentIssuance();
     for (const certificate of certificates) {
-      const startDate = certificate.certificate_issuance_startdate;
-      const endDate = certificate.certificate_issuance_enddate;
+      try {
+        const startDate = certificate.certificate_issuance_startdate;
+        const endDate = certificate.certificate_issuance_enddate;
 
-      const reads = await this.readService.findAll(
-        certificate.device,
-        startDate,
-        endDate,
-      );
+        const reads = await this.readService.findAll(
+          certificate.device,
+          startDate,
+          endDate,
+        );
 
-      const csvContent = this.generateCsvContent(reads);
-      const evidentSettings = await this.evidentSettingsService.find(
-        certificate.device.organizationId,
-      );
-      const recipientAccount = evidentSettings.defaultTradingAccount;
-      const csvFilePath = await this.saveCsvToFile(
-        csvContent,
-        certificate.device.evidentDeviceId,
-        startDate,
-        endDate,
-      );
+        const csvContent = this.generateCsvContent(reads);
+        const evidentSettings = await this.evidentSettingsService.find(
+          certificate.device.organizationId,
+        );
+        const recipientAccount = evidentSettings.defaultTradingAccount;
+        const csvFilePath = await this.saveCsvToFile(
+          csvContent,
+          certificate.device.evidentDeviceId,
+          startDate,
+          endDate,
+        );
 
-      const amount = reads.reduce((sum, read) => {
-        return sum + (read.value || 0);
-      }, 0);
+        const amount = reads.reduce((sum, read) => {
+          return sum + (read.value || 0);
+        }, 0);
+        console.log('Total amount of energy:', amount);
+        const payload: EvidentIssuanceRequest = {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          productionVolume: convertToPowerUnit({
+            value: amount,
+            unit: EnergyUnit.Wh,
+            targetUnit: EnergyUnit.MWh,
+          }),
+          notes: '',
+          recipientAccount: `/accounts/${recipientAccount}`,
+          code: certificate.device.evidentDeviceId,
+          files: [csvFilePath],
+          fuel: '/fuels/ES100',
+          status: 'Draft',
+        };
 
-      const payload: EvidentIssuanceRequest = {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-        productionVolume: convertToPowerUnit({
-          value: amount,
-          unit: EnergyUnit.Wh,
-          targetUnit: EnergyUnit.MWh,
-        }),
-        notes: '',
-        recipientAccount: `/accounts/${recipientAccount}`,
-        code: certificate.device.evidentDeviceId,
-        files: [csvFilePath],
-        fuel: '/fuels/ES100',
-        status: 'Draft',
-      };
+        const { issuanceId } = await this.create(certificate.device, payload);
 
-      const { issuanceId } = await this.create(certificate.device, payload);
-
-      await this.deviceService.updateCertificateLogEvidentDetails(
-        certificate.id,
-        issuanceId,
-        EvidentIssuanceStatus.Draft,
-      );
+        await this.deviceService.updateCertificateLogEvidentDetails(
+          certificate.id,
+          issuanceId,
+          EvidentIssuanceStatus.Draft,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Error processing certificate for device ${certificate.device.id}: ${error.message}`,
+        );
+        throw error;
+        // Optionally, you can log the error to a monitoring service or database
+      }
     }
   }
 

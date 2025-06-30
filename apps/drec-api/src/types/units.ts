@@ -1,4 +1,4 @@
-export declare enum EnergyUnit {
+export enum EnergyUnit {
   Wh = 'Wh',
   kWh = 'kWh',
   MWh = 'MWh',

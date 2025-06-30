@@ -75,7 +75,8 @@ import {
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
 import { Device } from '../device/device.entity';
-import { EnergyUnit } from '../../types/unit';
+import { EnergyUnit } from '../../types/units';
+
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -2023,7 +2024,6 @@ export class ReadsService {
     });
 
     const minDate = startDate > deviceCreatedAt ? startDate : deviceCreatedAt;
-
     const mappedOngoingReads = ongoingReads.map(
       (read: { _time: any; _value: any }, i: number) => {
         const _startDate = ongoingReads[i - 1]
