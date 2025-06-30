@@ -1661,7 +1661,7 @@ export class DeviceService {
 
       if (!existingCycle) {
         // Create cycle if it doesn't exist
-        await this.findOrCreateCycle(
+        await this.createCycle(
           group.id,
           device.externalId,
           DateTime.fromJSDate(currentDate).toUTC(),
