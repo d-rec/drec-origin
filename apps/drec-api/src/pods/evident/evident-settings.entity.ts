@@ -18,8 +18,12 @@ export class EvidentSettings {
   @Column({ type: 'varchar', name: 'default_trading_account' })
   defaultTradingAccount: string;
 
-  @Column({ type: 'varchar', name: 'default_beneficiary_account' })
-  defaultBeneficiaryAccount: string;
+  @Column({
+    type: 'varchar',
+    name: 'default_beneficiary_account',
+    nullable: true,
+  })
+  defaultBeneficiaryAccount: string | null;
 
   @Column({ type: 'varchar', name: 'email' })
   email: string;
