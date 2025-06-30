@@ -49,7 +49,6 @@ export class IssuerService {
     startDate: DateTime,
     endDate: DateTime,
     countryCodeKey: string,
-    checkForMissingCycles = true,
   ): Promise<void> {
     // Early validation checks - combine all checks at the beginning
     if (!group?.devices?.length || !group.buyerAddress || !group.buyerId) {
@@ -79,12 +78,7 @@ export class IssuerService {
       previousReadings,
       totalReading,
       validReadings,
-    } = await this.processGroupDeviceReads(
-      group,
-      startDate,
-      endDate,
-      checkForMissingCycles,
-    );
+    } = await this.processGroupDeviceReads(group, startDate, endDate);
 
     if (!totalReading || !validDevices.length) {
       return;
@@ -182,17 +176,10 @@ export class IssuerService {
     group: DeviceGroup,
     startDate: DateTime,
     endDate: DateTime,
-    checkForMissingCycles: boolean,
   ) {
     const readings = await Promise.all(
       group.devices.map((device) =>
-        this.processDeviceReads(
-          group,
-          device,
-          startDate,
-          endDate,
-          checkForMissingCycles,
-        ),
+        this.getDeviceReads(device, startDate, endDate),
       ),
     );
 
@@ -227,68 +214,23 @@ export class IssuerService {
   /**
    * Processes device readings and creates cycles for periods with missing data
    *
-   * @param group - The device group
    * @param device - The device to process readings for
    * @param startDate - Start date of the reading period
    * @param endDate - End date of the reading period
    * @returns The device readings information
    */
-  private async processDeviceReads(
-    group: DeviceGroup,
+  private async getDeviceReads(
     device: IDevice,
     startDate: DateTime,
     endDate: DateTime,
-    checkForMissingCycles = true,
   ) {
     // Get device readings for the specified period
     const readings = await this.getDeviceReading(device, startDate, endDate);
 
-    const output = {
+    return {
       device,
       ...readings,
     };
-
-    // If checking for missing cycles is disabled, return the output
-    if (!checkForMissingCycles) return output;
-
-    // Create a cycle for the entire period if no readings found
-    if (readings.totalRead === 0) {
-      await this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        startDate,
-        endDate,
-      );
-      return output;
-    }
-
-    // Get the latest read for the device
-    const lastReads = await this.readsService.latestRead(
-      device.externalId,
-      device.createdAt,
-    );
-
-    if (!lastReads.length) return output;
-
-    const lastReadTimestamp = new Date(lastReads[0].timestamp);
-    const endDateTime = new Date(endDate.toString());
-
-    // If no reads or last read is before end date, create a cycle for the gap
-    if (lastReadTimestamp < endDateTime) {
-      // Create next timestamp 1ms after the last read
-      const nextTimestamp = new Date(lastReadTimestamp);
-      nextTimestamp.setTime(nextTimestamp.getTime() + 1);
-
-      // Create cycle from last read (plus 1ms) to end date
-      await this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        DateTime.fromJSDate(nextTimestamp).toUTC(),
-        endDate,
-      );
-    }
-
-    return output;
   }
 
   /**

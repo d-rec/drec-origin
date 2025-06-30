@@ -165,7 +165,7 @@ export class LateOngoingIssuanceService {
 
     // Handle missing read data
     if (!lastRead.length) {
-      this.logger.error(`No readings found for device: ${device.externalId}`);
+      this.logger.debug(`No readings found for device: ${device.externalId}`);
       return;
     }
 
@@ -179,25 +179,7 @@ export class LateOngoingIssuanceService {
       nextIssuance.end_date = cycle.late_end_date;
     }
 
-    // Process based on last read timestamp
-    const lastReadDate = new Date(lastRead[0].timestamp);
-    const isReadInTimeRange =
-      lastReadDate.getTime() <= cycle.lateEndTimestamp &&
-      lastReadDate.getTime() >= cycle.lateStartTimestamp;
-
-    if (isReadInTimeRange) {
-      return this.issueForInRangeLastRead(
-        cycle,
-        device,
-        group,
-        lastReadDate,
-        nextIssuance,
-      );
-    }
-
-    // Handle case where read is outside the time range
-    this.logger.verbose('Processing read outside target time range');
-    await this.issueForRecentLastRead(cycle, device, group, nextIssuance);
+    await this.processReads(cycle, device, group, nextIssuance);
   }
 
   /**
@@ -222,77 +204,23 @@ export class LateOngoingIssuanceService {
       // Get devices for this group
       const devicesInGroup = await this.deviceService.findForGroup(group.id);
 
+      const { startDate } = this.groupService.calculateInitialIssuanceRange(
+        devicesInGroup,
+        group.reservationStartDate,
+        group.reservationEndDate,
+        group.frequency,
+      );
+
       await Promise.all(
         devicesInGroup.map(async (device) =>
-          this.deviceService.checkForDeviceMissingCycles(group, device),
+          this.deviceService.checkForDeviceMissingCycles(
+            group,
+            device,
+            startDate,
+          ),
         ),
       );
     }
-  }
-
-  /**
-   * Processes certificate issuance when last read is within the late cycle time range
-   *
-   * @param cycle - Late cycle entity
-   * @param device - Device object
-   * @param group - Device group
-   * @param lastReadDate - Date of the last reading
-   * @param nextIssuance - Next issuance information
-   * @returns Promise resolving when processing is complete
-   */
-  @Profile()
-  private async issueForInRangeLastRead(
-    cycle: DeviceLateOngoingIssueCertificateEntity,
-    device: Device,
-    group: DeviceGroup,
-    lastReadDate: Date,
-    nextIssuance: DeviceGroupNextIssueCertificate,
-  ) {
-    this.logger.verbose(
-      'If Last read less from late end_date and greater then from latest_date',
-    );
-
-    const certifiedDevices =
-      await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-        cycle.device_externalid,
-        cycle.lateStartDate,
-        lastReadDate,
-      );
-
-    const newStartDate = lastReadDate;
-    newStartDate.setTime(newStartDate.getTime() + 1); // Add one millisecond
-
-    if (
-      certifiedDevices.length > 0 ||
-      newStartDate.getTime() === cycle.lateStartTimestamp
-    ) {
-      return;
-    }
-
-    const newEndDate = cycle.lateEndDateUTC;
-    cycle.late_end_date = lastReadDate.toISOString();
-
-    this.logger.debug(
-      'Late ongoing Issue Certificate For::',
-      cycle.device_externalid,
-    );
-
-    await Promise.all([
-      this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        DateTime.fromJSDate(newStartDate).toUTC(),
-        newEndDate,
-      ),
-      this.issueCertificate(
-        group,
-        nextIssuance,
-        cycle.lateStartDateUTC,
-        DateTime.fromJSDate(lastReadDate).toUTC(),
-        device.countryCode,
-        cycle,
-      ),
-    ]);
   }
 
   /**
@@ -305,7 +233,7 @@ export class LateOngoingIssuanceService {
    * @returns Promise that resolves when the process is complete
    */
   @Profile()
-  private async issueForRecentLastRead(
+  private async processReads(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
     group: DeviceGroup,
