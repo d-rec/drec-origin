@@ -77,7 +77,6 @@ import {
 import { Device } from '../device/device.entity';
 import { EnergyUnit } from '../../types/units';
 
-
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
 export class ReadsService {

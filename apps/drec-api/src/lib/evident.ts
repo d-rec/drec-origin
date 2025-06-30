@@ -60,7 +60,7 @@ async function getAuthToken(
   const response = await axios.post(`${apiUrl}/auth/token`, {
     token: apiKey,
   });
-  await storeAuthToken(organizationId, response.data.token); 
+  await storeAuthToken(organizationId, response.data.token);
   return response.data.token;
 }
 

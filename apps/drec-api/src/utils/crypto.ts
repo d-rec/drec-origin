@@ -10,7 +10,7 @@ const checkEncryptionSecret = () => {
 
 export const encrypt = (text: string): string => {
   checkEncryptionSecret();
-  
+
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     HASH_ALGORITHM,

@@ -12,7 +12,7 @@ import {
   EvidentRegistrationStatus,
 } from '../../types/evident';
 import { EvidentService } from './evident.service';
-import { EnergyUnit } from 'src/types/units';
+import { EnergyUnit } from '../../types/units';
 
 @Injectable()
 export class EvidentDeviceService {
