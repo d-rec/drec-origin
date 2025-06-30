@@ -178,7 +178,7 @@ export class EvidentIssuanceService {
     }
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async getCertificatesForIssuance(): Promise<void> {
     const certificates =
       await this.deviceService.getCertificatesForEvidentIssuance();

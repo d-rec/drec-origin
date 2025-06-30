@@ -30,7 +30,7 @@ export class EvidentSettingsController {
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @Get()
-  @ApiOperation({ summary: 'trigger evident jobs' })
+  @ApiOperation({ summary: 'Get Evident settings' })
   async getSettings(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any> {
