@@ -1,19 +1,22 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddEvidentSyncedColumnToCertificates1750255349520
+export class ChangeDefaultBeneficiaryAccountToNullableOnEvidentSettingsTable1751125202867
   implements MigrationInterface
 {
+  name =
+    'ChangeDefaultBeneficiaryAccountToNullableOnEvidentSettingsTable1751125202867';
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-          ALTER TABLE public.check_certificate_issue_date_log_for_device
-          ADD COLUMN "evident_synced" boolean DEFAULT false
+            ALTER TABLE "evident_settings"
+            ALTER COLUMN "default_beneficiary_account" DROP NOT NULL;
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-          ALTER TABLE public.check_certificate_issue_date_log_for_device
-          DROP COLUMN "evident_synced"
+            ALTER TABLE "evident_settings"
+            ALTER COLUMN "default_beneficiary_account" SET NOT NULL;
         `);
   }
 }
