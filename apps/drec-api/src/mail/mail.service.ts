@@ -30,12 +30,11 @@ export class MailService {
         this.logger.log(JSON.stringify(result));
         return true;
       }
-
-      return false;
     } catch (error) {
       this.logger.error(`Error when sending email.`);
       this.logger.error(error);
-      return false;
     }
+
+    return false;
   }
 }
