@@ -3,6 +3,7 @@ import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
 import {
+  EvidentFrequency,
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
@@ -31,8 +32,48 @@ export class EvidentIssuanceService {
   async getCertificatesForIssuance(): Promise<void> {
     const certificates =
       await this.deviceService.getCertificatesForEvidentIssuance();
+    if (certificates.length === 0) {
+      this.logger.log('No certificates found for issuance.');
+      return;
+    }
     for (const certificate of certificates) {
-      await this.processCertificate(certificate);
+      const frequency =
+        certificate.device.organization.evidentSettings[0]['frequency'];
+      const lastIssuance = certificate.evidentSyncedAt;
+
+      switch (frequency) {
+        case EvidentFrequency.Monthly:
+          if (
+            !lastIssuance ||
+            DateTime.fromJSDate(lastIssuance).plus({ months: 1 }) <=
+              DateTime.now()
+          ) {
+            await this.processCertificate(certificate);
+          }
+          break;
+        case EvidentFrequency.Quarterly:
+          if (
+            !lastIssuance ||
+            DateTime.fromJSDate(lastIssuance).plus({ months: 3 }) <=
+              DateTime.now()
+          ) {
+            await this.processCertificate(certificate);
+          }
+          break;
+        case EvidentFrequency.Yearly:
+          if (
+            !lastIssuance ||
+            DateTime.fromJSDate(lastIssuance).plus({ months: 12 }) <=
+              DateTime.now()
+          ) {
+            await this.processCertificate(certificate);
+          }
+          break;
+        default:
+          this.logger.warn(
+            `Unknown Evident frequency: ${frequency} for device ${certificate.device.externalId}. Skipping issuance.`,
+          );
+      }
     }
   }
 
