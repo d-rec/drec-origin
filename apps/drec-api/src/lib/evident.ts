@@ -3,7 +3,6 @@ import axiosRetry from 'axios-retry';
 import { getRedisClient } from './redis';
 import { RedisKeys } from '../utils/enums/redis-keys.enum';
 import { EVIDENT_TOKEN_EXPIRATION_TIME } from '../constants';
-import { BadRequestException } from '@nestjs/common';
 import { encrypt, decrypt } from '../utils/crypto';
 
 interface CreateAxiosInstanceOptions {
@@ -58,15 +57,11 @@ async function getAuthToken(
   apiKey: string,
   organizationId: string,
 ): Promise<string> {
-  try {
-    const response = await axios.post(`${apiUrl}/auth/token`, {
-      token: apiKey,
-    });
-    await storeAuthToken(organizationId, response.data.token);
-    return response.data.token;
-  } catch (error) {
-    throw new BadRequestException('Invalid credentials');
-  }
+  const response = await axios.post(`${apiUrl}/auth/token`, {
+    token: apiKey,
+  });
+  await storeAuthToken(organizationId, response.data.token);
+  return response.data.token;
 }
 
 async function getAuthTokenFromRedis(

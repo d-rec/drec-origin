@@ -16,6 +16,8 @@ import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_ce
 import { HttpModule } from '@nestjs/axios';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { EvidentModule } from '../evident/evident.module';
+import { Organization } from '../organization/organization.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
 
 @Module({
   imports: [
@@ -31,9 +33,11 @@ import { EvidentModule } from '../evident/evident.module';
       IRECDevicesInformationEntity,
       IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,
+      Organization,
+      EvidentSettings, // Ensure EvidentSettings is imported correctly
     ]),
-    UserModule,
-    OrganizationModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => OrganizationModule),
     DocumentUploadsModule,
   ],
   providers: [DeviceService],

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CronExpression } from '@nestjs/schedule';
 import { NonConcurrentCron } from '../../lib/cron';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 
 @Injectable()
 export class EvidentSyncDeviceTaskService {

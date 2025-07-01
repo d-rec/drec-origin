@@ -1,20 +1,18 @@
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { Device } from '../device';
+import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
 import { getCountryCodeAlpha2 } from '../../utils/get-country-code-alpha-2';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
-import FormData from 'form-data';
 import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import {
   EvidentDeviceDetailsPayload,
   EvidentRegistrationStatus,
 } from '../../types/evident';
-import getFileData from '../../lib/helpers/getFileData';
 import { EvidentService } from './evident.service';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { EnergyUnit } from '../../types/units';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -64,18 +62,18 @@ export class EvidentDeviceService {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
-    const user = await this.evidentService.getRegistrantInfo(
-      device.organizationId,
-    );
-    const uploadedFiles = await this.uploadFiles(
+    const { registrantId, id: evidentUserId } =
+      await this.evidentService.getRegistrantInfo(device.organizationId);
+    const uploadedFiles = await this.evidentService.uploadFiles(
       device,
       files,
-      user.member.uid,
+      evidentUserId,
+      this.getNotes(device),
     );
 
     const payload = this.generateDeviceDetailsPayload(
       device,
-      user.member.organisation.uid,
+      registrantId,
       uploadedFiles,
     );
 
@@ -130,88 +128,6 @@ export class EvidentDeviceService {
     });
   }
 
-  async uploadFiles(
-    device: Device,
-    files: Record<string, Express.Multer.File[]>,
-    registrantId: string,
-  ): Promise<string[]> {
-    const filesToUpload = [];
-    for (const [documentType, fileArray] of Object.entries(files)) {
-      if (!Array.isArray(fileArray)) continue;
-      for (const file of fileArray) {
-        filesToUpload.push({
-          file,
-          documentType: documentType as DocumentType,
-        });
-      }
-    }
-    const uploadFiles = await Promise.all(
-      filesToUpload.map(({ file, documentType }) =>
-        this.uploadFile(device, registrantId, file, documentType),
-      ),
-    );
-    return uploadFiles
-      .filter((result) => result.success && result.fileId)
-      .map((result) => result.fileId);
-  }
-
-  async uploadFile(
-    device: Device,
-    registrantId: string,
-    file: Express.Multer.File,
-    documentType: DocumentType,
-  ): Promise<any> {
-    try {
-      if (!file) {
-        return {
-          success: false,
-          error: 'No file provided for upload',
-        };
-      }
-
-      const evidentApiInstance = await this.evidentService.getApiInstance(
-        device.organizationId,
-      );
-      const fileData = getFileData(file);
-      const form = new FormData();
-
-      form.append('file', fileData, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-      form.append('name', file.originalname);
-      form.append('notes', this.getNotes(device));
-      form.append('userUid', registrantId);
-      form.append('category', documentType);
-
-      const uploadedFile = await evidentApiInstance.post('/files', form, {
-        headers: {
-          ...form.getHeaders(),
-        },
-        timeout: 30000,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      });
-
-      return {
-        success: true,
-        data: uploadedFile.data,
-        fileId: uploadedFile.data?.['@id'],
-      };
-    } catch (error) {
-      this.logger.error(
-        'Failed to upload file:',
-        error.response?.data || error.message,
-      );
-
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || error.message || 'Upload failed',
-      };
-    }
-  }
-
   private generateDeviceDetailsPayload(
     device: Device,
     registrantId: string,
@@ -220,8 +136,8 @@ export class EvidentDeviceService {
     const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
     const convertCapacityToMwh = convertToPowerUnit({
       value: device.capacity,
-      unit: Unit.kWh,
-      targetUnit: Unit.MWh,
+      unit: EnergyUnit.kWh,
+      targetUnit: EnergyUnit.MWh,
     });
     return {
       deviceType: `/device_types/${device.deviceTypeCode}`,

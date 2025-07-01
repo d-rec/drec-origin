@@ -1,12 +1,12 @@
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { EnergyUnit } from '../types/units';
 
-export const getWhMultiplier = (unit: Unit): number => {
+export const getWhMultiplier = (unit: EnergyUnit): number => {
   switch (unit) {
-    case Unit.kWh:
+    case EnergyUnit.kWh:
       return 10 ** 3;
-    case Unit.MWh:
+    case EnergyUnit.MWh:
       return 10 ** 6;
-    case Unit.GWh:
+    case EnergyUnit.GWh:
       return 10 ** 9;
     default:
       return 1;
@@ -14,8 +14,11 @@ export const getWhMultiplier = (unit: Unit): number => {
 };
 
 // Convert to Watt per Hour
-export const convertToWh = (measurement: number, unit: string): number => {
-  const multiplier = getWhMultiplier(unit as Unit) || 1;
+export const convertToWh = (
+  measurement: number,
+  unit: string | EnergyUnit,
+): number => {
+  const multiplier = getWhMultiplier(unit as EnergyUnit) || 1;
 
   return measurement * multiplier;
 };
@@ -26,11 +29,11 @@ export const convertToPowerUnit = ({
   targetUnit,
 }: {
   value: number;
-  unit: Unit;
-  targetUnit: Unit;
+  unit: string | EnergyUnit;
+  targetUnit: string | EnergyUnit;
 }): number => {
-  const valueInWh = convertToWh(value, unit);
-  const targetMultiplier = getWhMultiplier(targetUnit);
+  const valueInWh = convertToWh(value, unit as EnergyUnit);
+  const targetMultiplier = getWhMultiplier(targetUnit as EnergyUnit);
 
   return valueInWh / targetMultiplier;
 };
