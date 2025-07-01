@@ -82,7 +82,10 @@ import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentRegistrationStatus } from '../../types/evident';
+import {
+  EvidentIssuanceStatus,
+  EvidentRegistrationStatus,
+} from '../../types/evident';
 
 @Injectable()
 export class DeviceService {
@@ -391,6 +394,7 @@ export class DeviceService {
     delete result['organization'];
     return result;
   }
+
   public async newFindForGroup(
     groupId: number,
   ): Promise<{ [key: string]: Device[] }> {
@@ -421,6 +425,7 @@ export class DeviceService {
       return result;
     }, {});
   }
+
   public async findByIds(ids: number[]): Promise<Device[]> {
     this.logger.verbose(`With in findByIds`);
     const result = await this.repository.findByIds(ids);
@@ -564,6 +569,7 @@ export class DeviceService {
       }
     }
   }
+
   public async seed(
     orgCode: number,
     newDevice: NewDeviceDTO,
@@ -835,6 +841,7 @@ export class DeviceService {
     delete devices['organization'];
     return this.groupDevices(orderFilterDto, devices);
   }
+
   async findUngroupedById(id: number): Promise<boolean> {
     this.logger.verbose(`With in findUngroupedById`);
     const devices = await this.repository.find({
@@ -989,12 +996,14 @@ export class DeviceService {
       },
     };
   }
+
   private getRawFilter(filter: string): FindOperator<any> {
     this.logger.verbose(`With in getRawFilter`);
     return Raw((alias) => `${alias} = Any(SDGBenefits)`, {
       SDGBenefits: [filter],
     });
   }
+
   public async addGroupIdToDeviceForReserving(
     currentDevice: Device,
     groupId: number,
@@ -1073,6 +1082,7 @@ export class DeviceService {
       },
     });
   }
+
   public async updateReadType(
     deviceId: string,
     meterReadType: string,
@@ -1091,6 +1101,7 @@ export class DeviceService {
 
     return await this.repository.save(deviceReadType);
   }
+
   public async updateTimezone(
     deviceId: string,
     timeZone: string,
@@ -1136,6 +1147,7 @@ export class DeviceService {
       take: limit,
     };
   }
+
   public async findDeviceForBuyer(
     filterDto: FilterDTO,
     pageNumber: number,
@@ -1181,6 +1193,7 @@ export class DeviceService {
       ...params,
     });
   }
+
   //add new fuction for add window cycle date for late certificate
   public async addLateCertificateIssueDateLogForDevice(
     params: DeviceLateOngoingIssueCertificateEntity,
@@ -1227,6 +1240,7 @@ export class DeviceService {
       take: 1,
     });
   }
+
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1298,6 +1312,7 @@ export class DeviceService {
       |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`;
     return await this.execute(fluxQuery);
   }
+
   async execute(query: string | any): Promise<any> {
     this.logger.verbose(`With in execute`);
     const data = await this.dbReader.collectRows(query);
@@ -1306,6 +1321,7 @@ export class DeviceService {
       value: Number(record._value),
     }));
   }
+
   get dbReader(): any {
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
@@ -1464,6 +1480,7 @@ export class DeviceService {
     });
     return newDevices;
   }
+
   async getLastCertifiedDevicelogByGroupId(
     groupId: number,
     deviceId: string,
@@ -1479,6 +1496,7 @@ export class DeviceService {
       },
     });
   }
+
   async getCertifiedDeviceDateRange(
     groupId: number,
     device?: DeviceDTO,
@@ -1503,6 +1521,7 @@ export class DeviceService {
     const result = await queryBuilder.getRawOne();
     return { ...result, extenalId: device.developerExternalId };
   }
+
   async getCertifiedDeviceDateRangeByGroupId(
     groupId: number,
     pageNumber?: number,
@@ -1575,12 +1594,14 @@ export class DeviceService {
       message: 'device deleted Successfully',
     };
   }
+
   async updateLateCycleCheckedAt(groupId: number): Promise<any> {
     await this.lateDeviceCertificateRepository.update(
       { groupId: groupId, certificate_issued: false },
       { checked_at: new Date() },
     );
   }
+
   async updateLateOngoing(
     externalId: string,
     id: number,
@@ -1593,6 +1614,7 @@ export class DeviceService {
       { late_end_date: lateend_date, certificate_issued: true },
     );
   }
+
   async updateLateOngoingIfReservationInactive(
     externalId: string,
   ): Promise<any> {
@@ -1826,5 +1848,45 @@ export class DeviceService {
     device.evidentStatus = evidentStatus;
     await this.repository.save(device);
     this.logger.log(`Updated evident_device_id and evident_status for devices`);
+  }
+
+  async updateCertificateLogEvidentDetails(
+    id: number,
+    issuanceId: string,
+    status: EvidentIssuanceStatus,
+  ): Promise<any> {
+    const now = new Date();
+    return await this.checkDeviceLogCertificateRepository.update(
+      {
+        id: id,
+      },
+      {
+        evidentSyncedAt: now.toISOString(),
+        evidentIssuanceRequestId: issuanceId,
+        evidentIssuanceRequestStatus: status,
+      },
+    );
+  }
+
+  async getCertificatesForEvidentIssuance(): Promise<
+    CheckCertificateIssueDateLogForDeviceEntity[]
+  > {
+    return await this.checkDeviceLogCertificateRepository
+      .createQueryBuilder('deviceCertificates')
+      .leftJoinAndSelect('deviceCertificates.device', 'device')
+      .leftJoinAndSelect('device.organization', 'organization')
+      .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
+      .where('deviceCertificates.evidentSyncedAt IS NULL')
+      .andWhere(
+        'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
+      )
+      .andWhere('evidentSettings.apiKey IS NOT NULL')
+      .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
+      .andWhere('device.evidentStatus = :status', {
+        status: 'Approved',
+      })
+      .andWhere('deviceCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
+      .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
   }
 }

@@ -11,7 +11,7 @@ import { ReadsService } from './reads.service';
 import { AggregateMeterRead } from './aggregate_readvalue.entity';
 import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { DeltaFirstRead } from './delta_firstread.entity';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';

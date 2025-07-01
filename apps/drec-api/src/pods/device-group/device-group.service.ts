@@ -81,7 +81,6 @@ import {
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
 import { FilterDTO } from '../certificate-log/dto';
-import { FileService } from '../file';
 import { UserService } from '../user/user.service';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
@@ -108,7 +107,6 @@ export class DeviceGroupService {
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
     private deviceService: DeviceService,
-    private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,

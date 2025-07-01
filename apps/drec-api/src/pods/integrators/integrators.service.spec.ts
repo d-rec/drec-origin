@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { HttpService } from '@nestjs/axios';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { IntegratorsService } from './integrators.service';

@@ -74,6 +74,8 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { Device } from '../device/device.entity';
+import { EnergyUnit } from '../../types/units';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -1340,6 +1342,21 @@ export class ReadsService {
     return await this.ongExecute(fluxQuery);
   }
 
+  async getHistoryReads(
+    deviceId: string,
+    startDate: Date | string,
+    endDate: Date | string,
+  ): Promise<HistoryIntermediateMeterRead[]> {
+    const query = this.historyRepository
+      .createQueryBuilder('devicehistory')
+      .where('devicehistory.externalId = :deviceId', { deviceId })
+      .andWhere('devicehistory.readsStartDate <= :endDate', { endDate })
+      .andWhere('devicehistory.readsEndDate >= :startDate', { startDate })
+      .orderBy('devicehistory.readsStartDate', 'ASC');
+
+    return await query.getMany();
+  }
+
   async ongExecute(query: string | any): Promise<number> {
     const data: any = await this.dbReader.collectRows(query);
     if (typeof data[0] === 'undefined' || data.length == 0) {
@@ -1577,7 +1594,6 @@ export class ReadsService {
     const influxDB = new InfluxDB({ url, token });
     influxDB.getQueryApi(org); // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await influxDB.getQueryApi(org).collectRows(currentQuery);
-
     return result.map((record: any) => ({
       timestamp: new Date(record._time),
       value: Number(record._value),
@@ -1625,18 +1641,12 @@ export class ReadsService {
   }
 
   async getOngoingReads(meter: string, filter: FilterDTO | any): Promise<any> {
-    this.logger.verbose('IN THE FUNCTION TO GET ONGOING READS');
-
     const url = process.env.INFLUXDB_URL;
     const token = process.env.INFLUXDB_TOKEN;
     const org = process.env.INFLUXDB_ORG;
     const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
-    this.logger.verbose('filter.start:::::::' + filter);
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}") |> range(start:${filter.start} , stop:${filter.end} ) |> filter(fn: (r) => r.meter == "${meter}" and r._field == "read") |> limit(n:${filter.limit} , offset:${filter.offset})`;
-    const result = await queryApi.collectRows(fluxQuery);
-    this.logger.verbose(result);
-    this.logger.verbose('\ncollect-rows query SUCCESS');
-    return result;
+    return queryApi.collectRows(fluxQuery);
   }
 
   async validateAndStoreReads({
@@ -1974,5 +1984,56 @@ export class ReadsService {
       });
     }
     return await this.storeRead(device.externalId, measurements);
+  }
+
+  async findAll(
+    device: Device,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<any[]> {
+    const historyReads = await this.getHistoryReads(
+      device.externalId,
+      startDate,
+      endDate,
+    );
+
+    const mappedHistoricalReads = historyReads.map((read) => ({
+      startDate: read.readsStartDate,
+      value: read.readsvalue,
+      unit: read.unit,
+      endDate: read.readsEndDate,
+      deviceId: device.evidentDeviceId,
+      drecDeviceId: device.externalId,
+    }));
+    const deviceCreatedAt = new Date(device.createdAt);
+
+    if (deviceCreatedAt > endDate) return mappedHistoricalReads;
+
+    const ongoingReads = await this.getOngoingReads(device.externalId, {
+      offset: 0,
+      limit: 5000,
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+    });
+
+    const minDate = startDate > deviceCreatedAt ? startDate : deviceCreatedAt;
+    const mappedOngoingReads = ongoingReads.map(
+      (read: { _time: any; _value: any }, i: number) => {
+        const _startDate = ongoingReads[i - 1]
+          ? new Date(ongoingReads[i - 1]._time)
+          : minDate;
+
+        return {
+          startDate: _startDate,
+          endDate: read._time,
+          value: read._value,
+          unit: EnergyUnit.Wh,
+          deviceId: device.evidentDeviceId,
+          drecDeviceId: device.externalId,
+        };
+      },
+    );
+
+    return [...mappedOngoingReads, ...mappedHistoricalReads];
   }
 }
