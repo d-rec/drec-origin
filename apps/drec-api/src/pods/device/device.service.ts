@@ -1452,16 +1452,12 @@ export class DeviceService {
   }
 
   @Profile()
-  async updateLateOngoing(
-    externalId: string,
-    id: number,
-    lateend_date?: string,
-  ): Promise<any> {
+  async updateLateOngoing(externalId: string, id: number): Promise<any> {
     this.logger.verbose(`With in updatelateongoing`);
     this.logger.verbose(`With in updatelateongoing`, id);
     return await this.lateDeviceCertificateRepository.update(
       { id: id, device_externalid: externalId },
-      { late_end_date: lateend_date, certificate_issued: true },
+      { certificate_issued: true },
     );
   }
   async updateLateOngoingIfReservationInactive(

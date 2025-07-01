@@ -313,7 +313,6 @@ export class LateOngoingIssuanceService {
     await this.deviceService.updateLateOngoing(
       cycle.device_externalid,
       cycle.id,
-      cycle.late_end_date,
     );
 
     // Archive the late ongoing cycle now that a certificate has been issued
