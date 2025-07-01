@@ -230,7 +230,7 @@ export class DRECIssuerController {
   ): Promise<void> {
     this.logger.verbose(`With in invokeIssuerCronLateOngoing`);
     try {
-      await this.lateOngoingIssuanceService.createMissingCycles(groupId);
+      await this.lateOngoingIssuanceService.queueCreateMissingCycles(groupId);
     } catch (e) {
       this.logger.error('caught exception in getting missing cycles', e);
     }

@@ -74,6 +74,7 @@ import {
   DEVICE_DEGRADATION,
   INFLUX_DB_TIMEOUT,
 } from '../../constants';
+import { Profile } from '../../lib/profile';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 @Injectable()
@@ -142,6 +143,7 @@ export class ReadsService {
     );
   }
 
+  @Profile()
   public async find(
     meterId: string,
     filter: FilterDTO,
@@ -654,6 +656,7 @@ export class ReadsService {
     return reads[0];
   }
 
+  @Profile()
   async findLastReadForMeterWithinRange(
     meterId: string,
     startDate: Date,
@@ -1049,6 +1052,8 @@ export class ReadsService {
     }
     return updatedHistoryIssue;
   }
+
+  @Profile()
   async getAggregateMeterReadsFirstEntryOfDevice(
     meterId: string,
   ): Promise<AggregateMeterRead[]> {
@@ -1060,6 +1065,7 @@ export class ReadsService {
     });
   }
   // add new function for Delta firstread filter
+  @Profile()
   async getDeltaMeterReadsFirstEntryOfDevice(
     meterId: string,
   ): Promise<DeltaFirstRead[]> {
@@ -1349,6 +1355,7 @@ export class ReadsService {
     return Number(data[0]._value);
   }
 
+  @Profile()
   async latestRead(meterId: string, deviceOnboarded: Date): Promise<any> {
     try {
       const query = `
@@ -1826,7 +1833,6 @@ export class ReadsService {
       measurements.type === ReadType.Delta ||
       measurements.type === ReadType.ReadMeter
     ) {
-      this.logger.log('Line No: 505');
       let datesContainingNullOrEmptyValues = false;
       let dateValid1 = true;
       let allDatesAreAfterCreatedAt = true;
@@ -1835,7 +1841,6 @@ export class ReadsService {
       let endDate: any;
       let currentDate: Date = new Date();
       measurements.reads.forEach((ele) => {
-        this.logger.log('Line No: 512');
         if (
           ele.endtimestamp instanceof Date &&
           (ele.endtimestamp === null ||

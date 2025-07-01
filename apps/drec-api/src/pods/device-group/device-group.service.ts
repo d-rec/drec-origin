@@ -87,6 +87,7 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceGroupService {
@@ -201,7 +202,7 @@ export class DeviceGroupService {
       if (filterDTO.country) {
         const values = filterDTO.country.split(',');
         let invalidCountry = false;
-        values.forEach((element) => {
+        values?.forEach((element) => {
           filterDTO.country = element.toUpperCase();
           if (
             filterDTO.country &&
@@ -242,7 +243,7 @@ export class DeviceGroupService {
         const offTakerArray = newOffTaker.split(',');
         query.andWhere(
           new Brackets((qb) => {
-            offTakerArray.forEach((offTaker, index) => {
+            offTakerArray?.forEach((offTaker, index) => {
               if (index === 0) {
                 qb.orWhere(
                   `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
@@ -301,7 +302,7 @@ export class DeviceGroupService {
         const sdgBenefitsArray = filterDTO.sdgbenefit.toString().split(',');
         query.andWhere(
           new Brackets((qb) => {
-            sdgBenefitsArray.forEach((benefit, index) => {
+            sdgBenefitsArray?.forEach((benefit, index) => {
               if (index === 0) {
                 qb.where(`device.SDGBenefits ILIKE :benefit${index}`, {
                   [`benefit${index}`]: `%${benefit}%`,
@@ -529,7 +530,7 @@ export class DeviceGroupService {
               const string = groupFilterDTO.country;
               const values = string.split(',');
               let CountryInvalid = false;
-              values.forEach((ele) => {
+              values?.forEach((ele) => {
                 groupFilterDTO.country = ele.toUpperCase();
                 if (
                   groupFilterDTO.country &&
@@ -567,7 +568,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.orWhere(
                         `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
@@ -631,7 +632,7 @@ export class DeviceGroupService {
 
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -727,6 +728,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
@@ -764,99 +766,29 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
-    devices.filter((ele) => {
-      if (
-        new Date(data.reservationStartDate).getTime() <
-          new Date(ele.createdAt).getTime() &&
-        new Date(data.reservationEndDate).getTime() <=
-          new Date(ele.createdAt).getTime()
-      ) {
-        return true;
-      }
-    }).length === devices.length
-      ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
-      : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+
+    const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
+      (device) => {
+        const reservationStart = new Date(data.reservationStartDate).getTime();
+        const reservationEnd = new Date(data.reservationEndDate).getTime();
+        const deviceCreated = new Date(device.createdAt).getTime();
+
+        return (
+          reservationStart < deviceCreated && reservationEnd <= deviceCreated
+        );
+      },
+    );
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
-      let minimumDeviceCreatedAtIndex = 0;
-      devices.forEach((ele, index) => {
-        const eleDate = new Date(ele.createdAt);
-        if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
-          minimumDeviceCreatedAtDate = eleDate;
-          minimumDeviceCreatedAtIndex = index;
-        }
-      });
-
-      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
-      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
-      let startDate = '';
-      if (
-        minimumDeviceCreatedAtDate.getTime() <
-        new Date(data.reservationStartDate).getTime()
-      ) {
-        startDate = new Date(data.reservationStartDate).toISOString();
-      } else {
-        startDate = minimumDeviceCreatedAtDate.toISOString();
-      }
-
-      const endDate = getCycleEndDate(
-        new Date(startDate),
+      const { startDate, endDate } = this.calculateInitialIssuanceRange(
+        devices,
+        data.reservationStartDate,
+        data.reservationEndDate,
         group.frequency,
-      ).toISOString();
-
-      let newEndDate = '';
-
-      if (
-        new Date(endDate).getTime() <
-        new Date(data.reservationEndDate).getTime()
-      ) {
-        newEndDate = endDate;
-      } else {
-        newEndDate = data.reservationEndDate.toISOString();
-      }
-      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
-      //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-      let nextMinimumCreatedWhichIsLessThanEndDate = false;
-      let nextMinimumCreatedAtString = '';
-      devices.forEach((ele, index) => {
-        if (index != minimumDeviceCreatedAtIndex) {
-          if (
-            new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()
-          ) {
-            nextMinimumCreatedWhichIsLessThanEndDate = true;
-            if (nextMinimumCreatedAtString === '') {
-              nextMinimumCreatedAtString = new Date(
-                ele.createdAt,
-              ).toISOString();
-            } else {
-              //check if nextMinimum is not minimum then change else leave it
-              if (
-                new Date(ele.createdAt).getTime() <
-                new Date(nextMinimumCreatedAtString).getTime()
-              ) {
-                nextMinimumCreatedAtString = new Date(
-                  ele.createdAt,
-                ).toISOString();
-              }
-            }
-          }
-        }
-      });
-      if (nextMinimumCreatedWhichIsLessThanEndDate) {
-        if (
-          !(
-            new Date(startDate).getTime() >
-            new Date(nextMinimumCreatedAtString).getTime()
-          )
-        ) {
-          newEndDate = nextMinimumCreatedAtString;
-        }
-      }
+      );
 
       this.repositoryNextDeviceGroupCertificate.save({
-        start_date: startDate,
-        end_date: newEndDate,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
         groupId: group.id,
       });
     }
@@ -904,7 +836,7 @@ export class DeviceGroupService {
       );
     const unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> =
       [];
-    devices.forEach((ele) =>
+    devices?.forEach((ele) =>
       ele.groupId != null
         ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(
             ele.id,
@@ -953,7 +885,7 @@ export class DeviceGroupService {
         );
       });
     }
-    group.deviceIds.forEach((ele) => {
+    group.deviceIds?.forEach((ele) => {
       if (!devices.find((deviceSingle) => deviceSingle.id === ele)) {
         allDevicesAvailableForBuyerReservation = false;
         unavailableDeviceIds.push(ele);
@@ -979,7 +911,7 @@ export class DeviceGroupService {
       !group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration
     ) {
       let aggregatedCapacity = 0;
-      devices.forEach(
+      devices?.forEach(
         (ele) => (aggregatedCapacity = ele.capacity + aggregatedCapacity),
       );
       const reservationStartDate = DateTime.fromISO(
@@ -1093,6 +1025,54 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
+  calculateInitialIssuanceRange(
+    devices: Device[],
+    _startDate: string | Date,
+    _endDate: string | Date,
+    frequency: string,
+  ): {
+    startDate: Date;
+    endDate: Date;
+  } {
+    const startDate = new Date(_startDate);
+    const endDate = new Date(_endDate);
+    const minDeviceDate = devices?.length
+      ? new Date(
+          Math.min(
+            ...devices.map((device) => new Date(device.createdAt).getTime()),
+          ),
+        )
+      : startDate;
+
+    const minDate = startDate > minDeviceDate ? startDate : minDeviceDate;
+    const maxEndDateUTC = this.calculateNextIssuanceEndDate(
+      minDate,
+      endDate,
+      frequency,
+    );
+
+    const minDateUTC = DateTime.fromJSDate(minDate).toUTC().toJSDate();
+
+    return {
+      startDate: minDateUTC,
+      endDate: maxEndDateUTC,
+    };
+  }
+
+  calculateNextIssuanceEndDate(
+    startDate: Date,
+    reservationEndDate: Date,
+    frequency: string,
+  ): Date {
+    const cycleEndDate = getCycleEndDate(startDate, frequency);
+    const maxEndDate = new Date(
+      Math.min(cycleEndDate.getTime(), reservationEndDate.getTime()),
+    );
+
+    return DateTime.fromJSDate(maxEndDate).toUTC().toJSDate();
+  }
+
+  @Profile()
   async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
@@ -1169,7 +1149,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in checkIfDeviceExisting`);
     const allExternalIds: Array<string> = [];
     const existingDeviceIds: Array<string> = [];
-    newDevices.forEach((singleDevice) =>
+    newDevices?.forEach((singleDevice) =>
       allExternalIds.push(singleDevice.externalId),
     );
     const existingDevices =
@@ -1179,7 +1159,7 @@ export class DeviceGroupService {
       );
 
     if (existingDevices && existingDevices.length > 0) {
-      existingDevices.forEach((ele) =>
+      existingDevices?.forEach((ele) =>
         existingDeviceIds.push(ele?.developerExternalId),
       );
     }
@@ -1520,7 +1500,7 @@ export class DeviceGroupService {
           }
           const errors = await validate(singleRecord);
           if (errors.length > 0) {
-            errors.forEach((ele) => {
+            errors?.forEach((ele) => {
               delete ele.target;
               delete ele.children;
             });
@@ -1646,8 +1626,8 @@ export class DeviceGroupService {
           }
         }
 
-        records.forEach((singleRecord, index) => {
-          recordsErrors[index].errorsList.forEach((error) => {
+        records?.forEach((singleRecord, index) => {
+          recordsErrors[index].errorsList?.forEach((error) => {
             singleRecord[error.property] = null; //making null field if it has any validation issue
           });
         });
@@ -1661,7 +1641,7 @@ export class DeviceGroupService {
         );
 
         if (listOfExistingDevices.length > 0) {
-          records.forEach((singleRecord, index) => {
+          records?.forEach((singleRecord, index) => {
             if (
               listOfExistingDevices.find(
                 (ele) => ele === singleRecord.externalId,
@@ -1680,7 +1660,7 @@ export class DeviceGroupService {
           });
         }
         const recordsCopy = cloneDeep(records);
-        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
+        recordsCopy?.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicatesExternalId: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
           this.logger.debug(recordsCopy[i].externalId);
@@ -1751,7 +1731,7 @@ export class DeviceGroupService {
 
         devicesRegistered
           .filter((ele) => (ele as any).isError === undefined)
-          .forEach((ele) => {
+          ?.forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
               externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
@@ -1761,7 +1741,7 @@ export class DeviceGroupService {
             });
           });
 
-        recordsErrors.forEach((ele, index) => {
+        recordsErrors?.forEach((ele, index) => {
           if (ele.isError === false) {
             ele['status'] = 'Success';
           } else if (
@@ -1871,11 +1851,12 @@ export class DeviceGroupService {
       return false;
     }
   }
+
+  @Profile()
   async getGroupCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
-    this.logger.log('Line No: 1883');
     return (
       (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
       null
@@ -1944,6 +1925,7 @@ export class DeviceGroupService {
     }
   }
 
+  @Profile()
   async endReservation(
     groupId: number,
     group: DeviceGroup,
@@ -2118,7 +2100,7 @@ export class DeviceGroupService {
 
     const historyNextIssuance = await queryBuilder.getRawMany();
 
-    historyNextIssuance.forEach((element) => {
+    historyNextIssuance?.forEach((element) => {
       element.device_externalid = element.externalId;
       delete element['createdAt'];
       delete element['groupId'];
@@ -2131,8 +2113,8 @@ export class DeviceGroupService {
 
     const allIssuance: any = [];
 
-    deviceHistoryNextIssuance.forEach((ele) =>
-      ele.historyNextIssuance.forEach((he) => allIssuance.push(he)),
+    deviceHistoryNextIssuance?.forEach((ele) =>
+      ele.historyNextIssuance?.forEach((he) => allIssuance.push(he)),
     );
 
     const totalPages = Math.ceil(count / pageSize);
@@ -2249,7 +2231,7 @@ export class DeviceGroupService {
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
-                    CountryArray.forEach((country, index) => {
+                    CountryArray?.forEach((country, index) => {
                       if (index === 0) {
                         qb.where(`d.countryCode ILIKE :benefit${index}`, {
                           [`benefit${index}`]: `%${country}%`,
@@ -2269,7 +2251,7 @@ export class DeviceGroupService {
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  fuelCodeArray.forEach((fuelCode, index) => {
+                  fuelCodeArray?.forEach((fuelCode, index) => {
                     if (index === 0) {
                       qb.where(`d.fuelCode ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${fuelCode}%`,
@@ -2288,7 +2270,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.where(`d.offTaker ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${offTaker}%`,
@@ -2338,7 +2320,7 @@ export class DeviceGroupService {
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -2522,7 +2504,7 @@ export class DeviceGroupService {
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
-                    CountryArray.forEach((country, index) => {
+                    CountryArray?.forEach((country, index) => {
                       if (index === 0) {
                         qb.where(`d.countryCode ILIKE :benefit${index}`, {
                           [`benefit${index}`]: `%${country}%`,
@@ -2542,7 +2524,7 @@ export class DeviceGroupService {
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  fuelCodeArray.forEach((fuelCode, index) => {
+                  fuelCodeArray?.forEach((fuelCode, index) => {
                     if (index === 0) {
                       qb.where(`d.fuelCode ILIKE :fuelcode${index}`, {
                         [`fuelcode${index}`]: `%${fuelCode}%`,
@@ -2561,7 +2543,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.where(`d.offTaker ILIKE :offtaker${index}`, {
                         [`offtaker${index}`]: `%${offTaker}%`,
@@ -2612,7 +2594,7 @@ export class DeviceGroupService {
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -2788,6 +2770,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   public async processLeftOverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,

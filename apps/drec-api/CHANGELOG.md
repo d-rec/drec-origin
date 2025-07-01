@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/d-rec/drec-origin/compare/v0.4.4...v0.5.0) (2025-06-16)
+
+### Features
+
+- add database replication routing connection ([#628](https://github.com/d-rec/drec-origin/issues/628)) ([9fd8a07](https://github.com/d-rec/drec-origin/commit/9fd8a071058a6f04da7f71d6cb7809c120650d53))
+- hide verbose logs from the service logs ([ca387a9](https://github.com/d-rec/drec-origin/commit/ca387a91bae8d42dd7881bdfe8ea471504642e12))
+
+### Improvements
+
+- cleanup logs ([95fd9d6](https://github.com/d-rec/drec-origin/commit/95fd9d6b9ac088a31a84f5f88ab3f75a0b864d98))
+- log reads ([cff1a2d](https://github.com/d-rec/drec-origin/commit/cff1a2d9c0497aeff9f878cd6c5bf83067580381))
+- log reads ([2a1a89a](https://github.com/d-rec/drec-origin/commit/2a1a89a4f1e431ab7b7a84932d9d384f1342f170))
+- logs cleanup ([acb28d8](https://github.com/d-rec/drec-origin/commit/acb28d80d00604575f2bfe4b3ebe43aaa01d492a))
+
+### [0.4.4](https://github.com/d-rec/drec-origin/compare/v0.4.3...v0.4.4) (2025-05-29)
+
+### Features
+
+- create device indexes for lateongoing certificates ([#624](https://github.com/d-rec/drec-origin/issues/624)) ([5eb8dc8](https://github.com/d-rec/drec-origin/commit/5eb8dc8043683ffe8ba4e370674280879dd4816c))
+
+### [0.4.3](https://github.com/d-rec/drec-origin/compare/v0.4.2...v0.4.3) (2025-05-26)
+
+### Bug Fixes
+
+- add error handling for empty certificate logs ([d761e18](https://github.com/d-rec/drec-origin/commit/d761e18fc05e0043c9bc1dee886a93a228091ea1))
+
 ### [0.4.2](https://github.com/d-rec/drec-origin/compare/v0.4.1...v0.4.2) (2025-05-13)
 
 ### Bug Fixes
