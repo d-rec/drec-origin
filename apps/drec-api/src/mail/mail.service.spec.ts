@@ -24,7 +24,9 @@ describe('MailService', () => {
         },
         {
           provide: ConfigService,
-          useValue: {} as any,
+          useValue: {
+            get: jest.fn().mockReturnValue('no-reply@example.com'),
+          } as any,
         },
         Logger,
       ],
