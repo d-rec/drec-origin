@@ -20,22 +20,22 @@ export class MailService {
 
       this.logger.log(`Sending email...`);
 
-      const allSucceeded = result?.response.every((m: { status: string }) =>
-        ['sent', 'queued', 'scheduled'].includes(m.status),
-      );
+      const allSucceeded =
+        result?.accepted?.length > 0 &&
+        (!result?.rejected || result.rejected.length === 0) &&
+        /queued|ok|250/i.test(result.response);
 
       if (allSucceeded) {
         this.logger.log(`Sent email with id: ${result.messageId}.`);
-        this.logger.log(JSON.stringify(result.response));
+        this.logger.log(JSON.stringify(result));
         return true;
       }
 
       return false;
     } catch (error) {
       this.logger.error(`Error when sending email.`);
-      this.logger.error(JSON.stringify(error));
+      this.logger.error(error);
+      return false;
     }
-
-    return false;
   }
 }

@@ -15,6 +15,7 @@ import {
 import getFileData from '../../lib/helpers/getFileData';
 import { EvidentService } from './evident.service';
 import { Unit } from '@energyweb/energy-api-influxdb';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -27,6 +28,7 @@ export class EvidentDeviceService {
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     private readonly evidentService: EvidentService,
+    private mailService: MailService,
   ) {}
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -89,8 +91,24 @@ export class EvidentDeviceService {
 
     if (device.capacity <= 250) {
       await this.submitDeviceForReview(device, payload);
+      await this.mailService.send({
+        to: user.member.email,
+        subject: `Device Registration Submitted To Evident — ${device.projectName}`,
+        html: `
+  <p>Hello,</p>
+  <p>A new device registration has been submitted to the Evident platform.</p>
+  <p>Device Details:</p>
+  <ul>
+  <li>Project Name: ${device.projectName}</li>
+  <li>Device ID: ${device.evidentDeviceId}</li>
+  <li>Organization: ${device.organizationId}</li>
+  </ul>
+  <p>You will be notified once the registration is reviewed.</p>
+  <p>Best regards,</p>
+  <p>D-REC Team</p>
+      `,
+      });
     }
-
     return payload;
   }
 
