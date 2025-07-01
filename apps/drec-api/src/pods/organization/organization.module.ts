@@ -10,16 +10,22 @@ import { MailModule } from '../../mail';
 import { FileModule } from '../file';
 import { InvitationModule } from '../invitation/invitation.module';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
+import { DeviceModule } from '../device/device.module';
+import { EvidentModule } from '../evident/evident.module';
+import { Device } from '../device/device.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Organization]),
+    TypeOrmModule.forFeature([Organization, Device, EvidentSettings]),
 
     BlockchainPropertiesModule,
     MailModule,
     forwardRef(() => UserModule),
     FileModule,
     forwardRef(() => InvitationModule),
+    forwardRef(() => DeviceModule),
+    forwardRef(() => EvidentModule),
     DocumentUploadsModule,
   ],
   providers: [OrganizationService],

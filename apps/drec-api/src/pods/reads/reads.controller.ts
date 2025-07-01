@@ -33,7 +33,7 @@ import { ILoggedInUser, IUser } from '../../models';
 import { Role } from '../../utils/enums';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';

@@ -5,7 +5,7 @@ import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_cer
 import { CertificateLogService } from './certificate-log.service';
 import { Certificate } from '@energyweb/issuer-api';
 import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { Response } from 'express';
 import { ILoggedInUser } from '../../models/LoggedInUser';
