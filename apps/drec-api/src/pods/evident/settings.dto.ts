@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IssuanceRequestFrequency } from '../../types/evident';
 import { Column } from 'typeorm';
 
 export class SettingsDTO {
@@ -31,5 +32,5 @@ export class SettingsDTO {
   @IsString()
   @IsNotEmpty()
   @Column({ name: 'frequency' })
-  frequency: string;
+  frequency: IssuanceRequestFrequency;
 }

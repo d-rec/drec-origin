@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Organization } from '../organization/organization.entity';
+import { IssuanceRequestFrequency } from '../../types/evident';
 
 @Entity('evident_settings')
 @Unique(['organizationId'])
@@ -36,8 +37,12 @@ export class EvidentSettings {
   @Column({ type: 'varchar', name: 'email' })
   email: string;
 
-  @Column({ type: 'varchar', name: 'frequency' })
-  frequency: string;
+  @Column({
+    type: 'varchar',
+    name: 'frequency',
+    default: IssuanceRequestFrequency.Monthly,
+  })
+  frequency: IssuanceRequestFrequency;
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

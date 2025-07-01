@@ -3,7 +3,7 @@ import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
 import {
-  EvidentFrequency,
+  IssuanceRequestFrequency,
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
@@ -42,7 +42,7 @@ export class EvidentIssuanceService {
       const lastIssuance = certificate.evidentSyncedAt;
 
       switch (frequency) {
-        case EvidentFrequency.Monthly:
+        case IssuanceRequestFrequency.Monthly:
           if (
             !lastIssuance ||
             DateTime.fromJSDate(lastIssuance).plus({ months: 1 }) <=
@@ -51,7 +51,7 @@ export class EvidentIssuanceService {
             await this.processCertificate(certificate);
           }
           break;
-        case EvidentFrequency.Quarterly:
+        case IssuanceRequestFrequency.Quarterly:
           if (
             !lastIssuance ||
             DateTime.fromJSDate(lastIssuance).plus({ months: 3 }) <=
@@ -60,10 +60,10 @@ export class EvidentIssuanceService {
             await this.processCertificate(certificate);
           }
           break;
-        case EvidentFrequency.Yearly:
+        case IssuanceRequestFrequency.SemiAnnually:
           if (
             !lastIssuance ||
-            DateTime.fromJSDate(lastIssuance).plus({ months: 12 }) <=
+            DateTime.fromJSDate(lastIssuance).plus({ months: 6 }) <=
               DateTime.now()
           ) {
             await this.processCertificate(certificate);

@@ -47,8 +47,8 @@ export type EvidentIssuanceRequest = {
   status: string;
 };
 
-export enum EvidentFrequency {
+export enum IssuanceRequestFrequency {
   Monthly = 'Monthly',
   Quarterly = 'Quarterly',
-  Yearly = 'Yearly',
+  SemiAnnually = 'Semi-Annually',
 }
