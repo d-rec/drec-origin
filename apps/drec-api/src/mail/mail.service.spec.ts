@@ -71,9 +71,10 @@ describe('MailService', () => {
 
     it('should log errors appropriately', async () => {
       const loggerSpy = jest.spyOn(Logger.prototype, 'error');
-      jest
-        .spyOn(mailerService, 'sendMail')
-        .mockRejectedValue(new Error('Test Error'));
+      const testError = new Error('Test Error');
+
+      jest.spyOn(configService, 'get').mockReturnValue('no-reply@example.com');
+      jest.spyOn(mailerService, 'sendMail').mockRejectedValue(testError);
 
       await service.send({
         to: 'test@example.com',
@@ -82,9 +83,7 @@ describe('MailService', () => {
       });
 
       expect(loggerSpy).toHaveBeenCalledWith('Error when sending email.');
-      expect(loggerSpy).toHaveBeenCalledWith(
-        JSON.stringify(new Error('Test Error')),
-      );
+      expect(loggerSpy).toHaveBeenCalledWith(testError);
     });
   });
 });
