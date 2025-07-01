@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
+import { Device } from '../device/device.entity';
+import getFileData from '../../lib/helpers/getFileData';
+import FormData from 'form-data';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Injectable()
 export class EvidentService {
@@ -37,10 +41,96 @@ export class EvidentService {
       return {
         profile: user,
         member: userMember,
+        id: userMember.uid,
+        registrantId: userMember.organisation.uid,
       };
     } catch (error) {
       this.logger.error('Error fetching registrant info:', error);
       throw error;
+    }
+  }
+
+  async uploadFiles(
+    device: Device,
+    files: Record<string, Express.Multer.File[]>,
+    evidentUserId: string,
+    notes = '',
+  ): Promise<string[]> {
+    const filesToUpload = [];
+    for (const [documentType, fileArray] of Object.entries(files)) {
+      if (!Array.isArray(fileArray)) continue;
+      for (const file of fileArray) {
+        filesToUpload.push({
+          file,
+          documentType: documentType as DocumentType,
+        });
+      }
+    }
+    const uploadedFiles = await Promise.all(
+      filesToUpload.map(({ file, documentType }) =>
+        this.uploadFile(device, evidentUserId, file, notes, documentType),
+      ),
+    );
+    return uploadedFiles
+      .filter((result) => result.success && result.fileId)
+      .map((result) => result.fileId);
+  }
+
+  async uploadFile(
+    device: Device | { organizationId: number },
+    evidentUserId: string,
+    file: Express.Multer.File,
+    notes: string,
+    documentType?: DocumentType,
+  ): Promise<any> {
+    try {
+      if (!file) {
+        return {
+          success: false,
+          error: 'No file provided for upload',
+        };
+      }
+
+      const evidentApiInstance = await this.getApiInstance(
+        device.organizationId,
+      );
+      const fileData = getFileData(file);
+      const form = new FormData();
+
+      form.append('file', fileData, {
+        filename: file.originalname,
+        contentType: file.mimetype,
+      });
+      form.append('name', file.originalname);
+      form.append('notes', notes);
+      form.append('userUid', evidentUserId);
+      form.append('category', documentType);
+
+      const uploadedFile = await evidentApiInstance.post('/files', form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+        timeout: 30000,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+
+      return {
+        success: true,
+        data: uploadedFile.data,
+        fileId: uploadedFile.data?.['@id'],
+      };
+    } catch (error) {
+      this.logger.error(
+        'Failed to upload file:',
+        error.response?.data || error.message,
+      );
+
+      return {
+        success: false,
+        error:
+          error.response?.data?.message || error.message || 'Upload failed',
+      };
     }
   }
 }

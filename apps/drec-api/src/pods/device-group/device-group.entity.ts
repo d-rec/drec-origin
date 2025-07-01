@@ -21,7 +21,7 @@ import {
   CommissioningDateRange,
   OffTaker,
 } from '../../utils/enums';
-//import { Device } from '../device';
+//import { Device } from '../device/device.entity';
 import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
 

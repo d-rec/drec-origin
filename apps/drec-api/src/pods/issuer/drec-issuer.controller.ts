@@ -21,7 +21,7 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { HistoricalIssuanceService } from './services/historical-issuance.service';
 import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './services/ongoing-issuance.service';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')

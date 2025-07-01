@@ -34,8 +34,7 @@ const runExclusive = async <T>(
     return await fn();
   } finally {
     // Lock will expire automatically after LOCK_TTL seconds
-    // Uncomment the following line if you want to release the lock immediately after execution
-    // await redis.del(key);
+    await redis.del(key);
   }
 };
 
