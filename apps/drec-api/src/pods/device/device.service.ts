@@ -85,6 +85,7 @@ import {
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
+import { EvidentEmailService } from '../evident/evident-email.service';
 
 @Injectable()
 export class DeviceService {
@@ -108,6 +109,7 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
+    private readonly evidentEmailService: EvidentEmailService,
   ) {}
 
   public async find(
@@ -543,15 +545,14 @@ export class DeviceService {
   }
 
   async syncStatusesWithEvident(): Promise<void> {
-    const devices = await this.repository.find({
-      where: { evidentStatus: EvidentRegistrationStatus.Draft },
-    });
+    const devices = await this.repository.find();
     for (const device of devices) {
       try {
         const updatedStatus = await this.evidentDeviceService.getStatus(
           device.organizationId,
           device.evidentDeviceId,
         );
+        console.log("updatedStatus", updatedStatus)
         if (updatedStatus !== device.evidentStatus) {
           this.logger.verbose(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
@@ -561,6 +562,7 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
+          this.evidentEmailService.sendEmailToOrganizationWhenDeviceStatusChanges(device, updatedStatus);
         }
       } catch (error) {
         this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
