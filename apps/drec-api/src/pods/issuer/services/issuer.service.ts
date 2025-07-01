@@ -112,7 +112,7 @@ export class IssuerService {
           device,
           minimumStartDate,
           maximumEndDate,
-          totalRead * 10 ** 3,
+          totalRead,
           certificateTransactionUID,
           startDate,
           endDate,
