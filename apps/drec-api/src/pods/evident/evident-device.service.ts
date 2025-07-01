@@ -14,7 +14,7 @@ import {
 import { EvidentService } from './evident.service';
 import { MailService } from '../../mail/mail.service';
 import { EnergyUnit } from '../../types/units';
-
+import { OrganizationService } from '../organization/organization.service';
 @Injectable()
 export class EvidentDeviceService {
   private readonly logger = new Logger(EvidentDeviceService.name);
@@ -27,6 +27,8 @@ export class EvidentDeviceService {
     private readonly deviceService: DeviceService,
     private readonly evidentService: EvidentService,
     private mailService: MailService,
+    @Inject(forwardRef(() => OrganizationService))
+    private readonly organizationService: OrganizationService,
   ) {}
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -64,12 +66,8 @@ export class EvidentDeviceService {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
-    const {
-      registrantId,
-      id: evidentUserId,
-      member: { email: memberEmail },
-    } = await this.evidentService.getRegistrantInfo(device.organizationId);
-    await this.evidentService.getRegistrantInfo(device.organizationId);
+    const { registrantId, id: evidentUserId } =
+      await this.evidentService.getRegistrantInfo(device.organizationId);
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,
       files,
@@ -91,10 +89,14 @@ export class EvidentDeviceService {
       EvidentRegistrationStatus.Draft,
     );
 
+    const organization = await this.organizationService.findOne(
+      device.organizationId,
+    );
+
     if (device.capacity <= 250) {
       await this.submitDeviceForReview(device, payload);
       await this.mailService.send({
-        to: memberEmail,
+        to: organization.orgEmail,
         subject: `Device Registration Submitted To Evident — ${device.projectName}`,
         html: `
   <p>Hello,</p>
@@ -102,8 +104,8 @@ export class EvidentDeviceService {
   <p>Device Details:</p>
   <ul>
   <li>Project Name: ${device.projectName}</li>
-  <li>Device ID: ${device.evidentDeviceId}</li>
-  <li>Organization: ${device.organizationId}</li>
+  <li>Device ID: ${device.developerExternalId}</li>
+  <li>Organization: ${organization.name}</li>
   </ul>
   <p>You will be notified once the registration is reviewed.</p>
   <p>Best regards,</p>
