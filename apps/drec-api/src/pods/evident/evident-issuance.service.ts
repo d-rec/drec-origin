@@ -29,14 +29,12 @@ export class EvidentIssuanceService {
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async getCertificatesForIssuance(): Promise<void> {
-    const certificates =
-      await this.deviceService.getCertificatesForEvidentIssuance();
-    for (const certificate of certificates) {
-      const frequency =
-        certificate.device.organization.evidentSettings[0]['frequency'];
-      const lastIssuance = certificate.evidentSyncedAt;
-
+  async createIssuanceRequestByFrequency(){
+    this.logger.verbose('Issuance request creation started');
+    const organizationsSettings = await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+    for(const settings of organizationsSettings) {
+      const frequency = settings.frequency;
+      const lastIssuance = settings.lastIssuanceSyncedAt;
       switch (frequency) {
         case IssuanceRequestFrequency.Monthly:
           if (
@@ -44,7 +42,7 @@ export class EvidentIssuanceService {
             DateTime.fromJSDate(lastIssuance).plus({ months: 1 }) <=
               DateTime.now()
           ) {
-            await this.processCertificate(certificate);
+            await this.getCertificatesForIssuance(settings.organizationId);
           }
           break;
         case IssuanceRequestFrequency.Quarterly:
@@ -53,7 +51,7 @@ export class EvidentIssuanceService {
             DateTime.fromJSDate(lastIssuance).plus({ months: 3 }) <=
               DateTime.now()
           ) {
-            await this.processCertificate(certificate);
+            await await this.getCertificatesForIssuance(settings.organizationId);
           }
           break;
         case IssuanceRequestFrequency.SemiAnnually:
@@ -62,14 +60,25 @@ export class EvidentIssuanceService {
             DateTime.fromJSDate(lastIssuance).plus({ months: 6 }) <=
               DateTime.now()
           ) {
-            await this.processCertificate(certificate);
+            await await this.getCertificatesForIssuance(settings.organizationId);
           }
           break;
         default:
           this.logger.warn(
-            `Unknown Evident frequency: ${frequency} for device ${certificate.device.externalId}. Skipping issuance.`,
+            `Unknown Evident frequency: ${frequency} for organization ${settings.organizationId}. Skipping issuance.`,
           );
       }
+    }
+  }
+
+  async getCertificatesForIssuance(organizationId: number): Promise<void> {
+    this.logger.verbose(
+      `Fetching certificates for issuance for organization ${organizationId}`,
+    );
+    const certificates =
+      await this.deviceService.getCertificatesForEvidentIssuance(organizationId);
+    for (const certificate of certificates) {
+      await this.processCertificate(certificate);
     }
   }
 

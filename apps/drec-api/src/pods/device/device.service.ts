@@ -1866,7 +1866,7 @@ export class DeviceService {
     );
   }
 
-  async getCertificatesForEvidentIssuance(): Promise<
+  async getCertificatesForEvidentIssuance(organizationId: number): Promise<
     CheckCertificateIssueDateLogForDeviceEntity[]
   > {
     return await this.checkDeviceLogCertificateRepository
@@ -1884,6 +1884,7 @@ export class DeviceService {
         status: 'Approved',
       })
       .andWhere('deviceCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
+      .andWhere('organization.id = :organizationId', { organizationId })
       .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
       .getMany();
   }

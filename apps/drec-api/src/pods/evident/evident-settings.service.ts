@@ -69,6 +69,12 @@ export class EvidentSettingsService {
     };
   }
 
+  async getAllOrganizationLastIssuanceSyncedAt(){
+    return await this.repository
+      .createQueryBuilder('evident_settings')
+      .getMany();
+  }
+
   private async findCached(organizationId: number): Promise<SettingsDTO> {
     const cacheKey = this.getRedisKey(organizationId);
     const cachedData = await this.redis.get(cacheKey);
