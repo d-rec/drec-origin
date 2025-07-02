@@ -69,7 +69,7 @@ export class EvidentSettingsService {
     };
   }
 
-  async getAllOrganizationLastIssuanceSyncedAt(){
+  async getAllOrganizationLastIssuanceSyncedAt(): Promise<EvidentSettings[]> {
     return await this.repository
       .createQueryBuilder('evident_settings')
       .getMany();

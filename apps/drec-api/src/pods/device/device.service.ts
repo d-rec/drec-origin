@@ -1866,9 +1866,9 @@ export class DeviceService {
     );
   }
 
-  async getCertificatesForEvidentIssuance(organizationId: number): Promise<
-    CheckCertificateIssueDateLogForDeviceEntity[]
-  > {
+  async getCertificatesForEvidentIssuance(
+    organizationId: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
     return await this.checkDeviceLogCertificateRepository
       .createQueryBuilder('deviceCertificates')
       .leftJoinAndSelect('deviceCertificates.device', 'device')

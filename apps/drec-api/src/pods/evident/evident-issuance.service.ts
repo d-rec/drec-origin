@@ -29,10 +29,11 @@ export class EvidentIssuanceService {
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async createIssuanceRequestByFrequency(){
+  async createIssuanceRequestByFrequency(): Promise<void> {
     this.logger.verbose('Issuance request creation started');
-    const organizationsSettings = await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
-    for(const settings of organizationsSettings) {
+    const organizationsSettings =
+      await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+    for (const settings of organizationsSettings) {
       const frequency = settings.frequency;
       const lastIssuance = settings.lastIssuanceSyncedAt;
       switch (frequency) {
@@ -51,7 +52,9 @@ export class EvidentIssuanceService {
             DateTime.fromJSDate(lastIssuance).plus({ months: 3 }) <=
               DateTime.now()
           ) {
-            await await this.getCertificatesForIssuance(settings.organizationId);
+            await await this.getCertificatesForIssuance(
+              settings.organizationId,
+            );
           }
           break;
         case IssuanceRequestFrequency.SemiAnnually:
@@ -60,7 +63,9 @@ export class EvidentIssuanceService {
             DateTime.fromJSDate(lastIssuance).plus({ months: 6 }) <=
               DateTime.now()
           ) {
-            await await this.getCertificatesForIssuance(settings.organizationId);
+            await await this.getCertificatesForIssuance(
+              settings.organizationId,
+            );
           }
           break;
         default:
@@ -76,7 +81,9 @@ export class EvidentIssuanceService {
       `Fetching certificates for issuance for organization ${organizationId}`,
     );
     const certificates =
-      await this.deviceService.getCertificatesForEvidentIssuance(organizationId);
+      await this.deviceService.getCertificatesForEvidentIssuance(
+        organizationId,
+      );
     for (const certificate of certificates) {
       await this.processCertificate(certificate);
     }
@@ -220,7 +227,9 @@ export class EvidentIssuanceService {
       EvidentIssuanceStatus.Draft,
     );
 
-    await this.evidentSettingsService.updateLastIssuanceSyncedAt(certificate.device.organizationId);
+    await this.evidentSettingsService.updateLastIssuanceSyncedAt(
+      certificate.device.organizationId,
+    );
   }
 
   private async generateReadsCSVFile(
