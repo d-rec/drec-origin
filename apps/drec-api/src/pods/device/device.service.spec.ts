@@ -51,6 +51,7 @@ import {
 import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentEmailService } from '../evident/evident-email.service';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -161,6 +162,12 @@ describe('DeviceService', () => {
           useValue: {
             queueDeviceRegistration: jest.fn(),
             registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: EvidentEmailService,
+          useValue: {
+            notifyOrganizationOnDeviceStatusChange: jest.fn(),
           },
         },
       ],

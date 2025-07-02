@@ -8,21 +8,21 @@ export class EvidentEmailService {
   private readonly logger = new Logger(EvidentEmailService.name);
   constructor(private readonly mailService: MailService) {}
 
-  sendEmailToOrganizationWhenDeviceStatusChanges(
+  async notifyOrganizationOnDeviceStatusChange(
     device: Device,
     deviceEvidentStatus: string,
-  ): any {
+  ): Promise<boolean | void> {
     this.logger.verbose(
       `With in sendEmailToOrganizationWhenDeviceStatusChanges`,
     );
     switch (deviceEvidentStatus) {
       case EvidentRegistrationStatus.Approved:
-        this.mailService.send({
+        return this.mailService.send({
           to: device.organization.orgEmail,
           subject: `Device Approved on Evident — ${device.projectName}`,
           html: `
               <p>Hello,</p>
-              <pThe following device registration has been approved on the Evident platform:</p>
+              <p>The following device registration has been approved on the Evident platform:</p>
               <p>Device Details:</p>
               <ul>
                 <li>Project Name: ${device.projectName}</li>
@@ -34,28 +34,28 @@ export class EvidentEmailService {
               <p>D-REC Team</p>
               `,
         });
-        return;
       case EvidentRegistrationStatus.Rejected:
-        this.mailService.send({
+        return this.mailService.send({
           to: device.organization.orgEmail,
           subject: `Device Rejected on Evident — ${device.projectName}`,
           html: `
               <p>Hello,</p>
-              <pThe following device registration has been rejected on the Evident platform:</p>
+              <p>The following device registration has been rejected on the Evident platform:</p>
               <p>Device Details:</p>
               <ul>
                 <li>Project Name: ${device.projectName}</li>
                 <li>Device ID: ${device.externalId}</li>
                 <li>Organization: ${device.organization.name}</li>
               </ul>
-              <p>The device was rejected due to.</p>
+              <p>The device was rejected.</p>
               <p>Best regards,</p>
               <p>D-REC Team</p>
               `,
         });
-        return;
       default:
-        return;
+        return this.logger.warn(
+          `No updated status for device: ${device.projectName}`,
+        );
     }
   }
 }

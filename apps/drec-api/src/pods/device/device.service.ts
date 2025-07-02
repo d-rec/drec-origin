@@ -552,7 +552,6 @@ export class DeviceService {
           device.organizationId,
           device.evidentDeviceId,
         );
-        console.log('updatedStatus', updatedStatus);
         if (updatedStatus !== device.evidentStatus) {
           this.logger.verbose(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
@@ -562,7 +561,7 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
-          this.evidentEmailService.sendEmailToOrganizationWhenDeviceStatusChanges(
+          this.evidentEmailService.notifyOrganizationOnDeviceStatusChange(
             device,
             updatedStatus,
           );
