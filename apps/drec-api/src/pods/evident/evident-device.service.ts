@@ -16,9 +16,9 @@ import { MailService } from '../../mail/mail.service';
 import { EnergyUnit } from '../../types/units';
 import { OrganizationService } from '../organization/organization.service';
 import {
-  draftDeviceRegistrationSubject,
-  draftDeviceRegistrationTemplate,
-} from './evident.email.templates';
+  deviceRegistrationSubject,
+  deviceRegistrationTemplate,
+} from './evident-email.templates';
 @Injectable()
 export class EvidentDeviceService {
   private readonly logger = new Logger(EvidentDeviceService.name);
@@ -101,8 +101,8 @@ export class EvidentDeviceService {
       await this.submitDeviceForReview(device, payload);
       await this.mailService.send({
         to: organization.orgEmail,
-        subject: draftDeviceRegistrationSubject(device),
-        html: draftDeviceRegistrationTemplate(device, organization.name),
+        subject: deviceRegistrationSubject(device),
+        html: deviceRegistrationTemplate(device, organization.name),
       });
     }
     return payload;

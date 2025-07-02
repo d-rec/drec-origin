@@ -1,6 +1,6 @@
 import { Device } from '../device/device.entity';
 
-export const draftDeviceRegistrationTemplate = (
+export const deviceRegistrationTemplate = (
   device: Device,
   organizationName: string,
 ): string => `
@@ -17,5 +17,5 @@ export const draftDeviceRegistrationTemplate = (
   <p>D-REC Team</p>
       `;
 
-export const draftDeviceRegistrationSubject = (device: Device): string =>
+export const deviceRegistrationSubject = (device: Device): string =>
   `Device Registration Submitted To Evident — ${device.projectName}`;
