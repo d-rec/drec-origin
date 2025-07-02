@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
@@ -15,6 +15,12 @@ import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { ReadsService } from '../reads/reads.service';
 import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
+import { MailService } from '../../../src/mail/mail.service';
+import { OrganizationService } from '../organization/organization.service';
+import {
+  draftIssuanceRegistrationSubject,
+  draftIssuanceRegistrationTemplate,
+} from './evident-email-templates';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -25,6 +31,9 @@ export class EvidentIssuanceService {
     private readonly deviceService: DeviceService,
     private readonly readService: ReadsService,
     private readonly evidentSettingsService: EvidentSettingsService,
+    private mailService: MailService,
+    @Inject(forwardRef(() => OrganizationService))
+    private readonly organizationService: OrganizationService,
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -56,7 +65,18 @@ export class EvidentIssuanceService {
         registrantId,
         issuance,
       );
-
+      const organization = await this.organizationService.findOne(
+        device.organizationId,
+      );
+      await this.mailService.send({
+        to: organization.orgEmail,
+        subject: draftIssuanceRegistrationSubject(device),
+        html: draftIssuanceRegistrationTemplate(
+          device,
+          organization.name,
+          issuance,
+        ),
+      });
       return {
         ...response.data,
         issuanceId,
