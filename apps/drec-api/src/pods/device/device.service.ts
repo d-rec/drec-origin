@@ -80,7 +80,6 @@ import {
 } from '../document-uploads/entities/documents.entity';
 import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
-import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import {
   EvidentIssuanceStatus,
@@ -108,7 +107,6 @@ export class DeviceService {
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
-    private readonly evidentService: EvidentService,
     private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
