@@ -32,10 +32,6 @@ export class EvidentIssuanceService {
   async getCertificatesForIssuance(): Promise<void> {
     const certificates =
       await this.deviceService.getCertificatesForEvidentIssuance();
-    if (certificates.length === 0) {
-      this.logger.log('No certificates found for issuance.');
-      return;
-    }
     for (const certificate of certificates) {
       const frequency =
         certificate.device.organization.evidentSettings[0]['frequency'];
@@ -214,6 +210,8 @@ export class EvidentIssuanceService {
       issuanceId,
       EvidentIssuanceStatus.Draft,
     );
+
+    await this.evidentSettingsService.updateLastIssuanceSyncedAt(certificate.device.organizationId);
   }
 
   private async generateReadsCSVFile(

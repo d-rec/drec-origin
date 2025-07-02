@@ -44,6 +44,9 @@ export class EvidentSettings {
   })
   frequency: IssuanceRequestFrequency;
 
+  @Column({type: 'timestamp', name: 'last_issuance_synced_at', nullable: true})
+  lastIssuanceSyncedAt: Date | null;
+
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

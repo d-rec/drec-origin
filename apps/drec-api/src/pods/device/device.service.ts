@@ -1874,6 +1874,7 @@ export class DeviceService {
       .leftJoinAndSelect('deviceCertificates.device', 'device')
       .leftJoinAndSelect('device.organization', 'organization')
       .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
+      .where('deviceCertificates.evidentSyncedAt IS NULL')
       .andWhere(
         'deviceCertificates.certificate_issuance_startdate >= device.createdAt',
       )
