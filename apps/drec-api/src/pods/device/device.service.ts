@@ -552,7 +552,7 @@ export class DeviceService {
           device.organizationId,
           device.evidentDeviceId,
         );
-        console.log("updatedStatus", updatedStatus)
+        console.log('updatedStatus', updatedStatus);
         if (updatedStatus !== device.evidentStatus) {
           this.logger.verbose(
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
@@ -562,7 +562,10 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
-          this.evidentEmailService.sendEmailToOrganizationWhenDeviceStatusChanges(device, updatedStatus);
+          this.evidentEmailService.sendEmailToOrganizationWhenDeviceStatusChanges(
+            device,
+            updatedStatus,
+          );
         }
       } catch (error) {
         this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
