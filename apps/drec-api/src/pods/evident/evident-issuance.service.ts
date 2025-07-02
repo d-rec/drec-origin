@@ -20,7 +20,7 @@ import { OrganizationService } from '../organization/organization.service';
 import {
   draftIssuanceRegistrationSubject,
   draftIssuanceRegistrationTemplate,
-} from './evident-email-templates';
+} from './evident-email.templates';
 
 @Injectable()
 export class EvidentIssuanceService {
