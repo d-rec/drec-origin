@@ -13,6 +13,8 @@ import {
 } from '../../types/evident';
 import { EvidentService } from './evident.service';
 import { EnergyUnit } from '../../types/units';
+import { MailService } from '../../mail/mail.service';
+import { OrganizationService } from '../organization/organization.service';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -25,6 +27,9 @@ export class EvidentDeviceService {
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     private readonly evidentService: EvidentService,
+    private mailService: MailService,
+    @Inject(forwardRef(() => OrganizationService))
+    private readonly organizationService: OrganizationService,
   ) {}
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -64,6 +69,9 @@ export class EvidentDeviceService {
     );
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
+    const organization = await this.organizationService.findOne(
+      device.organizationId,
+    );
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,
       files,
@@ -88,7 +96,23 @@ export class EvidentDeviceService {
     if (device.capacity <= 250) {
       await this.submitDeviceForReview(device, payload);
     }
-
+    await this.mailService.send({
+      to: organization.orgEmail,
+      subject: `Device Registration Add As a Draft On Evident — ${device.projectName}`,
+      html: `
+<p>Hello,</p>
+<p>A new device registration has been created as a draft on the Evident platform.</p>
+<p>Device Details:</p>
+<ul>
+<li>Project Name: ${device.projectName}</li>
+<li>Device ID: ${device.developerExternalId}</li>
+<li>Organization: ${organization.name}</li>
+</ul>
+<p>Please login into your D-REC dashboard to approve the submission to evident</p>
+<p>Best regards,</p>
+<p>D-REC Team</p>
+    `,
+    });
     return payload;
   }
 
