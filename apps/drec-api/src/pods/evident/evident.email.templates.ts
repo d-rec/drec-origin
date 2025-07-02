@@ -18,4 +18,4 @@ export const draftDeviceRegistrationTemplate = (
       `;
 
 export const draftDeviceRegistrationSubject = (device: Device): string =>
-  `Device Registration Add As a Draft On Evident — ${device.projectName}`;
+  `Device Registration Submitted To Evident — ${device.projectName}`;
