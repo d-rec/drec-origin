@@ -15,10 +15,9 @@ import { EvidentService } from './evident.service';
 import { EnergyUnit } from '../../types/units';
 import { MailService } from '../../mail/mail.service';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  draftDeviceRegistrationSubject,
-  draftDeviceRegistrationTemplate,
-} from './evident-email.templates';
+import EvidentDraftDeviceRegistrationTemplate, {
+  getEvidentDraftDeviceRegistrationSubject,
+} from './mail/evident-draft-device-registration.template';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -99,12 +98,17 @@ export class EvidentDeviceService {
 
     if (device.capacity <= 250) {
       await this.submitDeviceForReview(device, payload);
+    } else {
+      await this.mailService.send({
+        to: organization.orgEmail,
+        subject: getEvidentDraftDeviceRegistrationSubject(device),
+        template: EvidentDraftDeviceRegistrationTemplate({
+          device,
+          organizationName: organization.name,
+        }),
+      });
     }
-    await this.mailService.send({
-      to: organization.orgEmail,
-      subject: draftDeviceRegistrationSubject(device),
-      html: draftDeviceRegistrationTemplate(device, organization.name),
-    });
+
     return payload;
   }
 
