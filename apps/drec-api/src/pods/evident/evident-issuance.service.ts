@@ -3,7 +3,6 @@ import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
 import {
-  EvidentIssuanceRequestFrequency,
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
