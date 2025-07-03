@@ -3,7 +3,7 @@ import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
 import {
-  IssuanceRequestFrequency,
+  EvidentIssuanceRequestFrequency,
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
@@ -16,6 +16,7 @@ import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { ReadsService } from '../reads/reads.service';
 import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
+import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -29,54 +30,32 @@ export class EvidentIssuanceService {
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async createIssuanceRequestByFrequency(): Promise<void> {
+  async processIssuanceByFrequency(): Promise<void> {
     this.logger.verbose('Issuance request creation started');
     const organizationsSettings =
       await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+
     for (const settings of organizationsSettings) {
-      const frequency = settings.frequency;
-      const lastIssuance = settings.lastIssuanceSyncedAt;
-      switch (frequency) {
-        case IssuanceRequestFrequency.Monthly:
-          if (
-            !lastIssuance ||
-            DateTime.fromJSDate(lastIssuance).plus({ months: 1 }) <=
-              DateTime.now()
-          ) {
-            await this.getCertificatesForIssuance(settings.organizationId);
-          }
-          break;
-        case IssuanceRequestFrequency.Quarterly:
-          if (
-            !lastIssuance ||
-            DateTime.fromJSDate(lastIssuance).plus({ months: 3 }) <=
-              DateTime.now()
-          ) {
-            await await this.getCertificatesForIssuance(
-              settings.organizationId,
-            );
-          }
-          break;
-        case IssuanceRequestFrequency.SemiAnnually:
-          if (
-            !lastIssuance ||
-            DateTime.fromJSDate(lastIssuance).plus({ months: 6 }) <=
-              DateTime.now()
-          ) {
-            await await this.getCertificatesForIssuance(
-              settings.organizationId,
-            );
-          }
-          break;
-        default:
-          this.logger.warn(
-            `Unknown Evident frequency: ${frequency} for organization ${settings.organizationId}. Skipping issuance.`,
-          );
+      const nextIssuanceDate = getEvidentNextIssuanceDate(
+        settings.lastIssuanceSyncedAt,
+        settings.frequency,
+      );
+
+      if (nextIssuanceDate > new Date()) {
+        continue;
+      }
+
+      try {
+        await this.processIssuanceByOrganization(settings.organizationId);
+      } catch (error) {
+        this.logger.error(
+          `Error processing organization ${settings.organizationId}: ${error.message}`,
+        );
       }
     }
   }
 
-  async getCertificatesForIssuance(organizationId: number): Promise<void> {
+  async processIssuanceByOrganization(organizationId: number): Promise<void> {
     this.logger.verbose(
       `Fetching certificates for issuance for organization ${organizationId}`,
     );
