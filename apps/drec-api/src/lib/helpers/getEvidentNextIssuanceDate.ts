@@ -10,6 +10,7 @@ export const getEvidentNextIssuanceDate = (
   }
 
   const lastIssuance = DateTime.fromJSDate(lastIssuanceDate);
+
   switch (frequency) {
     case EvidentIssuanceRequestFrequency.Quarterly:
       return lastIssuance.plus({ months: 3 }).toJSDate();
