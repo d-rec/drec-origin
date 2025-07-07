@@ -250,4 +250,27 @@ export class EvidentIssuanceService {
       reads,
     };
   }
+  async getIssuerByCountry(organizationId: number, searchQuery: string) {
+    const evidentInstance =
+      await this.evidentService.getApiInstance(organizationId);
+
+    const response = await evidentInstance.get('/issues', {
+      params: {
+        status:
+          'draft,submitted,rejected,referred,verified,approved,in_progress,issued',
+        excludeFiles: 1,
+        page: 1,
+        itemsPerPage: 100,
+        'order[latestIssueDetails.timestamp]': 'desc',
+        q: searchQuery,
+      },
+    });
+
+    const issues = response.data['hydra:member'];
+
+    const issuers = issues.map((issue) => {
+      return issue.deviceDetails?.country.name;
+    });
+    return issuers;
+  }
 }

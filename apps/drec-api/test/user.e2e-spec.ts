@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from '@energyweb/origin-backend-utils';
 
 import { bootstrapTestInstance } from './drec-api';
@@ -31,20 +30,12 @@ describe('Users tests', () => {
   let userService: UserService;
   let deviceService: DeviceService;
   let databaseService: DatabaseService;
-  let configService: ConfigService;
 
   let currentAccessToken: string;
 
   beforeEach(async () => {
-    ({
-      app,
-      organizationService,
-      userService,
-      deviceService,
-      databaseService,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      configService,
-    } = await bootstrapTestInstance());
+    ({ app, organizationService, userService, deviceService, databaseService } =
+      await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
 
     await app.init();

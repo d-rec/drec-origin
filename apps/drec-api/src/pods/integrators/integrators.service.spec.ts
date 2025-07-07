@@ -17,6 +17,7 @@ import {
   Unit,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
+import { AxiosResponse } from 'axios';
 
 describe('IntegratorsService', () => {
   let service: IntegratorsService;
@@ -83,6 +84,10 @@ describe('IntegratorsService', () => {
             },
           },
         },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
@@ -104,9 +109,16 @@ describe('IntegratorsService', () => {
       const productId = '1234';
       const startDate = '2023-01-01';
       const endDate = '2023-01-31';
-      const mockData = { data: { data: { energy_out: 5000 } } };
 
-      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
+      const mockData: AxiosResponse<any, any> = {
+        data: { data: { energy_out: 5000 } },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      };
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData) as any);
 
       const result = await service.getBBOXProductReadData(
         server,
@@ -128,6 +140,7 @@ describe('IntegratorsService', () => {
           },
         },
       );
+
       expect(result).toEqual(5000);
     });
 
