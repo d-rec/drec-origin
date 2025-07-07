@@ -29,7 +29,7 @@ export default function EvidentDraftDeviceRegistrationTemplate({
         <li>Organization: {organizationName}</li>
       </ul>
       <Text>
-        Please login into your D-REC dashboard to approve the submission to
+        Please login in to your D-REC dashboard to approve the submission to
         evident.
       </Text>
     </DefaultMailLayout>

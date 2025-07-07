@@ -20,7 +20,7 @@ export class DeviceBulkUploadProcessor {
   ) {}
 
   @Process({ concurrency: 1 })
-  async process(job: Job<{ fileId: string; s3Key: string }>): Promise<any> {
+  async process(job: Job<{ s3Key: string }>): Promise<any> {
     const { s3Key } = job.data;
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
