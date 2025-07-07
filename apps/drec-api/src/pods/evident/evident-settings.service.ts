@@ -48,6 +48,18 @@ export class EvidentSettingsService {
     return await this.repository.save(updated);
   }
 
+  async updateLastIssuanceSyncedAt(organizationId: number): Promise<void> {
+    const settings = await this.repository.findOne({
+      where: { organizationId },
+    });
+
+    if (!settings) return;
+
+    settings.lastIssuanceSyncedAt = new Date();
+    await this.repository.save(settings);
+    await this.redis.del(this.getRedisKey(organizationId));
+  }
+
   async find(organizationId: number): Promise<SettingsDTO> {
     const data = await this.findCached(organizationId);
     if (!data) return null;
@@ -55,6 +67,12 @@ export class EvidentSettingsService {
       ...data,
       apiKey: decrypt(data.apiKey),
     };
+  }
+
+  async getAllOrganizationLastIssuanceSyncedAt(): Promise<EvidentSettings[]> {
+    return await this.repository
+      .createQueryBuilder('evident_settings')
+      .getMany();
   }
 
   private async findCached(organizationId: number): Promise<SettingsDTO> {

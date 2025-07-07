@@ -46,3 +46,9 @@ export type EvidentIssuanceRequest = {
   fuel: string;
   status: string;
 };
+
+export enum EvidentIssuanceRequestFrequency {
+  Monthly = 'Monthly',
+  Quarterly = 'Quarterly',
+  SemiAnnually = 'Semi-Annually',
+}
