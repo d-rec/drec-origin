@@ -250,9 +250,11 @@ export class EvidentIssuanceService {
       reads,
     };
   }
-  async getIssuerByCountry(organizationId: number, searchQuery: string) {
-    const evidentInstance =
-      await this.evidentService.getApiInstance(organizationId);
+  async getIssuerByCountry(
+    organizationId: number,
+    searchQuery: string,
+  ): Promise<any> {
+    const evidentInstance = await this.evidentService.getApiInstance(7);
 
     const response = await evidentInstance.get('/issues', {
       params: {
@@ -265,11 +267,8 @@ export class EvidentIssuanceService {
         q: searchQuery,
       },
     });
-
-    const issues = response.data['hydra:member'];
-
-    const issuers = issues.map((issue) => {
-      return issue.deviceDetails?.country.name;
+    const issuers = response.data['hydra:member'].map((issue) => {
+      return issue.deviceDetails?.country;
     });
     return issuers;
   }
