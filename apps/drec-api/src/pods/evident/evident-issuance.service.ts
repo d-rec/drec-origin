@@ -254,7 +254,8 @@ export class EvidentIssuanceService {
     organizationId: number,
     searchQuery: string,
   ): Promise<any> {
-    const evidentInstance = await this.evidentService.getApiInstance(organizationId);
+    const evidentInstance =
+      await this.evidentService.getApiInstance(organizationId);
 
     const response = await evidentInstance.get('/issues', {
       params: {
