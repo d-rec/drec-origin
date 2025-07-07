@@ -4,5 +4,5 @@
       "jsx": "react",
       "isolatedModules": true
     },
-    "include": ["*.tsx"]
+    "include": ["**/*.ts", "**/*.tsx"]
   }
