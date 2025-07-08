@@ -55,39 +55,42 @@ export class WithoutAuthGuard implements CanActivate {
         }
         break;
 
-      case UrlPath.Register: {
-        const userData = await this.userService.findOne({ role: Role.Admin });
-        const userOrganizationTypes = [
-          OrganizationType.Developer,
-          OrganizationType.ApiUser,
-          OrganizationType.Buyer,
-        ];
-
-        if (userOrganizationTypes.includes(request.body.organizationType)) {
-          user = userData;
-        } else if (
-          request.body.api_user_id !== userData.api_user_id &&
-          (request.body.organizationType === OrganizationType.Developer ||
-            request.body.organizationType === OrganizationType.Buyer)
-        ) {
-          user = await this.userService.findOne({
-            role: Role.ApiUser,
-            api_user_id: request.body.api_user_id,
-          });
-
-          if (!user) {
-            throw new UnauthorizedException({
-              statusCode: 401,
-              message: 'Requested api user is not available',
+        case UrlPath.Register: {
+          const userData = await this.userService.findOne({ role: Role.Admin });
+          const userOrganizationTypes = [
+            OrganizationType.Developer,
+            OrganizationType.Buyer,
+          ];
+  
+          if (
+            userOrganizationTypes.includes(request.body.organizationType) &&
+            !request.body.api_user_id
+          ) {
+            user = userData;
+          } else if (
+            request.body.api_user_id &&
+            request.body.api_user_id !== userData.api_user_id &&
+            (request.body.organizationType === OrganizationType.Developer ||
+              request.body.organizationType === OrganizationType.Buyer)
+          ) {
+            user = await this.userService.findOne({
+              role: Role.ApiUser,
+              api_user_id: request.body.api_user_id,
             });
+  
+            if (!user) {
+              throw new UnauthorizedException({
+                statusCode: 401,
+                message: 'Requested api user is not available',
+              });
+            }
+          } else if (request.body.organizationType === OrganizationType.ApiUser) {
+            const apiUser =
+              await this.oauthClientCredentialsService.createAPIUser();
+            request.body.api_user_id = apiUser.api_user_id;
           }
-        } else if (request.body.organizationType === OrganizationType.ApiUser) {
-          const apiUser =
-            await this.oauthClientCredentialsService.createAPIUser();
-          request.body.api_user_id = apiUser.api_user_id;
+          break;
         }
-        break;
-      }
 
       case UrlPath.ExportAccessKey:
         user = await this.userService.findOne({
