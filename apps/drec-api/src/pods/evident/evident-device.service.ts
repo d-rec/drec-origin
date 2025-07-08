@@ -18,6 +18,8 @@ import { OrganizationService } from '../organization/organization.service';
 import EvidentDraftDeviceRegistrationTemplate, {
   getEvidentDraftDeviceRegistrationSubject,
 } from './mail/evident-draft-device-registration.template';
+import { UserService } from '../user/user.service';
+import { Role } from '../../utils/enums/role.enum';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -33,6 +35,8 @@ export class EvidentDeviceService {
     private mailService: MailService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly organizationService: OrganizationService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -70,11 +74,22 @@ export class EvidentDeviceService {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
+
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
+
     const organization = await this.organizationService.findOne(
       device.organizationId,
     );
+
+    const organizationApiUser = await this.userService.findOne({
+      role: Role.ApiUser,
+      api_user_id: organization.api_user_id,
+    });
+    console.log('organizationApiUser', organizationApiUser);
+    const organizationEmail =
+      organizationApiUser?.email || organization.orgEmail;
+
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,
       files,
@@ -100,7 +115,7 @@ export class EvidentDeviceService {
       await this.submitDeviceForReview(device, payload);
     } else {
       await this.mailService.send({
-        to: organization.orgEmail,
+        to: organizationEmail,
         subject: getEvidentDraftDeviceRegistrationSubject(device),
         template: EvidentDraftDeviceRegistrationTemplate({
           device,
