@@ -86,7 +86,7 @@ export class EvidentDeviceService {
       role: Role.ApiUser,
       api_user_id: organization.api_user_id,
     });
-    console.log('organizationApiUser', organizationApiUser);
+
     const organizationEmail =
       organizationApiUser?.email || organization.orgEmail;
 
