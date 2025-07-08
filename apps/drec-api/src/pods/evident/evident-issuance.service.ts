@@ -15,12 +15,13 @@ import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { ReadsService } from '../reads/reads.service';
 import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
-import { MailService } from '../../../src/mail/mail.service';
+import { MailService } from '../../mail/mail.service';
 import { OrganizationService } from '../organization/organization.service';
 import {
   draftIssuanceRegistrationSubject,
   draftIssuanceRegistrationTemplate,
 } from './evident-email.templates';
+import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -37,9 +38,39 @@ export class EvidentIssuanceService {
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async getCertificatesForIssuance(): Promise<void> {
+  async processIssuanceByFrequency(): Promise<void> {
+    this.logger.verbose('Issuance request creation started');
+    const organizationsSettings =
+      await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+
+    for (const settings of organizationsSettings) {
+      const nextIssuanceDate = getEvidentNextIssuanceDate(
+        settings.lastIssuanceSyncedAt,
+        settings.frequency,
+      );
+
+      if (nextIssuanceDate > new Date()) {
+        continue;
+      }
+
+      try {
+        await this.processIssuanceByOrganization(settings.organizationId);
+      } catch (error) {
+        this.logger.error(
+          `Error processing organization ${settings.organizationId}: ${error.message}`,
+        );
+      }
+    }
+  }
+
+  async processIssuanceByOrganization(organizationId: number): Promise<void> {
+    this.logger.verbose(
+      `Fetching certificates for issuance for organization ${organizationId}`,
+    );
     const certificates =
-      await this.deviceService.getCertificatesForEvidentIssuance();
+      await this.deviceService.getCertificatesForEvidentIssuance(
+        organizationId,
+      );
     for (const certificate of certificates) {
       await this.processCertificate(certificate);
     }
@@ -192,6 +223,10 @@ export class EvidentIssuanceService {
       certificate.id,
       issuanceId,
       EvidentIssuanceStatus.Draft,
+    );
+
+    await this.evidentSettingsService.updateLastIssuanceSyncedAt(
+      certificate.device.organizationId,
     );
   }
 
