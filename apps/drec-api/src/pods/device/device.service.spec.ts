@@ -49,7 +49,7 @@ import {
 import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentEmailService } from '../evident/evident-email.service';
+import { MailService } from '../../mail/mail.service';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -163,10 +163,8 @@ describe('DeviceService', () => {
           },
         },
         {
-          provide: EvidentEmailService,
-          useValue: {
-            notifyOrganizationOnDeviceStatusChange: jest.fn(),
-          },
+          provide: MailService,
+          useValue: {},
         },
       ],
     }).compile();

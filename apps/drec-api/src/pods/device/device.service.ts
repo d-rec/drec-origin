@@ -85,7 +85,13 @@ import {
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
-import { EvidentEmailService } from '../evident/evident-email.service';
+import { MailService } from '../../mail/mail.service';
+import EvidentDeviceApprovedTemplate, {
+  getEvidentDeviceApprovedSubject,
+} from '../evident/mail/evident-device-approved.template';
+import EvidentDeviceRejectedTemplate, {
+  getEvidentDeviceRejectedSubject,
+} from '../evident/mail/evident-device-rejected.template';
 
 @Injectable()
 export class DeviceService {
@@ -109,7 +115,7 @@ export class DeviceService {
     private readonly connection: Connection,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
-    private readonly evidentEmailService: EvidentEmailService,
+    private readonly mailService: MailService,
   ) {}
 
   public async find(
@@ -561,14 +567,55 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
-          this.evidentEmailService.notifyOrganizationOnDeviceStatusChange(
-            device,
-            updatedStatus,
+          const organization = await this.organizationService.findOne(
+            device.organizationId,
           );
+          const organizationApiUser = await this.userService.findOne({
+            role: Role.ApiUser,
+            api_user_id: organization.api_user_id,
+          });
+          const organizationEmail =
+            organizationApiUser?.email || organization.orgEmail;
+          this.sendEmailBasedOnEvidentStatus(device, organizationEmail);
         }
       } catch (error) {
         this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
       }
+    }
+  }
+
+  sendEmailBasedOnEvidentStatus(
+    device: Device,
+    organizationEmail: string,
+  ): void {
+    const deviceEvidentStatus = device.evidentStatus;
+    switch (deviceEvidentStatus) {
+      case EvidentRegistrationStatus.Approved:
+        this.logger.verbose(`Device ${device.id} is approved on Evident`);
+        this.mailService.send({
+          to: organizationEmail,
+          subject: getEvidentDeviceApprovedSubject(device),
+          template: EvidentDeviceApprovedTemplate({
+            device,
+            organizationName: device.organization.name,
+          }),
+        });
+        break;
+      case EvidentRegistrationStatus.Rejected:
+        this.logger.warn(`Device ${device.id} registration was rejected`);
+        this.mailService.send({
+          to: organizationEmail,
+          subject: getEvidentDeviceRejectedSubject(device),
+          template: EvidentDeviceRejectedTemplate({
+            device,
+            organizationName: device.organization.name,
+          }),
+        });
+        break;
+      default:
+        this.logger.warn(
+          `Device ${device.id} has an unknown status: ${deviceEvidentStatus}`,
+        );
     }
   }
 

@@ -17,7 +17,6 @@ import { Device } from '../device/device.entity';
 import { Organization } from '../organization/organization.entity';
 import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service';
 import { MailModule } from '../../mail/mail.module';
-import { EvidentEmailService } from './evident-email.service';
 import { UserModule } from '../user/user.module';
 
 @Module({
@@ -42,14 +41,12 @@ import { UserModule } from '../user/user.module';
     EvidentSettingsService,
     EvidentDeviceService,
     EvidentSyncDeviceTaskService,
-    EvidentEmailService,
   ],
   exports: [
     EvidentService,
     EvidentDeviceService,
     EvidentSettingsService,
     EvidentSyncDeviceTaskService,
-    EvidentEmailService,
   ],
 })
 export class EvidentModule {}
