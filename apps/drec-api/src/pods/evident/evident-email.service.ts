@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MailService } from '../../mail/mail.service';
 import { EvidentRegistrationStatus } from '../../types/evident';
 import { Device } from '../device/device.entity';
-import { deviceApprovedTemplate, deviceRejectedTemplate } from './evident-email.templates';
+import {
+  deviceApprovedTemplate,
+  deviceRejectedTemplate,
+} from './evident-email.templates';
 
 @Injectable()
 export class EvidentEmailService {
@@ -37,9 +40,7 @@ export class EvidentEmailService {
         break;
       }
       default:
-        this.logger.warn(
-          `No updated status for device: ${device.projectName}`,
-        );
+        this.logger.warn(`No updated status for device: ${device.projectName}`);
         break;
     }
     return result;

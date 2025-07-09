@@ -1,6 +1,9 @@
 import { Device } from '../device/device.entity';
 
-export function deviceApprovedTemplate(device: Device): { subject: string; html: string } {
+export function deviceApprovedTemplate(device: Device): {
+  subject: string;
+  html: string;
+} {
   return {
     subject: `Device Approved on Evident — ${device.projectName}`,
     html: `
@@ -19,7 +22,10 @@ export function deviceApprovedTemplate(device: Device): { subject: string; html:
   };
 }
 
-export function deviceRejectedTemplate(device: Device): { subject: string; html: string } {
+export function deviceRejectedTemplate(device: Device): {
+  subject: string;
+  html: string;
+} {
   return {
     subject: `Device Rejected on Evident — ${device.projectName}`,
     html: `
