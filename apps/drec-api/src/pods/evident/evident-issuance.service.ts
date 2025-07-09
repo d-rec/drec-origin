@@ -17,6 +17,14 @@ import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
 import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
 
+interface Country {
+  '@id': string;
+  '@type': string;
+  alpha2: string;
+  alpha3: string;
+  name: string;
+}
+
 @Injectable()
 export class EvidentIssuanceService {
   private readonly logger = new Logger(EvidentIssuanceService.name);
@@ -250,13 +258,13 @@ export class EvidentIssuanceService {
       reads,
     };
   }
+
   async getIssuerByCountry(
     organizationId: number,
     searchQuery: string,
-  ): Promise<any> {
+  ): Promise<Country[]> {
     const evidentInstance =
       await this.evidentService.getApiInstance(organizationId);
-
     const response = await evidentInstance.get('/issues', {
       params: {
         status:
@@ -268,9 +276,10 @@ export class EvidentIssuanceService {
         q: searchQuery,
       },
     });
-    const issuers = response.data['hydra:member'].map((issue) => {
-      return issue.deviceDetails?.country;
-    });
+    const issuers = response.data['hydra:member']
+      .map((issue) => issue.deviceDetails?.country)
+      .filter((country): country is Country => Boolean(country));
+
     return issuers;
   }
 }
