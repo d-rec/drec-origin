@@ -1,19 +1,18 @@
 /* eslint-disable no-unused-expressions */
+import { DatabaseService } from '@energyweb/origin-backend-utils';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { DatabaseService } from '@energyweb/origin-backend-utils';
-
-import { bootstrapTestInstance } from './drec-api';
-import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization/organization.service';
-import { seed } from './seed';
 import { expect } from 'chai';
-import { DeviceService } from '../src/pods/device/device.service';
-import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
-import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
+import { DeviceService } from '../src/pods/device/device.service';
+import { OrganizationService } from '../src/pods/organization/organization.service';
+import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
+import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
+import { UserService } from '../src/pods/user/user.service';
 import { OrganizationType } from '../src/utils/enums';
+import { bootstrapTestInstance } from './drec-api';
+import { seed } from './seed';
 
 export const userToRegister: UserRegistrationData = {
   title: 'Mr',

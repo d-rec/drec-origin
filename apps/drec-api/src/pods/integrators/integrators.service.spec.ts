@@ -84,10 +84,10 @@ describe('IntegratorsService', () => {
             },
           },
         },
-        status: 200,
-        statusText: 'OK',
         headers: {},
         config: {},
+        status: 200,
+        statusText: 'OK',
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
