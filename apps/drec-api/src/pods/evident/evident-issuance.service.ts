@@ -251,13 +251,13 @@ export class EvidentIssuanceService {
     };
   }
 
-
-  async getIssuers(
-    organizationId: number,
-  ): Promise<any[]> {
+  async getIssuers(organizationId: number): Promise<any[]> {
     const evidentInstance =
       await this.evidentService.getApiInstance(organizationId);
-    const response = await evidentInstance.get('/organisations/role?role=issuer', {});
+    const response = await evidentInstance.get(
+      '/organisations/role?role=issuer',
+      {},
+    );
     const issuers = response.data['hydra:member'] as any[];
     return issuers;
   }
