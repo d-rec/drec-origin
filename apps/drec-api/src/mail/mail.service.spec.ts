@@ -74,7 +74,6 @@ describe('MailService', () => {
     it('should log errors appropriately', async () => {
       const loggerSpy = jest.spyOn(Logger.prototype, 'error');
       const testError = new Error('Test Error');
-
       jest.spyOn(configService, 'get').mockReturnValue('no-reply@example.com');
       jest.spyOn(mailerService, 'sendMail').mockRejectedValue(testError);
 

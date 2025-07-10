@@ -1,6 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerService, ISendMailOptions } from '@nestjs-modules/mailer';
+import { render } from '@react-email/components';
+import React from 'react';
+
+type SendMailOptions = Omit<ISendMailOptions, 'template'> & {
+  template?: React.ReactNode;
+};
 
 @Injectable()
 export class MailService {
@@ -11,7 +17,20 @@ export class MailService {
     private readonly configService: ConfigService,
   ) {}
 
-  async send(sendMailOptions: ISendMailOptions): Promise<boolean> {
+  public async send(options: SendMailOptions): Promise<boolean> {
+    let htmlContent = options.html;
+
+    if (options.template) {
+      htmlContent = await render(options.template);
+    }
+    return this.execute({
+      ...options,
+      template: undefined,
+      html: htmlContent,
+    });
+  }
+
+  private async execute(sendMailOptions: ISendMailOptions): Promise<boolean> {
     try {
       const result = await this.mailerService.sendMail({
         replyTo: this.configService.get<string>('EMAIL_REPLY_TO'),
