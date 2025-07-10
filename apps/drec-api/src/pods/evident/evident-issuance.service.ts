@@ -17,14 +17,6 @@ import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
 import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
 
-interface Country {
-  '@id': string;
-  '@type': string;
-  alpha2: string;
-  alpha3: string;
-  name: string;
-}
-
 @Injectable()
 export class EvidentIssuanceService {
   private readonly logger = new Logger(EvidentIssuanceService.name);
@@ -259,13 +251,13 @@ export class EvidentIssuanceService {
     };
   }
 
-  async getIssuers(organizationId: number): Promise<any[]> {
+
+  async getIssuers(
+    organizationId: number,
+  ): Promise<any[]> {
     const evidentInstance =
       await this.evidentService.getApiInstance(organizationId);
-    const response = await evidentInstance.get(
-      '/organisations/role?role=issuer',
-      {},
-    );
+    const response = await evidentInstance.get('/organisations/role?role=issuer', {});
     const issuers = response.data['hydra:member'] as any[];
     return issuers;
   }
