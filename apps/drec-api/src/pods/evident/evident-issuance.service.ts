@@ -259,27 +259,23 @@ export class EvidentIssuanceService {
     };
   }
 
-  async getIssuerByCountry(
-    organizationId: number,
-    searchQuery: string,
-  ): Promise<Country[]> {
+  async getIssuers(organizationId: number): Promise<any[]> {
     const evidentInstance =
       await this.evidentService.getApiInstance(organizationId);
-    const response = await evidentInstance.get('/issues', {
-      params: {
-        status:
-          'draft,submitted,rejected,referred,verified,approved,in_progress,issued',
-        excludeFiles: 1,
-        page: 1,
-        itemsPerPage: 100,
-        'order[latestIssueDetails.timestamp]': 'desc',
-        q: searchQuery,
-      },
-    });
-    const issuers = response.data['hydra:member']
-      .map((issue) => issue.deviceDetails?.country)
-      .filter((country): country is Country => Boolean(country));
-
+    const response = await evidentInstance.get(
+      '/organisations/role?role=issuer',
+      {},
+    );
+    const issuers = response.data['hydra:member'] as any[];
     return issuers;
+  }
+
+  async getIssuerByName(name: string, organizationId: number): Promise<any> {
+    const issuers = await this.getIssuers(organizationId);
+    const issuer = issuers.find((issuer) => issuer.name === name);
+    if (!issuer) {
+      throw new Error(`Issuer with name ${name} not found`);
+    }
+    return issuer;
   }
 }
