@@ -78,17 +78,9 @@ export class EvidentDeviceService {
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
 
-    const organization = await this.organizationService.findOne(
+    const organization = await this.organizationService.getParent(
       device.organizationId,
     );
-
-    const organizationApiUser = await this.userService.findOne({
-      role: Role.ApiUser,
-      api_user_id: organization.api_user_id,
-    });
-
-    const organizationEmail =
-      organizationApiUser?.email || organization.orgEmail;
 
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,
@@ -115,7 +107,7 @@ export class EvidentDeviceService {
       await this.submitDeviceForReview(device, payload);
     } else {
       await this.mailService.send({
-        to: organizationEmail,
+        to: organization.orgEmail,
         subject: getEvidentDraftDeviceRegistrationSubject(device),
         template: EvidentDraftDeviceRegistrationTemplate({
           device,

@@ -567,16 +567,10 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
-          const organization = await this.organizationService.findOne(
+          const organization = await this.organizationService.getParent(
             device.organizationId,
           );
-          const organizationApiUser = await this.userService.findOne({
-            role: Role.ApiUser,
-            api_user_id: organization.api_user_id,
-          });
-          const organizationEmail =
-            organizationApiUser?.email || organization.orgEmail;
-          this.sendEmailBasedOnEvidentStatus(device, organizationEmail);
+          this.sendEmailBasedOnEvidentStatus(device, organization.orgEmail);
         }
       } catch (error) {
         this.logger.warn(`Error syncing device ${device.id}: ${error.message}`);
