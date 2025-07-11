@@ -19,7 +19,6 @@ import EvidentDraftDeviceRegistrationTemplate, {
   getEvidentDraftDeviceRegistrationSubject,
 } from './mail/evident-draft-device-registration.template';
 import { UserService } from '../user/user.service';
-import { Role } from '../../utils/enums/role.enum';
 
 @Injectable()
 export class EvidentDeviceService {
