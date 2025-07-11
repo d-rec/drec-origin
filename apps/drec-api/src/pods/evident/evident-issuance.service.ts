@@ -95,9 +95,10 @@ export class EvidentIssuanceService {
         registrantId,
         issuance,
       );
-      const organization = await this.organizationService.findOne(
-        device.organizationId,
-      );
+      const organization =
+        await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+          device.organizationId,
+        );
       await this.mailService.send({
         to: organization.orgEmail,
         subject: getEvidentDraftIssuanceRegistrationSubject(device),
