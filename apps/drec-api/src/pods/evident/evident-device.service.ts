@@ -77,9 +77,10 @@ export class EvidentDeviceService {
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
 
-    const organization = await this.organizationService.getParent(
-      device.organizationId,
-    );
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
 
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,

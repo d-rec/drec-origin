@@ -567,9 +567,10 @@ export class DeviceService {
               ? EvidentRegistrationStatus.Submitted
               : updatedStatus;
           await this.repository.save(device);
-          const organization = await this.organizationService.getParent(
-            device.organizationId,
-          );
+          const organization =
+            await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+              device.organizationId,
+            );
           this.sendEmailBasedOnEvidentStatus(device, organization.orgEmail);
         }
       } catch (error) {

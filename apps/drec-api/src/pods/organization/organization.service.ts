@@ -330,7 +330,7 @@ export class OrganizationService {
     // }
   }
 
-  public async getParent(
+  public async getLinkedMarketIntermediaryOrSelf(
     organizationId: number,
   ): Promise<Organization | undefined> {
     this.logger.verbose(`With in getParent`);
@@ -339,14 +339,14 @@ export class OrganizationService {
       return organization;
     }
 
-    const parentOrganization = await this.repository.findOne({
+    const linkedMarketIntermediary = await this.repository.findOne({
       where: {
         organizationType: OrganizationType.ApiUser,
         api_user_id: organization.api_user_id,
       },
     });
 
-    return parentOrganization ? parentOrganization : organization;
+    return linkedMarketIntermediary ? linkedMarketIntermediary : organization;
   }
 
   private async generateBlockchainAddress(index: number): Promise<string> {
