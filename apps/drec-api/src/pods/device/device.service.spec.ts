@@ -49,6 +49,7 @@ import {
 import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { MailService } from '../../mail/mail.service';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -160,6 +161,10 @@ describe('DeviceService', () => {
             queueDeviceRegistration: jest.fn(),
             registerDevice: jest.fn(),
           },
+        },
+        {
+          provide: MailService,
+          useValue: {},
         },
       ],
     }).compile();

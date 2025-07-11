@@ -19,7 +19,6 @@ import EvidentDraftDeviceRegistrationTemplate, {
   getEvidentDraftDeviceRegistrationSubject,
 } from './mail/evident-draft-device-registration.template';
 import { UserService } from '../user/user.service';
-import { Role } from '../../utils/enums/role.enum';
 import EvidentSubmittedDeviceRegistrationTemplate, {
   getEvidentSubmittedDeviceRegistrationSubject,
 } from './mail/evident-submitted-device-registration.template';
@@ -81,17 +80,10 @@ export class EvidentDeviceService {
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
 
-    const organization = await this.organizationService.findOne(
-      device.organizationId,
-    );
-
-    const organizationApiUser = await this.userService.findOne({
-      role: Role.ApiUser,
-      api_user_id: organization.api_user_id,
-    });
-
-    const organizationEmail =
-      organizationApiUser?.email || organization.orgEmail;
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
 
     const uploadedFiles = await this.evidentService.uploadFiles(
       device,
@@ -117,7 +109,7 @@ export class EvidentDeviceService {
     if (device.capacity <= 250) {
       await this.submitDeviceForReview(device, payload);
       await this.mailService.send({
-        to: organizationEmail,
+        to: organization.orgEmail,
         subject: getEvidentSubmittedDeviceRegistrationSubject(device),
         template: EvidentSubmittedDeviceRegistrationTemplate({
           device,
@@ -126,7 +118,7 @@ export class EvidentDeviceService {
       });
     } else {
       await this.mailService.send({
-        to: organizationEmail,
+        to: organization.orgEmail,
         subject: getEvidentDraftDeviceRegistrationSubject(device),
         template: EvidentDraftDeviceRegistrationTemplate({
           device,
