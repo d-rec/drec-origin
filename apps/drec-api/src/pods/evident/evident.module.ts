@@ -17,6 +17,7 @@ import { Device } from '../device/device.entity';
 import { Organization } from '../organization/organization.entity';
 import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service';
 import { MailService } from '../../mail/mail.service';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MailService } from '../../mail/mail.service';
     forwardRef(() => DeviceModule),
     forwardRef(() => OrganizationModule),
     forwardRef(() => ReadsModule),
+    forwardRef(() => UserModule),
     BullModule.registerQueue({
       name: Queues.EvidentDeviceRegistration,
       defaultJobOptions: defaultBullJobOptions,

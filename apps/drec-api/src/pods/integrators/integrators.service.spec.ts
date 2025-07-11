@@ -84,10 +84,10 @@ describe('IntegratorsService', () => {
             },
           },
         },
-        status: 200,
-        statusText: 'OK',
         headers: {},
         config: {},
+        status: 200,
+        statusText: 'OK',
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
@@ -109,12 +109,12 @@ describe('IntegratorsService', () => {
       const productId = '1234';
       const startDate = '2023-01-01';
       const endDate = '2023-01-31';
-      const mockData: AxiosResponse<any, any> = {
+      const mockData = {
         data: { data: { energy_out: 5000 } },
-        status: 200,
-        statusText: 'OK',
         headers: {},
         config: {},
+        status: 200,
+        statusText: 'OK',
       };
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockData) as any);

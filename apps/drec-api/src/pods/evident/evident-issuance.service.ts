@@ -17,11 +17,10 @@ import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
 import { MailService } from '../../mail/mail.service';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  draftIssuanceRegistrationSubject,
-  draftIssuanceRegistrationTemplate,
-} from './evident-email.templates';
 import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
+import EvidentDraftIssuanceRegistrationTemplate, {
+  getEvidentDraftIssuanceRegistrationSubject,
+} from './mail/evident-draft-issuance-registration.template';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -101,12 +100,12 @@ export class EvidentIssuanceService {
       );
       await this.mailService.send({
         to: organization.orgEmail,
-        subject: draftIssuanceRegistrationSubject(device),
-        html: draftIssuanceRegistrationTemplate(
+        subject: getEvidentDraftIssuanceRegistrationSubject(device),
+        template: EvidentDraftIssuanceRegistrationTemplate({
           device,
-          organization.name,
+          organizationName: organization.name,
           issuance,
-        ),
+        }),
       });
       return {
         ...response.data,
