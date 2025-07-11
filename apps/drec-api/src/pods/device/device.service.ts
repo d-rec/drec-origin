@@ -582,12 +582,12 @@ export class DeviceService {
   sendEmailBasedOnEvidentStatus(
     device: Device,
     organizationEmail: string,
-  ): void {
+  ): Promise<boolean> {
     const deviceEvidentStatus = device.evidentStatus;
     switch (deviceEvidentStatus) {
       case EvidentRegistrationStatus.Approved:
         this.logger.verbose(`Device ${device.id} is approved on Evident`);
-        this.mailService.send({
+        return this.mailService.send({
           to: organizationEmail,
           subject: getEvidentDeviceApprovedSubject(device),
           template: EvidentDeviceApprovedTemplate({
@@ -595,10 +595,9 @@ export class DeviceService {
             organizationName: device.organization.name,
           }),
         });
-        break;
       case EvidentRegistrationStatus.Rejected:
         this.logger.warn(`Device ${device.id} registration was rejected`);
-        this.mailService.send({
+        return this.mailService.send({
           to: organizationEmail,
           subject: getEvidentDeviceRejectedSubject(device),
           template: EvidentDeviceRejectedTemplate({
@@ -606,7 +605,6 @@ export class DeviceService {
             organizationName: device.organization.name,
           }),
         });
-        break;
       default:
         this.logger.warn(
           `Device ${device.id} has an unknown status: ${deviceEvidentStatus}`,
