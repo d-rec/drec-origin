@@ -17,6 +17,7 @@ import {
   Unit,
   ReadsService as BaseReadsService,
 } from '@energyweb/energy-api-influxdb';
+import { AxiosResponse } from 'axios';
 
 describe('IntegratorsService', () => {
   let service: IntegratorsService;
@@ -116,7 +117,7 @@ describe('IntegratorsService', () => {
         statusText: 'OK',
       };
 
-      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData) as any);
 
       const result = await service.getBBOXProductReadData(
         server,
