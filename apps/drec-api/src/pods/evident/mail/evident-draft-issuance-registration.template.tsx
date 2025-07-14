@@ -34,7 +34,7 @@ export default function EvidentDraftIssuanceRegistrationTemplate({
         <li>Total Readings: {issuance.productionVolume} </li>
       </ul>
       <Text>
-        Please log in in to your D-REC dashboard to approve the submission to
+        Please login into your D-REC dashboard to approve the submission to
         evident.
       </Text>
     </DefaultMailLayout>
