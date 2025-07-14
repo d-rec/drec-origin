@@ -28,11 +28,9 @@ export class EvidentIssuanceService {
     private readonly evidentSettingsService: EvidentSettingsService,
   ) {}
 
-  // @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  @NonConcurrentCron('*/15 * * * * *')
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async processIssuanceByFrequency(): Promise<void> {
     this.logger.verbose('Issuance request creation started');
-    console.log("hhhhhhhhhhhhhhhhhhhhhh started hhhhhhhhhhhhhhhhhh")
     const organizationsSettings =
       await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
 
