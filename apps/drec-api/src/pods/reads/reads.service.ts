@@ -307,12 +307,6 @@ export class ReadsService {
             endDate: new Date(element.endtimestamp),
             value: element.value,
           });
-          await this.deltaFirstReadRepository.save({
-            readsvalue: element.value,
-            externalId: device.externalId,
-            unit: measurement.unit,
-            readsEndDate: element.endtimestamp.toString(),
-          });
           if (measurementReadIndex == measurement.reads.length - 1) {
             resolve(true);
           }
@@ -1685,14 +1679,14 @@ export class ReadsService {
         });
       }
     }
-    // device organization and user organization validation
-    if (device && device.organizationId !== organizationId) {
+
+    if (device && device.organizationId != organizationId) {
       this.logger.error(
-        `Device doesnt belongs to the requested users organization`,
+        `Device doesn't belongs to the requested users organization`,
       );
       throw new ConflictException({
         success: false,
-        message: `Device doesnt belongs to the requested users organization`,
+        message: `Device doesn't belongs to the requested users organization`,
       });
     }
 
