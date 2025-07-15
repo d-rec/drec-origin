@@ -582,7 +582,7 @@ export class ReadsController {
       }
 
       return {
-        enddate: latestReadObject.endDate,
+        timestamp: latestReadObject.endDate,
         value: latestReadObject.value,
       };
     }
