@@ -172,14 +172,13 @@ export class ReadsService {
     }
 
     const roundedMeasurements = this.roundMeasurementsToUnit(measurements);
-    console.log("11111")
 
     const filteredMeasurements = await this.filterMeasurements(
       id,
       roundedMeasurements,
       device,
     );
-    console.log("22222")
+
     this.logger.verbose(filteredMeasurements);
     await this.storeGenerationReading(id, filteredMeasurements, device);
   }
@@ -996,7 +995,7 @@ export class ReadsService {
           readsFilter,
           pageNumber,
         );
-        console.log("lastReads", lastReadOngoingRead)
+
         let previousReadTime;
         if (pageNumber > 1) {
           const previousPage = pageNumber - 1;

@@ -186,16 +186,13 @@ export class ReadsController {
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
-    console.log("externalId", meterId)
     //finding the device details throught the device service
     let orgUser: IUser | null;
     if (filter.organizationId) {
       const organization = await this.organizationService.findOne(
         filter.organizationId,
       );
-      console.log("org", organization)
       orgUser = await this.userService.findByEmail(organization.orgEmail);
-      console.log("orgUser", orgUser)
       if (
         user.role === Role.ApiUser &&
         user.api_user_id != organization.api_user_id
@@ -330,7 +327,7 @@ export class ReadsController {
         device.createdAt,
         pageNumber,
       );
-      console.log("return", returnedObject)
+
       this.logger.log(
         'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
       );
@@ -539,7 +536,6 @@ export class ReadsController {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
     } else {
-      console.log("external Id", externalId)
       device = await this.deviceService.findDeviceByDeveloperExternalId(
         externalId,
         user.organizationId,
@@ -557,14 +553,11 @@ export class ReadsController {
 
     const deviceExternalId = device.externalId;
 
-    console.log("device", device)
-
     if (!device.meterReadtype) {
       this.logger.error(`Read not found`);
       throw new HttpException('Read not found', 400);
     } else {
       latestReadObject = await this.readsService.latestRead(deviceExternalId);
-      console.log("latestRe", latestReadObject)
 
       if (
         typeof latestReadObject === 'undefined' ||
