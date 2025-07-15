@@ -640,14 +640,6 @@ export class ReadsService {
     );
 
     if (read.value < maxEnergy) {
-      this.repository.save({
-        type: measurement.type,
-        externalId: device.externalId,
-        unit: Unit.Wh,
-        value: convertToWh(read.value, measurement.unit),
-        startDate,
-        endDate,
-      });
       this.logger.verbose('1267');
       if (device.groupId != null) {
         const historyNextIssue =
@@ -945,15 +937,13 @@ export class ReadsService {
           .limit(filter.limit)
           .offset(filter.offset)
           .getRawMany();
-        if(rawHistoryReads.length <= 0){
-          return
-        }
+        
         await rawHistoryReads.forEach((element) => {
           historyReads.push({
-            startdate: element.devicehistory_readsStartDate,
-            enddate: element.devicehistory_readsEndDate,
-            value: element.devicehistory_readsvalue,
-            type: element.device_types
+            startDate: element.read_start_date,
+            endDate: element.read_end_date,
+            value: element.read_value,
+            type: element.read_type
           });
         });
       } catch (error) {
