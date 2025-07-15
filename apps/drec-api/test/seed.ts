@@ -219,7 +219,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
-    externalId: 'DREC32',
+    externalId: 'DREC3',
     serialNumber: 'SN31',
     projectName: 'Device 32',
     address: 'Somewhere far away',
@@ -262,7 +262,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
-    serialNumber: 'SN31',
+    serialNumber: 'SN51',
     projectName: 'Device 34',
     address: 'Somewhere far away',
     latitude: '34.921213',
