@@ -468,13 +468,15 @@ export class DeviceService {
   }
 
   async findDeviceByDeveloperExternalId(
-    meterId: string,
+    externalId: string,
     organizationId: number,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findDeviceByDeveloperExternalId`);
+    console.log("externalId", externalId)
+    console.log("orga", organizationId)
     const device: Device = await this.repository.findOne({
       where: {
-        developerExternalId: meterId,
+        developerExternalId: externalId,
         organizationId: organizationId,
       },
     });

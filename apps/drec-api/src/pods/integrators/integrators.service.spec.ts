@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { HttpService } from '@nestjs/axios';
 import { BASE_READ_SERVICE } from '../reads/constants';
 import { IntegratorsService } from './integrators.service';
@@ -83,6 +83,10 @@ describe('IntegratorsService', () => {
             },
           },
         },
+        headers: {},
+        config: {},
+        status: 200,
+        statusText: 'OK',
       };
 
       jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
@@ -104,7 +108,13 @@ describe('IntegratorsService', () => {
       const productId = '1234';
       const startDate = '2023-01-01';
       const endDate = '2023-01-31';
-      const mockData = { data: { data: { energy_out: 5000 } } };
+      const mockData = {
+        data: { data: { energy_out: 5000 } },
+        headers: {},
+        config: {},
+        status: 200,
+        statusText: 'OK',
+      };
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
 
