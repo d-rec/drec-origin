@@ -1214,7 +1214,7 @@ export class DeviceGroupService {
     const allExternalIds: Array<string> = [];
     const existingDeviceIds: Array<string> = [];
     newDevices.forEach((singleDevice) =>
-      allExternalIds.push(singleDevice.externalId),
+      allExternalIds.push(singleDevice.serialNumber),
     );
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
@@ -1500,7 +1500,6 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
-          externalId: '',
           projectName: '',
           address: '',
           latitude: '',
@@ -1520,6 +1519,7 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          serialNumber: '',
         };
         for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
@@ -1560,8 +1560,8 @@ export class DeviceGroupService {
       .on('done', async () => {
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
-          if (records[index].externalId) {
-            records[index].externalId = records[index].externalId.trim();
+          if (records[index].serialNumber) {
+            records[index].serialNumber = records[index].serialNumber.trim();
           }
           const errors = await validate(singleRecord);
           if (errors.length > 0) {
@@ -1570,14 +1570,14 @@ export class DeviceGroupService {
               delete ele.children;
             });
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              externalId: records[index].serialNumber,
               rowNumber: index,
               isError: true,
               errorsList: errors,
             };
           } else {
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              externalId: records[index].serialNumber,
               rowNumber: index,
               isError: false,
               errorsList: errors,
@@ -1709,16 +1709,16 @@ export class DeviceGroupService {
           records.forEach((singleRecord, index) => {
             if (
               listOfExistingDevices.find(
-                (ele) => ele === singleRecord.externalId,
+                (ele) => ele === singleRecord.serialNumber,
               )
             ) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({
-                value: singleRecord.externalId,
-                property: 'externalId',
+                value: singleRecord.serialNumber,
+                property: 'serialNumber',
                 constraints: {
                   externalIdExists:
-                    'ExternalId already exist, cant add entry with same external id',
+                    'serialNumber already exist, cant add entry with same external id',
                 },
               });
             }
@@ -1728,16 +1728,16 @@ export class DeviceGroupService {
         recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicatesExternalId: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
-          this.logger.debug(recordsCopy[i].externalId);
+          this.logger.debug(recordsCopy[i].serialNumber);
           for (let j = i + 1; j < recordsCopy.length; j++) {
-            this.logger.debug(recordsCopy[j].externalId);
+            this.logger.debug(recordsCopy[j].serialNumber);
             if (
-              recordsCopy[i].externalId != null &&
-              recordsCopy[j].externalId != null
+              recordsCopy[i].serialNumber != null &&
+              recordsCopy[j].serialNumber != null
             ) {
               if (
-                recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[i].serialNumber.toLowerCase() ===
+                  recordsCopy[j].serialNumber.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
@@ -1745,11 +1745,11 @@ export class DeviceGroupService {
                   duplicateIndex: j,
                   duplicateWith: i,
                   projectName: records[j].projectName,
-                  externalId: records[j].externalId,
+                  externalId: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
                 recordsErrors[j].errorsList.push({
-                  value: recordsCopy[j].externalId,
+                  value: recordsCopy[j].serialNumber,
                   property: 'externalId',
                   constraints: {
                     externalIdExists:
@@ -1758,7 +1758,7 @@ export class DeviceGroupService {
                       ' Duplicate with row ' +
                       (i + 1) +
                       ' Exists with externalId ' +
-                      records[j].externalId,
+                      records[j].serialNumber,
                   },
                 });
               }
@@ -1801,8 +1801,7 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({
               externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
-                (recEle) =>
-                  recEle.developerExternalId === (ele as any).externalId,
+                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
               ),
             });
           });
@@ -1810,9 +1809,9 @@ export class DeviceGroupService {
         devicesRegistered
           .filter((device: DeviceRegistrationError) => device.isError)
           .forEach((device: DeviceRegistrationError) => {
-            const developerExternalId = device.device?.developerExternalId;
+            const serialNumber = device.device?.serialNumber;
             const errorIndex = recordsErrors.findIndex(
-              (record) => record.externalId === developerExternalId,
+              (record) => record.externalId === serialNumber,
             );
 
             if (errorIndex !== -1) {

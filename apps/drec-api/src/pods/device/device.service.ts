@@ -649,21 +649,21 @@ export class DeviceService {
 
     const sdgBenefitList = SDGBenefits;
 
-    const checkExternalId = await this.repository.findOne({
+    const checkSerialNUmber = await this.repository.findOne({
       where: {
-        developerExternalId: newDevice.externalId,
+        serialNumber: newDevice.serialNumber,
         organizationId: organizationId,
       },
     });
 
-    if (checkExternalId) {
+    if (checkSerialNUmber) {
       this.logger.debug('Line No: 236');
       this.logger.error(
-        `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       );
       throw new ConflictException({
         success: false,
-        message: `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       });
     }
 

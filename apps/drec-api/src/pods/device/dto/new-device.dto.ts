@@ -30,18 +30,17 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @Trim()
-  @IsNotEmpty({ message: 'externalId should not be empty' })
-  @IsString()
-  @Matches(/^[a-zA-Z\d\-_\s]+$/, {
-    message:
-      'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
-  })
-  externalId: string;
+  externalId?: string;
 
   @IsOptional()
   @IsString()
   @Exclude()
   developerExternalId?: string;
+
+  @IsOptional()
+  @IsString()
+  @Exclude()
+  serialNumber: string;
 
   @ApiProperty()
   @IsString()
