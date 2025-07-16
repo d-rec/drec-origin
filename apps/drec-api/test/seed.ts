@@ -243,6 +243,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    externalId: 'DREC33',
     serialNumber: 'SN31',
     dataSource: 'Inverter',
     projectName: 'Device 33',
@@ -265,6 +266,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    externalId: 'DREC34',
     serialNumber: 'SN51',
     dataSource: 'Inverter',
     projectName: 'Device 34',

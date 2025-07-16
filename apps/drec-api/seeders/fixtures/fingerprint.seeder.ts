@@ -33,6 +33,7 @@ export class FingerprintSeeder implements SeederInterface {
               capacity: device.capacity,
               fuelCode: device.fuelCode,
               deviceTypeCode: device.deviceTypeCode,
+              serialNumber: device.serialNumber,
             });
             await this.connection.query(
               `UPDATE "device" SET "fingerprint" = '${fingerprint}' WHERE id = ${device.id}`,

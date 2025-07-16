@@ -101,6 +101,11 @@ export class UpdateDeviceDTO
   deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
+  serialNumber: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsOptional()
   @Min(0.001, {

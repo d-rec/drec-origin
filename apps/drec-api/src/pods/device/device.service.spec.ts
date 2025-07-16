@@ -1688,6 +1688,7 @@ describe('DeviceService', () => {
         IREC_ID: null,
         yieldValue: 1500,
         labels: 'labels',
+        serialNumber: 'SN12345',
       };
 
       const currentDevice = {

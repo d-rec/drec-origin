@@ -702,6 +702,7 @@ export class DeviceService {
       capacity: newDevice.capacity,
       fuelCode: newDevice.fuelCode,
       deviceTypeCode: newDevice.deviceTypeCode,
+      serialNumber: newDevice.serialNumber,
     });
 
     const fingerprintExists = await this.repository.findOne({
@@ -846,6 +847,7 @@ export class DeviceService {
       capacity: updateDeviceDTO.capacity,
       fuelCode: updateDeviceDTO.fuelCode,
       deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+      serialNumber: updateDeviceDTO.serialNumber,
     });
 
     const fingerprintExists = await this.repository.findOne({

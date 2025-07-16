@@ -1810,9 +1810,9 @@ export class DeviceGroupService {
         devicesRegistered
           .filter((device: DeviceRegistrationError) => device.isError)
           .forEach((device: DeviceRegistrationError) => {
-            const externalId = device.device?.externalId;
+            const developerExternalId = device.device?.developerExternalId;
             const errorIndex = recordsErrors.findIndex(
-              (record) => record.externalId === externalId,
+              (record) => record.externalId === developerExternalId,
             );
 
             if (errorIndex !== -1) {
