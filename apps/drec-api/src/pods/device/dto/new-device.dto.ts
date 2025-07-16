@@ -37,9 +37,12 @@ export class NewDeviceDTO
   @Exclude()
   developerExternalId?: string;
 
-  @IsOptional()
+  @ApiProperty()
   @IsString()
-  @Exclude()
+  dataSource: string;
+
+  @ApiProperty()
+  @IsString()
   serialNumber: string;
 
   @ApiProperty()

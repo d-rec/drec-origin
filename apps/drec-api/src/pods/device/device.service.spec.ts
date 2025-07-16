@@ -189,6 +189,7 @@ describe('DeviceService', () => {
     it('should register a new device with valid inputs', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
+        dataSource: 'Inverter',
         serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
@@ -348,6 +349,7 @@ describe('DeviceService', () => {
     it('should reject registration with existing external ID', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
+        dataSource: 'Inverter',
         serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',

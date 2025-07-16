@@ -1519,6 +1519,7 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          dataSource: '',
           serialNumber: '',
         };
         for (const key in dataToStore) {
