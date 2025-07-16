@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 import { IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Unit } from '@energyweb/energy-api-influxdb';
 import { ReadType } from '../../utils/enums';
+import { Unit } from '../../utils/enums/unit.enum';
 
 @Entity({ name: 'meter_reads' })
 export class MeterRead {
