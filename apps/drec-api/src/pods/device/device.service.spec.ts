@@ -423,7 +423,7 @@ describe('DeviceService', () => {
       };
       const options = {
         where: {
-          developerExternalId: newDevice.serialNumber,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
