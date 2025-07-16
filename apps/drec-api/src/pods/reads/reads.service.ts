@@ -1,5 +1,5 @@
-import { ConflictException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Brackets, FindConditions, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { ConflictException, forwardRef, HttpException, HttpStatus, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Brackets, FindConditions, In, MoreThanOrEqual, Repository, SelectQueryBuilder } from 'typeorm';
 import { MeasurementDTO, ReadDTO } from './dto/measurement.dto';
 import { FilterDTO } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
@@ -56,7 +56,9 @@ export class ReadsService {
     private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
     @InjectRepository(MeterRead)
     private readonly repository: Repository<MeterRead>,
+    @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
+    @Inject(forwardRef(() => DeviceGroupService))
     private readonly deviceGroupService: DeviceGroupService,
     private readonly organizationService: OrganizationService,
     private readonly eventBus: EventBus,
@@ -763,7 +765,7 @@ export class ReadsService {
                     reservationEndDate: endDate,
                   },
                 )
-                .orWhere('read.start_dat = :reservationStartDate', {
+                .orWhere('read.start_date = :reservationStartDate', {
                   reservationStartDate: startDate,
                 });
             }),
@@ -1699,6 +1701,30 @@ export class ReadsService {
     }
     return await this.storeRead(device.externalId, measurements);
   }
+
+    async getAllByExternalId(externalId: string): Promise<ReadDTO[]>{
+      this.logger.verbose("Within get")
+      const reads = await this.repository.find({
+        where:{
+          external_id: externalId
+        }
+      })
+      return reads
+    }
+
+    async getNumberOfOngoingReadsBoarded(
+      externalId: string,
+      onboardedDate: Date,
+    ): Promise<number> {
+      this.logger.verbose(`With in getNumberOfOngReadsBoarded`);
+      return await this.repository.count({
+        where: {
+          externalId: externalId,
+          type: In([ReadType.Delta, ReadType.Aggregate]),
+          startDate: MoreThanOrEqual(onboardedDate),
+        },
+      });
+    }
   
     private async validateHistoricalReads(device: DeviceDTO, element: any, unit: Unit) {
       const checkHistoryReading = await this.checkHistoryReadExist(

@@ -285,13 +285,14 @@ export class IssuerService {
    * @returns Object containing minimumStartDate and maximumEndDate
    */
   private calculateDateRanges(
-    previousReadings: Array<{ timestamp: Date; value: number }>,
+    previousReadings: (DeviceReading | null)[],
     completeReads: Array<Array<{ timestamp: Date; value: number }>>,
   ): { minimumStartDate: Date; maximumEndDate: Date } {
     const DEFAULT_MIN_DATE = new Date('1970-04-01T12:51:51.112Z');
     const DEFAULT_MAX_DATE = new Date('1990-04-01T12:51:51.112Z');
 
     const minTimestamp = previousReadings
+      .filter((r): r is DeviceReading => r !== null)
       .map((r) => r.timestamp.getTime())
       .sort((a, b) => a - b)[0];
 
@@ -435,7 +436,7 @@ export class IssuerService {
         );
 
       // Return the readings if found
-      if (previousReadings.length > 0) {
+      if (previousReadings?.[0]) {
         return previousReadings[0];
       }
 

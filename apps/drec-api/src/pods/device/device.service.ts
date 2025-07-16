@@ -1,6 +1,8 @@
 import {
   ConflictException,
+  forwardRef,
   HttpException,
+  Inject,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -71,6 +73,7 @@ import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
+import { ReadsService } from '../reads/reads.service';
 
 @Injectable()
 export class DeviceService {
@@ -91,6 +94,8 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
+    @Inject(forwardRef(() => ReadsService))
+    private readonly readsService: ReadsService,
   ) {}
 
   public async find(
@@ -472,6 +477,7 @@ export class DeviceService {
     organizationId: number,
   ): Promise<Device | null> {
     this.logger.verbose(`With in findDeviceByDeveloperExternalId`);
+
     const device: Device = await this.repository.findOne({
       where: {
         developerExternalId: externalId,
@@ -1151,15 +1157,6 @@ export class DeviceService {
       );
   }
 
-  async getAllRead(
-    meterId: string,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
-    this.logger.verbose(`With in getallread`);
-    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: 0)
-      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`;
-    return await this.execute(fluxQuery);
-  }
   async execute(query: string | any): Promise<any> {
     this.logger.verbose(`With in execute`);
     const data = await this.dbReader.collectRows(query);
@@ -1193,7 +1190,7 @@ export class DeviceService {
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        const totalAmount = await this.getAllRead(device.externalId);
+        const totalAmount = await this.readsService.getAllByExternalId(device.externalId);
         const totalReadValue = totalAmount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -1216,7 +1213,7 @@ export class DeviceService {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistoryReads: number =
       await this.getNumberOfHistoryReads(externalId);
-    const numberOfOngReads: number = await this.getNumberOfOngoingReads(
+    const numberOfOngReads: number = await this.readsService.getNumberOfOngoingReadsBoarded(
       externalId,
       onboardedDate,
     );
@@ -1240,19 +1237,6 @@ export class DeviceService {
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId });
     return await query.getCount();
-  }
-
-  async getNumberOfOngoingReads(
-    externalId: string,
-    onboardedDate: Date,
-  ): Promise<number> {
-    this.logger.verbose(`With in getNumberOfOngReads`);
-    new Date();
-    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${onboardedDate})
-      |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
-      |> count()`;
-    return await this.ongExecute(fluxQuery);
   }
 
   async ongExecute(query: string | any): Promise<number> {
