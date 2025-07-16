@@ -197,6 +197,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
 
 export const batchDevices: NewDeviceDTO[] = [
   {
+    dataSourceBrandName: 'Sample Brand',
     externalId: 'DREC31',
     projectName: 'Device 31',
     address: 'Somewhere far away',
@@ -218,6 +219,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrandName: 'Sample Brand',
     externalId: 'DREC32',
     projectName: 'Device 32',
     address: 'Somewhere far away',
@@ -239,6 +241,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrandName: 'Sample Brand',
     externalId: 'DREC33',
     projectName: 'Device 33',
     address: 'Somewhere far away',
@@ -260,6 +263,7 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrandName: 'Sample Brand',
     externalId: 'DREC34',
     projectName: 'Device 34',
     address: 'Somewhere far away',

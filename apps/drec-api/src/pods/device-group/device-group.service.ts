@@ -1500,6 +1500,7 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
+          dataSourceBrandName: 'Sample Brand',
           externalId: '',
           projectName: '',
           address: '',

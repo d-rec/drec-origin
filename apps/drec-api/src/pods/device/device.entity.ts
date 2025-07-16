@@ -200,6 +200,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true, name: 'evident_status' })
   evidentStatus: string | null;
 
+  @Column({ type: 'varchar', nullable: true, name: 'data_source_brand_name' })
+  dataSourceBrandName: string | null;
+
   @OneToMany(
     () => CheckCertificateIssueDateLogForDeviceEntity,
     (certificateLog) => certificateLog.device,

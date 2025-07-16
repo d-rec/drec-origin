@@ -51,6 +51,10 @@ export class UpdateDeviceDTO
   projectName: string;
 
   @ApiProperty()
+  @IsString()
+  dataSourceBrandName: string;
+
+  @ApiProperty()
   @IsOptional()
   @IsString({
     message: 'Address must be added',
