@@ -1716,10 +1716,10 @@ export class DeviceGroupService {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({
                 value: singleRecord.externalId,
-                property: 'serialNumber',
+                property: 'externalId',
                 constraints: {
                   externalIdExists:
-                    'serialNumber already exist, cant add entry with same external id',
+                    'externalId already exist, cant add entry with same external id',
                 },
               });
             }
@@ -1810,9 +1810,9 @@ export class DeviceGroupService {
         devicesRegistered
           .filter((device: DeviceRegistrationError) => device.isError)
           .forEach((device: DeviceRegistrationError) => {
-            const serialNumber = device.device?.externalId;
+            const externalId = device.device?.externalId;
             const errorIndex = recordsErrors.findIndex(
-              (record) => record.externalId === serialNumber,
+              (record) => record.externalId === externalId,
             );
 
             if (errorIndex !== -1) {
