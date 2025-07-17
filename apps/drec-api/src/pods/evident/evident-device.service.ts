@@ -4,7 +4,7 @@ import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
-import { getCountryCodeAlpha2 } from '../../utils/get-country-code-alpha-2';
+import { getCountry } from '../../util../../utils/get-country';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import {
@@ -98,6 +98,21 @@ export class EvidentDeviceService {
       uploadedFiles,
     );
 
+    if (device.capacity > 250) {
+      const country = getCountry(device.countryCode).country;
+      const issuer = await this.evidentService.getIssuerByCountry(
+        device.organizationId,
+        country,
+      );
+      if (issuer.data['hydra:member'].length > 1) {
+        const countryIssuerId = issuer.data['hydra:member'][0]['@id'];
+        payload.issuer = countryIssuerId;
+      }
+    } else {
+      payload.issuer = `/organisations/${this.issuerId}`;
+    }
+
+    console.log('Payload', payload);
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
@@ -170,7 +185,7 @@ export class EvidentDeviceService {
     registrantId: string,
     files: string[],
   ): any {
-    const alpha2CountryCode = getCountryCodeAlpha2(device.countryCode);
+    const alpha2CountryCode = getCountry(device.countryCode).alpha2;
     const convertCapacityToMwh = convertToPowerUnit({
       value: device.capacity,
       unit: EnergyUnit.kWh,
@@ -181,7 +196,6 @@ export class EvidentDeviceService {
       fuel: `/fuels/${device.fuelCode}`,
       device: `/devices/${device.evidentDeviceId}`,
       registrant: `/organisations/${registrantId}`,
-      issuer: `/organisations/${this.issuerId}`,
       name: device.projectName,
       capacity: convertCapacityToMwh.toString(),
       supported: true,
