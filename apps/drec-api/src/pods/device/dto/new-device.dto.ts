@@ -17,7 +17,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
-import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
+import { ConvertToNullIfEmpty } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { countryCodesList } from '../../../models/country-code';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
@@ -29,7 +29,7 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
-
+  @IsOptional()
   externalId?: string;
 
   @IsOptional()
@@ -44,6 +44,7 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   dataSourceBrandName: string;
 
   @ApiProperty()
