@@ -120,6 +120,7 @@ describe('Device tests', () => {
     };
     const partialDevice: NewDeviceDTO = {
       dataSource: 'Inverter',
+      otherDataSource: '',
       serialNumber: 'SN31',
       projectName: 'Device New',
       address: 'Somewhere far away',
@@ -175,6 +176,7 @@ describe('Device tests', () => {
     };
     const partialDevice: NewDeviceDTO = {
       dataSource: 'Inverter',
+      otherDataSource: '',
       serialNumber: 'SN31',
       projectName: 'Device New',
       address: 'Somewhere far away',

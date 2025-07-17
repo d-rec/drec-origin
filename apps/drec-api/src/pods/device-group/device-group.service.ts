@@ -1520,6 +1520,7 @@ export class DeviceGroupService {
           SDGBenefits: [],
           version: '1.0',
           dataSource: '',
+          otherDataSource: '',
           serialNumber: '',
         };
         for (const key in dataToStore) {
@@ -1802,7 +1803,8 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({
               externalId: (ele as any).externalId,
               rowNumber: records.findIndex(
-                (recEle) => recEle.externalId === (ele as any).externalId,
+                (recEle) =>
+                  recEle.developerExternalId === (ele as any).externalId,
               ),
             });
           });

@@ -649,14 +649,14 @@ export class DeviceService {
 
     const sdgBenefitList = SDGBenefits;
 
-    const checkSerialNUmber = await this.repository.findOne({
+    const checkSerialNumber = await this.repository.findOne({
       where: {
         serialNumber: newDevice.serialNumber,
         organizationId: organizationId,
       },
     });
 
-    if (checkSerialNUmber) {
+    if (checkSerialNumber) {
       this.logger.debug('Line No: 236');
       this.logger.error(
         `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,

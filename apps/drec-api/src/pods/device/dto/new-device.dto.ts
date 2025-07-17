@@ -30,6 +30,7 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @Trim()
+  @IsOptional()
   externalId?: string;
 
   @IsOptional()
@@ -39,10 +40,21 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   dataSource: string;
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
+  otherDataSource: string;
+
+  @ApiProperty()
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'serialNumber must be alphanumeric and can include hyphens and underscores',
+  })
+  @IsString()
+  @IsNotEmpty()
   serialNumber: string;
 
   @ApiProperty()

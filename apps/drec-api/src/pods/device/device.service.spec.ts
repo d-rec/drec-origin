@@ -190,6 +190,7 @@ describe('DeviceService', () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
         dataSource: 'Inverter',
+        otherDataSource: '',
         serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
@@ -350,6 +351,7 @@ describe('DeviceService', () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
         dataSource: 'Inverter',
+        otherDataSource: '',
         serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
