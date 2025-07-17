@@ -284,7 +284,7 @@ export class ReadsService {
     if (!lastRead) {
       await new Promise((resolve, reject) => {
         measurement.reads.forEach(async (element, measurementReadIndex) => {
-          if (lastRead && lastRead['timestamp']) {
+          if (lastRead && lastRead.endDate) {
             if (
               new Date(element.endtimestamp).getTime() <
               new Date(lastRead.endDate).getTime()
@@ -337,7 +337,7 @@ export class ReadsService {
               ${typeof lastRead.endDate}
               endDate: ${lastRead.endDate.toISOString()}
               ${typeof lastRead.endDate.toISOString()}`);
-            if (lastRead && lastRead['timestamp']) {
+            if (lastRead && lastRead.endDate) {
               if (
                 new Date(element.endtimestamp).getTime() <
                 new Date(lastRead.endDate).getTime()
@@ -572,7 +572,7 @@ export class ReadsService {
     const startDate = DateTime.fromISO(
       (read.startDate).toISOString(),
     );
-    const endDate = DateTime.fromISO(read.startDate.toISOString());
+    const endDate = DateTime.fromISO(read.endDate.toISOString());
 
     const meteredTimePeriod = Math.abs(
       endDate.diff(startDate, ['hours']).toObject()?.hours || 0,
