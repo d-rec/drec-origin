@@ -283,16 +283,16 @@ export class HistoricalIssuanceService {
       await this.certificateLogService.createForDevice(
         group,
         device,
-        deviceHistoryRequest.readsStartDate,
-        deviceHistoryRequest.readsEndDate,
+        startDate,
+        endDate,
         readValue,
         certificateTransactionUID,
       ),
       // Create certificate log for group
       this.certificateLogService.createForGroup(
         group,
-        deviceHistoryRequest.readsStartDate,
-        deviceHistoryRequest.readsEndDate,
+        startDate,
+        endDate,
         readValue,
         issuance,
         device.countryCode,
