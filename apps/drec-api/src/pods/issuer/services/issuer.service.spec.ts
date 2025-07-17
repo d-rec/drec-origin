@@ -26,13 +26,13 @@ import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group
 import { Organization } from '../../organization/organization.entity';
 import { OrganizationService } from '../../organization/organization.service';
 import { BASE_READ_SERVICE } from '../../reads/constants';
-import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
+import { MeterRead } from '../../reads/reads.entity';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -252,7 +252,7 @@ describe('IssuerService', () => {
         buyerId: null,
       } as unknown as DeviceGroup;
       const deviceHistoryRequest =
-        {} as unknown as HistoryIntermediateMeterRead;
+        {} as unknown as MeterRead;
       const device = {} as unknown as IDevice;
 
       await historicalIssuanceService.issueCertificate(
@@ -275,7 +275,7 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
       const deviceHistoryRequest = {
         readsvalue: 999,
-      } as unknown as HistoryIntermediateMeterRead;
+      } as unknown as MeterRead;
       const device = {} as unknown as IDevice;
 
       await historicalIssuanceService.issueCertificate(
@@ -305,7 +305,7 @@ describe('IssuerService', () => {
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediateMeterRead;
+      } as unknown as MeterRead;
 
       const device = {
         externalId: 'device123',
@@ -331,11 +331,11 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
-        readsvalue: 1000,
+        value: 1000,
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediateMeterRead;
+      } as unknown as MeterRead;
 
       const device = {
         externalId: 'device123',
@@ -365,7 +365,7 @@ describe('IssuerService', () => {
         readsStartDate: new Date(),
         readsEndDate: new Date(),
         id: 1,
-      } as unknown as HistoryIntermediateMeterRead;
+      } as unknown as MeterRead;
 
       const device = {
         externalId: 'device123',
@@ -382,8 +382,8 @@ describe('IssuerService', () => {
         readsService.updateHistoryCertificateIssueDate,
       ).toHaveBeenCalledWith(
         deviceHistoryRequest.id,
-        deviceHistoryRequest.readsStartDate,
-        deviceHistoryRequest.readsEndDate,
+        deviceHistoryRequest.startDate,
+        deviceHistoryRequest.endDate,
       );
     });
   });

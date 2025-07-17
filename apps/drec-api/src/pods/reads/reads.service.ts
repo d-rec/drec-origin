@@ -10,8 +10,6 @@ import axios from 'axios';
 import { BigNumber } from 'ethers';
 import { DeviceDTO } from '../device/dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { DeltaFirstRead } from './delta_firstread.entity';
 import { DateTime } from 'luxon';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
@@ -31,7 +29,6 @@ import { AccumulationType, FilterNoOffLimit } from './dto/filter-no-off-limit.dt
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { BulkUploadType } from '../bulk-upload/bulk-uploads.entity';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { ReadType } from '../../utils/enums';
@@ -50,10 +47,6 @@ export class ReadsService {
   public readonly logger = new Logger(ReadsService.name);
 
   constructor(
-    @InjectRepository(AggregateMeterRead)
-    private readonly aggregateFirstReadRepository: Repository<AggregateMeterRead>,
-    @InjectRepository(DeltaFirstRead)
-    private readonly deltaFirstReadRepository: Repository<DeltaFirstRead>,
     @InjectRepository(MeterRead)
     private readonly repository: Repository<MeterRead>,
     @Inject(forwardRef(() => DeviceService))
@@ -718,7 +711,7 @@ export class ReadsService {
     deviceId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<HistoryIntermediateMeterRead[]> {
+  ): Promise<MeterRead[]> {
     const query = this.getHistoryDeviceLogFilteredQuery(
       deviceId,
       startDate,
@@ -729,7 +722,7 @@ export class ReadsService {
       const device = await query.getRawMany();
       return device.map((s: { read: MeterRead }) => {
         const item: any = {
-          id: s.read.id,
+          id: s.read.externalId,
           readsStartDate: s.read.startDate,
           readsEndDate: s.read.endDate,
           readsvalue: s.read.value,
@@ -821,22 +814,23 @@ export class ReadsService {
 
   async getAggregateMeterReadsFirstEntryOfDevice(
     meterId: string,
-  ): Promise<AggregateMeterRead[]> {
-    return this.aggregateFirstReadRepository.find({
+  ): Promise<ReadDTO[]> {
+    return this.repository.find({
       where: {
         externalId: meterId,
+        type: ReadType.Aggregate
       },
       take: 1,
     });
   }
 
-  // add new function for Delta firstread filter
   async getDeltaMeterReadsFirstEntryOfDevice(
     meterId: string,
-  ): Promise<DeltaFirstRead[]> {
-    return this.deltaFirstReadRepository.find({
+  ): Promise<ReadDTO[]> {
+    return this.repository.find({
       where: {
         externalId: meterId,
+        type: ReadType.Delta
       },
     });
   }
