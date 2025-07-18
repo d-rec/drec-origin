@@ -1706,7 +1706,7 @@ export class ReadsService {
       return reads
     }
 
-    async countOngoingReadsSinceDeviceOnboarding(
+    async countOngoingReadsSinceDeviceOnboardingDate(
       externalId: string,
       onboardedDate: Date,
     ): Promise<number> {

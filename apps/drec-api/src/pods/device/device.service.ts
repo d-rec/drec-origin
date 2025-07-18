@@ -1213,7 +1213,7 @@ export class DeviceService {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistoryReads: number =
       await this.getNumberOfHistoryReads(externalId);
-    const numberOfOngReads: number = await this.readsService.countOngoingReadsSinceDeviceOnboarding(
+    const numberOfOngReads: number = await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
       externalId,
       onboardedDate,
     );
