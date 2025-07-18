@@ -65,6 +65,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { validateOrReject } from 'class-validator';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -590,6 +591,21 @@ export class DeviceController {
     );
     if (!deviceToRegister)
       throw new BadRequestException('Invalid device data format');
+    const deviceDtoInstance = plainToClass(NewDeviceDTO, deviceToRegister);
+    try {
+      await validateOrReject(deviceDtoInstance);
+    } catch (errors) {
+      throw new BadRequestException(
+        errors
+          .map((error) =>
+            error.constraints
+              ? Object.values(error.constraints).join(', ')
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      );
+    }
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');

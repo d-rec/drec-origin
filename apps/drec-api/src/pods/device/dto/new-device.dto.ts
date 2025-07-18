@@ -45,13 +45,14 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  otherDataSource: string;
+  @IsOptional()
+  otherDataSource?: string;
 
   @ApiProperty()
+  @Trim()
   @Matches(/^[a-zA-Z0-9_-]+$/, {
     message:
-      'serialNumber must be alphanumeric and can include hyphens and underscores',
+      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
   })
   @IsString()
   @IsNotEmpty()
