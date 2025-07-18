@@ -8,7 +8,6 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   In,
-  FindOneOptions,
   Connection,
 } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -42,13 +41,15 @@ import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_ce
 import { HttpService } from '@nestjs/axios';
 import { User } from '../user/user.entity';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
-import { DeviceCsvFileProcessingJobsEntity } from '../device-group/device_csv_processing_jobs.entity';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import {
   DocumentEntity,
   DocumentType,
 } from '../document-uploads/entities/documents.entity';
 import { FileService } from '../file';
+import { EvidentService } from '../evident/evident.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { MailService } from '../../mail/mail.service';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -146,6 +147,24 @@ describe('DeviceService', () => {
         {
           provide: getRepositoryToken(DeviceLateOngoingIssueCertificateEntity),
           useClass: Repository,
+        },
+        {
+          provide: EvidentService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: EvidentDeviceService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: MailService,
+          useValue: {},
         },
       ],
     }).compile();

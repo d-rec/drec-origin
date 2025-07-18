@@ -10,7 +10,7 @@ import {
 import { AuthGuard, AuthModuleOptions, IAuthGuard } from '@nestjs/passport';
 import { memoize } from 'lodash';
 import 'reflect-metadata';
-import { IUser } from 'src/models/User';
+import { IUser } from '../models/User';
 import { ActiveUserGuard } from './ActiveUserGuard';
 import { Reflector } from '@nestjs/core';
 

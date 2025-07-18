@@ -15,10 +15,16 @@ import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
+import { EvidentModule } from '../evident/evident.module';
+import { Organization } from '../organization/organization.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
+    forwardRef(() => EvidentModule),
+    forwardRef(() => MailModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([
@@ -29,9 +35,11 @@ import { DocumentUploadsModule } from '../document-uploads/document-uploads.modu
       IRECDevicesInformationEntity,
       IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,
+      Organization,
+      EvidentSettings, // Ensure EvidentSettings is imported correctly
     ]),
-    UserModule,
-    OrganizationModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => OrganizationModule),
     DocumentUploadsModule,
   ],
   providers: [DeviceService],

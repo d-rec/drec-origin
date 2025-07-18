@@ -82,14 +82,12 @@ You can also review detailed information and error messages related to the bulk 
 From the My Devices page, use the three-dot menu (⋮) in the Actions column to:
 
 1. **View Device Details:**
-
    - Click the menu and select view option
    - Review comprehensive device information including energy storage details
 
    ![Device Details](../dashboard-user-guide-images/device-details.png)
 
 2. **Edit Device:**
-
    - Select edit from the menu
    - Update necessary fields in the Device Update Form
    - Click "Update" to save changes
@@ -98,7 +96,6 @@ From the My Devices page, use the three-dot menu (⋮) in the Actions column to:
    ![Edit Device](../dashboard-user-guide-images/update-device.png)
 
 3. **Delete Device:**
-
    - Choose delete from the menu
    - Confirm deletion in the popup dialog
 
