@@ -617,7 +617,7 @@ export class DeviceController {
           checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
-        await this.readsService.getNumberOfOngoingReadsBoarded(
+        await this.readsService.countOngoingReadsSinceDeviceOnboarding(
           checkExternalId.externalId,
           checkExternalId.createdAt,
         );

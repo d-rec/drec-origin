@@ -230,9 +230,9 @@ export class ReadsService {
     for (const element of measurement.reads) {
       await this.validateHistoricalReads(device, element, measurement.unit);
 
-      const requestStartDate = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
-      const requestCurrentEnd = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
-      const meteredTimePeriod = Math.abs(requestStartDate.diff(requestCurrentEnd, ['hours']).toObject()?.hours || 0);
+      const readStartDateTime = DateTime.fromISO(new Date(element.starttimestamp).toISOString());
+      const readEndDateTime = DateTime.fromISO(new Date(element.endtimestamp).toISOString());
+      const readTimePeriod = Math.abs(readStartDateTime.diff(readEndDateTime, ['hours']).toObject()?.hours || 0);
 
       const read: ReadDTO = {
         startDate: new Date(element.starttimestamp),
@@ -243,10 +243,10 @@ export class ReadsService {
       const historyValidation = await this.historyValidateEnergy(
         read,
         device,
-        meteredTimePeriod,
+        readTimePeriod,
         measurement,
-        requestStartDate.toJSDate(),
-        requestCurrentEnd.toJSDate(),
+        readStartDateTime.toJSDate(),
+        readEndDateTime.toJSDate(),
       );
 
       if (historyValidation) {
@@ -720,13 +720,13 @@ export class ReadsService {
 
     try {
       const device = await query.getRawMany();
-      return device.map((s: { read: MeterRead }) => {
+      return device.map((record: { read: MeterRead }) => {
         const item: any = {
-          id: s.read.externalId,
-          readsStartDate: s.read.startDate,
-          readsEndDate: s.read.endDate,
-          readsvalue: s.read.value,
-          externalId: s.read.externalId,
+          id: record.read.externalId,
+          readsStartDate: record.read.startDate,
+          readsEndDate: record.read.endDate,
+          readsvalue: record.read.value,
+          externalId: record.read.externalId,
         };
         return item;
       });
@@ -1706,7 +1706,7 @@ export class ReadsService {
       return reads
     }
 
-    async getNumberOfOngoingReadsBoarded(
+    async countOngoingReadsSinceDeviceOnboarding(
       externalId: string,
       onboardedDate: Date,
     ): Promise<number> {

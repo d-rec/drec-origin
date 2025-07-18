@@ -292,8 +292,8 @@ export class IssuerService {
     const DEFAULT_MAX_DATE = new Date('1990-04-01T12:51:51.112Z');
 
     const minTimestamp = previousReadings
-      .filter((r): r is DeviceReading => r !== null)
-      .map((r) => r.timestamp.getTime())
+      .filter((read): read is DeviceReading => read !== null)
+      .map((read) => read.timestamp.getTime())
       .sort((a, b) => a - b)[0];
 
     const minimumStartDate = minTimestamp
