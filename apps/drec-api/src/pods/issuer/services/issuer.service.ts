@@ -253,31 +253,35 @@ export class IssuerService {
     defaultMinDate: Date,
     defaultMaxDate: Date,
   ): { minimumStartDate: Date; maximumEndDate: Date } {
-    const certifiedReadings = previousReadings.map((r) =>
-      r.timestamp.getTime(),
+    const minimumTimestamp =
+      this.getMaxReadingTimestamp(previousReadings) || defaultMinDate.getTime();
+
+    const minimumStartDate = new Date(
+      minimumTimestamp + ONE_SECOND_IN_MILLISECONDS,
     );
 
-    const minimumTimestamp =
-      certifiedReadings.length > 0
-        ? Math.max(...certifiedReadings) + ONE_SECOND_IN_MILLISECONDS // Add 1 second to ensure we start after the last certified reading
-        : defaultMinDate.getTime();
-
-    const minimumStartDate = new Date(minimumTimestamp);
-
-    const lastReadings = completeReads
-      .flatMap((deviceReads) =>
-        deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
-      )
-      .map((reading) => reading.timestamp.getTime());
+    const lastReadings = completeReads.flatMap((deviceReads) =>
+      deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
+    );
 
     const maxTimestamp =
-      lastReadings.length > 0
-        ? Math.max(...lastReadings)
-        : defaultMaxDate.getTime();
+      this.getMaxReadingTimestamp(lastReadings) || defaultMaxDate.getTime();
 
     const maximumEndDate = new Date(maxTimestamp);
 
     return { minimumStartDate, maximumEndDate };
+  }
+
+  private getMaxReadingTimestamp(readings: DeviceReading[]): number | null {
+    if (!readings?.length) return null;
+
+    const maxTimestamp = Math.max(
+      ...readings
+        .filter((reading) => reading.timestamp)
+        .map((reading) => reading.timestamp.getTime()),
+    );
+
+    return maxTimestamp;
   }
 
   /**
