@@ -101,7 +101,10 @@ export class IssuerService {
     const { minimumStartDate, maximumEndDate } = this.calculateDateRanges(
       previousReadings,
       completeMeterReads,
+      startDate.toJSDate(),
+      endDate.toJSDate(),
     );
+    
     const certificateTransactionUID = uuid();
 
     // Log the certificate details
@@ -244,17 +247,20 @@ export class IssuerService {
   private calculateDateRanges(
     previousReadings: Array<{ timestamp: Date; value: number }>,
     completeReads: Array<Array<{ timestamp: Date; value: number }>>,
+    defaultMinDate: Date,
+    defaultMaxDate: Date,
   ): { minimumStartDate: Date; maximumEndDate: Date } {
-    const DEFAULT_MIN_DATE = new Date('1970-04-01T12:51:51.112Z');
-    const DEFAULT_MAX_DATE = new Date('1990-04-01T12:51:51.112Z');
 
-    const minTimestamp = previousReadings
+    const certifiedReadings = previousReadings
       .map((r) => r.timestamp.getTime())
-      .sort((a, b) => a - b)[0];
+      .filter((t): t is number => typeof t === 'number');
 
-    const minimumStartDate = minTimestamp
-      ? new Date(minTimestamp + 1000)
-      : DEFAULT_MIN_DATE;
+    const minimumTimestamp =
+      certifiedReadings.length > 0
+        ? (Math.max(...certifiedReadings) + 1000) // Add 1 second to ensure we start after the last certified reading
+        : defaultMinDate.getTime();
+
+    const minimumStartDate = new Date(minimumTimestamp);
 
     const lastReadings = completeReads
       .flatMap((deviceReads) =>
@@ -266,7 +272,7 @@ export class IssuerService {
     const maxTimestamp =
       lastReadings.length > 0
         ? Math.max(...lastReadings)
-        : DEFAULT_MAX_DATE.getTime();
+        : defaultMaxDate.getTime();
 
     const maximumEndDate = new Date(maxTimestamp);
 
