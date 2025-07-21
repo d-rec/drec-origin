@@ -104,14 +104,14 @@ export class EvidentDeviceService {
         device.organizationId,
         country,
       );
-      if (issuer.data['hydra:member'].length > 1) {
+      if (issuer.data['hydra:member'].length > 0) {
         const countryIssuerId = issuer.data['hydra:member'][0]['@id'];
         payload.issuer = countryIssuerId;
       }
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
-
+    
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
