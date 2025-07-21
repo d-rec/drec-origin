@@ -21,7 +21,7 @@ type DeviceReading = {
   value: number;
 };
 
-const ONE_SECOND_IN_MILLISECONDS = 1000;
+const ONE_MINUTE_IN_MILLISECONDS = 60000;
 
 @Injectable()
 export class IssuerService {
@@ -257,7 +257,7 @@ export class IssuerService {
       this.getMaxReadingTimestamp(previousReadings) || defaultMinDate.getTime();
 
     const minimumStartDate = new Date(
-      minimumTimestamp + ONE_SECOND_IN_MILLISECONDS,
+      minimumTimestamp + ONE_MINUTE_IN_MILLISECONDS,
     );
 
     const lastReadings = completeReads.flatMap((deviceReads) =>
@@ -394,7 +394,7 @@ export class IssuerService {
     try {
       // Calculate the time range for finding previous readings
       const endTimestamp = new Date(
-        deviceReadings[0].timestamp.getTime() - ONE_SECOND_IN_MILLISECONDS,
+        deviceReadings[0].timestamp.getTime() - ONE_MINUTE_IN_MILLISECONDS,
       );
 
       // Find the last reading within the specified range
