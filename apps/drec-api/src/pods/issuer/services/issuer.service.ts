@@ -3,6 +3,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 
+import { Profile } from '../../../lib/profile';
 import { IDevice } from '../../../models';
 import { ReadType } from '../../../utils/enums';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
@@ -14,12 +15,12 @@ import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { Profile } from '../../../lib/profile';
 
 type DeviceReading = {
   timestamp: Date;
   value: number;
 };
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
