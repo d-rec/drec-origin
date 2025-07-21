@@ -111,7 +111,7 @@ export class EvidentDeviceService {
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
-    
+
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
