@@ -1500,7 +1500,6 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
-          externalId: '',
           projectName: '',
           address: '',
           latitude: '',
@@ -1520,6 +1519,9 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          dataSource: '',
+          otherDataSource: '',
+          serialNumber: '',
         };
         for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
@@ -1718,7 +1720,7 @@ export class DeviceGroupService {
                 property: 'externalId',
                 constraints: {
                   externalIdExists:
-                    'ExternalId already exist, cant add entry with same external id',
+                    'externalId already exist, cant add entry with same external id',
                 },
               });
             }

@@ -189,7 +189,9 @@ describe('DeviceService', () => {
     it('should register a new device with valid inputs', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
-        externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -337,7 +339,7 @@ describe('DeviceService', () => {
 
       const options = {
         where: {
-          developerExternalId: newDevice.externalId,
+          developerExternalId: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
@@ -348,7 +350,9 @@ describe('DeviceService', () => {
     it('should reject registration with existing external ID', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
-        externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -421,7 +425,7 @@ describe('DeviceService', () => {
       };
       const options = {
         where: {
-          developerExternalId: newDevice.externalId,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
@@ -1686,6 +1690,7 @@ describe('DeviceService', () => {
         IREC_ID: null,
         yieldValue: 1500,
         labels: 'labels',
+        serialNumber: 'SN12345',
       };
 
       const currentDevice = {
