@@ -21,6 +21,8 @@ type DeviceReading = {
   value: number;
 };
 
+const ONE_SECOND_IN_MILLISECONDS = 1000;
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -105,7 +107,7 @@ export class IssuerService {
       startDate.toJSDate(),
       endDate.toJSDate(),
     );
-    
+
     const certificateTransactionUID = uuid();
 
     // Log the certificate details
@@ -251,14 +253,13 @@ export class IssuerService {
     defaultMinDate: Date,
     defaultMaxDate: Date,
   ): { minimumStartDate: Date; maximumEndDate: Date } {
-
-    const certifiedReadings = previousReadings
-      .map((r) => r.timestamp.getTime())
-      .filter((t): t is number => typeof t === 'number');
+    const certifiedReadings = previousReadings.map((r) =>
+      r.timestamp.getTime(),
+    );
 
     const minimumTimestamp =
       certifiedReadings.length > 0
-        ? (Math.max(...certifiedReadings) + 1000) // Add 1 second to ensure we start after the last certified reading
+        ? Math.max(...certifiedReadings) + ONE_SECOND_IN_MILLISECONDS // Add 1 second to ensure we start after the last certified reading
         : defaultMinDate.getTime();
 
     const minimumStartDate = new Date(minimumTimestamp);
@@ -267,8 +268,7 @@ export class IssuerService {
       .flatMap((deviceReads) =>
         deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
       )
-      .map((reading) => reading.timestamp.getTime())
-      .filter((t): t is number => typeof t === 'number');
+      .map((reading) => reading.timestamp.getTime());
 
     const maxTimestamp =
       lastReadings.length > 0
@@ -367,7 +367,8 @@ export class IssuerService {
     };
   }
 
-  /* Retrieves the previous meter reading for a device based on recent readings
+  /**
+   * Retrieves the previous meter reading for a device based on recent readings.
    *
    * @param device - The device to retrieve readings for
    * @param deviceReadings - Recent device readings within time range
@@ -389,7 +390,7 @@ export class IssuerService {
     try {
       // Calculate the time range for finding previous readings
       const endTimestamp = new Date(
-        deviceReadings[0].timestamp.getTime() - 1000,
+        deviceReadings[0].timestamp.getTime() - ONE_SECOND_IN_MILLISECONDS,
       );
 
       // Find the last reading within the specified range
