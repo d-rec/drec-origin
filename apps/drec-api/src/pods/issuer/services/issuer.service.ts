@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 
 import { Profile } from '../../../lib/profile';
 import { IDevice } from '../../../models';
+import { ReadType } from '../../../utils/enums';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
 import { Device } from '../../device';
 import { DeviceGroup } from '../../device-group/device-group.entity';
@@ -19,6 +20,8 @@ type DeviceReading = {
   timestamp: Date;
   value: number;
 };
+
+const ONE_SECOND_IN_MILLISECONDS = 1000;
 
 @Injectable()
 export class IssuerService {
@@ -72,8 +75,13 @@ export class IssuerService {
     }
 
     // Process group device readings
-    const { validDevices, totalReading, validReadings } =
-      await this.processGroupDeviceReads(group, startDate, endDate);
+    const {
+      validDevices,
+      completeMeterReads,
+      previousReadings,
+      totalReading,
+      validReadings,
+    } = await this.processGroupDeviceReads(group, startDate, endDate);
 
     if (!totalReading || !validDevices.length) {
       return;
@@ -93,10 +101,14 @@ export class IssuerService {
     // Issue certificate in watts
     const issueTotalReadValue = totalReadValueKw * 10 ** 3;
 
-    const certificateTransactionUID = uuid();
+    const { minimumStartDate, maximumEndDate } = this.calculateDateRanges(
+      previousReadings,
+      completeMeterReads,
+      startDate.toJSDate(),
+      endDate.toJSDate(),
+    );
 
-    const minimumStartDate = startDate.toJSDate();
-    const maximumEndDate = endDate.toJSDate();
+    const certificateTransactionUID = uuid();
 
     // Log the certificate details
     await Promise.all(
@@ -183,18 +195,25 @@ export class IssuerService {
 
     const validDevices = validReadings.map((reading) => reading.device);
 
+    const completeMeterReads = validReadings.map(
+      (reading) => reading.completeReads,
+    );
+
     const totalReading = readings.reduce(
       (acc, reading) => acc + reading.totalRead,
       0,
     );
 
-    const completeReads = readings.map((reading) => reading.completeReads);
+    const previousReadings = validReadings.map(
+      (reading) => reading.previousReading,
+    );
 
     return {
       validDevices,
       validReadings,
+      completeMeterReads,
       totalReading,
-      completeReads,
+      previousReadings,
     };
   }
 
@@ -218,6 +237,51 @@ export class IssuerService {
       device,
       ...readings,
     };
+  }
+
+  /**
+   * Calculates the minimum start date and maximum end date from device readings
+   *
+   * @param previousReadings - Array of device previous readings
+   * @param completeReads - Array of arrays containing complete readings for each device
+   * @returns Object containing minimumStartDate and maximumEndDate
+   */
+  @Profile()
+  private calculateDateRanges(
+    previousReadings: Array<{ timestamp: Date; value: number }>,
+    completeReads: Array<Array<{ timestamp: Date; value: number }>>,
+    defaultMinDate: Date,
+    defaultMaxDate: Date,
+  ): { minimumStartDate: Date; maximumEndDate: Date } {
+    const minimumTimestamp =
+      this.getMaxReadingTimestamp(previousReadings) || defaultMinDate.getTime();
+
+    const minimumStartDate = new Date(
+      minimumTimestamp + ONE_SECOND_IN_MILLISECONDS,
+    );
+
+    const lastReadings = completeReads.flatMap((deviceReads) =>
+      deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
+    );
+
+    const maxTimestamp =
+      this.getMaxReadingTimestamp(lastReadings) || defaultMaxDate.getTime();
+
+    const maximumEndDate = new Date(maxTimestamp);
+
+    return { minimumStartDate, maximumEndDate };
+  }
+
+  private getMaxReadingTimestamp(readings: DeviceReading[]): number | null {
+    if (!readings?.length) return null;
+
+    const maxTimestamp = Math.max(
+      ...readings
+        .filter((reading) => reading.timestamp)
+        .map((reading) => reading.timestamp.getTime()),
+    );
+
+    return maxTimestamp;
   }
 
   /**
@@ -308,6 +372,73 @@ export class IssuerService {
   }
 
   /**
+   * Retrieves the previous meter reading for a device based on recent readings.
+   *
+   * @param device - The device to retrieve readings for
+   * @param deviceReadings - Recent device readings within time range
+   * @returns Promise resolving to an array of previous readings
+   */
+  @Profile()
+  private async getPreviousReading(
+    device: IDevice,
+    deviceReadings: DeviceReading[],
+  ): Promise<DeviceReading | null> {
+    // Early return if no device readings are provided
+    if (!deviceReadings.length) {
+      return null;
+    }
+
+    // Extract device information once to avoid repeated access
+    const { externalId, createdAt, meterReadtype } = device;
+
+    try {
+      // Calculate the time range for finding previous readings
+      const endTimestamp = new Date(
+        deviceReadings[0].timestamp.getTime() - ONE_SECOND_IN_MILLISECONDS,
+      );
+
+      // Find the last reading within the specified range
+      const previousReadings =
+        await this.readsService.findLastReadForMeterWithinRange(
+          externalId,
+          new Date(createdAt),
+          endTimestamp,
+        );
+
+      // Return the readings if found
+      if (previousReadings.length > 0) {
+        return previousReadings[0];
+      }
+
+      // Handle different meter read types when no previous readings exist
+      if (meterReadtype === ReadType.Delta) {
+        return { timestamp: new Date(createdAt), value: 0 };
+      }
+
+      if (meterReadtype === ReadType.ReadMeter) {
+        const aggregateReadings =
+          await this.readsService.getAggregateMeterReadsFirstEntryOfDevice(
+            externalId,
+          );
+
+        if (aggregateReadings.length > 0) {
+          return {
+            timestamp: new Date(aggregateReadings[0].datetime),
+            value: 0,
+          };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      this.logger.error(
+        `Error retrieving previous readings for device ${externalId}: ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * Processes device reads to identify valid devices and collect reading data
    */
   @Profile()
@@ -319,6 +450,7 @@ export class IssuerService {
     totalRead: number;
     filteredReadings: DeviceReading[];
     completeReads: DeviceReading[];
+    previousReading: DeviceReading | null;
   }> {
     const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
@@ -344,12 +476,20 @@ export class IssuerService {
         totalRead: 0,
         filteredReadings,
         completeReads: allReadsForDeviceBetweenTimeRange,
+        previousReading: null,
       };
+
+    // Get previous readings for time context
+    const previousReading = await this.getPreviousReading(
+      device,
+      filteredReadings,
+    );
 
     return {
       totalRead: totalReadValue,
       filteredReadings,
       completeReads: allReadsForDeviceBetweenTimeRange,
+      previousReading,
     };
   }
 }
