@@ -4,6 +4,9 @@ import {
   QueryApi,
   WriteApi,
 } from '@influxdata/influxdb-client';
+import { InfluxDB as InfluxV1 } from 'influx';
+import { EnergyUnit } from '../types/units';
+import { ReadType } from '../utils/enums';
 
 export const influxDBConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
@@ -35,4 +38,55 @@ const executeQuery = async (query: string): Promise<any[]> => {
   return results;
 };
 
-export { dbReader, dbWriter, writePoints, executeQuery };
+const influx = new InfluxV1({
+  host: process.env.INFLUXDB_HOST || 'localhost',
+  port: 8086,
+  database: process.env.INFLUXDB_DB || 'energy',
+  username: process.env.INFLUXDB_ADMIN_USER || 'test',
+  password: process.env.INFLUXDB_ADMIN_PASSWORD || 'test',
+});
+
+const fetchAllMeterReads = async (): Promise<any[]> => {
+  const results = await influx.query('SELECT * FROM "read"');
+  return results;
+};
+
+const mapInfluxMeterReadsToHistoryFormat = async (): Promise<any[]> => {
+  const reads = await fetchAllMeterReads();
+
+  return reads.map((read, idx) => {
+    const prevReadEndDate =
+      idx === 0
+        ? Date.now()
+        : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
+
+    return {
+      externalId: read.meter,
+      type: ReadType.Delta,
+      unit: EnergyUnit.Wh,
+      value: read.read,
+      startDate: prevReadEndDate,
+      endDate: read.time._nanoISO,
+    };
+  });
+};
+
+async function testInfluxFunction() {
+  try {
+    console.log('Testing mapInfluxMeterReadsToHistoryFormat...');
+    const result = await mapInfluxMeterReadsToHistoryFormat();
+    console.log('Result:', JSON.stringify(result, null, 2));
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+testInfluxFunction();
+export {
+  dbReader,
+  dbWriter,
+  writePoints,
+  executeQuery,
+  fetchAllMeterReads,
+  mapInfluxMeterReadsToHistoryFormat,
+};
