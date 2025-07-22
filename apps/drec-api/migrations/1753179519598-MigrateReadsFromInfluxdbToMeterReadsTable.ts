@@ -1,14 +1,14 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
-import { mapInfluxMeterReadsToHistoryFormat } from '../src/lib/influx-db';
+import { mapInfluxMeterReadsToMeterReadsTableFormat } from '../src/lib/influx-db';
 
 export class MigrateReadsFromInfluxdbToMeterReadsTable1753179519598 implements MigrationInterface {
     name = 'MigrateReadsFromInfluxdbToMeterReadsTable1753179519598'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const readsArray = await mapInfluxMeterReadsToHistoryFormat();
+        const readsArray = await mapInfluxMeterReadsToMeterReadsTableFormat();
         if (readsArray.length > 0) {
           const getDevice = await queryRunner.query(
-            'SELECT * FROM public.device WHERE "externalId" = $1',
+            'SELECT * FROM public.device WHERE "externalId" = $1',  
             [readsArray[0].externalId],
           );
           readsArray[0].startDate =

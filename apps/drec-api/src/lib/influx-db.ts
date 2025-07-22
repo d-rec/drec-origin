@@ -51,11 +51,11 @@ const fetchAllMeterReads = async (): Promise<any[]> => {
   return results;
 };
 
-const mapInfluxMeterReadsToHistoryFormat = async (): Promise<any[]> => {
+const mapInfluxMeterReadsToMeterReadsTableFormat = async (): Promise<any[]> => {
   const reads = await fetchAllMeterReads();
 
   return reads.map((read, idx) => {
-    const prevReadEndDate =
+    const previousReadEndDate =
       idx === 0
         ? Date.now()
         : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
@@ -65,28 +65,17 @@ const mapInfluxMeterReadsToHistoryFormat = async (): Promise<any[]> => {
       type: ReadType.Delta,
       unit: EnergyUnit.Wh,
       value: read.read,
-      startDate: prevReadEndDate,
+      startDate: previousReadEndDate,
       endDate: read.time._nanoISO,
     };
   });
 };
 
-async function testInfluxFunction() {
-  try {
-    console.log('Testing mapInfluxMeterReadsToHistoryFormat...');
-    const result = await mapInfluxMeterReadsToHistoryFormat();
-    console.log('Result:', JSON.stringify(result, null, 2));
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
-}
-
-testInfluxFunction();
 export {
   dbReader,
   dbWriter,
   writePoints,
   executeQuery,
   fetchAllMeterReads,
-  mapInfluxMeterReadsToHistoryFormat,
+  mapInfluxMeterReadsToMeterReadsTableFormat,
 };
