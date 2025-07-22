@@ -28,8 +28,6 @@ export class NewDeviceDTO
       'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
     >
 {
-  @ApiProperty()
-  @Trim()
   @IsOptional()
   externalId?: string;
 

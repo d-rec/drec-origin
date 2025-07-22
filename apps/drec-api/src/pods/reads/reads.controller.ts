@@ -305,7 +305,7 @@ export class ReadsController extends BaseReadsController {
         }
       }
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
+      device = await this.deviceService.findDeviceBySerialNumber(
         meterId,
         user.organizationId,
       );
@@ -510,7 +510,7 @@ export class ReadsController extends BaseReadsController {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
+      device = await this.deviceService.findDeviceBySerialNumber(
         externalId,
         user.organizationId,
       );

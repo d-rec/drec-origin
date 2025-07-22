@@ -480,7 +480,7 @@ export class DeviceController {
     description: 'User does not have permission to view this device.',
   })
   async getByExternalId(
-    @Param('id') id: string,
+    @Param('id') serialNumber: string,
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
@@ -492,17 +492,16 @@ export class DeviceController {
       }
 
       deviceData =
-        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-          id,
+        await this.deviceService.findDeviceBySerialNumberByApiUser(
+          serialNumber,
           loginUser.api_user_id,
         );
     } else {
-      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
-        id,
+      deviceData = await this.deviceService.findDeviceBySerialNumber(
+        serialNumber,
         loginUser.organizationId,
       );
     }
-    deviceData.externalId = deviceData.developerExternalId;
     delete deviceData['developerExternalId'];
     return deviceData;
   }
@@ -690,7 +689,7 @@ export class DeviceController {
 
     if (deviceToUpdate.externalId) {
       const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
+        await this.deviceService.findDeviceBySerialNumber(
           deviceToUpdate.externalId,
           user.organizationId,
         );
@@ -705,7 +704,7 @@ export class DeviceController {
 
     if (deviceToUpdate.commissioningDate) {
       const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
+        await this.deviceService.findDeviceBySerialNumber(
           externalId,
           user.organizationId,
         );
@@ -724,11 +723,11 @@ export class DeviceController {
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           });
         }
       }
@@ -860,7 +859,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
+      await this.deviceService.findDeviceBySerialNumber(
         deviceId,
         organizationId,
       );
