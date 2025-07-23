@@ -672,7 +672,10 @@ export class ReadsService {
     |> last()
     `;
 
-    return await this.execute(fluxQuery);
+    const reads = await this.execute(fluxQuery);
+
+    // Reverse the array to get the latest read first
+    return reads.reverse();
   }
 
   async execute(query: string | any): Promise<any> {
