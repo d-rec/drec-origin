@@ -1096,7 +1096,7 @@ export class ReadsService {
     const historyReadsPromise = this.getHistoryReads(externalId);
     const ongoingReadsPromise = this.find(externalId, {
       offset: 0,
-      limit: 5000,
+      limit: 20000,
       start: deviceOnboarded.toString(),
       end: DateTime.now().toUTC().toString(),
     });
