@@ -151,7 +151,9 @@ export class ReadsService {
     try {
       const reads = await this.baseReadsService.find(meterId, filter);
       // Sort reads by timestamp
-      return reads.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      return reads.sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
     } catch (e) {
       this.logger.error(
         'exception caught in between device onboarding checking for createdAt',
@@ -1142,7 +1144,9 @@ export class ReadsService {
     // paginate the reads
 
     return {
-      historyread: paginatedReads.filter((read) => read.type === ReadType.History),
+      historyread: paginatedReads.filter(
+        (read) => read.type === ReadType.History,
+      ),
       ongoing: paginatedReads.filter((read) => read.type === ReadType.Delta),
       numberOfReads: filteredReads.length,
       numberOfPages: numberOfPages,
