@@ -87,6 +87,12 @@ describe('IssuerService', () => {
           },
         },
         {
+          provide: getQueueToken(Queues.MissingCycles),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
           provide: CertificateLogService,
           useValue: {
             createForDevice: jest.fn(),
@@ -112,6 +118,7 @@ describe('IssuerService', () => {
             getAllReservationActive: jest.fn(),
             endReservation: jest.fn(),
             getNextRequestCertificateByGroupId: jest.fn(),
+            calculateNextIssuanceEndDate: jest.fn().mockReturnValue(new Date()),
           } as any,
         },
         {
@@ -219,6 +226,9 @@ describe('IssuerService', () => {
       const updatecertificateissuedateSpy = jest
         .spyOn(groupService, 'updateCertificateIssueDate')
         .mockResolvedValue(undefined);
+      jest
+        .spyOn(groupService, 'calculateNextIssuanceEndDate')
+        .mockReturnValue(new Date('2023-01-03'));
       const NewFindForGroupSpy = jest
         .spyOn(deviceService, 'newFindForGroup')
         .mockImplementation(() => Promise.resolve({}));
