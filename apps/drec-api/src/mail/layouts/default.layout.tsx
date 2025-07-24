@@ -29,7 +29,15 @@ export default function DefaultMailLayout({
         <Section>
           <Container>
             {children}
-            <Button style={{ backgroundColor: '#2557d3', color: '#fff', padding: '10px 20px', borderRadius: '5px' }} href={logInURL}>
+            <Button
+              style={{
+                backgroundColor: '#2557d3',
+                color: '#fff',
+                padding: '10px 20px',
+                borderRadius: '5px',
+              }}
+              href={logInURL}
+            >
               Log In to Your Account
             </Button>
             <Text>
