@@ -449,7 +449,7 @@ describe('DeviceGroupService', () => {
     });
   });
 
-  describe('getBuyerDeviceGroups', () => {
+  describe('getDeviceGroups', () => {
     it('should return device groups for a given buyerId without filters', async () => {
       const buyerId = 1;
       const mockDeviceGroups: any = [
@@ -501,7 +501,7 @@ describe('DeviceGroupService', () => {
       } as any);
 
       // Calling the service function with necessary parameters
-      const result = await service.getBuyerDeviceGroups(buyerId, 1);
+      const result = await service.getDeviceGroups(buyerId, 1);
 
       expect(result.groupedData).toEqual([
         {
@@ -562,7 +562,7 @@ describe('DeviceGroupService', () => {
       } as any);
 
       await expect(
-        service.getBuyerDeviceGroups(
+        service.getDeviceGroups(
           buyerId,
           1,
           groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
@@ -590,7 +590,7 @@ describe('DeviceGroupService', () => {
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
 
-      await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
+      await expect(service.getDeviceGroups(buyerId, 100)).rejects.toThrow(
         HttpException,
       );
     });
