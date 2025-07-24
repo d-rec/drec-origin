@@ -11,7 +11,6 @@ import * as React from 'react';
 type DefaultMailLayoutProps = {
   language?: string | undefined;
   children: React.ReactNode;
-  logInURL?: string;
 };
 
 export default function DefaultMailLayout({
