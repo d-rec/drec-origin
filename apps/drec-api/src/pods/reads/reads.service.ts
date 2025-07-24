@@ -1613,7 +1613,7 @@ export class ReadsService {
   }> {
     let localTime = null;
     let formattedOffset = null;
-    const device = await this.deviceService.findDeviceBySerialNumber(
+    const device = await this.deviceService.findDeviceByExternalId(
       developerExternalId,
       organizationId,
     );
@@ -1670,7 +1670,7 @@ export class ReadsService {
     }
 
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceBySerialNumber(
+      await this.deviceService.findDeviceByExternalId(
         deviceExternalId,
         organizationId,
       );

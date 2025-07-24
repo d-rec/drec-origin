@@ -1328,7 +1328,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceBySerialNumber', () => {
+  describe('findDeviceByExternalId', () => {
     it('should return the device with updated timezone when found', async () => {
       // Mock device object
       const mockDevice: Device = {
@@ -1352,7 +1352,7 @@ describe('DeviceService', () => {
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
 
       // Execute the function
-      const result = await service.findDeviceBySerialNumber(
+      const result = await service.findDeviceByExternalId(
         'some-meter-id',
         1,
       );
@@ -1379,7 +1379,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null);
 
       // Execute the function
-      const result = await service.findDeviceBySerialNumber(
+      const result = await service.findDeviceByExternalId(
         'non-existent-meter-id',
         1,
       );
@@ -1396,7 +1396,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceBySerialNumberByApiUser', () => {
+  describe('findDeviceByDeveloperExternalIByApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1406,7 +1406,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceBySerialNumberByApiUser(
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1438,7 +1438,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceBySerialNumberByApiUser(
+      const result = await service.findDeviceByDeveloperExternalIByApiUser(
         'existing-meter-id',
         'user-id',
       );
@@ -1716,7 +1716,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null); // Mock fingerprint check to return null
 
       const findDeviceByDeveloperExternalIdSpy = jest
-        .spyOn(service, 'findDeviceBySerialNumber')
+        .spyOn(service, 'findDeviceByExternalId')
         .mockResolvedValue(currentDevice);
 
       const saveSpy = jest

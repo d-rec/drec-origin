@@ -480,7 +480,7 @@ export class DeviceController {
     description: 'User does not have permission to view this device.',
   })
   async getByExternalId(
-    @Param('id') serialNumber: string,
+    @Param('id') externalId: string,
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
@@ -492,13 +492,13 @@ export class DeviceController {
       }
 
       deviceData =
-        await this.deviceService.findDeviceBySerialNumberByApiUser(
-          serialNumber,
+        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
+          externalId,
           loginUser.api_user_id,
         );
     } else {
-      deviceData = await this.deviceService.findDeviceBySerialNumber(
-        serialNumber,
+      deviceData = await this.deviceService.findDeviceByExternalId(
+        externalId,
         loginUser.organizationId,
       );
     }
@@ -689,7 +689,7 @@ export class DeviceController {
 
     if (deviceToUpdate.externalId) {
       const checkExternalId =
-        await this.deviceService.findDeviceBySerialNumber(
+        await this.deviceService.findDeviceByExternalId(
           deviceToUpdate.externalId,
           user.organizationId,
         );
@@ -704,7 +704,7 @@ export class DeviceController {
 
     if (deviceToUpdate.commissioningDate) {
       const checkExternalId =
-        await this.deviceService.findDeviceBySerialNumber(
+        await this.deviceService.findDeviceByExternalId(
           externalId,
           user.organizationId,
         );
@@ -859,7 +859,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceBySerialNumber(
+      await this.deviceService.findDeviceByExternalId(
         deviceId,
         organizationId,
       );

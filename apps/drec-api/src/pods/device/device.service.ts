@@ -195,7 +195,6 @@ export class DeviceService {
       const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
-        device['internalexternalId'] = device.externalId;
         delete device['developerExternalId'];
 
         delete device['organization'];
@@ -216,12 +215,8 @@ export class DeviceService {
       },
     });
 
-    //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
-      device['internalexternalId'] = device.externalId;
-      device.externalId = device.developerExternalId;
-      delete device['developerExternalId'];
       delete device['organization'];
       newDevices.push(device);
     });
@@ -490,14 +485,14 @@ export class DeviceService {
     return result ?? null;
   }
 
-  async findDeviceBySerialNumber(
-    meterId: string,
+  async findDeviceByExternalId(
+    serialNumber: string,
     organizationId: number,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceBySerialNumber`);
+    this.logger.verbose(`With in findDeviceByExternalId`);
     const device: Device = await this.repository.findOne({
       where: {
-        serialNumber: meterId,
+        serialNumber: serialNumber,
         organizationId: organizationId,
       },
     });
@@ -512,14 +507,14 @@ export class DeviceService {
     return device;
   }
 
-  async findDeviceBySerialNumberByApiUser(
-    serialNumber: string,
+  async findDeviceByDeveloperExternalIByApiUser(
+    externalId: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceBySerialNumberByApiUser`);
+    this.logger.verbose(`With in findDeviceByDeveloperExternalIByApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
-        serialNumber: serialNumber,
+        externalId: externalId,
         api_user_id: api_user_id,
       },
     });
@@ -542,7 +537,7 @@ export class DeviceService {
     return (
       (await this.repository.find({
         where: {
-          developerExternalId: In(meterIdList),
+          serialNumber: In(meterIdList),
           organizationId: organizationId,
         },
       })) ?? null
@@ -665,8 +660,6 @@ export class DeviceService {
         message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       });
     }
-
-    newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
     if (
@@ -777,11 +770,7 @@ export class DeviceService {
 
     await this.evidentDeviceService.queueDeviceRegistration(result, files);
 
-    result['internalexternalId'] = result.externalId;
-    result.externalId = result.developerExternalId;
-    delete result['developerExternalId'];
     delete result['organization'];
-
     return result;
   }
 
@@ -801,7 +790,7 @@ export class DeviceService {
           }
         : undefined;
 
-    let currentDevice = await this.findDeviceBySerialNumber(
+    let currentDevice = await this.findDeviceByExternalId(
       externalId.trim(),
       organizationId,
     );
@@ -865,9 +854,6 @@ export class DeviceService {
 
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
-    result['internalexternalId'] = result.externalId;
-    delete result['developerExternalId'];
-    delete result['organization'];
     return result;
   }
 
