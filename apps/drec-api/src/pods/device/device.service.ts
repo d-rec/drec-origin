@@ -36,6 +36,7 @@ import {
   UpdateDeviceDTO,
 } from './dto';
 import {
+  CertificateGenerationFrequency,
   DeviceOrderBy,
   IRECDeviceStatus,
   ReadType,
@@ -73,7 +74,6 @@ import { HttpService } from '@nestjs/axios';
 import { Organization } from '../organization/organization.entity';
 import { DateTime } from 'luxon';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import {
   DocumentTargetType,
   DocumentType,
@@ -92,6 +92,12 @@ import EvidentDeviceApprovedTemplate, {
 import EvidentDeviceRejectedTemplate, {
   getEvidentDeviceRejectedSubject,
 } from '../evident/mail/evident-device-rejected.template';
+import {
+  getCycleEndDate,
+  getMaxDateByFrequency,
+  getMinDateByFrequency,
+} from '../../lib/helpers/getCycleEndDate';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceService {
@@ -477,6 +483,7 @@ export class DeviceService {
     return device;
   }
 
+  @Profile()
   async findReads(meterId: string): Promise<Device | null> {
     this.logger.verbose(`With in findReads`);
     const result = await this.repository.findOne({
@@ -1246,6 +1253,7 @@ export class DeviceService {
     });
   }
 
+  @Profile()
   public async findAllLateCycle(
     groupId?: number,
   ): Promise<DeviceLateOngoingIssueCertificateEntity[]> {
@@ -1282,7 +1290,8 @@ export class DeviceService {
       take: 1,
     });
   }
-
+  
+  @Profile()
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
     startDate: Date,
@@ -1308,6 +1317,7 @@ export class DeviceService {
     }
   }
 
+  @Profile()
   private getDeviceLogFilteredQuery(
     deviceid: string,
     startDate: Date,
@@ -1644,16 +1654,13 @@ export class DeviceService {
     );
   }
 
-  async updateLateOngoing(
-    externalId: string,
-    id: number,
-    lateend_date?: string,
-  ): Promise<any> {
+  @Profile()
+  async updateLateOngoing(externalId: string, id: number): Promise<any> {
     this.logger.verbose(`With in updatelateongoing`);
     this.logger.verbose(`With in updatelateongoing`, id);
     return await this.lateDeviceCertificateRepository.update(
       { id: id, device_externalid: externalId },
-      { late_end_date: lateend_date, certificate_issued: true },
+      { certificate_issued: true },
     );
   }
 
@@ -1671,6 +1678,7 @@ export class DeviceService {
     );
   }
 
+  @Profile()
   async archiveLateOngoing(id: number): Promise<any> {
     this.logger.verbose(`With in archiveLateOngoing`);
     this.logger.verbose(`With in archiveLateOngoing`, id);
@@ -1680,6 +1688,7 @@ export class DeviceService {
     );
   }
 
+  @Profile()
   async archiveLateOngoingIfReservationInactive(groupId: number): Promise<any> {
     this.logger.verbose(`With in archiveLateOngoingIfReservationInactive`);
     this.logger.verbose(
@@ -1701,6 +1710,7 @@ export class DeviceService {
    * @param cycleEndDate - The end date of the cycle period
    * @returns Promise resolving to the matching cycle entity or undefined if not found
    */
+  @Profile()
   public async findLateCycleByDateRange(
     groupId: number,
     deviceExternalId: string,
@@ -1726,6 +1736,7 @@ export class DeviceService {
    * @param endDate - The end date of the cycle period
    * @returns Promise resolving to the existing or newly created cycle entity
    */
+  @Profile()
   public async findOrCreateCycle(
     groupId: number,
     deviceExternalId: string,
@@ -1746,7 +1757,26 @@ export class DeviceService {
     }
 
     // Create and return a new cycle
-    return this.addCycle(groupId, deviceExternalId, startDate, endDate);
+    return this.createCycle(groupId, deviceExternalId, startDate, endDate);
+  }
+
+  public async findCycleByDateRange(
+    groupId: number,
+    deviceExternalId: string,
+    cycleStartDate: DateTime,
+    cycleEndDate: DateTime,
+    frequency: string = CertificateGenerationFrequency.daily,
+  ): Promise<DeviceLateOngoingIssueCertificateEntity | undefined> {
+    const startDate = getMinDateByFrequency(cycleStartDate, frequency);
+    const endDate = getMaxDateByFrequency(cycleEndDate, frequency);
+    return this.lateDeviceCertificateRepository.findOne({
+      where: {
+        groupId: groupId,
+        device_externalid: deviceExternalId,
+        late_start_date: MoreThanOrEqual(startDate.toString()),
+        late_end_date: LessThanOrEqual(endDate.toString()),
+      },
+    });
   }
 
   /**
@@ -1758,7 +1788,8 @@ export class DeviceService {
    * @param lateEndDate - The end date for the late issuance cycle
    * @returns Promise resolving to the created certificate cycle entity
    */
-  public async addCycle(
+  @Profile()
+  public async createCycle(
     groupId: number,
     deviceExternalId: string,
     lateStartDate: Date | string | DateTime,
@@ -1795,6 +1826,7 @@ export class DeviceService {
   public async checkForDeviceMissingCycles(
     group: DeviceGroup,
     device: Device,
+    startDate: Date,
   ): Promise<void> {
     // Get cycle boundaries
     const reservationEndDate = new Date(group.reservationEndDate);
@@ -1805,25 +1837,45 @@ export class DeviceService {
     const deviceCreationDate = new Date(device.createdAt);
 
     // Iterate through time periods to find and fill gaps
-    let currentDate = new Date(deviceCreationDate);
+    let currentDate = new Date(startDate);
 
     while (currentDate < cycleEnd) {
       // Calculate the next date based on frequency
       const nextDate = getCycleEndDate(currentDate, group.frequency);
 
       // Determine the actual end date (earlier of calculated end or boundary end)
-      const actualEndDate = nextDate < cycleEnd ? nextDate : cycleEnd;
+      const actualEndDate =
+        nextDate < reservationEndDate ? nextDate : reservationEndDate;
 
-      // Create cycle if it doesn't exist
-      await this.findOrCreateCycle(
+      if (currentDate < deviceCreationDate) {
+        currentDate = actualEndDate;
+        continue;
+      }
+
+      if (actualEndDate > cycleEnd) {
+        break; // Stop if we exceed the cycle end date
+      }
+
+      const existingCycle = await this.findCycleByDateRange(
         group.id,
         device.externalId,
         DateTime.fromJSDate(currentDate).toUTC(),
         DateTime.fromJSDate(actualEndDate).toUTC(),
+        group.frequency,
       );
 
+      if (!existingCycle) {
+        // Create cycle if it doesn't exist
+        await this.createCycle(
+          group.id,
+          device.externalId,
+          DateTime.fromJSDate(currentDate).toUTC(),
+          DateTime.fromJSDate(actualEndDate).toUTC(),
+        );
+      }
+
       // Move to next period
-      currentDate = nextDate;
+      currentDate = existingCycle?.lateEndDate || actualEndDate;
     }
   }
 
@@ -1850,6 +1902,7 @@ export class DeviceService {
    * @param cycle - The reference cycle used to determine which older cycles to archive
    * @returns Promise resolving when the update operation completes
    */
+  @Profile()
   async archiveOutdatedLateOngoingCycles(
     cycle: DeviceLateOngoingIssueCertificateEntity,
   ): Promise<any> {

@@ -76,6 +76,7 @@ import { Otp } from './pods/otp/otp.entity';
 import { EvidentModule } from './pods/evident/evident.module';
 import { EvidentSettings } from './pods/evident/evident-settings.entity';
 
+import { getTypeOrmConfig } from './config/typeorm.config';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -133,26 +134,10 @@ export const entities = [
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
-  const options: TypeOrmModuleOptions = process.env.DATABASE_URL
-    ? {
-        type: 'postgres',
-        url: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        entities,
-        logging: ['info'],
-      }
-    : {
-        type: 'postgres',
-        host: process.env.DB_HOST ?? 'localhost',
-        port: Number(process.env.DB_PORT) ?? 5432,
-        username: process.env.DB_USERNAME ?? 'postgres',
-        password: process.env.DB_PASSWORD ?? 'postgres',
-        database: process.env.DB_DATABASE ?? 'origin',
-        entities,
-        logging: ['info'],
-      };
+  const options: TypeOrmModuleOptions = {
+    ...getTypeOrmConfig(),
+    entities,
+  };
 
   return TypeOrmModule.forRoot(options);
 };

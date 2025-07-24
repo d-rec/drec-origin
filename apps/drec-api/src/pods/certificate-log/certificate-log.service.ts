@@ -35,6 +35,7 @@ import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { DateTime } from 'luxon';
+import { Profile } from '../../lib/profile';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
@@ -726,7 +727,7 @@ export class CertificateLogService {
                     //     deviceReadStartDate,
                     //     deviceReadEndDate,
                     //   );
-                    deviceLog.forEach((singleDeviceLogEle) => {
+                    deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId =
                         device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
@@ -769,7 +770,7 @@ export class CertificateLogService {
                       deviceReadStartDate,
                       deviceReadEndDate,
                     );
-                  deviceLog.forEach((singleDeviceLogEle) => {
+                  deviceLog?.forEach((singleDeviceLogEle) => {
                     singleDeviceLogEle.externalId = device.developerExternalId;
                     singleDeviceLogEle['deviceId'] = device.id;
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(
@@ -824,7 +825,7 @@ export class CertificateLogService {
         const result = await newQuery.getMany();
         const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
           [];
-        result.forEach((ele) =>
+        result?.forEach((ele) =>
           certificatesInReservationWithLog.push({
             ...ele,
             perDeviceCertificateLog: [],
@@ -893,7 +894,7 @@ export class CertificateLogService {
                           deviceReadEndDate,
                           certificateTransactionUID,
                         );
-                      deviceLog.forEach((singleDeviceLogEle) => {
+                      deviceLog?.forEach((singleDeviceLogEle) => {
                         singleDeviceLogEle.externalId =
                           device.developerExternalId;
                         singleDeviceLogEle['deviceId'] = device.id;
@@ -940,7 +941,7 @@ export class CertificateLogService {
                         deviceReadEndDate,
                         certificateTransactionUID,
                       );
-                    deviceLog.forEach((singleDeviceLogEle) => {
+                    deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId =
                         device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
@@ -1045,6 +1046,7 @@ export class CertificateLogService {
     }
   }
 
+  @Profile()
   async createForDevice(
     group: DeviceGroup,
     device: Device | IDevice,
@@ -1085,6 +1087,7 @@ export class CertificateLogService {
     );
   }
 
+  @Profile()
   async createForGroup(
     group: DeviceGroup,
     minimumStartDate: Date,
