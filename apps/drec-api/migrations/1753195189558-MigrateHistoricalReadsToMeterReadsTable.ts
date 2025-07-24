@@ -5,10 +5,10 @@ export class MigrateHistoricalReadsToMeterReadsTable1753195189558 implements Mig
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`INSERT INTO public.meter_reads(
-            external_id, type, value, unit, start_date, end_date
+            external_id, type, value, unit, start_date, end_date, certified, issuance_start_date, issuance_end_date
             )
             SELECT 
-            "externalId", type, "readsvalue", unit, "readsStartDate", "readsEndDate"
+            "externalId", type, "readsvalue", unit, "readsStartDate", "readsEndDate", "certificate_issued", "certificate_issuance_startdate", "certificate_issuance_enddate"
             FROM public.history_intermediate_meteread`)
     }
 
