@@ -1197,7 +1197,7 @@ export class ReadsService {
     return await this.ongExecute(fluxQuery);
   }
 
-  async getHistoryReads(
+  async findHistoryReads(
     deviceId: string,
     startDate: Date | string,
     endDate: Date | string,
@@ -1845,7 +1845,7 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): Promise<any[]> {
-    const historyReads = await this.getHistoryReads(
+    const historyReads = await this.findHistoryReads(
       device.externalId,
       startDate,
       endDate,
