@@ -1001,38 +1001,11 @@ export class ReadsService {
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId })
       .andWhere(
-        new Brackets((db) => {
-          db.where(
-            new Brackets((db1) => {
-              db1
-                .where(
-                  'devicehistory.readsStartDate BETWEEN :reservationStartDate1  AND :reservationEndDate1',
-                  {
-                    reservationStartDate1: startDate,
-                    reservationEndDate1: endDate,
-                  },
-                )
-                .orWhere(
-                  'devicehistory.readsStartDate = :reservationStartDate',
-                  { reservationStartDate: startDate },
-                );
-            }),
-          ).andWhere(
-            new Brackets((db2) => {
-              db2
-                .where(
-                  'devicehistory.readsEndDate  BETWEEN :reservationStartDate2  AND :reservationEndDate2',
-                  {
-                    reservationStartDate2: startDate,
-                    reservationEndDate2: endDate,
-                  },
-                )
-                .orWhere('devicehistory.readsEndDate = :reservationEndDate ', {
-                  reservationEndDate: endDate,
-                });
-            }),
-          );
-        }),
+        'devicehistory.readsStartDate >= :startDate AND devicehistory.readsEndDate <= :endDate',
+        {
+          startDate: startDate,
+          endDate: endDate,
+        },
       )
       .andWhere('devicehistory.certificate_issued != true');
   }
