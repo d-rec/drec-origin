@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class MigrateHistoricalReadsToMeterReadsTable1753195189558 implements MigrationInterface {
-    name = 'MigrateHistoricalReadsToMeterReadsTable1753195189558'
+export class MigrateHistoricalReadsToMeterReadsTable1753430558252 implements MigrationInterface {
+    name = 'MigrateHistoricalReadsToMeterReadsTable1753430558252'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`INSERT INTO public.meter_reads(
