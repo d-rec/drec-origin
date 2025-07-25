@@ -1184,8 +1184,8 @@ describe('DeviceService', () => {
       expect(result).toEqual([
         {
           id: 1,
-          internalexternalId: 'EXT123',
-          externalId: 'DEV123',
+          externalId: 'EXT123',
+          serialNumber: 'DEV123',
         },
       ]);
     });
@@ -1695,7 +1695,7 @@ describe('DeviceService', () => {
       const currentDevice = {
         id: 1,
         externalId: 'external-id-1',
-        serialNumber: 'old-developer-external-id',
+        serialNumber: 'SN12345',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
       } as Device;
@@ -1703,8 +1703,8 @@ describe('DeviceService', () => {
       const savedDevice = {
         ...currentDevice,
         ...updateDeviceDTO,
-        externalId: 'old-developer-external-id',
-        serialNumber: 'external-id-1',
+        externalId: 'external-id-1',
+        serialNumber: 'SN123455',
         organization: undefined,
         SDGBenefits: ['invalid'], // The service transforms this value
       };
@@ -1741,7 +1741,6 @@ describe('DeviceService', () => {
         expect.objectContaining({
           id: 1,
           externalId: 'external-id-1',
-          internalexternalId: 'old-developer-external-id',
           projectName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
@@ -1763,6 +1762,7 @@ describe('DeviceService', () => {
           IREC_ID: null,
           yieldValue: 1500,
           labels: 'labels',
+          serialNumber: 'SN123455',
         }),
       );
     });
