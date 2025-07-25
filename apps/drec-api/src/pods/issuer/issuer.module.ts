@@ -24,6 +24,7 @@ import { OngoingIssuanceService } from './services/ongoing-issuance.service';
 import { registerQueues } from '../../lib/helpers/registerQueues';
 import { OngoingIssuanceProcessor } from './processors/ongoing-issuance.processor';
 import { HistoricalIssuanceProcessor } from './processors/historical-issuance.processor';
+import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { HistoricalIssuanceProcessor } from './processors/historical-issuance.pr
       Queues.LateOngoingIssuance,
       Queues.HistoricalIssuance,
       Queues.OngoingIssuance,
+      Queues.MissingCycles,
     ),
   ],
   providers: [
@@ -53,6 +55,7 @@ import { HistoricalIssuanceProcessor } from './processors/historical-issuance.pr
     LateOngoingIssuanceProcessor,
     OngoingIssuanceProcessor,
     HistoricalIssuanceProcessor,
+    MissingCyclesProcessor,
   ],
   exports: [
     IssuerService,
