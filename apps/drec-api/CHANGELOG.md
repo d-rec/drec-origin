@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/d-rec/drec-origin/compare/v0.5.0...v0.6.0) (2025-07-21)
+
+### Features
+
+- enable profiling via env variable ([b365198](https://github.com/d-rec/drec-origin/commit/b3651986f547f7f6d60af77299e8db9d682a732e))
+- queue creat missing cycles ([b0e66f3](https://github.com/d-rec/drec-origin/commit/b0e66f37246accf970346954577141f433432da8))
+- run missing cycle check in sequence ([59cf0ec](https://github.com/d-rec/drec-origin/commit/59cf0ecd4b2a8d13aec0267269e69e7836c88ec8))
+
+### Bug Fixes
+
+- add missing db host in config ([b7b378f](https://github.com/d-rec/drec-origin/commit/b7b378f558fb2f2d27139c426d302bef948c28c6))
+- converting into watts for certificate logs ([7ce029e](https://github.com/d-rec/drec-origin/commit/7ce029eb960371a8ff05e7cc80e4ddded480f0d5))
+- cycles generation inconsistencies ([#653](https://github.com/d-rec/drec-origin/issues/653)) ([af37011](https://github.com/d-rec/drec-origin/commit/af3701139776c5a5856c238fbb0e9c6575839e99))
+- handle async and non async function in the profiler ([a335bdf](https://github.com/d-rec/drec-origin/commit/a335bdf2aaf606134174cb43166d7b6b7be57932))
+- invalid issuance minimum data ([#668](https://github.com/d-rec/drec-origin/issues/668)) ([8fb9121](https://github.com/d-rec/drec-origin/commit/8fb9121eb0649d4c8b0aa8753de2f248d6da3c06))
+- invalid total read calculation per device ([5e836cb](https://github.com/d-rec/drec-origin/commit/5e836cbbf2301dc0390ea44351dfce3b49e15b75))
+- minimum date calculation for issuance ([#670](https://github.com/d-rec/drec-origin/issues/670)) ([6c69ab0](https://github.com/d-rec/drec-origin/commit/6c69ab0749ade35719d5572f30e8c5e054508062))
+- using current date as an end date ([2c590d6](https://github.com/d-rec/drec-origin/commit/2c590d669314e8ce0fab63b3b09787eae707e4bf))
+
+### Improvements
+
+- add code profiler ([#649](https://github.com/d-rec/drec-origin/issues/649)) ([be19ac0](https://github.com/d-rec/drec-origin/commit/be19ac0073252347dde51542d5e0b87e9562cd54))
+- change min date calculation to minute ([c0a584c](https://github.com/d-rec/drec-origin/commit/c0a584c87998755432edc2c79ae4204091c29bd0))
+- cleanup ([133a093](https://github.com/d-rec/drec-origin/commit/133a0939243fadbd3b0adef09e82314f6509c720))
+- cleanup ([b2a832b](https://github.com/d-rec/drec-origin/commit/b2a832b73b333fd49900d50c78659ecabaf0b5c9))
+- cleanup ([836bd2c](https://github.com/d-rec/drec-origin/commit/836bd2c17049980667b5174fe10b07d09ebbc2bd))
+- fix linting issues ([b91d161](https://github.com/d-rec/drec-origin/commit/b91d161542faf1d62d419524be31b483e5cafe9b))
+- prevent updating cycle date ([2cbadec](https://github.com/d-rec/drec-origin/commit/2cbadec7ac83a99aae2f0511d8cad5e15a86eb65))
+- profile the fetching of cycles ([8a42c5a](https://github.com/d-rec/drec-origin/commit/8a42c5ac8c3b03f224b5c978f1fdbfbe88f8e2ad))
+- remove redudant fetch on create ([cd66c84](https://github.com/d-rec/drec-origin/commit/cd66c84f5f9193771d3c6881b7feb8feea375bd7))
+
+## [0.5.0](https://github.com/d-rec/drec-origin/compare/v0.4.4...v0.5.0) (2025-06-16)
+
+### Features
+
+- add database replication routing connection ([#628](https://github.com/d-rec/drec-origin/issues/628)) ([9fd8a07](https://github.com/d-rec/drec-origin/commit/9fd8a071058a6f04da7f71d6cb7809c120650d53))
+- hide verbose logs from the service logs ([ca387a9](https://github.com/d-rec/drec-origin/commit/ca387a91bae8d42dd7881bdfe8ea471504642e12))
+
+### Improvements
+
+- cleanup logs ([95fd9d6](https://github.com/d-rec/drec-origin/commit/95fd9d6b9ac088a31a84f5f88ab3f75a0b864d98))
+- log reads ([cff1a2d](https://github.com/d-rec/drec-origin/commit/cff1a2d9c0497aeff9f878cd6c5bf83067580381))
+- log reads ([2a1a89a](https://github.com/d-rec/drec-origin/commit/2a1a89a4f1e431ab7b7a84932d9d384f1342f170))
+- logs cleanup ([acb28d8](https://github.com/d-rec/drec-origin/commit/acb28d80d00604575f2bfe4b3ebe43aaa01d492a))
+
+### [0.4.4](https://github.com/d-rec/drec-origin/compare/v0.4.3...v0.4.4) (2025-05-29)
+
+### Features
+
+- create device indexes for lateongoing certificates ([#624](https://github.com/d-rec/drec-origin/issues/624)) ([5eb8dc8](https://github.com/d-rec/drec-origin/commit/5eb8dc8043683ffe8ba4e370674280879dd4816c))
+
+### [0.4.3](https://github.com/d-rec/drec-origin/compare/v0.4.2...v0.4.3) (2025-05-26)
+
+### Bug Fixes
+
+- add error handling for empty certificate logs ([d761e18](https://github.com/d-rec/drec-origin/commit/d761e18fc05e0043c9bc1dee886a93a228091ea1))
+
 ### [0.4.2](https://github.com/d-rec/drec-origin/compare/v0.4.1...v0.4.2) (2025-05-13)
 
 ### Bug Fixes
