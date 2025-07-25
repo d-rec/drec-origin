@@ -1290,7 +1290,7 @@ export class DeviceService {
       take: 1,
     });
   }
-  
+
   @Profile()
   public async getCheckCertificateIssueDateLogForDevice(
     deviceid: string,
