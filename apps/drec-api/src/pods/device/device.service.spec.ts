@@ -1447,7 +1447,7 @@ describe('DeviceService', () => {
       expect(result?.timezone).toBe('Asia/Kolkata');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          serialNumber: 'existing-meter-id',
+          externalId: 'existing-meter-id',
           api_user_id: 'user-id',
         },
       });
