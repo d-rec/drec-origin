@@ -10,6 +10,7 @@ import { ICertificateMetadata } from '../../../utils/types';
 import { IDevice } from '../../../models';
 import { CertificateType, StandardCompliance } from '../../../utils/enums';
 import { DeviceGroup } from '../../device-group/device-group.entity';
+import { Profile } from '../../../lib/profile';
 
 @Injectable()
 export class CertificateService {
@@ -26,6 +27,7 @@ export class CertificateService {
     this.issue(reading);
   }
 
+  @Profile()
   public async issue(
     reading: IIssueCommandParams<ICertificateMetadata>,
   ): Promise<void> {
