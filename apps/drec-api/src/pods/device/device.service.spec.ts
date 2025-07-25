@@ -216,7 +216,9 @@ describe('DeviceService', () => {
       const role = Role.OrganizationAdmin;
 
       const deviceEntity = {
-        externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -339,7 +341,7 @@ describe('DeviceService', () => {
 
       const options = {
         where: {
-          developerExternalId: newDevice.serialNumber,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
@@ -1158,7 +1160,7 @@ describe('DeviceService', () => {
         {
           id: 1,
           externalId: 'EXT123',
-          developerExternalId: 'DEV123',
+          serialNumber: 'DEV123',
         } as Device,
       ];
 
@@ -1213,7 +1215,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1333,7 +1335,7 @@ describe('DeviceService', () => {
       // Mock device object
       const mockDevice: Device = {
         id: 1,
-        developerExternalId: 'some-meter-id',
+        serialNumber: 'some-meter-id',
         organizationId: 1,
         createdAt: new Date('2024-02-27T07:00:32.963Z'),
         timezone: null,
@@ -1358,7 +1360,7 @@ describe('DeviceService', () => {
       expect(result).toEqual(mockDevice);
       expect(result?.timezone).toBe('America/New_York');
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { developerExternalId: 'some-meter-id', organizationId: 1 },
+        where: { serialNumber: 'some-meter-id', organizationId: 1 },
       });
       expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
         mockDevice.createdAt,
@@ -1385,7 +1387,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           organizationId: 1,
         },
       });
@@ -1412,7 +1414,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1445,7 +1447,7 @@ describe('DeviceService', () => {
       expect(result?.timezone).toBe('Asia/Kolkata');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'existing-meter-id',
+          serialNumber: 'existing-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1471,7 +1473,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['non-existent-meter-id']),
+          serialNumber: In(['non-existent-meter-id']),
           organizationId: 1,
         },
       });
@@ -1483,7 +1485,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1543,7 +1545,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'fca54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1613,7 +1615,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([deviceEntity1, deviceEntity2]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['externalId1', 'externalId2']),
+          serialNumber: In(['externalId1', 'externalId2']),
           organizationId: 1,
         },
       });
@@ -1633,7 +1635,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1652,7 +1654,7 @@ describe('DeviceService', () => {
 
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1693,7 +1695,7 @@ describe('DeviceService', () => {
       const currentDevice = {
         id: 1,
         externalId: 'external-id-1',
-        developerExternalId: 'old-developer-external-id',
+        serialNumber: 'old-developer-external-id',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
       } as Device;
@@ -1702,7 +1704,7 @@ describe('DeviceService', () => {
         ...currentDevice,
         ...updateDeviceDTO,
         externalId: 'old-developer-external-id',
-        developerExternalId: 'external-id-1',
+        serialNumber: 'external-id-1',
         organization: undefined,
         SDGBenefits: ['invalid'], // The service transforms this value
       };
