@@ -1387,7 +1387,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          serialNumber: 'non-existent-meter-id',
+          externalId: 'non-existent-meter-id',
           organizationId: 1,
         },
       });
@@ -1414,7 +1414,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          serialNumber: 'non-existent-meter-id',
+          externalId: 'non-existent-meter-id',
           api_user_id: 'user-id',
         },
       });
