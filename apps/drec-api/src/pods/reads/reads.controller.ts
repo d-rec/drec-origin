@@ -323,7 +323,7 @@ export class ReadsController extends BaseReadsController {
       return this.internalReadsService.getAccumulatedReads(
         device.externalId,
         user.organizationId,
-        device.developerExternalId,
+        device.serialNumber,
         filter.accumulationType,
         month,
         year,
@@ -545,7 +545,7 @@ export class ReadsController extends BaseReadsController {
       }
       if (user.role === 'Buyer' || user.role === 'ApiUser') {
         return {
-          externalId: device.developerExternalId,
+          externalId: device.serialNumber,
           timestamp: latestReadObject[0].timestamp,
           value: latestReadObject[0].value,
         };

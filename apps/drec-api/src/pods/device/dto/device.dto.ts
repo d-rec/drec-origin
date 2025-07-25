@@ -26,7 +26,7 @@ export class DeviceDTO implements IDevice {
   @Exclude()
   developerExternalId?: string;
 
-    @ApiProperty()
+  @ApiProperty()
   @Trim()
   @Matches(/^[a-zA-Z0-9_-]+$/, {
     message:

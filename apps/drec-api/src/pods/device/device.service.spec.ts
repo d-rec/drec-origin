@@ -1352,10 +1352,7 @@ describe('DeviceService', () => {
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
 
       // Execute the function
-      const result = await service.findDeviceByExternalId(
-        'some-meter-id',
-        1,
-      );
+      const result = await service.findDeviceByExternalId('some-meter-id', 1);
 
       // Assert
       expect(result).toEqual(mockDevice);

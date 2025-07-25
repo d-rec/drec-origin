@@ -688,11 +688,10 @@ export class DeviceController {
     user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByExternalId(
-          deviceToUpdate.externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId,
+      );
       if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
@@ -703,11 +702,10 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByExternalId(
-          externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        externalId,
+        user.organizationId,
+      );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistoryReads(
           checkExternalId.externalId,
@@ -859,10 +857,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByExternalId(
-        deviceId,
-        organizationId,
-      );
+      await this.deviceService.findDeviceByExternalId(deviceId, organizationId);
     this.logger.debug(
       'THE DEVICE FROM ExTERNALID IS::::::::::::' + device.externalId,
     );

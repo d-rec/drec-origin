@@ -1802,8 +1802,7 @@ export class DeviceGroupService {
             successfullyAddedRowsAndExternalIds.push({
               serialNumber: (ele as any).serialNumber,
               rowNumber: records.findIndex(
-                (recEle) =>
-                  recEle.serialNumber === (ele as any).serialNumber,
+                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
               ),
             });
           });
