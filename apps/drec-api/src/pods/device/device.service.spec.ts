@@ -1473,7 +1473,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          serialNumber: In(['non-existent-meter-id']),
+          externalId: In(['non-existent-meter-id']),
           organizationId: 1,
         },
       });
