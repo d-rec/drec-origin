@@ -1,45 +1,60 @@
 ---
+title: Error Codes Overview
 order: 1
 ---
 
-# Overview
+# D-REC API Error Codes
 
-This document provides a comprehensive list of error codes used in the D-REC platform. Each error code follows a consistent format and is categorized by the system component it relates to.
+This document provides a comprehensive reference for all error codes that can be returned by the D-REC API. Each error includes a standard HTTP status code, an error code, and a descriptive message.
 
-## Error Code Format
+## Error Response Format
 
-D-REC error codes follow this format: `E-XXXX` where:
+All error responses from the D-REC API follow a consistent JSON structure:
 
-- `E-1XXX`: System and Authentication Errors
-- `E-2XXX`: User Management and Permissions
-- `E-3XXX`: Device and Meter Read Management
-- `E-4XXX`: Tokenization and Transactions
-- `E-5XXX`: API and Integration Errors
-- `E-9XXX`: System Maintenance and Unknown Errors
-
-## Error Code Structure
-
-Each error includes:
-- **Code**: The unique error identifier (e.g., E-3001)
-- **Title**: A brief, clear title for the error
-- **Description**: Detailed explanation of the error and possible solutions
-- **HTTP Status**: The associated HTTP status code (when applicable)
+```json
+{
+  "statusCode": 400,
+  "message": "Detailed error message",
+  "error": "Error type or code",
+  "timestamp": "2023-07-28T16:30:00.000Z",
+  "path": "/api/endpoint"
+}
+```
 
 ## Error Categories
 
-1. [System and Authentication Errors (E-1XXX)](/error-codes/system-auth-errors)
-2. [User Management (E-2XXX)](/error-codes/user-management-errors)
-3. [Device and Meter Read Management (E-3XXX)](/error-codes/device-meter-errors)
-4. [Tokenization and Transactions (E-4XXX)](/error-codes/tokenization-errors)
-5. [API and Integration (E-5XXX)](/error-codes/api-errors)
-6. [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
+Errors are grouped by the API component that generates them:
 
-## How to Use This Documentation
+1. [Authentication & Authorization (4XX)](./system-auth-errors.md) - Errors related to user authentication and permissions
+2. [User Management (4XX)](./user-management-errors.md) - Errors related to user accounts and profiles
+3. [Device & Meter Management (4XX)](./device-meter-errors.md) - Errors related to device registration and meter readings
+4. [Tokenization & Transactions (4XX-5XX)](./tokenization-errors.md) - Errors related to D-REC token operations
+5. [API & Integration (4XX-5XX)](./api-errors.md) - General API usage and integration errors
+6. [System & Maintenance (5XX)](./maintenance-errors.md) - Server-side and maintenance-related errors
 
-1. When you encounter an error, note the error code (e.g., E-3001).
-2. Navigate to the appropriate category based on the first digit.
-3. Look up the specific error code for detailed information and resolution steps.
+## Common HTTP Status Codes
 
-## Contributing
+- `400 Bad Request` - The request was invalid or cannot be served
+- `401 Unauthorized` - Authentication is required and has failed or has not been provided
+- `403 Forbidden` - The server understood the request but refuses to authorize it
+- `404 Not Found` - The requested resource could not be found
+- `409 Conflict` - Request conflicts with the current state of the server
+- `422 Unprocessable Entity` - The request was well-formed but unable to be followed due to semantic errors
+- `500 Internal Server Error` - A generic error occurred on the server
 
-To suggest new error codes or updates to existing ones, please submit a pull request with the proposed changes to the appropriate error code file.
+## Handling Errors
+
+When your application receives an error response:
+
+1. Check the HTTP status code to determine the general category of error
+2. Read the error message for specific details about what went wrong
+3. If the error is persistent, check the API documentation or contact support
+4. For 5xx errors, retry the request after a short delay
+
+## Best Practices
+
+- Always implement proper error handling in your client applications
+- Display user-friendly error messages based on the error code
+- Log detailed error information for debugging purposes
+- Implement retry logic for transient errors (5xx status codes)
+- Keep your API client up to date to ensure compatibility with error responses

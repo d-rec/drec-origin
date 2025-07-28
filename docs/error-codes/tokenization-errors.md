@@ -1,60 +1,125 @@
 ---
+title: Tokenization and Transaction Errors
 order: 5
 ---
 
-# Tokenization and Transactions (E-4XXX)
+# Tokenization and Transaction Errors (4XX, 5XX)
 
-This section documents error codes related to token generation, validation, and transaction processing in the D-REC platform.
+This document outlines the various tokenization and transaction errors that can be returned by the D-REC API.
 
-## Token Generation (E-4001 - E-4099)
+## Common Tokenization and Transaction Errors
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-4001 | Token Generation Failed | Failed to generate a new token. Please try again. | 500 Internal Server Error |
-| E-4002 | Invalid Token Format | The provided token format is invalid. | 400 Bad Request |
-| E-4003 | Token Expired | The token has expired. Please request a new one. | 401 Unauthorized |
-| E-4004 | Token Already Used | This token has already been used and cannot be reused. | 409 Conflict |
-| E-4005 | Token Validation Failed | The token could not be validated. | 401 Unauthorized |
-| E-4006 | Token Scope Mismatch | The token does not have the required scope for this operation. | 403 Forbidden |
-| E-4007 | Token Rate Limit Exceeded | Too many token generation requests. Please wait before trying again. | 429 Too Many Requests |
-| E-4008 | Token Issuance Restricted | Token issuance is currently restricted for this account. | 403 Forbidden |
+### 400 Bad Request
 
-## Transaction Processing (E-4100 - E-4199)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_400_001` | Invalid token format | The provided token format is invalid |
+| `TOKEN_400_002` | Invalid transaction amount | The specified transaction amount is invalid |
+| `TOKEN_400_003` | Missing required fields | One or more required transaction fields are missing |
+| `TOKEN_400_004` | Invalid token type | The specified token type is not supported |
+| `TOKEN_400_005` | Invalid transaction parameters | One or more transaction parameters are invalid |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-4100 | Transaction Failed | The transaction could not be completed. Please try again. | 500 Internal Server Error |
-| E-4101 | Insufficient Balance | Your account has insufficient balance to complete this transaction. | 402 Payment Required |
-| E-4102 | Invalid Transaction Amount | The specified transaction amount is invalid. | 400 Bad Request |
-| E-4103 | Transaction Limit Exceeded | The transaction amount exceeds your allowed limit. | 403 Forbidden |
-| E-4104 | Duplicate Transaction | A transaction with these details already exists. | 409 Conflict |
-| E-4105 | Transaction Expired | The transaction has expired. Please initiate a new one. | 410 Gone |
-| E-4106 | Transaction Validation Failed | The transaction failed validation checks. | 400 Bad Request |
-| E-4107 | Transaction Rollback Failed | Failed to rollback the transaction. Please contact support. | 500 Internal Server Error |
+### 401 Unauthorized
 
-## Token Redemption (E-4200 - E-4299)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_401_001` | Token expired | The token has expired and is no longer valid |
+| `TOKEN_401_002` | Invalid token | The provided token is invalid or malformed |
+| `TOKEN_401_003` | Token scope mismatch | The token does not have the required scope |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-4200 | Token Redemption Failed | Failed to redeem the token. Please try again. | 500 Internal Server Error |
-| E-4201 | Invalid Token | The provided token is invalid or has been revoked. | 400 Bad Request |
-| E-4202 | Token Already Redeemed | This token has already been redeemed. | 409 Conflict |
-| E-4203 | Redemption Period Expired | The redemption period for this token has expired. | 410 Gone |
-| E-4204 | Redemption Limit Reached | You have reached the maximum number of redemptions. | 403 Forbidden |
-| E-4205 | Redemption Location Restricted | This token cannot be redeemed at your current location. | 403 Forbidden |
-| E-4206 | Redemption Time Restricted | This token cannot be redeemed at the current time. | 403 Forbidden |
+### 402 Payment Required
 
-## Smart Contract (E-4300 - E-4399)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_402_001` | Insufficient balance | Your account has insufficient balance for this transaction |
+| `TOKEN_402_002` | Payment method required | A valid payment method is required to complete this transaction |
+| `TOKEN_402_003` | Transaction limit exceeded | The transaction amount exceeds your allowed limit |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-4300 | Smart Contract Error | An error occurred while executing the smart contract. | 500 Internal Server Error |
-| E-4301 | Contract Not Found | The specified smart contract could not be found. | 404 Not Found |
-| E-4302 | Contract Execution Failed | Failed to execute the smart contract. | 500 Internal Server Error |
-| E-4303 | Invalid Contract Parameters | The provided contract parameters are invalid. | 400 Bad Request |
-| E-4304 | Contract Deployment Failed | Failed to deploy the smart contract. | 500 Internal Server Error |
-| E-4305 | Contract Call Not Allowed | You are not authorized to call this contract method. | 403 Forbidden |
-| E-4306 | Contract State Invalid | The contract is not in a valid state for this operation. | 400 Bad Request |
+### 403 Forbidden
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_403_001` | Token redemption restricted | Token redemption is currently restricted |
+| `TOKEN_403_002` | Transaction not allowed | The requested transaction is not allowed |
+| `TOKEN_403_003` | Token generation restricted | Token generation is currently restricted for this account |
+
+### 404 Not Found
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_404_001` | Token not found | The specified token could not be found |
+| `TOKEN_404_002` | Transaction not found | The specified transaction could not be found |
+| `TOKEN_404_003` | Token batch not found | The specified token batch could not be found |
+
+### 409 Conflict
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_409_001` | Token already used | This token has already been used |
+| `TOKEN_409_002` | Duplicate transaction | A transaction with these details already exists |
+| `TOKEN_409_003` | Token batch conflict | The token batch is in an invalid state for this operation |
+
+### 422 Unprocessable Entity
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `TOKEN_422_001` | Token validation failed | The token failed validation checks |
+| `TOKEN_422_002` | Transaction validation failed | The transaction failed validation checks |
+| `TOKEN_422_003` | Token batch validation failed | The token batch failed validation checks |
+
+## Error Response Example
+
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid token format",
+  "error": "TOKEN_400_001",
+  "timestamp": "2023-07-28T16:30:00.000Z",
+  "path": "/api/tokens/generate"
+}
+```
+
+## Common Scenarios
+
+### Token Generation
+
+- **Token Generation Restricted** (`TOKEN_403_003`): Your account is not allowed to generate tokens.
+  - Solution: Contact support to enable token generation for your account.
+
+- **Invalid Token Type** (`TOKEN_400_004`): The specified token type is not supported.
+  - Solution: Check the list of supported token types and resubmit.
+
+### Transaction Processing
+
+- **Insufficient Balance** (`TOKEN_402_001`): Your account doesn't have enough balance.
+  - Solution: Add funds to your account or reduce the transaction amount.
+  
+- **Token Already Used** (`TOKEN_409_001`): The token has already been redeemed.
+  - Solution: Generate a new token for this transaction.
+
+## Best Practices
+
+- Always validate tokens before processing transactions
+- Implement proper error handling in your application
+- Log detailed error information for auditing
+- Follow the principle of least privilege for token permissions
+- Regularly audit token usage and access patterns
+
+## Rate Limiting
+
+Tokenization and transaction endpoints are subject to rate limiting to prevent abuse. You may encounter a `429 Too Many Requests` response if you exceed the allowed number of requests. The following headers are included in rate-limited responses:
+
+- `X-RateLimit-Limit`: Maximum requests allowed in the time window
+- `X-RateLimit-Remaining`: Requests remaining in the current window
+- `X-RateLimit-Reset`: Time when the rate limit window resets (UTC epoch seconds)
+
+## Security Considerations
+
+- Never expose tokens in client-side code or logs
+- Use secure communication protocols (HTTPS) for all API requests
+- Implement proper token validation and verification
+- Regularly rotate API keys and access tokens
+- Monitor for suspicious token usage patterns
 
 ## Related Documentation
 

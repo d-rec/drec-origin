@@ -1,59 +1,116 @@
 ---
+title: Device and Meter Read Management Errors
 order: 3
 ---
 
-# Device and Meter Read Management (E-3XXX)
+# Device and Meter Read Management Errors (4XX, 5XX)
 
-This section documents error codes related to device registration, meter read submissions, and management.
+This document outlines the various device and meter read management errors that can be returned by the D-REC API.
 
-## Device Registration (E-3001 - E-3099)
+## Common Device and Meter Read Errors
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-3001 | Device Already Registered | A device with this identifier is already registered in the system. | 409 Conflict |
-| E-3002 | Invalid Device Identifier | The provided device identifier is not in the correct format. | 400 Bad Request |
-| E-3003 | Device Not Found | The specified device could not be found. Please verify the device ID and try again. | 404 Not Found |
-| E-3004 | Device Registration Limit Reached | You have reached the maximum number of devices allowed for your account. | 403 Forbidden |
-| E-3005 | Device Inactive | The specified device is currently inactive. Please contact support to reactivate. | 403 Forbidden |
-| E-3006 | Invalid Device Type | The specified device type is not supported. | 400 Bad Request |
-| E-3007 | Device Location Required | Device location information is required for registration. | 400 Bad Request |
-| E-3008 | Device Verification Failed | Could not verify the device details. Please check and try again. | 400 Bad Request |
+### 400 Bad Request
 
-## Meter Read Submissions (E-3100 - E-3199)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_400_001` | Invalid device identifier | The provided device identifier is malformed or invalid |
+| `DEVICE_400_002` | Invalid device type | The specified device type is not supported |
+| `DEVICE_400_003` | Invalid meter read value | The provided meter read value is invalid or out of range |
+| `DEVICE_400_004` | Missing required fields | One or more required device fields are missing |
+| `DEVICE_400_005` | Invalid location data | The provided location data is invalid or incomplete |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-3100 | Invalid Meter Read Value | The provided meter read value is invalid. Please check the value and try again. | 400 Bad Request |
-| E-3101 | Meter Read Too High | The submitted meter read exceeds the maximum expected generation for this period. | 400 Bad Request |
-| E-3102 | Meter Read Too Low | The submitted meter read is lower than the previous reading. | 400 Bad Request |
-| E-3103 | Duplicate Meter Read | A meter read with these details already exists. | 409 Conflict |
-| E-3104 | Meter Read Frequency Exceeded | Meter reads cannot be submitted more than once per [time period]. | 429 Too Many Requests |
-| E-3105 | Invalid Meter Read Timestamp | The timestamp for the meter read is invalid or in the future. | 400 Bad Request |
-| E-3106 | Meter Read Validation Failed | The meter read data failed validation checks. | 400 Bad Request |
-| E-3107 | Meter Read Out of Sequence | The submitted meter read is not in sequence with previous reads. | 400 Bad Request |
-| E-3108 | Missing Required Meter Read Data | One or more required meter read fields are missing. | 400 Bad Request |
+### 401 Unauthorized
 
-## Device Management (E-3200 - E-3299)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_401_001` | Unauthorized device access | The device is not authorized to perform this action |
+| `DEVICE_401_002` | Invalid device credentials | The provided device credentials are invalid |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-3200 | Device Update Failed | Failed to update the device information. Please try again. | 500 Internal Server Error |
-| E-3201 | Device Deletion Restricted | This device cannot be deleted as it has associated meter reads. | 403 Forbidden |
-| E-3202 | Device Status Update Failed | Failed to update the device status. Please try again. | 500 Internal Server Error |
-| E-3203 | Device Ownership Required | You do not have permission to modify this device. | 403 Forbidden |
-| E-3204 | Device Maintenance Mode | The device is currently in maintenance mode. Please try again later. | 503 Service Unavailable |
-| E-3205 | Device Communication Error | Unable to communicate with the device. Please check the connection and try again. | 502 Bad Gateway |
+### 403 Forbidden
 
-## Meter Read Management (E-3300 - E-3399)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_403_001` | Device registration limit reached | Maximum number of devices reached for this account |
+| `DEVICE_403_002` | Device inactive | The device is currently inactive |
+| `DEVICE_403_003` | Operation not allowed | The requested operation is not allowed for this device |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-3300 | Meter Read Not Found | The specified meter read could not be found. | 404 Not Found |
-| E-3301 | Meter Read Update Failed | Failed to update the meter read. Please try again. | 500 Internal Server Error |
-| E-3302 | Meter Read Deletion Restricted | This meter read cannot be deleted as it has been processed. | 403 Forbidden |
-| E-3303 | Meter Read Processing | The meter read is currently being processed. Please try again later. | 202 Accepted |
-| E-3304 | Meter Read Rejected | The meter read was rejected. Please verify the data and resubmit. | 400 Bad Request |
-| E-3305 | Meter Read Verification Required | This meter read requires manual verification before processing. | 202 Accepted |
+### 404 Not Found
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_404_001` | Device not found | The specified device could not be found |
+| `DEVICE_404_002` | Meter read not found | The specified meter read could not be found |
+| `DEVICE_404_003` | Device type not found | The specified device type does not exist |
+
+### 409 Conflict
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_409_001` | Device already exists | A device with this identifier already exists |
+| `DEVICE_409_002` | Duplicate meter read | A meter read with these details already exists |
+| `DEVICE_409_003` | Device already registered | This device is already registered to another account |
+
+### 422 Unprocessable Entity
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `DEVICE_422_001` | Invalid meter read sequence | The meter read is out of sequence |
+| `DEVICE_422_002` | Meter read too high | The meter read exceeds expected maximum value |
+| `DEVICE_422_003` | Meter read too low | The meter read is lower than previous reading |
+
+## Error Response Example
+
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid device identifier",
+  "error": "DEVICE_400_001",
+  "timestamp": "2023-07-28T16:30:00.000Z",
+  "path": "/api/devices/register"
+}
+```
+
+## Common Scenarios
+
+### Device Registration
+
+- **Device Already Exists** (`DEVICE_409_001`): The device identifier is already in use.
+  - Solution: Use a different identifier or update the existing device.
+
+- **Invalid Device Type** (`DEVICE_400_002`): The specified device type is not supported.
+  - Solution: Check the list of supported device types and resubmit.
+
+### Meter Read Submission
+
+- **Meter Read Too High** (`DEVICE_422_002`): The submitted reading is unusually high.
+  - Solution: Verify the reading and resubmit if correct.
+  
+- **Meter Read Out of Sequence** (`DEVICE_422_001`): The reading is not in sequence.
+  - Solution: Check your device's timestamp synchronization.
+
+## Best Practices
+
+- Always validate device data before submission
+- Implement proper error handling in your device firmware
+- Log detailed error information for debugging
+- Follow the principle of least privilege for device permissions
+- Regularly update device firmware to the latest version
+
+## Rate Limiting
+
+Device and meter read endpoints are subject to rate limiting to prevent abuse. You may encounter a `429 Too Many Requests` response if you exceed the allowed number of requests. The following headers are included in rate-limited responses:
+
+- `X-RateLimit-Limit`: Maximum requests allowed in the time window
+- `X-RateLimit-Remaining`: Requests remaining in the current window
+- `X-RateLimit-Reset`: Time when the rate limit window resets (UTC epoch seconds)
+
+## Security Considerations
+
+- Never expose device credentials in client-side code
+- Use secure communication protocols (HTTPS, MQTT with TLS)
+- Implement proper device authentication and authorization
+- Regularly rotate device credentials
+- Monitor for suspicious device activity
 
 ## Related Documentation
 

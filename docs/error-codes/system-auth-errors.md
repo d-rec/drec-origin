@@ -1,4 +1,5 @@
 ---
+title: System and Authentication Errors
 order: 2
 ---
 
@@ -55,3 +56,83 @@ This section documents error codes related to system-level issues and authentica
 - [Tokenization and Transactions (E-4XXX)](/error-codes/tokenization-errors)
 - [API and Integration (E-5XXX)](/error-codes/api-errors)
 - [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
+
+## Authentication & Authorization Errors (4XX)
+
+This document outlines the various authentication and authorization errors that can be returned by the D-REC API.
+
+### 400 Bad Request
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `AUTH_400_001` | Invalid authentication credentials | The provided authentication credentials are invalid or malformed |
+| `AUTH_400_002` | Invalid request parameters | Required authentication parameters are missing or invalid |
+| `AUTH_400_003` | Unsupported grant type | The specified OAuth grant type is not supported |
+
+### 401 Unauthorized
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `AUTH_401_001` | Invalid or expired token | The provided access token is invalid, expired, or revoked |
+| `AUTH_401_002` | Authentication required | No authentication credentials were provided |
+| `AUTH_401_003` | Invalid client credentials | The provided client credentials are invalid |
+| `AUTH_401_004` | Account not verified | The user account has not been verified yet |
+
+### 403 Forbidden
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `AUTH_403_001` | Insufficient permissions | The authenticated user doesn't have permission to access this resource |
+| `AUTH_403_002` | Account suspended | The user account has been suspended |
+| `AUTH_403_003` | IP address not allowed | The request originated from a restricted IP address |
+
+## Error Response Example
+
+```json
+{
+  "statusCode": 401,
+  "message": "Invalid or expired token",
+  "error": "AUTH_401_001",
+  "timestamp": "2023-07-28T16:30:00.000Z",
+  "path": "/api/protected-resource"
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Invalid Token**
+   - Ensure the token is correctly formatted and hasn't expired
+   - Verify the token is being sent in the `Authorization` header as `Bearer <token>`
+
+2. **Missing Permissions**
+   - Check that your API key or user account has the required permissions
+   - Contact your system administrator if you believe you should have access
+
+3. **Account Not Verified**
+   - Complete the email verification process if you haven't already
+   - Check your email for a verification link or request a new one
+
+### Recommended Actions
+
+- For token-related issues, try refreshing your access token
+- Ensure your system clock is synchronized (NTP recommended)
+- Verify that your API client is using the correct authentication method
+- Check the [API documentation](https://dev-api.drecs.org/docs) for the specific endpoint requirements
+
+## Rate Limiting
+
+The API enforces rate limiting to ensure fair usage. If you exceed the allowed number of requests, you may receive a `429 Too Many Requests` response. The following headers are included in rate-limited responses:
+
+- `X-RateLimit-Limit`: The maximum number of requests allowed in the time window
+- `X-RateLimit-Remaining`: The number of requests remaining in the current window
+- `X-RateLimit-Reset`: The time at which the current rate limit window resets (in UTC epoch seconds)
+
+## Security Best Practices
+
+- Never expose your API keys or access tokens in client-side code
+- Use environment variables to store sensitive credentials
+- Implement proper error handling to gracefully handle authentication failures
+- Regularly rotate your API keys and access tokens
+- Use the principle of least privilege when assigning permissions

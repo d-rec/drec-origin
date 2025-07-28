@@ -10,7 +10,7 @@ This section documents error codes related to user registration, authentication,
 
 | Code | Title | Description | HTTP Status |
 |------|-------|-------------|--------------|
-| E-2001 | Email Already Registered | An account with this email address already exists. Please use a different email or try to log in. | 409 Conflict |
+| E-2001 | Email Already Registered | An account or user with this email address already exists. Please use a different email | 409 Conflict |
 | E-2002 | Invalid Email Format | The provided email address is not valid. Please check the format and try again. | 400 Bad Request |
 | E-2003 | Weak Password | The provided password does not meet the security requirements. | 400 Bad Request |
 | E-2004 | Registration Disabled | New user registration is currently disabled. Please contact support for assistance. | 403 Forbidden |

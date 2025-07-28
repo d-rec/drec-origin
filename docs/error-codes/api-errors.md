@@ -1,70 +1,144 @@
 ---
+title: API and Integration Errors
 order: 6
 ---
 
-# API and Integration (E-5XXX)
+# API and Integration Errors (4XX, 5XX)
 
-This section documents error codes related to API usage, integration issues, and third-party service interactions.
+This document outlines the various API and integration errors that can be returned by the D-REC API.
 
-## API Authentication & Authorization (E-5001 - E-5099)
+## Common API and Integration Errors
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-5001 | Invalid API Key | The provided API key is invalid or malformed. | 401 Unauthorized |
-| E-5002 | API Key Expired | The provided API key has expired. Please generate a new one. | 401 Unauthorized |
-| E-5003 | IP Not Whitelisted | Your IP address is not whitelisted for API access. | 403 Forbidden |
-| E-5004 | Rate Limit Exceeded | You have exceeded your API rate limit. Please wait before making more requests. | 429 Too Many Requests |
-| E-5005 | Insufficient Scope | Your API key does not have the required permissions. | 403 Forbidden |
-| E-5006 | API Key Revoked | Your API key has been revoked. Please contact support. | 401 Unauthorized |
-| E-5007 | API Version Deprecated | The API version you are using is deprecated. Please upgrade. | 410 Gone |
-| E-5008 | API Version Required | No API version was specified in the request. | 400 Bad Request |
+### 400 Bad Request
 
-## Request Validation (E-5100 - E-5199)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_400_001` | Invalid request body | The request body is malformed or invalid |
+| `API_400_002` | Missing required field | A required field is missing from the request |
+| `API_400_003` | Invalid field value | A field contains an invalid value |
+| `API_400_004` | Invalid query parameter | A query parameter is invalid |
+| `API_400_005` | Invalid request format | The request format is not supported |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-5100 | Invalid Request Body | The request body is malformed or invalid. | 400 Bad Request |
-| E-5101 | Missing Required Field | A required field is missing from the request. | 400 Bad Request |
-| E-5102 | Invalid Field Value | A field contains an invalid value. | 400 Bad Request |
-| E-5103 | Invalid Query Parameter | A query parameter is invalid. | 400 Bad Request |
-| E-5104 | Unsupported Media Type | The request's content type is not supported. | 415 Unsupported Media Type |
-| E-5105 | Request Too Large | The request payload is too large. | 413 Payload Too Large |
-| E-5106 | Invalid Date Range | The provided date range is invalid. | 400 Bad Request |
-| E-5107 | Invalid Pagination | The pagination parameters are invalid. | 400 Bad Request |
+### 401 Unauthorized
 
-## Resource Management (E-5200 - E-5299)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_401_001` | Invalid API key | The provided API key is invalid |
+| `API_401_002` | API key expired | The provided API key has expired |
+| `API_401_003` | Authentication required | No authentication credentials were provided |
+| `API_401_004` | Invalid authentication credentials | The provided credentials are invalid |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-5200 | Resource Not Found | The requested resource could not be found. | 404 Not Found |
-| E-5201 | Resource Conflict | The resource already exists or conflicts with an existing resource. | 409 Conflict |
-| E-5202 | Resource Limit Reached | You have reached the maximum number of resources. | 403 Forbidden |
-| E-5203 | Resource Locked | The resource is currently locked and cannot be modified. | 423 Locked |
-| E-5204 | Resource State Invalid | The resource is not in a valid state for this operation. | 409 Conflict |
-| E-5205 | Resource Deleted | The requested resource has been deleted. | 410 Gone |
-| E-5206 | Resource Not Modified | The resource has not been modified since the last request. | 304 Not Modified |
+### 403 Forbidden
 
-## Integration Errors (E-5300 - E-5399)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_403_001` | IP not whitelisted | Your IP address is not whitelisted |
+| `API_403_002` | Insufficient permissions | Your API key does not have the required permissions |
+| `API_403_003` | API key revoked | Your API key has been revoked |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-5300 | Integration Error | An error occurred while processing the integration. | 500 Internal Server Error |
-| E-5301 | Service Unavailable | The requested service is currently unavailable. | 503 Service Unavailable |
-| E-5302 | Timeout | The request timed out while waiting for a response. | 504 Gateway Timeout |
-| E-5303 | Invalid Response | The response from the external service was invalid. | 502 Bad Gateway |
-| E-5304 | Webhook Delivery Failed | Failed to deliver the webhook notification. | 500 Internal Server Error |
-| E-5305 | Webhook Configuration Error | The webhook configuration is invalid. | 400 Bad Request |
-| E-5306 | Webhook Verification Failed | The webhook signature verification failed. | 401 Unauthorized |
+### 404 Not Found
 
-## API Deprecation (E-5900 - E-5999)
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_404_001` | Endpoint not found | The requested endpoint does not exist |
+| `API_404_002` | Resource not found | The requested resource could not be found |
+| `API_404_003` | Version not found | The requested API version does not exist |
 
-| Code | Title | Description | HTTP Status |
-|------|-------|-------------|--------------|
-| E-5900 | API Version Deprecated | This API version is deprecated and will be removed. | 410 Gone |
-| E-5901 | Endpoint Deprecated | This endpoint is deprecated and will be removed. | 410 Gone |
-| E-5902 | Parameter Deprecated | This parameter is deprecated and will be removed. | 400 Bad Request |
-| E-5903 | Feature Deprecated | This feature is deprecated and will be removed. | 400 Bad Request |
-| E-5904 | Migration Required | A migration is required to continue using this API. | 426 Upgrade Required |
+### 415 Unsupported Media Type
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_415_001` | Unsupported content type | The request's content type is not supported |
+| `API_415_002` | Unsupported accept header | The requested content type is not supported |
+| `API_415_003` | Invalid content type | The content type is not valid for this endpoint |
+
+### 422 Unprocessable Entity
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_422_001` | Validation failed | The request failed validation |
+| `API_422_002` | Invalid input data | The provided input data is invalid |
+| `API_422_003` | Business rule violation | The request violates business rules |
+
+### 429 Too Many Requests
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_429_001` | Rate limit exceeded | You have exceeded your API rate limit |
+| `API_429_002` | Too many requests | Too many requests from this IP address |
+| `API_429_003` | Request throttled | Your request has been throttled |
+
+### 500 Internal Server Error
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_500_001` | Internal server error | An unexpected error occurred |
+| `API_500_002` | Service unavailable | The service is currently unavailable |
+| `API_500_003` | Database error | An error occurred while accessing the database |
+
+### 503 Service Unavailable
+
+| Error Code | Message | Description |
+|------------|---------|-------------|
+| `API_503_001` | Service temporarily unavailable | The service is temporarily unavailable |
+| `API_503_002` | Maintenance in progress | The service is currently undergoing maintenance |
+| `API_503_003` | Service overloaded | The service is currently overloaded |
+
+## Error Response Example
+
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid request body",
+  "error": "API_400_001",
+  "timestamp": "2023-07-28T16:30:00.000Z",
+  "path": "/api/endpoint"
+}
+```
+
+## Common Scenarios
+
+### Authentication Issues
+
+- **Invalid API Key** (`API_401_001`): The provided API key is invalid.
+  - Solution: Verify your API key and ensure it's correctly formatted.
+
+- **IP Not Whitelisted** (`API_403_001`): Your IP address is not whitelisted.
+  - Solution: Contact support to add your IP address to the whitelist.
+
+### Rate Limiting
+
+- **Rate Limit Exceeded** (`API_429_001`): You've exceeded your API rate limit.
+  - Solution: Wait for the rate limit to reset or contact support to increase your limit.
+  
+- **Request Throttled** (`API_429_003`): Your request has been throttled.
+  - Solution: Reduce your request rate and implement exponential backoff.
+
+## Best Practices
+
+- Always include proper error handling in your API client
+- Implement retry logic with exponential backoff for transient errors
+- Cache responses when appropriate to reduce API calls
+- Follow the principle of least privilege for API key permissions
+- Monitor your API usage and set up alerts for rate limits
+
+## Rate Limiting
+
+All API endpoints are subject to rate limiting to ensure fair usage. The following headers are included in rate-limited responses:
+
+- `X-RateLimit-Limit`: Maximum requests allowed in the time window
+- `X-RateLimit-Remaining`: Requests remaining in the current window
+- `X-RateLimit-Reset`: Time when the rate limit window resets (UTC epoch seconds)
+- `Retry-After`: Recommended time to wait before making another request (in seconds)
+
+## Security Considerations
+
+- Never expose your API keys in client-side code or public repositories
+- Use environment variables to store sensitive credentials
+- Implement proper input validation on the client side
+- Use HTTPS for all API requests
+- Regularly rotate your API keys and audit their usage
+- Monitor your API usage for suspicious activity
 
 ## Related Documentation
 
