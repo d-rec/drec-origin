@@ -4,7 +4,7 @@ import { DeviceService } from '../device/device.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { Queue } from 'bull';
-import { getCountry } from '../../util../../utils/get-country';
+import { findCountryByCode } from '../../utils/get-country';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { convertToPowerUnit } from '../../utils/convert-to-power-units';
 import {
@@ -99,19 +99,9 @@ export class EvidentDeviceService {
     );
 
     if (device.capacity > 250) {
-      const country = getCountry(device.countryCode).country;
-      const issuer = await this.evidentService.getIssuerByCountry(
-        device.organizationId,
-        country,
-      );
-      if (issuer.data['hydra:member'].length > 0) {
-        const countryIssuerId = issuer.data['hydra:member'][0]['@id'];
-        payload.issuer = countryIssuerId;
-      }
-    } else {
-      payload.issuer = `/organisations/${this.issuerId}`;
+      payload.issuer = await this.getIssuerForDevice(device);
     }
-
+    console.log("payload", payload);
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
@@ -184,7 +174,7 @@ export class EvidentDeviceService {
     registrantId: string,
     files: string[],
   ): any {
-    const alpha2CountryCode = getCountry(device.countryCode).alpha2;
+    const alpha2CountryCode = findCountryByCode(device.countryCode).alpha2;
     const convertCapacityToMwh = convertToPowerUnit({
       value: device.capacity,
       unit: EnergyUnit.kWh,
@@ -222,5 +212,23 @@ export class EvidentDeviceService {
       await this.evidentService.getApiInstance(organizationId);
     const response = await evidentInstance.get(`/devices/${code}`);
     return response.data.latestDeviceDetails.status;
+  }
+
+  private async getIssuerForDevice(device: Device): Promise<string> {
+    if (device.capacity <= 250) {
+      return `/organisations/${this.issuerId}`;
+    }
+  
+    const country = findCountryByCode(device.countryCode).country;
+    const issuer = await this.evidentService.getIssuerByCountry(
+      device.organizationId,
+      country,
+    );
+  
+    if (issuer.data['hydra:member'].length > 0) {
+      return issuer.data['hydra:member'][0]['@id'];
+    }
+  
+    return `/organisations/${this.issuerId}`;
   }
 }
