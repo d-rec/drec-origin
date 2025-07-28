@@ -100,8 +100,10 @@ export class EvidentDeviceService {
 
     if (device.capacity > 250) {
       payload.issuer = await this.getIssuerForDevice(device);
+    } else {
+      payload.issuer = `/organisations/${this.issuerId}`;
     }
-    console.log("payload", payload);
+
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
@@ -215,20 +217,16 @@ export class EvidentDeviceService {
   }
 
   private async getIssuerForDevice(device: Device): Promise<string> {
-    if (device.capacity <= 250) {
-      return `/organisations/${this.issuerId}`;
-    }
-  
     const country = findCountryByCode(device.countryCode).country;
     const issuer = await this.evidentService.getIssuerByCountry(
       device.organizationId,
       country,
     );
-  
+
     if (issuer.data['hydra:member'].length > 0) {
       return issuer.data['hydra:member'][0]['@id'];
     }
-  
-    return `/organisations/${this.issuerId}`;
+
+    return null;
   }
 }
