@@ -44,6 +44,7 @@ import { MailService } from '../../mail';
 import { FileService } from '../file/file.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class OrganizationService {
@@ -59,6 +60,7 @@ export class OrganizationService {
     private readonly fileService: FileService,
   ) {}
 
+  @Profile()
   async findOne(
     id: number,
     options: FindOneOptions<Organization> = {},

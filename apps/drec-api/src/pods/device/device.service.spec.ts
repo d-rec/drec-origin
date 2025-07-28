@@ -1843,7 +1843,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('addCycle', () => {
+  describe('createCycle', () => {
     it('should call addLateCertificateIssueDateLogForDevice with correct arguments', async () => {
       // Arrange
       const groupId = 1;
@@ -1859,7 +1859,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(mockReturnValue);
 
       // Act
-      const result = await service.addCycle(
+      const result = await service.createCycle(
         groupId,
         deviceExternalId,
         lateStartDate,

@@ -15,6 +15,7 @@ import { DeviceLateOngoingIssueCertificateEntity } from '../../device/device_lat
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
+import { Profile } from '../../../lib/profile';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -23,6 +24,8 @@ export class LateOngoingIssuanceService {
   constructor(
     @InjectQueue(Queues.LateOngoingIssuance)
     private readonly lateOngoingQueue: Queue,
+    @InjectQueue(Queues.MissingCycles)
+    private readonly missingCyclesQueue: Queue,
     private readonly groupService: DeviceGroupService,
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
@@ -84,6 +87,7 @@ export class LateOngoingIssuanceService {
    * @param groupId - Optional group ID to filter cycles
    * @returns Promise that resolves when processing completes
    */
+  @Profile()
   async processIssuance(groupId?: number): Promise<void> {
     this.logger.debug('Starting late ongoing issuance processing');
 
@@ -101,8 +105,12 @@ export class LateOngoingIssuanceService {
     for (let index = 0; index < cycles.length; index++) {
       const cycle = cycles[index];
 
-      this.logger.debug(
-        `Processing cycle ${index + 1} of ${cycles.length} for device: ${cycle.device_externalid}`,
+      this.logger.log(
+        `Processing cycle ${index + 1} of ${cycles.length}`,
+        `Group:: ${cycle.groupId}`,
+        'Device:: ' + cycle.device_externalid,
+        'From: ' + cycle.lateStartDateUTC.toString(),
+        'To: ' + cycle.lateEndDateUTC.toString(),
       );
 
       await this.processIssuanceForCycle(cycle);
@@ -119,6 +127,7 @@ export class LateOngoingIssuanceService {
    * @param index - The index of the cycle in the array
    * @returns Promise that resolves when processing is complete
    */
+  @Profile()
   private async processIssuanceForCycle(
     cycle: DeviceLateOngoingIssueCertificateEntity,
   ): Promise<void> {
@@ -158,7 +167,7 @@ export class LateOngoingIssuanceService {
 
     // Handle missing read data
     if (!lastRead.length) {
-      this.logger.error(`No readings found for device: ${device.externalId}`);
+      this.logger.debug(`No readings found for device: ${device.externalId}`);
       return;
     }
 
@@ -172,25 +181,16 @@ export class LateOngoingIssuanceService {
       nextIssuance.end_date = cycle.late_end_date;
     }
 
-    // Process based on last read timestamp
-    const lastReadDate = new Date(lastRead[0].timestamp);
-    const isReadInTimeRange =
-      lastReadDate.getTime() <= cycle.lateEndTimestamp &&
-      lastReadDate.getTime() >= cycle.lateStartTimestamp;
+    await this.processReads(cycle, device, group, nextIssuance);
+  }
 
-    if (isReadInTimeRange) {
-      return this.issueForInRangeLastRead(
-        cycle,
-        device,
-        group,
-        lastReadDate,
-        nextIssuance,
-      );
-    }
-
-    // Handle case where read is outside the time range
-    this.logger.verbose('Processing read outside target time range');
-    await this.issueForRecentLastRead(cycle, device, group, nextIssuance);
+  async queueCreateMissingCycles(groupId?: number | string): Promise<void> {
+    await this.missingCyclesQueue.add(
+      { groupId },
+      {
+        lifo: true,
+      },
+    );
   }
 
   /**
@@ -215,76 +215,24 @@ export class LateOngoingIssuanceService {
       // Get devices for this group
       const devicesInGroup = await this.deviceService.findForGroup(group.id);
 
-      await Promise.all(
-        devicesInGroup.map(async (device) =>
-          this.deviceService.checkForDeviceMissingCycles(group, device),
-        ),
-      );
-    }
-  }
-
-  /**
-   * Processes certificate issuance when last read is within the late cycle time range
-   *
-   * @param cycle - Late cycle entity
-   * @param device - Device object
-   * @param group - Device group
-   * @param lastReadDate - Date of the last reading
-   * @param nextIssuance - Next issuance information
-   * @returns Promise resolving when processing is complete
-   */
-  private async issueForInRangeLastRead(
-    cycle: DeviceLateOngoingIssueCertificateEntity,
-    device: Device,
-    group: DeviceGroup,
-    lastReadDate: Date,
-    nextIssuance: DeviceGroupNextIssueCertificate,
-  ) {
-    this.logger.verbose(
-      'If Last read less from late end_date and greater then from latest_date',
-    );
-
-    const certifiedDevices =
-      await this.deviceService.getCheckCertificateIssueDateLogForDevice(
-        cycle.device_externalid,
-        cycle.lateStartDate,
-        lastReadDate,
+      const { startDate } = this.groupService.calculateInitialIssuanceRange(
+        devicesInGroup,
+        group.reservationStartDate,
+        group.reservationEndDate,
+        group.frequency,
       );
 
-    const newStartDate = lastReadDate;
-    newStartDate.setTime(newStartDate.getTime() + 1); // Add one millisecond
-
-    if (
-      certifiedDevices.length > 0 ||
-      newStartDate.getTime() === cycle.lateStartTimestamp
-    ) {
-      return;
+      for (const device of devicesInGroup) {
+        this.logger.log(
+          `Checking for missing cycles for device: ${device.externalId} in group: ${group.id}`,
+        );
+        await this.deviceService.checkForDeviceMissingCycles(
+          group,
+          device,
+          startDate,
+        );
+      }
     }
-
-    const newEndDate = cycle.lateEndDateUTC;
-    cycle.late_end_date = lastReadDate.toISOString();
-
-    this.logger.debug(
-      'Late ongoing Issue Certificate For::',
-      cycle.device_externalid,
-    );
-
-    await Promise.all([
-      this.deviceService.findOrCreateCycle(
-        group.id,
-        device.externalId,
-        DateTime.fromJSDate(newStartDate).toUTC(),
-        newEndDate,
-      ),
-      this.issueCertificate(
-        group,
-        nextIssuance,
-        cycle.lateStartDateUTC,
-        DateTime.fromJSDate(lastReadDate).toUTC(),
-        device.countryCode,
-        cycle,
-      ),
-    ]);
   }
 
   /**
@@ -296,13 +244,14 @@ export class LateOngoingIssuanceService {
    * @param nextIssuance - Next issuance information
    * @returns Promise that resolves when the process is complete
    */
-  private async issueForRecentLastRead(
+  @Profile()
+  private async processReads(
     cycle: DeviceLateOngoingIssueCertificateEntity,
     device: Device,
     group: DeviceGroup,
     nextIssuance: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
-    this.logger.verbose('dLast read greater then from late_end_date');
+    this.logger.verbose('Last read greater then from late_end_date');
 
     const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
@@ -315,10 +264,7 @@ export class LateOngoingIssuanceService {
     );
 
     this.logger.debug(
-      'Device Reads For:: ' + cycle.device_externalid,
-      'From: ' + cycle.lateStartDateUTC.toString(),
-      'To: ' + cycle.lateEndDateUTC.toString(),
-      'Equal to ' + allReadsForDeviceBetweenTimeRange?.length,
+      'Reads founds: ' + allReadsForDeviceBetweenTimeRange?.length,
     );
 
     if (!allReadsForDeviceBetweenTimeRange?.length) {
@@ -346,6 +292,7 @@ export class LateOngoingIssuanceService {
    * @param cycle - The late ongoing certificate cycle entity to be archived after issuance
    * @returns A Promise that resolves when both the certificate issuance and cycle archiving are complete
    */
+  @Profile()
   private async issueCertificate(
     group: DeviceGroup,
     nextIssuance: DeviceGroupNextIssueCertificate,
@@ -366,7 +313,6 @@ export class LateOngoingIssuanceService {
     await this.deviceService.updateLateOngoing(
       cycle.device_externalid,
       cycle.id,
-      cycle.late_end_date,
     );
 
     // Archive the late ongoing cycle now that a certificate has been issued
