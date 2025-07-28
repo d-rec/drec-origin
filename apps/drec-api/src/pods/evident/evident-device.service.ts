@@ -98,7 +98,7 @@ export class EvidentDeviceService {
       uploadedFiles,
     );
 
-    if (device.capacity > 250) {
+    if (device.capacity >= 250) {
       payload.issuer = await this.getIssuerForDevice(device);
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
