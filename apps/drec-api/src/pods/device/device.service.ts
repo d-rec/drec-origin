@@ -656,21 +656,21 @@ export class DeviceService {
 
     const sdgBenefitList = SDGBenefits;
 
-    const checkExternalId = await this.repository.findOne({
+    const checkSerialNumber = await this.repository.findOne({
       where: {
-        developerExternalId: newDevice.externalId,
+        serialNumber: newDevice.serialNumber,
         organizationId: organizationId,
       },
     });
 
-    if (checkExternalId) {
+    if (checkSerialNumber) {
       this.logger.debug('Line No: 236');
       this.logger.error(
-        `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       );
       throw new ConflictException({
         success: false,
-        message: `ExternalId already exists in this organization, can't add entry with same external id ${newDevice.externalId}`,
+        message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       });
     }
 
@@ -709,6 +709,7 @@ export class DeviceService {
       capacity: newDevice.capacity,
       fuelCode: newDevice.fuelCode,
       deviceTypeCode: newDevice.deviceTypeCode,
+      serialNumber: newDevice.serialNumber,
     });
 
     const fingerprintExists = await this.repository.findOne({
@@ -853,6 +854,7 @@ export class DeviceService {
       capacity: updateDeviceDTO.capacity,
       fuelCode: updateDeviceDTO.fuelCode,
       deviceTypeCode: updateDeviceDTO.deviceTypeCode,
+      serialNumber: updateDeviceDTO.serialNumber,
     });
 
     const fingerprintExists = await this.repository.findOne({

@@ -6,6 +6,7 @@ interface DeviceFingerprintInput {
   commissioningDate: string | Date;
   capacity: number;
   fuelCode: string;
+  serialNumber: string;
   deviceTypeCode: string;
 }
 
@@ -19,6 +20,7 @@ export function generateDeviceFingerprint(
     capacity,
     fuelCode,
     deviceTypeCode,
+    serialNumber,
   } = input;
 
   // Normalize and sanitize inputs
@@ -32,8 +34,8 @@ export function generateDeviceFingerprint(
     normalizedCapacity,
     fuelCode?.trim() || 'ES100',
     deviceTypeCode?.trim() || 'TC110',
+    serialNumber?.trim() || '',
   ].join('|');
-
   return createHash('sha256').update(combinedString).digest('hex');
 }
 
