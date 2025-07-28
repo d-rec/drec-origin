@@ -25,15 +25,15 @@ export class MigrateReadsFromInfluxdbToMeterReadsTable1753179519598 implements M
           await queryRunner.query(
             `INSERT INTO public.meter_reads (
               "external_id", "type", "value", "unit", "start_date", "end_date", "created_at", "updated_at"
-            ) SELECT * FROM UNNEST(
-              $1::text[],
-              $2::text[],
-              $3::numeric[],
-              $4::text[],
-              $5::timestamp[],
-              $6::timestamp[],
-              $7::timestamp[],
-              $8::timestamp[]
+            ) VALUES (
+              UNNEST($1::text[]),
+              UNNEST($2::text[]),
+              UNNEST($3::numeric[]),
+              UNNEST($4::text[]),
+              UNNEST($5::timestamp[]),
+              UNNEST($6::timestamp[]),
+              UNNEST($7::timestamp[]),
+              UNNEST($8::timestamp[])
             )`,
             [externalIds, types, values, units, startDates, endDates, createdAts, updatedAts]
           );
