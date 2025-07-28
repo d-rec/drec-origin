@@ -17,7 +17,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude, Transform } from 'class-transformer';
-import { ConvertToNullIfEmpty } from '../../../transformers/string';
+import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { countryCodesList } from '../../../models/country-code';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
@@ -29,6 +29,7 @@ export class NewDeviceDTO
     >
 {
   @ApiProperty()
+  @Trim()
   @IsOptional()
   externalId?: string;
 
@@ -36,6 +37,26 @@ export class NewDeviceDTO
   @IsString()
   @Exclude()
   developerExternalId?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  dataSource: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  otherDataSource?: string;
+
+  @ApiProperty()
+  @Trim()
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
+  })
+  @IsString()
+  @IsNotEmpty()
+  serialNumber: string;
 
   @ApiProperty()
   @IsString()

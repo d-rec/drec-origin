@@ -199,6 +199,9 @@ export const batchDevices: NewDeviceDTO[] = [
   {
     dataSourceBrand: 'Schneider Electric',
     externalId: 'DREC31',
+    dataSource: 'Inverter',
+    otherDataSource: '',
+    serialNumber: 'SN32',
     projectName: 'Device 31',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -221,6 +224,9 @@ export const batchDevices: NewDeviceDTO[] = [
   {
     dataSourceBrand: 'Itron',
     externalId: 'DREC32',
+    dataSource: 'Inverter',
+    otherDataSource: '',
+    serialNumber: 'SN33',
     projectName: 'Device 32',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -243,6 +249,9 @@ export const batchDevices: NewDeviceDTO[] = [
   {
     dataSourceBrand: 'Sensus',
     externalId: 'DREC33',
+    serialNumber: 'SN31',
+    dataSource: 'Inverter',
+    otherDataSource: '',
     projectName: 'Device 33',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -265,6 +274,9 @@ export const batchDevices: NewDeviceDTO[] = [
   {
     dataSourceBrand: 'Sample Brand',
     externalId: 'DREC34',
+    serialNumber: 'SN51',
+    otherDataSource: '',
+    dataSource: 'Inverter',
     projectName: 'Device 34',
     address: 'Somewhere far away',
     latitude: '34.921213',

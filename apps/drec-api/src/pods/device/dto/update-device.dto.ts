@@ -107,6 +107,14 @@ export class UpdateDeviceDTO
   deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
+  @IsString()
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
+  })
+  serialNumber: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsOptional()
   @Min(0.001, {
