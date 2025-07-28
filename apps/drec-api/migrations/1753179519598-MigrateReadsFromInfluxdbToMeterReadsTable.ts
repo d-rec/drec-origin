@@ -1,44 +1,47 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
-import { mapInfluxMeterReadsToMeterReadsTableFormat } from '../src/lib/influx-db';
+import { mapReadsToMeterReadsTableFormat } from '../src/lib/influx-db';
+import { ReadType } from "../src/utils/enums";
 
 export class MigrateReadsFromInfluxdbToMeterReadsTable1753179519598 implements MigrationInterface {
     name = 'MigrateReadsFromInfluxdbToMeterReadsTable1753179519598'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const readsArray = await mapInfluxMeterReadsToMeterReadsTableFormat();
-        if (readsArray.length > 0) {
-          const getDevice = await queryRunner.query(
-            'SELECT * FROM public.device WHERE "externalId" = $1',  
-            [readsArray[0].externalId],
+  const devices = await queryRunner.query('SELECT * FROM public.device');
+  for (const device of devices) {
+    const reads = await mapReadsToMeterReadsTableFormat(device.externalId, device.createdAt);
+        
+        if (reads.length > 0) {
+          // Prepare arrays for batch insert
+          const externalIds = reads.map(() => device.externalId);
+          const types = reads.map(() => ReadType.Delta);
+          const values = reads.map(read => read.value);
+          const units = reads.map(read => read.unit);
+          const startDates = reads.map(read => read.startDate);
+          const endDates = reads.map(read => read.endDate);
+          const createdAts = reads.map(() => new Date());
+          const updatedAts = reads.map(() => new Date());
+
+          // Single batch insert using UNNEST
+          await queryRunner.query(
+            `INSERT INTO public.meter_reads (
+              "external_id", "type", "value", "unit", "start_date", "end_date", "created_at", "updated_at"
+            ) SELECT * FROM UNNEST(
+              $1::text[],
+              $2::text[],
+              $3::numeric[],
+              $4::text[],
+              $5::timestamp[],
+              $6::timestamp[],
+              $7::timestamp[],
+              $8::timestamp[]
+            )`,
+            [externalIds, types, values, units, startDates, endDates, createdAts, updatedAts]
           );
-          readsArray[0].startDate =
-            getDevice && getDevice[0]
-              ? getDevice[0].createdAt
-              : Date.now().toString();
         }
-        for (const read of readsArray) {
-            const readsStartDate = read.startDate ? new Date(read.startDate) : null;
-            const readsEndDate = read.endDate ? new Date(read.endDate) : null;
-            
-            await queryRunner.query(
-              `INSERT INTO public.meter_reads (
-                          "external_id","type","value","unit","start_date","end_date", "created_at", "updated_at" 
-                      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-              [
-                read.externalId,
-                read.type,
-                read.value,
-                read.unit,
-                readsStartDate,
-                readsEndDate,
-                new Date(),
-                new Date(),
-              ],
-            );
-          }
       }
+    }
     
-      public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query('DELETE FROM public.meter_reads');
-      }
+    public async down(queryRunner: QueryRunner): Promise<void> {
+      await queryRunner.query('DELETE FROM public.meter_reads');
+    }
 }

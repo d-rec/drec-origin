@@ -159,8 +159,8 @@ importers:
         specifier: ^9.0.6
         version: 9.0.21
       influx:
-        specifier: ^5.10.0
-        version: 5.10.0
+        specifier: ^5.7.0
+        version: 5.7.0
       jsonwebtoken:
         specifier: ^9.0.1
         version: 9.0.2
@@ -4552,8 +4552,8 @@ packages:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
     deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
-  influx@5.10.0:
-    resolution: {integrity: sha512-xvO3fFSITZCaH6p/0t8xQ9JNIS0El8McFv65py0YqlOxxyhF3n2oxdDF8wQ3tfHp2H4x+OLsGutgTeu5PozlNA==}
+  influx@5.7.0:
+    resolution: {integrity: sha512-LwBf+cTXW+1PEHiG5YNE4r44mAVvevomqBqt2PpMGM2HjqFp5SmowtTWhwnybXoX6gnHn9mL4yVAbuAiSMZhjw==}
 
   inherits@2.0.3:
     resolution: {integrity: sha512-x00IRNXNy63jwGkJmzPigoySHbaqpNuzKbBOmzK+g2OdZpQ9w+sxCN+VSB3ja7IAge2OP2qpfxTjeNcyjmW1uw==}
@@ -13709,7 +13709,7 @@ snapshots:
       once: 1.4.0
       wrappy: 1.0.2
 
-  influx@5.10.0: {}
+  influx@5.7.0: {}
 
   inherits@2.0.3: {}
 

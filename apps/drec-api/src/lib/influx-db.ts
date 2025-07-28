@@ -4,9 +4,7 @@ import {
   QueryApi,
   WriteApi,
 } from '@influxdata/influxdb-client';
-import { InfluxDB as InfluxV1 } from 'influx';
 import { EnergyUnit } from '../types/units';
-import { ReadType } from '../utils/enums';
 
 export const influxDBConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
@@ -38,37 +36,64 @@ const executeQuery = async (query: string): Promise<any[]> => {
   return results;
 };
 
-const influx = new InfluxV1({
-  host: process.env.INFLUXDB_HOST || 'localhost',
-  port: 8086,
-  database: process.env.INFLUXDB_DB || 'energy',
-  username: process.env.INFLUXDB_ADMIN_USER || 'test',
-  password: process.env.INFLUXDB_ADMIN_PASSWORD || 'test',
-});
-
-const fetchAllMeterReads = async (): Promise<any[]> => {
-  const results = await influx.query('SELECT * FROM "read"');
-  return results;
+const getReadsByMeterId = async (meterId: string): Promise<Array<{ time: Date; read: number }>> => {
+  try {
+    const [db] = (process.env.INFLUXDB_BUCKET || 'energy/autogen').split('/');
+    const influxUrl = process.env.INFLUXDB_URL || 'http://localhost:8086';
+    
+    const query = `SELECT * FROM "read" WHERE "meter" = '${meterId}' ORDER BY time ASC`;
+    const queryUrl = `${influxUrl}/query?db=${encodeURIComponent(db)}&q=${encodeURIComponent(query)}`;
+    
+    const response = await fetch(queryUrl);
+    const data = await response.json();
+    
+    const series = data?.results?.[0]?.series?.[0];
+    if (!series) return [];
+    
+    const timeIndex = series.columns.indexOf('time');
+    const readIndex = series.columns.indexOf('read');
+    
+    return series.values.map((row: any[]) => ({
+      time: new Date(row[timeIndex]),
+      read: parseFloat(row[readIndex]) || 0
+    }));
+  } catch (error) {
+    console.error(`Error fetching reads for meter ${meterId}:`, error.message);
+    throw error;
+  }
 };
 
-const mapInfluxMeterReadsToMeterReadsTableFormat = async (): Promise<any[]> => {
-  const reads = await fetchAllMeterReads();
-
-  return reads.map((read, idx) => {
-    const previousReadEndDate =
-      idx === 0
-        ? Date.now()
-        : reads[idx - 1].time._nanoISO || reads[idx - 1].time;
-
-    return {
-      externalId: read.meter,
-      type: ReadType.Delta,
+const mapReadsToMeterReadsTableFormat = async (
+  meterId: string, 
+  onboardingDate: Date
+): Promise<Array<{
+  externalId: string;
+  unit: EnergyUnit;
+  value: number;
+  startDate: Date;
+  endDate: Date;
+}>> => {
+  try {
+    const reads = await getReadsByMeterId(meterId);
+    
+    if (reads.length === 0) {
+      console.log(`No reads found for meter ${meterId}`);
+      return [];
+    }
+    
+    reads.sort((a, b) => a.time.getTime() - b.time.getTime());
+    
+    return reads.map((read, index) => ({
+      externalId: meterId,
       unit: EnergyUnit.Wh,
       value: read.read,
-      startDate: previousReadEndDate,
-      endDate: read.time._nanoISO,
-    };
-  });
+      startDate: index === 0 ? new Date(onboardingDate) : reads[index - 1].time,
+      endDate: read.time
+    }));
+  } catch (error) {
+    console.error(`Error mapping reads for meter ${meterId}:`, error.message);
+    throw error;
+  }
 };
 
 export {
@@ -76,6 +101,6 @@ export {
   dbWriter,
   writePoints,
   executeQuery,
-  fetchAllMeterReads,
-  mapInfluxMeterReadsToMeterReadsTableFormat,
+  getReadsByMeterId,
+  mapReadsToMeterReadsTableFormat,
 };
