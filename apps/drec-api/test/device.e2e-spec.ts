@@ -119,7 +119,9 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
-      externalId: 'DREC001',
+      dataSource: 'Inverter',
+      otherDataSource: '',
+      serialNumber: 'SN31',
       projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
@@ -173,7 +175,9 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
-      externalId: 'DREC001',
+      dataSource: 'Inverter',
+      otherDataSource: '',
+      serialNumber: 'SN31',
       projectName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
