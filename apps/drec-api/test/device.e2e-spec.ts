@@ -119,6 +119,8 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
+      dataSourceBrand: 'Sample Brand',
+      externalId: 'DREC001',
       dataSource: 'Inverter',
       otherDataSource: '',
       serialNumber: 'SN31',
@@ -175,6 +177,8 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
+      dataSourceBrand: 'Sample Brand',
+      externalId: 'DREC001',
       dataSource: 'Inverter',
       otherDataSource: '',
       serialNumber: 'SN31',
