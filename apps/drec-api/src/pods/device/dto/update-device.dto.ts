@@ -54,7 +54,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  dataSourceBrandName: string;
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsOptional()

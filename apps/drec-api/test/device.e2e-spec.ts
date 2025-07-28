@@ -119,7 +119,7 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
-      dataSourceBrandName: 'Sample Brand',
+      dataSourceBrand: 'Sample Brand',
       externalId: 'DREC001',
       projectName: 'Device New',
       address: 'Somewhere far away',
@@ -174,7 +174,7 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice: NewDeviceDTO = {
-      dataSourceBrandName: 'Sample Brand',
+      dataSourceBrand: 'Sample Brand',
       externalId: 'DREC001',
       projectName: 'Device New',
       address: 'Somewhere far away',

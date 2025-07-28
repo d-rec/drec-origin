@@ -6,14 +6,14 @@ export class AddDataSourceBrandNameToDevice1752683270756
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             ALTER TABLE "device"
-            ADD COLUMN "data_source_brand_name" character varying DEFAULT NULL;
+            ADD COLUMN "data_source_brand" character varying DEFAULT NULL;
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             ALTER TABLE "device"
-            DROP COLUMN "data_source_brand_name";
+            DROP COLUMN "data_source_brand";
         `);
   }
 }

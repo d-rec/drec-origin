@@ -45,7 +45,7 @@ export class NewDeviceDTO
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  dataSourceBrandName: string;
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsNotEmpty()

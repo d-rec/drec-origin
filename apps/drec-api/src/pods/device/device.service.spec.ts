@@ -190,7 +190,7 @@ describe('DeviceService', () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
         externalId: 'ExternalId1',
-        dataSourceBrandName: 'Sample Brand',
+        dataSourceBrand: 'Sample Brand',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -349,7 +349,7 @@ describe('DeviceService', () => {
     it('should reject registration with existing external ID', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
-        dataSourceBrandName: 'Sample Brand',
+        dataSourceBrand: 'Sample Brand',
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
         address: 'Bangalore',
@@ -1666,7 +1666,7 @@ describe('DeviceService', () => {
       const role = Role.DeviceOwner;
       const externalId = 'external-id-1';
       const updateDeviceDTO: UpdateDeviceDTO = {
-        dataSourceBrandName: 'Sample Brand',
+        dataSourceBrand: 'Sample Brand',
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
         address: 'Bangalore',
