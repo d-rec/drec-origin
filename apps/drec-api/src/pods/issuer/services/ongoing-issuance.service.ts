@@ -6,7 +6,6 @@ import { DateTime } from 'luxon';
 
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { getCycleEndDate } from '../../../lib/helpers/getCycleEndDate';
 import { Queues } from '../../../utils/enums/queues.enum';
 import { Device } from '../../device';
 import { DeviceGroup } from '../../device-group/device-group.entity';
@@ -108,10 +107,9 @@ export class OngoingIssuanceService {
     // Process dates
     const startDate = DateTime.fromISO(groupRequest.start_date).toUTC();
     const endDate = DateTime.fromISO(groupRequest.end_date).toUTC();
-    const startDateFormatted = endDate.toString();
 
     const isReservationEndDate =
-      new Date(endDate.toString()).getTime() ===
+      new Date(endDate.toString()).getTime() >=
       group.reservationEndDate.getTime();
 
     if (isReservationEndDate) {
@@ -126,17 +124,18 @@ export class OngoingIssuanceService {
         groupRequest,
       );
     } else {
+      const nextStartDate = endDate.toJSDate();
       // Normal certificate issuance case
-      const newEndDate = await this.calculateOptimalEndDate(
-        group,
-        startDateFormatted,
-        endDate,
+      const nextEndDate = await this.groupService.calculateNextIssuanceEndDate(
+        nextStartDate,
+        group.reservationEndDate,
+        group.frequency,
       );
 
       await this.groupService.updateCertificateIssueDate(
         groupRequest.id,
-        startDateFormatted,
-        newEndDate,
+        nextStartDate.toISOString(),
+        nextEndDate.toISOString(),
       );
     }
 
@@ -145,12 +144,7 @@ export class OngoingIssuanceService {
     );
 
     await Promise.all([
-      this.processDevicesWithMissingReadType(
-        group,
-        groupRequest,
-        startDate,
-        endDate,
-      ),
+      this.addCycles(group, startDate, endDate),
       this.processByCountry(
         group,
         countryDeviceGroup,
@@ -162,97 +156,30 @@ export class OngoingIssuanceService {
   }
 
   /**
-   * Calculates the optimal end date for a certificate issuance cycle
-   *
-   * @param group - The device group
-   * @param startDateFormatted - Formatted start date string
-   * @param endDate - End date as DateTime object
-   * @returns The optimal end date as ISO string
-   */
-  private async calculateOptimalEndDate(
-    group: DeviceGroup,
-    startDateFormatted: string,
-    endDate: DateTime,
-  ): Promise<string> {
-    // Calculate end date based on group frequency
-    const endDateFormatted = getCycleEndDate(
-      endDate.toJSDate(),
-      group.frequency,
-    ).toISOString();
-
-    // Determine appropriate end date
-    let newEndDate: string;
-
-    if (
-      new Date(endDateFormatted).getTime() < group.reservationEndDate.getTime()
-    ) {
-      newEndDate = endDateFormatted;
-    } else {
-      newEndDate = group.reservationEndDate.toISOString();
-    }
-
-    try {
-      // Check for devices onboarded within the cycle period
-      const allDevicesOfGroup = await this.deviceService.findForGroup(group.id);
-
-      // Sort devices by creation date (newest first)
-      allDevicesOfGroup.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-
-      // Find earliest device created between start and end dates
-      const deviceInCyclePeriod = allDevicesOfGroup.find((device) => {
-        const createdAt = new Date(device.createdAt).getTime();
-        const startTime = new Date(startDateFormatted).getTime();
-        const endTime = new Date(newEndDate).getTime();
-
-        return createdAt > startTime && createdAt < endTime;
-      });
-
-      // If found, use device creation date as end date
-      if (deviceInCyclePeriod) {
-        newEndDate = new Date(deviceInCyclePeriod.createdAt).toISOString();
-      }
-    } catch (error) {
-      this.logger.error(
-        'Error checking for devices onboarded during cycle period',
-        error,
-      );
-    }
-
-    return newEndDate;
-  }
-
-  /**
    * Processes devices with missing meter read type and adds them to a late issuance cycle
    *
    * This function identifies devices that were created before the start date and have
    * a null meter read type, then registers them for late cycle processing.
    *
-   * @param group - The device group containing the d evices
-   * @param groupRequest - The certificate issuance request
+   * @param group - The device group containing the devices
    * @param startDate - Start date for the issuance cycle
    * @param endDate - End date for the issuance cycle
    */
-  private async processDevicesWithMissingReadType(
+  private async addCycles(
     group: DeviceGroup,
-    groupRequest: DeviceGroupNextIssueCertificate,
     startDate: DateTime,
     endDate: DateTime,
   ): Promise<void> {
     const groupDevices = await this.deviceService.findForGroup(group.id);
 
-    const devicesWithMissingReadType = groupDevices.filter(
+    const devices = groupDevices.filter(
       (device) =>
-        device.meterReadtype === null &&
-        new Date(device.createdAt).getTime() <=
-          new Date(groupRequest.start_date).getTime(),
+        new Date(device.createdAt).getTime() <= startDate.toJSDate().getTime(),
     );
 
     await Promise.all(
-      devicesWithMissingReadType.map(async (device) => {
-        await this.deviceService.addCycle(
+      devices.map(async (device) => {
+        await this.deviceService.findOrCreateCycle(
           group.id,
           device.externalId,
           startDate,

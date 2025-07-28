@@ -70,6 +70,9 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
+import { MeterRead } from './pods/reads/reads.entity';
+
+import { getTypeOrmConfig } from './config/typeorm.config';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -105,6 +108,7 @@ export const entities = [
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
+  MeterRead,
   HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
@@ -124,26 +128,10 @@ export const entities = [
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
-  const options: TypeOrmModuleOptions = process.env.DATABASE_URL
-    ? {
-        type: 'postgres',
-        url: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-        entities,
-        logging: ['info'],
-      }
-    : {
-        type: 'postgres',
-        host: process.env.DB_HOST ?? 'localhost',
-        port: Number(process.env.DB_PORT) ?? 5432,
-        username: process.env.DB_USERNAME ?? 'postgres',
-        password: process.env.DB_PASSWORD ?? 'postgres',
-        database: process.env.DB_DATABASE ?? 'origin',
-        entities,
-        logging: ['info'],
-      };
+  const options: TypeOrmModuleOptions = {
+    ...getTypeOrmConfig(),
+    entities,
+  };
 
   return TypeOrmModule.forRoot(options);
 };

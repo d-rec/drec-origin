@@ -20,6 +20,7 @@ import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_m
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { delay } from '../../../lib/helpers/delay';
+import { MeterRead } from '../../reads/reads.entity';
 
 @Injectable()
 export class HistoricalIssuanceService {
@@ -144,7 +145,7 @@ export class HistoricalIssuanceService {
   private async processHistoricalReads(
     group: DeviceGroup,
     device: Device,
-    historyReads: HistoryIntermediateMeterRead[],
+    historyReads: MeterRead[],
     requestIndex: number,
   ): Promise<void> {
     // Issue certificates for each read
@@ -159,8 +160,8 @@ export class HistoricalIssuanceService {
       // Only process reads when buyer information is present
       .filter(() => Boolean(group.buyerAddress && group.buyerId))
       // Only include reads that meet the minimum threshold (1kW = 1000W)
-      .filter((read) => read.readsvalue >= 1000)
-      .reduce((sum, read) => sum + read.readsvalue, 0);
+      .filter((read) => read.value >= 1000)
+      .reduce((sum, read) => sum + read.value, 0);
 
     // Convert to MWh and update group totals if needed
     const totalReadValueMegaWattHour = totalReadsValue / 10 ** 6;
@@ -243,14 +244,14 @@ export class HistoricalIssuanceService {
    */
   async issueCertificate(
     group: DeviceGroup,
-    deviceHistoryRequest: HistoryIntermediateMeterRead,
+    deviceHistoryRequest: MeterRead,
     device: IDevice,
   ): Promise<void> {
     // Early validation checks
     if (
       !group.buyerAddress ||
       !group.buyerId ||
-      deviceHistoryRequest.readsvalue < 1000
+      deviceHistoryRequest.value < 1000
     ) {
       return;
     }
@@ -259,9 +260,9 @@ export class HistoricalIssuanceService {
     const certificateTransactionUID = uuid().toString();
 
     // Convert dates once to avoid repeated conversions
-    const startDate = new Date(deviceHistoryRequest.readsStartDate.toString());
-    const endDate = new Date(deviceHistoryRequest.readsEndDate.toString());
-    const readValue = deviceHistoryRequest.readsvalue;
+    const startDate = new Date(deviceHistoryRequest.startDate.toString());
+    const endDate = new Date(deviceHistoryRequest.endDate.toString());
+    const readValue = deviceHistoryRequest.value;
 
     // Get issuance parameters
     const issuance = this.certificateService.getIssuanceParams(
@@ -283,16 +284,16 @@ export class HistoricalIssuanceService {
       await this.certificateLogService.createForDevice(
         group,
         device,
-        deviceHistoryRequest.readsStartDate,
-        deviceHistoryRequest.readsEndDate,
+        deviceHistoryRequest.startDate,
+        deviceHistoryRequest.endDate,
         readValue,
         certificateTransactionUID,
       ),
       // Create certificate log for group
       this.certificateLogService.createForGroup(
         group,
-        deviceHistoryRequest.readsStartDate,
-        deviceHistoryRequest.readsEndDate,
+        deviceHistoryRequest.startDate,
+        deviceHistoryRequest.endDate,
         readValue,
         issuance,
         device.countryCode,
@@ -305,8 +306,8 @@ export class HistoricalIssuanceService {
 
     await this.readService.updateHistoryCertificateIssueDate(
       deviceHistoryRequest.id,
-      deviceHistoryRequest.readsStartDate,
-      deviceHistoryRequest.readsEndDate,
+      deviceHistoryRequest.startDate,
+      deviceHistoryRequest.endDate,
     );
   }
 }

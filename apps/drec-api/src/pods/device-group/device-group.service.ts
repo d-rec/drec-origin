@@ -87,6 +87,7 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceGroupService {
@@ -727,6 +728,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
@@ -764,99 +766,29 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
-    devices.filter((ele) => {
-      if (
-        new Date(data.reservationStartDate).getTime() <
-          new Date(ele.createdAt).getTime() &&
-        new Date(data.reservationEndDate).getTime() <=
-          new Date(ele.createdAt).getTime()
-      ) {
-        return true;
-      }
-    }).length === devices.length
-      ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
-      : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+
+    const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
+      (device) => {
+        const reservationStart = new Date(data.reservationStartDate).getTime();
+        const reservationEnd = new Date(data.reservationEndDate).getTime();
+        const deviceCreated = new Date(device.createdAt).getTime();
+
+        return (
+          reservationStart < deviceCreated && reservationEnd <= deviceCreated
+        );
+      },
+    );
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
-      let minimumDeviceCreatedAtIndex = 0;
-      devices?.forEach((ele, index) => {
-        const eleDate = new Date(ele.createdAt);
-        if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
-          minimumDeviceCreatedAtDate = eleDate;
-          minimumDeviceCreatedAtIndex = index;
-        }
-      });
-
-      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
-      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
-      let startDate = '';
-      if (
-        minimumDeviceCreatedAtDate.getTime() <
-        new Date(data.reservationStartDate).getTime()
-      ) {
-        startDate = new Date(data.reservationStartDate).toISOString();
-      } else {
-        startDate = minimumDeviceCreatedAtDate.toISOString();
-      }
-
-      const endDate = getCycleEndDate(
-        new Date(startDate),
+      const { startDate, endDate } = this.calculateInitialIssuanceRange(
+        devices,
+        data.reservationStartDate,
+        data.reservationEndDate,
         group.frequency,
-      ).toISOString();
-
-      let newEndDate = '';
-
-      if (
-        new Date(endDate).getTime() <
-        new Date(data.reservationEndDate).getTime()
-      ) {
-        newEndDate = endDate;
-      } else {
-        newEndDate = data.reservationEndDate.toISOString();
-      }
-      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
-      //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-      let nextMinimumCreatedWhichIsLessThanEndDate = false;
-      let nextMinimumCreatedAtString = '';
-      devices?.forEach((ele, index) => {
-        if (index != minimumDeviceCreatedAtIndex) {
-          if (
-            new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()
-          ) {
-            nextMinimumCreatedWhichIsLessThanEndDate = true;
-            if (nextMinimumCreatedAtString === '') {
-              nextMinimumCreatedAtString = new Date(
-                ele.createdAt,
-              ).toISOString();
-            } else {
-              //check if nextMinimum is not minimum then change else leave it
-              if (
-                new Date(ele.createdAt).getTime() <
-                new Date(nextMinimumCreatedAtString).getTime()
-              ) {
-                nextMinimumCreatedAtString = new Date(
-                  ele.createdAt,
-                ).toISOString();
-              }
-            }
-          }
-        }
-      });
-      if (nextMinimumCreatedWhichIsLessThanEndDate) {
-        if (
-          !(
-            new Date(startDate).getTime() >
-            new Date(nextMinimumCreatedAtString).getTime()
-          )
-        ) {
-          newEndDate = nextMinimumCreatedAtString;
-        }
-      }
+      );
 
       this.repositoryNextDeviceGroupCertificate.save({
-        start_date: startDate,
-        end_date: newEndDate,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
         groupId: group.id,
       });
     }
@@ -1093,6 +1025,54 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
+  calculateInitialIssuanceRange(
+    devices: Device[],
+    _startDate: string | Date,
+    _endDate: string | Date,
+    frequency: string,
+  ): {
+    startDate: Date;
+    endDate: Date;
+  } {
+    const startDate = new Date(_startDate);
+    const endDate = new Date(_endDate);
+    const minDeviceDate = devices?.length
+      ? new Date(
+          Math.min(
+            ...devices.map((device) => new Date(device.createdAt).getTime()),
+          ),
+        )
+      : startDate;
+
+    const minDate = startDate > minDeviceDate ? startDate : minDeviceDate;
+    const maxEndDateUTC = this.calculateNextIssuanceEndDate(
+      minDate,
+      endDate,
+      frequency,
+    );
+
+    const minDateUTC = DateTime.fromJSDate(minDate).toUTC().toJSDate();
+
+    return {
+      startDate: minDateUTC,
+      endDate: maxEndDateUTC,
+    };
+  }
+
+  calculateNextIssuanceEndDate(
+    startDate: Date,
+    reservationEndDate: Date,
+    frequency: string,
+  ): Date {
+    const cycleEndDate = getCycleEndDate(startDate, frequency);
+    const maxEndDate = new Date(
+      Math.min(cycleEndDate.getTime(), reservationEndDate.getTime()),
+    );
+
+    return DateTime.fromJSDate(maxEndDate).toUTC().toJSDate();
+  }
+
+  @Profile()
   async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
@@ -1871,11 +1851,12 @@ export class DeviceGroupService {
       return false;
     }
   }
+
+  @Profile()
   async getGroupCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
-    this.logger.log('Line No: 1883');
     return (
       (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
       null
@@ -1944,6 +1925,7 @@ export class DeviceGroupService {
     }
   }
 
+  @Profile()
   async endReservation(
     groupId: number,
     group: DeviceGroup,
@@ -2788,6 +2770,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   public async processLeftOverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,
