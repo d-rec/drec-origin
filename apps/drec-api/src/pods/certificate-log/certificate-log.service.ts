@@ -409,10 +409,10 @@ export class CertificateLogService {
     });
   }
 
-  async getCertificateRedemptionReport(buyerId: number): Promise<any[]> {
+  async getCertificateRedemptionReport(organizationId: number): Promise<any[]> {
     this.logger.verbose(`With in getCertificateRedemptionReport`);
     const { groupedData } =
-      await this.deviceGroupService.getBuyerDeviceGroups(buyerId);
+      await this.deviceGroupService.getDeviceGroups(organizationId);
     const redemptionReports = [];
     await Promise.all(
       groupedData.map(async (deviceGroup: DeviceGroupDTO) => {
