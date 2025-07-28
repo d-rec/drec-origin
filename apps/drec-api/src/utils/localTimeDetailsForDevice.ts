@@ -10,16 +10,11 @@ export const getLocalTime = (
   startDate: string | any | Date,
   device: Device,
 ): any => {
-  const logger = new Logger('getLocalTime');
   const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
-  logger.log(`latitude is:::: + ${device.latitude}`);
-  logger.log(`longitude is::: + ${device.longitude}`);
-  logger.log(`point is::: + ${point}`);
   const timestamp = new Date(startDate);
   const localTime = mapBoxTimeSpace
     .getFuzzyLocalTimeFromPoint(timestamp, point)
     .startOf('day');
-  logger.log(`localTime Time: ${localTime.utc().format()}`);
   return localTime;
 };
 
@@ -29,20 +24,15 @@ export const getLocalTimeZoneFromDevice = (
 ): any => {
   const logger = new Logger('getLocalTimeZoneFromDevice');
   if (device.timezone) {
-    logger.log('timezone is there');
-    logger.log(`DEVICE TIMEZONE BEING RETURNED: ${device.timezone}`);
     return device.timezone;
   }
   if (device.longitude && device.latitude && localTime) {
     try {
-      logger.log('lat and long are there');
       const timestamp = new Date(localTime);
       const point = [parseFloat(device.longitude), parseFloat(device.latitude)];
       const time = mapBoxTimeSpace.getFuzzyLocalTimeFromPoint(timestamp, point);
-      logger.log(`TIME::::::::::::::::: + ${time}`);
       return momentTimeZone.tz.names().find((timezone) => {
         if (momentTimeZone.tz(timezone).zoneAbbr() == time.zoneAbbr()) {
-          logger.log(`TIMEZONE THAT's BEING RETURNED::: + ${timezone}`);
           return timezone;
         }
       });
@@ -51,7 +41,6 @@ export const getLocalTimeZoneFromDevice = (
     }
   }
 
-  logger.log('only country code');
   const countryCodeFound: CountryCodeNameDTO = countryCodesList.find(
     (entry) => entry.countryCode === device.countryCode,
   );
@@ -60,27 +49,18 @@ export const getLocalTimeZoneFromDevice = (
 };
 
 export const getOffsetFromTimeZoneName = (givenTimeZone: string | any): any => {
-  const logger = new Logger('getOffsetFromTimeZoneName');
-  logger.log(`given timezone::::::::;; + ${givenTimeZone}`);
   let matchingTimezone;
   for (let i = 0; i < countryCodesList.length; i++) {
     const elementTimeZone = countryCodesList[i].timezones;
     for (let j = 0; j < elementTimeZone.length; j++) {
       if (elementTimeZone[j].name === givenTimeZone) {
-        logger.log(
-          `FOUND A MATCHING TIMEZONE IN THE LOOPS:::: +
-            ${elementTimeZone[j].name},`,
-        );
         matchingTimezone = elementTimeZone[j];
         break;
       }
     }
   }
 
-  logger.log(`matching timezone object::::::; + ${matchingTimezone}`);
-  logger.log(`matching timezone name:::::::' + ${matchingTimezone.name}`);
   const offset = matchingTimezone.offset;
-  logger.log(`matching OFFSET::::::: + ${offset}`);
   return offset;
 };
 
@@ -90,9 +70,6 @@ export const getFormattedOffSetFromOffsetAsJson = (
   hours: number;
   minutes: number;
 } => {
-  const logger = new Logger('getFormattedOffSetFromOffsetAsJson');
-  logger.log(`given offset::: + ${givenOffSet}`);
-
   let hours = Math.floor(Math.abs(givenOffSet) / 60);
 
   const minutes = Math.abs(givenOffSet % 60);
@@ -100,10 +77,6 @@ export const getFormattedOffSetFromOffsetAsJson = (
   if (givenOffSet < 0) {
     hours = -1 * hours;
   }
-
-  logger.log(`OFFSET hours FROM UTILS FUNCTION: ${hours}`);
-
-  logger.log(`OFFSET hours FROM UTILS FUNCTION: ${minutes}`);
 
   const formattedJson = {
     hours: hours,
