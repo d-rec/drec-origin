@@ -511,11 +511,13 @@ describe('DeviceGroupService', () => {
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
 
-      jest.spyOn(repository.manager, 'createQueryBuilder').mockReturnValue({
-        select: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        getRawMany: jest.fn().mockResolvedValue(mockDevices),
-      } as any);
+      (repository as any).manager = {
+        createQueryBuilder: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getRawMany: jest.fn().mockResolvedValue(mockDevices),
+        }),
+      };
 
       // Calling the service function with necessary parameters
       const result = await service.getDeviceGroups(buyerId, 1);
