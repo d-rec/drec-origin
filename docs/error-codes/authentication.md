@@ -26,7 +26,7 @@ This section documents error codes related to system-level issues and authentica
 - [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
 
 ## Error Response Example
-  
+
 ```json
 {
   "statusCode": 401,

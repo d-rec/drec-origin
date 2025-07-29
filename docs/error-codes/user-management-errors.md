@@ -20,17 +20,38 @@ This section documents error codes related to user registration, authentication,
 | Code | Title | Description |
 |------|-------|-------------|
 | E-2100 | Invalid Email Token | The email confirmation token is invalid or has expired. Please verify your email address before proceeding. |
+| E-2101 | User email already confirmed | The user email is already confirmed. |
+| E-2102 | Invalid Phone Token | The phone confirmation token is invalid or has expired. Please verify your phone number before proceeding. |
+| E-2103 | User phone already confirmed | The user phone is already confirmed. |
+| E-2104 | Failed to send OTP | Failed to send OTP to the phone number. Please try again. |
 
-## User Permissions
+## User Retrieval
 
 | Code | Title | Description |
 |------|-------|-------------|
-| E-2300 | Permission Denied | You don't have permission to perform this action. |
-| E-2301 | Role Assignment Failed | Failed to assign the specified role. |
-| E-2302 | Invalid Role | The specified role does not exist. |
-| E-2303 | Role Update Not Allowed | You don't have permission to modify this role. |
-| E-2304 | Self Role Modification | You cannot modify your own role. |
-| E-2305 | Role Limit Reached | The maximum number of users with this role has been reached. |
+| E-2200 | User Not Found | The user with the specified ID does not exist. |
+| E-2201 | Api User Not Found | The api user with the specified ID does not exist. |
+
+## User Update
+
+| Code | Title | Description |
+|------|-------|-------------|
+| E-2300 | User Not Found | The user with the specified ID does not exist. |
+| E-2301 | Api User Not Found | The api user with the specified ID does not exist. |
+
+## User Deletion
+
+| Code | Title | Description |
+|------|-------|-------------|
+| E-2400 | User Not Found | The user with the specified ID does not exist. |
+| E-2401 | Api User Not Found | The api user with the specified ID does not exist. |
+
+## User Password Reset
+
+| Code | Title | Description |
+|------|-------|-------------|
+| E-2500 | User Not Found | The user with the specified ID does not exist. |
+| E-2501 | Incorrect Current Password | The current password is incorrect. |
 
 ## Related Documentation
 
