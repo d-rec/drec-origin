@@ -192,7 +192,10 @@ export class CertificateLogController {
       devicegroup_uid: groupId,
     });
 
-    if (deviceGroup === null || deviceGroup.organizationId != user.organizationId) {
+    if (
+      deviceGroup === null ||
+      deviceGroup.organizationId != user.organizationId
+    ) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
@@ -262,7 +265,10 @@ export class CertificateLogController {
       );
     }
 
-    if (deviceGroup === null || deviceGroup.organizationId != user.organizationId) {
+    if (
+      deviceGroup === null ||
+      deviceGroup.organizationId != user.organizationId
+    ) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
@@ -303,7 +309,9 @@ export class CertificateLogController {
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any[]> {
     this.logger.verbose(`With in getRedemptionReport`);
-    return this.certificateLogService.getCertificateRedemptionReport(organizationId);
+    return this.certificateLogService.getCertificateRedemptionReport(
+      organizationId,
+    );
   }
 
   // @Get('/missingCertificate')

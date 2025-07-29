@@ -10,13 +10,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { cloneDeep, defaults } from 'lodash';
 import {
-  Between,
   Brackets,
   FindConditions,
-  FindManyOptions,
-  FindOperator,
   LessThan,
-  Raw,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -25,10 +21,8 @@ import {
   CommissioningDateRange,
   DeviceTypeCode,
   FuelCode,
-  Installation,
   OffTaker,
   Role,
-  Sector,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
@@ -46,17 +40,13 @@ import {
 
 import moment from 'moment';
 
-import cleanDeep from 'clean-deep';
 import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 import CSVToJsonV2 from 'csvtojson';
@@ -706,11 +696,7 @@ export class DeviceGroupService {
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select([
-          'device.id',
-          'device.projectName',
-          'device.developerExternalId',
-        ])
+        .select(['device.id', 'device.projectName', 'device.serialNumber'])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -756,7 +742,7 @@ export class DeviceGroupService {
           devices: devices.map((device) => {
             return {
               id: device.device_id,
-              externalId: device.device_developerExternalId,
+              serialNumber: device.device_serial_number,
               projectName: device.device_projectName,
             };
           }),

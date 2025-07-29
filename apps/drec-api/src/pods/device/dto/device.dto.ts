@@ -20,7 +20,7 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
-  externalId: string;
+  externalId?: string;
 
   @IsString()
   @Exclude()

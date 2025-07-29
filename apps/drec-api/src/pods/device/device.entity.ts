@@ -31,7 +31,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ unique: true })
   @IsString()
-  externalId: string;
+  externalId?: string;
 
   @Column()
   @IsString()
