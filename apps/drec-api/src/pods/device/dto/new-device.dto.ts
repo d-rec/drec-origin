@@ -28,6 +28,8 @@ export class NewDeviceDTO
       'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
     >
 {
+  @ApiProperty()
+  @Trim()
   @IsOptional()
   externalId?: string;
 
@@ -60,6 +62,11 @@ export class NewDeviceDTO
   @IsString()
   @IsOptional()
   projectName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsNotEmpty()

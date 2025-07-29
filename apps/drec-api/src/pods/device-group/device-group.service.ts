@@ -1410,6 +1410,8 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
+          dataSourceBrand: '',
+          externalId: '',
           projectName: '',
           address: '',
           latitude: '',
