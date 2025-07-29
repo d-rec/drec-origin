@@ -2,7 +2,7 @@
 order: 3
 ---
 
-# User Management Errors
+# User Management Errors (E-2XXX)
 
 This section documents error codes related to user registration, authentication, and account management.
 
@@ -38,13 +38,6 @@ This section documents error codes related to user registration, authentication,
 |------|-------|-------------|
 | E-2300 | User Not Found | The user with the specified ID does not exist. |
 | E-2301 | Api User Not Found | The api user with the specified ID does not exist. |
-
-## User Deletion
-
-| Code | Title | Description |
-|------|-------|-------------|
-| E-2400 | User Not Found | The user with the specified ID does not exist. |
-| E-2401 | Api User Not Found | The api user with the specified ID does not exist. |
 
 ## User Password Reset
 

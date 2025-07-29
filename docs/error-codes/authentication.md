@@ -2,11 +2,11 @@
 order: 2
 ---
 
-# System and Authentication Errors (E-1XXX)
+# Authentication Errors (E-1XXX)
 
 This section documents error codes related to system-level issues and authentication problems.
 
-## Authentication Errors (E-1001 - E-1099)
+## Authentication Errors (E-1XXX)
 
 | Code | Title | Description |
 |------|-------|-------------|
@@ -26,7 +26,7 @@ This section documents error codes related to system-level issues and authentica
 - [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
 
 ## Error Response Example
-
+  
 ```json
 {
   "statusCode": 401,

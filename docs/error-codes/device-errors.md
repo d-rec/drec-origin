@@ -2,7 +2,7 @@
 order: 4
 ---
 
-# Device Registration Errors
+# Device Registration Errors (E-4XXX)
 
 This document outlines the various device registration and management errors that can be returned by the D-REC API.
 

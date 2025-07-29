@@ -2,7 +2,7 @@
 order: 5
 ---
 
-# Meter Reads Errors
+# Meter Reads Errors (E-5XXX)
 
 This document outlines the various errors that can occur when working with meter reads in the D-REC platform, including validation, submission, and processing errors.
 
@@ -21,6 +21,11 @@ This document outlines the various errors that can occur when working with meter
 | E-5009 | Future Timestamp | Timestamps cannot be in the future. |
 | E-5010 | Invalid Read Value | Meter read value must be greater than 0. |
 | E-5011 | System Date Violation | Timestamps cannot be after the current system date. |
+| E-5012 | Empty Device ID | Device ID cannot be empty. |
+| E-5013 | Invalid Accumulation Type | The provided accumulation type is not valid. Must be 'Monthly' or 'Yearly'. |
+| E-5014 | No Reads Found | No meter reads found for the specified criteria. |
+| E-5015 | Multiple Reads Not Allowed | Cannot process multiple reads simultaneously. |
+| E-5016 | Organization Mismatch | The device does not belong to the requesting user's organization. |
 
 ## Meter Read Processing
 
@@ -84,6 +89,26 @@ This document outlines the various errors that can occur when working with meter
 - **Cause**: Meter read value is not greater than 0.
 - **Solution**: Provide a positive numerical value for the meter reading.
 
+### Empty Device ID (E-5012)
+- **Cause**: The device ID was not provided or is empty.
+- **Solution**: Provide a valid device ID.
+
+### Invalid Accumulation Type (E-5013)
+- **Cause**: The provided accumulation type is not 'Monthly' or 'Yearly'.
+- **Solution**: Specify either 'Monthly' or 'Yearly' as the accumulation type.
+
+### No Reads Found (E-5014)
+- **Cause**: No meter reads exist for the specified criteria.
+- **Solution**: Verify the device ID and date range, then try again.
+
+### Multiple Reads Not Allowed (E-5015)
+- **Cause**: Attempted to submit multiple reads simultaneously.
+- **Solution**: Submit reads one at a time.
+
+### Organization Mismatch (E-5016)
+- **Cause**: The device does not belong to the user's organization.
+- **Solution**: Verify the device ID and organization permissions.
+
 ## Best Practices
 - Always validate meter read data before submission
 - Include proper error handling in your integration
@@ -92,6 +117,7 @@ This document outlines the various errors that can occur when working with meter
 - Verify device status and dates before submitting reads
 - Use consistent timestamp formats (ISO 8601)
 - Check for duplicate reads before submission
+- Ensure proper device permissions before accessing or modifying reads
 
 ## Related Documentation
 
