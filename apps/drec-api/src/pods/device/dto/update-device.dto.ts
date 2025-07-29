@@ -10,6 +10,7 @@ import {
   IsIn,
   IsDate,
   MaxDate,
+  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
@@ -49,6 +50,11 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   projectName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsOptional()
