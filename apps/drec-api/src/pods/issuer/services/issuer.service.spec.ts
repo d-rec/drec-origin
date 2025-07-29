@@ -261,8 +261,11 @@ describe('IssuerService', () => {
         buyerAddress: null,
         buyerId: null,
       } as unknown as DeviceGroup;
-      const deviceHistoryRequest =
-        {} as unknown as HistoryIntermediateMeterRead;
+      const deviceHistoryRequest = {
+        readsStartDate: new Date(),
+        readsEndDate: new Date(),
+        readsvalue: 0,
+      } as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
       await historicalIssuanceService.issueCertificate(

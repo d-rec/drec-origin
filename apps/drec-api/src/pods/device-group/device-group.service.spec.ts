@@ -482,7 +482,18 @@ describe('DeviceGroupService', () => {
           sdgBenefits: ['Benefit1', 'Benefit2'],
         },
       ];
-
+      const mockDevices = [
+        {
+          device_id: 1,
+          device_serial_number: 'ABC123',
+          device_projectName: 'Solar Farm 1',
+        },
+        {
+          device_id: 2,
+          device_serial_number: 'DEF456',
+          device_projectName: 'Solar Farm 2',
+        },
+      ];
       const mockCount = 1;
 
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
@@ -498,6 +509,12 @@ describe('DeviceGroupService', () => {
         getRawMany: jest.fn().mockResolvedValue(mockDeviceGroups),
         getSql: jest.fn().mockReturnThis(),
         getCount: jest.fn().mockResolvedValue(mockCount),
+      } as any);
+
+      jest.spyOn(repository.manager, 'createQueryBuilder').mockReturnValue({
+        select: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(mockDevices),
       } as any);
 
       // Calling the service function with necessary parameters
@@ -531,6 +548,18 @@ describe('DeviceGroupService', () => {
           type: 'typeA',
           deviceIds: [1, 2],
           SDGBenefits: ['Benefit1', 'Benefit2'],
+          devices: [
+            {
+              id: 1,
+              serialNumber: 'ABC123',
+              projectName: 'Solar Farm 1',
+            },
+            {
+              id: 2,
+              serialNumber: 'DEF456',
+              projectName: 'Solar Farm 2',
+            },
+          ],
         },
       ]);
 
