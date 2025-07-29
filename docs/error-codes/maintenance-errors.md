@@ -3,66 +3,55 @@ title: System Maintenance Errors
 order: 7
 ---
 
-# System Maintenance Errors (5XX)
+# System Maintenance Errors
 
 This document outlines the various system maintenance and operational errors that can be returned by the D-REC API.
 
-## Common System Maintenance Errors
+## System Errors
 
-### 500 Internal Server Error
+| Code | Title | Description |
+|------|-------|-------------|
+| E-9001 | Internal Server Error | An unexpected error occurred on the server. |
+| E-9002 | Database Connection Error | Unable to connect to the database. |
+| E-9003 | File System Error | An error occurred while accessing the file system. |
+| E-9004 | Cache Error | An error occurred while accessing the cache. |
+| E-9005 | External Service Error | An error occurred with an external service. |
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
-| `SYS_500_001` | Internal server error | An unexpected error occurred |
-| `SYS_500_002` | Database connection error | Unable to connect to the database |
-| `SYS_500_003` | File system error | An error occurred while accessing the file system |
-| `SYS_500_004` | Cache error | An error occurred while accessing the cache |
-| `SYS_500_005` | External service error | An error occurred with an external service |
+## Maintenance Windows
 
-### 502 Bad Gateway
+| Code | Title | Description |
+|------|-------|-------------|
+| E-9101 | Service Unavailable | The service is temporarily unavailable. |
+| E-9102 | Maintenance In Progress | The service is currently undergoing maintenance. |
+| E-9103 | Service Restarting | The service is restarting. |
+| E-9104 | Service Degraded | The service is running in a degraded state. |
+| E-9105 | Resource Exhausted | The service has exhausted its resources. |
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
-| `SYS_502_001` | Bad gateway | Received an invalid response from an upstream server |
-| `SYS_502_002` | Service temporarily overloaded | The service is temporarily overloaded |
-| `SYS_502_003` | Connection timeout | The connection to the upstream server timed out |
+## Timeout Errors
 
-### 503 Service Unavailable
+| Code | Title | Description |
+|------|-------|-------------|
+| E-9201 | Gateway Timeout | The server did not receive a timely response. |
+| E-9202 | Service Unresponsive | The service is not responding to requests. |
+| E-9203 | Operation Timeout | The operation timed out. |
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
-| `SYS_503_001` | Service unavailable | The service is temporarily unavailable |
-| `SYS_503_002` | Maintenance in progress | The service is currently undergoing maintenance |
-| `SYS_503_003` | Service restarting | The service is restarting |
-| `SYS_503_004` | Service degraded | The service is running in a degraded state |
-| `SYS_503_005` | Resource exhausted | The service has exhausted its resources |
+## Storage Errors
 
-### 504 Gateway Timeout
-
-| Error Code | Message | Description |
-|------------|---------|-------------|
-| `SYS_504_001` | Gateway timeout | The server did not receive a timely response |
-| `SYS_504_002` | Service unresponsive | The service is not responding to requests |
-| `SYS_504_003` | Operation timeout | The operation timed out |
-
-### 507 Insufficient Storage
-
-| Error Code | Message | Description |
-|------------|---------|-------------|
-| `SYS_507_001` | Storage limit reached | The storage limit has been reached |
-| `SYS_507_002` | Quota exceeded | The storage quota has been exceeded |
-| `SYS_507_003` | Disk full | No space left on device |
+| Code | Title | Description |
+|------|-------|-------------|
+| E-9301 | Insufficient Storage | The server is unable to store the representation needed to complete the request. |
+| E-9302 | Disk Quota Exceeded | The server's disk quota has been exceeded. |
+| E-9303 | Storage Allocation Failed | The server is unable to allocate storage for the request. |
 
 ## Error Response Example
 
 ```json
 {
   "statusCode": 503,
-  "message": "Service unavailable",
-  "error": "SYS_503_001",
-  "timestamp": "2023-07-28T16:30:00.000Z",
-  "path": "/api/endpoint",
-  "retryAfter": 300
+  "message": "Service temporarily unavailable",
+  "error": "E-9101",
+  "timestamp": "2023-07-29T13:00:00.000Z",
+  "path": "/api/endpoint"
 }
 ```
 
@@ -70,18 +59,18 @@ This document outlines the various system maintenance and operational errors tha
 
 ### Scheduled Maintenance
 
-- **Maintenance in Progress** (`SYS_503_002`): The service is currently undergoing maintenance.
+- **Maintenance in Progress** (`E-9102`): The service is currently undergoing maintenance.
   - Solution: Wait for the maintenance to complete and try again later.
 
-- **Service Restarting** (`SYS_503_003`): The service is restarting.
+- **Service Restarting** (`E-9103`): The service is restarting.
   - Solution: Wait a few moments and try your request again.
 
 ### Resource Issues
 
-- **Storage Limit Reached** (`SYS_507_001`): The storage limit has been reached.
+- **Storage Limit Reached** (`E-9301`): The storage limit has been reached.
   - Solution: Free up storage space or contact support to increase your limit.
   
-- **Resource Exhausted** (`SYS_503_005`): The service has exhausted its resources.
+- **Resource Exhausted** (`E-9105`): The service has exhausted its resources.
   - Solution: Reduce your request rate or contact support.
 
 ## Best Practices
@@ -91,14 +80,6 @@ This document outlines the various system maintenance and operational errors tha
 - Monitor system health and set up alerts for critical issues
 - Maintain proper logging for debugging purposes
 - Follow the principle of least privilege for system access
-
-## Maintenance Windows
-
-Scheduled maintenance windows are typically announced in advance. During these windows, you may experience:
-
-- Temporary service unavailability
-- Degraded performance
-- Limited functionality
 
 ## Status Page
 

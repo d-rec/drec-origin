@@ -3,7 +3,7 @@ title: Device and Meter Read Management Errors
 order: 3
 ---
 
-# Device and Meter Read Management Errors (4XX, 5XX)
+# Device and Meter Read Management Errors
 
 This document outlines the various device and meter read management errors that can be returned by the D-REC API.
 
@@ -11,8 +11,8 @@ This document outlines the various device and meter read management errors that 
 
 ### 400 Bad Request
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_400_001` | Invalid device identifier | The provided device identifier is malformed or invalid |
 | `DEVICE_400_002` | Invalid device type | The specified device type is not supported |
 | `DEVICE_400_003` | Invalid meter read value | The provided meter read value is invalid or out of range |
@@ -21,39 +21,39 @@ This document outlines the various device and meter read management errors that 
 
 ### 401 Unauthorized
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_401_001` | Unauthorized device access | The device is not authorized to perform this action |
 | `DEVICE_401_002` | Invalid device credentials | The provided device credentials are invalid |
 
 ### 403 Forbidden
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_403_001` | Device registration limit reached | Maximum number of devices reached for this account |
 | `DEVICE_403_002` | Device inactive | The device is currently inactive |
 | `DEVICE_403_003` | Operation not allowed | The requested operation is not allowed for this device |
 
 ### 404 Not Found
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_404_001` | Device not found | The specified device could not be found |
 | `DEVICE_404_002` | Meter read not found | The specified meter read could not be found |
 | `DEVICE_404_003` | Device type not found | The specified device type does not exist |
 
 ### 409 Conflict
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_409_001` | Device already exists | A device with this identifier already exists |
 | `DEVICE_409_002` | Duplicate meter read | A meter read with these details already exists |
 | `DEVICE_409_003` | Device already registered | This device is already registered to another account |
 
 ### 422 Unprocessable Entity
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `DEVICE_422_001` | Invalid meter read sequence | The meter read is out of sequence |
 | `DEVICE_422_002` | Meter read too high | The meter read exceeds expected maximum value |
 | `DEVICE_422_003` | Meter read too low | The meter read is lower than previous reading |

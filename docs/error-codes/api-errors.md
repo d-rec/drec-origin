@@ -11,8 +11,8 @@ This document outlines the various API and integration errors that can be return
 
 ### 400 Bad Request
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_400_001` | Invalid request body | The request body is malformed or invalid |
 | `API_400_002` | Missing required field | A required field is missing from the request |
 | `API_400_003` | Invalid field value | A field contains an invalid value |
@@ -21,8 +21,8 @@ This document outlines the various API and integration errors that can be return
 
 ### 401 Unauthorized
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_401_001` | Invalid API key | The provided API key is invalid |
 | `API_401_002` | API key expired | The provided API key has expired |
 | `API_401_003` | Authentication required | No authentication credentials were provided |
@@ -30,56 +30,56 @@ This document outlines the various API and integration errors that can be return
 
 ### 403 Forbidden
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_403_001` | IP not whitelisted | Your IP address is not whitelisted |
 | `API_403_002` | Insufficient permissions | Your API key does not have the required permissions |
 | `API_403_003` | API key revoked | Your API key has been revoked |
 
 ### 404 Not Found
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_404_001` | Endpoint not found | The requested endpoint does not exist |
 | `API_404_002` | Resource not found | The requested resource could not be found |
 | `API_404_003` | Version not found | The requested API version does not exist |
 
 ### 415 Unsupported Media Type
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_415_001` | Unsupported content type | The request's content type is not supported |
 | `API_415_002` | Unsupported accept header | The requested content type is not supported |
 | `API_415_003` | Invalid content type | The content type is not valid for this endpoint |
 
 ### 422 Unprocessable Entity
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_422_001` | Validation failed | The request failed validation |
 | `API_422_002` | Invalid input data | The provided input data is invalid |
 | `API_422_003` | Business rule violation | The request violates business rules |
 
 ### 429 Too Many Requests
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_429_001` | Rate limit exceeded | You have exceeded your API rate limit |
 | `API_429_002` | Too many requests | Too many requests from this IP address |
 | `API_429_003` | Request throttled | Your request has been throttled |
 
 ### 500 Internal Server Error
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_500_001` | Internal server error | An unexpected error occurred |
 | `API_500_002` | Service unavailable | The service is currently unavailable |
 | `API_500_003` | Database error | An error occurred while accessing the database |
 
 ### 503 Service Unavailable
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `API_503_001` | Service temporarily unavailable | The service is temporarily unavailable |
 | `API_503_002` | Maintenance in progress | The service is currently undergoing maintenance |
 | `API_503_003` | Service overloaded | The service is currently overloaded |

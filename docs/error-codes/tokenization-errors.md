@@ -3,7 +3,7 @@ title: Tokenization and Transaction Errors
 order: 5
 ---
 
-# Tokenization and Transaction Errors (4XX, 5XX)
+# Tokenization and Transaction Errors
 
 This document outlines the various tokenization and transaction errors that can be returned by the D-REC API.
 
@@ -11,8 +11,8 @@ This document outlines the various tokenization and transaction errors that can 
 
 ### 400 Bad Request
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_400_001` | Invalid token format | The provided token format is invalid |
 | `TOKEN_400_002` | Invalid transaction amount | The specified transaction amount is invalid |
 | `TOKEN_400_003` | Missing required fields | One or more required transaction fields are missing |
@@ -21,48 +21,48 @@ This document outlines the various tokenization and transaction errors that can 
 
 ### 401 Unauthorized
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_401_001` | Token expired | The token has expired and is no longer valid |
 | `TOKEN_401_002` | Invalid token | The provided token is invalid or malformed |
 | `TOKEN_401_003` | Token scope mismatch | The token does not have the required scope |
 
 ### 402 Payment Required
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_402_001` | Insufficient balance | Your account has insufficient balance for this transaction |
 | `TOKEN_402_002` | Payment method required | A valid payment method is required to complete this transaction |
 | `TOKEN_402_003` | Transaction limit exceeded | The transaction amount exceeds your allowed limit |
 
 ### 403 Forbidden
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_403_001` | Token redemption restricted | Token redemption is currently restricted |
 | `TOKEN_403_002` | Transaction not allowed | The requested transaction is not allowed |
 | `TOKEN_403_003` | Token generation restricted | Token generation is currently restricted for this account |
 
 ### 404 Not Found
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_404_001` | Token not found | The specified token could not be found |
 | `TOKEN_404_002` | Transaction not found | The specified transaction could not be found |
 | `TOKEN_404_003` | Token batch not found | The specified token batch could not be found |
 
 ### 409 Conflict
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_409_001` | Token already used | This token has already been used |
 | `TOKEN_409_002` | Duplicate transaction | A transaction with these details already exists |
 | `TOKEN_409_003` | Token batch conflict | The token batch is in an invalid state for this operation |
 
 ### 422 Unprocessable Entity
 
-| Error Code | Message | Description |
-|------------|---------|-------------|
+| Code | Title | Description |
+|------|-------|-------------|
 | `TOKEN_422_001` | Token validation failed | The token failed validation checks |
 | `TOKEN_422_002` | Transaction validation failed | The transaction failed validation checks |
 | `TOKEN_422_003` | Token batch validation failed | The token batch failed validation checks |
@@ -123,8 +123,8 @@ Tokenization and transaction endpoints are subject to rate limiting to prevent a
 
 ## Related Documentation
 
-- [System and Authentication Errors (E-1XXX)](/error-codes/system-auth-errors)
-- [User Management (E-2XXX)](/error-codes/user-management-errors)
-- [Device and Meter Read Management (E-3XXX)](/error-codes/device-meter-errors)
-- [API and Integration (E-5XXX)](/error-codes/api-errors)
-- [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
+- [System and Authentication Errors](./system-auth-errors.md)
+- [User Management](./user-management-errors.md)
+- [Device and Meter Read Management](./device-meter-errors.md)
+- [API and Integration](./api-errors.md)
+- [System Maintenance](./maintenance-errors.md)
