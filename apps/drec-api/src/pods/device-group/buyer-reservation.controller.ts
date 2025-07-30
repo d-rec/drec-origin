@@ -55,6 +55,7 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { DeviceService } from '../device/device.service';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -73,6 +74,7 @@ export class BuyerReservationController {
     private readonly fileService: FileService,
     private organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   /**
@@ -393,7 +395,9 @@ export class BuyerReservationController {
     @Query('orgId') orgId: number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
+    console.log("deviceGroupToRegister", deviceGroupToRegister,orgId);
     deviceGroupToRegister.api_user_id = user.api_user_id;
+    const devices = await this.deviceService.findByIds(deviceGroupToRegister.deviceIds);
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       const orgUser = await this.userService.findByEmail(organization.orgEmail);
@@ -430,6 +434,20 @@ export class BuyerReservationController {
           }
         }
       }
+      for (const device of devices) {
+
+      if (orgId !== device.organizationId) {
+        this.logger.error(
+          `Device with id ${device.id} does not belong to this organization ${orgId}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `Device with id ${device.id} does not belong to this organization ${orgId}`,
+        });
+
+      }
+
+    }
     }
     //integer range which is for deviceId in device(id) table
     //-2147483648 to +2147483647
@@ -456,6 +474,23 @@ export class BuyerReservationController {
         message:
           'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
+    }
+    // for (const deviceId of deviceGroupToRegister.deviceIds) {
+    //   console.log("deviceId", deviceId);
+      for (const device of devices) {
+        console.log("device", device.id);
+
+      if (organizationId !== device.organizationId) {
+        this.logger.error(
+          `Device with id ${device.id} does not belong to the organization`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `Device with id ${device.id} does not belong to the organization`,
+        });
+
+      }
+
     }
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
