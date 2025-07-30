@@ -25,18 +25,6 @@ This document outlines the various device registration and management errors tha
 | E-3102 | File not found          | The uploaded file is not found.                            |
 | E-3103 | File upload failed      | The file upload failed due to invalid file format or size. |
 
-## Error Response Example
-
-```json
-{
-  "statusCode": 400,
-  "message": "Device already registered",
-  "error": "E-3001",
-  "timestamp": "2023-07-29T15:00:00.000Z",
-  "path": "/api/devices/register"
-}
-```
-
 ## Common Scenarios
 
 ### Device Already Registered (E-3001)

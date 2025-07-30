@@ -47,18 +47,6 @@ This document outlines the various errors that can occur when working with meter
 | E-5305 | Invalid Read Type              | The read type is invalid.                                                    |
 | E-5306 | Invalid Organization ID        | The organization ID is invalid.                                              |
 
-## Error Response Example
-
-```json
-{
-  "statusCode": 400,
-  "message": "Invalid meter read data",
-  "error": "E-5001",
-  "timestamp": "2023-07-29T19:34:21+02:00",
-  "path": "/api/meter-reads"
-}
-```
-
 ## Common Scenarios
 
 ### Missing Required Timestamps (E-5002)

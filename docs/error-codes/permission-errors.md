@@ -41,18 +41,6 @@ This document outlines the various permission-related errors that can be returne
 | E-6206 | Invalid Module Permission    | The requested permission is not valid for this module. |
 | E-6207 | Empty Permission Request     | No permission data was provided in the request.        |
 
-## Error Response Example
-
-```json
-{
-  "statusCode": 403,
-  "message": "You don't have permission to perform this action",
-  "error": "E-6001",
-  "timestamp": "2023-07-29T16:54:58.000Z",
-  "path": "/api/permissions"
-}
-```
-
 ## Common Scenarios
 
 ### Unauthorized Module Access (E-6007)
