@@ -95,6 +95,14 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
+        aclmodulesId: 5, // DEVICE_GROUP_MANAGEMENT_CRUDL
+        entityId: 2, // OrganizationAdmin
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
+      {
         aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
@@ -143,11 +151,11 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
-        aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
+        aclmodulesId: 5, // DEVICE_GROUP_MANAGEMENT_CRUDL
         entityId: 4, // Buyer
         entityType: EntityType.Role,
-        permissions: ['Read', 'Write', 'Update', 'Delete'],
-        permissionValue: 15,
+        permissions: ['Read'],
+        permissionValue: 1,
         status: 1,
       },
       {

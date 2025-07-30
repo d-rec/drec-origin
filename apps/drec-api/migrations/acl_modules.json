@@ -29,8 +29,8 @@
   },
   {
     "id": 5,
-    "name": "BUYER_RESERVATION_MANAGEMENT_CRUDL",
-    "description": "ACL Module Name for Buyer Reservation module management",
+    "name": "DEVICE_GROUP_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for Device Grouping module management",
     "status": "Enable",
     "permissions": ["Read", "Write", "Update", "Delete"]
   },

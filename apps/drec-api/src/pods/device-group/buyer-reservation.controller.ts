@@ -87,7 +87,7 @@ export class BuyerReservationController {
   )
   @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -362,7 +362,7 @@ export class BuyerReservationController {
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
+  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -405,11 +405,11 @@ export class BuyerReservationController {
             message: 'Organization requested belongs to other apiuser',
           });
         }
-        if (orgUser.role === Role.Buyer) {
+        if (orgUser.role != Role.Buyer && orgUser.role != Role.SubBuyer) {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-        if (orgUser.role != Role.Buyer) {
+        if (orgUser.role === Role.Buyer) {
           this.logger.error(`Unauthorized for ${orgUser.role}`);
           throw new UnauthorizedException({
             success: false,
@@ -417,7 +417,7 @@ export class BuyerReservationController {
           });
         }
       } else {
-        if (user.role === Role.Buyer) {
+        if (user.role === Role.OrganizationAdmin) {
           if (organizationId !== organization.id) {
             this.logger.error(
               `User does not associated with the requested organization`,
