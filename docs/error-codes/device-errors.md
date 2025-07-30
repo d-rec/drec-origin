@@ -37,6 +37,38 @@ This document outlines the various device registration and management errors tha
 }
 ```
 
+## Common Scenarios
+
+### Device Already Registered (E-3001)
+
+- **Cause**: The device's serial number is already in use in the system.
+- **Solution**: Verify the serial number or contact support if you believe this is an error.
+
+### Invalid Serial Number (E-3003)
+
+- **Cause**: The serial number contains invalid characters or spaces.
+- **Solution**: Use only letters, numbers, underscores, or hyphens in the serial number.
+
+### Commissioning Date in Future (E-3004)
+
+- **Cause**: The provided commissioning date is set to a future date.
+- **Solution**: Ensure the commissioning date is not in the future.
+
+### Duplicate Device Details (E-3005)
+
+- **Cause**: Another device with identical details already exists.
+- **Solution**: Verify all device details, especially serial number and location.
+
+## Best Practices
+
+- **Pre-validate Device Data**: Ensure all device details meet requirements before submission.
+- **Use Bulk Upload for Multiple Devices**: For registering multiple devices, use the bulk upload feature.
+- **Verify Serial Number Uniqueness**: Check that the serial number isn't already in use.
+- **Check Date Formats**: Ensure all dates are in the correct format (ISO 8601).
+- **Review Error Responses**: Always check the error message and code for specific resolution steps.
+- **Maintain Device Records**: Keep an updated record of all registered devices and their details.
+- **Regular Audits**: Periodically verify device information for accuracy and completeness.
+
 ## Related Documentation
 
 - [Authentication](./authentication.md)

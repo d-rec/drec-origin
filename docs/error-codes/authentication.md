@@ -17,6 +17,48 @@ This section documents error codes related to system-level issues and authentica
 | E-1005 | Verify phone number         | Please verify your phone number to continue.                                                  |
 | E-1006 | Verify your organization    | Please verify your organization to continue.                                                  |
 
+## Common Scenarios
+
+### Invalid Credentials (E-1001)
+
+- **Cause**: The username or password entered is incorrect, or the account does not exist.
+- **Solution**: Double-check your credentials and try again. If you've forgotten your password, use the password reset feature.
+
+### Session Expired (E-1002)
+
+- **Cause**: Your authentication token has expired due to inactivity or security reasons.
+- **Solution**: Log in again to obtain a new authentication token.
+
+### Verification Required (E-1004, E-1005, E-1006)
+
+- **Cause**: Your account requires additional verification steps (email, phone, or organization).
+- **Solution**: Complete the verification process through the link sent to your email or contact support for assistance.
+
+## Best Practices
+
+- **Secure Password Management**:
+
+  - Use strong, unique passwords
+  - Consider using a password manager
+  - Never share your credentials
+
+- **Session Security**:
+
+  - Always log out from shared devices
+  - Enable multi-factor authentication if available
+  - Be cautious of phishing attempts
+
+- **Account Verification**:
+
+  - Keep your contact information up to date
+  - Complete all required verifications promptly
+  - Contact support if you encounter verification issues
+
+- **Error Handling**:
+  - Implement proper error handling in your application
+  - Provide clear, user-friendly error messages
+  - Log security-related errors for monitoring
+
 ## Related Documentation
 
 - [User Management Errors (E-2XXX)](./user-management-errors.md)
