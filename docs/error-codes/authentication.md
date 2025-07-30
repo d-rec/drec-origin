@@ -2,11 +2,11 @@
 order: 2
 ---
 
-# Authentication Errors (E-1XXX)
+# Authentication Error Codes (E-1XXX)
 
 This section documents error codes related to system-level issues and authentication problems.
 
-## Authentication Errors (E-1XXX)
+## Authentication Error Codes
 
 | Code | Title | Description |
 |------|-------|-------------|
@@ -19,10 +19,10 @@ This section documents error codes related to system-level issues and authentica
 
 ## Related Documentation
 
-- [User Management Errors (E-2XXX)](/error-codes/user-management-errors)
-- [Device and Meter Read Management (E-3XXX)](/error-codes/device-meter-errors)
-- [Tokenization and Transactions (E-4XXX)](/error-codes/tokenization-errors)
-- [API and Integration (E-5XXX)](/error-codes/api-errors)
+- [User Management Errors (E-2XXX)](./user-management-errors.md)
+- [Device Registration Errors (E-4XXX)](./device-errors.md)
+- [Meter Reads Errors (E-5XXX)](./meter-reads-errors.md)
+- [Permission Errors (E-6XXX)](./permission-errors.md)
 - [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
 
 ## Error Response Example

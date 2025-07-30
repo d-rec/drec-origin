@@ -48,11 +48,10 @@ This section documents error codes related to user registration, authentication,
 
 ## Related Documentation
 
-- [System and Authentication Errors](./system-auth-errors.md)
-- [Device and Meter Read Management](./device-meter-errors.md)
-- [Tokenization and Transactions](./tokenization-errors.md)
-- [API and Integration](./api-errors.md)
-- [System Maintenance](./maintenance-errors.md)
+- [Authentication](./authentication.md)
+- [Device Registration](./device-errors.md)
+- [Meter Reads](./meter-reads-errors.md)
+- [Permissions](./permission-errors.md)
 
 ## Error Response Example
 

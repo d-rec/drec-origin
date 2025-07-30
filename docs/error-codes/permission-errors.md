@@ -88,4 +88,5 @@ This document outlines the various permission-related errors that can be returne
 
 - [Authentication](./authentication.md)
 - [User Management](./user-management-errors.md)
-- [API Errors](./api-errors.md)
+- [Device Registration](./device-errors.md)
+- [Meter Reads](./meter-reads-errors.md)

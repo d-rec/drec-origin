@@ -39,7 +39,7 @@ This document outlines the various device registration and management errors tha
 
 ## Related Documentation
 
-- [Authentication Errors](./authentication.md)
-- [Meter Reads Tokenization](./meter-reads-tokenization-errors.md)
+- [Authentication](./authentication.md)
 - [User Management](./user-management-errors.md)
-- [Permission Errors](./permission-errors.md)
+- [Meter Reads](./meter-reads-errors.md)
+- [Permissions](./permission-errors.md)

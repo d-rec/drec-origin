@@ -62,54 +62,67 @@ This document outlines the various errors that can occur when working with meter
 ## Common Scenarios
 
 ### Missing Required Timestamps (E-5002)
+
 - **Cause**: Start Date and/or End Date values are missing for a History meter read type.
 - **Solution**: Ensure both start and end timestamps are provided for History type reads.
 
 ### Invalid Timestamp Format (E-5003)
+
 - **Cause**: Timestamp is not in the required ISO 8601 format.
 - **Solution**: Format timestamps as `YYYY-MM-DDThh:mm:ss.millisecondsZ` (e.g., 2022-10-18T11:35:27.640Z).
 
 ### Invalid Timestamp Order (E-5006)
+
 - **Cause**: Start timestamp is after the end timestamp.
-- **Solution**: Ensure start timestamp is always before end timestamp.
+- **Solution**: Ensure start timestamp is before end timestamp.
 
 ### Onboarding Date Violation (E-5007)
+
 - **Cause**: Read timestamps are before the device's onboarding date.
 - **Solution**: Check the device's onboarding date and adjust timestamps accordingly.
 
 ### Commissioning Date Violation (E-5008)
+
 - **Cause**: Read timestamps are before the device's commissioning date.
 - **Solution**: Ensure timestamps are after the device's commissioning date.
 
 ### Future Timestamp (E-5009)
+
 - **Cause**: Read timestamp is in the future.
 - **Solution**: Use current or past timestamps only.
 
 ### Invalid Read Value (E-5010)
+
 - **Cause**: Meter read value is not greater than 0.
 - **Solution**: Provide a positive numerical value for the meter reading.
 
 ### Empty Device ID (E-5012)
+
 - **Cause**: The device ID was not provided or is empty.
 - **Solution**: Provide a valid device ID.
 
 ### Invalid Accumulation Type (E-5013)
+
 - **Cause**: The provided accumulation type is not 'Monthly' or 'Yearly'.
 - **Solution**: Specify either 'Monthly' or 'Yearly' as the accumulation type.
 
 ### No Reads Found (E-5014)
+
 - **Cause**: No meter reads exist for the specified criteria.
 - **Solution**: Verify the device ID and date range, then try again.
 
 ### Multiple Reads Not Allowed (E-5015)
+
 - **Cause**: Attempted to submit multiple reads simultaneously.
 - **Solution**: Submit reads one at a time.
 
 ### Organization Mismatch (E-5016)
+
 - **Cause**: The device does not belong to the user's organization.
 - **Solution**: Verify the device ID and organization permissions.
 
 ## Best Practices
+
 - Always validate meter read data before submission
 - Include proper error handling in your integration
 - Monitor for and resolve data inconsistencies promptly
