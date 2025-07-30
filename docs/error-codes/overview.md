@@ -24,12 +24,11 @@ All error responses from the D-REC API follow a consistent JSON structure:
 
 Errors are grouped by the API component that generates them:
 
-1. [Authentication & Authorization](./system-auth-errors.md) - Errors related to user authentication and permissions
+1. [Authentication & Authorization](./authentication.md) - Errors related to user authentication and permissions
 2. [User Management](./user-management-errors.md) - Errors related to user accounts and profiles
-3. [Device & Meter Management](./device-meter-errors.md) - Errors related to device registration and meter readings
-4. [Tokenization & Transactions](./tokenization-errors.md) - Errors related to D-REC token operations
-5. [API & Integration](./api-errors.md) - General API usage and integration errors
-6. [System & Maintenance](./maintenance-errors.md) - Server-side and maintenance-related errors
+3. [Device Registration](./device-errors.md) - Errors related to device registration and management
+4. [Meter Reads](./meter-reads-errors.md) - Errors related to meter reading operations
+5. [Permissions](./permission-errors.md) - Errors related to user permissions and access control
 
 ## Common HTTP Status Codes
 

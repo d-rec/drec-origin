@@ -56,33 +56,39 @@ This document outlines the various permission-related errors that can be returne
 ## Common Scenarios
 
 ### Unauthorized Module Access (E-6007)
-- **Cause**: User attempted to modify module permissions without proper authorization.
-- **Solution**: Ensure the user has the necessary role (Admin or Organization Admin with appropriate scope) to modify module permissions.
+
+  - **Cause**: User attempted to modify module permissions without proper authorization.
+  - **Solution**: Ensure the user has the necessary role (Admin or Organization Admin with appropriate scope) to modify module permissions.
 
 ### Invalid Permission (E-6008)
-- **Cause**: The requested permission is not available for the specified module.
-- **Solution**: Verify the permission name and ensure it's valid for the target module.
+
+  - **Cause**: The requested permission is not available for the specified module.
+  - **Solution**: Verify the permission name and ensure it's valid for the target module.
 
 ### Duplicate Permission (E-6009)
-- **Cause**: Attempted to create a permission that already exists for the module and role.
-- **Solution**: Check existing permissions before creating new ones, or update the existing permission instead.
+
+  - **Cause**: Attempted to create a permission that already exists for the module and role.
+  - **Solution**: Check existing permissions before creating new ones, or update the existing permission instead.
 
 ### Module Not Found (E-6205)
-- **Cause**: The specified module ID does not exist in the system.
-- **Solution**: Verify the module ID and try again with a valid module identifier.
+
+  - **Cause**: The specified module ID does not exist in the system.
+  - **Solution**: Verify the module ID and try again with a valid module identifier.
 
 ### Empty Permission Request (E-6207)
-- **Cause**: The permission request was submitted without any permission data.
-- **Solution**: Ensure the request includes the necessary permission details.
+
+  - **Cause**: The permission request was submitted without any permission data.
+  - **Solution**: Ensure the request includes the necessary permission details.
 
 ## Best Practices
-- Always verify user permissions before performing sensitive operations
-- Implement proper error handling for permission-related issues
-- Log permission failures for security auditing
-- Use the principle of least privilege when assigning permissions
-- Regularly review and audit user permissions
-- Implement proper validation for permission requests
-- Provide clear error messages that don't expose sensitive information
+
+  - Always verify user permissions before performing sensitive operations
+  - Implement proper error handling for permission-related issues
+  - Log permission failures for security auditing
+  - Use the principle of least privilege when assigning permissions
+  - Regularly review and audit user permissions
+  - Implement proper validation for permission requests
+  - Provide clear error messages that don't expose sensitive information
 
 ## Related Documentation
 

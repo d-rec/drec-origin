@@ -23,7 +23,6 @@ This section documents error codes related to system-level issues and authentica
 - [Device Registration Errors (E-4XXX)](./device-errors.md)
 - [Meter Reads Errors (E-5XXX)](./meter-reads-errors.md)
 - [Permission Errors (E-6XXX)](./permission-errors.md)
-- [System Maintenance (E-9XXX)](/error-codes/maintenance-errors)
 
 ## Error Response Example
   
