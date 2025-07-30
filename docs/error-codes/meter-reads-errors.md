@@ -8,44 +8,44 @@ This document outlines the various errors that can occur when working with meter
 
 ## Meter Read Submission
 
-| Code | Title | Description |
-|------|-------|-------------|
-| E-5001 | Invalid Meter Read | The provided meter read data is invalid or incomplete. |
-| E-5002 | Missing Timestamps | Start Date and/or End Date values are missing for History meter read type. Both are required. |
-| E-5003 | Invalid Timestamp Format | The timestamp format is invalid. Must be in ISO 8601 format (YYYY-MM-DDThh:mm:ss.millisecondsZ). |
-| E-5004 | Duplicate Read | This meter read has already been submitted. |
-| E-5005 | Invalid Device | The specified device does not exist or is not active. |
-| E-5006 | Invalid Timestamp Order | Start timestamp must be before end timestamp. |
-| E-5007 | Onboarding Date Violation | Timestamps must be after the device's onboarding date. |
-| E-5008 | Commissioning Date Violation | Timestamps must be after the device's commissioning date. |
-| E-5009 | Future Timestamp | Timestamps cannot be in the future. |
-| E-5010 | Invalid Read Value | Meter read value must be greater than 0. |
-| E-5011 | System Date Violation | Timestamps cannot be after the current system date. |
-| E-5012 | Empty Device ID | Device ID cannot be empty. |
-| E-5013 | Invalid Accumulation Type | The provided accumulation type is not valid. Must be 'Monthly' or 'Yearly'. |
-| E-5014 | No Reads Found | No meter reads found for the specified criteria. |
-| E-5015 | Multiple Reads Not Allowed | Cannot process multiple reads simultaneously. |
-| E-5016 | Organization Mismatch | The device does not belong to the requesting user's organization. |
+| Code   | Title                        | Description                                                                                      |
+| ------ | ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| E-5001 | Invalid Meter Read           | The provided meter read data is invalid or incomplete.                                           |
+| E-5002 | Missing Timestamps           | Start Date and/or End Date values are missing for History meter read type. Both are required.    |
+| E-5003 | Invalid Timestamp Format     | The timestamp format is invalid. Must be in ISO 8601 format (YYYY-MM-DDThh:mm:ss.millisecondsZ). |
+| E-5004 | Duplicate Read               | This meter read has already been submitted.                                                      |
+| E-5005 | Invalid Device               | The specified device does not exist or is not active.                                            |
+| E-5006 | Invalid Timestamp Order      | Start timestamp must be before end timestamp.                                                    |
+| E-5007 | Onboarding Date Violation    | Timestamps must be after the device's onboarding date.                                           |
+| E-5008 | Commissioning Date Violation | Timestamps must be after the device's commissioning date.                                        |
+| E-5009 | Future Timestamp             | Timestamps cannot be in the future.                                                              |
+| E-5010 | Invalid Read Value           | Meter read value must be greater than 0.                                                         |
+| E-5011 | System Date Violation        | Timestamps cannot be after the current system date.                                              |
+| E-5012 | Empty Device ID              | Device ID cannot be empty.                                                                       |
+| E-5013 | Invalid Accumulation Type    | The provided accumulation type is not valid. Must be 'Monthly' or 'Yearly'.                      |
+| E-5014 | No Reads Found               | No meter reads found for the specified criteria.                                                 |
+| E-5015 | Multiple Reads Not Allowed   | Cannot process multiple reads simultaneously.                                                    |
+| E-5016 | Organization Mismatch        | The device does not belong to the requesting user's organization.                                |
 
 ## Meter Read Processing
 
-| Code | Title | Description |
-|------|-------|-------------|
-| E-5201 | Processing Error | An error occurred while processing the meter read. |
-| E-5202 | Calculation Error | Could not calculate energy generation from the meter read. |
-| E-5203 | Data Inconsistency | The meter read is inconsistent with previous readings. |
-| E-5204 | Device Inactive | The device is not active for the specified date range. |
+| Code   | Title              | Description                                                |
+| ------ | ------------------ | ---------------------------------------------------------- |
+| E-5201 | Processing Error   | An error occurred while processing the meter read.         |
+| E-5202 | Calculation Error  | Could not calculate energy generation from the meter read. |
+| E-5203 | Data Inconsistency | The meter read is inconsistent with previous readings.     |
+| E-5204 | Device Inactive    | The device is not active for the specified date range.     |
 
 ## Meter Read Retrieval
 
-| Code | Title | Description |
-|------|-------|-------------|
-| E-5301 | Invalid Device ID | The specified device ID is invalid or does not exist. |
-| E-5302 | Read Not found | The specified read is not found. |
+| Code   | Title                          | Description                                                                  |
+| ------ | ------------------------------ | ---------------------------------------------------------------------------- |
+| E-5301 | Invalid Device ID              | The specified device ID is invalid or does not exist.                        |
+| E-5302 | Read Not found                 | The specified read is not found.                                             |
 | E-5303 | Market Intermediary Can't View | The market intermediary can't view the reads of other market intermediaries. |
-| E-5304 | Organization Admin Can't View | The organization admin can't view the reads of other organizations. |
-| E-5305 | Invalid Read Type | The read type is invalid. |
-| E-5306 | Invalid Organization ID | The organization ID is invalid. |
+| E-5304 | Organization Admin Can't View  | The organization admin can't view the reads of other organizations.          |
+| E-5305 | Invalid Read Type              | The read type is invalid.                                                    |
+| E-5306 | Invalid Organization ID        | The organization ID is invalid.                                              |
 
 ## Error Response Example
 

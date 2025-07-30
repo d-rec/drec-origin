@@ -8,14 +8,14 @@ This section documents error codes related to system-level issues and authentica
 
 ## Authentication Error Codes
 
-| Code | Title | Description |
-|------|-------|-------------|
-| E-1001 | Invalid Credentials | The provided username or password is incorrect. Please verify your credentials and try again. |
-| E-1002 | Session Expired | Your session has expired. Please log in again to continue. |
-| E-1003 | Accept Terms and Conditions | You must accept the terms and conditions to continue. |
-| E-1004 | Verify your email | Please verify your email address to continue. |
-| E-1005 | Verify phone number | Please verify your phone number to continue. |
-| E-1006 | Verify your organization | Please verify your organization to continue. |
+| Code   | Title                       | Description                                                                                   |
+| ------ | --------------------------- | --------------------------------------------------------------------------------------------- |
+| E-1001 | Invalid Credentials         | The provided username or password is incorrect. Please verify your credentials and try again. |
+| E-1002 | Session Expired             | Your session has expired. Please log in again to continue.                                    |
+| E-1003 | Accept Terms and Conditions | You must accept the terms and conditions to continue.                                         |
+| E-1004 | Verify your email           | Please verify your email address to continue.                                                 |
+| E-1005 | Verify phone number         | Please verify your phone number to continue.                                                  |
+| E-1006 | Verify your organization    | Please verify your organization to continue.                                                  |
 
 ## Related Documentation
 
@@ -25,7 +25,7 @@ This section documents error codes related to system-level issues and authentica
 - [Permission Errors (E-6XXX)](./permission-errors.md)
 
 ## Error Response Example
-  
+
 ```json
 {
   "statusCode": 401,
