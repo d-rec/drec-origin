@@ -75,7 +75,7 @@ This section documents error codes related to user registration, authentication,
 
 ## Best Practices
 
-### User Registration
+### User Registration Best Practices
 
 - **Email Verification**: Always verify new email addresses before allowing account access
 - **Password Strength**: Enforce strong password policies
