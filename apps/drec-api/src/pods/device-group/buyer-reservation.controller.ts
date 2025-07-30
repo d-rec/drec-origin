@@ -409,7 +409,7 @@ export class BuyerReservationController {
           organizationId = orgId;
           deviceGroupToRegister.api_user_id = user.api_user_id;
         }
-        if (orgUser.role === Role.Buyer) {
+        if (orgUser.role === Role.Buyer || orgUser.role === Role.SubBuyer) {
           this.logger.error(`Unauthorized for ${orgUser.role}`);
           throw new UnauthorizedException({
             success: false,

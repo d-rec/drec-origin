@@ -9,7 +9,7 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ILoggedInUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { PermissionString, Role } from '../../utils/enums';
 import { Repository } from 'typeorm';
 import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
@@ -194,8 +194,24 @@ describe('DeviceGroupService', () => {
           getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
         } as any;
       });
-
-      const result = await service.getAll();
+      const dummyUser: ILoggedInUser = {
+        id: 1,
+        role: Role.User,
+        api_user_id: 'someid',
+        organizationId: 1,
+        email: 'test@example.com',
+        blockchainAccountAddress: '0xabc',
+        hasRole: function (): boolean {
+          throw new Error('Function not implemented.');
+        },
+        ownerId: '',
+        hasOrganization: false,
+        permissions: PermissionString.Read,
+        hasPermission: function (): boolean {
+          throw new Error('Function not implemented.');
+        },
+      };
+      const result = await service.getAll(dummyUser);
       expect(result).toEqual({
         groupedData: deviceGroups,
         currentPage: undefined,
