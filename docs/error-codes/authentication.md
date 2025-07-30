@@ -36,28 +36,29 @@ This section documents error codes related to system-level issues and authentica
 
 ## Best Practices
 
-- **Secure Password Management**:
+### Secure Password Management
 
-  - Use strong, unique passwords
-  - Consider using a password manager
-  - Never share your credentials
+- Use strong, unique passwords
+- Consider using a password manager
+- Never share your credentials
 
-- **Session Security**:
+### Session Security
 
-  - Always log out from shared devices
-  - Enable multi-factor authentication if available
-  - Be cautious of phishing attempts
+- Always log out from shared devices
+- Enable multi-factor authentication if available
+- Be cautious of phishing attempts
 
-- **Account Verification**:
+### Account Verification
 
-  - Keep your contact information up to date
-  - Complete all required verifications promptly
-  - Contact support if you encounter verification issues
+- Keep your contact information up to date
+- Complete all required verifications promptly
+- Contact support if you encounter verification issues
 
-- **Error Handling**:
-  - Implement proper error handling in your application
-  - Provide clear, user-friendly error messages
-  - Log security-related errors for monitoring
+### Error Handling
+
+- Implement proper error handling in your application
+- Provide clear, user-friendly error messages
+- Log security-related errors for monitoring
 
 ## Related Documentation
 
