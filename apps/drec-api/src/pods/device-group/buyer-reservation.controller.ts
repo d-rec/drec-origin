@@ -85,7 +85,7 @@ export class BuyerReservationController {
     RolesGuard,
     PermissionGuard,
   )
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
   @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
@@ -288,7 +288,7 @@ export class BuyerReservationController {
     PermissionGuard,
   )
   @Permission('Read')
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'organizationId',
     type: Number,
