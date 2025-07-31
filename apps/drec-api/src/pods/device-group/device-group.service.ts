@@ -10,13 +10,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { cloneDeep, defaults } from 'lodash';
 import {
-  Between,
   Brackets,
   FindConditions,
-  FindManyOptions,
-  FindOperator,
   LessThan,
-  Raw,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -25,10 +21,8 @@ import {
   CommissioningDateRange,
   DeviceTypeCode,
   FuelCode,
-  Installation,
   OffTaker,
   Role,
-  Sector,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
@@ -46,17 +40,13 @@ import {
 
 import moment from 'moment';
 
-import cleanDeep from 'clean-deep';
 import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 import CSVToJsonV2 from 'csvtojson';
