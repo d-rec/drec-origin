@@ -181,7 +181,7 @@ export class PermissionsSeeder implements SeederInterface {
         permissions: ['Read'],
         permissionValue: 1,
         status: 1,
-      }
+      },
     ]);
 
     await this.aclPermissionsRepository.save(permissions);
