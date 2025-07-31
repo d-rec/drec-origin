@@ -90,7 +90,7 @@ describe('IntegratorsService', () => {
         statusText: 'OK',
       };
 
-      jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
+      jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse) as any);
       const result = await service.loginBBOX(server, loginForm);
 
       expect(httpService.post).toHaveBeenCalledWith(
