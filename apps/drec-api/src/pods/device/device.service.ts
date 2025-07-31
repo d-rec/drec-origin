@@ -18,6 +18,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
   Not,
@@ -1215,7 +1216,7 @@ export class DeviceService {
     }
     let where: any = query.where;
 
-    where = { ...where, groupId: null, api_user_id: api_user_id };
+    where = { ...where, groupId: null, api_user_id: api_user_id, capacity:  LessThanOrEqual(250) };
 
     query.where = where;
 

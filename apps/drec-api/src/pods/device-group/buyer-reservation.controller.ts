@@ -395,7 +395,6 @@ export class BuyerReservationController {
     @Query('orgId') orgId: number | null,
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
-    console.log("deviceGroupToRegister", deviceGroupToRegister,orgId);
     deviceGroupToRegister.api_user_id = user.api_user_id;
     const devices = await this.deviceService.findByIds(deviceGroupToRegister.deviceIds);
     if (orgId) {
@@ -408,10 +407,6 @@ export class BuyerReservationController {
             success: false,
             message: 'Organization requested belongs to other apiuser',
           });
-        }
-        if (orgUser.role != Role.Buyer && orgUser.role != Role.SubBuyer) {
-          organizationId = orgId;
-          deviceGroupToRegister.api_user_id = user.api_user_id;
         }
         if (orgUser.role === Role.Buyer || orgUser.role === Role.SubBuyer) {
           this.logger.error(`Unauthorized for ${orgUser.role}`);
@@ -434,20 +429,6 @@ export class BuyerReservationController {
           }
         }
       }
-      for (const device of devices) {
-
-      if (orgId !== device.organizationId) {
-        this.logger.error(
-          `Device with id ${device.id} does not belong to this organization ${orgId}`,
-        );
-        throw new ConflictException({
-          success: false,
-          message: `Device with id ${device.id} does not belong to this organization ${orgId}`,
-        });
-
-      }
-
-    }
     }
     //integer range which is for deviceId in device(id) table
     //-2147483648 to +2147483647
@@ -475,15 +456,20 @@ export class BuyerReservationController {
           'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
     }
-    // for (const deviceId of deviceGroupToRegister.deviceIds) {
-    //   console.log("deviceId", deviceId);
-      for (const device of devices) {
-        console.log("device", device.id);
+    for (const device of devices) {
+    if(user.role === Role.ApiUser){
+
+      if (Number(orgId) !== device.organizationId) {
+        throw new ConflictException({
+          success: false,
+          message: `Device with id22 ${device.id} does not belong to this organization ${orgId}`,
+        });
+
+      }
+
+    }else{
 
       if (organizationId !== device.organizationId) {
-        this.logger.error(
-          `Device with id ${device.id} does not belong to the organization`,
-        );
         throw new ConflictException({
           success: false,
           message: `Device with id ${device.id} does not belong to the organization`,
@@ -491,6 +477,21 @@ export class BuyerReservationController {
 
       }
 
+    }
+    if(device.capacity >= 250 ){
+      throw new ConflictException({
+        success: false,
+        message: `Only devices less than 250KW can be added to a group`,
+      });
+
+    }
+    }
+        const totalCapacity = devices.reduce((acc, device) => acc + device.capacity, 0);
+    if (totalCapacity >= 250) {
+      throw new ConflictException({
+        success: false,
+        message: `Total capacity of devices in the group cannot exceed 250KW`,
+      });
     }
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
