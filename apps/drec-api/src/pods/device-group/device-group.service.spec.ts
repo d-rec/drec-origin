@@ -466,7 +466,7 @@ describe('DeviceGroupService', () => {
     });
   });
 
-  describe('getBuyerDeviceGroups', () => {
+  describe('getDeviceGroups', () => {
     const mockDeviceQueryBuilder = {
       select: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
@@ -539,7 +539,8 @@ describe('DeviceGroupService', () => {
       setupMainQueryBuilderMock(mockDeviceGroups, 1);
       setupDeviceDetailsMock(mockDeviceDetails);
 
-      const result = await service.getBuyerDeviceGroups(buyerId, 1);
+      // Calling the service function with necessary parameters
+      const result = await service.getDeviceGroups(buyerId, 1);
 
       expect(result.groupedData).toEqual(
         expect.arrayContaining([
@@ -599,7 +600,7 @@ describe('DeviceGroupService', () => {
       setupMainQueryBuilderMock(mockDeviceGroups, 1);
       setupDeviceDetailsMock([]);
 
-      const result = await service.getBuyerDeviceGroups(buyerId, 1);
+      const result = await service.getDeviceGroups(buyerId, 1);
       expect(result.groupedData[0].devices).toEqual([]);
     });
 
@@ -613,7 +614,7 @@ describe('DeviceGroupService', () => {
       setupMainQueryBuilderMock([], 0);
 
       await expect(
-        service.getBuyerDeviceGroups(
+        service.getDeviceGroups(
           buyerId,
           1,
           groupFilterDTO as unknown as UnreservedDeviceGroupsFilterDTO,
@@ -627,7 +628,7 @@ describe('DeviceGroupService', () => {
       setupMainQueryBuilderMock([], 10);
       setupDeviceDetailsMock([]);
 
-      await expect(service.getBuyerDeviceGroups(buyerId, 100)).rejects.toThrow(
+      await expect(service.getDeviceGroups(buyerId, 100)).rejects.toThrow(
         HttpException,
       );
     });
