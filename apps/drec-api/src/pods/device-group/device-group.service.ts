@@ -87,6 +87,8 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { Profile } from '../../lib/profile';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -125,6 +127,7 @@ export class DeviceGroupService {
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @InjectQueue(Queues.DeviceBulkUpload) private deviceQueue: Queue,
+    private readonly evidentDeviceService: EvidentDeviceService
   ) {}
 
   async getAll(
@@ -749,7 +752,7 @@ export class DeviceGroupService {
             deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
           authorityToExceed: deviceGroup.dg_authorityToExceed,
           leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-          devicegroup_uid: deviceGroup.dg_devicegroup_uid,
+          deviceGroupId: deviceGroup.dg_devicegroup_uid,
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
@@ -861,7 +864,8 @@ export class DeviceGroupService {
         );
       }),
     );
-
+    console.log("group", group)
+    await this.evidentDeviceService.generateEvidentDeviceGroup(group)
     return group;
   }
 
@@ -2073,7 +2077,7 @@ export class DeviceGroupService {
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupId: groupId,
       reservationActive: true,
     });
     if (group === null) {
@@ -2802,4 +2806,16 @@ export class DeviceGroupService {
     // 4. Return the integer component for certificate issuance
     return integralVal;
   }
+
+  async updateEvidentStatus(
+  groupId: number,
+  deviceGroupId: string,
+  evidentGroupId: string,
+  status: EvidentRegistrationStatus,
+): Promise<void> {
+  await this.repository.update(
+    { id: groupId, deviceGroupId: deviceGroupId }, // Use both keys for composite PK
+    { evidentGroupId: evidentGroupId, evidentStatus: status }
+  );
+}
 }

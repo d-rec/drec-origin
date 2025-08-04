@@ -22,6 +22,9 @@ import { UserService } from '../user/user.service';
 import EvidentSubmittedDeviceRegistrationTemplate, {
   getEvidentSubmittedDeviceRegistrationSubject,
 } from './mail/evident-submitted-device-registration.template';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { getRedisClient } from '../../lib/redis';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -37,8 +40,8 @@ export class EvidentDeviceService {
     private mailService: MailService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly organizationService: OrganizationService,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
+    @Inject(forwardRef(() => DeviceGroupService))
+    private readonly deviceGroupService: DeviceGroupService,
   ) {}
 
   async fetchDevices(organizationId: number): Promise<any> {
@@ -50,7 +53,7 @@ export class EvidentDeviceService {
 
   async registerDevice(
     device: Device,
-    files: Record<string, Express.Multer.File[]>,
+    files?: Record<string, Express.Multer.File[]>,
   ): Promise<any> {
     try {
       const evidentApiInstance = await this.evidentService.getApiInstance(
@@ -61,7 +64,9 @@ export class EvidentDeviceService {
         fuel: `/fuels/${device.fuelCode}`,
       });
       device.evidentDeviceId = response.data.code;
+      console.log('Evident Device ID:', device.evidentDeviceId);
       await this.saveDeviceDetails(device, files);
+
       return response.data;
     } catch (error) {
       this.logger.error('Error registering device:', error.message);
@@ -71,7 +76,7 @@ export class EvidentDeviceService {
 
   async saveDeviceDetails(
     device: Device,
-    files: Record<string, Express.Multer.File[]>,
+    files?: Record<string, Express.Multer.File[]>,
   ): Promise<string> {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
@@ -84,13 +89,15 @@ export class EvidentDeviceService {
       await this.organizationService.getLinkedMarketIntermediaryOrSelf(
         device.organizationId,
       );
-
-    const uploadedFiles = await this.evidentService.uploadFiles(
-      device,
-      files,
-      evidentUserId,
-      this.getNotes(device),
-    );
+    let uploadedFiles: string[] = [];
+    if(files){
+      uploadedFiles = await this.evidentService.uploadFiles(
+        device,
+        files,
+        evidentUserId,
+        this.getNotes(device),
+      );
+    }
 
     const payload = this.generateDeviceDetailsPayload(
       device,
@@ -103,7 +110,7 @@ export class EvidentDeviceService {
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
-
+    console.log('Register Device Payload:', payload);
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
@@ -123,6 +130,13 @@ export class EvidentDeviceService {
         }),
       });
     } else {
+      const deviceGroupId = await this.getDeviceGroupFromRedis(device.groupId, device.groupId);
+      await this.deviceGroupService.updateEvidentStatus(
+        device.groupId,
+        deviceGroupId.deviceGroupId,
+        device.evidentDeviceId,
+        EvidentRegistrationStatus.Draft,
+      );
       await this.mailService.send({
         to: organization.orgEmail,
         subject: getEvidentDraftDeviceRegistrationSubject(device),
@@ -151,7 +165,14 @@ export class EvidentDeviceService {
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
     );
-
+    console.log("deviceGroupId", device.groupId)
+    const deviceGroupId = await this.getDeviceGroupFromRedis(device.groupId, device.groupId);
+    await this.deviceGroupService.updateEvidentStatus(
+  device.groupId, 
+  deviceGroupId.deviceGroupId,
+  device.evidentDeviceId,
+  EvidentRegistrationStatus.Submitted,
+);
     return payload;
   }
 
@@ -171,10 +192,54 @@ export class EvidentDeviceService {
     });
   }
 
+  async generateEvidentDeviceGroup(deviceGroup: DeviceGroup): Promise<void> {
+    const devices = await this.deviceService.findByIds(deviceGroup.deviceIds);
+    if (devices.length === 0) {
+      this.logger.warn('No devices found for the provided device IDs');
+      return;
+    }
+    // Storing the composite key for a device group, scoped by organization
+    await this.storeDeviceGroupInRedis(deviceGroup); 
+
+    console.log("devices", devices)
+    const capacity = devices.reduce((sum, device)=> sum + device.capacity,0)
+    const commissioningDate = devices
+      .sort((a: Device, b: Device) => new Date(a.commissioningDate).getTime() - new Date(b.commissioningDate).getTime())[0].commissioningDate;
+    const device: Device = devices[0];
+    device.capacity = capacity;
+    device.commissioningDate = commissioningDate;
+    device.createdAt = new Date(commissioningDate);
+    device["deviceGroupId"] = deviceGroup.deviceGroupId;
+    console.log("device", device)
+    await this.registerDevice(device);
+  }
+
+  private async storeDeviceGroupInRedis(
+    deviceGroup: DeviceGroup,
+  ): Promise<void> {
+    const redis = getRedisClient();
+    const redisKey = `deviceGroup:${deviceGroup.id}:${deviceGroup.id}`;
+    await redis.set(redisKey, JSON.stringify({ id: deviceGroup.id, deviceGroupId: deviceGroup.deviceGroupId }));
+    console.log('Storing Redis Key:', redisKey, 'Value:', { id: deviceGroup.id, deviceGroupId: deviceGroup.deviceGroupId });
+  }
+  
+  async getDeviceGroupFromRedis(
+    organizationId: number,
+    groupId: number,
+  ): Promise<DeviceGroup | null> {
+    const redis = getRedisClient();
+    const redisKey = `deviceGroup:${organizationId}:${groupId}`;
+    const data = await redis.get(redisKey);
+    if (!data) {
+      return null;
+    }
+    return JSON.parse(data);
+  }
+
   private generateDeviceDetailsPayload(
     device: Device,
     registrantId: string,
-    files: string[],
+    files?: string[],
   ): any {
     const alpha2CountryCode = findCountryByCode(device.countryCode).alpha2;
     const convertCapacityToMwh = convertToPowerUnit({
@@ -201,7 +266,7 @@ export class EvidentDeviceService {
       stateProvince: device.stateProvince,
       country: `/countries/${alpha2CountryCode}`,
       notes: this.getNotes(device),
-      files,
+      files: files || [],
     };
   }
 

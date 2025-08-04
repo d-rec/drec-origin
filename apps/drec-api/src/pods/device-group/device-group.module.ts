@@ -24,6 +24,7 @@ import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
+import { EvidentModule } from '../evident/evident.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { Queues } from '../../utils/enums/queues.enum';
     FileModule,
     forwardRef(() => UserModule),
     forwardRef(() => BulkUploadModule),
+    forwardRef(() => EvidentModule),
   ],
   providers: [DeviceGroupService, DeviceBulkUploadProcessor],
   exports: [DeviceGroupService, BullModule],

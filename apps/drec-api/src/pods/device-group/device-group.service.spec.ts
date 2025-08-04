@@ -371,7 +371,7 @@ describe('DeviceGroupService', () => {
           organizationId: 1,
           createdAt: new Date('2024-01-01T00:00:00Z'),
           // Add all other required fields for DeviceGroup entity
-          devicegroup_uid: 'uid-1',
+          deviceGroupId: 'uid-1',
           yieldValue: 100,
           deviceIdsInt: [1, 2],
           api_user_id: 'user123',
@@ -394,7 +394,7 @@ describe('DeviceGroupService', () => {
           organizationId: 1,
           createdAt: new Date('2024-02-01T00:00:00Z'),
           // Add all other required fields for DeviceGroup entity
-          devicegroup_uid: 'uid-2',
+          deviceGroupId: 'uid-2',
           yieldValue: 200,
           deviceIdsInt: [3, 4],
           api_user_id: 'user456',

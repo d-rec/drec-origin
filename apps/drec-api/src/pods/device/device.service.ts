@@ -782,8 +782,10 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
-
-    await this.evidentDeviceService.queueDeviceRegistration(result, files);
+    
+    if(result.capacity > 250){
+      await this.evidentDeviceService.queueDeviceRegistration(result, files);
+    }
 
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
