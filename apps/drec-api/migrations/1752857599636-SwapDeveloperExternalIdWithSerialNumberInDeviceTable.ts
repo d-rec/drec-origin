@@ -6,7 +6,7 @@ export class SwapDeveloperExternalIdWithSerialNumberInDeviceTable1752857599636
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             UPDATE device
-            SET "serial_number" = REPLACE("developerExternalId", ' ', '')
+            SET "serial_number" = "developerExternalId"
             WHERE "developerExternalId" IS NOT NULL
         `);
   }
