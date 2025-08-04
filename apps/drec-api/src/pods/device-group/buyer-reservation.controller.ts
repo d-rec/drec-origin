@@ -493,9 +493,6 @@ export class BuyerReservationController {
         message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
       });
     }
-    console.log(
-      `Total capacity of devices in the group: ${totalCapacity} KW,${devices}`,
-    );
     validateDevicesAreHomogeneous(devices);
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
