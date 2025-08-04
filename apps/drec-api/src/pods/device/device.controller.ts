@@ -89,7 +89,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin,Role.ApiUser)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -159,7 +159,6 @@ export class DeviceController {
       const organization = await this.organizationService.findOne(
         filterDTO.organizationId,
       );
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (role === Role.ApiUser) {
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
@@ -168,19 +167,6 @@ export class DeviceController {
           throw new UnauthorizedException({
             success: false,
             message: `The requested organization is belongs to other apiuser`,
-          });
-        }
-
-        if (
-          orgUser.role === Role.OrganizationAdmin ||
-          orgUser.role === Role.DeviceOwner
-        ) {
-          this.logger.error(
-            `Unauthorized... The requested user is developer or device owner`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized`,
           });
         }
       } else {

@@ -56,6 +56,8 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceService } from '../device/device.service';
+import { validateDevicesAreHomogeneous } from '../../validations/device-group';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -396,7 +398,9 @@ export class BuyerReservationController {
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
     deviceGroupToRegister.api_user_id = user.api_user_id;
-    const devices = await this.deviceService.findByIds(deviceGroupToRegister.deviceIds);
+    const devices = await this.deviceService.findByIds(
+      deviceGroupToRegister.deviceIds,
+    );
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       const orgUser = await this.userService.findByEmail(organization.orgEmail);
@@ -457,42 +461,42 @@ export class BuyerReservationController {
       });
     }
     for (const device of devices) {
-    if(user.role === Role.ApiUser){
-
-      if (Number(orgId) !== device.organizationId) {
+      if (user.role === Role.ApiUser) {
+        if (Number(orgId) !== device.organizationId) {
+          throw new ConflictException({
+            success: false,
+            message: `Device with id ${device.id} does not belong to this organization ${orgId}`,
+          });
+        }
+      } else {
+        if (organizationId !== device.organizationId) {
+          throw new ConflictException({
+            success: false,
+            message: `Device with id ${device.id} does not belong to the organization`,
+          });
+        }
+      }
+      if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
         throw new ConflictException({
           success: false,
-          message: `Device with id22 ${device.id} does not belong to this organization ${orgId}`,
+          message: `Only devices less than ${SMALL_DEVICES_MAX_CAPACITY}KW can be added to a group`,
         });
-
       }
-
-    }else{
-
-      if (organizationId !== device.organizationId) {
-        throw new ConflictException({
-          success: false,
-          message: `Device with id ${device.id} does not belong to the organization`,
-        });
-
-      }
-
     }
-    if(device.capacity >= 250 ){
+    const totalCapacity = devices.reduce(
+      (acc, device) => acc + device.capacity,
+      0,
+    );
+    if (totalCapacity >= SMALL_DEVICES_MAX_CAPACITY) {
       throw new ConflictException({
         success: false,
-        message: `Only devices less than 250KW can be added to a group`,
-      });
-
-    }
-    }
-        const totalCapacity = devices.reduce((acc, device) => acc + device.capacity, 0);
-    if (totalCapacity >= 250) {
-      throw new ConflictException({
-        success: false,
-        message: `Total capacity of devices in the group cannot exceed 250KW`,
+        message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
       });
     }
+    console.log(
+      `Total capacity of devices in the group: ${totalCapacity} KW,${devices}`,
+    );
+    validateDevicesAreHomogeneous(devices);
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
