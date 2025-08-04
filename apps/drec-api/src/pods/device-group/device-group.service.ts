@@ -46,9 +46,7 @@ import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuan
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 import CSVToJsonV2 from 'csvtojson';
