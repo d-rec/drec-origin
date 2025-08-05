@@ -36,6 +36,7 @@ describe('DeviceGroupService', () => {
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
   let userService: UserService;
+  let yieldConfigService: YieldConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -106,7 +107,11 @@ describe('DeviceGroupService', () => {
         },
         {
           provide: YieldConfigService,
-          useValue: {} as any,
+          useValue: {
+            getYieldConfig: jest.fn().mockResolvedValue({
+              /* mock yield config */
+            }),
+          },
         },
         {
           provide: getQueueToken(Queues.DeviceBulkUpload),
@@ -143,39 +148,13 @@ describe('DeviceGroupService', () => {
       getRepositoryToken(DeviceGroup),
     );
 
-    // repositoryJobFailedRows = module.get<
-    //   Repository<DeviceCsvProcessingFailedRowsEntity>
-    // >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-
-    // repositoryCSVJobProcessing = module.get<
-    //   Repository<DeviceCsvFileProcessingJobsEntity>
-    // >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-
-    // repositoryNextDeviceGroupCertificate = module.get<
-    //   Repository<DeviceGroupNextIssueCertificate>
-    // >(getRepositoryToken(DeviceGroupNextIssueCertificate));
-
     organizationService = module.get<OrganizationService>(OrganizationService);
 
     deviceService = module.get<DeviceService>(DeviceService);
 
-    //fileService = module.get<FileService>(FileService);
-
-    //yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
-
     userService = module.get<UserService>(UserService);
 
-    // checkDeviceGroupLogCertificateRepository = module.get<
-    //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
-    // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-
-    // historyNextIssuanceDateRepository = module.get<
-    //   Repository<HistoryDeviceGroupNextIssueCertificate>
-    // >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-
-    // certificateReadModelEntity = module.get<
-    //   Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    // >(getRepositoryToken(CertificateReadModelEntity));
+    yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
   });
 
   it('should be defined', () => {
