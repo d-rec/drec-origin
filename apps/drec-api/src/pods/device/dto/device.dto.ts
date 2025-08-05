@@ -6,11 +6,13 @@ import {
   IsArray,
   IsOptional,
   Matches,
+  IsNotEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Exclude } from 'class-transformer';
+import { Trim } from '../../../transformers/string';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -18,11 +20,21 @@ export class DeviceDTO implements IDevice {
 
   @ApiProperty()
   @IsString()
-  externalId: string;
+  externalId?: string;
 
   @IsString()
   @Exclude()
   developerExternalId?: string;
+
+  @ApiProperty()
+  @Trim()
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
+  })
+  @IsString()
+  @IsNotEmpty()
+  serialNumber: string;
 
   // @ApiProperty()
   // @IsString()

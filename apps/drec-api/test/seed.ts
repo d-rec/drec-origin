@@ -102,6 +102,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
 
 const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
   {
+    serialNumber: 'SN01',
     externalId: 'DREC02',
     projectName: 'Device 1',
     address: 'Somewhere far away',
@@ -125,6 +126,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN02',
     externalId: 'DREC03',
     projectName: 'Device 2',
     address: 'Somewhere far away',
@@ -148,6 +150,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN03',
     externalId: 'DREC04',
     projectName: 'Device 3',
     address: 'Somewhere far away',
@@ -171,6 +174,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN04',
     externalId: 'DREC05',
     projectName: 'Device 5',
     address: 'Somewhere far away',
