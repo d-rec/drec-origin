@@ -28,7 +28,6 @@ import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
-import { EvidentDeviceService } from '../evident/evident-device.service';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -123,7 +122,7 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
-          provide: EvidentDeviceService,
+          provide: DeviceService,
           useValue: {} as any,
         },
       ],
