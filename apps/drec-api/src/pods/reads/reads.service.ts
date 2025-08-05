@@ -1215,7 +1215,7 @@ export class ReadsService {
   async getAccumulatedReads(
     meter: string,
     organizationId: number,
-    developerExternalId: string,
+    serialNumber: string,
     accumulationType: AccumulationType,
     month: number,
     year: number,
@@ -1258,7 +1258,7 @@ export class ReadsService {
     let response;
     let url;
     const offSet = await this.getOffSetForInfluxQuery(
-      developerExternalId,
+      serialNumber,
       organizationId,
       startDate,
     );
@@ -1431,7 +1431,7 @@ export class ReadsService {
 
   //
   async getOffSetForInfluxQuery(
-    developerExternalId: string,
+    serialNumber: string,
     organizationId: number,
     startDate: string | any,
   ): Promise<{
@@ -1442,8 +1442,8 @@ export class ReadsService {
   }> {
     let localTime = null;
     let formattedOffset = null;
-    const device = await this.deviceService.findDeviceByDeveloperExternalId(
-      developerExternalId,
+    const device = await this.deviceService.findDeviceByExternalId(
+      serialNumber,
       organizationId,
     );
 
@@ -1499,7 +1499,7 @@ export class ReadsService {
     }
 
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
+      await this.deviceService.findDeviceByExternalId(
         deviceExternalId,
         organizationId,
       );

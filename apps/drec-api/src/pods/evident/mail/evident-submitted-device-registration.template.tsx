@@ -24,7 +24,7 @@ export default function EvidentSubmittedDeviceRegistrationTemplate({
       <Text>Device Details:</Text>
       <ul>
         <li>Project Name: {device.projectName}</li>
-        <li>Device ID: {device.developerExternalId}</li>
+        <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>
       <Text>You will be notified once the registration is reviewed.</Text>
