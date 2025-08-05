@@ -782,8 +782,8 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
-    
-    if(result.capacity > 250){
+
+    if (result.capacity >= 250) {
       await this.evidentDeviceService.queueDeviceRegistration(result, files);
     }
 

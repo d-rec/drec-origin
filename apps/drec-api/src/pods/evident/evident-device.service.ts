@@ -18,7 +18,6 @@ import { OrganizationService } from '../organization/organization.service';
 import EvidentDraftDeviceRegistrationTemplate, {
   getEvidentDraftDeviceRegistrationSubject,
 } from './mail/evident-draft-device-registration.template';
-import { UserService } from '../user/user.service';
 import EvidentSubmittedDeviceRegistrationTemplate, {
   getEvidentSubmittedDeviceRegistrationSubject,
 } from './mail/evident-submitted-device-registration.template';
@@ -90,7 +89,7 @@ export class EvidentDeviceService {
         device.organizationId,
       );
     let uploadedFiles: string[] = [];
-    if(files){
+    if (files) {
       uploadedFiles = await this.evidentService.uploadFiles(
         device,
         files,
@@ -130,7 +129,10 @@ export class EvidentDeviceService {
         }),
       });
     } else {
-      const deviceGroupId = await this.getDeviceGroupFromRedis(device.groupId, device.groupId);
+      const deviceGroupId = await this.getDeviceGroupFromRedis(
+        device.groupId,
+        device.groupId,
+      );
       await this.deviceGroupService.updateEvidentStatus(
         device.groupId,
         deviceGroupId.deviceGroupId,
@@ -165,14 +167,17 @@ export class EvidentDeviceService {
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
     );
-    console.log("deviceGroupId", device.groupId)
-    const deviceGroupId = await this.getDeviceGroupFromRedis(device.groupId, device.groupId);
+    console.log('deviceGroupId', device.groupId);
+    const deviceGroupId = await this.getDeviceGroupFromRedis(
+      device.groupId,
+      device.groupId,
+    );
     await this.deviceGroupService.updateEvidentStatus(
-  device.groupId, 
-  deviceGroupId.deviceGroupId,
-  device.evidentDeviceId,
-  EvidentRegistrationStatus.Submitted,
-);
+      device.groupId,
+      deviceGroupId.deviceGroupId,
+      device.evidentDeviceId,
+      EvidentRegistrationStatus.Submitted,
+    );
     return payload;
   }
 
@@ -199,18 +204,21 @@ export class EvidentDeviceService {
       return;
     }
     // Storing the composite key for a device group, scoped by organization
-    await this.storeDeviceGroupInRedis(deviceGroup); 
+    await this.storeDeviceGroupInRedis(deviceGroup);
 
-    console.log("devices", devices)
-    const capacity = devices.reduce((sum, device)=> sum + device.capacity,0)
-    const commissioningDate = devices
-      .sort((a: Device, b: Device) => new Date(a.commissioningDate).getTime() - new Date(b.commissioningDate).getTime())[0].commissioningDate;
+    console.log('devices', devices);
+    const capacity = devices.reduce((sum, device) => sum + device.capacity, 0);
+    const commissioningDate = devices.sort(
+      (a: Device, b: Device) =>
+        new Date(a.commissioningDate).getTime() -
+        new Date(b.commissioningDate).getTime(),
+    )[0].commissioningDate;
     const device: Device = devices[0];
     device.capacity = capacity;
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
-    device["deviceGroupId"] = deviceGroup.deviceGroupId;
-    console.log("device", device)
+    device['deviceGroupId'] = deviceGroup.deviceGroupId;
+    console.log('device', device);
     await this.registerDevice(device);
   }
 
@@ -219,10 +227,19 @@ export class EvidentDeviceService {
   ): Promise<void> {
     const redis = getRedisClient();
     const redisKey = `deviceGroup:${deviceGroup.id}:${deviceGroup.id}`;
-    await redis.set(redisKey, JSON.stringify({ id: deviceGroup.id, deviceGroupId: deviceGroup.deviceGroupId }));
-    console.log('Storing Redis Key:', redisKey, 'Value:', { id: deviceGroup.id, deviceGroupId: deviceGroup.deviceGroupId });
+    await redis.set(
+      redisKey,
+      JSON.stringify({
+        id: deviceGroup.id,
+        deviceGroupId: deviceGroup.deviceGroupId,
+      }),
+    );
+    console.log('Storing Redis Key:', redisKey, 'Value:', {
+      id: deviceGroup.id,
+      deviceGroupId: deviceGroup.deviceGroupId,
+    });
   }
-  
+
   async getDeviceGroupFromRedis(
     organizationId: number,
     groupId: number,
