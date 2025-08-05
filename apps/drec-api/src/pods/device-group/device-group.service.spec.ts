@@ -130,6 +130,10 @@ describe('DeviceGroupService', () => {
             findOne: jest.fn(),
             addGroupIdToDeviceForReserving: jest.fn(),
             removeFromGroup: jest.fn(),
+            findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation:
+              jest.fn(),
+            findMultipleDevicesBasedExternalId: jest.fn(),
+            register: jest.fn(),
           },
         },
         {
