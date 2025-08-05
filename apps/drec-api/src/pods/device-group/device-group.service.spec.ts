@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { DeviceGroupService } from './device-group.service';
 import { DeviceService } from '../device/device.service';
 import { FileService } from '../file';
 import { OrganizationService } from '../organization/organization.service';
@@ -22,7 +23,6 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { DeviceGroup } from './device-group.entity';
-import { DeviceGroupService } from './device-group.service';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
@@ -38,109 +38,119 @@ describe('DeviceGroupService', () => {
   let yieldConfigService: YieldConfigService;
 
   beforeEach(async () => {
+    // Create mock implementations
+    const mockDeviceService = {
+      findForGroup: jest.fn().mockResolvedValue([]),
+      findByIds: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue(null),
+      addGroupIdToDeviceForReserving: jest.fn().mockResolvedValue({}),
+      removeFromGroup: jest.fn().mockResolvedValue({}),
+      findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation: jest
+        .fn()
+        .mockResolvedValue([]),
+      findMultipleDevicesBasedExternalId: jest.fn().mockResolvedValue([]),
+      register: jest.fn().mockResolvedValue({}),
+    };
+
+    const mockYieldConfigService = {
+      getYieldConfig: jest.fn().mockResolvedValue({}),
+    };
+
+    const mockUserService = {
+      findByEmail: jest.fn().mockResolvedValue({ role: 'ORGANIZATION_ADMIN' }),
+    };
+
+    const mockOrganizationService = {
+      findOne: jest.fn().mockResolvedValue({ id: 1, name: 'Test Org' }),
+    };
+
+    const mockEvidentDeviceService = {
+      getDevice: jest.fn().mockResolvedValue({}),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        // Main service being tested
         DeviceGroupService,
-
-        // Repository tokens (first 3 dependencies)
+        // 1. DeviceCsvFileProcessingJobsEntity repository
         {
           provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
           useClass: Repository,
         },
+        // 2. DeviceGroup repository
         {
           provide: getRepositoryToken(DeviceGroup),
           useClass: Repository,
         },
+        // 3. DeviceGroupNextIssueCertificate repository
         {
           provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
-
-        // OrganizationService (4th dependency)
+        // 4. OrganizationService
         {
           provide: OrganizationService,
-          useValue: {
-            findOne: jest
-              .fn()
-              .mockResolvedValue({ id: 1, name: 'Organization Name' }),
-          },
+          useValue: mockOrganizationService,
         },
-
-        // DeviceService (5th dependency - this was missing)
+        // 5. DeviceService
         {
           provide: DeviceService,
-          useValue: {
-            findForGroup: jest.fn().mockResolvedValue([]),
-            findByIds: jest.fn().mockResolvedValue([]),
-            findOne: jest.fn().mockResolvedValue(null),
-            addGroupIdToDeviceForReserving: jest.fn().mockResolvedValue({}),
-            removeFromGroup: jest.fn().mockResolvedValue({}),
-            findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation: jest
-              .fn()
-              .mockResolvedValue([]),
-            findMultipleDevicesBasedExternalId: jest.fn().mockResolvedValue([]),
-            register: jest.fn().mockResolvedValue({}),
-          },
+          useValue: mockDeviceService,
         },
-
-        // YieldConfigService (6th dependency)
+        // 6. YieldConfigService
         {
           provide: YieldConfigService,
-          useValue: {
-            getYieldConfig: jest.fn().mockResolvedValue({}),
-          },
+          useValue: mockYieldConfigService,
         },
-
-        // Remaining repository tokens and services...
+        // 7. CheckCertificateIssueDateLogForDeviceGroupEntity repository
         {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceGroupEntity,
           ),
           useClass: Repository,
         },
+        // 8. HistoryDeviceGroupNextIssueCertificate repository
         {
           provide: getRepositoryToken(HistoryDeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
+        // 9. CertificateReadModelEntity repository
         {
           provide: getRepositoryToken(CertificateReadModelEntity),
           useClass: Repository,
         },
+        // 10. UserService
         {
           provide: UserService,
-          useValue: {
-            findByEmail: jest
-              .fn()
-              .mockResolvedValue({ role: Role.OrganizationAdmin }),
-          },
+          useValue: mockUserService,
         },
+        // 11. CertificateSettingEntity repository
         {
           provide: getRepositoryToken(CertificateSettingEntity),
           useClass: Repository,
         },
+        // 12. BulkUploadEntity repository
         {
           provide: getRepositoryToken(BulkUploadEntity),
-          useValue: {},
+          useClass: Repository,
         },
+        // 13. BulkUploadFailedLogEntity repository
         {
           provide: getRepositoryToken(BulkUploadFailedLogEntity),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-          },
+          useClass: Repository,
         },
+        // 14. Bull Queue
         {
           provide: getQueueToken(Queues.DeviceBulkUpload),
-          useValue: {},
-        },
-        {
-          provide: EvidentDeviceService,
           useValue: {
-            getDevice: jest.fn().mockResolvedValue({}),
+            add: jest.fn().mockResolvedValue({}),
           },
         },
+        // 15. EvidentDeviceService
+        {
+          provide: EvidentDeviceService,
+          useValue: mockEvidentDeviceService,
+        },
+        // 16. FileService
         {
           provide: FileService,
           useValue: {},
