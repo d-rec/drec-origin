@@ -15,7 +15,6 @@ import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceService } from '../device/device.service';
-import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
 import { FileService } from '../file';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
@@ -36,6 +35,7 @@ describe('DeviceGroupService', () => {
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
   let userService: UserService;
+  let yieldConfigService: YieldConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
