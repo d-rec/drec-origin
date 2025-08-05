@@ -35,7 +35,6 @@ describe('DeviceGroupService', () => {
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
   let userService: UserService;
-  let yieldConfigService: YieldConfigService;
 
   beforeEach(async () => {
     // Create mock implementations
@@ -165,7 +164,6 @@ describe('DeviceGroupService', () => {
     organizationService = module.get<OrganizationService>(OrganizationService);
     deviceService = module.get<DeviceService>(DeviceService);
     userService = module.get<UserService>(UserService);
-    yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
   });
 
   it('should be defined', () => {
