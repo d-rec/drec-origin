@@ -123,7 +123,13 @@ describe('DeviceGroupService', () => {
         },
         {
           provide: DeviceService,
-          useValue: {} as any,
+          useValue: {
+            findForGroup: jest.fn(),
+            findByIds: jest.fn(),
+            findOne: jest.fn(),
+            addGroupIdToDeviceForReserving: jest.fn(),
+            removeFromGroup: jest.fn(),
+          },
         },
       ],
     }).compile();
