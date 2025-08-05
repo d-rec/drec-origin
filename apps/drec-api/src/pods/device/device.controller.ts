@@ -172,10 +172,6 @@ export class DeviceController {
         });
       }
     }
-
-    if (role !== Role.ApiUser) {
-      api_user_id = null;
-    }
     return this.deviceService.findDeviceForBuyer(
       filterDTO,
       pageNumber,
