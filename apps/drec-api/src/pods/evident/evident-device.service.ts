@@ -23,7 +23,6 @@ import EvidentSubmittedDeviceRegistrationTemplate, {
 } from './mail/evident-submitted-device-registration.template';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroup } from '../device-group/device-group.entity';
-import { getRedisClient } from '../../lib/redis';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -63,7 +62,6 @@ export class EvidentDeviceService {
         fuel: `/fuels/${device.fuelCode}`,
       });
       device.evidentDeviceId = response.data.code;
-      console.log('Evident Device ID:', device.evidentDeviceId);
       await this.saveDeviceDetails(device, files);
 
       return response.data;
@@ -109,7 +107,7 @@ export class EvidentDeviceService {
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
-    console.log('Register Device Payload:', payload);
+
     await evidentApiInstance.post('/device_details', payload);
 
     await this.deviceService.updateEvidentInfo(
@@ -129,13 +127,9 @@ export class EvidentDeviceService {
         }),
       });
     } else {
-      const deviceGroupId = await this.getDeviceGroupFromRedis(
-        device.groupId,
-        device.groupId,
-      );
       await this.deviceGroupService.updateEvidentStatus(
         device.groupId,
-        deviceGroupId.deviceGroupId,
+        device['deviceGroupId'],
         device.evidentDeviceId,
         EvidentRegistrationStatus.Draft,
       );
@@ -167,14 +161,9 @@ export class EvidentDeviceService {
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
     );
-    console.log('deviceGroupId', device.groupId);
-    const deviceGroupId = await this.getDeviceGroupFromRedis(
-      device.groupId,
-      device.groupId,
-    );
     await this.deviceGroupService.updateEvidentStatus(
       device.groupId,
-      deviceGroupId.deviceGroupId,
+      device['deviceGroupId'],
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
     );
@@ -203,10 +192,7 @@ export class EvidentDeviceService {
       this.logger.warn('No devices found for the provided device IDs');
       return;
     }
-    // Storing the composite key for a device group, scoped by organization
-    await this.storeDeviceGroupInRedis(deviceGroup);
 
-    console.log('devices', devices);
     const capacity = devices.reduce((sum, device) => sum + device.capacity, 0);
     const commissioningDate = devices.sort(
       (a: Device, b: Device) =>
@@ -218,39 +204,8 @@ export class EvidentDeviceService {
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
     device['deviceGroupId'] = deviceGroup.deviceGroupId;
-    console.log('device', device);
+    device.projectName = deviceGroup.name;
     await this.registerDevice(device);
-  }
-
-  private async storeDeviceGroupInRedis(
-    deviceGroup: DeviceGroup,
-  ): Promise<void> {
-    const redis = getRedisClient();
-    const redisKey = `deviceGroup:${deviceGroup.id}:${deviceGroup.id}`;
-    await redis.set(
-      redisKey,
-      JSON.stringify({
-        id: deviceGroup.id,
-        deviceGroupId: deviceGroup.deviceGroupId,
-      }),
-    );
-    console.log('Storing Redis Key:', redisKey, 'Value:', {
-      id: deviceGroup.id,
-      deviceGroupId: deviceGroup.deviceGroupId,
-    });
-  }
-
-  async getDeviceGroupFromRedis(
-    organizationId: number,
-    groupId: number,
-  ): Promise<DeviceGroup | null> {
-    const redis = getRedisClient();
-    const redisKey = `deviceGroup:${organizationId}:${groupId}`;
-    const data = await redis.get(redisKey);
-    if (!data) {
-      return null;
-    }
-    return JSON.parse(data);
   }
 
   private generateDeviceDetailsPayload(
