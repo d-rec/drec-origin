@@ -256,6 +256,31 @@ describe('IssuerService', () => {
   });
 
   describe('newHistoryIssueCertificateForDevice', () => {
+    it('should return early if group buyerAddress or buyerId is missing', async () => {
+      const group = {
+        buyerAddress: null,
+        buyerId: null,
+      } as unknown as DeviceGroup;
+      const deviceHistoryRequest = {
+        readsStartDate: new Date(),
+        readsEndDate: new Date(),
+        readsvalue: 0,
+      } as unknown as HistoryIntermediateMeterRead;
+      const device = {} as unknown as IDevice;
+
+      await historicalIssuanceService.issueCertificate(
+        group,
+        deviceHistoryRequest,
+        device,
+      );
+
+      expect(certificateLogService.createForDevice).not.toHaveBeenCalled();
+      expect(certificateLogService.createForGroup).not.toHaveBeenCalled();
+      expect(
+        readsService.updateHistoryCertificateIssueDate,
+      ).not.toHaveBeenCalled();
+    });
+
     it('should return early if deviceHistoryRequest.readsvalue is less than 1000', async () => {
       const group = {
         buyerAddress: 'some-address',
