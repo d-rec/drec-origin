@@ -79,6 +79,14 @@ describe('DeviceGroupService', () => {
           } as any,
         },
         {
+          provide: UserService,
+          useValue: {
+            findByEmail: jest
+              .fn()
+              .mockResolvedValue({ role: Role.OrganizationAdmin }),
+          } as any,
+        },
+        {
           provide: DeviceService,
           useValue: {
             findForGroup: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
@@ -90,12 +98,6 @@ describe('DeviceGroupService', () => {
               jest.fn(),
             findMultipleDevicesBasedExternalId: jest.fn(),
             register: jest.fn(),
-          },
-        },
-        {
-          provide: DeviceService,
-          useValue: {
-            findForGroup: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
           },
         },
         {
