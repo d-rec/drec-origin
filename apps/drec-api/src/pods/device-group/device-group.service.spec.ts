@@ -41,52 +41,34 @@ describe('DeviceGroupService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        // Main service being tested
         DeviceGroupService,
+
+        // Repository tokens (first 3 dependencies)
+        {
+          provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
+          useClass: Repository,
+        },
         {
           provide: getRepositoryToken(DeviceGroup),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
-          useClass: Repository,
-        },
-
-        {
-          provide: getRepositoryToken(BulkUploadEntity),
-          useValue: {},
-        },
-        {
-          provide: getRepositoryToken(BulkUploadFailedLogEntity),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-          },
-        },
-        {
           provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
-        {
-          provide: getRepositoryToken(IRECErrorLogInformationEntity),
-          useClass: Repository,
-        },
+
+        // OrganizationService (4th dependency)
         {
           provide: OrganizationService,
           useValue: {
             findOne: jest
               .fn()
               .mockResolvedValue({ id: 1, name: 'Organization Name' }),
-          } as any,
+          },
         },
-        {
-          provide: UserService,
-          useValue: {
-            findByEmail: jest
-              .fn()
-              .mockResolvedValue({ role: Role.OrganizationAdmin }),
-          } as any,
-        },
+
+        // DeviceService (5th dependency - this was missing)
         {
           provide: DeviceService,
           useValue: {
@@ -102,22 +84,16 @@ describe('DeviceGroupService', () => {
             register: jest.fn().mockResolvedValue({}),
           },
         },
-        {
-          provide: FileService,
-          useValue: {} as any,
-        },
+
+        // YieldConfigService (6th dependency)
         {
           provide: YieldConfigService,
           useValue: {
-            getYieldConfig: jest.fn().mockResolvedValue({
-              /* mock yield config */
-            }),
+            getYieldConfig: jest.fn().mockResolvedValue({}),
           },
         },
-        {
-          provide: getQueueToken(Queues.DeviceBulkUpload),
-          useValue: {},
-        },
+
+        // Remaining repository tokens and services...
         {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceGroupEntity,
@@ -133,28 +109,51 @@ describe('DeviceGroupService', () => {
           useClass: Repository,
         },
         {
+          provide: UserService,
+          useValue: {
+            findByEmail: jest
+              .fn()
+              .mockResolvedValue({ role: Role.OrganizationAdmin }),
+          },
+        },
+        {
           provide: getRepositoryToken(CertificateSettingEntity),
           useClass: Repository,
         },
         {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useValue: {
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken(Queues.DeviceBulkUpload),
+          useValue: {},
+        },
+        {
           provide: EvidentDeviceService,
+          useValue: {},
+        },
+        {
+          provide: FileService,
           useValue: {},
         },
       ],
     }).compile();
 
     service = module.get<DeviceGroupService>(DeviceGroupService);
-
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
-
     organizationService = module.get<OrganizationService>(OrganizationService);
-
     deviceService = module.get<DeviceService>(DeviceService);
-
     userService = module.get<UserService>(UserService);
-
     yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
   });
 
