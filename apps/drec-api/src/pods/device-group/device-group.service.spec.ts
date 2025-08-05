@@ -90,6 +90,14 @@ describe('DeviceGroupService', () => {
           provide: DeviceService,
           useValue: {
             findForGroup: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+            findByIds: jest.fn(),
+            findOne: jest.fn(),
+            addGroupIdToDeviceForReserving: jest.fn(),
+            removeFromGroup: jest.fn(),
+            findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation:
+              jest.fn(),
+            findMultipleDevicesBasedExternalId: jest.fn(),
+            register: jest.fn(),
           } as any,
         },
         {
