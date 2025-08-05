@@ -1642,7 +1642,7 @@ export class DeviceGroupService {
           });
         }
         const recordsCopy = cloneDeep(records);
-        recordsCopy?.forEach((ele) => (ele['statusDuplicate'] = false));
+        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicateserialNumbers: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
           this.logger.debug(recordsCopy[i].serialNumber);
