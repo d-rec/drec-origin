@@ -36,7 +36,6 @@ describe('DeviceGroupService', () => {
   let organizationService: OrganizationService;
   let deviceService: DeviceService;
   let userService: UserService;
-  let yieldConfigService: YieldConfigService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -138,7 +137,9 @@ describe('DeviceGroupService', () => {
         },
         {
           provide: EvidentDeviceService,
-          useValue: {},
+          useValue: {
+            getDevice: jest.fn().mockResolvedValue({}),
+          },
         },
         {
           provide: FileService,
@@ -360,7 +361,7 @@ describe('DeviceGroupService', () => {
           id: 1,
           name: 'Group 1',
           organizationId: 1,
-          createdAt: new Date('2024-01-01T00:00:00Z'),
+          createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
           deviceGroupId: 'uid-1',
           yieldValue: 100,
@@ -383,7 +384,7 @@ describe('DeviceGroupService', () => {
           id: 2,
           name: 'Group 2',
           organizationId: 1,
-          createdAt: new Date('2024-02-01T00:00:00Z'),
+          createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
           deviceGroupId: 'uid-2',
           yieldValue: 200,
