@@ -32,7 +32,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   id: number;
 
   @PrimaryGeneratedColumn('uuid', { name: 'devicegroup_uid' })
-  deviceGroupId: string;
+  deviceGroupUid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()

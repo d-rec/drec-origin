@@ -939,7 +939,7 @@ export class DeviceController {
     this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
     });
     if (
       group === null ||

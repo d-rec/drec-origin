@@ -129,7 +129,7 @@ export class EvidentDeviceService {
     } else {
       await this.deviceGroupService.updateEvidentStatus(
         device.groupId,
-        device['deviceGroupId'],
+        device['deviceGroupUid'],
         device.evidentDeviceId,
         EvidentRegistrationStatus.Draft,
       );
@@ -163,7 +163,7 @@ export class EvidentDeviceService {
     );
     await this.deviceGroupService.updateEvidentStatus(
       device.groupId,
-      device['deviceGroupId'],
+      device['deviceGroupUid'],
       device.evidentDeviceId,
       EvidentRegistrationStatus.Submitted,
     );
@@ -203,7 +203,7 @@ export class EvidentDeviceService {
     device.capacity = capacity;
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
-    device['deviceGroupId'] = deviceGroup.deviceGroupId;
+    device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
     device.projectName = deviceGroup.name;
     await this.registerDevice(device);
   }

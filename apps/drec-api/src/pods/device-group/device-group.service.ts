@@ -739,7 +739,7 @@ export class DeviceGroupService {
             deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
           authorityToExceed: deviceGroup.dg_authorityToExceed,
           leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-          deviceGroupId: deviceGroup.dg_devicegroup_uid,
+          deviceGroupUid: deviceGroup.dg_devicegroup_uid,
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
@@ -2082,7 +2082,7 @@ export class DeviceGroupService {
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
       reservationActive: true,
     });
     if (group === null) {
@@ -2179,7 +2179,7 @@ export class DeviceGroupService {
         "dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
       .select(
-        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
+        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
       )
       .orderBy(
         'dg.id, crm.internalCertificateId, dg_log.readvalue_watthour',
@@ -2467,7 +2467,7 @@ export class DeviceGroupService {
         'CAST(issuer.deviceId AS INTEGER) = dg.id',
       )
       .select(
-        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
       )
       .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
@@ -2814,12 +2814,12 @@ export class DeviceGroupService {
 
   async updateEvidentStatus(
     groupId: number,
-    deviceGroupId: string,
+    deviceGroupUid: string,
     evidentGroupId: string,
     status: EvidentRegistrationStatus,
   ): Promise<void> {
     await this.repository.update(
-      { id: groupId, deviceGroupId: deviceGroupId }, // Use both keys for composite PK
+      { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
     );
   }

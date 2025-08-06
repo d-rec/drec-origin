@@ -67,7 +67,7 @@ export class CertificateService {
       userId: address,
       metadata: {
         version: 'v1.0',
-        buyerReservationId: group.deviceGroupId,
+        buyerReservationId: group.deviceGroupUid,
         isStandardIssuanceRequested: StandardCompliance.IREC,
         type: CertificateType.REC,
         deviceIds: devices.map((device: IDevice) => device.externalId),
