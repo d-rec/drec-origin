@@ -182,6 +182,14 @@ export class PermissionsSeeder implements SeederInterface {
         permissionValue: 2,
         status: 1,
       },
+      {
+        aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
+        entityId: 6, // Market Intermediary
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
     ]);
 
     await this.aclPermissionsRepository.save(permissions);

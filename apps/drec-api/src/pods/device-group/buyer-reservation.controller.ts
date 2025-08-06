@@ -362,7 +362,7 @@ export class BuyerReservationController {
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.ApiUser, Role.OrganizationAdmin,Role.Admin)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,

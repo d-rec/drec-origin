@@ -476,7 +476,7 @@ export class DeviceController {
     description: 'User does not have permission to view this device.',
   })
   async getByExternalId(
-    @Param('id') id: string,
+    @Param('id') externalId: string,
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
@@ -489,16 +489,15 @@ export class DeviceController {
 
       deviceData =
         await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-          id,
+          externalId,
           loginUser.api_user_id,
         );
     } else {
-      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
-        id,
+      deviceData = await this.deviceService.findDeviceByExternalId(
+        externalId,
         loginUser.organizationId,
       );
     }
-    deviceData.externalId = deviceData.developerExternalId;
     delete deviceData['developerExternalId'];
     return deviceData;
   }
@@ -685,11 +684,10 @@ export class DeviceController {
     user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
-          deviceToUpdate.externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId,
+      );
       if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
@@ -700,11 +698,10 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
-          externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        externalId,
+        user.organizationId,
+      );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistoryReads(
           checkExternalId.externalId,
@@ -720,11 +717,11 @@ export class DeviceController {
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           });
         }
       }
@@ -856,10 +853,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
-        deviceId,
-        organizationId,
-      );
+      await this.deviceService.findDeviceByExternalId(deviceId, organizationId);
     this.logger.debug(
       'THE DEVICE FROM ExTERNALID IS::::::::::::' + device.externalId,
     );
