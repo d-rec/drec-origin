@@ -1418,7 +1418,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          externalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1451,7 +1451,7 @@ describe('DeviceService', () => {
       expect(result?.timezone).toBe('Asia/Kolkata');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          externalId: 'existing-meter-id',
+          serialNumber: 'existing-meter-id',
           api_user_id: 'user-id',
         },
       });
