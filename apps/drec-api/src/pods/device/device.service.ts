@@ -18,6 +18,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
   Not,
@@ -1203,7 +1204,7 @@ export class DeviceService {
       ...where,
       groupId: null,
       api_user_id: api_user_id,
-      capacity: LessThanOrEqual(SMALL_DEVICES_MAX_CAPACITY),
+      capacity: LessThan(SMALL_DEVICES_MAX_CAPACITY),
     };
 
     query.where = where;
