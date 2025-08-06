@@ -2826,12 +2826,13 @@ export class DeviceGroupService {
     );
   }
 
-  async getRegisteredEvidentDeviceGroups(): Promise<DeviceGroup[]> {
+  async getRegisteredEvidentDeviceGroups(organizationId: string): Promise<DeviceGroup[]> {
     this.logger.verbose(`With in getRegisteredEvidentDeviceGroups`);
     return await this.repository.find({
       where: {
         evidentStatus: EvidentRegistrationStatus.Submitted,
         evidentGroupId: Not(IsNull()),
+        api_user_id: organizationId,
       },
       order: {
         createdAt: 'DESC',

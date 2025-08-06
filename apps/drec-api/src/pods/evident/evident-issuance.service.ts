@@ -21,6 +21,7 @@ import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssu
 import EvidentDraftIssuanceRegistrationTemplate, {
   getEvidentDraftIssuanceRegistrationSubject,
 } from './mail/evident-draft-issuance-registration.template';
+import { DeviceGroupService } from '../device-group/device-group.service';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -34,6 +35,7 @@ export class EvidentIssuanceService {
     private mailService: MailService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly organizationService: OrganizationService,
+    private readonly deviceGroupService: DeviceGroupService
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -63,10 +65,37 @@ export class EvidentIssuanceService {
   }
 
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @NonConcurrentCron(CronExpression.EVERY_MINUTE)
   async processDeviceGroupIssuance(): Promise<void> {
     this.logger.verbose('Device group issuance request creation started');
-    //const deviceGroups = await this.deviceService.getAllDeviceGroupsWithIssuanceLogs();
+    const organizationsSettings =
+      await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+      for (const settings of organizationsSettings) {
+      const nextIssuanceDate = getEvidentNextIssuanceDate(
+        settings.lastIssuanceSyncedAt,
+        settings.frequency,
+      );
+
+      if (nextIssuanceDate > new Date()) {
+        continue;
+      }
+      this.logger.verbose(
+        `Processing device group issuance for organization ${settings.organizationId}`,
+      );
+
+      try {
+        const organization = await this.organizationService.findOne(
+          settings.organizationId,
+        );
+        const evidentDeviceGroup = await this.deviceGroupService.getRegisteredEvidentDeviceGroups(organization.api_user_id);
+        console.log("evidentDeviceGroup", evidentDeviceGroup);
+        //await this.processIssuanceByOrganization(settings.organizationId);
+      } catch (error) {
+        this.logger.error(
+          `Error processing organization ${settings.organizationId}: ${error.message}`,
+        );
+      }
+    }
   }
 
 
