@@ -696,11 +696,7 @@ export class DeviceGroupService {
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select([
-          'device.id',
-          'device.projectName',
-          'device.developerExternalId',
-        ])
+        .select(['device.id', 'device.projectName', 'device.serialNumber'])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -746,7 +742,7 @@ export class DeviceGroupService {
           devices: devices.map((device) => {
             return {
               id: device.device_id,
-              externalId: device.device_developerExternalId,
+              serialNumber: device.device_serial_number,
               projectName: device.device_projectName,
             };
           }),
@@ -775,7 +771,7 @@ export class DeviceGroupService {
     errorDetails: Array<any>,
     successfullyAddedRowsAndExternalIds: Array<{
       rowNumber: number;
-      externalId: string;
+      serialNumber: string;
     }>,
   ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
@@ -1181,23 +1177,22 @@ export class DeviceGroupService {
     organizationId: number,
   ): Promise<Array<string>> {
     this.logger.verbose(`With in checkIfDeviceExisting`);
-    const allExternalIds: Array<string> = [];
-    const existingDeviceIds: Array<string> = [];
-    newDevices?.forEach((singleDevice) =>
-      allExternalIds.push(singleDevice.externalId),
+    const allSerialNumbers: Array<string> = [];
+    const existingSerialNumbers: Array<string> = [];
+    newDevices.forEach((singleDevice) =>
+      allSerialNumbers.push(singleDevice.serialNumber),
     );
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
-        allExternalIds,
+        allSerialNumbers,
         organizationId,
       );
-
     if (existingDevices && existingDevices.length > 0) {
-      existingDevices?.forEach((ele) =>
-        existingDeviceIds.push(ele?.developerExternalId),
+      existingDevices.forEach((ele) =>
+        existingSerialNumbers.push(ele?.serialNumber),
       );
     }
-    return existingDeviceIds;
+    return existingSerialNumbers;
   }
 
   public async registerCSVBulkDevices(
@@ -1397,7 +1392,7 @@ export class DeviceGroupService {
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{
-      externalId: string;
+      serialNumber: string;
       rowNumber: number;
       isError: boolean;
       errorsList: Array<any>;
@@ -1470,7 +1465,7 @@ export class DeviceGroupService {
         }
         records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({
-          externalId: '',
+          serialNumber: '',
           rowNumber: rowsConvertedToCsvCount,
           isError: false,
           errorsList: [],
@@ -1489,14 +1484,14 @@ export class DeviceGroupService {
               delete ele.children;
             });
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: true,
               errorsList: errors,
             };
           } else {
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: false,
               errorsList: errors,
@@ -1633,51 +1628,51 @@ export class DeviceGroupService {
             ) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({
-                value: singleRecord.externalId,
-                property: 'externalId',
+                value: singleRecord.serialNumber,
+                property: 'serialNumber',
                 constraints: {
-                  externalIdExists:
-                    'externalId already exist, cant add entry with same external id',
+                  serialNumberExists:
+                    'serialNumber already exist, cant add entry with same serial number',
                 },
               });
             }
           });
         }
         const recordsCopy = cloneDeep(records);
-        recordsCopy?.forEach((ele) => (ele['statusDuplicate'] = false));
-        const duplicatesExternalId: any = [];
+        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
+        const duplicateserialNumbers: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
-          this.logger.debug(recordsCopy[i].externalId);
+          this.logger.debug(recordsCopy[i].serialNumber);
           for (let j = i + 1; j < recordsCopy.length; j++) {
-            this.logger.debug(recordsCopy[j].externalId);
+            this.logger.debug(recordsCopy[j].serialNumber);
             if (
-              recordsCopy[i].externalId != null &&
-              recordsCopy[j].externalId != null
+              recordsCopy[i].serialNumber != null &&
+              recordsCopy[j].serialNumber != null
             ) {
               if (
-                recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[i].serialNumber.toLowerCase() ===
+                  recordsCopy[j].serialNumber.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
-                duplicatesExternalId.push({
+                duplicateserialNumbers.push({
                   duplicateIndex: j,
                   duplicateWith: i,
                   projectName: records[j].projectName,
-                  externalId: records[j].externalId,
+                  serialNumber: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
                 recordsErrors[j].errorsList.push({
-                  value: recordsCopy[j].externalId,
-                  property: 'externalId',
+                  value: recordsCopy[j].serialNumber,
+                  property: 'serialNumber',
                   constraints: {
                     externalIdExists:
                       'Row ' +
                       (j + 1) +
                       ' Duplicate with row ' +
                       (i + 1) +
-                      ' Exists with externalId ' +
-                      records[j].externalId,
+                      ' Exists with serialNumber ' +
+                      records[j].serialNumber,
                   },
                 });
               }
@@ -1687,7 +1682,7 @@ export class DeviceGroupService {
 
         const successfullyAddedRowsAndExternalIds: Array<{
           rowNumber: number;
-          externalId: string;
+          serialNumber: string;
         }> = [];
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
@@ -1695,7 +1690,7 @@ export class DeviceGroupService {
             if (
               recordsErrors[index].errorsList.find(
                 (errorRec) =>
-                  errorRec.property === 'externalId' ||
+                  errorRec.property === 'serialNumber' ||
                   errorRec.property === 'commissioningDate' ||
                   errorRec.property === 'capacity' ||
                   errorRec.property === 'countryCode',
@@ -1718,22 +1713,41 @@ export class DeviceGroupService {
           .filter((ele) => (ele as any).isError === undefined)
           ?.forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
-              externalId: (ele as any).externalId,
+              serialNumber: (ele as any).serialNumber,
               rowNumber: records.findIndex(
-                (recEle) =>
-                  recEle.developerExternalId === (ele as any).externalId,
+                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
               ),
             });
           });
 
-        recordsErrors?.forEach((ele, index) => {
+        devicesRegistered
+          .filter((device: DeviceRegistrationError) => device.isError)
+          .forEach((device: DeviceRegistrationError) => {
+            const serialNumber = device.device?.serialNumber;
+            const errorIndex = recordsErrors.findIndex(
+              (record) => record.serialNumber === serialNumber,
+            );
+
+            if (errorIndex !== -1) {
+              recordsErrors[errorIndex].isError = true;
+              recordsErrors[errorIndex].errorsList.push({
+                value: recordsErrors[errorIndex].serialNumber,
+                property: 'Device error',
+                constraints: {
+                  error: device.errorDetail?.response?.message,
+                },
+              });
+            }
+          });
+
+        recordsErrors.forEach((ele, index) => {
           if (ele.isError === false) {
             ele['status'] = 'Success';
           } else if (
             ele.isError === true &&
             successfullyAddedRowsAndExternalIds.find(
               (successEle) =>
-                successEle.externalId === ele.externalId &&
+                successEle.serialNumber === ele.serialNumber &&
                 successEle.rowNumber === index,
             )
           ) {

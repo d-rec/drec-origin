@@ -24,7 +24,7 @@ export default function EvidentDeviceRejectedTemplate({
       <Text>Device Details:</Text>
       <ul>
         <li>Project Name: {device.projectName}</li>
-        <li>Device ID: {device.developerExternalId}</li>
+        <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>
       <Text>The device was rejected.</Text>

@@ -18,7 +18,6 @@ export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBa
     precision: 3,
   })
   certificate_issuance_enddate: Date;
-  a;
 
   @Column()
   @IsNumber()
