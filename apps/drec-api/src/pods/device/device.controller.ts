@@ -135,7 +135,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser, Role.Buyer)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -155,51 +155,47 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    if (filterDTO.organizationId) {
-      const organization = await this.organizationService.findOne(
-        filterDTO.organizationId,
-      );
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-      if (role === Role.ApiUser) {
-        if (organization.api_user_id != api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `The requested organization is belongs to other apiuser`,
-          });
-        }
+    if (!filterDTO.organizationId) {
+      filterDTO.organizationId = organizationId;
+    }
+    const organization = await this.organizationService.findOne(
+      filterDTO.organizationId,
+    );
+    const orgUser = await this.userService.findByEmail(organization.orgEmail);
+    if (role === Role.ApiUser) {
+      if (organization.api_user_id != api_user_id) {
+        this.logger.error(
+          `The requested organization is belongs to other apiuser`,
+        );
+        throw new UnauthorizedException({
+          success: false,
+          message: `The requested organization is belongs to other apiuser`,
+        });
+      }
 
-        if (
-          orgUser.role === Role.OrganizationAdmin ||
-          orgUser.role === Role.DeviceOwner
-        ) {
-          this.logger.error(
-            `Unauthorized... The requested user is developer or device owner`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized`,
-          });
-        }
-      } else {
-        if (organizationId != organization.id) {
-          this.logger.error(
-            `The requested organization is not same as user's organization`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `The requested organization is not same as user's organization`,
-          });
-        }
+      if (
+        orgUser.role === Role.OrganizationAdmin ||
+        orgUser.role === Role.DeviceOwner
+      ) {
+        this.logger.error(
+          `Unauthorized... The requested user is developer or device owner`,
+        );
+        throw new UnauthorizedException({
+          success: false,
+          message: `Unauthorized res`,
+        });
+      }
+    } else {
+      if (organizationId != organization.id) {
+        this.logger.error(
+          `The requested organization is not same as user's organization`,
+        );
+        throw new UnauthorizedException({
+          success: false,
+          message: `The requested organization is not same as user's organization`,
+        });
       }
     }
-
-    if (role !== Role.ApiUser) {
-      api_user_id = null;
-    }
-
     return this.deviceService.findDeviceForBuyer(
       filterDTO,
       pageNumber,
