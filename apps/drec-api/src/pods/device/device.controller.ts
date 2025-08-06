@@ -589,6 +589,11 @@ export class DeviceController {
           message: `Organization id is required,please add your developer's Organization `,
         });
       }
+    } else {
+      const organization = await this.organizationService.findOne(
+        deviceToRegister.organizationId,
+      );
+      api_user_id = organization.api_user_id;
     }
     const allFileTypes = [
       DocumentType.FORM_SF_02,
@@ -607,7 +612,6 @@ export class DeviceController {
         `Missing required file types: ${missingFiles.join(', ')}`,
       );
     }
-
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,

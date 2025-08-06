@@ -642,7 +642,6 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`Within register`);
-
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
     } else {
@@ -720,7 +719,6 @@ export class DeviceService {
     }
     newDevice.fingerprint = fingerprint;
 
-    let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
@@ -735,18 +733,12 @@ export class DeviceService {
           message: 'Unauthorized',
         });
       }
-
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-        api_user_id: api_user_id,
-      });
-    } else {
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-      });
     }
+    const result = await this.repository.save({
+      ...newDevice,
+      organizationId: organizationId,
+      api_user_id: api_user_id,
+    });
     if (files) {
       const documentTypes = {
         [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
