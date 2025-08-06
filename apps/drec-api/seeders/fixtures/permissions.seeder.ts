@@ -47,7 +47,7 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
-        aclmodulesId: 5, // DEVICE_GROUP_MANAGEMENT_CRUDL
+        aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read'],
@@ -95,7 +95,7 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
-        aclmodulesId: 5, // DEVICE_GROUP_MANAGEMENT_CRUDL
+        aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
         entityId: 2, // OrganizationAdmin
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
@@ -103,7 +103,7 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
-        aclmodulesId: 5, // BUYER_RESERVATION_MANAGEMENT_CRUDL
+        aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
         entityId: 6, // SubBuyer
         entityType: EntityType.Role,
         permissions: ['Read', 'Write'],
@@ -151,7 +151,7 @@ export class PermissionsSeeder implements SeederInterface {
         status: 1,
       },
       {
-        aclmodulesId: 5, // DEVICE_GROUP_MANAGEMENT_CRUDL
+        aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
         entityId: 4, // Buyer
         entityType: EntityType.Role,
         permissions: ['Read'],
@@ -180,6 +180,14 @@ export class PermissionsSeeder implements SeederInterface {
         entityType: EntityType.Role,
         permissions: ['Write'],
         permissionValue: 2,
+        status: 1,
+      },
+      {
+        aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
+        entityId: 6, // Market Intermediary
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
         status: 1,
       },
     ]);

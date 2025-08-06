@@ -1399,7 +1399,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByDeveloperExternalIByApiUser', () => {
+  describe('findDeviceBySerialNumberByApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1409,7 +1409,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findDeviceBySerialNumberByApiUser(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1441,7 +1441,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findDeviceBySerialNumberByApiUser(
         'existing-meter-id',
         'user-id',
       );

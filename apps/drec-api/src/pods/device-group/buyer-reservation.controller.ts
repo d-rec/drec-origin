@@ -89,7 +89,7 @@ export class BuyerReservationController {
     RolesGuard,
     PermissionGuard,
   )
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
   @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
@@ -292,7 +292,7 @@ export class BuyerReservationController {
     PermissionGuard,
   )
   @Permission('Read')
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -366,7 +366,7 @@ export class BuyerReservationController {
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -403,34 +403,14 @@ export class BuyerReservationController {
     );
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (user.role === Role.ApiUser) {
+        organizationId = orgId;
         if (organization.api_user_id !== user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message: 'Organization requested belongs to other apiuser',
           });
-        }
-        if (orgUser.role === Role.Buyer || orgUser.role === Role.SubBuyer) {
-          this.logger.error(`Unauthorized for ${orgUser.role}`);
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized for ${orgUser.role}`,
-          });
-        }
-      } else {
-        if (user.role === Role.OrganizationAdmin) {
-          if (organizationId !== organization.id) {
-            this.logger.error(
-              `User does not associated with the requested organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message:
-                'User does not associated with the requested organization',
-            });
-          }
         }
       }
     }
@@ -621,7 +601,6 @@ export class BuyerReservationController {
         message: 'This frequency is currently not supported',
       });
     }
-
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,

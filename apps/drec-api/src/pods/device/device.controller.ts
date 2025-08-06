@@ -135,7 +135,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser, Role.Buyer)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -463,11 +463,10 @@ export class DeviceController {
         loginUser.api_user_id = null;
       }
 
-      deviceData =
-        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-          externalId,
-          loginUser.api_user_id,
-        );
+      deviceData = await this.deviceService.findDeviceBySerialNumberByApiUser(
+        externalId,
+        loginUser.api_user_id,
+      );
     } else {
       deviceData = await this.deviceService.findDeviceByExternalId(
         externalId,

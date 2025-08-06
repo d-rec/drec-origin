@@ -515,14 +515,14 @@ export class DeviceService {
     return device;
   }
 
-  async findDeviceByDeveloperExternalIByApiUser(
-    externalId: string,
+  async findDeviceBySerialNumberByApiUser(
+    serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceByDeveloperExternalIByApiUser`);
+    this.logger.verbose(`With in findDeviceBySerialNumberByApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
-        externalId: externalId,
+        serialNumber: serialNumber,
         api_user_id: api_user_id,
       },
     });
