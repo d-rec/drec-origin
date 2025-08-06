@@ -62,6 +62,14 @@ export class EvidentIssuanceService {
     }
   }
 
+
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async processDeviceGroupIssuance(): Promise<void> {
+    this.logger.verbose('Device group issuance request creation started');
+    //const deviceGroups = await this.deviceService.getAllDeviceGroupsWithIssuanceLogs();
+  }
+
+
   async processIssuanceByOrganization(organizationId: number): Promise<void> {
     this.logger.verbose(
       `Fetching certificates for issuance for organization ${organizationId}`,
