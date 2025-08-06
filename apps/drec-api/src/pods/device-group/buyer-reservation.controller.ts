@@ -448,13 +448,12 @@ export class BuyerReservationController {
             message: `Device with id ${device.id} does not belong to this organization ${orgId}`,
           });
         }
-      } else {
-        if (organizationId !== device.organizationId) {
-          throw new ConflictException({
-            success: false,
-            message: `Device with id ${device.id} does not belong to the organization`,
-          });
-        }
+      }
+      if (organizationId !== device.organizationId) {
+        throw new ConflictException({
+          success: false,
+          message: `Device with id ${device.id} does not belong to the organization`,
+        });
       }
       if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
         throw new ConflictException({
