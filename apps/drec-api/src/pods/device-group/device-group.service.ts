@@ -39,7 +39,6 @@ import {
 } from './dto';
 
 import moment from 'moment';
-
 import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
@@ -148,7 +147,9 @@ export class DeviceGroupService {
         query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
-
+    if (user.role === Role.OrganizationAdmin) {
+      query.andWhere(`group.organizationId = '${user.organizationId}'`);
+    }
     if (organizationId) {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
