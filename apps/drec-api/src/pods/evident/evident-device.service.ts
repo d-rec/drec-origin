@@ -105,7 +105,6 @@ export class EvidentDeviceService {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
 
-    console.log('payload', payload);
     let deviceResponse = await evidentApiInstance.post(
       '/device_details',
       payload,
@@ -115,11 +114,7 @@ export class EvidentDeviceService {
       deviceResponse = await this.submitDeviceForReview(device, payload);
     }
 
-    await this.sendEvidentEmail(
-      organization,
-      device,
-      deviceResponse.data.status,
-    );
+    await this.sendEmail(organization, device, deviceResponse.data.status);
     await this.updateEvidentStatus(device, deviceResponse.data.status);
     return deviceResponse.data;
   }
@@ -138,13 +133,13 @@ export class EvidentDeviceService {
       device,
       registrantId,
     );
-    console.log('payload', payload);
+
     await evidentApiInstance.post('/device_details', payload);
-    this.logger.verbose('Device group details saved successfully');
+
     payload.status = EvidentRegistrationStatus.Submitted;
+
     const response = await evidentApiInstance.post('/device_details', payload);
-    this.logger.verbose('Device group details saved successfully');
-    console.log('response', response.data);
+
     await this.deviceGroupService.updateEvidentStatus(
       device.groupId,
       device['deviceGroupUid'],
@@ -297,7 +292,7 @@ export class EvidentDeviceService {
     return null;
   }
 
-  private async sendEvidentEmail(
+  private async sendEmail(
     organization: Organization,
     device: Device,
     evidentStatus: EvidentRegistrationStatus,
@@ -333,8 +328,4 @@ export class EvidentDeviceService {
       status as EvidentRegistrationStatus,
     );
   }
-
-  // private async updateDeviceGroupStatus(device: Device) {
-  //
-  // }
 }

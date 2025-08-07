@@ -2819,6 +2819,10 @@ export class DeviceGroupService {
     status: EvidentRegistrationStatus,
   ): Promise<void> {
     this.logger.verbose(`With in updateEvidentStatus`);
+    status =
+      status === EvidentRegistrationStatus.InProgress
+        ? EvidentRegistrationStatus.Submitted
+        : status;
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
