@@ -113,7 +113,7 @@ export class EvidentDeviceService {
       EvidentRegistrationStatus.Draft,
     );
 
-    if (device.capacity <= SMALL_DEVICES_MAX_CAPACITY) {
+    if (device.capacity < SMALL_DEVICES_MAX_CAPACITY) {
       await this.submitDeviceForReview(device, payload);
       await this.mailService.send({
         to: organization.orgEmail,

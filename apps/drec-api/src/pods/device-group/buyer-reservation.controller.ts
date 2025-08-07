@@ -56,7 +56,10 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { DeviceService } from '../device/device.service';
-import { validateDevicesAreHomogeneous } from '../../validations/device-group';
+import {
+  isDeviceGroupable,
+  validateDevicesAreHomogeneous,
+} from '../../validations/device-group';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @ApiTags('Buyer Reservation')
@@ -440,40 +443,22 @@ export class BuyerReservationController {
           'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
     }
-    for (const device of devices) {
-      if (user.role === Role.ApiUser) {
-        if (Number(orgId) !== device.organizationId) {
-          throw new ConflictException({
-            success: false,
-            message: `Device with id ${device.id} does not belong to this organization ${orgId}`,
-          });
-        }
-      } else {
-        if (organizationId !== device.organizationId) {
-          throw new ConflictException({
-            success: false,
-            message: `Device with id ${device.id} does not belong to the organization`,
-          });
-        }
-      }
-      if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
-        throw new ConflictException({
-          success: false,
-          message: `Only devices less than ${SMALL_DEVICES_MAX_CAPACITY}KW can be added to a group`,
-        });
-      }
-    }
+
+    isDeviceGroupable(devices, user, orgId, organizationId);
+
     const totalCapacity = devices.reduce(
       (acc, device) => acc + device.capacity,
       0,
     );
-    if (totalCapacity >= SMALL_DEVICES_MAX_CAPACITY) {
+    if (totalCapacity > SMALL_DEVICES_MAX_CAPACITY) {
       throw new ConflictException({
         success: false,
         message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
       });
     }
+
     validateDevicesAreHomogeneous(devices);
+
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
