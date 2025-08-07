@@ -12,6 +12,6 @@ export class EvidentDeviceRegistrationProcessor {
     job: Job<{ organizationId: number; device: Device; files: any }>,
   ): Promise<any> {
     const { device, files } = job.data;
-    await this.evidentDeviceService.registerDevice(device, files);
+    await this.evidentDeviceService.saveDeviceDetails(device, files);
   }
 }

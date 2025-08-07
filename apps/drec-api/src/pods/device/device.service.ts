@@ -564,9 +564,9 @@ export class DeviceService {
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
           );
           device.evidentStatus =
-            updatedStatus === 'In Progress'
+            updatedStatus === EvidentRegistrationStatus.InProgress
               ? EvidentRegistrationStatus.Submitted
-              : updatedStatus;
+              : (updatedStatus as EvidentRegistrationStatus);
           await this.repository.save(device);
           const organization =
             await this.organizationService.getLinkedMarketIntermediaryOrSelf(
@@ -1908,7 +1908,7 @@ export class DeviceService {
   async updateEvidentInfo(
     deviceExternalId: string,
     evidentDeviceId: string,
-    evidentStatus: string,
+    evidentStatus: EvidentRegistrationStatus,
   ): Promise<void> {
     this.logger.verbose(`With in updateDeviceEvidentInfo`);
     const device = await this.repository.findOne({
@@ -1963,7 +1963,7 @@ export class DeviceService {
       .andWhere('evidentSettings.apiKey IS NOT NULL')
       .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
       .andWhere('device.evidentStatus = :status', {
-        status: 'Approved',
+        status: EvidentRegistrationStatus.Approved,
       })
       .andWhere('deviceCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
       .andWhere('organization.id = :organizationId', { organizationId })

@@ -2818,6 +2818,7 @@ export class DeviceGroupService {
     evidentGroupId: string,
     status: EvidentRegistrationStatus,
   ): Promise<void> {
+    this.logger.verbose(`With in updateEvidentStatus`);
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
