@@ -2840,22 +2840,14 @@ export class DeviceGroupService {
     });
   }
 
-  async getDeviceGroupCertificatesForEvidentIssuance(groupId: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
-    return await this.checkDeviceGroupLogCertificateRepository
-      .createQueryBuilder('deviceGroupCertificates')
-      .leftJoinAndSelect('deviceGroupCertificates.deviceGroup', 'deviceGroup')
-      .leftJoinAndSelect('deviceGroup.organization', 'organization')
-      .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
-      .where('deviceGroupCertificates.evidentSyncedAt IS NULL')
-      .andWhere('deviceGroupCertificates.certificate_issuance_startdate >= deviceGroup.createdAt')
-      .andWhere('evidentSettings.apiKey IS NOT NULL')
-      .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
-      .andWhere('deviceGroup.evidentStatus = :status', {
-        status: 'Approved',
-      })
-      .andWhere('deviceGroupCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
-      .andWhere('organization.id = :organizationId', { groupuid: groupId })
-      .orderBy('deviceGroupCertificates.certificate_issuance_startdate', 'ASC')
-      .getMany();
+  async getDeviceGroupCertificatesForEvidentIssuance(groupId: number, nextIssuanceDate: Date): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
+    return await this.checkDeviceGroupLogCertificateRepository.find({
+      where: {
+        groupid: groupId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    })
   }
 }

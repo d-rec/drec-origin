@@ -87,9 +87,15 @@ export class EvidentIssuanceService {
         const organization = await this.organizationService.findOne(
           settings.organizationId,
         );
-        const evidentDeviceGroup = await this.deviceGroupService.getRegisteredEvidentDeviceGroups(organization.api_user_id);
-        console.log("evidentDeviceGroup", evidentDeviceGroup);
-        //await this.processIssuanceByOrganization(settings.organizationId);
+        const getRegisteredEvidentDeviceGroups = await this.deviceGroupService.getRegisteredEvidentDeviceGroups(organization.api_user_id);
+        console.log("evidentDeviceGroup", getRegisteredEvidentDeviceGroups);
+        for(const device of getRegisteredEvidentDeviceGroups) {
+          const certificates = await this.deviceGroupService.getDeviceGroupCertificatesForEvidentIssuance(
+            device.organizationId,
+            nextIssuanceDate,
+          );
+          console.log("certificates", certificates);
+        }
       } catch (error) {
         this.logger.error(
           `Error processing organization ${settings.organizationId}: ${error.message}`,
