@@ -61,6 +61,7 @@ import {
   validateDevicesAreHomogeneous,
 } from '../../validations/device-group';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import { canManageOrganization } from 'src/lib/organization';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -406,6 +407,27 @@ export class BuyerReservationController {
     );
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
+      const organizationAdmin = await this.userService.findUserByOrganization(
+        orgId,
+        1,
+        1,
+      );
+
+      const canManage = canManageOrganization({
+        user,
+        organization,
+        organizationAdmin: organizationAdmin[0][0],
+      });
+      if (!canManage) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'User cannot manage this organization',
+        });
+      }
+    }
+
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
       if (user.role === Role.ApiUser) {
         organizationId = orgId;
         if (organization.api_user_id !== user.api_user_id) {
@@ -444,7 +466,7 @@ export class BuyerReservationController {
       });
     }
 
-    isDeviceGroupable(devices, user, orgId, organizationId);
+    isDeviceGroupable(devices, organizationId);
 
     const totalCapacity = devices.reduce(
       (acc, device) => acc + device.capacity,
