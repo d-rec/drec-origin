@@ -30,7 +30,7 @@ export function isDeviceGroupable(
   organizationId: number,
 ): void {
   for (const device of devices) {
-    if (device.organizationId !== organizationId) {
+    if (device.organizationId !== Number(organizationId)) {
       throw new ConflictException({
         success: false,
         message: `Device to be grouped must belong to the same organization`,
