@@ -51,7 +51,10 @@ export class EvidentDeviceService {
     return response.data;
   }
 
-  private async registerDevice(device: Device): Promise<any> {
+  private async createDevice(
+    device: Device,
+    files?: Record<string, Express.Multer.File[]>,
+  ): Promise<EvidentDeviceDetailsPayload> {
     try {
       const evidentApiInstance = await this.evidentService.getApiInstance(
         device.organizationId,
@@ -60,20 +63,18 @@ export class EvidentDeviceService {
         name: device.projectName,
         fuel: `/fuels/${device.fuelCode}`,
       });
-
-      return response.data;
+      device.evidentDeviceId = response.data.code;
+      return await this.saveDeviceDetails(device, files);
     } catch (error) {
       this.logger.error('Error registering device:', error.message);
       throw error;
     }
   }
 
-  async saveDeviceDetails(
+  private async saveDeviceDetails(
     device: Device,
     files: Record<string, Express.Multer.File[]>,
   ): Promise<EvidentDeviceDetailsPayload> {
-    const registeredDevice = await this.registerDevice(device);
-    device.evidentDeviceId = registeredDevice.code;
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
@@ -81,17 +82,15 @@ export class EvidentDeviceService {
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
 
-    const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
-        device.organizationId,
+    let uploadedFiles: string[] = [];
+    if (files) {
+      uploadedFiles = await this.evidentService.uploadFiles(
+        device,
+        files,
+        evidentUserId,
+        this.getNotes(device),
       );
-
-    const uploadedFiles = await this.evidentService.uploadFiles(
-      device,
-      files,
-      evidentUserId,
-      this.getNotes(device),
-    );
+    }
 
     const payload = this.generateDeviceDetailsPayload(
       device,
@@ -113,39 +112,7 @@ export class EvidentDeviceService {
     if (device.capacity < 250) {
       deviceResponse = await this.submitDeviceForReview(device, payload);
     }
-
-    await this.sendEmail(organization, device, deviceResponse.data.status);
-    await this.updateEvidentStatus(device, deviceResponse.data.status);
     return deviceResponse.data;
-  }
-
-  async saveDeviceGroupDetails(device: Device): Promise<void> {
-    this.logger.verbose('Saving device group details');
-    const evidentApiInstance = await this.evidentService.getApiInstance(
-      device.organizationId,
-    );
-    const registeredDevice = await this.registerDevice(device);
-    device.evidentDeviceId = registeredDevice.code;
-    const { registrantId } = await this.evidentService.getRegistrantInfo(
-      device.organizationId,
-    );
-    const payload = this.generateEvidentDeviceGroupPayload(
-      device,
-      registrantId,
-    );
-
-    await evidentApiInstance.post('/device_details', payload);
-
-    payload.status = EvidentRegistrationStatus.Submitted;
-
-    const response = await evidentApiInstance.post('/device_details', payload);
-
-    await this.deviceGroupService.updateEvidentStatus(
-      device.groupId,
-      device['deviceGroupUid'],
-      device.evidentDeviceId,
-      response.data.status,
-    );
   }
 
   async submitDeviceForReview(
@@ -180,7 +147,7 @@ export class EvidentDeviceService {
     });
   }
 
-  async generateEvidentDeviceGroup(deviceGroup: DeviceGroup): Promise<void> {
+  async registerDeviceGroup(deviceGroup: DeviceGroup): Promise<void> {
     const devices = await this.deviceService.findByIds(deviceGroup.deviceIds);
     if (devices.length === 0) {
       this.logger.warn('No devices found for the provided device IDs');
@@ -199,38 +166,29 @@ export class EvidentDeviceService {
     device.createdAt = new Date(commissioningDate);
     device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
     device.projectName = deviceGroup.name;
-    await this.saveDeviceGroupDetails(device);
+    const evidentDevice = await this.createDevice(device);
+    await this.deviceGroupService.updateEvidentStatus(
+      device.groupId,
+      device['deviceGroupUid'],
+      device.evidentDeviceId,
+      evidentDevice.status as EvidentRegistrationStatus,
+    );
   }
 
-  private generateEvidentDeviceGroupPayload(
+  async registerDevice(
     device: Device,
-    registrantId: string,
-  ): any {
-    const alpha2CountryCode = findCountryByCode(device.countryCode).alpha2;
-    const convertCapacityToMwh = convertToPowerUnit({
-      value: device.capacity,
-      unit: EnergyUnit.kWh,
-      targetUnit: EnergyUnit.MWh,
-    });
-    return {
-      deviceType: `/device_types/${device.deviceTypeCode}`,
-      fuel: `/fuels/${device.fuelCode}`,
-      device: `/devices/${device.evidentDeviceId}`,
-      registrant: `/organisations/${registrantId}`,
-      name: device.projectName,
-      capacity: convertCapacityToMwh.toString(),
-      supported: true,
-      latitude: device.latitude,
-      longitude: device.longitude,
-      registrationDate: new Date(device.createdAt).toISOString().split('T')[0],
-      commissioningDate: device.commissioningDate.split('T')[0],
-      status: EvidentRegistrationStatus.Draft,
-      active: true,
-      address1: device.address,
-      country: `/countries/${alpha2CountryCode}`,
-      notes: this.getNotes(device),
-      issuer: `/organisations/${this.issuerId}`,
-    };
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<any> {
+    const evidentDevice = await this.createDevice(device, files);
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
+    await this.sendEmail(organization, device, evidentDevice.status);
+    await this.updateEvidentStatus(
+      device,
+      evidentDevice.status as EvidentRegistrationStatus,
+    );
   }
 
   private generateDeviceDetailsPayload(
@@ -263,7 +221,7 @@ export class EvidentDeviceService {
       stateProvince: device.stateProvince,
       country: `/countries/${alpha2CountryCode}`,
       notes: this.getNotes(device),
-      files: files,
+      files: files || [],
     };
   }
 

@@ -851,7 +851,7 @@ export class DeviceGroupService {
         );
       }),
     );
-    await this.evidentDeviceService.generateEvidentDeviceGroup(group);
+    await this.evidentDeviceService.registerDeviceGroup(group);
     return group;
   }
 
