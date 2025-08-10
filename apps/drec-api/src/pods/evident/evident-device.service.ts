@@ -22,6 +22,7 @@ import { UserService } from '../user/user.service';
 import EvidentSubmittedDeviceRegistrationTemplate, {
   getEvidentSubmittedDeviceRegistrationSubject,
 } from './mail/evident-submitted-device-registration.template';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -98,7 +99,7 @@ export class EvidentDeviceService {
       uploadedFiles,
     );
 
-    if (device.capacity >= 250) {
+    if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
       payload.issuer = await this.getIssuerForDevice(device);
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
@@ -112,7 +113,7 @@ export class EvidentDeviceService {
       EvidentRegistrationStatus.Draft,
     );
 
-    if (device.capacity <= 250) {
+    if (device.capacity < SMALL_DEVICES_MAX_CAPACITY) {
       await this.submitDeviceForReview(device, payload);
       await this.mailService.send({
         to: organization.orgEmail,
