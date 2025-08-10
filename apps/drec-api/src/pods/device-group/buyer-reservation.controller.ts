@@ -55,6 +55,13 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { DeviceService } from '../device/device.service';
+import {
+  isDeviceGroupable,
+  validateDevicesAreHomogeneous,
+} from '../../validations/device-group';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import { canManageOrganization } from 'src/lib/organization';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -73,6 +80,7 @@ export class BuyerReservationController {
     private readonly fileService: FileService,
     private organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   /**
@@ -394,6 +402,30 @@ export class BuyerReservationController {
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
     deviceGroupToRegister.api_user_id = user.api_user_id;
+    const devices = await this.deviceService.findByIds(
+      deviceGroupToRegister.deviceIds,
+    );
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const organizationAdmin = await this.userService.findUserByOrganization(
+        orgId,
+        1,
+        1,
+      );
+
+      const canManage = canManageOrganization({
+        user,
+        organization,
+        organizationAdmin: organizationAdmin[0][0],
+      });
+      if (!canManage) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'User cannot manage this organization',
+        });
+      }
+    }
+
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
       if (user.role === Role.ApiUser) {
@@ -433,6 +465,22 @@ export class BuyerReservationController {
           'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
     }
+
+    isDeviceGroupable(devices, organizationId);
+
+    const totalCapacity = devices.reduce(
+      (acc, device) => acc + device.capacity,
+      0,
+    );
+    if (totalCapacity > SMALL_DEVICES_MAX_CAPACITY) {
+      throw new ConflictException({
+        success: false,
+        message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
+      });
+    }
+
+    validateDevicesAreHomogeneous(devices);
+
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||

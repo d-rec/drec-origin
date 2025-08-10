@@ -25,6 +25,7 @@ import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { AxiosResponse } from 'axios';
 import { Organization } from '../organization/organization.entity';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -98,7 +99,7 @@ export class EvidentDeviceService {
       uploadedFiles,
     );
 
-    if (device.capacity >= 250) {
+    if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
       payload.issuer = await this.getIssuerForDevice(device);
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
@@ -109,7 +110,7 @@ export class EvidentDeviceService {
       payload,
     );
 
-    if (device.capacity < 250) {
+    if (device.capacity < SMALL_DEVICES_MAX_CAPACITY) {
       deviceResponse = await this.submitDeviceForReview(device, payload);
     }
     return deviceResponse.data;
