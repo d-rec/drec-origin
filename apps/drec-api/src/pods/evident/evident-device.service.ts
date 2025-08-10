@@ -181,7 +181,7 @@ export class EvidentDeviceService {
       device.evidentDeviceId,
       evidentDevice.status as EvidentRegistrationStatus,
     );
-    await this.sendDeviceGroupEmail(organization, device, evidentDevice.status);
+    await this.sendDeviceGroupEmail(organization, device);
   }
 
   async registerDevice(
