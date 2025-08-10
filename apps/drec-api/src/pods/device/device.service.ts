@@ -18,6 +18,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
   Not,
@@ -98,6 +99,7 @@ import {
   getMinDateByFrequency,
 } from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @Injectable()
 export class DeviceService {
@@ -201,8 +203,6 @@ export class DeviceService {
       const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
-        device['internalexternalId'] = device.externalId;
-        device.externalId = device.developerExternalId;
         delete device['developerExternalId'];
 
         delete device['organization'];
@@ -223,12 +223,8 @@ export class DeviceService {
       },
     });
 
-    //devices.externalId = devices.developerExternalId
     const newDevices = [];
     await devices.map((device: Device) => {
-      device['internalexternalId'] = device.externalId;
-      device.externalId = device.developerExternalId;
-      delete device['developerExternalId'];
       delete device['organization'];
       newDevices.push(device);
     });
@@ -498,14 +494,14 @@ export class DeviceService {
     return result ?? null;
   }
 
-  async findDeviceByDeveloperExternalId(
-    meterId: string,
+  async findDeviceByExternalId(
+    serialNumber: string,
     organizationId: number,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceByDeveloperExternalId`);
+    this.logger.verbose(`With in findDeviceByExternalId`);
     const device: Device = await this.repository.findOne({
       where: {
-        developerExternalId: meterId,
+        serialNumber: serialNumber,
         organizationId: organizationId,
       },
     });
@@ -520,14 +516,14 @@ export class DeviceService {
     return device;
   }
 
-  async findDeviceByDeveloperExternalIByApiUser(
-    meterId: string,
+  async findDeviceBySerialNumberByApiUser(
+    serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceByDeveloperExternalIByApiUser`);
+    this.logger.verbose(`With in findDeviceBySerialNumberByApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
-        developerExternalId: meterId,
+        serialNumber: serialNumber,
         api_user_id: api_user_id,
       },
     });
@@ -550,7 +546,7 @@ export class DeviceService {
     return (
       (await this.repository.find({
         where: {
-          developerExternalId: In(meterIdList),
+          serialNumber: In(meterIdList),
           organizationId: organizationId,
         },
       })) ?? null
@@ -646,7 +642,6 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`Within register`);
-
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
     } else {
@@ -673,8 +668,6 @@ export class DeviceService {
         message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
       });
     }
-
-    newDevice.developerExternalId = newDevice.externalId;
     newDevice.externalId = uuid();
 
     if (
@@ -726,7 +719,6 @@ export class DeviceService {
     }
     newDevice.fingerprint = fingerprint;
 
-    let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
@@ -741,18 +733,12 @@ export class DeviceService {
           message: 'Unauthorized',
         });
       }
-
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-        api_user_id: api_user_id,
-      });
-    } else {
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-      });
     }
+    const result = await this.repository.save({
+      ...newDevice,
+      organizationId: organizationId,
+      api_user_id: api_user_id,
+    });
     if (files) {
       const documentTypes = {
         [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
@@ -785,11 +771,7 @@ export class DeviceService {
 
     await this.evidentDeviceService.queueDeviceRegistration(result, files);
 
-    result['internalexternalId'] = result.externalId;
-    result.externalId = result.developerExternalId;
-    delete result['developerExternalId'];
     delete result['organization'];
-
     return result;
   }
 
@@ -809,7 +791,7 @@ export class DeviceService {
           }
         : undefined;
 
-    let currentDevice = await this.findDeviceByDeveloperExternalId(
+    let currentDevice = await this.findDeviceByExternalId(
       externalId.trim(),
       organizationId,
     );
@@ -817,7 +799,6 @@ export class DeviceService {
       this.logger.error(`No device found with id ${externalId}`);
       throw new NotFoundException(`No device found with id ${externalId}`);
     }
-    updateDeviceDTO.developerExternalId = updateDeviceDTO.externalId;
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgBenefitList = SDGBenefits;
 
@@ -874,10 +855,6 @@ export class DeviceService {
 
     currentDevice = defaults(updateDeviceDTO, currentDevice);
     const result = await this.repository.save(currentDevice);
-    result['internalexternalId'] = result.externalId;
-    result.externalId = result.developerExternalId;
-    delete result['developerExternalId'];
-    delete result['organization'];
     return result;
   }
 
@@ -1215,7 +1192,12 @@ export class DeviceService {
     }
     let where: any = query.where;
 
-    where = { ...where, groupId: null, api_user_id: api_user_id };
+    where = {
+      ...where,
+      groupId: null,
+      api_user_id: api_user_id,
+      capacity: LessThan(SMALL_DEVICES_MAX_CAPACITY),
+    };
 
     query.where = where;
 
@@ -1407,7 +1389,6 @@ export class DeviceService {
           0,
         );
         totalAmountOfReads.push({
-          externalId: device.developerExternalId,
           totalcertifiedReadValue: totalCertifiedReadValue,
           totalReadValue: totalReadValue,
         });
@@ -1516,9 +1497,9 @@ export class DeviceService {
       .where('Device.organizationId = :organizationId', { organizationId })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('Device.developerExternalId = :externalId', {
+          qb.where('Device.serialNumber = :externalId', {
             externalId,
-          }).orWhere('Device.developerExternalId LIKE :pattern', {
+          }).orWhere('Device.serialNumber LIKE :pattern', {
             pattern: `${externalId}%`,
           });
         }),
@@ -1528,7 +1509,6 @@ export class DeviceService {
     this.logger.debug(rows);
     const newDevices = [];
     await rows.map((device: Device) => {
-      device.externalId = device.developerExternalId;
       delete device['developerExternalId'];
       newDevices.push(device);
     });
@@ -1573,7 +1553,7 @@ export class DeviceService {
       })
       .andWhere('deviceData.groupId= :groupId', { groupId });
     const result = await queryBuilder.getRawOne();
-    return { ...result, extenalId: device.developerExternalId };
+    return { ...result, serialNumber: device.serialNumber };
   }
 
   async getCertifiedDeviceDateRangeByGroupId(
@@ -1591,12 +1571,12 @@ export class DeviceService {
       .createQueryBuilder('deviceData')
       .leftJoin('device', 'd', 'deviceData.externalId = d.externalId')
       .select([
-        'd.developerExternalId AS "externalId"',
+        'd.serialNumber AS "serialNumber"',
         'MIN(deviceData.certificate_issuance_startdate) AS firstcertifiedstartdate',
         'MAX(deviceData.certificate_issuance_enddate) AS lastcertifiedenddate',
       ])
       .where('deviceData.groupId = :groupId', { groupId })
-      .groupBy('d.developerExternalId')
+      .groupBy('d.serialNumber')
       .offset(skip)
       .limit(pageSize);
     const result = await queryBuilder.getRawMany();
@@ -1621,7 +1601,7 @@ export class DeviceService {
       filterOptions as FindOneOptions<Device>,
     );
     if (!checkDeviceUnreserve) {
-      const message = `Device id: ${checkDeviceUnreserve.developerExternalId} already part of the reservation , you cannot delete it`;
+      const message = `Device id: ${checkDeviceUnreserve.serialNumber} already part of the reservation , you cannot delete it`;
       this.logger.error(message);
       return {
         success: false,
@@ -1634,7 +1614,7 @@ export class DeviceService {
       });
 
     if (certifiedAmountOfRead) {
-      const message = `Device id: ${checkDeviceUnreserve.developerExternalId} already certified in reservation , you cannot delete it`;
+      const message = `Device id: ${checkDeviceUnreserve.serialNumber} already certified in reservation , you cannot delete it`;
       this.logger.error(message);
       return {
         success: false,

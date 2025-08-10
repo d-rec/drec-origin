@@ -218,7 +218,9 @@ describe('DeviceService', () => {
       const role = Role.OrganizationAdmin;
 
       const deviceEntity = {
-        externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -341,7 +343,7 @@ describe('DeviceService', () => {
 
       const options = {
         where: {
-          developerExternalId: newDevice.serialNumber,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
@@ -1162,7 +1164,7 @@ describe('DeviceService', () => {
         {
           id: 1,
           externalId: 'EXT123',
-          developerExternalId: 'DEV123',
+          serialNumber: 'DEV123',
         } as Device,
       ];
 
@@ -1186,8 +1188,8 @@ describe('DeviceService', () => {
       expect(result).toEqual([
         {
           id: 1,
-          internalexternalId: 'EXT123',
-          externalId: 'DEV123',
+          externalId: 'EXT123',
+          serialNumber: 'DEV123',
         },
       ]);
     });
@@ -1217,7 +1219,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1332,12 +1334,12 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByDeveloperExternalId', () => {
+  describe('findDeviceByExternalId', () => {
     it('should return the device with updated timezone when found', async () => {
       // Mock device object
       const mockDevice: Device = {
         id: 1,
-        developerExternalId: 'some-meter-id',
+        serialNumber: 'some-meter-id',
         organizationId: 1,
         createdAt: new Date('2024-02-27T07:00:32.963Z'),
         timezone: null,
@@ -1356,16 +1358,13 @@ describe('DeviceService', () => {
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId(
-        'some-meter-id',
-        1,
-      );
+      const result = await service.findDeviceByExternalId('some-meter-id', 1);
 
       // Assert
       expect(result).toEqual(mockDevice);
       expect(result?.timezone).toBe('America/New_York');
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { developerExternalId: 'some-meter-id', organizationId: 1 },
+        where: { serialNumber: 'some-meter-id', organizationId: 1 },
       });
       expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
         mockDevice.createdAt,
@@ -1383,7 +1382,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null);
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId(
+      const result = await service.findDeviceByExternalId(
         'non-existent-meter-id',
         1,
       );
@@ -1392,7 +1391,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           organizationId: 1,
         },
       });
@@ -1400,7 +1399,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByDeveloperExternalIByApiUser', () => {
+  describe('findDeviceBySerialNumberByApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1410,7 +1409,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findDeviceBySerialNumberByApiUser(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1419,7 +1418,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1442,7 +1441,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findDeviceBySerialNumberByApiUser(
         'existing-meter-id',
         'user-id',
       );
@@ -1452,7 +1451,7 @@ describe('DeviceService', () => {
       expect(result?.timezone).toBe('Asia/Kolkata');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'existing-meter-id',
+          serialNumber: 'existing-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1478,7 +1477,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['non-existent-meter-id']),
+          serialNumber: In(['non-existent-meter-id']),
           organizationId: 1,
         },
       });
@@ -1490,7 +1489,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1550,7 +1549,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'fca54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1620,7 +1619,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([deviceEntity1, deviceEntity2]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['externalId1', 'externalId2']),
+          serialNumber: In(['externalId1', 'externalId2']),
           organizationId: 1,
         },
       });
@@ -1640,7 +1639,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1659,7 +1658,7 @@ describe('DeviceService', () => {
 
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1672,7 +1671,6 @@ describe('DeviceService', () => {
       const role = Role.DeviceOwner;
       const externalId = 'external-id-1';
       const updateDeviceDTO: UpdateDeviceDTO = {
-        dataSourceBrand: 'Sample Brand',
         externalId: 'ExternalId1',
         projectName: 'sampleProject',
         address: 'Bangalore',
@@ -1701,7 +1699,7 @@ describe('DeviceService', () => {
       const currentDevice = {
         id: 1,
         externalId: 'external-id-1',
-        developerExternalId: 'old-developer-external-id',
+        serialNumber: 'SN12345',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
       } as Device;
@@ -1709,8 +1707,8 @@ describe('DeviceService', () => {
       const savedDevice = {
         ...currentDevice,
         ...updateDeviceDTO,
-        externalId: 'old-developer-external-id',
-        developerExternalId: 'external-id-1',
+        externalId: 'external-id-1',
+        serialNumber: 'SN123455',
         organization: undefined,
         SDGBenefits: ['invalid'], // The service transforms this value
       };
@@ -1721,7 +1719,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null); // Mock fingerprint check to return null
 
       const findDeviceByDeveloperExternalIdSpy = jest
-        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .spyOn(service, 'findDeviceByExternalId')
         .mockResolvedValue(currentDevice);
 
       const saveSpy = jest
@@ -1747,7 +1745,6 @@ describe('DeviceService', () => {
         expect.objectContaining({
           id: 1,
           externalId: 'external-id-1',
-          internalexternalId: 'old-developer-external-id',
           projectName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
@@ -1769,6 +1766,7 @@ describe('DeviceService', () => {
           IREC_ID: null,
           yieldValue: 1500,
           labels: 'labels',
+          serialNumber: 'SN123455',
         }),
       );
     });
