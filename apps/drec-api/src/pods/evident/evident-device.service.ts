@@ -26,6 +26,9 @@ import { DeviceGroup } from '../device-group/device-group.entity';
 import { AxiosResponse } from 'axios';
 import { Organization } from '../organization/organization.entity';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import EvidentDeviceGroupRegistrationTemplate, {
+  getEvidentDeviceGroupRegistrationSubject,
+} from './mail/evident-device-group-registration';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -167,6 +170,10 @@ export class EvidentDeviceService {
     device.createdAt = new Date(commissioningDate);
     device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
     device.projectName = deviceGroup.name;
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
     const evidentDevice = await this.createDevice(device);
     await this.deviceGroupService.updateEvidentStatus(
       device.groupId,
@@ -174,6 +181,7 @@ export class EvidentDeviceService {
       device.evidentDeviceId,
       evidentDevice.status as EvidentRegistrationStatus,
     );
+    await this.sendDeviceGroupEmail(organization, device, evidentDevice.status);
   }
 
   async registerDevice(
@@ -275,6 +283,21 @@ export class EvidentDeviceService {
         }),
       });
     }
+  }
+
+  private async sendDeviceGroupEmail(
+    organization: Organization,
+    device: Device,
+    status: EvidentRegistrationStatus,
+  ) {
+    await this.mailService.send({
+      to: organization.orgEmail,
+      subject: getEvidentDeviceGroupRegistrationSubject(device),
+      template: EvidentDeviceGroupRegistrationTemplate({
+        device,
+        organizationName: organization.name,
+      }),
+    });
   }
 
   private async updateEvidentStatus(

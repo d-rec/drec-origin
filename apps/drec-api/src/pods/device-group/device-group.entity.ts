@@ -191,7 +191,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   evidentGroupId: string | null;
 
   @Column({ type: 'text', nullable: true, name: 'evident_status' })
-  @IsString()
+  @IsEnum(EvidentRegistrationStatus)
   @IsOptional()
   evidentStatus: EvidentRegistrationStatus | null;
 
