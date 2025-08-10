@@ -288,7 +288,6 @@ export class EvidentDeviceService {
   private async sendDeviceGroupEmail(
     organization: Organization,
     device: Device,
-    status: EvidentRegistrationStatus,
   ) {
     await this.mailService.send({
       to: organization.orgEmail,
