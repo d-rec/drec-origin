@@ -38,6 +38,8 @@ export class EvidentDeviceService {
   constructor(
     @InjectQueue(Queues.EvidentDeviceRegistration)
     private readonly evidentDeviceRegistrationQueue: Queue,
+    @InjectQueue(Queues.EvidentDeviceGroupRegistration)
+    private readonly evidentDeviceGroupRegistrationQueue: Queue,
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     private readonly evidentService: EvidentService,
@@ -148,6 +150,14 @@ export class EvidentDeviceService {
     await this.evidentDeviceRegistrationQueue.add({
       device,
       files,
+    });
+  }
+
+  async queueDeviceGroupRegistration(
+    deviceGroup: DeviceGroup,
+  ): Promise<void> {
+    await this.evidentDeviceGroupRegistrationQueue.add({
+      deviceGroup,
     });
   }
 
