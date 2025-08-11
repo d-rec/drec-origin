@@ -24,14 +24,15 @@ import {
 //import { Device } from '../device/device.entity';
 import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @PrimaryGeneratedColumn('uuid')
-  devicegroup_uid: string;
+  @PrimaryGeneratedColumn('uuid', { name: 'devicegroup_uid' })
+  deviceGroupUid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -183,6 +184,16 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3,
   })
   reservationExpiryDate: Date;
+
+  @Column({ type: 'text', nullable: true, name: 'evident_group_id' })
+  @IsString()
+  @IsOptional()
+  evidentGroupId: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'evident_status' })
+  @IsEnum(EvidentRegistrationStatus)
+  @IsOptional()
+  evidentStatus: EvidentRegistrationStatus | null;
 
   isExpired(): boolean {
     return (

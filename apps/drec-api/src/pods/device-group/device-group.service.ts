@@ -76,6 +76,8 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { Profile } from '../../lib/profile';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -114,6 +116,7 @@ export class DeviceGroupService {
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @InjectQueue(Queues.DeviceBulkUpload) private deviceQueue: Queue,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   async getAll(
@@ -736,7 +739,7 @@ export class DeviceGroupService {
             deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
           authorityToExceed: deviceGroup.dg_authorityToExceed,
           leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-          devicegroup_uid: deviceGroup.dg_devicegroup_uid,
+          deviceGroupUid: deviceGroup.dg_devicegroup_uid,
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
@@ -848,7 +851,7 @@ export class DeviceGroupService {
         );
       }),
     );
-
+    await this.evidentDeviceService.queueDeviceGroupRegistration(group);
     return group;
   }
 
@@ -1188,6 +1191,7 @@ export class DeviceGroupService {
         allSerialNumbers,
         organizationId,
       );
+
     if (existingDevices && existingDevices.length > 0) {
       existingDevices.forEach((ele) =>
         existingSerialNumbers.push(ele?.serialNumber),
@@ -2078,7 +2082,7 @@ export class DeviceGroupService {
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
       reservationActive: true,
     });
     if (group === null) {
@@ -2175,7 +2179,7 @@ export class DeviceGroupService {
         "dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
       .select(
-        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
+        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
       )
       .orderBy(
         'dg.id, crm.internalCertificateId, dg_log.readvalue_watthour',
@@ -2463,7 +2467,7 @@ export class DeviceGroupService {
         'CAST(issuer.deviceId AS INTEGER) = dg.id',
       )
       .select(
-        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
       )
       .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
@@ -2806,5 +2810,22 @@ export class DeviceGroupService {
 
     // 4. Return the integer component for certificate issuance
     return integralVal;
+  }
+
+  async updateEvidentStatus(
+    groupId: number,
+    deviceGroupUid: string,
+    evidentGroupId: string,
+    status: EvidentRegistrationStatus,
+  ): Promise<void> {
+    this.logger.verbose(`With in updateEvidentStatus`);
+    status =
+      status === EvidentRegistrationStatus.InProgress
+        ? EvidentRegistrationStatus.Submitted
+        : status;
+    await this.repository.update(
+      { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
+      { evidentGroupId: evidentGroupId, evidentStatus: status },
+    );
   }
 }

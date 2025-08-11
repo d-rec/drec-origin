@@ -3,6 +3,7 @@ export enum EvidentRegistrationStatus {
   Submitted = 'Submitted',
   Approved = 'Approved',
   Rejected = 'Rejected',
+  InProgress = 'In Progress',
 }
 
 export enum EvidentIssuanceStatus {
