@@ -153,9 +153,7 @@ export class EvidentDeviceService {
     });
   }
 
-  async queueDeviceGroupRegistration(
-    deviceGroup: DeviceGroup,
-  ): Promise<void> {
+  async queueDeviceGroupRegistration(deviceGroup: DeviceGroup): Promise<void> {
     await this.evidentDeviceGroupRegistrationQueue.add({
       deviceGroup,
     });
