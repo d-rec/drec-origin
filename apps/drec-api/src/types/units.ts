@@ -1,6 +1,6 @@
 export enum EnergyUnit {
-    Wh = 'Wh',
-    kWh = 'kWh',
-    MWh = 'MWh',
-    GWh = 'GWh',
-  }
+  Wh = 'Wh',
+  kWh = 'kWh',
+  MWh = 'MWh',
+  GWh = 'GWh',
+}

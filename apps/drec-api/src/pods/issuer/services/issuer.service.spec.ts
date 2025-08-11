@@ -261,8 +261,7 @@ describe('IssuerService', () => {
         buyerAddress: null,
         buyerId: null,
       } as unknown as DeviceGroup;
-      const deviceHistoryRequest =
-        {} as unknown as MeterRead;
+      const deviceHistoryRequest = {} as unknown as MeterRead;
       const device = {} as unknown as IDevice;
 
       await historicalIssuanceService.issueCertificate(
