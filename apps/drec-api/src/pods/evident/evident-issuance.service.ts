@@ -23,6 +23,7 @@ import EvidentDraftIssuanceRegistrationTemplate, {
 } from './mail/evident-draft-issuance-registration.template';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { DeviceGroup } from '../device-group/device-group.entity';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -98,10 +99,13 @@ export class EvidentIssuanceService {
               deviceGroup.id,
             );
             this.logger.verbose(`Found certificates for device group ${deviceGroup.id}: ${certificates.length}`);
+
           if (certificates.length === 0) {
             continue;
           }
-          this.processDeviceGroupIssuanceCertificate(certificates);
+          //console.log("certificates", certificates);
+          console.log("deviceGroup", deviceGroup);
+          this.processDeviceGroupIssuanceCertificate(certificates, deviceGroup);
         }
       } catch (error) {
         this.logger.error(
@@ -279,8 +283,8 @@ export class EvidentIssuanceService {
     );
   }
 
-  private async processDeviceGroupIssuanceCertificate(certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[]) {
-   const totalAmount = certificates.reduce(
+  private async processDeviceGroupIssuanceCertificate(certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[], deviceGroup: DeviceGroup) {
+   const amount = certificates.reduce(
             (acc, certificate) => acc + certificate.readvalue_watthour,
             0,
           );
@@ -294,24 +298,24 @@ export class EvidentIssuanceService {
               a.certificate_issuance_enddate.getTime() -
               b.certificate_issuance_enddate.getTime(),
           )[certificates.length - 1].certificate_issuance_enddate;
-
-    const { reads, ...file } = await this.generateReadsCSVFile(
-      certificates[0].device,
-      startDate,
-      endDate,
+    // const deviceGroup = certificates[0].deviceGroup.;
+    // const { reads, ...file } = await this.generateReadsCSVFile(
+    //   deviceGroup,
+    //   startDate,
+    //   endDate,
+    // );
+    const { defaultTradingAccount } = await this.evidentSettingsService.find(
+      deviceGroup.organizationId,
     );
 
-    const files = {
-      [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
-    };
+    // const files = {
+    //   [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
+    // };
 
-    const amount = reads.reduce((sum, read) => {
-      return sum + (read.value || 0);
-    }, 0);
 
     if (amount <= 0) {
       this.logger.warn(
-        `No valid reads found for device group ${certificate.deviceGroup.name} between ${startDate.toISOString()} and ${endDate.toISOString()}. Skipping issuance.`,
+        `No valid reads found for device group ${deviceGroup.name} between ${startDate.toISOString()} and ${endDate.toISOString()}. Skipping issuance.`,
       );
       return;
     }
@@ -322,32 +326,32 @@ export class EvidentIssuanceService {
       targetUnit: EnergyUnit.MWh,
     });
 
-    const payload: EvidentIssuanceRequest = {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      productionVolume: productionVolume.toString(),
-      notes: JSON.stringify({
-        'D-REC Device Group Id': certificate.deviceGroup.name,
-        'D-REC Token': certificate.certificateTransactionUID,
-      }),
-      recipientAccount: `/accounts/${certificate.deviceGroup.defaultTradingAccount}`,
-      code: certificate.deviceGroup.evidentDeviceId,
-      files,
-      fuel: '/fuels/ES100',
-      status: EvidentIssuanceStatus.Draft,
-    };
+    // const payload: EvidentIssuanceRequest = {
+    //   startDate: startDate.toISOString(),
+    //   endDate: endDate.toISOString(),
+    //   productionVolume: productionVolume.toString(),
+    //   notes: JSON.stringify({
+    //     'D-REC Device Group Id': certificates[0].deviceGroup.name,
+    //     'D-REC Token': certificates[0].certificateTransactionUID,
+    //   }),
+    //   recipientAccount: `/accounts/${certificates[0].deviceGroup.defaultTradingAccount}`,
+    //   code: certificates[0].deviceGroup.evidentDeviceId,
+    //   files,
+    //   fuel: '/fuels/ES100',
+    //   status: EvidentIssuanceStatus.Draft,
+    // };
 
-    const { issuanceId } = await this.create(certificate.deviceGroup, payload);
+    // const { issuanceId } = await this.create(certificate.deviceGroup, payload);
 
-    await this.deviceGroupService.updateCertificateLogEvidentDetails(
-      certificate.id,
-      issuanceId,
-      EvidentIssuanceStatus.Draft,
-    );
+    // await this.deviceGroupService.updateCertificateLogEvidentDetails(
+    //   certificate.id,
+    //   issuanceId,
+    //   EvidentIssuanceStatus.Draft,
+    // );
 
-    await this.evidentSettingsService.updateLastIssuanceSyncedAt(
-      certificate.deviceGroup.organizationId,
-    );
+    // await this.evidentSettingsService.updateLastIssuanceSyncedAt(
+    //   certificate.deviceGroup.organizationId,
+    // );
 
   }
 
