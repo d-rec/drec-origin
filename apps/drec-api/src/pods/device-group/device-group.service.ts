@@ -2840,7 +2840,7 @@ export class DeviceGroupService {
     });
   }
 
-  async getDeviceGroupCertificatesForEvidentIssuance(groupId: number, nextIssuanceDate: Date): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
+  async getDeviceGroupCertificatesForEvidentIssuance(groupId: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
     return await this.checkDeviceGroupLogCertificateRepository.find({
       where: {
         groupid: groupId,

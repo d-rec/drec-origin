@@ -22,6 +22,7 @@ import EvidentDraftIssuanceRegistrationTemplate, {
   getEvidentDraftIssuanceRegistrationSubject,
 } from './mail/evident-draft-issuance-registration.template';
 import { DeviceGroupService } from '../device-group/device-group.service';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -35,7 +36,7 @@ export class EvidentIssuanceService {
     private mailService: MailService,
     @Inject(forwardRef(() => OrganizationService))
     private readonly organizationService: OrganizationService,
-    private readonly deviceGroupService: DeviceGroupService
+    private readonly deviceGroupService: DeviceGroupService,
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -64,13 +65,12 @@ export class EvidentIssuanceService {
     }
   }
 
-
-  @NonConcurrentCron(CronExpression.EVERY_MINUTE)
+  //@NonConcurrentCron(CronExpression.EVERY_MINUTE)
   async processDeviceGroupIssuance(): Promise<void> {
     this.logger.verbose('Device group issuance request creation started');
     const organizationsSettings =
       await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
-      for (const settings of organizationsSettings) {
+    for (const settings of organizationsSettings) {
       const nextIssuanceDate = getEvidentNextIssuanceDate(
         settings.lastIssuanceSyncedAt,
         settings.frequency,
@@ -87,14 +87,21 @@ export class EvidentIssuanceService {
         const organization = await this.organizationService.findOne(
           settings.organizationId,
         );
-        const getRegisteredEvidentDeviceGroups = await this.deviceGroupService.getRegisteredEvidentDeviceGroups(organization.api_user_id);
-        console.log("evidentDeviceGroup", getRegisteredEvidentDeviceGroups);
-        for(const device of getRegisteredEvidentDeviceGroups) {
-          const certificates = await this.deviceGroupService.getDeviceGroupCertificatesForEvidentIssuance(
-            device.organizationId,
-            nextIssuanceDate,
+        const getRegisteredEvidentDeviceGroups =
+          await this.deviceGroupService.getRegisteredEvidentDeviceGroups(
+            organization.api_user_id,
           );
-          console.log("certificates", certificates);
+
+        for (const deviceGroup of getRegisteredEvidentDeviceGroups) {
+          const certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[] =
+            await this.deviceGroupService.getDeviceGroupCertificatesForEvidentIssuance(
+              deviceGroup.id,
+            );
+            this.logger.verbose(`Found certificates for device group ${deviceGroup.id}: ${certificates.length}`);
+          if (certificates.length === 0) {
+            continue;
+          }
+          this.processDeviceGroupIssuanceCertificate(certificates);
         }
       } catch (error) {
         this.logger.error(
@@ -103,7 +110,6 @@ export class EvidentIssuanceService {
       }
     }
   }
-
 
   async processIssuanceByOrganization(organizationId: number): Promise<void> {
     this.logger.verbose(
@@ -271,6 +277,78 @@ export class EvidentIssuanceService {
     await this.evidentSettingsService.updateLastIssuanceSyncedAt(
       certificate.device.organizationId,
     );
+  }
+
+  private async processDeviceGroupIssuanceCertificate(certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[]) {
+   const totalAmount = certificates.reduce(
+            (acc, certificate) => acc + certificate.readvalue_watthour,
+            0,
+          );
+          const startDate = certificates.sort(
+            (a, b) =>
+              a.certificate_issuance_startdate.getTime() -
+              b.certificate_issuance_startdate.getTime(),
+          )[0].certificate_issuance_startdate;
+          const endDate = certificates.sort(
+            (a, b) =>
+              a.certificate_issuance_enddate.getTime() -
+              b.certificate_issuance_enddate.getTime(),
+          )[certificates.length - 1].certificate_issuance_enddate;
+
+    const { reads, ...file } = await this.generateReadsCSVFile(
+      certificates[0].device,
+      startDate,
+      endDate,
+    );
+
+    const files = {
+      [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
+    };
+
+    const amount = reads.reduce((sum, read) => {
+      return sum + (read.value || 0);
+    }, 0);
+
+    if (amount <= 0) {
+      this.logger.warn(
+        `No valid reads found for device group ${certificate.deviceGroup.name} between ${startDate.toISOString()} and ${endDate.toISOString()}. Skipping issuance.`,
+      );
+      return;
+    }
+
+    const productionVolume = convertToPowerUnit({
+      value: amount,
+      unit: EnergyUnit.Wh,
+      targetUnit: EnergyUnit.MWh,
+    });
+
+    const payload: EvidentIssuanceRequest = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      productionVolume: productionVolume.toString(),
+      notes: JSON.stringify({
+        'D-REC Device Group Id': certificate.deviceGroup.name,
+        'D-REC Token': certificate.certificateTransactionUID,
+      }),
+      recipientAccount: `/accounts/${certificate.deviceGroup.defaultTradingAccount}`,
+      code: certificate.deviceGroup.evidentDeviceId,
+      files,
+      fuel: '/fuels/ES100',
+      status: EvidentIssuanceStatus.Draft,
+    };
+
+    const { issuanceId } = await this.create(certificate.deviceGroup, payload);
+
+    await this.deviceGroupService.updateCertificateLogEvidentDetails(
+      certificate.id,
+      issuanceId,
+      EvidentIssuanceStatus.Draft,
+    );
+
+    await this.evidentSettingsService.updateLastIssuanceSyncedAt(
+      certificate.deviceGroup.organizationId,
+    );
+
   }
 
   private async generateReadsCSVFile(

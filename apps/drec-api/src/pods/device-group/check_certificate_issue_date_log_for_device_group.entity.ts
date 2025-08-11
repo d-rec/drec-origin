@@ -1,6 +1,14 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { IsString, IsNumber } from 'class-validator';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  IsString,
+  IsNumber,
+  IsDate,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
+import { EvidentIssuanceStatus } from '../../types/evident';
+import { DeviceGroup } from './device-group.entity';
 
 @Entity('check_certificate_issue_date_log_for_device_group')
 export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBaseEntity {
@@ -29,6 +37,8 @@ export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBa
 
   @Column()
   @IsString()
+  @ManyToOne(() => DeviceGroup, group => group.id)
+  @JoinColumn({ name: 'groupid' })
   groupid: string;
 
   @Column('json')
@@ -45,4 +55,20 @@ export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBa
   @Column()
   @IsString()
   certificateTransactionUID: string;
+
+  @Column({ type: 'timestamp', precision: 3, name: 'evident_synced_at' })
+  @IsOptional()
+  @IsDate()
+  evidentSyncedAt: Date;
+
+  @Column({ name: 'evident_issuance_request_id' })
+  @IsOptional()
+  @IsString()
+  evidentIssuanceRequestId: string;
+
+  @Column({ name: 'evident_issuance_request_status' })
+  @IsOptional()
+  @IsEnum(EvidentIssuanceStatus)
+  evidentIssuanceRequestStatus: EvidentIssuanceStatus;
 }
+
