@@ -61,7 +61,7 @@ import {
   validateDevicesAreHomogeneous,
 } from '../../validations/device-group';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
-import { canManageOrganization } from 'src/lib/organization';
+import { canManageOrganization } from '../../lib/organization';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
