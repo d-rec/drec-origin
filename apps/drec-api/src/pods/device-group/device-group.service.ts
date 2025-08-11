@@ -2831,7 +2831,7 @@ export class DeviceGroupService {
     return await this.repository.find({
       where: {
         evidentStatus: EvidentRegistrationStatus.Submitted,
-        evidentGroupId: Not(IsNull()),
+        evidentGroupId: Not(''),
         api_user_id: organizationId,
       },
       order: {

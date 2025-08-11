@@ -92,7 +92,7 @@ export class EvidentIssuanceService {
           await this.deviceGroupService.getRegisteredEvidentDeviceGroups(
             organization.api_user_id,
           );
-
+   
         for (const deviceGroup of getRegisteredEvidentDeviceGroups) {
           const certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[] =
             await this.deviceGroupService.getDeviceGroupCertificatesForEvidentIssuance(
@@ -103,8 +103,8 @@ export class EvidentIssuanceService {
           if (certificates.length === 0) {
             continue;
           }
-          //console.log("certificates", certificates);
-          console.log("deviceGroup", deviceGroup);
+          console.log("certificates", certificates);
+          //console.log("deviceGroup", deviceGroup);
           this.processDeviceGroupIssuanceCertificate(certificates, deviceGroup);
         }
       } catch (error) {
@@ -133,10 +133,11 @@ export class EvidentIssuanceService {
       const evidentInstance = await this.evidentService.getApiInstance(
         device.organizationId,
       );
+      console.log("deviceEvident", issuance.code);
       const response = await evidentInstance.post('/issues', {
-        device: `/devices/${device.evidentDeviceId}`,
+        device: `/devices/${issuance.code}`,
       });
-
+      console.log("Response", response);
       const issuanceId = response.data['uid'];
       const { id: registrantId } = await this.evidentService.getRegistrantInfo(
         device.organizationId,
@@ -148,19 +149,19 @@ export class EvidentIssuanceService {
         registrantId,
         issuance,
       );
-      const organization =
-        await this.organizationService.getLinkedMarketIntermediaryOrSelf(
-          device.organizationId,
-        );
-      await this.mailService.send({
-        to: organization.orgEmail,
-        subject: getEvidentDraftIssuanceRegistrationSubject(device),
-        template: EvidentDraftIssuanceRegistrationTemplate({
-          device,
-          organizationName: organization.name,
-          issuance,
-        }),
-      });
+      // const organization =
+      //   await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+      //     device.organizationId,
+      //   );
+      // await this.mailService.send({
+      //   to: organization.orgEmail,
+      //   subject: getEvidentDraftIssuanceRegistrationSubject(device),
+      //   template: EvidentDraftIssuanceRegistrationTemplate({
+      //     device,
+      //     organizationName: organization.name,
+      //     issuance,
+      //   }),
+      // });
       return {
         ...response.data,
         issuanceId,
@@ -298,19 +299,22 @@ export class EvidentIssuanceService {
               a.certificate_issuance_enddate.getTime() -
               b.certificate_issuance_enddate.getTime(),
           )[certificates.length - 1].certificate_issuance_enddate;
+          const device = await this.deviceService.findOne(
+            deviceGroup.deviceIdsInt[0],
+          );
     // const deviceGroup = certificates[0].deviceGroup.;
-    // const { reads, ...file } = await this.generateReadsCSVFile(
-    //   deviceGroup,
-    //   startDate,
-    //   endDate,
-    // );
+    const { reads, ...file } = await this.generateReadsCSVFile(
+      device,
+      startDate,
+      endDate,
+    );
     const { defaultTradingAccount } = await this.evidentSettingsService.find(
       deviceGroup.organizationId,
     );
 
-    // const files = {
-    //   [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
-    // };
+    const files = {
+      [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
+    };
 
 
     if (amount <= 0) {
@@ -326,22 +330,23 @@ export class EvidentIssuanceService {
       targetUnit: EnergyUnit.MWh,
     });
 
-    // const payload: EvidentIssuanceRequest = {
-    //   startDate: startDate.toISOString(),
-    //   endDate: endDate.toISOString(),
-    //   productionVolume: productionVolume.toString(),
-    //   notes: JSON.stringify({
-    //     'D-REC Device Group Id': certificates[0].deviceGroup.name,
-    //     'D-REC Token': certificates[0].certificateTransactionUID,
-    //   }),
-    //   recipientAccount: `/accounts/${certificates[0].deviceGroup.defaultTradingAccount}`,
-    //   code: certificates[0].deviceGroup.evidentDeviceId,
-    //   files,
-    //   fuel: '/fuels/ES100',
-    //   status: EvidentIssuanceStatus.Draft,
-    // };
-
-    // const { issuanceId } = await this.create(certificate.deviceGroup, payload);
+    const payload: EvidentIssuanceRequest = {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      productionVolume: productionVolume.toString(),
+      notes: JSON.stringify({
+        'D-REC Device Group Id': deviceGroup.name,
+        'D-REC Token': certificates[0].certificateTransactionUID,
+      }),
+      recipientAccount: `/accounts/${defaultTradingAccount}`,
+      code: deviceGroup.evidentGroupId,
+      files,
+      fuel: '/fuels/ES100',
+      status: EvidentIssuanceStatus.Draft,
+    };
+    console.log("payload", payload);
+    // console.log("Successfully created issuance payload for device group:", deviceGroup.name);
+    const { issuanceId } = await this.create(device, payload);
 
     // await this.deviceGroupService.updateCertificateLogEvidentDetails(
     //   certificate.id,
