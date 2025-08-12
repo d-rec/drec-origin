@@ -79,7 +79,10 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { Profile } from '../../lib/profile';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentRegistrationStatus } from '../../types/evident';
+import {
+  EvidentIssuanceStatus,
+  EvidentRegistrationStatus,
+} from '../../types/evident';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -2816,7 +2819,7 @@ export class DeviceGroupService {
 
   async updateEvidentStatus(
     groupId: number,
-     deviceGroupUid: string,
+    deviceGroupUid: string,
     evidentGroupId: string,
     status: EvidentRegistrationStatus,
   ): Promise<void> {
@@ -2831,13 +2834,15 @@ export class DeviceGroupService {
     );
   }
 
-  async getRegisteredEvidentDeviceGroups(organizationId: string): Promise<DeviceGroup[]> {
+  async getRegisteredEvidentDeviceGroups(
+    organizationId: number,
+  ): Promise<DeviceGroup[]> {
     this.logger.verbose(`With in getRegisteredEvidentDeviceGroups`);
     return await this.repository.find({
       where: {
         evidentStatus: EvidentRegistrationStatus.Submitted,
         evidentGroupId: Not(''),
-        api_user_id: organizationId,
+        organizationId: organizationId,
       },
       order: {
         createdAt: 'DESC',
@@ -2845,14 +2850,49 @@ export class DeviceGroupService {
     });
   }
 
-  async getDeviceGroupCertificatesForEvidentIssuance(groupId: number): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
+  async getDeviceGroupCertificatesForEvidentIssuance(
+    groupId: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
     return await this.checkDeviceGroupLogCertificateRepository.find({
       where: {
         groupid: groupId,
+        evidentSyncedAt: IsNull(),
       },
       order: {
         createdAt: 'DESC',
       },
-    })
+    });
   }
+
+  async updateDeviceGroupCertificatesEvidentIssuance(
+    issuanceId: number,
+    groupId: number,
+    certificateId: number,
+    evidentIssuanceStatus: EvidentIssuanceStatus,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity> {
+    this.logger.verbose(`With in updateDeviceGroupCertificatesEvidentIssuance`);
+    const certificate: CheckCertificateIssueDateLogForDeviceGroupEntity =
+      await this.checkDeviceGroupLogCertificateRepository.findOne({
+        where: {
+          id: certificateId,
+          groupid: groupId,
+        },
+      });
+
+    if (!certificate) {
+      throw new NotFoundException(
+        `Certificate with ID ${issuanceId} not found for group ID ${groupId}`,
+      );
+    }
+
+    certificate.evidentIssuanceRequestStatus = evidentIssuanceStatus;
+    certificate.evidentIssuanceRequestId = issuanceId.toString();
+    certificate.evidentSyncedAt = new Date();
+    return await this.checkDeviceGroupLogCertificateRepository.save(
+      certificate,
+    );
+  }
+}
+function Is(arg0: string): any | import('typeorm').FindCondition<Date> {
+  throw new Error('Function not implemented.');
 }

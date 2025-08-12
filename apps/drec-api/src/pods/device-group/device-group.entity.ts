@@ -4,8 +4,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 import {
   IsString,
@@ -27,7 +25,6 @@ import {
 import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
-import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -43,8 +40,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   name: string;
 
   @Column()
-  @ManyToOne(() => Organization, organization => organization.id)
-  @JoinColumn({ name: 'organizationId' })
   organizationId: number;
 
   @Column('text', { array: true })

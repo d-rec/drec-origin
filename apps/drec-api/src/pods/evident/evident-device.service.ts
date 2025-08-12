@@ -211,7 +211,7 @@ export class EvidentDeviceService {
   private generateDeviceDetailsPayload(
     device: Device,
     registrantId: string,
-    files?: string[],
+    files: string[],
   ): any {
     const alpha2CountryCode = findCountryByCode(device.countryCode).alpha2;
     const convertCapacityToMwh = convertToPowerUnit({
