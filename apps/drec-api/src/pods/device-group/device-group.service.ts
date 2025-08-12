@@ -2893,6 +2893,3 @@ export class DeviceGroupService {
     );
   }
 }
-function Is(arg0: string): any | import('typeorm').FindCondition<Date> {
-  throw new Error('Function not implemented.');
-}

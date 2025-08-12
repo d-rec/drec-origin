@@ -420,30 +420,65 @@ export class EvidentIssuanceService {
     endDate: Date,
   ) {
     const headers = [
-      'Device ID',
-      'D-REC Device ID',
-      'startDate',
-      'endDate',
-      'value',
-      'unit',
+      'InverterID',
+      'Inverter Brand Name',
+      'Installation Name',
+      'Issuer Organisation',
+      'Fuel Code',
+      'Technology Code',
+      'Capacity',
+      'Commissioning Date',
+      'OwnersDecStartDate',
+      'OwnersDecEndDate',
+      'Installation State Province',
+      'Installation PostCode',
+      'Country',
+      'Domestic',
+      'Latitude',
+      'Longitude',
+      'Supported',
+      'Period Production StartDate',
+      'Period Production EndDate',
+      'Production Volume',
+      'Data Verifier Evidence URL',
+      'Notes',
+      'Related Inverter IDs',
     ];
 
-    const allReads = [];
+    const devices: Device[] = [];
     for (const deviceId of deviceGroup.deviceIdsInt) {
       const device = await this.deviceService.findOne(deviceId);
-      const reads = await this.readService.findAll(device, startDate, endDate);
-      allReads.push(...reads);
+      devices.push(device);
     }
     const csvRows = [headers.join(',')];
 
-    allReads.forEach((record) => {
+    devices.forEach((record) => {
       const row = [
-        record.deviceId,
-        record.drecDeviceId,
-        record.startDate,
-        record.endDate,
-        record.value,
-        record.unit,
+        record.serialNumber,
+        record.dataSourceBrand,
+        deviceGroup.name,
+        '',
+        record.fuelCode,
+        record.deviceTypeCode,
+        record.capacity,
+        record.commissioningDate,
+        '',
+        '',
+        record.stateProvince,
+        record.postcode,
+        record.countryCode,
+        true,
+        record.latitude,
+        record.longitude,
+        true,
+        record.createdAt,
+        '',
+        deviceGroup.capacityRange,
+        '',
+        JSON.stringify({
+          'D-REC Device Group Id': deviceGroup.evidentGroupId,
+        }),
+        '',
       ];
       csvRows.push(row.join(','));
     });
@@ -457,7 +492,7 @@ export class EvidentIssuanceService {
       filename: fileName,
       mimetype: 'text/csv',
       buffer: Buffer.from(content, 'utf8'),
-      allReads,
+      devices,
     };
   }
 }
