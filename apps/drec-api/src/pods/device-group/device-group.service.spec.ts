@@ -267,9 +267,9 @@ describe('DeviceGroupService', () => {
 
   describe('findById', () => {
     it('should successfully return a device group when found', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -283,7 +283,7 @@ describe('DeviceGroupService', () => {
         .spyOn(deviceService, 'findForGroup')
         .mockResolvedValue([{ id: 1 }, { id: 2 }] as any);
 
-      const result = await service.findById(deviceGroupId);
+      const result = await service.findById(deviceGroupUid);
 
       expect(result).toEqual({
         ...mockDeviceGroup,
@@ -293,19 +293,19 @@ describe('DeviceGroupService', () => {
     });
 
     it('should throw NotFoundException if no device group is found', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.findById(deviceGroupId)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid)).rejects.toThrow(
         NotFoundException,
       );
     });
 
     it('should throw UnauthorizedException if an API user tries to access a device group not belonging to their organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -325,15 +325,15 @@ describe('DeviceGroupService', () => {
         .spyOn(service, 'checkDeveloperOrganization')
         .mockResolvedValue(false);
 
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
       );
     });
 
     it('should allow access if an API user is part of the organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 1,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -351,15 +351,15 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
-      const result = await service.findById(deviceGroupId, mockUser);
+      const result = await service.findById(deviceGroupUid, mockUser);
 
       expect(result).toEqual(mockDeviceGroup);
     });
 
     it('should throw UnauthorizedException if a buyer tries to access a device group from another organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -371,7 +371,7 @@ describe('DeviceGroupService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
       jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
       );
     });
@@ -387,7 +387,7 @@ describe('DeviceGroupService', () => {
           organizationId: 1,
           createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
-          deviceGroupId: 'uid-1',
+          deviceGroupUid: 'uid-1',
           yieldValue: 100,
           deviceIdsInt: [1, 2],
           api_user_id: 'user123',
@@ -410,7 +410,7 @@ describe('DeviceGroupService', () => {
           organizationId: 1,
           createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
-          deviceGroupId: 'uid-2',
+          deviceGroupUid: 'uid-2',
           yieldValue: 200,
           deviceIdsInt: [3, 4],
           api_user_id: 'user456',
@@ -546,7 +546,7 @@ describe('DeviceGroupService', () => {
           organizationId: 1,
           buyerId: 1,
           buyerAddress: 'buyers addr',
-          deviceGroupId: 'UID-123',
+          deviceGroupUid: 'UID-123',
           deviceIds: [1, 2],
           devices: [
             { id: 1, projectName: 'Solar Farm 1', serialNumber: 'ABC123' },

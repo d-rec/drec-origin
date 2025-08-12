@@ -35,7 +35,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   id: number;
 
   @PrimaryGeneratedColumn('uuid', { name: 'devicegroup_uid' })
-  deviceGroupId: string;
+  deviceGroupUid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -196,7 +196,7 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   evidentGroupId: string | null;
 
   @Column({ type: 'text', nullable: true, name: 'evident_status' })
-  @IsString()
+  @IsEnum(EvidentRegistrationStatus)
   @IsOptional()
   evidentStatus: EvidentRegistrationStatus | null;
 

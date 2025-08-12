@@ -89,7 +89,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -161,7 +161,6 @@ export class DeviceController {
     const organization = await this.organizationService.findOne(
       filterDTO.organizationId,
     );
-    const orgUser = await this.userService.findByEmail(organization.orgEmail);
     if (role === Role.ApiUser) {
       if (organization.api_user_id != api_user_id) {
         this.logger.error(
@@ -170,29 +169,6 @@ export class DeviceController {
         throw new UnauthorizedException({
           success: false,
           message: `The requested organization is belongs to other apiuser`,
-        });
-      }
-
-      if (
-        orgUser.role === Role.OrganizationAdmin ||
-        orgUser.role === Role.DeviceOwner
-      ) {
-        this.logger.error(
-          `Unauthorized... The requested user is developer or device owner`,
-        );
-        throw new UnauthorizedException({
-          success: false,
-          message: `Unauthorized res`,
-        });
-      }
-    } else {
-      if (organizationId != organization.id) {
-        this.logger.error(
-          `The requested organization is not same as user's organization`,
-        );
-        throw new UnauthorizedException({
-          success: false,
-          message: `The requested organization is not same as user's organization`,
         });
       }
     }
@@ -487,11 +463,10 @@ export class DeviceController {
         loginUser.api_user_id = null;
       }
 
-      deviceData =
-        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-          externalId,
-          loginUser.api_user_id,
-        );
+      deviceData = await this.deviceService.findDeviceBySerialNumberByApiUser(
+        externalId,
+        loginUser.api_user_id,
+      );
     } else {
       deviceData = await this.deviceService.findDeviceByExternalId(
         externalId,
@@ -614,6 +589,11 @@ export class DeviceController {
           message: `Organization id is required,please add your developer's Organization `,
         });
       }
+    } else {
+      const organization = await this.organizationService.findOne(
+        deviceToRegister.organizationId,
+      );
+      api_user_id = organization.api_user_id;
     }
     const allFileTypes = [
       DocumentType.FORM_SF_02,
@@ -632,7 +612,6 @@ export class DeviceController {
         `Missing required file types: ${missingFiles.join(', ')}`,
       );
     }
-
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
@@ -939,7 +918,7 @@ export class DeviceController {
     this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
     });
     if (
       group === null ||

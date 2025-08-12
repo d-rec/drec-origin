@@ -189,7 +189,7 @@ export class CertificateLogController {
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(`With in getissueCertificate`);
     const deviceGroup = await this.deviceGroupService.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
     });
 
     if (
@@ -248,7 +248,7 @@ export class CertificateLogController {
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
 
     const deviceGroup = await this.deviceGroupService.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
     });
 
     if (user.role === Role.ApiUser) {
@@ -536,7 +536,7 @@ export class CertificateLogController {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
     const deviceGroup = await this.deviceGroupService.findOne({
-      deviceGroupId: groupId,
+      deviceGroupUid: groupId,
     });
     if (user.role === Role.ApiUser) {
       if (deviceGroup.api_user_id != user.api_user_id) {

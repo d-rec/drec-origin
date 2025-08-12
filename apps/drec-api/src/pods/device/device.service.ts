@@ -18,6 +18,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
   Not,
@@ -98,6 +99,7 @@ import {
   getMinDateByFrequency,
 } from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @Injectable()
 export class DeviceService {
@@ -514,14 +516,14 @@ export class DeviceService {
     return device;
   }
 
-  async findDeviceByDeveloperExternalIByApiUser(
-    externalId: string,
+  async findDeviceBySerialNumberByApiUser(
+    serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceByDeveloperExternalIByApiUser`);
+    this.logger.verbose(`With in findDeviceBySerialNumberByApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
-        externalId: externalId,
+        serialNumber: serialNumber,
         api_user_id: api_user_id,
       },
     });
@@ -564,9 +566,9 @@ export class DeviceService {
             `Updating device ${device.id} status: ${device.evidentStatus} → ${updatedStatus}`,
           );
           device.evidentStatus =
-            updatedStatus === 'In Progress'
+            updatedStatus === EvidentRegistrationStatus.InProgress
               ? EvidentRegistrationStatus.Submitted
-              : updatedStatus;
+              : (updatedStatus as EvidentRegistrationStatus);
           await this.repository.save(device);
           const organization =
             await this.organizationService.getLinkedMarketIntermediaryOrSelf(
@@ -640,7 +642,6 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`Within register`);
-
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
     } else {
@@ -718,7 +719,6 @@ export class DeviceService {
     }
     newDevice.fingerprint = fingerprint;
 
-    let result: any;
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
@@ -733,18 +733,12 @@ export class DeviceService {
           message: 'Unauthorized',
         });
       }
-
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-        api_user_id: api_user_id,
-      });
-    } else {
-      result = await this.repository.save({
-        ...newDevice,
-        organizationId: organizationId,
-      });
     }
+    const result = await this.repository.save({
+      ...newDevice,
+      organizationId: organizationId,
+      api_user_id: api_user_id,
+    });
     if (files) {
       const documentTypes = {
         [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
@@ -1200,7 +1194,12 @@ export class DeviceService {
     }
     let where: any = query.where;
 
-    where = { ...where, groupId: null, api_user_id: api_user_id };
+    where = {
+      ...where,
+      groupId: null,
+      api_user_id: api_user_id,
+      capacity: LessThan(SMALL_DEVICES_MAX_CAPACITY),
+    };
 
     query.where = where;
 
@@ -1908,7 +1907,7 @@ export class DeviceService {
   async updateEvidentInfo(
     deviceExternalId: string,
     evidentDeviceId: string,
-    evidentStatus: string,
+    evidentStatus: EvidentRegistrationStatus,
   ): Promise<void> {
     this.logger.verbose(`With in updateDeviceEvidentInfo`);
     const device = await this.repository.findOne({
@@ -1963,7 +1962,7 @@ export class DeviceService {
       .andWhere('evidentSettings.apiKey IS NOT NULL')
       .andWhere('evidentSettings.apiKey != :empty', { empty: '' })
       .andWhere('device.evidentStatus = :status', {
-        status: 'Approved',
+        status: EvidentRegistrationStatus.Approved,
       })
       .andWhere('deviceCertificates.ongoing_start_date IS NOT NULL') // Returning only delta reads
       .andWhere('organization.id = :organizationId', { organizationId })

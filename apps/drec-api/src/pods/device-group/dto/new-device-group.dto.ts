@@ -145,7 +145,7 @@ export class NewDeviceGroupDTO
 
   @ApiProperty({ type: String })
   @IsOptional()
-  deviceGroupId?: string | null | undefined;
+  deviceGroupUid?: string | null | undefined;
 
   @ApiProperty({ type: [Number] })
   @Exclude()

@@ -310,7 +310,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        deviceGroupId: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -340,7 +340,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        deviceGroupId: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -370,7 +370,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        deviceGroupId: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {

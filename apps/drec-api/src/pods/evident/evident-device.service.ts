@@ -23,6 +23,12 @@ import EvidentSubmittedDeviceRegistrationTemplate, {
 } from './mail/evident-submitted-device-registration.template';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { AxiosResponse } from 'axios';
+import { Organization } from '../organization/organization.entity';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import EvidentDeviceGroupRegistrationTemplate, {
+  getEvidentDeviceGroupRegistrationSubject,
+} from './mail/evident-device-group-registration';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -32,6 +38,8 @@ export class EvidentDeviceService {
   constructor(
     @InjectQueue(Queues.EvidentDeviceRegistration)
     private readonly evidentDeviceRegistrationQueue: Queue,
+    @InjectQueue(Queues.EvidentDeviceGroupRegistration)
+    private readonly evidentDeviceGroupRegistrationQueue: Queue,
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     private readonly evidentService: EvidentService,
@@ -49,10 +57,10 @@ export class EvidentDeviceService {
     return response.data;
   }
 
-  async registerDevice(
+  private async createDevice(
     device: Device,
     files?: Record<string, Express.Multer.File[]>,
-  ): Promise<any> {
+  ): Promise<EvidentDeviceDetailsPayload> {
     try {
       const evidentApiInstance = await this.evidentService.getApiInstance(
         device.organizationId,
@@ -62,19 +70,17 @@ export class EvidentDeviceService {
         fuel: `/fuels/${device.fuelCode}`,
       });
       device.evidentDeviceId = response.data.code;
-      await this.saveDeviceDetails(device, files);
-
-      return response.data;
+      return await this.saveDeviceDetails(device, files);
     } catch (error) {
       this.logger.error('Error registering device:', error.message);
       throw error;
     }
   }
 
-  async saveDeviceDetails(
+  private async saveDeviceDetails(
     device: Device,
-    files?: Record<string, Express.Multer.File[]>,
-  ): Promise<string> {
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<EvidentDeviceDetailsPayload> {
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
@@ -82,10 +88,6 @@ export class EvidentDeviceService {
     const { registrantId, id: evidentUserId } =
       await this.evidentService.getRegistrantInfo(device.organizationId);
 
-    const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
-        device.organizationId,
-      );
     let uploadedFiles: string[] = [];
     if (files) {
       uploadedFiles = await this.evidentService.uploadFiles(
@@ -102,72 +104,37 @@ export class EvidentDeviceService {
       uploadedFiles,
     );
 
-    if (device.capacity >= 250) {
+    if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
       payload.issuer = await this.getIssuerForDevice(device);
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
 
-    await evidentApiInstance.post('/device_details', payload);
-
-    await this.deviceService.updateEvidentInfo(
-      device.externalId,
-      device.evidentDeviceId,
-      EvidentRegistrationStatus.Draft,
+    let deviceResponse = await evidentApiInstance.post(
+      '/device_details',
+      payload,
     );
 
-    if (device.capacity <= 250) {
-      await this.submitDeviceForReview(device, payload);
-      await this.mailService.send({
-        to: organization.orgEmail,
-        subject: getEvidentSubmittedDeviceRegistrationSubject(device),
-        template: EvidentSubmittedDeviceRegistrationTemplate({
-          device,
-          organizationName: organization.name,
-        }),
-      });
-    } else {
-      await this.deviceGroupService.updateEvidentStatus(
-        device.groupId,
-        device['deviceGroupId'],
-        device.evidentDeviceId,
-        EvidentRegistrationStatus.Draft,
-      );
-      await this.mailService.send({
-        to: organization.orgEmail,
-        subject: getEvidentDraftDeviceRegistrationSubject(device),
-        template: EvidentDraftDeviceRegistrationTemplate({
-          device,
-          organizationName: organization.name,
-        }),
-      });
+    if (device.capacity < SMALL_DEVICES_MAX_CAPACITY) {
+      deviceResponse = await this.submitDeviceForReview(device, payload);
     }
-    return payload;
+    return deviceResponse.data;
   }
 
   async submitDeviceForReview(
     device: Device,
     payload: EvidentDeviceDetailsPayload,
-  ): Promise<EvidentDeviceDetailsPayload> {
+  ): Promise<AxiosResponse<any>> {
     this.logger.verbose('Within device status update');
     const evidentApiInstance = await this.evidentService.getApiInstance(
       device.organizationId,
     );
     payload.status = EvidentRegistrationStatus.Submitted;
-    await evidentApiInstance.post('/device_details', payload);
-
-    await this.deviceService.updateEvidentInfo(
-      device.externalId,
-      device.evidentDeviceId,
-      EvidentRegistrationStatus.Submitted,
+    const deviceResponse = await evidentApiInstance.post(
+      '/device_details',
+      payload,
     );
-    await this.deviceGroupService.updateEvidentStatus(
-      device.groupId,
-      device['deviceGroupId'],
-      device.evidentDeviceId,
-      EvidentRegistrationStatus.Submitted,
-    );
-    return payload;
+    return deviceResponse;
   }
 
   async queueDeviceRegistration(
@@ -186,7 +153,13 @@ export class EvidentDeviceService {
     });
   }
 
-  async generateEvidentDeviceGroup(deviceGroup: DeviceGroup): Promise<void> {
+  async queueDeviceGroupRegistration(deviceGroup: DeviceGroup): Promise<void> {
+    await this.evidentDeviceGroupRegistrationQueue.add({
+      deviceGroup,
+    });
+  }
+
+  async registerDeviceGroup(deviceGroup: DeviceGroup): Promise<void> {
     const devices = await this.deviceService.findByIds(deviceGroup.deviceIds);
     if (devices.length === 0) {
       this.logger.warn('No devices found for the provided device IDs');
@@ -203,9 +176,36 @@ export class EvidentDeviceService {
     device.capacity = capacity;
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
-    device['deviceGroupId'] = deviceGroup.deviceGroupId;
+    device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
     device.projectName = deviceGroup.name;
-    await this.registerDevice(device);
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
+    const evidentDevice = await this.createDevice(device);
+    await this.deviceGroupService.updateEvidentStatus(
+      device.groupId,
+      device['deviceGroupUid'],
+      device.evidentDeviceId,
+      evidentDevice.status as EvidentRegistrationStatus,
+    );
+    await this.sendDeviceGroupEmail(organization, device);
+  }
+
+  async registerDevice(
+    device: Device,
+    files: Record<string, Express.Multer.File[]>,
+  ): Promise<any> {
+    const evidentDevice = await this.createDevice(device, files);
+    const organization =
+      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+        device.organizationId,
+      );
+    await this.sendEmail(organization, device, evidentDevice.status);
+    await this.updateEvidentStatus(
+      device,
+      evidentDevice.status as EvidentRegistrationStatus,
+    );
   }
 
   private generateDeviceDetailsPayload(
@@ -265,5 +265,56 @@ export class EvidentDeviceService {
     }
 
     return null;
+  }
+
+  private async sendEmail(
+    organization: Organization,
+    device: Device,
+    evidentStatus: EvidentRegistrationStatus,
+  ) {
+    if (evidentStatus === EvidentRegistrationStatus.Draft) {
+      await this.mailService.send({
+        to: organization.orgEmail,
+        subject: getEvidentDraftDeviceRegistrationSubject(device),
+        template: EvidentDraftDeviceRegistrationTemplate({
+          device,
+          organizationName: organization.name,
+        }),
+      });
+    } else {
+      await this.mailService.send({
+        to: organization.orgEmail,
+        subject: getEvidentSubmittedDeviceRegistrationSubject(device),
+        template: EvidentSubmittedDeviceRegistrationTemplate({
+          device,
+          organizationName: organization.name,
+        }),
+      });
+    }
+  }
+
+  private async sendDeviceGroupEmail(
+    organization: Organization,
+    device: Device,
+  ) {
+    await this.mailService.send({
+      to: organization.orgEmail,
+      subject: getEvidentDeviceGroupRegistrationSubject(device),
+      template: EvidentDeviceGroupRegistrationTemplate({
+        device,
+        organizationName: organization.name,
+      }),
+    });
+  }
+
+  private async updateEvidentStatus(
+    device: Device,
+    status: string,
+  ): Promise<void> {
+    await this.deviceService.updateEvidentInfo(
+      device.externalId,
+      device.evidentDeviceId,
+      status as EvidentRegistrationStatus,
+    );
   }
 }
