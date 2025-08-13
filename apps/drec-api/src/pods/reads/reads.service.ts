@@ -26,10 +26,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import {
-  DEFAULT_YIELD_VALUE,
-  DEVICE_DEGRADATION,
-} from '../../constants';
+import { DEFAULT_YIELD_VALUE, DEVICE_DEGRADATION } from '../../constants';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { computeMaxEnergyCapacity } from '../../lib/meter-read';
@@ -724,17 +721,8 @@ export class ReadsService {
     );
 
     try {
-      const device = await query.getRawMany();
-      return device.map((record: { read: MeterRead }) => {
-        const item: any = {
-          id: record.read.externalId,
-          readsStartDate: record.read.startDate,
-          readsEndDate: record.read.endDate,
-          readsvalue: record.read.value,
-          externalId: record.read.externalId,
-        };
-        return item;
-      });
+      const { entities } = await query.getRawAndEntities();
+      return entities;
     } catch (error) {
       this.logger.error(`Failed to retrieve device`, error.stack);
     }
@@ -1037,10 +1025,7 @@ export class ReadsService {
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
-    const data = await this.retrieveDataWithLastValue(
-      meter,
-      filter,
-    );
+    const data = await this.retrieveDataWithLastValue(meter, filter);
     this.logger.verbose(`data: ${data}`);
     return data;
   }

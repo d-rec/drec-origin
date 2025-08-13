@@ -34,13 +34,8 @@ describe('Users tests', () => {
   let currentAccessToken: string;
 
   beforeEach(async () => {
-    ({
-      app,
-      organizationService,
-      userService,
-      deviceService,
-      databaseService,
-    } = await bootstrapTestInstance());
+    ({ app, organizationService, userService, deviceService, databaseService } =
+      await bootstrapTestInstance());
     await databaseService.truncate('user', 'organization');
 
     await app.init();
