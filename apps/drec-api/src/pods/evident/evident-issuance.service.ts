@@ -137,9 +137,8 @@ export class EvidentIssuanceService {
         device.organizationId,
       );
 
-      const deviceEvidentId = device.evidentDeviceId ?? issuance.code;
       const response = await evidentInstance.post('/issues', {
-        device: `/devices/${deviceEvidentId}`,
+        device: `/devices/${device.evidentDeviceId}`,
       });
       const issuanceId = response.data['uid'];
       const { id: registrantId } = await this.evidentService.getRegistrantInfo(
