@@ -25,6 +25,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
+import { GroupType } from '../../utils/enums/group-type.enum';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -194,6 +195,11 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsEnum(EvidentRegistrationStatus)
   @IsOptional()
   evidentStatus: EvidentRegistrationStatus | null;
+
+  @Column({ type: 'enum', enum: GroupType, nullable: false })
+  @IsEnum(GroupType)
+  @IsOptional()
+  type: GroupType;
 
   isExpired(): boolean {
     return (

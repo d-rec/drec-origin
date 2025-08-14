@@ -78,7 +78,6 @@ import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_
 import { Profile } from '../../lib/profile';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { EvidentRegistrationStatus } from '../../types/evident';
-import { GroupType } from 'src/utils/enums/group-type.enum';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -795,15 +794,11 @@ export class DeviceGroupService {
     this.logger.verbose(`With in create`);
     const groupName =
       (await this.checkNameConflict(data.name, fromBulk)) || data.name;
-      //check the length of data.deviceIds if its greater than1 i want to save the tpye of multiple otherwise isave single
-      console.log("data", data);
     const group = await this.repository.save({
       organizationId,
       ...data,
       name: groupName,
-      type:data.type
     });
-     console.log("group", group);
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
@@ -867,7 +862,6 @@ export class DeviceGroupService {
     buyerAddress?: string,
   ): Promise<ResponseDeviceGroupDTO> {
     this.logger.verbose(`With in createOne`);
-    console.log("group", group);
     let smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean =
       false;
     let devices =
@@ -997,7 +991,7 @@ export class DeviceGroupService {
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
       deviceGroup['reservationEndDate'] = group.reservationEndDate;
       deviceGroup['authorityToExceed'] = group.authorityToExceed;
-      deviceGroup['type'] = devices.length > 1 ? GroupType.Multiple : GroupType.Single;
+      deviceGroup['type'] = group.type;
       deviceGroup['targetVolumeInMegaWattHour'] =
         group.targetCapacityInMegaWattHour;
       deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
@@ -1028,7 +1022,6 @@ export class DeviceGroupService {
       } else {
         deviceGroup['reservationExpiryDate'] = lastCertifiableDate;
       }
-      console.log("deviceGroup", deviceGroup);
       const responseDeviceGroupDTO: ResponseDeviceGroupDTO = await this.create(
         organizationId,
         deviceGroup,
@@ -1376,7 +1369,6 @@ export class DeviceGroupService {
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
-      type: devices.length > 1 ? GroupType.Multiple : GroupType.Single,
     };
   }
 
