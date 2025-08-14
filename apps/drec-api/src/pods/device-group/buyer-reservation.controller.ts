@@ -616,6 +616,252 @@ export class BuyerReservationController {
     );
   }
 
+  @Post('pathway')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
+  // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
+  @ApiQuery({
+    name: 'orgId',
+    type: Number,
+    required: false,
+    description: 'This query parameter is used for Apiuser',
+  })
+  @ApiOperation({
+    summary: 'Create a new buyer reservation',
+    description: 'Register a new buyer reservation in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: DeviceGroupDTO,
+    description: 'Successfully created the buyer reservation.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'User does not have permission to create buyer reservations.',
+  })
+  public async storeSingleDevicePathway(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
+    @Body() deviceGroupToRegister: AddGroupDTO,
+    @Query('orgId') orgId: number | null,
+  ): Promise<ResponseDeviceGroupDTO | null> {
+    this.logger.verbose(`With in createOne`);
+    deviceGroupToRegister.api_user_id = user.api_user_id;
+    const devices = await this.deviceService.findByIds(
+      deviceGroupToRegister.deviceIds,
+    );
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      const organizationAdmin = await this.userService.findUserByOrganization(
+        orgId,
+        1,
+        1,
+      );
+
+      const canManage = canManageOrganization({
+        user,
+        organization,
+        organizationAdmin: organizationAdmin[0][0],
+      });
+      if (!canManage) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'User cannot manage this organization',
+        });
+      }
+    }
+
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
+      if (user.role === Role.ApiUser) {
+        organizationId = orgId;
+        if (organization.api_user_id !== user.api_user_id) {
+          this.logger.error(`Organization requested belongs to other apiuser`);
+          throw new BadRequestException({
+            success: false,
+            message: 'Organization requested belongs to other apiuser',
+          });
+        }
+      }
+    }
+
+    if (
+      !Array.isArray(deviceGroupToRegister.deviceIds) ||
+      deviceGroupToRegister.deviceIds.filter(
+        (ele) => ele >= -2147483648 && ele <= 2147483647,
+      ).length !== deviceGroupToRegister.deviceIds.length
+    ) {
+      this.logger.error(`One or more device ids are invalid`);
+      throw new ConflictException({
+        success: false,
+        message: 'One or more device ids are invalid',
+      });
+    }
+    if (deviceGroupToRegister.deviceIds.length == 0) {
+      this.logger.error(
+        `Please provide devices for reservation, deviceIds is empty atleast one device is required`,
+      );
+      throw new ConflictException({
+        success: false,
+        message:
+          'Please provide devices for reservation, deviceIds is empty atleast one device is required',
+      });
+    }
+
+    // isDeviceGroupable(devices, organizationId);
+
+    // const totalCapacity = devices.reduce(
+    //   (acc, device) => acc + device.capacity,
+    //   0,
+    // );
+    // if (totalCapacity > SMALL_DEVICES_MAX_CAPACITY) {
+    //   throw new ConflictException({
+    //     success: false,
+    //     message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
+    //   });
+    // }
+
+    // validateDevicesAreHomogeneous(devices);
+
+    if (
+      isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
+      deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
+      Object.is(deviceGroupToRegister.targetCapacityInMegaWattHour, -0)
+    ) {
+      this.logger.error(
+        `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,
+      );
+      throw new ConflictException({
+        success: false,
+        message:
+          'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
+      });
+    }
+
+    if (typeof deviceGroupToRegister.reservationStartDate === 'string') {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate)) {
+        this.logger.error(
+          `Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
+      }
+      deviceGroupToRegister.reservationStartDate = new Date(
+        deviceGroupToRegister.reservationStartDate,
+      );
+    }
+    if (typeof deviceGroupToRegister.reservationEndDate === 'string') {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate)) {
+        this.logger.error(
+          `Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
+      }
+      deviceGroupToRegister.reservationEndDate = new Date(
+        deviceGroupToRegister.reservationEndDate,
+      );
+    }
+    if (typeof deviceGroupToRegister.reservationExpiryDate === 'string') {
+      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationExpiryDate)) {
+        this.logger.error(
+          `Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
+        );
+        throw new ConflictException({
+          success: false,
+          message:
+            ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
+        });
+      }
+      deviceGroupToRegister.reservationExpiryDate = new Date(
+        deviceGroupToRegister.reservationExpiryDate,
+      );
+    }
+    if (
+      deviceGroupToRegister.reservationStartDate &&
+      deviceGroupToRegister.reservationEndDate &&
+      deviceGroupToRegister.reservationStartDate.getTime() >=
+        deviceGroupToRegister.reservationEndDate.getTime()
+    ) {
+      this.logger.error(`start date cannot be less than or same as end date`);
+      throw new ConflictException({
+        success: false,
+        message: 'start date cannot be less than or same as end date',
+      });
+    }
+    if (
+      deviceGroupToRegister.reservationStartDate &&
+      deviceGroupToRegister.reservationEndDate &&
+      deviceGroupToRegister.reservationExpiryDate &&
+      (deviceGroupToRegister.reservationExpiryDate.getTime() <=
+        deviceGroupToRegister.reservationStartDate.getTime() ||
+        deviceGroupToRegister.reservationExpiryDate.getTime() <
+          deviceGroupToRegister.reservationEndDate.getTime())
+    ) {
+      this.logger.error(
+        `Expiry date cannot be less than from start and end date`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: 'Expiry date cannot be less than from start and end date',
+      });
+    }
+
+    const maximumBackDateForReservation: Date = new Date(
+      new Date().getTime() - 3.164e10 * 3,
+    );
+    if (
+      deviceGroupToRegister.reservationStartDate.getTime() <=
+        maximumBackDateForReservation.getTime() ||
+      deviceGroupToRegister.reservationEndDate.getTime() <=
+        maximumBackDateForReservation.getTime()
+    ) {
+      this.logger.error(
+        `start date or end date cannot be less than 3 year from current date`,
+      );
+      throw new ConflictException({
+        success: false,
+        message:
+          'start date or end date cannot be less than 3 year from current date',
+      });
+    }
+    if (organizationId === null || organizationId === undefined) {
+      this.logger.error(`User does not has organization associated`);
+      throw new ConflictException({
+        success: false,
+        message: 'User does not has organization associated',
+      });
+    }
+    const frequency = deviceGroupToRegister.frequency.toLowerCase();
+    if (
+      frequency === CertificateGenerationFrequency.monthly ||
+      frequency === CertificateGenerationFrequency.quarterly ||
+      frequency === CertificateGenerationFrequency.weekly
+    ) {
+      this.logger.error(`This frequency is currently not supported`);
+      throw new ConflictException({
+        success: false,
+        message: 'This frequency is currently not supported',
+      });
+    }
+    return await this.deviceGroupService.createOne(
+      organizationId,
+      deviceGroupToRegister,
+      user.id,
+      process.env.DREC_BLOCKCHAIN_ADDRESS,
+    );
+  }
+
   /**
    * It is PATCH api to update device group by id
    * @param id  is identifier of device group in type number
