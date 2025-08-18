@@ -1,5 +1,11 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import {
   IsString,
   IsNumber,
@@ -8,6 +14,7 @@ import {
   IsOptional,
 } from 'class-validator';
 import { EvidentIssuanceStatus } from '../../types/evident';
+import { DeviceGroup } from './device-group.entity';
 
 @Entity('check_certificate_issue_date_log_for_device_group')
 export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBaseEntity {
@@ -67,4 +74,8 @@ export class CheckCertificateIssueDateLogForDeviceGroupEntity extends ExtendedBa
   @IsOptional()
   @IsEnum(EvidentIssuanceStatus)
   evidentIssuanceRequestStatus: EvidentIssuanceStatus;
+
+  @ManyToOne(() => DeviceGroup, { eager: false })
+  @JoinColumn({ name: 'groupid', referencedColumnName: 'id' })
+  deviceGroup: DeviceGroup;
 }

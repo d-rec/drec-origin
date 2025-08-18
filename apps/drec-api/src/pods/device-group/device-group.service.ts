@@ -2853,15 +2853,18 @@ export class DeviceGroupService {
   async getDeviceGroupCertificatesForEvidentIssuance(
     groupId: number,
   ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
-    return await this.checkDeviceGroupLogCertificateRepository.find({
-      where: {
-        groupid: groupId,
-        evidentSyncedAt: IsNull(),
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+    return await this.checkDeviceGroupLogCertificateRepository
+      .createQueryBuilder('groupCertificates')
+      .leftJoinAndSelect('groupCertificates.deviceGroup', 'deviceGroup')
+      .leftJoinAndSelect('deviceGroup.organizations', 'organization')
+      .leftJoinAndSelect('organization.evidentSettings', 'evidentSettings')
+      .where('groupCertificates.evidentSyncedAt IS NULL')
+      .where('groupCertificates.groupid = :groupId', { groupId })
+      .andWhere('deviceGroup.evidentStatus = :status', {
+        status: EvidentRegistrationStatus.Submitted,
+      })
+      .orderBy('groupCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
   }
 
   async updateDeviceGroupCertificatesEvidentIssuance(

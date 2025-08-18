@@ -113,8 +113,7 @@ export class EvidentIssuanceService {
       if (certificates.length === 0) {
         continue;
       }
-
-      await this.processDeviceGroupCertificates(certificates, deviceGroup);
+      await this.processDeviceGroupCertificates(certificates);
     }
   }
 
@@ -339,7 +338,6 @@ export class EvidentIssuanceService {
 
   private async processDeviceGroupCertificates(
     certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[],
-    deviceGroup: DeviceGroup,
   ) {
     const amount = certificates.reduce(
       (acc, certificate) => acc + certificate.readvalue_watthour,
@@ -357,8 +355,10 @@ export class EvidentIssuanceService {
     )[certificates.length - 1].certificate_issuance_enddate;
 
     const { defaultTradingAccount } = await this.evidentSettingsService.find(
-      deviceGroup.organizationId,
+      certificates[0].deviceGroup.organizationId,
     );
+
+    const deviceGroup = certificates[0].deviceGroup;
 
     const { ...file } = await this.generateDeviceGroupReadsCSVFile(
       deviceGroup,
