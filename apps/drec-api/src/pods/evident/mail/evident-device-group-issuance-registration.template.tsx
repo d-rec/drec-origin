@@ -23,7 +23,7 @@ export default function EvidentDeviceGroupIssuanceRegistrationTemplate({
     <DefaultMailLayout>
       <Text>Dear {organizationName} Team,</Text>
       <Text>
-        A Issuance Request has been created as a draft on the Evident platform.
+        An Issuance Request has been created as a draft on the Evident platform.
       </Text>
       <Text>Device Details:</Text>
       <ul>
