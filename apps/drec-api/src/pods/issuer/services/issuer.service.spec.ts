@@ -63,9 +63,7 @@ describe('IssuerService', () => {
         IssuerService,
         CertificateService,
         {
-          provide: require('@nestjs/typeorm').getRepositoryToken(
-            require('../models/issuer.entity').IssuerEntity,
-          ),
+          provide: getRepositoryToken(IssuerEntity),
           useValue: {
             find: jest.fn(),
             findOne: jest.fn(),
