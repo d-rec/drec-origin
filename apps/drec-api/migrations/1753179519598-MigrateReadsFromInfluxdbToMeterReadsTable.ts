@@ -23,7 +23,7 @@ export class MigrateReadsFromInfluxdbToMeterReadsTable1753179519598
         const units = reads.map((read) => read.unit);
         const startDates = reads.map((read) => read.startDate);
         const endDates = reads.map((read) => read.endDate);
-        const createdAts = reads.map(() => new Date());
+        const createdAts = reads.map((read) => read.endDate);
         const updatedAts = reads.map(() => new Date());
 
         // Single batch insert using UNNEST
