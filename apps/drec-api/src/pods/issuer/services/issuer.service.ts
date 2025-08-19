@@ -502,11 +502,12 @@ export class IssuerService {
   async registerIssuer(createIssuerDTO: CreateIssuerDTO): Promise<any> {
     this.logger.verbose(`With in registerIssuer`);
     try {
+      console.log(createIssuerDTO);
       await this.issuerRepository.save(createIssuerDTO);
       this.logger.log(`successfully registered the issuer`);
     } catch (error) {
       this.logger.error('caught exception in registerIssuer', error);
-      throw error
+      throw error;
     }
   }
 }

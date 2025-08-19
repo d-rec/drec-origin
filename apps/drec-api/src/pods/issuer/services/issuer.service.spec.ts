@@ -60,6 +60,17 @@ describe('IssuerService', () => {
         OngoingIssuanceService,
         IssuerService,
         CertificateService,
+          {
+            provide: require('@nestjs/typeorm').getRepositoryToken(require('../models/issuer.entity').IssuerEntity),
+            useValue: {
+              find: jest.fn(),
+              findOne: jest.fn(),
+              save: jest.fn(),
+              create: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
+            },
+          },
         {
           provide: OffChainCertificateService,
           useValue: {

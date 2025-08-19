@@ -6,7 +6,6 @@ import {
   Logger,
   Query,
   HttpStatus,
-  HttpException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -23,7 +22,6 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { HistoricalIssuanceService } from './services/historical-issuance.service';
 import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './services/ongoing-issuance.service';
-import { DeviceService } from '../device/device.service';
 import { CreateIssuerDTO } from './dto/create-issuer.dto';
 import { IssuerService } from './services/issuer.service';
 import { AuthVerifiedGuard } from '../../guards/AuthVerifiedGuard';
@@ -271,9 +269,7 @@ export class DRECIssuerController {
   }
 
   @Post('/register')
-  @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password'])
-  )
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @ApiBody({ type: CreateIssuerDTO })
   async registerIssuer(@Body() createIssuerDto: CreateIssuerDTO): Promise<any> {
     this.logger.verbose(`With in registerIssuer`);
