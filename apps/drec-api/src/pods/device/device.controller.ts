@@ -205,8 +205,12 @@ export class DeviceController {
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
+    @Query('orgId') orgId?: number,
   ): Promise<GroupedDevicesDTO[]> {
     this.logger.verbose(`With in getAllUngrouped`);
+    if (orgId) {
+      organizationId = orgId;
+    }
     return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
   }
 
