@@ -25,6 +25,7 @@ import { OngoingIssuanceService } from './services/ongoing-issuance.service';
 import { CreateIssuerDTO } from './dto/create-issuer.dto';
 import { IssuerService } from './services/issuer.service';
 import { AuthVerifiedGuard } from '../../guards/AuthVerifiedGuard';
+import { IssuerEntity } from './models/issuer.entity';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')
@@ -271,7 +272,9 @@ export class DRECIssuerController {
   @Post('/register')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @ApiBody({ type: CreateIssuerDTO })
-  async registerIssuer(@Body() createIssuerDto: CreateIssuerDTO): Promise<any> {
+  async registerIssuer(
+    @Body() createIssuerDto: CreateIssuerDTO,
+  ): Promise<IssuerEntity> {
     this.logger.verbose(`With in registerIssuer`);
     return await this.issuerService.registerIssuer(createIssuerDto);
   }

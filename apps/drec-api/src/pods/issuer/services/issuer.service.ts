@@ -499,11 +499,12 @@ export class IssuerService {
     };
   }
 
-  async registerIssuer(createIssuerDTO: CreateIssuerDTO): Promise<any> {
+  async registerIssuer(
+    createIssuerDTO: CreateIssuerDTO,
+  ): Promise<IssuerEntity> {
     this.logger.verbose(`With in registerIssuer`);
     try {
-      await this.issuerRepository.save(createIssuerDTO);
-      this.logger.log(`successfully registered the issuer`);
+      return await this.issuerRepository.save(createIssuerDTO);
     } catch (error) {
       this.logger.error('caught exception in registerIssuer', error);
       throw error;
