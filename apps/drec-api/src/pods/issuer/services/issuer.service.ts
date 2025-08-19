@@ -15,6 +15,10 @@ import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { CreateIssuerDTO } from '../dto/create-issuer.dto';
+import { IssuerEntity } from '../models/issuer.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 type DeviceReading = {
   timestamp: Date;
@@ -34,6 +38,8 @@ export class IssuerService {
     private readonly readsService: ReadsService,
     private readonly certificateLogService: CertificateLogService,
     private readonly certificateService: CertificateService,
+    @InjectRepository(IssuerEntity)
+    private readonly issuerRepository: Repository<IssuerEntity>,
   ) {}
 
   /**
@@ -491,5 +497,16 @@ export class IssuerService {
       completeReads: allReadsForDeviceBetweenTimeRange,
       previousReading,
     };
+  }
+
+  async registerIssuer(createIssuerDTO: CreateIssuerDTO): Promise<any> {
+    this.logger.verbose(`With in registerIssuer`);
+    try {
+      await this.issuerRepository.save(createIssuerDTO);
+      this.logger.log(`successfully registered the issuer`);
+    } catch (error) {
+      this.logger.error('caught exception in registerIssuer', error);
+      throw error
+    }
   }
 }
