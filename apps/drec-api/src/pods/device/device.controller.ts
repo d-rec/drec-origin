@@ -135,7 +135,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.ApiUser, Role.Buyer)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
