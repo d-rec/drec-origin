@@ -33,6 +33,8 @@ import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { IssuerEntity } from '../models/issuer.entity';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -60,17 +62,19 @@ describe('IssuerService', () => {
         OngoingIssuanceService,
         IssuerService,
         CertificateService,
-          {
-            provide: require('@nestjs/typeorm').getRepositoryToken(require('../models/issuer.entity').IssuerEntity),
-            useValue: {
-              find: jest.fn(),
-              findOne: jest.fn(),
-              save: jest.fn(),
-              create: jest.fn(),
-              update: jest.fn(),
-              delete: jest.fn(),
-            },
+        {
+          provide: require('@nestjs/typeorm').getRepositoryToken(
+            require('../models/issuer.entity').IssuerEntity,
+          ),
+          useValue: {
+            find: jest.fn(),
+            findOne: jest.fn(),
+            save: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
           },
+        },
         {
           provide: OffChainCertificateService,
           useValue: {
@@ -108,6 +112,7 @@ describe('IssuerService', () => {
           useValue: {
             createForDevice: jest.fn(),
             createForGroup: jest.fn(),
+            provide: getRepositoryToken(IssuerEntity),
           } as any,
         },
         {
