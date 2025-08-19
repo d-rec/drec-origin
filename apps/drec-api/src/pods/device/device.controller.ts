@@ -185,7 +185,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
