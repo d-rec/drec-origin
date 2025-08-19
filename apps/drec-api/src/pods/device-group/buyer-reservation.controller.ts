@@ -445,13 +445,13 @@ export class BuyerReservationController {
     description: 'This query parameter is used for Apiuser',
   })
   @ApiOperation({
-    summary: 'Create a new buyer reservation',
-    description: 'Register a new buyer reservation in the system.',
+    summary: 'Create single device pathway',
+    description: 'Register a new single device pathway in the system.',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: DeviceGroupDTO,
-    description: 'Successfully created the buyer reservation.',
+    description: 'Successfully created the single device pathway.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -459,7 +459,8 @@ export class BuyerReservationController {
   })
   @ApiResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'User does not have permission to create buyer reservations.',
+    description:
+      'User does not have permission to create single device pathways.',
   })
   public async storeSingleDevicePathway(
     @UserDecorator() { organizationId }: ILoggedInUser,
