@@ -10,7 +10,7 @@ import {
 
 @Entity('issuer')
 export class IssuerEntity extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ name: 'issuer_id' })

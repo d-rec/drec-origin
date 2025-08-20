@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
@@ -504,6 +509,22 @@ export class IssuerService {
   ): Promise<IssuerEntity> {
     this.logger.verbose(`With in registerIssuer`);
     try {
+      const existingIssuerByEmail = await this.issuerRepository.findOne({
+        where: { email: createIssuerDTO.email },
+      });
+      const existingIssuerById = await this.issuerRepository.findOne({
+        where: { issuerId: createIssuerDTO.issuerId },
+      });
+      if (existingIssuerByEmail) {
+        throw new ConflictException(
+          `Issuer with email ${createIssuerDTO.email} already exists`,
+        );
+      }
+      if (existingIssuerById) {
+        throw new ConflictException(
+          `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
+        );
+      }
       return await this.issuerRepository.save(createIssuerDTO);
     } catch (error) {
       this.logger.error('caught exception in registerIssuer', error);
