@@ -9,7 +9,7 @@ export class UpdateOtherDataSourceToDeveloperExternalIdOnDeviceTable175568075180
     await queryRunner.query(`
             UPDATE device 
             SET "other_data_source" = "developerExternalId"
-            WHERE "developerExternalId" IS NOT NULL 
+            WHERE "developerExternalId" IS NOT NULL AND "developerExternalId" != ''
         `);
   }
 
@@ -17,7 +17,7 @@ export class UpdateOtherDataSourceToDeveloperExternalIdOnDeviceTable175568075180
     await queryRunner.query(`
             UPDATE device 
             SET "other_data_source" = "developerExternalId"
-            WHERE "developerExternalId" IS NULL 
+            WHERE "developerExternalId" IS NOT NULL AND "developerExternalId" != ''
         `);
   }
 }
