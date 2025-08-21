@@ -361,7 +361,7 @@ export class EvidentIssuanceService {
     const deviceGroup = certificates[0].deviceGroup;
 
     const { ...file } = await this.generateDeviceGroupReadsCSVFile(
-      deviceGroup,
+      certificates,
       startDate,
       endDate,
       amount,
@@ -461,7 +461,7 @@ export class EvidentIssuanceService {
   }
 
   private async generateDeviceGroupReadsCSVFile(
-    deviceGroup: DeviceGroup,
+    certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[],
     startDate: Date,
     endDate: Date,
     productionVolume: number,
@@ -493,11 +493,21 @@ export class EvidentIssuanceService {
       'Related Inverter IDs',
     ];
 
+    const deviceIds = new Set<number>();
+
     const devices: Device[] = [];
-    for (const deviceId of deviceGroup.deviceIdsInt) {
-      const device = await this.deviceService.findOne(deviceId);
-      devices.push(device);
+    for (const certificate of certificates) {
+      const deviceId = parseInt(certificate.certificate_payload.deviceId);
+      if (!deviceIds.has(deviceId)) {
+        const device = await this.deviceService.findOne(deviceId);
+        if (device) {
+          devices.push(device);
+          deviceIds.add(deviceId);
+        }
+      }
     }
+
+    const deviceGroup = certificates[0].deviceGroup;
     const csvRows = [headers.join(',')];
 
     devices.forEach((record) => {
