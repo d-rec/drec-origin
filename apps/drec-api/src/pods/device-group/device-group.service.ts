@@ -12,6 +12,7 @@ import { cloneDeep, defaults } from 'lodash';
 import {
   Brackets,
   FindConditions,
+  In,
   LessThan,
   Repository,
   SelectQueryBuilder,
@@ -78,6 +79,10 @@ import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_
 import { Profile } from '../../lib/profile';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { EvidentRegistrationStatus } from '../../types/evident';
+import { GroupType } from 'src/utils/enums/group-type.enum';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
+import axios from 'axios';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -95,6 +100,8 @@ export class DeviceGroupService {
     private readonly repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
+    @InjectRepository(DocumentEntity)
+    private readonly documentsRepository: Repository<DocumentEntity>,
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
@@ -786,9 +793,21 @@ export class DeviceGroupService {
       },
     });
   }
+
+  async fetchFileBuffer(url: string): Promise<Buffer> {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      throw new Error(
+        `fetchFileBuffer failed for ${url}: ${error?.message || error}`,
+      );
+    }
+  }
+
   async create(
     organizationId: number,
-    data: NewDeviceGroupDTO,
+    data: any,
     fromBulk = false,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in create`);
@@ -799,6 +818,7 @@ export class DeviceGroupService {
       ...data,
       name: groupName,
     });
+
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
@@ -851,7 +871,67 @@ export class DeviceGroupService {
         );
       }),
     );
-    await this.evidentDeviceService.queueDeviceGroupRegistration(group);
+    if (data.type === GroupType.Single) {
+      const deviceData = await this.deviceService.findByIds(data.deviceIds);
+      const files = await this.documentsRepository.find({
+        where: {
+          targetId: In(deviceData.map((device) => device.id)),
+        },
+      });
+
+      const buildDeviceDocuments = async (
+        files: DocumentEntity[],
+        type: DocumentType,
+      ): Promise<Express.Multer.File[]> => {
+        const filtered = files.filter((f) => f.type === type);
+
+        const buffers = await Promise.all(
+          filtered.map((f) => this.fetchFileBuffer(f.url)),
+        );
+
+        return filtered.map((entity, idx) => ({
+          fieldname: entity.type,
+          originalname: entity.url || '',
+          encoding: '7bit',
+          mimetype: 'application/octet-stream',
+          size: buffers[idx]?.length || 0,
+          buffer: buffers[idx],
+          destination: '',
+          filename: entity.url || '',
+          path: entity.url,
+          stream: null,
+        }));
+      };
+
+      // Build all documents
+      const deviceDocuments = {
+        FORM_SF_02: await buildDeviceDocuments(files, DocumentType.FORM_SF_02),
+        SF_02C: await buildDeviceDocuments(files, DocumentType.SF_02C),
+        METERING_EVIDENCE: await buildDeviceDocuments(
+          files,
+          DocumentType.METERING_EVIDENCE,
+        ),
+        SINGLE_LINE_DIAGRAM: await buildDeviceDocuments(
+          files,
+          DocumentType.SINGLE_LINE_DIAGRAM,
+        ),
+        PROJECT_PHOTOS: await buildDeviceDocuments(
+          files,
+          DocumentType.PROJECT_PHOTOS,
+        ),
+      };
+
+      // Register each device
+      for (const device of deviceData) {
+        await this.evidentDeviceService.queueDeviceRegistration(
+          device,
+          deviceDocuments,
+        );
+      }
+    } else {
+      await this.evidentDeviceService.queueDeviceGroupRegistration(group);
+    }
+
     return group;
   }
 
@@ -2824,6 +2904,8 @@ export class DeviceGroupService {
       status === EvidentRegistrationStatus.InProgress
         ? EvidentRegistrationStatus.Submitted
         : status;
+    //how can i check if the update happened or not
+
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },

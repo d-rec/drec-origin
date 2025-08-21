@@ -768,11 +768,6 @@ export class DeviceService {
       }
     }
     await queryRunner.commitTransaction();
-
-    if (result.capacity >= 250) {
-      await this.evidentDeviceService.queueDeviceRegistration(result, files);
-    }
-
     delete result['organization'];
     return result;
   }
