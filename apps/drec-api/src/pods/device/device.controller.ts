@@ -135,7 +135,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.ApiUser, Role.Buyer)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -185,7 +185,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -205,8 +205,12 @@ export class DeviceController {
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
+    @Query('orgId') orgId?: number,
   ): Promise<GroupedDevicesDTO[]> {
     this.logger.verbose(`With in getAllUngrouped`);
+    if (orgId) {
+      organizationId = orgId;
+    }
     return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
   }
 
