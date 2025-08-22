@@ -83,6 +83,7 @@ import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import {
+  DeviceGroupCertificatesAggregate,
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
@@ -1968,5 +1969,40 @@ export class DeviceService {
       .andWhere('organization.id = :organizationId', { organizationId })
       .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
       .getMany();
+  }
+
+  async getCertificatesByGroupForEvidentIssuance(
+    groupId: number,
+    certificateTransactionUIDs: string[],
+  ): Promise<DeviceGroupCertificatesAggregate[]> {
+    const rawRows = await this.checkDeviceLogCertificateRepository
+      .createQueryBuilder('c')
+      .innerJoin('c.device', 'd')
+      .where('c.groupId = :groupId', { groupId })
+      .andWhere('c.certificateTransactionUID IN (:...uids)', {
+        uids: certificateTransactionUIDs,
+      })
+      .select('d')
+      .addSelect('MIN(c.certificate_issuance_startdate)', 'min_start_date')
+      .addSelect('MAX(c.certificate_issuance_enddate)', 'max_end_date')
+      .addSelect('SUM(c.readvalue_watthour)', 'amount') // <-- added sum
+      .groupBy('d.id')
+      .orderBy('min_start_date', 'ASC')
+      .getRawMany();
+
+    return rawRows.map((r) =>
+      Object.entries(r).reduce(
+        (acc, [k, v]) => {
+          k.startsWith('d_') ? (acc.device[k.slice(2)] = v) : (acc[k] = v);
+          return acc;
+        },
+        {
+          device: {} as Device,
+          min_start_date: '' as string,
+          max_end_date: '' as string,
+          amount: 0 as number,
+        } satisfies DeviceGroupCertificatesAggregate,
+      ),
+    );
   }
 }

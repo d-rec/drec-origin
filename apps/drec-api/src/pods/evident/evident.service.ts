@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IssuerEntity } from './models/issuer.entity';
 import { Repository } from 'typeorm';
 import { CreateIssuerDTO } from './dto/create-issuer.dto';
+import { DeviceGroup } from '../device-group/device-group.entity';
 
 @Injectable()
 export class EvidentService {
@@ -57,7 +58,7 @@ export class EvidentService {
   }
 
   async uploadFiles(
-    device: Device,
+    device: Device | DeviceGroup,
     files: Record<string, Express.Multer.File[]>,
     evidentUserId: string,
     notes = '',
@@ -83,7 +84,7 @@ export class EvidentService {
   }
 
   async uploadFile(
-    device: Device | { organizationId: number },
+    device: Device | DeviceGroup,
     evidentUserId: string,
     file: Express.Multer.File,
     notes: string,
