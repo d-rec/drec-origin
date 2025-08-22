@@ -476,6 +476,12 @@ export class BuyerReservationController {
       this.organizationService,
       this.userService,
     );
+    if (deviceGroupToRegister.deviceIds.length !== 1) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Only one device can be added in single device pathway',
+      });
+    }
     validateDeviceGroupToRegister(deviceGroupToRegister, organizationId);
     return await this.deviceGroupService.createOne(
       organizationId,
