@@ -997,6 +997,7 @@ export class DeviceGroupService {
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
       deviceGroup['reservationEndDate'] = group.reservationEndDate;
       deviceGroup['authorityToExceed'] = group.authorityToExceed;
+      deviceGroup['type'] = group.type;
       deviceGroup['targetVolumeInMegaWattHour'] =
         group.targetCapacityInMegaWattHour;
       deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
