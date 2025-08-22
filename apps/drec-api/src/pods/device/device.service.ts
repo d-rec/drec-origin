@@ -83,6 +83,7 @@ import { generateDeviceFingerprint } from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import {
+  DeviceGroupCertificatesAggregate,
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
@@ -1973,30 +1974,35 @@ export class DeviceService {
   async getCertificatesByGroupForEvidentIssuance(
     groupId: number,
     certificateTransactionUIDs: string[],
-  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
-    // return await this.checkDeviceLogCertificateRepository.find({
-    //   where: {
-    //     groupId: groupId,
-    //     certificateTransactionUID: In(certificateTransactionUIDs),
-    //   },
-    //   relations: ['device'],
-    //   order: {
-    //     certificate_issuance_startdate: 'ASC',
-    //   },
-    // });
-    return this.checkDeviceLogCertificateRepository
+  ): Promise<DeviceGroupCertificatesAggregate[]> {
+    const rawRows = await this.checkDeviceLogCertificateRepository
       .createQueryBuilder('c')
       .innerJoin('c.device', 'd')
       .where('c.groupId = :groupId', { groupId })
       .andWhere('c.certificateTransactionUID IN (:...uids)', {
         uids: certificateTransactionUIDs,
       })
-      .select('d.external_id', 'external_id')
+      .select('d')
       .addSelect('MIN(c.certificate_issuance_startdate)', 'min_start_date')
       .addSelect('MAX(c.certificate_issuance_enddate)', 'max_end_date')
       .addSelect('SUM(c.readvalue_watthour)', 'amount') // <-- added sum
-      .groupBy('d.external_id')
-      .orderBy('min_start', 'ASC')
+      .groupBy('d.id')
+      .orderBy('min_start_date', 'ASC')
       .getRawMany();
+
+    return rawRows.map((r) =>
+      Object.entries(r).reduce(
+        (acc, [k, v]) => {
+          k.startsWith('d_') ? (acc.device[k.slice(2)] = v) : (acc[k] = v);
+          return acc;
+        },
+        {
+          device: {} as Device,
+          min_start_date: '' as string,
+          max_end_date: '' as string,
+          amount: 0 as number,
+        } satisfies DeviceGroupCertificatesAggregate,
+      ),
+    );
   }
 }

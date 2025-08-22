@@ -3,6 +3,7 @@ import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
 import {
+  DeviceGroupCertificatesAggregate,
   EvidentIssuanceRequest,
   EvidentIssuanceStatus,
 } from '../../types/evident';
@@ -28,11 +29,11 @@ import EvidentDeviceGroupIssuanceRegistrationTemplate, {
   getEvidentDeviceGroupIssuanceRegistrationSubject,
 } from './mail/evident-device-group-issuance-registration.template';
 import { EvidentSettings } from './evident-settings.entity';
-import { certificateSetting1726558881946 } from 'migrations/1726558881946-certificate_setting';
 
 @Injectable()
 export class EvidentIssuanceService {
   private readonly logger = new Logger(EvidentIssuanceService.name);
+  private issuerId = process.env.IREC_EVIDENT_ISSUER_ID;
 
   constructor(
     private readonly evidentService: EvidentService,
@@ -89,7 +90,10 @@ export class EvidentIssuanceService {
       );
 
       try {
-        await this.processIssuanceByDeviceGroup(settings.organizationId, settings);
+        await this.processIssuanceByDeviceGroup(
+          settings.organizationId,
+          settings,
+        );
       } catch (error) {
         this.logger.error(
           `Error processing organization ${settings.organizationId}: ${error.message}`,
@@ -98,16 +102,17 @@ export class EvidentIssuanceService {
     }
   }
 
-  async processIssuanceByDeviceGroup(organizationId: number, settings: EvidentSettings): Promise<void> {
+  async processIssuanceByDeviceGroup(
+    organizationId: number,
+    settings: EvidentSettings,
+  ): Promise<void> {
     const deviceGroups =
       await this.deviceGroupService.getRegisteredEvidentDeviceGroups(
         organizationId,
       );
     for (const deviceGroup of deviceGroups) {
       const certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[] =
-        await this.deviceGroupService.findCertificateLogs(
-          deviceGroup.id,
-        );
+        await this.deviceGroupService.findCertificateLogs(deviceGroup.id);
       this.logger.verbose(
         `Found certificates for device group ${deviceGroup.id}: ${certificates.length}`,
       );
@@ -115,7 +120,11 @@ export class EvidentIssuanceService {
       if (!certificates?.length) {
         continue;
       }
-      await this.processDeviceGroupCertificates(deviceGroup, settings, certificates);
+      await this.processDeviceGroupCertificates(
+        deviceGroup,
+        settings,
+        certificates,
+      );
     }
   }
 
@@ -367,24 +376,20 @@ export class EvidentIssuanceService {
       );
       return;
     }
-  
 
-    const deviceCertificates = await this.deviceService.getCertificatesByGroupForEvidentIssuance(deviceGroup.id,
-      certificates.map((c) => c.certificateTransactionUID)
-    );
+    const deviceCertificates =
+      await this.deviceService.getCertificatesByGroupForEvidentIssuance(
+        deviceGroup.id,
+        certificates.map((c) => c.certificateTransactionUID),
+      );
 
-    console.log(deviceCertificates);
-    throw new Error('Debugging');
     const { ...file } = await this.generateGroupedDeviceProductionCSVFile(
-      certificates,
-      minStartDate,
-      maxEndDate,
-      amount,
-      defaultTradingAccount,
+      deviceCertificates,
+      deviceGroup,
     );
 
     const files = {
-      [DocumentType.METERING_EVIDENCE]: [file as Express.Multer.File],
+      [DocumentType.DEVICE_GROUP_CERTIFICATES]: [file as Express.Multer.File],
     };
 
     const productionVolume = convertToPowerUnit({
@@ -466,11 +471,8 @@ export class EvidentIssuanceService {
   }
 
   private async generateGroupedDeviceProductionCSVFile(
-    certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[],
-    startDate: Date,
-    endDate: Date,
-    productionVolume: number,
-    issuerId: string,
+    certificates: DeviceGroupCertificatesAggregate[],
+    deviceGroup: DeviceGroup,
   ) {
     const headers = [
       'InverterID',
@@ -498,45 +500,30 @@ export class EvidentIssuanceService {
       'Related Inverter IDs',
     ];
 
-    const deviceIds = new Set<number>();
-
-    const devices: Device[] = [];
-    for (const certificate of certificates) {
-      const deviceId = parseInt(certificate.certificate_payload.deviceId);
-      if (!deviceIds.has(deviceId)) {
-        const device = await this.deviceService.findOne(deviceId);
-        if (device) {
-          devices.push(device);
-          deviceIds.add(deviceId);
-        }
-      }
-    }
-
-    const deviceGroup = certificates[0].deviceGroup;
     const csvRows = [headers.join(',')];
 
-    devices.forEach((record) => {
+    certificates.forEach((record) => {
       const row = [
-        record.serialNumber,
-        record.dataSourceBrand,
+        record.device.serialNumber,
+        record.device.dataSourceBrand,
         deviceGroup.name,
-        issuerId,
-        record.fuelCode,
-        record.deviceTypeCode,
-        record.capacity,
-        record.commissioningDate,
+        this.issuerId,
+        record.device.fuelCode,
+        record.device.deviceTypeCode,
+        record.device.capacity,
+        record.device.commissioningDate,
         '',
         '',
-        record.stateProvince,
-        record.postcode,
-        record.countryCode,
+        record.device.stateProvince,
+        record.device.postcode,
+        record.device.countryCode,
         true,
-        record.latitude,
-        record.longitude,
+        record.device.latitude,
+        record.device.longitude,
         true,
-        startDate.toISOString(),
-        endDate.toISOString(),
-        productionVolume, // should for a single device
+        record.min_start_date,
+        record.max_end_date,
+        record.amount,
         '',
         JSON.stringify({
           'D-REC Device Group Id': deviceGroup.evidentGroupId,
@@ -548,14 +535,14 @@ export class EvidentIssuanceService {
 
     const content = csvRows.join('\n');
 
-    const fileName = `meter-reads-${deviceGroup.evidentGroupId}-${startDate.toISOString()}-to-${endDate.toISOString()}.csv`;
+    const fileName = `group-devices-certificates-${deviceGroup.evidentGroupId}}.csv`;
 
     return {
       originalname: fileName,
       filename: fileName,
       mimetype: 'text/csv',
       buffer: Buffer.from(content, 'utf8'),
-      devices,
+      certificates: certificates.map((c) => c.device),
     } as unknown as Express.Multer.File;
   }
 }
