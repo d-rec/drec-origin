@@ -1,11 +1,14 @@
 import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { EvidentSettingsService } from './evident-settings.service';
 import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard } from '../../guards';
 import { mask } from '../../utils/mask';
+import { CreateIssuerDTO } from './dto/create-issuer.dto';
+import { IssuerEntity } from './models/issuer.entity';
+import { EvidentService } from './evident.service';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -15,6 +18,7 @@ export class EvidentSettingsController {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
+    private readonly evidentService: EvidentService,
   ) {}
 
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
@@ -41,5 +45,15 @@ export class EvidentSettingsController {
       ...settings,
       apiKey: maskedApiKey,
     };
+  }
+
+  @Post('/register-issuer')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @ApiBody({ type: CreateIssuerDTO })
+  async registerIssuer(
+    @Body() createIssuerDto: CreateIssuerDTO,
+  ): Promise<IssuerEntity> {
+    this.logger.verbose(`With in registerIssuer`);
+    return await this.evidentService.registerIssuer(createIssuerDto);
   }
 }

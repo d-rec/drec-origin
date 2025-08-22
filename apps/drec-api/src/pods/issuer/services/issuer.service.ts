@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
@@ -20,10 +15,6 @@ import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { CreateIssuerDTO } from '../dto/create-issuer.dto';
-import { IssuerEntity } from '../models/issuer.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 
 type DeviceReading = {
   timestamp: Date;
@@ -43,8 +34,6 @@ export class IssuerService {
     private readonly readsService: ReadsService,
     private readonly certificateLogService: CertificateLogService,
     private readonly certificateService: CertificateService,
-    @InjectRepository(IssuerEntity)
-    private readonly issuerRepository: Repository<IssuerEntity>,
   ) {}
 
   /**
@@ -502,33 +491,5 @@ export class IssuerService {
       completeReads: allReadsForDeviceBetweenTimeRange,
       previousReading,
     };
-  }
-
-  async registerIssuer(
-    createIssuerDTO: CreateIssuerDTO,
-  ): Promise<IssuerEntity> {
-    this.logger.verbose(`With in registerIssuer`);
-    try {
-      const existingIssuerByEmail = await this.issuerRepository.findOne({
-        where: { email: createIssuerDTO.email },
-      });
-      const existingIssuerById = await this.issuerRepository.findOne({
-        where: { issuerId: createIssuerDTO.issuerId },
-      });
-      if (existingIssuerByEmail) {
-        throw new ConflictException(
-          `Issuer with email ${createIssuerDTO.email} already exists`,
-        );
-      }
-      if (existingIssuerById) {
-        throw new ConflictException(
-          `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
-        );
-      }
-      return await this.issuerRepository.save(createIssuerDTO);
-    } catch (error) {
-      this.logger.error('caught exception in registerIssuer', error);
-      throw error;
-    }
   }
 }

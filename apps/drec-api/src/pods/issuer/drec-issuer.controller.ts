@@ -22,10 +22,6 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { HistoricalIssuanceService } from './services/historical-issuance.service';
 import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './services/ongoing-issuance.service';
-import { CreateIssuerDTO } from './dto/create-issuer.dto';
-import { IssuerService } from './services/issuer.service';
-import { AuthVerifiedGuard } from '../../guards/AuthVerifiedGuard';
-import { IssuerEntity } from './models/issuer.entity';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')
@@ -39,7 +35,6 @@ export class DRECIssuerController {
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
     private readonly historicalIssuanceService: HistoricalIssuanceService,
     private readonly ongoingIssuanceService: OngoingIssuanceService,
-    private readonly issuerService: IssuerService,
   ) {}
   /**
    *
@@ -267,15 +262,5 @@ export class DRECIssuerController {
       this.logger.log(`successfully removed the inactive cycles`);
       resolve('successfully removed the inactive cycles');
     });
-  }
-
-  @Post('/register')
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
-  @ApiBody({ type: CreateIssuerDTO })
-  async registerIssuer(
-    @Body() createIssuerDto: CreateIssuerDTO,
-  ): Promise<IssuerEntity> {
-    this.logger.verbose(`With in registerIssuer`);
-    return await this.issuerService.registerIssuer(createIssuerDto);
   }
 }

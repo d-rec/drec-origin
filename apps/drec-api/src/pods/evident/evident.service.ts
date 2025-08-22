@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
@@ -6,6 +6,10 @@ import { Device } from '../device/device.entity';
 import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IssuerEntity } from './models/issuer.entity';
+import { Repository } from 'typeorm';
+import { CreateIssuerDTO } from './dto/create-issuer.dto';
 
 @Injectable()
 export class EvidentService {
@@ -14,6 +18,8 @@ export class EvidentService {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
+    @InjectRepository(IssuerEntity)
+    private readonly issuerRepository: Repository<IssuerEntity>,
   ) {}
 
   async getApiInstance(organizationId: number): Promise<AxiosInstance> {
@@ -139,5 +145,33 @@ export class EvidentService {
     return await evidentInstance.get(
       `/organisations?pagination=false&q=${country}&roles=issuer`,
     );
+  }
+
+  async registerIssuer(
+    createIssuerDTO: CreateIssuerDTO,
+  ): Promise<IssuerEntity> {
+    this.logger.verbose(`With in registerIssuer`);
+    try {
+      const existingIssuerByEmail = await this.issuerRepository.findOne({
+        where: { email: createIssuerDTO.email },
+      });
+      const existingIssuerById = await this.issuerRepository.findOne({
+        where: { issuerId: createIssuerDTO.issuerId },
+      });
+      if (existingIssuerByEmail) {
+        throw new ConflictException(
+          `Issuer with email ${createIssuerDTO.email} already exists`,
+        );
+      }
+      if (existingIssuerById) {
+        throw new ConflictException(
+          `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
+        );
+      }
+      return await this.issuerRepository.save(createIssuerDTO);
+    } catch (error) {
+      this.logger.error('caught exception in registerIssuer', error);
+      throw error;
+    }
   }
 }

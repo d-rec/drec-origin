@@ -25,12 +25,9 @@ import { registerQueues } from '../../lib/helpers/registerQueues';
 import { OngoingIssuanceProcessor } from './processors/ongoing-issuance.processor';
 import { HistoricalIssuanceProcessor } from './processors/historical-issuance.processor';
 import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { IssuerEntity } from './models/issuer.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([IssuerEntity]),
     DeviceModule,
     DeviceGroupModule,
     CertificateLogModule,

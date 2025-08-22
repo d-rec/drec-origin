@@ -77,7 +77,7 @@ import { EvidentModule } from './pods/evident/evident.module';
 import { EvidentSettings } from './pods/evident/evident-settings.entity';
 
 import { getTypeOrmConfig } from './config/typeorm.config';
-import { IssuerEntity } from './pods/issuer/models/issuer.entity';
+import { IssuerEntity } from './pods/evident/models/issuer.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
