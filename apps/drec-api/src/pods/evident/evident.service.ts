@@ -6,6 +6,7 @@ import { Device } from '../device/device.entity';
 import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { DeviceGroup } from '../device-group/device-group.entity';
 
 @Injectable()
 export class EvidentService {
@@ -51,7 +52,7 @@ export class EvidentService {
   }
 
   async uploadFiles(
-    device: Device,
+    device: Device | DeviceGroup,
     files: Record<string, Express.Multer.File[]>,
     evidentUserId: string,
     notes = '',
@@ -77,7 +78,7 @@ export class EvidentService {
   }
 
   async uploadFile(
-    device: Device | { organizationId: number },
+    device: Device | DeviceGroup,
     evidentUserId: string,
     file: Express.Multer.File,
     notes: string,

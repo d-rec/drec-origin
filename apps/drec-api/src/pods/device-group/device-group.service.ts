@@ -12,9 +12,12 @@ import { cloneDeep, defaults } from 'lodash';
 import {
   Brackets,
   FindConditions,
+  In,
   LessThan,
+  Not,
   Repository,
   SelectQueryBuilder,
+  UpdateResult,
 } from 'typeorm';
 import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import {
@@ -77,7 +80,10 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { Profile } from '../../lib/profile';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { EvidentRegistrationStatus } from '../../types/evident';
+import {
+  EvidentIssuanceStatus,
+  EvidentRegistrationStatus,
+} from '../../types/evident';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -2826,6 +2832,49 @@ export class DeviceGroupService {
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
+    );
+  }
+
+  async getRegisteredEvidentDeviceGroups(
+    organizationId: number,
+  ): Promise<DeviceGroup[]> {
+    this.logger.verbose(`With in getRegisteredEvidentDeviceGroups`);
+    return await this.repository.find({
+      where: {
+        evidentStatus: EvidentRegistrationStatus.Submitted,
+        evidentGroupId: Not(''),
+        organizationId: organizationId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
+  async findCertificateLogs(
+    groupId: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
+    return await this.checkDeviceGroupLogCertificateRepository
+      .createQueryBuilder('groupCertificates')
+      .where('groupCertificates.evidentSyncedAt IS NULL')
+      .where('groupCertificates.groupid = :groupId', { groupId })
+      .orderBy('groupCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
+  }
+
+  async updateCertificatesEvidentIssuance(
+    certificateIds: number[],
+    issuanceId: number,
+    evidentIssuanceStatus: EvidentIssuanceStatus,
+  ): Promise<UpdateResult> {
+    this.logger.verbose(`With in updateCertificatesEvidentIssuance`);
+    return await this.checkDeviceGroupLogCertificateRepository.update(
+      { id: In(certificateIds) },
+      {
+        evidentIssuanceRequestId: issuanceId.toString(),
+        evidentIssuanceRequestStatus: evidentIssuanceStatus,
+        evidentSyncedAt: new Date(),
+      },
     );
   }
 }
