@@ -17,7 +17,8 @@ export class UpdateOtherDataSourceToDeveloperExternalIdOnDeviceTable175568075180
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
             UPDATE device 
-            SET "other_data_source" = "developerExternalId"
+            SET "other_data_source" = null,
+            "data_source" = null
             WHERE "developerExternalId" IS NOT NULL AND "developerExternalId" != ''
         `);
   }
