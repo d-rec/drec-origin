@@ -4,6 +4,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import {
   IsString,
@@ -21,11 +23,11 @@ import {
   CommissioningDateRange,
   OffTaker,
 } from '../../utils/enums';
-//import { Device } from '../device/device.entity';
-import { Exclude } from 'class-transformer';
 import { Device } from '../device/device.entity';
+import { Exclude } from 'class-transformer';
 import { EvidentRegistrationStatus } from '../../types/evident';
 import { GroupType } from '../../utils/enums/group-type.enum';
+import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
@@ -200,6 +202,10 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsEnum(GroupType)
   @IsOptional()
   type: GroupType;
+
+  @ManyToOne(() => Organization, { eager: false })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
+  organizations: Organization;
 
   isExpired(): boolean {
     return (
