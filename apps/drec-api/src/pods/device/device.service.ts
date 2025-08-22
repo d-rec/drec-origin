@@ -1969,4 +1969,34 @@ export class DeviceService {
       .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
       .getMany();
   }
+
+  async getCertificatesByGroupForEvidentIssuance(
+    groupId: number,
+    certificateTransactionUIDs: string[],
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    // return await this.checkDeviceLogCertificateRepository.find({
+    //   where: {
+    //     groupId: groupId,
+    //     certificateTransactionUID: In(certificateTransactionUIDs),
+    //   },
+    //   relations: ['device'],
+    //   order: {
+    //     certificate_issuance_startdate: 'ASC',
+    //   },
+    // });
+    return this.checkDeviceLogCertificateRepository
+      .createQueryBuilder('c')
+      .innerJoin('c.device', 'd')
+      .where('c.groupId = :groupId', { groupId })
+      .andWhere('c.certificateTransactionUID IN (:...uids)', {
+        uids: certificateTransactionUIDs,
+      })
+      .select('d.external_id', 'external_id')
+      .addSelect('MIN(c.certificate_issuance_startdate)', 'min_start_date')
+      .addSelect('MAX(c.certificate_issuance_enddate)', 'max_end_date')
+      .addSelect('SUM(c.readvalue_watthour)', 'amount') // <-- added sum
+      .groupBy('d.external_id')
+      .orderBy('min_start', 'ASC')
+      .getRawMany();
+  }
 }
