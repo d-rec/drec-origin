@@ -926,6 +926,7 @@ export class DeviceGroupService {
         await this.evidentDeviceService.queueDeviceRegistration(
           device,
           deviceDocuments,
+          group,
         );
       }
     } else {
@@ -2904,7 +2905,6 @@ export class DeviceGroupService {
       status === EvidentRegistrationStatus.InProgress
         ? EvidentRegistrationStatus.Submitted
         : status;
-    //how can i check if the update happened or not
 
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK

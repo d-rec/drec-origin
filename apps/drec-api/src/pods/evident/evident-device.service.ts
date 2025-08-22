@@ -146,10 +146,12 @@ export class EvidentDeviceService {
       [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
     },
+    group: DeviceGroup,
   ): Promise<void> {
     await this.evidentDeviceRegistrationQueue.add({
       device,
       files,
+      group,
     });
   }
 
@@ -195,6 +197,7 @@ export class EvidentDeviceService {
   async registerDevice(
     device: Device,
     files: Record<string, Express.Multer.File[]>,
+    group: DeviceGroup,
   ): Promise<any> {
     const evidentDevice = await this.createDevice(device, files);
     const organization =
@@ -204,6 +207,12 @@ export class EvidentDeviceService {
     await this.sendEmail(organization, device, evidentDevice.status);
     await this.updateEvidentStatus(
       device,
+      evidentDevice.status as EvidentRegistrationStatus,
+    );
+    await this.deviceGroupService.updateEvidentStatus(
+      device.groupId,
+      group.deviceGroupUid,
+      device.evidentDeviceId,
       evidentDevice.status as EvidentRegistrationStatus,
     );
   }
