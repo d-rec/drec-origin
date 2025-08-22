@@ -7,7 +7,8 @@ import {
 
 export interface IDevice {
   id: number;
-  externalId: string;
+  externalId?: string;
+  serialNumber: string;
   developerExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;

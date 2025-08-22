@@ -65,6 +65,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { validateOrReject } from 'class-validator';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -88,7 +89,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -134,7 +135,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.Buyer, Role.SubBuyer, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -154,51 +155,23 @@ export class DeviceController {
     @UserDecorator() { organizationId, api_user_id, role }: ILoggedInUser,
   ): Promise<DeviceDTO[]> {
     this.logger.verbose(`With in getAllDeviceForBuyer`);
-    if (filterDTO.organizationId) {
-      const organization = await this.organizationService.findOne(
-        filterDTO.organizationId,
-      );
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-      if (role === Role.ApiUser) {
-        if (organization.api_user_id != api_user_id) {
-          this.logger.error(
-            `The requested organization is belongs to other apiuser`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `The requested organization is belongs to other apiuser`,
-          });
-        }
-
-        if (
-          orgUser.role === Role.OrganizationAdmin ||
-          orgUser.role === Role.DeviceOwner
-        ) {
-          this.logger.error(
-            `Unauthorized... The requested user is developer or device owner`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized`,
-          });
-        }
-      } else {
-        if (organizationId != organization.id) {
-          this.logger.error(
-            `The requested organization is not same as user's organization`,
-          );
-          throw new UnauthorizedException({
-            success: false,
-            message: `The requested organization is not same as user's organization`,
-          });
-        }
+    if (!filterDTO.organizationId) {
+      filterDTO.organizationId = organizationId;
+    }
+    const organization = await this.organizationService.findOne(
+      filterDTO.organizationId,
+    );
+    if (role === Role.ApiUser) {
+      if (organization.api_user_id != api_user_id) {
+        this.logger.error(
+          `The requested organization is belongs to other apiuser`,
+        );
+        throw new UnauthorizedException({
+          success: false,
+          message: `The requested organization is belongs to other apiuser`,
+        });
       }
     }
-
-    if (role !== Role.ApiUser) {
-      api_user_id = null;
-    }
-
     return this.deviceService.findDeviceForBuyer(
       filterDTO,
       pageNumber,
@@ -212,7 +185,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -232,8 +205,12 @@ export class DeviceController {
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
+    @Query('orgId') orgId?: number,
   ): Promise<GroupedDevicesDTO[]> {
     this.logger.verbose(`With in getAllUngrouped`);
+    if (orgId) {
+      organizationId = orgId;
+    }
     return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
   }
 
@@ -479,7 +456,7 @@ export class DeviceController {
     description: 'User does not have permission to view this device.',
   })
   async getByExternalId(
-    @Param('id') id: string,
+    @Param('id') externalId: string,
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in getByExternalId`);
@@ -490,18 +467,16 @@ export class DeviceController {
         loginUser.api_user_id = null;
       }
 
-      deviceData =
-        await this.deviceService.findDeviceByDeveloperExternalIByApiUser(
-          id,
-          loginUser.api_user_id,
-        );
+      deviceData = await this.deviceService.findDeviceBySerialNumberByApiUser(
+        externalId,
+        loginUser.api_user_id,
+      );
     } else {
-      deviceData = await this.deviceService.findDeviceByDeveloperExternalId(
-        id,
+      deviceData = await this.deviceService.findDeviceByExternalId(
+        externalId,
         loginUser.organizationId,
       );
     }
-    deviceData.externalId = deviceData.developerExternalId;
     delete deviceData['developerExternalId'];
     return deviceData;
   }
@@ -590,6 +565,21 @@ export class DeviceController {
     );
     if (!deviceToRegister)
       throw new BadRequestException('Invalid device data format');
+    const deviceDtoInstance = plainToClass(NewDeviceDTO, deviceToRegister);
+    try {
+      await validateOrReject(deviceDtoInstance);
+    } catch (errors) {
+      throw new BadRequestException(
+        errors
+          .map((error) =>
+            error.constraints
+              ? Object.values(error.constraints).join(', ')
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      );
+    }
     if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
@@ -603,6 +593,11 @@ export class DeviceController {
           message: `Organization id is required,please add your developer's Organization `,
         });
       }
+    } else {
+      const organization = await this.organizationService.findOne(
+        deviceToRegister.organizationId,
+      );
+      api_user_id = organization.api_user_id;
     }
     const allFileTypes = [
       DocumentType.FORM_SF_02,
@@ -621,7 +616,6 @@ export class DeviceController {
         `Missing required file types: ${missingFiles.join(', ')}`,
       );
     }
-
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
@@ -673,11 +667,10 @@ export class DeviceController {
     user.organizationId = deviceToUpdate.organizationId;
 
     if (deviceToUpdate.externalId) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
-          deviceToUpdate.externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        deviceToUpdate.externalId,
+        user.organizationId,
+      );
       if (checkExternalId) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
@@ -688,11 +681,10 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkExternalId =
-        await this.deviceService.findDeviceByDeveloperExternalId(
-          externalId,
-          user.organizationId,
-        );
+      const checkExternalId = await this.deviceService.findDeviceByExternalId(
+        externalId,
+        user.organizationId,
+      );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistoryReads(
           checkExternalId.externalId,
@@ -708,11 +700,11 @@ export class DeviceController {
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.developerExternalId}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
           });
         }
       }
@@ -844,10 +836,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
-        deviceId,
-        organizationId,
-      );
+      await this.deviceService.findDeviceByExternalId(deviceId, organizationId);
     this.logger.debug(
       'THE DEVICE FROM ExTERNALID IS::::::::::::' + device.externalId,
     );
@@ -933,11 +922,11 @@ export class DeviceController {
     this.logger.verbose(`With in certifiedLogDateRange`);
 
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
     });
     if (
       group === null ||
-      (group.buyerId != user.id && user.role != 'ApiUser') ||
+      (group.organizationId != user.organizationId && user.role != 'ApiUser') ||
       group.api_user_id != user.api_user_id
     ) {
       this.logger.error(

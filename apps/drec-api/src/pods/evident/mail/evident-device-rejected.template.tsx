@@ -3,12 +3,10 @@ import * as React from 'react';
 import DefaultMailLayout from '../../../mail/layouts/default.layout';
 import { Device } from '../../device/device.entity';
 
-export const getEvidentDraftDeviceRegistrationSubject = (
-  device: Device,
-): string =>
-  `Device Registration Add As a Draft On Evident — ${device.projectName}`;
+export const getEvidentDeviceRejectedSubject = (device: Device): string =>
+  `Device Rejected on Evident — ${device.projectName}`;
 
-export default function EvidentDraftDeviceRegistrationTemplate({
+export default function EvidentDeviceRejectedTemplate({
   device,
   organizationName,
 }: {
@@ -20,8 +18,8 @@ export default function EvidentDraftDeviceRegistrationTemplate({
     <DefaultMailLayout>
       <Text>Dear {organizationName} Team,</Text>
       <Text>
-        A new device registration has been created as a draft on the Evident
-        platform.
+        The following device registration has been rejected on the Evident
+        platform:
       </Text>
       <Text>Device Details:</Text>
       <ul>
@@ -29,10 +27,7 @@ export default function EvidentDraftDeviceRegistrationTemplate({
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>
-      <Text>
-        Please login in to your D-REC dashboard to approve the submission to
-        evident.
-      </Text>
+      <Text>The device was rejected.</Text>
       <Button
         style={{
           backgroundColor: '#2557d3',

@@ -10,6 +10,7 @@ import { ICertificateMetadata } from '../../../utils/types';
 import { IDevice } from '../../../models';
 import { CertificateType, StandardCompliance } from '../../../utils/enums';
 import { DeviceGroup } from '../../device-group/device-group.entity';
+import { Profile } from '../../../lib/profile';
 
 @Injectable()
 export class CertificateService {
@@ -26,6 +27,7 @@ export class CertificateService {
     this.issue(reading);
   }
 
+  @Profile()
   public async issue(
     reading: IIssueCommandParams<ICertificateMetadata>,
   ): Promise<void> {
@@ -55,16 +57,17 @@ export class CertificateService {
     toTime: Date,
     certificateTransactionUID: string,
   ): IIssueCommandParams<ICertificateMetadata> {
+    const address = group.buyerAddress || process.env.DREC_BLOCKCHAIN_ADDRESS;
     return {
       deviceId: group.id?.toString(),
       energyValue: energyValue.toString(),
       fromTime,
       toTime,
-      toAddress: group.buyerAddress,
-      userId: group.buyerAddress,
+      toAddress: address,
+      userId: address,
       metadata: {
         version: 'v1.0',
-        buyerReservationId: group.devicegroup_uid,
+        buyerReservationId: group.deviceGroupUid,
         isStandardIssuanceRequested: StandardCompliance.IREC,
         type: CertificateType.REC,
         deviceIds: devices.map((device: IDevice) => device.externalId),

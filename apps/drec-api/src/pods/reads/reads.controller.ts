@@ -305,7 +305,7 @@ export class ReadsController extends BaseReadsController {
         }
       }
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
+      device = await this.deviceService.findDeviceByExternalId(
         meterId,
         user.organizationId,
       );
@@ -323,7 +323,7 @@ export class ReadsController extends BaseReadsController {
       return this.internalReadsService.getAccumulatedReads(
         device.externalId,
         user.organizationId,
-        device.developerExternalId,
+        device.serialNumber,
         filter.accumulationType,
         month,
         year,
@@ -510,7 +510,7 @@ export class ReadsController extends BaseReadsController {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(externalId));
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
+      device = await this.deviceService.findDeviceByExternalId(
         externalId,
         user.organizationId,
       );
@@ -545,7 +545,7 @@ export class ReadsController extends BaseReadsController {
       }
       if (user.role === 'Buyer' || user.role === 'ApiUser') {
         return {
-          externalId: device.developerExternalId,
+          externalId: device.serialNumber,
           timestamp: latestReadObject[0].timestamp,
           value: latestReadObject[0].value,
         };

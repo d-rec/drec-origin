@@ -102,6 +102,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
 
 const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
   {
+    serialNumber: 'SN01',
     externalId: 'DREC02',
     projectName: 'Device 1',
     address: 'Somewhere far away',
@@ -125,6 +126,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN02',
     externalId: 'DREC03',
     projectName: 'Device 2',
     address: 'Somewhere far away',
@@ -148,6 +150,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN03',
     externalId: 'DREC04',
     projectName: 'Device 3',
     address: 'Somewhere far away',
@@ -171,6 +174,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     timezone: '',
   },
   {
+    serialNumber: 'SN04',
     externalId: 'DREC05',
     projectName: 'Device 5',
     address: 'Somewhere far away',
@@ -197,7 +201,11 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
 
 export const batchDevices: NewDeviceDTO[] = [
   {
+    dataSourceBrand: 'Schneider Electric',
     externalId: 'DREC31',
+    dataSource: 'Inverter',
+    otherDataSource: '',
+    serialNumber: 'SN32',
     projectName: 'Device 31',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -218,7 +226,11 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrand: 'Itron',
     externalId: 'DREC32',
+    dataSource: 'Inverter',
+    otherDataSource: '',
+    serialNumber: 'SN33',
     projectName: 'Device 32',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -239,7 +251,11 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrand: 'Sensus',
     externalId: 'DREC33',
+    serialNumber: 'SN31',
+    dataSource: 'Inverter',
+    otherDataSource: '',
     projectName: 'Device 33',
     address: 'Somewhere far away',
     latitude: '34.921213',
@@ -260,7 +276,11 @@ export const batchDevices: NewDeviceDTO[] = [
     version: '1.0',
   },
   {
+    dataSourceBrand: 'Sample Brand',
     externalId: 'DREC34',
+    serialNumber: 'SN51',
+    otherDataSource: '',
+    dataSource: 'Inverter',
     projectName: 'Device 34',
     address: 'Somewhere far away',
     latitude: '34.921213',

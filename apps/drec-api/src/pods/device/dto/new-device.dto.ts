@@ -30,13 +30,8 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @Trim()
-  @IsNotEmpty({ message: 'externalId should not be empty' })
-  @IsString()
-  @Matches(/^[a-zA-Z\d\-_\s]+$/, {
-    message:
-      'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
-  })
-  externalId: string;
+  @IsOptional()
+  externalId?: string;
 
   @IsOptional()
   @IsString()
@@ -45,8 +40,33 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
+  dataSource: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  otherDataSource?: string;
+
+  @ApiProperty()
+  @Trim()
+  @Matches(/^[a-zA-Z0-9_-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
+  })
+  @IsString()
+  @IsNotEmpty()
+  serialNumber: string;
+
+  @ApiProperty()
+  @IsString()
   @IsOptional()
   projectName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -35,6 +35,7 @@ import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { DateTime } from 'luxon';
+import { Profile } from '../../lib/profile';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
@@ -319,9 +320,8 @@ export class CertificateLogService {
           endDate,
           certificateTransactionUID,
         );
-
         return deviceLogs.map((deviceLog) => {
-          deviceLog.externalId = device.developerExternalId;
+          deviceLog.externalId = device.externalId;
           deviceLog['timezone'] = getLocalTimeZoneFromDevice(
             device.createdAt,
             device,
@@ -408,10 +408,10 @@ export class CertificateLogService {
     });
   }
 
-  async getCertificateRedemptionReport(buyerId: number): Promise<any[]> {
+  async getCertificateRedemptionReport(organizationId: number): Promise<any[]> {
     this.logger.verbose(`With in getCertificateRedemptionReport`);
     const { groupedData } =
-      await this.deviceGroupService.getBuyerDeviceGroups(buyerId);
+      await this.deviceGroupService.getDeviceGroups(organizationId);
     const redemptionReports = [];
     await Promise.all(
       groupedData.map(async (deviceGroup: DeviceGroupDTO) => {
@@ -726,9 +726,8 @@ export class CertificateLogService {
                     //     deviceReadStartDate,
                     //     deviceReadEndDate,
                     //   );
-                    deviceLog.forEach((singleDeviceLogEle) => {
-                      singleDeviceLogEle.externalId =
-                        device.developerExternalId;
+                    deviceLog?.forEach((singleDeviceLogEle) => {
+                      singleDeviceLogEle.externalId = device.externalId;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -765,12 +764,12 @@ export class CertificateLogService {
                   deviceLog =
                     await this.getCheckCertificateIssueDateLogForDevice(
                       parseInt(group.dg_id),
-                      device.externalId,
+                      device.serialNumber,
                       deviceReadStartDate,
                       deviceReadEndDate,
                     );
-                  deviceLog.forEach((singleDeviceLogEle) => {
-                    singleDeviceLogEle.externalId = device.developerExternalId;
+                  deviceLog?.forEach((singleDeviceLogEle) => {
+                    singleDeviceLogEle.serialNumber = device.serialNumber;
                     singleDeviceLogEle['deviceId'] = device.id;
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(
                       device.createdAt,
@@ -824,7 +823,7 @@ export class CertificateLogService {
         const result = await newQuery.getMany();
         const certificatesInReservationWithLog: Array<CertificateNewWithPerDeviceLog> =
           [];
-        result.forEach((ele) =>
+        result?.forEach((ele) =>
           certificatesInReservationWithLog.push({
             ...ele,
             perDeviceCertificateLog: [],
@@ -893,9 +892,8 @@ export class CertificateLogService {
                           deviceReadEndDate,
                           certificateTransactionUID,
                         );
-                      deviceLog.forEach((singleDeviceLogEle) => {
-                        singleDeviceLogEle.externalId =
-                          device.developerExternalId;
+                      deviceLog?.forEach((singleDeviceLogEle) => {
+                        singleDeviceLogEle.serialNumber = device.serialNumber;
                         singleDeviceLogEle['deviceId'] = device.id;
                         singleDeviceLogEle['timezone'] =
                           getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -940,9 +938,8 @@ export class CertificateLogService {
                         deviceReadEndDate,
                         certificateTransactionUID,
                       );
-                    deviceLog.forEach((singleDeviceLogEle) => {
-                      singleDeviceLogEle.externalId =
-                        device.developerExternalId;
+                    deviceLog?.forEach((singleDeviceLogEle) => {
+                      singleDeviceLogEle.serialNumber = device.serialNumber;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -979,7 +976,7 @@ export class CertificateLogService {
     this.logger.verbose(`With in findCertificateLog`);
     const totalNumbers: any = getManager()
       .createQueryBuilder()
-      .select('d.developerExternalId', 'externalId')
+      .select('d.serialNumber', 'serialNumber')
       .addSelect('dg.name', 'reservation_name')
       .addSelect(
         'dl.certificate_issuance_startdate',
@@ -1045,6 +1042,7 @@ export class CertificateLogService {
     }
   }
 
+  @Profile()
   async createForDevice(
     group: DeviceGroup,
     device: Device | IDevice,
@@ -1085,6 +1083,7 @@ export class CertificateLogService {
     );
   }
 
+  @Profile()
   async createForGroup(
     group: DeviceGroup,
     minimumStartDate: Date,

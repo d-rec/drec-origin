@@ -87,6 +87,12 @@ describe('IssuerService', () => {
           },
         },
         {
+          provide: getQueueToken(Queues.MissingCycles),
+          useValue: {
+            add: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
           provide: CertificateLogService,
           useValue: {
             createForDevice: jest.fn(),
@@ -112,6 +118,7 @@ describe('IssuerService', () => {
             getAllReservationActive: jest.fn(),
             endReservation: jest.fn(),
             getNextRequestCertificateByGroupId: jest.fn(),
+            calculateNextIssuanceEndDate: jest.fn().mockReturnValue(new Date()),
           } as any,
         },
         {
@@ -219,6 +226,9 @@ describe('IssuerService', () => {
       const updatecertificateissuedateSpy = jest
         .spyOn(groupService, 'updateCertificateIssueDate')
         .mockResolvedValue(undefined);
+      jest
+        .spyOn(groupService, 'calculateNextIssuanceEndDate')
+        .mockReturnValue(new Date('2023-01-03'));
       const NewFindForGroupSpy = jest
         .spyOn(deviceService, 'newFindForGroup')
         .mockImplementation(() => Promise.resolve({}));
@@ -251,8 +261,11 @@ describe('IssuerService', () => {
         buyerAddress: null,
         buyerId: null,
       } as unknown as DeviceGroup;
-      const deviceHistoryRequest =
-        {} as unknown as HistoryIntermediateMeterRead;
+      const deviceHistoryRequest = {
+        readsStartDate: new Date(),
+        readsEndDate: new Date(),
+        readsvalue: 0,
+      } as unknown as HistoryIntermediateMeterRead;
       const device = {} as unknown as IDevice;
 
       await historicalIssuanceService.issueCertificate(
@@ -297,7 +310,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -327,7 +340,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -357,7 +370,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {

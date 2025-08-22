@@ -19,6 +19,7 @@ import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { EvidentRegistrationStatus } from '../../types/evident';
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -31,7 +32,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ unique: true })
   @IsString()
-  externalId: string;
+  externalId?: string;
 
   @Column()
   @IsString()
@@ -198,7 +199,18 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   evidentDeviceId: string | null;
 
   @Column({ type: 'varchar', nullable: true, name: 'evident_status' })
-  evidentStatus: string | null;
+  evidentStatus: EvidentRegistrationStatus | null;
+
+  @Column({ type: 'varchar', nullable: false, name: 'data_source_brand' })
+  dataSourceBrand: string;
+  @Column({ type: 'varchar', nullable: false, name: 'data_source' })
+  dataSource: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'other_data_source' })
+  otherDataSource: string | null;
+
+  @Column({ type: 'varchar', nullable: false, name: 'serial_number' })
+  serialNumber: string;
 
   @OneToMany(
     () => CheckCertificateIssueDateLogForDeviceEntity,

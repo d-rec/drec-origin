@@ -55,6 +55,13 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { DeviceService } from '../device/device.service';
+import {
+  isDeviceGroupable,
+  validateDevicesAreHomogeneous,
+} from '../../validations/device-group';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import { canManageOrganization } from '../../lib/organization';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -73,6 +80,7 @@ export class BuyerReservationController {
     private readonly fileService: FileService,
     private organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   /**
@@ -85,9 +93,9 @@ export class BuyerReservationController {
     RolesGuard,
     PermissionGuard,
   )
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -257,13 +265,13 @@ export class BuyerReservationController {
           organizationId,
         );
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(
+        return await this.deviceGroupService.getDeviceGroups(
           id,
           pageNumber,
           filterDTO,
         );
       case Role.SubBuyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(
+        return await this.deviceGroupService.getDeviceGroups(
           id,
           pageNumber,
           filterDTO,
@@ -288,7 +296,7 @@ export class BuyerReservationController {
     PermissionGuard,
   )
   @Permission('Read')
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -362,7 +370,7 @@ export class BuyerReservationController {
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -394,40 +402,40 @@ export class BuyerReservationController {
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
     deviceGroupToRegister.api_user_id = user.api_user_id;
+    const devices = await this.deviceService.findByIds(
+      deviceGroupToRegister.deviceIds,
+    );
     if (orgId) {
       const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
+      const organizationAdmin = await this.userService.findUserByOrganization(
+        orgId,
+        1,
+        1,
+      );
+
+      const canManage = canManageOrganization({
+        user,
+        organization,
+        organizationAdmin: organizationAdmin[0][0],
+      });
+      if (!canManage) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'User cannot manage this organization',
+        });
+      }
+    }
+
+    if (orgId) {
+      const organization = await this.organizationService.findOne(orgId);
       if (user.role === Role.ApiUser) {
+        organizationId = orgId;
         if (organization.api_user_id !== user.api_user_id) {
           this.logger.error(`Organization requested belongs to other apiuser`);
           throw new BadRequestException({
             success: false,
             message: 'Organization requested belongs to other apiuser',
           });
-        }
-        if (orgUser.role === Role.Buyer) {
-          organizationId = orgId;
-          deviceGroupToRegister.api_user_id = user.api_user_id;
-        }
-        if (orgUser.role != Role.Buyer) {
-          this.logger.error(`Unauthorized for ${orgUser.role}`);
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized for ${orgUser.role}`,
-          });
-        }
-      } else {
-        if (user.role === Role.Buyer) {
-          if (organizationId !== organization.id) {
-            this.logger.error(
-              `User does not associated with the requested organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message:
-                'User does not associated with the requested organization',
-            });
-          }
         }
       }
     }
@@ -457,6 +465,22 @@ export class BuyerReservationController {
           'Please provide devices for reservation, deviceIds is empty atleast one device is required',
       });
     }
+
+    isDeviceGroupable(devices, organizationId);
+
+    const totalCapacity = devices.reduce(
+      (acc, device) => acc + device.capacity,
+      0,
+    );
+    if (totalCapacity > SMALL_DEVICES_MAX_CAPACITY) {
+      throw new ConflictException({
+        success: false,
+        message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
+      });
+    }
+
+    validateDevicesAreHomogeneous(devices);
+
     if (
       isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
       deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
@@ -584,7 +608,6 @@ export class BuyerReservationController {
         message: 'This frequency is currently not supported',
       });
     }
-
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,

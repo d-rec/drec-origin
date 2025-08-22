@@ -18,11 +18,13 @@ import { DocumentUploadsModule } from '../document-uploads/document-uploads.modu
 import { EvidentModule } from '../evident/evident.module';
 import { Organization } from '../organization/organization.entity';
 import { EvidentSettings } from '../evident/evident-settings.entity';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
     forwardRef(() => EvidentModule),
+    forwardRef(() => MailModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([

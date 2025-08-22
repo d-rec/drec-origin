@@ -5,4 +5,6 @@ export enum Queues {
   OngoingIssuance = 'ongoing-issuance-queue',
   HistoricalIssuance = 'historical-issuance-queue',
   EvidentDeviceRegistration = 'evident-device-registration-queue',
+  EvidentDeviceGroupRegistration = 'evident-device-group-registration-queue',
+  MissingCycles = 'missing-cycles-queue',
 }

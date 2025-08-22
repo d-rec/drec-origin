@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CronExpression } from '@nestjs/schedule';
 import { DateTime } from 'luxon';
 import { NonConcurrentCron } from '../../lib/cron';
@@ -15,7 +15,12 @@ import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { ReadsService } from '../reads/reads.service';
 import { EvidentSettingsService } from './evident-settings.service';
 import { EvidentService } from './evident.service';
+import { MailService } from '../../mail/mail.service';
+import { OrganizationService } from '../organization/organization.service';
 import { getEvidentNextIssuanceDate } from '../../lib/helpers/getEvidentNextIssuanceDate';
+import EvidentDraftIssuanceRegistrationTemplate, {
+  getEvidentDraftIssuanceRegistrationSubject,
+} from './mail/evident-draft-issuance-registration.template';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -26,6 +31,9 @@ export class EvidentIssuanceService {
     private readonly deviceService: DeviceService,
     private readonly readService: ReadsService,
     private readonly evidentSettingsService: EvidentSettingsService,
+    private mailService: MailService,
+    @Inject(forwardRef(() => OrganizationService))
+    private readonly organizationService: OrganizationService,
   ) {}
 
   @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -87,7 +95,19 @@ export class EvidentIssuanceService {
         registrantId,
         issuance,
       );
-
+      const organization =
+        await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+          device.organizationId,
+        );
+      await this.mailService.send({
+        to: organization.orgEmail,
+        subject: getEvidentDraftIssuanceRegistrationSubject(device),
+        template: EvidentDraftIssuanceRegistrationTemplate({
+          device,
+          organizationName: organization.name,
+          issuance,
+        }),
+      });
       return {
         ...response.data,
         issuanceId,

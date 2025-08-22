@@ -10,13 +10,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { cloneDeep, defaults } from 'lodash';
 import {
-  Between,
   Brackets,
   FindConditions,
-  FindManyOptions,
-  FindOperator,
   LessThan,
-  Raw,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -25,10 +21,8 @@ import {
   CommissioningDateRange,
   DeviceTypeCode,
   FuelCode,
-  Installation,
   OffTaker,
   Role,
-  Sector,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
@@ -45,18 +39,13 @@ import {
 } from './dto';
 
 import moment from 'moment';
-
-import cleanDeep from 'clean-deep';
 import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 import CSVToJsonV2 from 'csvtojson';
@@ -86,6 +75,9 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { Profile } from '../../lib/profile';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { EvidentRegistrationStatus } from '../../types/evident';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -124,6 +116,7 @@ export class DeviceGroupService {
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @InjectQueue(Queues.DeviceBulkUpload) private deviceQueue: Queue,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   async getAll(
@@ -157,7 +150,9 @@ export class DeviceGroupService {
         query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
-
+    if (user?.role === Role.OrganizationAdmin) {
+      query.andWhere(`group.organizationId = '${user.organizationId}'`);
+    }
     if (organizationId) {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
@@ -205,7 +200,7 @@ export class DeviceGroupService {
       if (filterDTO.country) {
         const values = filterDTO.country.split(',');
         let invalidCountry = false;
-        values.forEach((element) => {
+        values?.forEach((element) => {
           filterDTO.country = element.toUpperCase();
           if (
             filterDTO.country &&
@@ -246,7 +241,7 @@ export class DeviceGroupService {
         const offTakerArray = newOffTaker.split(',');
         query.andWhere(
           new Brackets((qb) => {
-            offTakerArray.forEach((offTaker, index) => {
+            offTakerArray?.forEach((offTaker, index) => {
               if (index === 0) {
                 qb.orWhere(
                   `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
@@ -305,7 +300,7 @@ export class DeviceGroupService {
         const sdgBenefitsArray = filterDTO.sdgbenefit.toString().split(',');
         query.andWhere(
           new Brackets((qb) => {
-            sdgBenefitsArray.forEach((benefit, index) => {
+            sdgBenefitsArray?.forEach((benefit, index) => {
               if (index === 0) {
                 qb.where(`device.SDGBenefits ILIKE :benefit${index}`, {
                   [`benefit${index}`]: `%${benefit}%`,
@@ -467,12 +462,12 @@ export class DeviceGroupService {
     });
   }
 
-  async getBuyerDeviceGroups(
-    buyerId: number,
+  async getDeviceGroups(
+    organizationId: number,
     pageNumber = 1,
     groupFilterDTO?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<any> {
-    this.logger.verbose(`With in getBuyerDeviceGroups`);
+    this.logger.verbose(`With in getDeviceGroups`);
     let queryBuilder: any;
     const pageSize = 10;
 
@@ -484,8 +479,8 @@ export class DeviceGroupService {
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id');
       queryBuilder.where((qb) => {
-        qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId,
+        qb.where(`dg.organizationId = :organizationId `, {
+          organizationId: organizationId,
         });
       });
     } else {
@@ -526,15 +521,15 @@ export class DeviceGroupService {
         .groupBy('dg.id');
 
       queryBuilder.where((qb) => {
-        qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId,
+        qb.where(`dg.organizationId = :organizationId `, {
+          organizationId: organizationId,
         }).andWhere(
           new Brackets((qb) => {
             if (groupFilterDTO.country) {
               const string = groupFilterDTO.country;
               const values = string.split(',');
               let CountryInvalid = false;
-              values.forEach((ele) => {
+              values?.forEach((ele) => {
                 groupFilterDTO.country = ele.toUpperCase();
                 if (
                   groupFilterDTO.country &&
@@ -572,7 +567,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.orWhere(
                         `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
@@ -645,7 +640,7 @@ export class DeviceGroupService {
 
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -705,11 +700,7 @@ export class DeviceGroupService {
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select([
-          'device.id',
-          'device.projectName',
-          'device.developerExternalId',
-        ])
+        .select(['device.id', 'device.projectName', 'device.serialNumber'])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -748,14 +739,14 @@ export class DeviceGroupService {
             deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
           authorityToExceed: deviceGroup.dg_authorityToExceed,
           leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-          devicegroup_uid: deviceGroup.dg_devicegroup_uid,
+          deviceGroupUid: deviceGroup.dg_devicegroup_uid,
           type: deviceGroup.dg_type,
           deviceIds: deviceGroup.dg_deviceIdsInt,
           SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
           devices: devices.map((device) => {
             return {
               id: device.device_id,
-              externalId: device.device_developerExternalId,
+              serialNumber: device.device_serial_number,
               projectName: device.device_projectName,
             };
           }),
@@ -771,6 +762,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   async findOne(
     conditions: FindConditions<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
@@ -783,7 +775,7 @@ export class DeviceGroupService {
     errorDetails: Array<any>,
     successfullyAddedRowsAndExternalIds: Array<{
       rowNumber: number;
-      externalId: string;
+      serialNumber: string;
     }>,
   ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
@@ -808,99 +800,29 @@ export class DeviceGroupService {
       name: groupName,
     });
     const devices = await this.deviceService.findByIds(data.deviceIds);
-    let allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false;
-    devices.filter((ele) => {
-      if (
-        new Date(data.reservationStartDate).getTime() <
-          new Date(ele.createdAt).getTime() &&
-        new Date(data.reservationEndDate).getTime() <=
-          new Date(ele.createdAt).getTime()
-      ) {
-        return true;
-      }
-    }).length === devices.length
-      ? (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = true)
-      : (allDevicesHaveHistoricalIssuanceAndNoNextIssuance = false);
+
+    const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
+      (device) => {
+        const reservationStart = new Date(data.reservationStartDate).getTime();
+        const reservationEnd = new Date(data.reservationEndDate).getTime();
+        const deviceCreated = new Date(device.createdAt).getTime();
+
+        return (
+          reservationStart < deviceCreated && reservationEnd <= deviceCreated
+        );
+      },
+    );
     if (!allDevicesHaveHistoricalIssuanceAndNoNextIssuance) {
-      let minimumDeviceCreatedAtDate: Date = new Date(2993430403962); // future date in 2064 just to find minimum
-      let minimumDeviceCreatedAtIndex = 0;
-      devices.forEach((ele, index) => {
-        const eleDate = new Date(ele.createdAt);
-        if (eleDate.getTime() < minimumDeviceCreatedAtDate.getTime()) {
-          minimumDeviceCreatedAtDate = eleDate;
-          minimumDeviceCreatedAtIndex = index;
-        }
-      });
-
-      //if minimum device created at i.e onboarded date is lesser than reservation start date then that will be next issuance start date else we take minimum
-      //as we will start issuance for next issuance for devices only whose createdAt is before next issuance start date
-      let startDate = '';
-      if (
-        minimumDeviceCreatedAtDate.getTime() <
-        new Date(data.reservationStartDate).getTime()
-      ) {
-        startDate = new Date(data.reservationStartDate).toISOString();
-      } else {
-        startDate = minimumDeviceCreatedAtDate.toISOString();
-      }
-
-      const endDate = getCycleEndDate(
-        new Date(startDate),
+      const { startDate, endDate } = this.calculateInitialIssuanceRange(
+        devices,
+        data.reservationStartDate,
+        data.reservationEndDate,
         group.frequency,
-      ).toISOString();
-
-      let newEndDate = '';
-
-      if (
-        new Date(endDate).getTime() <
-        new Date(data.reservationEndDate).getTime()
-      ) {
-        newEndDate = endDate;
-      } else {
-        newEndDate = data.reservationEndDate.toISOString();
-      }
-      //when there are multiple devices and there is device next to minimumCreatedAt but less than next possible end date
-      //then we consider that as end_date for next issuance else we might loose data for that particular device when next issuance frequency is added in cron
-      let nextMinimumCreatedWhichIsLessThanEndDate = false;
-      let nextMinimumCreatedAtString = '';
-      devices.forEach((ele, index) => {
-        if (index != minimumDeviceCreatedAtIndex) {
-          if (
-            new Date(ele.createdAt).getTime() < new Date(newEndDate).getTime()
-          ) {
-            nextMinimumCreatedWhichIsLessThanEndDate = true;
-            if (nextMinimumCreatedAtString === '') {
-              nextMinimumCreatedAtString = new Date(
-                ele.createdAt,
-              ).toISOString();
-            } else {
-              //check if nextMinimum is not minimum then change else leave it
-              if (
-                new Date(ele.createdAt).getTime() <
-                new Date(nextMinimumCreatedAtString).getTime()
-              ) {
-                nextMinimumCreatedAtString = new Date(
-                  ele.createdAt,
-                ).toISOString();
-              }
-            }
-          }
-        }
-      });
-      if (nextMinimumCreatedWhichIsLessThanEndDate) {
-        if (
-          !(
-            new Date(startDate).getTime() >
-            new Date(nextMinimumCreatedAtString).getTime()
-          )
-        ) {
-          newEndDate = nextMinimumCreatedAtString;
-        }
-      }
+      );
 
       this.repositoryNextDeviceGroupCertificate.save({
-        start_date: startDate,
-        end_date: newEndDate,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
         groupId: group.id,
       });
     }
@@ -929,7 +851,7 @@ export class DeviceGroupService {
         );
       }),
     );
-
+    await this.evidentDeviceService.queueDeviceGroupRegistration(group);
     return group;
   }
 
@@ -948,7 +870,7 @@ export class DeviceGroupService {
       );
     const unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation: Array<number> =
       [];
-    devices.forEach((ele) =>
+    devices?.forEach((ele) =>
       ele.groupId != null
         ? unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.push(
             ele.id,
@@ -997,7 +919,7 @@ export class DeviceGroupService {
         );
       });
     }
-    group.deviceIds.forEach((ele) => {
+    group.deviceIds?.forEach((ele) => {
       if (!devices.find((deviceSingle) => deviceSingle.id === ele)) {
         allDevicesAvailableForBuyerReservation = false;
         unavailableDeviceIds.push(ele);
@@ -1023,7 +945,7 @@ export class DeviceGroupService {
       !group.continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration
     ) {
       let aggregatedCapacity = 0;
-      devices.forEach(
+      devices?.forEach(
         (ele) => (aggregatedCapacity = ele.capacity + aggregatedCapacity),
       );
       const reservationStartDate = DateTime.fromISO(
@@ -1122,7 +1044,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in update`);
     await this.checkNameConflict(data.name);
     let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
-    if (User.id != deviceGroup.buyerId) {
+    if (deviceGroup.organizationId !== User.organizationId) {
       this.logger.error(`Unable to update data. Unauthorized.`);
       throw new UnauthorizedException({
         success: false,
@@ -1137,6 +1059,54 @@ export class DeviceGroupService {
     return updatedGroup;
   }
 
+  calculateInitialIssuanceRange(
+    devices: Device[],
+    _startDate: string | Date,
+    _endDate: string | Date,
+    frequency: string,
+  ): {
+    startDate: Date;
+    endDate: Date;
+  } {
+    const startDate = new Date(_startDate);
+    const endDate = new Date(_endDate);
+    const minDeviceDate = devices?.length
+      ? new Date(
+          Math.min(
+            ...devices.map((device) => new Date(device.createdAt).getTime()),
+          ),
+        )
+      : startDate;
+
+    const minDate = startDate > minDeviceDate ? startDate : minDeviceDate;
+    const maxEndDateUTC = this.calculateNextIssuanceEndDate(
+      minDate,
+      endDate,
+      frequency,
+    );
+
+    const minDateUTC = DateTime.fromJSDate(minDate).toUTC().toJSDate();
+
+    return {
+      startDate: minDateUTC,
+      endDate: maxEndDateUTC,
+    };
+  }
+
+  calculateNextIssuanceEndDate(
+    startDate: Date,
+    reservationEndDate: Date,
+    frequency: string,
+  ): Date {
+    const cycleEndDate = getCycleEndDate(startDate, frequency);
+    const maxEndDate = new Date(
+      Math.min(cycleEndDate.getTime(), reservationEndDate.getTime()),
+    );
+
+    return DateTime.fromJSDate(maxEndDate).toUTC().toJSDate();
+  }
+
+  @Profile()
   async updateTotalReadingRequestedForCertificateIssuance(
     groupId: number,
     organizationId: number,
@@ -1211,23 +1181,23 @@ export class DeviceGroupService {
     organizationId: number,
   ): Promise<Array<string>> {
     this.logger.verbose(`With in checkIfDeviceExisting`);
-    const allExternalIds: Array<string> = [];
-    const existingDeviceIds: Array<string> = [];
+    const allSerialNumbers: Array<string> = [];
+    const existingSerialNumbers: Array<string> = [];
     newDevices.forEach((singleDevice) =>
-      allExternalIds.push(singleDevice.externalId),
+      allSerialNumbers.push(singleDevice.serialNumber),
     );
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
-        allExternalIds,
+        allSerialNumbers,
         organizationId,
       );
 
     if (existingDevices && existingDevices.length > 0) {
       existingDevices.forEach((ele) =>
-        existingDeviceIds.push(ele?.developerExternalId),
+        existingSerialNumbers.push(ele?.serialNumber),
       );
     }
-    return existingDeviceIds;
+    return existingSerialNumbers;
   }
 
   public async registerCSVBulkDevices(
@@ -1401,61 +1371,6 @@ export class DeviceGroupService {
     };
   }
 
-  private getReservationFilteredQuery(
-    buyerId: number,
-    filter?: UnreservedDeviceGroupsFilterDTO,
-  ): FindManyOptions<DeviceGroup> {
-    this.logger.verbose(`With in getReservationFilteredQuery`);
-    const where: FindConditions<DeviceGroup> = cleanDeep({
-      reservationStartDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-      reservationEndDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-    });
-    if (filter.offTaker) {
-      where.offTakers = this.getRawFilter(filter.offTaker);
-    }
-    return {
-      where: {
-        buyerId: buyerId || null,
-        ...where,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    };
-  }
-
-  private getRawFilter(
-    filter:
-      | Sector
-      | Installation
-      | OffTaker
-      | FuelCode
-      | Installation
-      | CommissioningDateRange,
-  ): FindOperator<any> {
-    this.logger.verbose(`With in getRawFilter`);
-    return Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
-      filterSectors: [filter],
-    });
-  }
-
-  private async hasSingleAddedJobForCSVProcessing(): Promise<
-    DeviceCsvFileProcessingJobsEntity | undefined
-  > {
-    this.logger.verbose(`With in hasSingleAddedJobForCSVProcessing`);
-    return await this.repositoryCSVJobProcessing.findOne({
-      where: {
-        status: StatusCSV.Added,
-      },
-    });
-  }
-
   async bulkUploadJobProcessing(
     s3Key: string,
     fileId: string,
@@ -1482,7 +1397,7 @@ export class DeviceGroupService {
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{
-      externalId: string;
+      serialNumber: string;
       rowNumber: number;
       isError: boolean;
       errorsList: Array<any>;
@@ -1500,6 +1415,7 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
+          dataSourceBrand: '',
           externalId: '',
           projectName: '',
           address: '',
@@ -1520,6 +1436,9 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          dataSource: '',
+          otherDataSource: '',
+          serialNumber: '',
         };
         for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
@@ -1551,7 +1470,7 @@ export class DeviceGroupService {
         }
         records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({
-          externalId: '',
+          serialNumber: '',
           rowNumber: rowsConvertedToCsvCount,
           isError: false,
           errorsList: [],
@@ -1565,19 +1484,19 @@ export class DeviceGroupService {
           }
           const errors = await validate(singleRecord);
           if (errors.length > 0) {
-            errors.forEach((ele) => {
+            errors?.forEach((ele) => {
               delete ele.target;
               delete ele.children;
             });
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: true,
               errorsList: errors,
             };
           } else {
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: false,
               errorsList: errors,
@@ -1691,8 +1610,8 @@ export class DeviceGroupService {
           }
         }
 
-        records.forEach((singleRecord, index) => {
-          recordsErrors[index].errorsList.forEach((error) => {
+        records?.forEach((singleRecord, index) => {
+          recordsErrors[index].errorsList?.forEach((error) => {
             singleRecord[error.property] = null; //making null field if it has any validation issue
           });
         });
@@ -1706,7 +1625,7 @@ export class DeviceGroupService {
         );
 
         if (listOfExistingDevices.length > 0) {
-          records.forEach((singleRecord, index) => {
+          records?.forEach((singleRecord, index) => {
             if (
               listOfExistingDevices.find(
                 (ele) => ele === singleRecord.externalId,
@@ -1714,11 +1633,11 @@ export class DeviceGroupService {
             ) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({
-                value: singleRecord.externalId,
-                property: 'externalId',
+                value: singleRecord.serialNumber,
+                property: 'serialNumber',
                 constraints: {
-                  externalIdExists:
-                    'ExternalId already exist, cant add entry with same external id',
+                  serialNumberExists:
+                    'serialNumber already exist, cant add entry with same serial number',
                 },
               });
             }
@@ -1726,39 +1645,39 @@ export class DeviceGroupService {
         }
         const recordsCopy = cloneDeep(records);
         recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
-        const duplicatesExternalId: any = [];
+        const duplicateserialNumbers: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
-          this.logger.debug(recordsCopy[i].externalId);
+          this.logger.debug(recordsCopy[i].serialNumber);
           for (let j = i + 1; j < recordsCopy.length; j++) {
-            this.logger.debug(recordsCopy[j].externalId);
+            this.logger.debug(recordsCopy[j].serialNumber);
             if (
-              recordsCopy[i].externalId != null &&
-              recordsCopy[j].externalId != null
+              recordsCopy[i].serialNumber != null &&
+              recordsCopy[j].serialNumber != null
             ) {
               if (
-                recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[i].serialNumber.toLowerCase() ===
+                  recordsCopy[j].serialNumber.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
-                duplicatesExternalId.push({
+                duplicateserialNumbers.push({
                   duplicateIndex: j,
                   duplicateWith: i,
                   projectName: records[j].projectName,
-                  externalId: records[j].externalId,
+                  serialNumber: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
                 recordsErrors[j].errorsList.push({
-                  value: recordsCopy[j].externalId,
-                  property: 'externalId',
+                  value: recordsCopy[j].serialNumber,
+                  property: 'serialNumber',
                   constraints: {
                     externalIdExists:
                       'Row ' +
                       (j + 1) +
                       ' Duplicate with row ' +
                       (i + 1) +
-                      ' Exists with externalId ' +
-                      records[j].externalId,
+                      ' Exists with serialNumber ' +
+                      records[j].serialNumber,
                   },
                 });
               }
@@ -1768,7 +1687,7 @@ export class DeviceGroupService {
 
         const successfullyAddedRowsAndExternalIds: Array<{
           rowNumber: number;
-          externalId: string;
+          serialNumber: string;
         }> = [];
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
@@ -1776,7 +1695,7 @@ export class DeviceGroupService {
             if (
               recordsErrors[index].errorsList.find(
                 (errorRec) =>
-                  errorRec.property === 'externalId' ||
+                  errorRec.property === 'serialNumber' ||
                   errorRec.property === 'commissioningDate' ||
                   errorRec.property === 'capacity' ||
                   errorRec.property === 'countryCode',
@@ -1797,12 +1716,11 @@ export class DeviceGroupService {
 
         devicesRegistered
           .filter((ele) => (ele as any).isError === undefined)
-          .forEach((ele) => {
+          ?.forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
-              externalId: (ele as any).externalId,
+              serialNumber: (ele as any).serialNumber,
               rowNumber: records.findIndex(
-                (recEle) =>
-                  recEle.developerExternalId === (ele as any).externalId,
+                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
               ),
             });
           });
@@ -1810,15 +1728,15 @@ export class DeviceGroupService {
         devicesRegistered
           .filter((device: DeviceRegistrationError) => device.isError)
           .forEach((device: DeviceRegistrationError) => {
-            const developerExternalId = device.device?.developerExternalId;
+            const serialNumber = device.device?.serialNumber;
             const errorIndex = recordsErrors.findIndex(
-              (record) => record.externalId === developerExternalId,
+              (record) => record.serialNumber === serialNumber,
             );
 
             if (errorIndex !== -1) {
               recordsErrors[errorIndex].isError = true;
               recordsErrors[errorIndex].errorsList.push({
-                value: recordsErrors[errorIndex].externalId,
+                value: recordsErrors[errorIndex].serialNumber,
                 property: 'Device error',
                 constraints: {
                   error: device.errorDetail?.response?.message,
@@ -1834,7 +1752,7 @@ export class DeviceGroupService {
             ele.isError === true &&
             successfullyAddedRowsAndExternalIds.find(
               (successEle) =>
-                successEle.externalId === ele.externalId &&
+                successEle.serialNumber === ele.serialNumber &&
                 successEle.rowNumber === index,
             )
           ) {
@@ -1947,11 +1865,12 @@ export class DeviceGroupService {
       return false;
     }
   }
+
+  @Profile()
   async getGroupCertificateIssueDate(
     conditions: FindConditions<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
-    this.logger.log('Line No: 1883');
     return (
       (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
       null
@@ -2020,6 +1939,7 @@ export class DeviceGroupService {
     }
   }
 
+  @Profile()
   async endReservation(
     groupId: number,
     group: DeviceGroup,
@@ -2162,7 +2082,7 @@ export class DeviceGroupService {
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
       reservationActive: true,
     });
     if (group === null) {
@@ -2194,7 +2114,7 @@ export class DeviceGroupService {
 
     const historyNextIssuance = await queryBuilder.getRawMany();
 
-    historyNextIssuance.forEach((element) => {
+    historyNextIssuance?.forEach((element) => {
       element.device_externalid = element.externalId;
       delete element['createdAt'];
       delete element['groupId'];
@@ -2207,8 +2127,8 @@ export class DeviceGroupService {
 
     const allIssuance: any = [];
 
-    deviceHistoryNextIssuance.forEach((ele) =>
-      ele.historyNextIssuance.forEach((he) => allIssuance.push(he)),
+    deviceHistoryNextIssuance?.forEach((ele) =>
+      ele.historyNextIssuance?.forEach((he) => allIssuance.push(he)),
     );
 
     const totalPages = Math.ceil(count / pageSize);
@@ -2259,7 +2179,7 @@ export class DeviceGroupService {
         "dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
       .select(
-        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
+        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
       )
       .orderBy(
         'dg.id, crm.internalCertificateId, dg_log.readvalue_watthour',
@@ -2325,7 +2245,7 @@ export class DeviceGroupService {
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
-                    CountryArray.forEach((country, index) => {
+                    CountryArray?.forEach((country, index) => {
                       if (index === 0) {
                         qb.where(`d.countryCode ILIKE :benefit${index}`, {
                           [`benefit${index}`]: `%${country}%`,
@@ -2345,7 +2265,7 @@ export class DeviceGroupService {
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  fuelCodeArray.forEach((fuelCode, index) => {
+                  fuelCodeArray?.forEach((fuelCode, index) => {
                     if (index === 0) {
                       qb.where(`d.fuelCode ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${fuelCode}%`,
@@ -2364,7 +2284,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.where(`d.offTaker ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${offTaker}%`,
@@ -2414,7 +2334,7 @@ export class DeviceGroupService {
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -2547,7 +2467,7 @@ export class DeviceGroupService {
         'CAST(issuer.deviceId AS INTEGER) = dg.id',
       )
       .select(
-        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
       )
       .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
@@ -2598,7 +2518,7 @@ export class DeviceGroupService {
                 const CountryArray = newCountry.split(',');
                 qb.orWhere(
                   new Brackets((qb) => {
-                    CountryArray.forEach((country, index) => {
+                    CountryArray?.forEach((country, index) => {
                       if (index === 0) {
                         qb.where(`d.countryCode ILIKE :benefit${index}`, {
                           [`benefit${index}`]: `%${country}%`,
@@ -2618,7 +2538,7 @@ export class DeviceGroupService {
               const fuelCodeArray = newFuelCode.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  fuelCodeArray.forEach((fuelCode, index) => {
+                  fuelCodeArray?.forEach((fuelCode, index) => {
                     if (index === 0) {
                       qb.where(`d.fuelCode ILIKE :fuelcode${index}`, {
                         [`fuelcode${index}`]: `%${fuelCode}%`,
@@ -2637,7 +2557,7 @@ export class DeviceGroupService {
               const offTakerArray = newOffTaker.split(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  offTakerArray.forEach((offTaker, index) => {
+                  offTakerArray?.forEach((offTaker, index) => {
                     if (index === 0) {
                       qb.where(`d.offTaker ILIKE :offtaker${index}`, {
                         [`offtaker${index}`]: `%${offTaker}%`,
@@ -2688,7 +2608,7 @@ export class DeviceGroupService {
               sdgBenefitsArray.map((benefit) => benefit).join(',');
               qb.orWhere(
                 new Brackets((qb) => {
-                  sdgBenefitsArray.forEach((benefit, index) => {
+                  sdgBenefitsArray?.forEach((benefit, index) => {
                     if (index === 0) {
                       qb.where(`d.SDGBenefits ILIKE :benefit${index}`, {
                         [`benefit${index}`]: `%${benefit}%`,
@@ -2864,6 +2784,7 @@ export class DeviceGroupService {
     };
   }
 
+  @Profile()
   public async processLeftOverReadsByCountryCode(
     group: DeviceGroup,
     totalReadValueW: number,
@@ -2889,5 +2810,22 @@ export class DeviceGroupService {
 
     // 4. Return the integer component for certificate issuance
     return integralVal;
+  }
+
+  async updateEvidentStatus(
+    groupId: number,
+    deviceGroupUid: string,
+    evidentGroupId: string,
+    status: EvidentRegistrationStatus,
+  ): Promise<void> {
+    this.logger.verbose(`With in updateEvidentStatus`);
+    status =
+      status === EvidentRegistrationStatus.InProgress
+        ? EvidentRegistrationStatus.Submitted
+        : status;
+    await this.repository.update(
+      { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
+      { evidentGroupId: evidentGroupId, evidentStatus: status },
+    );
   }
 }

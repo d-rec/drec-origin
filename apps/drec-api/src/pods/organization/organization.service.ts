@@ -37,13 +37,14 @@ import {
 } from '../../models';
 import { OrganizationNameAlreadyTakenError } from './error/organization-name-taken.error';
 import { OrganizationDocumentOwnershipMismatchError } from './error/organization-document-ownership-mismatch.error';
-import { OrganizationStatus, Role } from '../../utils/enums';
+import { OrganizationStatus, OrganizationType, Role } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
 import { FileService } from '../file/file.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
+import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class OrganizationService {
@@ -59,6 +60,7 @@ export class OrganizationService {
     private readonly fileService: FileService,
   ) {}
 
+  @Profile()
   async findOne(
     id: number,
     options: FindOneOptions<Organization> = {},
@@ -328,6 +330,25 @@ export class OrganizationService {
     // else{
     // return organization;
     // }
+  }
+
+  public async getLinkedMarketIntermediaryOrSelf(
+    organizationId: number,
+  ): Promise<Organization | undefined> {
+    this.logger.verbose(`With in getParent`);
+    const organization = await this.findOne(organizationId);
+    if (!organization.api_user_id) {
+      return organization;
+    }
+
+    const linkedMarketIntermediary = await this.repository.findOne({
+      where: {
+        organizationType: OrganizationType.ApiUser,
+        api_user_id: organization.api_user_id,
+      },
+    });
+
+    return linkedMarketIntermediary ? linkedMarketIntermediary : organization;
   }
 
   private async generateBlockchainAddress(index: number): Promise<string> {
