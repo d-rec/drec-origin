@@ -2873,6 +2873,7 @@ export class DeviceGroupService {
       {
         evidentIssuanceRequestId: issuanceId.toString(),
         evidentIssuanceRequestStatus: evidentIssuanceStatus,
+        evidentSyncedAt: new Date(),
       },
     );
   }
