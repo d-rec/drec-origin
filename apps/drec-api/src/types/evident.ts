@@ -1,3 +1,5 @@
+import { Device } from 'src/pods/device/device.entity';
+
 export enum EvidentRegistrationStatus {
   Draft = 'Draft',
   Submitted = 'Submitted',
@@ -53,3 +55,10 @@ export enum EvidentIssuanceRequestFrequency {
   Quarterly = 'Quarterly',
   SemiAnnually = 'Semi-Annually',
 }
+
+export type DeviceGroupCertificatesAggregate = {
+  device: Device;
+  min_start_date: string;
+  max_end_date: string;
+  amount: number;
+};
