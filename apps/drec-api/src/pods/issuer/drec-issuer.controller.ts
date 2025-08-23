@@ -6,7 +6,6 @@ import {
   Logger,
   Query,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,

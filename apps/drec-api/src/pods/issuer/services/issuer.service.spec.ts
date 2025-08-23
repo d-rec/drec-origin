@@ -33,7 +33,6 @@ import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -92,6 +91,13 @@ describe('IssuerService', () => {
           useValue: {
             add: jest.fn().mockResolvedValue(undefined),
           },
+        },
+        {
+          provide: CertificateLogService,
+          useValue: {
+            createForDevice: jest.fn(),
+            createForGroup: jest.fn(),
+          } as any,
         },
         {
           provide: DeviceGroupService,
