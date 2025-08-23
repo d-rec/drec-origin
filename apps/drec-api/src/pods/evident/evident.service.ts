@@ -11,6 +11,7 @@ import { IssuerEntity } from './models/issuer.entity';
 import { Repository } from 'typeorm';
 import { CreateIssuerDTO } from './dto/create-issuer.dto';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { findCountryByCode } from '../../utils/get-country';
 
 @Injectable()
 export class EvidentService {
@@ -174,5 +175,20 @@ export class EvidentService {
       this.logger.error('caught exception in registerIssuer', error);
       throw error;
     }
+  }
+
+  async getIssuers(page: number, limit: number) {
+    const [data, total] = await this.issuerRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+    data?.forEach((issuer) => {
+      issuer.country = findCountryByCode(issuer.country).country;
+      issuer.regions = issuer.regions.map((regionCode) => {
+        return findCountryByCode(regionCode).country;
+      });
+    });
+    return { data, total };
   }
 }

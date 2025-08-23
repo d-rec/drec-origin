@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { EvidentSettingsService } from './evident-settings.service';
 import { SettingsDTO } from './settings.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
@@ -9,6 +23,8 @@ import { mask } from '../../utils/mask';
 import { CreateIssuerDTO } from './dto/create-issuer.dto';
 import { IssuerEntity } from './models/issuer.entity';
 import { EvidentService } from './evident.service';
+import { Roles } from '../user/decorators/roles.decorator';
+import { Role } from '../../utils/enums/role.enum';
 
 @ApiTags('Evident')
 @ApiBearerAuth('access-token')
@@ -49,11 +65,31 @@ export class EvidentSettingsController {
 
   @Post('/register-issuer')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @Roles(Role.Admin)
   @ApiBody({ type: CreateIssuerDTO })
   async registerIssuer(
     @Body() createIssuerDto: CreateIssuerDTO,
   ): Promise<IssuerEntity> {
     this.logger.verbose(`With in registerIssuer`);
     return await this.evidentService.registerIssuer(createIssuerDto);
+  }
+
+  @Get('/issuers')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @Roles(Role.Admin)
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  async getIssuers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    this.logger.verbose(`With in getting issuers`);
+    const { data, total } = await this.evidentService.getIssuers(page, limit);
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }
