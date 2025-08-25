@@ -2000,4 +2000,25 @@ export class DeviceService {
       ),
     );
   }
+
+  async getCertificatesBySinglePathWayForEvidentIssuance(
+    groupIds: number[],
+  ): Promise<CheckCertificateIssueDateLogForDeviceEntity[]> {
+    return await this.checkDeviceLogCertificateRepository
+      .createQueryBuilder('deviceCertificates')
+      .leftJoinAndSelect('deviceCertificates.device', 'device')
+      .leftJoinAndSelect('device.organization', 'organization')
+      .innerJoin(DeviceGroup, 'dg', 'dg.id = deviceCertificates.groupId')
+      .where('deviceCertificates.groupId IN (:...groupIds)', { groupIds })
+      .andWhere('deviceCertificates.evidentSyncedAt IS NULL')
+      .andWhere(
+        'deviceCertificates.certificate_issuance_startdate > dg.reservationStartDate',
+      )
+      .andWhere('device.evidentStatus = :status', {
+        status: EvidentRegistrationStatus.Submitted,
+      })
+      .andWhere('organization.id = dg.organizationId')
+      .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
+  }
 }

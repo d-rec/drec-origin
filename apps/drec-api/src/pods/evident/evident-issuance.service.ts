@@ -29,6 +29,7 @@ import EvidentDeviceGroupIssuanceRegistrationTemplate, {
   getEvidentDeviceGroupIssuanceRegistrationSubject,
 } from './mail/evident-device-group-issuance-registration.template';
 import { EvidentSettings } from './evident-settings.entity';
+import { GroupType } from '../../utils/enums/group-type.enum';
 
 @Injectable()
 export class EvidentIssuanceService {
@@ -102,14 +103,58 @@ export class EvidentIssuanceService {
     }
   }
 
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async processSingleDevicePathWayIssuanceFrequency(): Promise<void> {
+    this.logger.verbose(
+      'Single device pathway issuance request creation started',
+    );
+    const organizationsSettings =
+      await this.evidentSettingsService.getAllOrganizationLastIssuanceSyncedAt();
+    for (const settings of organizationsSettings) {
+      const nextIssuanceDate = getEvidentNextIssuanceDate(
+        settings.lastIssuanceSyncedAt,
+        settings.frequency,
+      );
+      if (nextIssuanceDate > new Date()) {
+        continue;
+      }
+      this.logger.verbose(
+        `Processing single device pathway issuance for organization ${settings.organizationId}`,
+      );
+
+      try {
+        const deviceGroups = await this.deviceGroupService.getRegisteredEvident(
+          settings.organizationId,
+          GroupType.Single,
+        );
+        if (deviceGroups.length) {
+          const certificates =
+            await this.deviceService.getCertificatesBySinglePathWayForEvidentIssuance(
+              deviceGroups.map((group) => group.id),
+            );
+          if (!certificates.length) {
+            return;
+          }
+          for (const certificate of certificates) {
+            await this.processCertificate(certificate);
+          }
+        }
+      } catch (error) {
+        this.logger.error(
+          `Error processing organization ${settings.organizationId}: ${error.message}`,
+        );
+      }
+    }
+  }
+
   async processIssuanceByDeviceGroup(
     organizationId: number,
     settings: EvidentSettings,
   ): Promise<void> {
-    const deviceGroups =
-      await this.deviceGroupService.getRegisteredEvidentDeviceGroups(
-        organizationId,
-      );
+    const deviceGroups = await this.deviceGroupService.getRegisteredEvident(
+      organizationId,
+      GroupType.Multiple,
+    );
     for (const deviceGroup of deviceGroups) {
       const certificates: CheckCertificateIssueDateLogForDeviceGroupEntity[] =
         await this.deviceGroupService.findCertificateLogs(deviceGroup.id);
