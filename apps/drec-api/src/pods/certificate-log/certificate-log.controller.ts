@@ -193,7 +193,10 @@ export class CertificateLogController {
       devicegroup_uid: groupId,
     });
 
-    if (deviceGroup === null || deviceGroup.buyerId != user.id) {
+    if (
+      deviceGroup === null ||
+      deviceGroup.organizationId != user.organizationId
+    ) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
@@ -260,7 +263,10 @@ export class CertificateLogController {
       );
     }
 
-    if (deviceGroup === null || deviceGroup.buyerId != user.id) {
+    if (
+      deviceGroup === null ||
+      deviceGroup.organizationId != user.organizationId
+    ) {
       this.logger.error(
         `Group UId is not of this buyer, invalid value was sent`,
       );
@@ -298,10 +304,12 @@ export class CertificateLogController {
     description: 'Forbidden. User does not have the required permissions.',
   })
   async getRedemptionReport(
-    @UserDecorator() { id }: ILoggedInUser,
+    @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<any[]> {
     this.logger.verbose(`With in getRedemptionReport`);
-    return this.certificateLogService.getCertificateRedemptionReport(id);
+    return this.certificateLogService.getCertificateRedemptionReport(
+      organizationId,
+    );
   }
 
   // @Get('/missingCertificate')

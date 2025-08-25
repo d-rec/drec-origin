@@ -463,12 +463,12 @@ export class DeviceGroupService {
     });
   }
 
-  async getBuyerDeviceGroups(
-    buyerId: number,
+  async getDeviceGroups(
+    organizationId: number,
     pageNumber = 1,
     groupFilterDTO?: UnreservedDeviceGroupsFilterDTO,
   ): Promise<any> {
-    this.logger.verbose(`With in getBuyerDeviceGroups`);
+    this.logger.verbose(`With in getDeviceGroups`);
     let queryBuilder: any;
     const pageSize = 10;
 
@@ -480,8 +480,8 @@ export class DeviceGroupService {
         .orderBy('dg.id', 'ASC')
         .groupBy('dg.id');
       queryBuilder.where((qb) => {
-        qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId,
+        qb.where(`dg.organizationId = :organizationId `, {
+          organizationId: organizationId,
         });
       });
     } else {
@@ -522,8 +522,8 @@ export class DeviceGroupService {
         .groupBy('dg.id');
 
       queryBuilder.where((qb) => {
-        qb.where(`dg.buyerId = :buyerid `, {
-          buyerid: buyerId,
+        qb.where(`dg.organizationId = :organizationId `, {
+          organizationId: organizationId,
         }).andWhere(
           new Brackets((qb) => {
             if (groupFilterDTO.country) {
@@ -1010,7 +1010,7 @@ export class DeviceGroupService {
     this.logger.verbose(`With in update`);
     await this.checkNameConflict(data.name);
     let deviceGroup = await this.findDeviceGroupById(id, User.organizationId);
-    if (User.id != deviceGroup.buyerId) {
+    if (deviceGroup.organizationId !== User.organizationId) {
       this.logger.error(`Unable to update data. Unauthorized.`);
       throw new UnauthorizedException({
         success: false,
@@ -1335,61 +1335,6 @@ export class DeviceGroupService {
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
     };
-  }
-
-  private getReservationFilteredQuery(
-    buyerId: number,
-    filter?: UnreservedDeviceGroupsFilterDTO,
-  ): FindManyOptions<DeviceGroup> {
-    this.logger.verbose(`With in getReservationFilteredQuery`);
-    const where: FindConditions<DeviceGroup> = cleanDeep({
-      reservationStartDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-      reservationEndDate:
-        filter.start_date &&
-        filter.end_date &&
-        Between(filter.start_date, filter.end_date),
-    });
-    if (filter.offTaker) {
-      where.offTakers = this.getRawFilter(filter.offTaker);
-    }
-    return {
-      where: {
-        buyerId: buyerId || null,
-        ...where,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    };
-  }
-
-  private getRawFilter(
-    filter:
-      | Sector
-      | Installation
-      | OffTaker
-      | FuelCode
-      | Installation
-      | CommissioningDateRange,
-  ): FindOperator<any> {
-    this.logger.verbose(`With in getRawFilter`);
-    return Raw((alias) => `${alias} @> ARRAY[:...filterSectors]`, {
-      filterSectors: [filter],
-    });
-  }
-
-  private async hasSingleAddedJobForCSVProcessing(): Promise<
-    DeviceCsvFileProcessingJobsEntity | undefined
-  > {
-    this.logger.verbose(`With in hasSingleAddedJobForCSVProcessing`);
-    return await this.repositoryCSVJobProcessing.findOne({
-      where: {
-        status: StatusCSV.Added,
-      },
-    });
   }
 
   async bulkUploadJobProcessing(

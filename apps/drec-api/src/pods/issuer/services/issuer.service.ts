@@ -54,7 +54,7 @@ export class IssuerService {
     countryCodeKey: string,
   ): Promise<void> {
     // Early validation checks - combine all checks at the beginning
-    if (!group?.devices?.length || !group.buyerAddress || !group.buyerId) {
+    if (!group?.devices?.length) {
       this.logger.debug(
         'Skipping issuance: missing devices or buyer information',
       );

@@ -156,8 +156,6 @@ export class HistoricalIssuanceService {
 
     // Calculate total using a chain of filters and reduce
     const totalReadsValue = historyReads
-      // Only process reads when buyer information is present
-      .filter(() => Boolean(group.buyerAddress && group.buyerId))
       // Only include reads that meet the minimum threshold (1kW = 1000W)
       .filter((read) => read.value >= 1000)
       .reduce((sum, read) => sum + read.value, 0);
@@ -247,11 +245,7 @@ export class HistoricalIssuanceService {
     device: IDevice,
   ): Promise<void> {
     // Early validation checks
-    if (
-      !group.buyerAddress ||
-      !group.buyerId ||
-      deviceHistoryRequest.value < 1000
-    ) {
+    if (deviceHistoryRequest.value < 1000) {
       return;
     }
 
