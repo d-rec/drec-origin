@@ -248,7 +248,7 @@ export class IssuerService {
    */
   @Profile()
   private calculateDateRanges(
-    previousReadings: Array<{ timestamp: Date; value: number }>,
+    previousReadings: (DeviceReading | null)[],
     completeReads: Array<Array<{ timestamp: Date; value: number }>>,
     defaultMinDate: Date,
     defaultMaxDate: Date,
@@ -313,7 +313,7 @@ export class IssuerService {
 
       // Optimize by extracting timestamps to a Set for O(1) lookups
       const deltaReadTimestamps = new Set(
-        firstDeltaRead.map((entry) => entry.readsEndDate.getTime()),
+        firstDeltaRead.map((entry) => entry.endDate.getTime()),
       );
 
       filteredReadings = filteredReadings.filter(
@@ -406,7 +406,7 @@ export class IssuerService {
         );
 
       // Return the readings if found
-      if (previousReadings.length > 0) {
+      if (previousReadings?.[0]) {
         return previousReadings[0];
       }
 
@@ -415,7 +415,7 @@ export class IssuerService {
         return { timestamp: new Date(createdAt), value: 0 };
       }
 
-      if (meterReadtype === ReadType.ReadMeter) {
+      if (meterReadtype === ReadType.Aggregate) {
         const aggregateReadings =
           await this.readsService.getAggregateMeterReadsFirstEntryOfDevice(
             externalId,
@@ -423,7 +423,7 @@ export class IssuerService {
 
         if (aggregateReadings.length > 0) {
           return {
-            timestamp: new Date(aggregateReadings[0].datetime),
+            timestamp: new Date(aggregateReadings[0].startDate),
             value: 0,
           };
         }

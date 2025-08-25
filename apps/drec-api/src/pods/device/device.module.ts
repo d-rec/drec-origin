@@ -14,9 +14,11 @@ import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
+import { ReadsModule } from '../reads/reads.module';
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
+    forwardRef(() => ReadsModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([

@@ -70,6 +70,8 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
+import { MeterRead } from './pods/reads/reads.entity';
+
 import { getTypeOrmConfig } from './config/typeorm.config';
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -106,6 +108,7 @@ export const entities = [
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
+  MeterRead,
   HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
