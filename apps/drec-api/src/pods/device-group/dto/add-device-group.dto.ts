@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsString, IsOptional, Min, IsEnum } from 'class-validator';
 import { CertificateGenerationFrequency } from '../../../utils/enums';
-import { GroupType } from 'src/utils/enums/group-type.enum';
+import { GroupType } from '../../../utils/enums/group-type.enum';
 
 export class AddGroupDTO {
   @ApiProperty()
