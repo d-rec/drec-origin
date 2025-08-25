@@ -21,7 +21,6 @@ import { ReIssueCertificateDTO } from './dto/re-issue-certificate.dto';
 import { HistoricalIssuanceService } from './services/historical-issuance.service';
 import { LateOngoingIssuanceService } from './services/late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './services/ongoing-issuance.service';
-import { DeviceService } from '../device/device.service';
 
 @ApiTags('Issuer')
 @ApiBearerAuth('access-token')
@@ -35,7 +34,6 @@ export class DRECIssuerController {
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
     private readonly historicalIssuanceService: HistoricalIssuanceService,
     private readonly ongoingIssuanceService: OngoingIssuanceService,
-    private readonly deviceService: DeviceService,
   ) {}
   /**
    *
