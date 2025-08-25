@@ -154,21 +154,23 @@ export class EvidentService {
   ): Promise<IssuerEntity> {
     this.logger.verbose(`With in registerIssuer`);
     try {
-      const existingIssuerByEmail = await this.issuerRepository.findOne({
-        where: { email: createIssuerDTO.email },
+      const existingIssuer = await this.issuerRepository.findOne({
+        where: [
+          { email: createIssuerDTO.email },
+          { issuerId: createIssuerDTO.issuerId },
+        ],
       });
-      const existingIssuerById = await this.issuerRepository.findOne({
-        where: { issuerId: createIssuerDTO.issuerId },
-      });
-      if (existingIssuerByEmail) {
-        throw new ConflictException(
-          `Issuer with email ${createIssuerDTO.email} already exists`,
-        );
-      }
-      if (existingIssuerById) {
-        throw new ConflictException(
-          `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
-        );
+      if (existingIssuer) {
+        if (existingIssuer.email === createIssuerDTO.email) {
+          throw new ConflictException(
+            `Issuer with email ${createIssuerDTO.email} already exists`,
+          );
+        }
+        if (existingIssuer.issuerId === createIssuerDTO.issuerId) {
+          throw new ConflictException(
+            `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
+          );
+        }
       }
       return await this.issuerRepository.save(createIssuerDTO);
     } catch (error) {
