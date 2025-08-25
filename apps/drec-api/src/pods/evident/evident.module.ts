@@ -20,10 +20,16 @@ import { MailModule } from '../../mail/mail.module';
 import { UserModule } from '../user/user.module';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { EvidentDeviceGroupRegistrationProcessor } from './evident-device-group-registration.processor';
+import { EvidentIssuersEntity } from './evident-issuers.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EvidentSettings, Device, Organization]),
+    TypeOrmModule.forFeature([
+      EvidentSettings,
+      Device,
+      Organization,
+      EvidentIssuersEntity,
+    ]),
     forwardRef(() => DeviceModule),
     forwardRef(() => OrganizationModule),
     forwardRef(() => ReadsModule),
