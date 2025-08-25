@@ -854,7 +854,7 @@ export class DeviceController {
     });
     if (
       group === null ||
-      (group.buyerId != user.id && user.role != 'ApiUser') ||
+      (group.organizationId != user.organizationId && user.role != 'ApiUser') ||
       group.api_user_id != user.api_user_id
     ) {
       this.logger.error(

@@ -57,13 +57,14 @@ export class CertificateService {
     toTime: Date,
     certificateTransactionUID: string,
   ): IIssueCommandParams<ICertificateMetadata> {
+    const address = group.buyerAddress || process.env.DREC_BLOCKCHAIN_ADDRESS;
     return {
       deviceId: group.id?.toString(),
       energyValue: energyValue.toString(),
       fromTime,
       toTime,
-      toAddress: group.buyerAddress,
-      userId: group.buyerAddress,
+      toAddress: address,
+      userId: address,
       metadata: {
         version: 'v1.0',
         buyerReservationId: group.devicegroup_uid,

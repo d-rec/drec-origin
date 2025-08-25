@@ -258,13 +258,13 @@ export class BuyerReservationController {
           organizationId,
         );
       case Role.Buyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(
+        return await this.deviceGroupService.getDeviceGroups(
           id,
           pageNumber,
           filterDTO,
         );
       case Role.SubBuyer:
-        return await this.deviceGroupService.getBuyerDeviceGroups(
+        return await this.deviceGroupService.getDeviceGroups(
           id,
           pageNumber,
           filterDTO,

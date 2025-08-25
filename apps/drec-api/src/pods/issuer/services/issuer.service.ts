@@ -3,6 +3,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 
+import { Profile } from '../../../lib/profile';
 import { IDevice } from '../../../models';
 import { ReadType } from '../../../utils/enums';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
@@ -14,12 +15,14 @@ import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
-import { Profile } from '../../../lib/profile';
 
 type DeviceReading = {
   timestamp: Date;
   value: number;
 };
+
+const ONE_SECOND_IN_MILLISECONDS = 1000;
+
 @Injectable()
 export class IssuerService {
   private readonly logger = new Logger(IssuerService.name);
@@ -51,7 +54,7 @@ export class IssuerService {
     countryCodeKey: string,
   ): Promise<void> {
     // Early validation checks - combine all checks at the beginning
-    if (!group?.devices?.length || !group.buyerAddress || !group.buyerId) {
+    if (!group?.devices?.length) {
       this.logger.debug(
         'Skipping issuance: missing devices or buyer information',
       );
@@ -101,7 +104,10 @@ export class IssuerService {
     const { minimumStartDate, maximumEndDate } = this.calculateDateRanges(
       previousReadings,
       completeMeterReads,
+      startDate.toJSDate(),
+      endDate.toJSDate(),
     );
+
     const certificateTransactionUID = uuid();
 
     // Log the certificate details
@@ -244,33 +250,38 @@ export class IssuerService {
   private calculateDateRanges(
     previousReadings: Array<{ timestamp: Date; value: number }>,
     completeReads: Array<Array<{ timestamp: Date; value: number }>>,
+    defaultMinDate: Date,
+    defaultMaxDate: Date,
   ): { minimumStartDate: Date; maximumEndDate: Date } {
-    const DEFAULT_MIN_DATE = new Date('1970-04-01T12:51:51.112Z');
-    const DEFAULT_MAX_DATE = new Date('1990-04-01T12:51:51.112Z');
+    const minimumTimestamp =
+      this.getMaxReadingTimestamp(previousReadings) || defaultMinDate.getTime();
 
-    const minTimestamp = previousReadings
-      .map((r) => r.timestamp.getTime())
-      .sort((a, b) => a - b)[0];
+    const minimumStartDate = new Date(
+      minimumTimestamp + ONE_SECOND_IN_MILLISECONDS,
+    );
 
-    const minimumStartDate = minTimestamp
-      ? new Date(minTimestamp + 1000)
-      : DEFAULT_MIN_DATE;
-
-    const lastReadings = completeReads
-      .flatMap((deviceReads) =>
-        deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
-      )
-      .map((reading) => reading.timestamp.getTime())
-      .filter((t): t is number => typeof t === 'number');
+    const lastReadings = completeReads.flatMap((deviceReads) =>
+      deviceReads.length > 0 ? [deviceReads[deviceReads.length - 1]] : [],
+    );
 
     const maxTimestamp =
-      lastReadings.length > 0
-        ? Math.max(...lastReadings)
-        : DEFAULT_MAX_DATE.getTime();
+      this.getMaxReadingTimestamp(lastReadings) || defaultMaxDate.getTime();
 
     const maximumEndDate = new Date(maxTimestamp);
 
     return { minimumStartDate, maximumEndDate };
+  }
+
+  private getMaxReadingTimestamp(readings: DeviceReading[]): number | null {
+    if (!readings?.length) return null;
+
+    const maxTimestamp = Math.max(
+      ...readings
+        .filter((reading) => reading.timestamp)
+        .map((reading) => reading.timestamp.getTime()),
+    );
+
+    return maxTimestamp;
   }
 
   /**
@@ -360,7 +371,8 @@ export class IssuerService {
     };
   }
 
-  /* Retrieves the previous meter reading for a device based on recent readings
+  /**
+   * Retrieves the previous meter reading for a device based on recent readings.
    *
    * @param device - The device to retrieve readings for
    * @param deviceReadings - Recent device readings within time range
@@ -382,7 +394,7 @@ export class IssuerService {
     try {
       // Calculate the time range for finding previous readings
       const endTimestamp = new Date(
-        deviceReadings[0].timestamp.getTime() - 1000,
+        deviceReadings[0].timestamp.getTime() - ONE_SECOND_IN_MILLISECONDS,
       );
 
       // Find the last reading within the specified range

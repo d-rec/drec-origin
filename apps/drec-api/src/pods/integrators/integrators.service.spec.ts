@@ -85,7 +85,7 @@ describe('IntegratorsService', () => {
         },
       };
 
-      jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse));
+      jest.spyOn(httpService, 'post').mockReturnValue(of(mockResponse) as any);
       const result = await service.loginBBOX(server, loginForm);
 
       expect(httpService.post).toHaveBeenCalledWith(
@@ -106,7 +106,7 @@ describe('IntegratorsService', () => {
       const endDate = '2023-01-31';
       const mockData = { data: { data: { energy_out: 5000 } } };
 
-      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData));
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockData) as any);
 
       const result = await service.getBBOXProductReadData(
         server,
