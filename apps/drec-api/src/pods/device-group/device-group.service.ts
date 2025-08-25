@@ -866,19 +866,11 @@ export class DeviceGroupService {
       }),
     );
     if (data.type === GroupType.Single) {
-      const deviceId = data.deviceIds[0];
-      const files = await this.documentsRepository.find({
-        where: {
-          targetId: deviceId,
-        },
-      });
-
-      const deviceDocuments = await this.buildDeviceDocumentsMap(files);
-
-      await this.evidentDeviceService.queueDeviceRegistration(
-        data,
-        deviceDocuments,
+      const deviceData = await this.deviceService.findOne(data.deviceIds[0]);
+      await this.registerSingleDeviceToEvident(
+        data.deviceIds[0],
         group,
+        deviceData,
       );
     } else {
       await this.evidentDeviceService.queueDeviceGroupRegistration(group);
@@ -887,6 +879,24 @@ export class DeviceGroupService {
     return group;
   }
 
+  private async registerSingleDeviceToEvident(
+    deviceId: number,
+    group: DeviceGroup,
+    deviceData: any,
+  ): Promise<void> {
+    const files = await this.documentsRepository.find({
+      where: {
+        targetId: deviceId,
+      },
+    });
+    const deviceDocuments = await this.buildDeviceDocumentsMap(files);
+
+    await this.evidentDeviceService.queueDeviceRegistration(
+      deviceData,
+      deviceDocuments,
+      group,
+    );
+  }
   private async buildDeviceDocumentsMap(
     files: DocumentEntity[],
   ): Promise<Record<DocumentType, Express.Multer.File[]>> {
