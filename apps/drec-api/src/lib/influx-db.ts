@@ -36,27 +36,30 @@ const executeQuery = async (query: string): Promise<any[]> => {
   return results;
 };
 
-const getReadsByMeterId = async (meterId: string): Promise<Array<{ time: Date; read: number }>> => {
+const getReadsByMeterId = async (meterId: string, onboardingDate: Date): Promise<Array<{ time: Date; value: number }>> => {
   try {
-    const [db] = (process.env.INFLUXDB_BUCKET || 'energy/autogen').split('/');
-    const influxUrl = process.env.INFLUXDB_URL || 'http://localhost:8086';
+    const filterDate = new Date(onboardingDate);
+    filterDate.setDate(filterDate.getDate() - 1);
+
+    const query =  `
+      from(bucket: "${process.env.INFLUXDB_BUCKET}")
+      |> range(start: ${filterDate.toISOString()}, stop: now())
+      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")
+      |> sort(columns: ["_time"], desc: false)
+      `;
+
+    const data = await executeQuery(query);
     
-    const query = `SELECT * FROM "read" WHERE "meter" = '${meterId}' ORDER BY time ASC`;
-    const queryUrl = `${influxUrl}/query?db=${encodeURIComponent(db)}&q=${encodeURIComponent(query)}`;
-    
-    const response = await fetch(queryUrl);
-    const data = await response.json();
-    
-    const series = data?.results?.[0]?.series?.[0];
-    if (!series) return [];
-    
-    const timeIndex = series.columns.indexOf('time');
-    const readIndex = series.columns.indexOf('read');
-    
-    return series.values.map((row: any[]) => ({
-      time: new Date(row[timeIndex]),
-      read: parseFloat(row[readIndex]) || 0
+    if (!data || data.length === 0) {
+      return [];
+    }
+  
+    const reads = data.map((row)=> ({
+      time: new Date(row._time),
+      value: parseFloat(row._value) || 0
     }));
+    
+    return reads.filter((read) => read.value > 0).sort((a, b) => a.time.getTime() - b.time.getTime());
   } catch (error) {
     console.error(`Error fetching reads for meter ${meterId}:`, error.message);
     throw error;
@@ -74,19 +77,17 @@ const mapReadsToMeterReadsTableFormat = async (
   endDate: Date;
 }>> => {
   try {
-    const reads = await getReadsByMeterId(meterId);
+    const reads = await getReadsByMeterId(meterId, onboardingDate);
     
     if (reads.length === 0) {
       console.log(`No reads found for meter ${meterId}`);
       return [];
     }
     
-    reads.sort((a, b) => a.time.getTime() - b.time.getTime());
-    
     return reads.map((read, index) => ({
       externalId: meterId,
       unit: EnergyUnit.Wh,
-      value: read.read,
+      value: read.value,
       startDate: index === 0 ? new Date(onboardingDate) : reads[index - 1].time,
       endDate: read.time
     }));
@@ -98,9 +99,8 @@ const mapReadsToMeterReadsTableFormat = async (
 
 export {
   dbReader,
-  dbWriter,
-  writePoints,
-  executeQuery,
+  dbWriter, executeQuery,
   getReadsByMeterId,
-  mapReadsToMeterReadsTableFormat,
+  mapReadsToMeterReadsTableFormat, writePoints
 };
+

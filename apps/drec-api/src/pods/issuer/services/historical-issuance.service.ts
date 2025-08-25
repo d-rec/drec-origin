@@ -16,7 +16,6 @@ import { DeviceGroupService } from '../../device-group/device-group.service';
 import { HistoryDeviceGroupNextIssueCertificate } from '../../device-group/history_next_issuance_date_log.entity';
 import { DeviceService } from '../../device/device.service';
 import { OrganizationService } from '../../organization/organization.service';
-import { HistoryIntermediateMeterRead } from '../../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { delay } from '../../../lib/helpers/delay';

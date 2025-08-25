@@ -15,11 +15,7 @@ export class MeterReads1749470341651 implements MigrationInterface {
                         "end_date" TIMESTAMP NOT NULL,
                         "certified" BOOLEAN DEFAULT FALSE,
                         "created_at" TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                        "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(),
-                        CONSTRAINT "fk_meter_reads_device" 
-                            FOREIGN KEY ("external_id") 
-                            REFERENCES "device"("externalId") 
-                            ON DELETE CASCADE
+                        "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now()
                     )
                 `);
 

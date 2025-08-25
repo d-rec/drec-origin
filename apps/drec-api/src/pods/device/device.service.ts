@@ -79,6 +79,7 @@ import {
   getMinDateByFrequency,
 } from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
+import { ReadsService } from '../reads/reads.service';
 
 @Injectable()
 export class DeviceService {
@@ -1199,7 +1200,9 @@ export class DeviceService {
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        const totalAmount = await this.readsService.getAllByExternalId(device.externalId);
+        const totalAmount = await this.readsService.getAllByExternalId(
+          device.externalId,
+        );
         const totalReadValue = totalAmount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -1222,10 +1225,11 @@ export class DeviceService {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistoryReads: number =
       await this.getNumberOfHistoryReads(externalId);
-    const numberOfOngReads: number = await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
-      externalId,
-      onboardedDate,
-    );
+    const numberOfOngReads: number =
+      await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
+        externalId,
+        onboardedDate,
+      );
 
     if (numberOfHistoryReads <= 0 && numberOfOngReads <= 0) {
       return this.changeCreatedAtDate(onboardedDate, givenDate, externalId);

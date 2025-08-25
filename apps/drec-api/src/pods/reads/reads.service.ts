@@ -1,6 +1,6 @@
 import { FilterDTO } from '@energyweb/energy-api-influxdb';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { InfluxDB, Point } from '@influxdata/influxdb-client';
+import { Point } from '@influxdata/influxdb-client';
 import { InjectQueue } from '@nestjs/bull';
 import {
   ConflictException,
@@ -24,13 +24,9 @@ import {
   In,
   MoreThanOrEqual,
   Repository,
-  SelectQueryBuilder
+  SelectQueryBuilder,
 } from 'typeorm';
-import {
-  DEFAULT_YIELD_VALUE,
-  DEVICE_DEGRADATION,
-  INFLUX_DB_TIMEOUT,
-} from '../../constants';
+import { DEFAULT_YIELD_VALUE, DEVICE_DEGRADATION } from '../../constants';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import { writePoints } from '../../lib/influx-db';
 import { computeMaxEnergyCapacity } from '../../lib/meter-read';
@@ -152,6 +148,7 @@ export class ReadsService {
       value: convertToWh(read.value, measurements.unit),
       unit: Unit.Wh,
       type: measurements.type,
+      certified: measurements.type === ReadType.Delta ? true : false,
     }));
     await this.repository.insert(reads);
   }
@@ -724,17 +721,8 @@ export class ReadsService {
     );
 
     try {
-      const device = await query.getRawMany();
-      return device.map((record: { read: MeterRead }) => {
-        const item: any = {
-          id: record.read.externalId,
-          readsStartDate: record.read.startDate,
-          readsEndDate: record.read.endDate,
-          readsvalue: record.read.value,
-          externalId: record.read.externalId,
-        };
-        return item;
-      });
+      const { entities } = await query.getRawAndEntities();
+      return entities;
     } catch (error) {
       this.logger.error(`Failed to retrieve device`, error.stack);
     }
@@ -855,7 +843,6 @@ export class ReadsService {
       currentPageNumber: currentPage,
     };
   }
-
 
   async latestRead(deviceExternalId: string): Promise<any> {
     return this.repository
@@ -1038,14 +1025,7 @@ export class ReadsService {
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
-    const pageSize = filter.limit;
-    const skipCount = (page - 1) * pageSize;
-    const data = await this.retrieveDataWithLastValue(
-      meter,
-      filter,
-      skipCount,
-      pageSize,
-    );
+    const data = await this.retrieveDataWithLastValue(meter, filter);
     this.logger.verbose(`data: ${data}`);
     return data;
   }
@@ -1053,8 +1033,6 @@ export class ReadsService {
   async retrieveDataWithLastValue(
     meter: string,
     filter: FilterDTO,
-    skipCount: number,
-    pageSize: number,
   ): Promise<any[]> {
     const query = this.repository
       .createQueryBuilder('read')

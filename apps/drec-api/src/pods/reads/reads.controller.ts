@@ -1,4 +1,4 @@
-import { FilterDTO, ReadDTO } from '@energyweb/energy-api-influxdb';
+import { ReadDTO } from '@energyweb/energy-api-influxdb';
 import {
   BadRequestException,
   Body,
@@ -36,10 +36,8 @@ import { NewIntermediateMeterReadDTO } from '../reads/dto/intermediate_meter_rea
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { UserService } from '../user/user.service';
-import { BASE_READ_SERVICE } from './constants';
 import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { ReadsService } from './reads.service';
-import { MeasurementDTO } from './dto/measurement.dto';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -125,7 +123,6 @@ export class ReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
     @Param('externalId') meterId: string,
-    @Query() filter: FilterDTO,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
