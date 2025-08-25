@@ -339,10 +339,10 @@ export class DeviceGroupService {
     }
 
     const [groups, totalCount] = await query
-      .skip((pageNumber - 1) * 1)
-      .take(1)
+      .skip((pageNumber - 1) * limit)
+      .take(limit)
       .getManyAndCount();
-    const totalPages = Math.ceil(totalCount / 1);
+    const totalPages = Math.ceil(totalCount / limit);
     const groupsWithOrganization = await Promise.all(
       groups.map(async (group: DeviceGroupDTO) => {
         const organization = await this.organizationService.findOne(
