@@ -23,7 +23,7 @@ import { CertificateGenerationFrequency } from '../src/utils/enums';
 import { bootstrapTestInstance } from './drec-api';
 import { seed } from './seed';
 import TestDevicesToGroup from './test-devices-for-grouping.json';
-import { GroupType } from 'src/utils/enums/group-type.enum';
+import { GroupType } from '../src/utils/enums/group-type.enum';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
