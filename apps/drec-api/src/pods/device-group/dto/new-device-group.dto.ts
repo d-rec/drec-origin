@@ -156,7 +156,4 @@ export class NewDeviceGroupDTO
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
   reservationExpiryDate?: Date;
-  // @ApiProperty({ type: String })
-  // @IsOptional()
-  // type?: string;
 }
