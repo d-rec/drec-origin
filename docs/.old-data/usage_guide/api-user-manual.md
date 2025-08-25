@@ -701,7 +701,7 @@ If the buyer’s organizationId is given
 
 **Request URL:** [http://localhost:3040/api/buyer-reservation?orgId=26](http://localhost:3040/api/buyer-reservation?orgId=26)
 
-**ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
+**ACL Module Name:** Required. DEVICE_GROUPING_MANAGEMENT_CRUDL
 
 **Permission:** Write permission required
 
@@ -733,7 +733,7 @@ If the buyer’s organizationId is given
 
 **Request URL:** [http://localhost:3040/api/buyer-reservation?apiuserId=37110d08-e1af-4909-88c9-3f57025a7965&organizationId=26&pageNumber=1&limit=3](http://localhost:3040/api/buyer-reservation?apiuserId=37110d08-e1af-4909-88c9-3f57025a7965&organizationId=26&pageNumber=1&limit=3)
 
-**ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
+**ACL Module Name:** Required. DEVICE_GROUPING_MANAGEMENT_CRUDL
 
 **Permission:** Read permission required
 
@@ -771,7 +771,7 @@ If apiuserId and organizationId given, It also filter the response by organizati
 
 **Request URL:** [http://localhost:3040/api/buyer-reservation/41?organizationId=26](http://localhost:3040/api/buyer-reservation/41?organizationId=26)
 
-**ACL Module Name:** Required. BUYER_RESERVATION_MANAGEMENT_CRUDL
+**ACL Module Name:** Required. DEVICE_GROUPING_MANAGEMENT_CRUDL
 
 **Permission:** Read permission required
 
