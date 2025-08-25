@@ -14,7 +14,6 @@ import {
   FindConditions,
   In,
   LessThan,
-  Not,
   Repository,
   SelectQueryBuilder,
   UpdateResult,
@@ -84,6 +83,7 @@ import {
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
+import { GroupType } from '../../utils/enums/group-type.enum';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -2836,20 +2836,23 @@ export class DeviceGroupService {
     );
   }
 
-  async getRegisteredEvidentDeviceGroups(
+  async getRegisteredEvident(
     organizationId: number,
+    type: GroupType,
   ): Promise<DeviceGroup[]> {
-    this.logger.verbose(`With in getRegisteredEvidentDeviceGroups`);
-    return await this.repository.find({
-      where: {
+    this.logger.verbose(`With in getRegisteredEvident`);
+    return await this.repository
+      .createQueryBuilder('deviceGroup')
+      .where('deviceGroup.evident_status = :evidentStatus', {
         evidentStatus: EvidentRegistrationStatus.Submitted,
-        evidentGroupId: Not(''),
-        organizationId: organizationId,
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+      })
+      .andWhere('deviceGroup.evident_group_id IS NOT NULL')
+      .andWhere('deviceGroup.organizationId = :organizationId', {
+        organizationId,
+      })
+      .andWhere('deviceGroup.type = :type', { type: type })
+      .orderBy('deviceGroup.createdAt', 'DESC')
+      .getMany();
   }
 
   async findCertificateLogs(
