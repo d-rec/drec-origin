@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { Device } from '../pods/device/device.entity';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../constants';
-import { ILoggedInUser } from 'src/models';
-import { canManageOrganization } from 'src/lib/organization';
-import { CertificateGenerationFrequency, Role } from 'src/utils/enums';
-import { AddGroupDTO } from 'src/pods/device-group/dto';
-import { isValidUTCDateFormat } from 'src/utils/checkForISOStringFormat';
-import { OrganizationService } from 'src/pods/organization/organization.service';
-import { UserService } from 'src/pods/user/user.service';
+import { ILoggedInUser } from '../../src/models';
+import { canManageOrganization } from '../../src/lib/organization';
+import { CertificateGenerationFrequency, Role } from '../../src/utils/enums';
+import { AddGroupDTO } from '../../src/pods/device-group/dto';
+import { isValidUTCDateFormat } from '../../src/utils/checkForISOStringFormat';
+import { OrganizationService } from '../../src/pods/organization/organization.service';
+import { UserService } from '../../src/pods/user/user.service';
 
 export function validateDevicesAreHomogeneous(devices: Device[]): void {
   const firstDevice = devices[0];
