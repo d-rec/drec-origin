@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { createEvidentAxiosInstance } from '../../lib/evident';
 import { EvidentSettingsService } from './evident-settings.service';
 import { AxiosInstance } from 'axios';
@@ -6,7 +6,12 @@ import { Device } from '../device/device.entity';
 import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { EvidentIssuersEntity } from './evident-issuers.entity';
+import { Repository } from 'typeorm';
+import { EvidentIssuersDTO } from './evident-issuers.dto';
 import { DeviceGroup } from '../device-group/device-group.entity';
+import { findCountryByCode } from '../../utils/get-country';
 
 @Injectable()
 export class EvidentService {
@@ -15,6 +20,8 @@ export class EvidentService {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
+    @InjectRepository(EvidentIssuersEntity)
+    private readonly issuerRepository: Repository<EvidentIssuersEntity>,
   ) {}
 
   async getApiInstance(organizationId: number): Promise<AxiosInstance> {
@@ -140,5 +147,50 @@ export class EvidentService {
     return await evidentInstance.get(
       `/organisations?pagination=false&q=${country}&roles=issuer`,
     );
+  }
+
+  async registerIssuer(
+    createIssuerDTO: EvidentIssuersDTO,
+  ): Promise<EvidentIssuersEntity> {
+    this.logger.verbose(`With in registerIssuer`);
+    try {
+      const existingIssuer = await this.issuerRepository.findOne({
+        where: [
+          { email: createIssuerDTO.email },
+          { issuerId: createIssuerDTO.issuerId },
+        ],
+      });
+      if (existingIssuer) {
+        if (existingIssuer.email === createIssuerDTO.email) {
+          throw new ConflictException(
+            `Issuer with email ${createIssuerDTO.email} already exists`,
+          );
+        }
+        if (existingIssuer.issuerId === createIssuerDTO.issuerId) {
+          throw new ConflictException(
+            `Issuer with ID ${createIssuerDTO.issuerId} already exists`,
+          );
+        }
+      }
+      return await this.issuerRepository.save(createIssuerDTO);
+    } catch (error) {
+      this.logger.error('caught exception in registerIssuer', error);
+      throw error;
+    }
+  }
+
+  async getIssuers(page: number, limit: number) {
+    const [data, total] = await this.issuerRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+    data?.forEach((issuer) => {
+      issuer.country = findCountryByCode(issuer.country).country;
+      issuer.regions = issuer.regions.map((regionCode) => {
+        return findCountryByCode(regionCode).country;
+      });
+    });
+    return { data, total };
   }
 }
