@@ -77,7 +77,7 @@ import { EvidentModule } from './pods/evident/evident.module';
 import { EvidentSettings } from './pods/evident/evident-settings.entity';
 
 import { getTypeOrmConfig } from './config/typeorm.config';
-import { IssuerEntity } from './pods/evident/models/issuer.entity';
+import { EvidentIssuersEntity } from './pods/evident/evident-issuers.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -132,7 +132,7 @@ export const entities = [
   DocumentEntity,
   Otp,
   EvidentSettings,
-  IssuerEntity,
+  EvidentIssuersEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {

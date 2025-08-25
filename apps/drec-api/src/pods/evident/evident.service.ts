@@ -7,9 +7,9 @@ import getFileData from '../../lib/helpers/getFileData';
 import FormData from 'form-data';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IssuerEntity } from './models/issuer.entity';
+import { EvidentIssuersEntity } from './evident-issuers.entity';
 import { Repository } from 'typeorm';
-import { CreateIssuerDTO } from './dto/create-issuer.dto';
+import { EvidentIssuersDTO } from './evident-issuers.dto';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { findCountryByCode } from '../../utils/get-country';
 
@@ -20,8 +20,8 @@ export class EvidentService {
 
   constructor(
     private readonly evidentSettingsService: EvidentSettingsService,
-    @InjectRepository(IssuerEntity)
-    private readonly issuerRepository: Repository<IssuerEntity>,
+    @InjectRepository(EvidentIssuersEntity)
+    private readonly issuerRepository: Repository<EvidentIssuersEntity>,
   ) {}
 
   async getApiInstance(organizationId: number): Promise<AxiosInstance> {
@@ -150,8 +150,8 @@ export class EvidentService {
   }
 
   async registerIssuer(
-    createIssuerDTO: CreateIssuerDTO,
-  ): Promise<IssuerEntity> {
+    createIssuerDTO: EvidentIssuersDTO,
+  ): Promise<EvidentIssuersEntity> {
     this.logger.verbose(`With in registerIssuer`);
     try {
       const existingIssuer = await this.issuerRepository.findOne({

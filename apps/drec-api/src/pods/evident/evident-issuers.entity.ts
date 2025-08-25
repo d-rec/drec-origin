@@ -8,8 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('issuer')
-export class IssuerEntity extends BaseEntity {
+@Entity('evident_issuers')
+export class EvidentIssuersEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

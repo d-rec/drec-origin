@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEmail, IsString } from 'class-validator';
 
-export class CreateIssuerDTO {
+export class EvidentIssuersDTO {
   @ApiProperty()
   @IsString()
   issuerId: string;

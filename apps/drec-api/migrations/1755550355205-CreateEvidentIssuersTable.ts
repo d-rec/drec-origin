@@ -1,11 +1,13 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateIssuerTable1755550355205 implements MigrationInterface {
-  name = 'CreateIssuerTable1755550355205';
+export class CreateEvidentIssuersTable1755550355205
+  implements MigrationInterface
+{
+  name = 'CreateEvidentIssuersTable1755550355205';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            CREATE TABLE "issuer" (
+            CREATE TABLE "evident_issuers" (
                 "id" SERIAL PRIMARY KEY,
                 "issuer_id" VARCHAR(255) NOT NULL UNIQUE,
                 "name" VARCHAR(255) NOT NULL,
@@ -21,7 +23,7 @@ export class CreateIssuerTable1755550355205 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            DROP TABLE "issuer"
+            DROP TABLE "evident_issuers"
         `);
   }
 }
