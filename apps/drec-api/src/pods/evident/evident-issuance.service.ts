@@ -103,7 +103,7 @@ export class EvidentIssuanceService {
     }
   }
 
-  @NonConcurrentCron(CronExpression.EVERY_MINUTE)
+  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async processSingleDevicePathWayIssuanceFrequency(): Promise<void> {
     this.logger.verbose(
       'Single device pathway issuance request creation started',
