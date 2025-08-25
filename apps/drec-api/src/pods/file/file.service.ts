@@ -13,6 +13,7 @@ import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 import { File } from './file.entity';
+import axios from 'axios';
 
 export type FileUpload = {
   originalname: string;
@@ -280,7 +281,16 @@ export class FileService {
       this.logger.error(`Failed to delete file from S3: ${error.message}`);
     }
   }
-
+  async fetchBuffer(url: string): Promise<Buffer> {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      throw new Error(
+        `fetchFileBuffer failed for ${url}: ${error?.message || error}`,
+      );
+    }
+  }
   // public async getPrivateFile(key: string) {
   //   const s3 = this.getS3();
   // if (key) {

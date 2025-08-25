@@ -83,11 +83,11 @@ import { EvidentDeviceService } from '../evident/evident-device.service';
 import { GroupType } from 'src/utils/enums/group-type.enum';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
-import axios from 'axios';
 import {
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
+import { FileService } from '../file/file.service';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -112,6 +112,7 @@ export class DeviceGroupService {
     private organizationService: OrganizationService,
     private deviceService: DeviceService,
     private yieldConfigService: YieldConfigService,
+    private readonly fileService: FileService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
@@ -799,17 +800,6 @@ export class DeviceGroupService {
     });
   }
 
-  async fetchFileBuffer(url: string): Promise<Buffer> {
-    try {
-      const response = await axios.get(url, { responseType: 'arraybuffer' });
-      return Buffer.from(response.data);
-    } catch (error: any) {
-      throw new Error(
-        `fetchFileBuffer failed for ${url}: ${error?.message || error}`,
-      );
-    }
-  }
-
   async create(
     organizationId: number,
     data: any,
@@ -884,49 +874,8 @@ export class DeviceGroupService {
         },
       });
 
-      const buildDeviceDocuments = async (
-        files: DocumentEntity[],
-        type: DocumentType,
-      ): Promise<Express.Multer.File[]> => {
-        const filtered = files.filter((f) => f.type === type);
+      const deviceDocuments = await this.buildDeviceDocumentsMap(files);
 
-        const buffers = await Promise.all(
-          filtered.map((f) => this.fetchFileBuffer(f.url)),
-        );
-
-        return filtered.map((entity, idx) => ({
-          fieldname: entity.type,
-          originalname: entity.url || '',
-          encoding: '7bit',
-          mimetype: 'application/octet-stream',
-          size: buffers[idx]?.length || 0,
-          buffer: buffers[idx],
-          destination: '',
-          filename: entity.url || '',
-          path: entity.url,
-          stream: null,
-        }));
-      };
-
-      // Build all documents
-      const deviceDocuments = {
-        FORM_SF_02: await buildDeviceDocuments(files, DocumentType.FORM_SF_02),
-        SF_02C: await buildDeviceDocuments(files, DocumentType.SF_02C),
-        METERING_EVIDENCE: await buildDeviceDocuments(
-          files,
-          DocumentType.METERING_EVIDENCE,
-        ),
-        SINGLE_LINE_DIAGRAM: await buildDeviceDocuments(
-          files,
-          DocumentType.SINGLE_LINE_DIAGRAM,
-        ),
-        PROJECT_PHOTOS: await buildDeviceDocuments(
-          files,
-          DocumentType.PROJECT_PHOTOS,
-        ),
-      };
-
-      // Register each device
       for (const device of deviceData) {
         await this.evidentDeviceService.queueDeviceRegistration(
           device,
@@ -941,6 +890,41 @@ export class DeviceGroupService {
     return group;
   }
 
+  private async buildDeviceDocumentsMap(
+    files: DocumentEntity[],
+  ): Promise<Record<DocumentType, Express.Multer.File[]>> {
+    const buildDeviceDocuments = async (
+      files: DocumentEntity[],
+      type: DocumentType,
+    ): Promise<Express.Multer.File[]> => {
+      const filtered = files.filter((f) => f.type === type);
+      const buffers = await Promise.all(
+        filtered.map((f) => this.fileService.fetchBuffer(f.url)),
+      );
+      return filtered.map((entity, idx) => ({
+        fieldname: entity.type,
+        originalname: entity.url || '',
+        encoding: '7bit',
+        mimetype: 'application/octet-stream',
+        size: buffers[idx]?.length || 0,
+        buffer: buffers[idx],
+        destination: '',
+        filename: entity.url || '',
+        path: entity.url,
+        stream: null,
+      }));
+    };
+
+    const deviceDocuments: Record<DocumentType, Express.Multer.File[]> =
+      {} as any;
+    for (const docType of Object.values(DocumentType)) {
+      deviceDocuments[docType] = await buildDeviceDocuments(
+        files,
+        docType as DocumentType,
+      );
+    }
+    return deviceDocuments;
+  }
   async createOne(
     organizationId: number,
     group: AddGroupDTO,
