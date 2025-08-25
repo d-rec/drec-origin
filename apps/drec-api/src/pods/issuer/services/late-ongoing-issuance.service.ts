@@ -105,13 +105,13 @@ export class LateOngoingIssuanceService {
     for (let index = 0; index < cycles.length; index++) {
       const cycle = cycles[index];
 
-      // this.logger.log(
-      //   `Processing cycle ${index + 1} of ${cycles.length}`,
-      //   `Group:: ${cycle.groupId}`,
-      //   'Device:: ' + cycle.device_externalid,
-      //   'From: ' + cycle.lateStartDateUTC.toString(),
-      //   'To: ' + cycle.lateEndDateUTC.toString(),
-      // );
+      this.logger.log(
+        `Processing cycle ${index + 1} of ${cycles.length}`,
+        `Group:: ${cycle.groupId}`,
+        'Device:: ' + cycle.device_externalid,
+        'From: ' + cycle.lateStartDateUTC.toString(),
+        'To: ' + cycle.lateEndDateUTC.toString(),
+      );
 
       await this.processIssuanceForCycle(cycle);
     }

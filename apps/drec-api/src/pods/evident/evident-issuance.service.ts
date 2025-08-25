@@ -132,7 +132,9 @@ export class EvidentIssuanceService {
             await this.deviceService.getCertificatesBySinglePathWayForEvidentIssuance(
               deviceGroups.map((group) => group.id),
             );
-          console.log('certificates', certificates);
+          if (!certificates.length) {
+            return;
+          }
           for (const certificate of certificates) {
             await this.processCertificate(certificate);
           }
