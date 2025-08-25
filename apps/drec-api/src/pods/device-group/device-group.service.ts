@@ -867,22 +867,20 @@ export class DeviceGroupService {
       }),
     );
     if (data.type === GroupType.Single) {
-      const deviceData = await this.deviceService.findByIds(data.deviceIds);
+      const deviceId = data.deviceIds[0];
       const files = await this.documentsRepository.find({
         where: {
-          targetId: In(deviceData.map((device) => device.id)),
+          targetId: deviceId,
         },
       });
 
       const deviceDocuments = await this.buildDeviceDocumentsMap(files);
 
-      for (const device of deviceData) {
-        await this.evidentDeviceService.queueDeviceRegistration(
-          device,
-          deviceDocuments,
-          group,
-        );
-      }
+      await this.evidentDeviceService.queueDeviceRegistration(
+        data,
+        deviceDocuments,
+        group,
+      );
     } else {
       await this.evidentDeviceService.queueDeviceGroupRegistration(group);
     }
