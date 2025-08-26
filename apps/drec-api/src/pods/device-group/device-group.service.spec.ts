@@ -28,6 +28,7 @@ import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -137,19 +138,24 @@ describe('DeviceGroupService', () => {
           provide: getRepositoryToken(BulkUploadFailedLogEntity),
           useClass: Repository,
         },
-        // 14. Bull Queue
+        // 14. DocumentEntity repository
+        {
+          provide: getRepositoryToken(DocumentEntity),
+          useClass: Repository,
+        },
+        // 15. Bull Queue
         {
           provide: getQueueToken(Queues.DeviceBulkUpload),
           useValue: {
             add: jest.fn().mockResolvedValue({}),
           },
         },
-        // 15. EvidentDeviceService
+        // 16. EvidentDeviceService
         {
           provide: EvidentDeviceService,
           useValue: mockEvidentDeviceService,
         },
-        // 16. FileService
+        // 17. FileService
         {
           provide: FileService,
           useValue: {},

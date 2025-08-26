@@ -25,6 +25,7 @@ import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-lo
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
 import { EvidentModule } from '../evident/evident.module';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { EvidentModule } from '../evident/evident.module';
       CertificateSettingEntity,
       BulkUploadEntity,
       BulkUploadFailedLogEntity,
+      DocumentEntity,
     ]),
     forwardRef(() => DeviceModule),
     BullModule.registerQueue({
