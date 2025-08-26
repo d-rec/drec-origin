@@ -10,7 +10,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IAggregateIntermediate } from '../../models';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../../types/reads';
 @Entity({ name: 'aggregate_meterread' })
 export class AggregateMeterRead
   extends ExtendedBaseEntity

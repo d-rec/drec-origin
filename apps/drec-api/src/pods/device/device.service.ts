@@ -1,3 +1,4 @@
+import { HttpService } from '@nestjs/axios';
 import {
   ConflictException,
   forwardRef,
@@ -10,6 +11,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import cleanDeep from 'clean-deep';
+import { defaults } from 'lodash';
+import { DateTime } from 'luxon';
+import { Observable } from 'rxjs';
 import {
   Between,
   Brackets,
@@ -24,16 +29,20 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { Device } from './device.entity';
-import { NewDeviceDTO } from './dto/new-device.dto';
-import { defaults } from 'lodash';
+import { v4 as uuid } from 'uuid';
 import {
-  DeviceDTO,
-  FilterDTO,
-  GroupedDevicesDTO,
-  UngroupedDeviceDTO,
-  UpdateDeviceDTO,
-} from './dto';
+  getCycleEndDate,
+  getMaxDateByFrequency,
+  getMinDateByFrequency,
+} from '../../lib/helpers/getCycleEndDate';
+import { Profile } from '../../lib/profile';
+import {
+  DeviceKey,
+  DeviceSortPropertyMapper,
+  IREC_DEVICE_TYPES,
+  IREC_FUEL_TYPES,
+} from '../../models';
+import { SDGBenefits } from '../../models/Sdgbenefit';
 import {
   CertificateGenerationFrequency,
   DeviceOrderBy,
@@ -41,45 +50,35 @@ import {
   ReadType,
   Role,
 } from '../../utils/enums';
-import cleanDeep from 'clean-deep';
-import {
-  DeviceKey,
-  DeviceSortPropertyMapper,
-  IREC_DEVICE_TYPES,
-  IREC_FUEL_TYPES,
-} from '../../models';
-import { CodeNameDTO } from './dto/code-name.dto';
-import { DeviceGroupByDTO } from './dto/device-group-by.dto';
-import { groupByProps } from '../../utils/group-by-properties';
+import { regenerateToken } from '../../utils/evident-login';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
-import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
-import { regenerateToken } from '../../utils/evident-login';
-import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { InfluxDB } from '@influxdata/influxdb-client';
-import { SDGBenefits } from '../../models/Sdgbenefit';
-import { v4 as uuid } from 'uuid';
+import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
+import { groupByProps } from '../../utils/group-by-properties';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationService } from '../organization/organization.service';
 import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Observable } from 'rxjs';
+import { ReadsService } from '../reads/reads.service';
+import { UserService } from '../user/user.service';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { Device } from './device.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import {
+  DeviceDTO,
+  FilterDTO,
+  GroupedDevicesDTO,
+  UngroupedDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import { CodeNameDTO } from './dto/code-name.dto';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
+import { NewDeviceDTO } from './dto/new-device.dto';
 import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
-import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
-import { HttpService } from '@nestjs/axios';
-import { Organization } from '../organization/organization.entity';
-import { DateTime } from 'luxon';
-import { DeviceGroup } from '../device-group/device-group.entity';
-import {
-  getCycleEndDate,
-  getMaxDateByFrequency,
-  getMinDateByFrequency,
-} from '../../lib/helpers/getCycleEndDate';
-import { Profile } from '../../lib/profile';
-import { ReadsService } from '../reads/reads.service';
 
 @Injectable()
 export class DeviceService {
@@ -1167,22 +1166,6 @@ export class DeviceService {
       );
   }
 
-  async execute(query: string | any): Promise<any> {
-    this.logger.verbose(`With in execute`);
-    const data = await this.dbReader.collectRows(query);
-    return data.map((record: any) => ({
-      timestamp: new Date(record._time),
-      value: Number(record._value),
-    }));
-  }
-  get dbReader(): any {
-    const url = process.env.INFLUXDB_URL;
-    const token = process.env.INFLUXDB_TOKEN;
-    const org = process.env.INFLUXDB_ORG;
-
-    return new InfluxDB({ url, token }).getQueryApi(org);
-  }
-
   async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
     this.logger.verbose(`With in getOrganizationDevicesTotal`);
     const devices = await this.repository.find({
@@ -1250,16 +1233,6 @@ export class DeviceService {
       .createQueryBuilder('devicehistory')
       .where('devicehistory.externalId = :deviceId', { deviceId });
     return await query.getCount();
-  }
-
-  async ongExecute(query: string | any): Promise<number> {
-    this.logger.verbose(`With in ongExecute`);
-    const data: any = await this.dbReader.collectRows(query);
-
-    if (typeof data[0] === 'undefined' || data.length == 0) {
-      return 0;
-    }
-    return Number(data[0]._value);
   }
 
   async changeCreatedAtDate(

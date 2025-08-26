@@ -1,21 +1,21 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { EventBus } from '@nestjs/cqrs';
+import { BigNumber } from 'ethers';
+import FormData from 'form-data';
 import { DateTime } from 'luxon';
+import { throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
 import {
   MeasurementDTO,
   ReadDTO,
-  Unit,
-  ReadsService as BaseReadsService,
-} from '@energyweb/energy-api-influxdb';
-import { BASE_READ_SERVICE } from '../reads/constants';
+  Unit
+} from '../../types/reads';
+import { ReadType } from '../../utils/enums/read-type.enum';
 import { DeviceService } from '../device/device.service';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import FormData from 'form-data';
-import { map, catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
-import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { EventBus } from '@nestjs/cqrs';
-import { BigNumber } from 'ethers';
+import { ReadsService } from '../reads/reads.service';
 
 @Injectable()
 export class IntegratorsService {
@@ -24,8 +24,7 @@ export class IntegratorsService {
   constructor(
     private httpService: HttpService,
     private deviceService: DeviceService,
-    @Inject(BASE_READ_SERVICE)
-    private baseReadsService: BaseReadsService,
+    private readsService: ReadsService,
     private readonly configService: ConfigService,
     private readonly eventBus: EventBus,
   ) {}
@@ -98,8 +97,13 @@ export class IntegratorsService {
       return;
     }
     const reads: ReadDTO[] = energyData.map((energyValue: string[]) => {
+      const startTime = DateTime.fromJSDate(new Date(energyValue[1]))
+        .minus({ minutes: 30 })
+        .toJSDate();
+      const endTime = new Date(energyValue[1]);
       const read: ReadDTO = {
-        timestamp: new Date(energyValue[1]),
+        startDate: startTime,
+        endDate: endTime,
         value: parseFloat(energyValue[0]),
       };
       return read;
@@ -116,27 +120,25 @@ export class IntegratorsService {
     organizationId: number,
   ): Promise<void> {
     this.logger.verbose(`With in storeEnergy`);
-    const measurements = new MeasurementDTO();
-    measurements.reads = reads;
-    measurements.unit = unit;
+    const measurements: MeasurementDTO = {
+      reads: reads,
+      unit: unit,
+      type: ReadType.Delta,
+    };
 
     this.logger.log(
       `BBOX: Storing measurements: ${JSON.stringify(measurements)}`,
     );
-    await this.baseReadsService.store(externalId, measurements);
+    await this.readsService.store(externalId, measurements);
 
-    for (const measurement of measurements.reads) {
-      const startTime = DateTime.fromJSDate(measurement.timestamp)
-        .minus({ minutes: 30 })
-        .toJSDate();
-      const endTime = DateTime.fromJSDate(measurement.timestamp).toJSDate();
+    for (const read of measurements.reads) {
 
       this.eventBus.publish(
         new GenerationReadingStoredEvent({
           deviceId: externalId,
-          energyValue: BigNumber.from(measurement.value),
-          fromTime: startTime,
-          toTime: endTime,
+          energyValue: BigNumber.from(read.value),
+          fromTime: read.startDate,
+          toTime: read.endDate,
           organizationId: organizationId.toString(),
         }),
       );

@@ -26,11 +26,6 @@ export class MeterReads1749470341651 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
-                    ALTER TABLE "meter_reads" 
-                    DROP CONSTRAINT "fk_meter_reads_device"
-                `);
-
     await queryRunner.query(`DROP TABLE "meter_reads"`);
 
     await queryRunner.query(

@@ -8,7 +8,7 @@ import {
 import { IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../utils/enums';
-import { Unit } from '../../utils/enums/unit.enum';
+import { Unit } from '../../types/reads';
 
 @Entity({ name: 'meter_reads' })
 export class MeterRead {

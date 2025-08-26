@@ -1,4 +1,4 @@
-import { Unit } from '../utils/enums/unit.enum';
+import { Unit } from '../types/reads';
 
 export const getWhMultiplier = (unit: string): number => {
   switch (unit) {
