@@ -242,8 +242,9 @@ export class BuyerReservationController {
     )
     filterDTO: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber', new DefaultValuePipe(1), ParseIntPipe) pageNumber: number | null,
-    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number | null,
+    @Query('pagenumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
