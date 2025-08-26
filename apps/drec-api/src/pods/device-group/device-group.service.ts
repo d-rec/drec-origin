@@ -866,12 +866,7 @@ export class DeviceGroupService {
       }),
     );
     if (data.type === GroupType.Single) {
-      const deviceData = await this.deviceService.findOne(data.deviceIds[0]);
-      await this.registerSingleDeviceToEvident(
-        data.deviceIds[0],
-        group,
-        deviceData,
-      );
+      await this.registerSingleDeviceToEvident(devices[0], group);
     } else {
       await this.evidentDeviceService.queueDeviceGroupRegistration(group);
     }
@@ -880,19 +875,18 @@ export class DeviceGroupService {
   }
 
   private async registerSingleDeviceToEvident(
-    deviceId: number,
+    device: Device,
     group: DeviceGroup,
-    deviceData: any,
   ): Promise<void> {
     const files = await this.documentsRepository.find({
       where: {
-        targetId: deviceId,
+        targetType: 'device',
+        targetId: device.id,
       },
     });
     const deviceDocuments = await this.buildDeviceDocumentsMap(files);
-
     await this.evidentDeviceService.queueDeviceRegistration(
-      deviceData,
+      device,
       deviceDocuments,
       group,
     );
@@ -905,21 +899,28 @@ export class DeviceGroupService {
       type: DocumentType,
     ): Promise<Express.Multer.File[]> => {
       const filtered = files.filter((f) => f.type === type);
+      if (filtered.length === 0) return [];
       const buffers = await Promise.all(
-        filtered.map((f) => this.fileService.fetchBuffer(f.url)),
+        filtered.map(async (f) => {
+          return await this.fileService.fetchBuffer(f.url);
+        }),
       );
-      return filtered.map((entity, idx) => ({
-        fieldname: entity.type,
-        originalname: entity.url || '',
-        encoding: '7bit',
-        mimetype: 'application/octet-stream',
-        size: buffers[idx]?.length || 0,
-        buffer: buffers[idx],
-        destination: '',
-        filename: entity.url || '',
-        path: entity.url,
-        stream: null,
-      }));
+      return filtered
+        .map((entity, idx) => {
+          return {
+            fieldname: entity.type,
+            originalname: entity.url || '',
+            encoding: '7bit',
+            mimetype: 'application/octet-stream',
+            size: buffers[idx].length,
+            buffer: buffers[idx],
+            destination: '',
+            filename: entity.url || '',
+            path: entity.url,
+            stream: null,
+          };
+        })
+        .filter((f) => f !== null);
     };
 
     const deviceDocuments: Record<DocumentType, Express.Multer.File[]> =
