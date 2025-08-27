@@ -766,8 +766,6 @@ export class ReadsService {
     let updatedHistoryIssue = new MeterRead();
     if (historyDevice) {
       historyDevice.type = ReadType.History;
-      historyDevice.startDate = startDate;
-      historyDevice.endDate = endDate;
       historyDevice.certified = true;
       historyDevice.issuanceStartDate = startDate;
       historyDevice.issuanceEndDate = endDate;
