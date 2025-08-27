@@ -4,6 +4,8 @@ This guide provides detailed instructions for DRE Project Developers to manage t
 
 ## Device Registration
 
+<YouTubeEmbed video-id="FHI88TBJHJA" />
+
 ### Accessing Device Registration
 
 1. Log in to your DRE Project Developer account
@@ -105,6 +107,9 @@ From the My Devices page, use the three-dot menu (⋮) in the Actions column to:
    ![Delete Device](../dashboard-user-guide-images/delete-device.png)
 
 ## MeterRead Management
+
+<br/>
+<YouTubeEmbed video-id="y6rDRtvEZxE" />
 
 ### Adding Single MeterRead
 
