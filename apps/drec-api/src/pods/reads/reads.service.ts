@@ -17,6 +17,7 @@ import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
 import * as momentTimeZone from 'moment-timezone';
 import {
+  Brackets,
   FindConditions,
   In,
   LessThanOrEqual,
@@ -32,7 +33,12 @@ import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
-import { MeasurementDTO, ReadDTO, ReadsFilterDTO, Unit } from '../../types/reads';
+import {
+  MeasurementDTO,
+  ReadDTO,
+  ReadsFilterDTO,
+  Unit,
+} from '../../types/reads';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { convertToWh } from '../../utils/convert-to-power-units';
 import { ReadType } from '../../utils/enums';
@@ -567,8 +573,17 @@ export class ReadsService {
       .andWhere('read.type = :type', {
         type: ReadType.History,
       })
-      .andWhere('read.start_date >= :startDate', { startDate })
-      .andWhere('read.end_date <= :endDate', { endDate });
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('read.startDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          }).orWhere('read.endDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          });
+        }),
+      );
   }
 
   private validateEnergy(

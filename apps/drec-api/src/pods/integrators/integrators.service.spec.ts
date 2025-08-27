@@ -7,11 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BigNumber } from 'ethers';
 import { of, throwError } from 'rxjs';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import {
-  MeasurementDTO,
-  ReadDTO,
-  Unit,
-} from '../../types/reads';
+import { MeasurementDTO, ReadDTO, Unit } from '../../types/reads';
 import { ReadType } from '../../utils/enums';
 import { DeviceService } from '../device/device.service';
 import { ReadsService } from '../reads/reads.service';
@@ -254,7 +250,11 @@ describe('IntegratorsService', () => {
     it('should log measurements and call readsService.store', async () => {
       const externalId = 'device123';
       const reads: ReadDTO[] = [
-        { startDate: new Date('2023-01-01T00:00:00Z'), endDate: new Date('2023-01-01T00:30:00Z'), value: 100 },
+        {
+          startDate: new Date('2023-01-01T00:00:00Z'),
+          endDate: new Date('2023-01-01T00:30:00Z'),
+          value: 100,
+        },
       ];
       const unit = Unit.kWh;
       const organizationId = 1;
@@ -265,19 +265,24 @@ describe('IntegratorsService', () => {
         reads,
         unit,
         type: ReadType.Delta,
-      }
+      };
 
-      expect(readsService.store).toHaveBeenCalledWith(
-        externalId,
-        measurement,
-      );
+      expect(readsService.store).toHaveBeenCalledWith(externalId, measurement);
     });
 
     it('should publish GenerationReadingStoredEvent for each read', async () => {
       const externalId = 'device123';
       const reads: ReadDTO[] = [
-        { startDate: new Date('2023-01-01T00:00:00Z'), endDate: new Date('2023-01-01T00:30:00Z'), value: 100 },
-        { startDate: new Date('2023-01-01T01:00:00Z'), endDate: new Date('2023-01-01T01:30:00Z'), value: 200 },
+        {
+          startDate: new Date('2023-01-01T00:00:00Z'),
+          endDate: new Date('2023-01-01T00:30:00Z'),
+          value: 100,
+        },
+        {
+          startDate: new Date('2023-01-01T01:00:00Z'),
+          endDate: new Date('2023-01-01T01:30:00Z'),
+          value: 200,
+        },
       ];
       const unit = Unit.kWh;
       const organizationId = 1;

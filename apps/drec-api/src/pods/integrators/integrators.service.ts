@@ -8,11 +8,7 @@ import { DateTime } from 'luxon';
 import { throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import {
-  MeasurementDTO,
-  ReadDTO,
-  Unit
-} from '../../types/reads';
+import { MeasurementDTO, ReadDTO, Unit } from '../../types/reads';
 import { ReadType } from '../../utils/enums/read-type.enum';
 import { DeviceService } from '../device/device.service';
 import { ReadsService } from '../reads/reads.service';
@@ -132,7 +128,6 @@ export class IntegratorsService {
     await this.readsService.store(externalId, measurements);
 
     for (const read of measurements.reads) {
-
       this.eventBus.publish(
         new GenerationReadingStoredEvent({
           deviceId: externalId,

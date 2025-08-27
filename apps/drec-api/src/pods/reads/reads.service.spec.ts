@@ -125,9 +125,7 @@ describe('ReadsService', () => {
       const meterId = 'test-meter-id';
       const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
 
-      jest
-        .spyOn(service, 'find')
-        .mockRejectedValue(new Error('Test error'));
+      jest.spyOn(service, 'find').mockRejectedValue(new Error('Test error'));
 
       const result = await service.find(meterId, filter);
 

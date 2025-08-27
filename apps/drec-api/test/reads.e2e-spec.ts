@@ -84,7 +84,9 @@ describe('Reads tests', () => {
 
     const date3 = new Date();
     date3.setHours(date3.getHours() - 1);
-    measurement1.reads = [{ startDate: startDate, endDate: date1, value: 120000 }];
+    measurement1.reads = [
+      { startDate: startDate, endDate: date1, value: 120000 },
+    ];
     measurement2.reads = [
       { startDate: startDate, endDate: date2, value: 16000 },
       { startDate: startDate, endDate: date3, value: 9999999999 },
