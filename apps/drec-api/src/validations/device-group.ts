@@ -109,11 +109,11 @@ export function validateDeviceGroupToRegister(
       message: 'deviceIds should be an array of integers',
     });
   }
-  if (deviceGroupToRegister.deviceIds.length == 0) {
+  if (deviceGroupToRegister.deviceIds.length === 0) {
     throw new ConflictException({
       success: false,
       message:
-        'Please provide devices for reservation, deviceIds is empty atleast one device is required',
+        'Please provide devices for reservation, deviceIds is empty at least one device is required',
     });
   }
 

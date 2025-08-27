@@ -79,11 +79,14 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { Profile } from '../../lib/profile';
 import { EvidentDeviceService } from '../evident/evident-device.service';
+import { GroupType } from 'src/utils/enums/group-type.enum';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 import {
   EvidentIssuanceStatus,
   EvidentRegistrationStatus,
 } from '../../types/evident';
-import { GroupType } from '../../utils/enums/group-type.enum';
+import { FileService } from '../file/file.service';
 
 type DeviceRegistrationError = {
   isError: boolean;
@@ -101,11 +104,14 @@ export class DeviceGroupService {
     private readonly repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
+    @InjectRepository(DocumentEntity)
+    private readonly documentsRepository: Repository<DocumentEntity>,
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
     private deviceService: DeviceService,
     private yieldConfigService: YieldConfigService,
+    private readonly fileService: FileService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
@@ -792,9 +798,10 @@ export class DeviceGroupService {
       },
     });
   }
+
   async create(
     organizationId: number,
-    data: NewDeviceGroupDTO,
+    data: any,
     fromBulk = false,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in create`);
@@ -805,6 +812,7 @@ export class DeviceGroupService {
       ...data,
       name: groupName,
     });
+
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
@@ -857,10 +865,74 @@ export class DeviceGroupService {
         );
       }),
     );
-    await this.evidentDeviceService.queueDeviceGroupRegistration(group);
+    if (data.type === GroupType.Single) {
+      await this.registerSingleDeviceToEvident(devices[0], group);
+    } else {
+      await this.evidentDeviceService.queueDeviceGroupRegistration(group);
+    }
+
     return group;
   }
 
+  private async registerSingleDeviceToEvident(
+    device: Device,
+    group: DeviceGroup,
+  ): Promise<void> {
+    const files = await this.documentsRepository.find({
+      where: {
+        targetType: 'device',
+        targetId: device.id,
+      },
+    });
+    const deviceDocuments = await this.buildDeviceDocumentsMap(files);
+    await this.evidentDeviceService.queueDeviceRegistration(
+      device,
+      deviceDocuments,
+      group,
+    );
+  }
+  private async buildDeviceDocumentsMap(
+    files: DocumentEntity[],
+  ): Promise<Record<DocumentType, Express.Multer.File[]>> {
+    const buildDeviceDocuments = async (
+      files: DocumentEntity[],
+      type: DocumentType,
+    ): Promise<Express.Multer.File[]> => {
+      const filtered = files.filter((f) => f.type === type);
+      if (filtered.length === 0) return [];
+      const buffers = await Promise.all(
+        filtered.map(async (f) => {
+          return await this.fileService.fetchBuffer(f.url);
+        }),
+      );
+      return filtered
+        .map((entity, idx) => {
+          return {
+            fieldname: entity.type,
+            originalname: entity.url || '',
+            encoding: '7bit',
+            mimetype: 'application/octet-stream',
+            size: buffers[idx].length,
+            buffer: buffers[idx],
+            destination: '',
+            filename: entity.url || '',
+            path: entity.url,
+            stream: null,
+          };
+        })
+        .filter((f) => f !== null);
+    };
+
+    const deviceDocuments: Record<DocumentType, Express.Multer.File[]> =
+      {} as any;
+    for (const docType of Object.values(DocumentType)) {
+      deviceDocuments[docType] = await buildDeviceDocuments(
+        files,
+        docType as DocumentType,
+      );
+    }
+    return deviceDocuments;
+  }
   async createOne(
     organizationId: number,
     group: AddGroupDTO,
@@ -2829,6 +2901,7 @@ export class DeviceGroupService {
       status === EvidentRegistrationStatus.InProgress
         ? EvidentRegistrationStatus.Submitted
         : status;
+
     await this.repository.update(
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
