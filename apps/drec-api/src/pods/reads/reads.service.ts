@@ -330,7 +330,7 @@ export class ReadsService {
               this.storeFailedReads(
                 device.externalId,
                 element.value,
-                element.starttimestamp,
+                lastRead.endDate,
                 element.endtimestamp,
                 measurement.unit,
                 ReadType.Delta,
@@ -388,7 +388,7 @@ export class ReadsService {
                 this.storeFailedReads(
                   device.externalId,
                   element.value,
-                  element.starttimestamp,
+                  lastRead.endDate,
                   element.endtimestamp,
                   measurement.unit,
                   ReadType.Delta,
