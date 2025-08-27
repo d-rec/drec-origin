@@ -62,4 +62,12 @@ export class MeterRead {
   set timestamp(value: Date) {
     this.endDate = value;
   }
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
+  issuanceStartDate: Date;
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
+  issuanceEndDate: Date;
 }
