@@ -769,6 +769,8 @@ export class ReadsService {
       historyDevice.startDate = startDate;
       historyDevice.endDate = endDate;
       historyDevice.certified = true;
+      historyDevice.issuanceStartDate = startDate;
+      historyDevice.issuanceEndDate = endDate;
       updatedHistoryIssue = await this.repository.save(historyDevice);
     }
     return updatedHistoryIssue;
