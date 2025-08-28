@@ -18,7 +18,6 @@ import {
   Brackets,
   FindConditions,
   In,
-  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
   SelectQueryBuilder,
@@ -77,21 +76,18 @@ export class ReadsService {
     filter: ReadsFilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     try {
-      const reads = await this.repository.find({
-        where: {
-          externalId: meterId,
-          startDate: MoreThanOrEqual(filter.start),
-          endDate: LessThanOrEqual(filter.end),
-        },
-        order: { endDate: 'DESC' },
-        take: filter.limit,
-        skip: filter.offset,
-      });
-      return reads.map((read) => ({
-        ...read,
-        timestamp: read.endDate,
-        value: read.value,
-      }));
+      return await this.repository
+        .createQueryBuilder('read')
+        .where('read.externalId = :meterId', { meterId })
+        .andWhere('read.type = :type', { type: ReadType.Delta })
+        .andWhere('read.endDate >= :startDate', {
+          startDate: new Date(filter.start),
+        })
+        .andWhere('read.endDate <= :endDate', { endDate: new Date(filter.end) })
+        .orderBy('read.endDate', filter.order || 'ASC')
+        .take(filter.limit)
+        .skip(filter.offset)
+        .getMany();
     } catch (e) {
       this.logger.error(
         'exception caught in between device onboarding checking for createdAt',
@@ -506,7 +502,7 @@ export class ReadsService {
     return await this.repository.findOne({
       where: {
         externalId: meterId,
-        type: In([ReadType.Delta, ReadType.Aggregate]),
+        type: ReadType.Delta,
       },
       order: {
         endDate: 'DESC',
@@ -520,18 +516,13 @@ export class ReadsService {
     startDate: Date,
     endDate: Date,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
-    const read = await this.repository.findOne({
-      where: {
-        externalId: meterId,
-        startDate,
-        endDate,
-        type: [ReadType.Delta],
-      },
-      order: {
-        endDate: 'DESC',
-      },
+    return await this.find(meterId, {
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      offset: 0,
+      limit: 1,
+      order: 'DESC',
     });
-    return [read];
   }
 
   private async checkHistoryReadExist(
@@ -799,7 +790,10 @@ export class ReadsService {
     return this.repository.find({
       where: {
         externalId: meterId,
-        type: ReadType.Aggregate,
+        type: ReadType.Delta,
+      },
+      order: {
+        startDate: 'ASC',
       },
       take: 1,
     });
@@ -814,6 +808,9 @@ export class ReadsService {
       where: {
         externalId: meterId,
         type: ReadType.Delta,
+      },
+      order: {
+        endDate: 'ASC',
       },
     });
   }
@@ -864,11 +861,16 @@ export class ReadsService {
   }
 
   async latestRead(deviceExternalId: string): Promise<any> {
-    return this.repository
-      .createQueryBuilder('reads')
-      .where('reads.external_id = :deviceExternalId', { deviceExternalId })
-      .orderBy('reads.end_date', 'DESC')
-      .getOne();
+    return this.repository.find({
+      where: {
+        externalId: deviceExternalId,
+        type: ReadType.Delta,
+      },
+      order: {
+        endDate: 'DESC',
+      },
+      take: 1,
+    });
   }
 
   async validateAndStoreReads({

@@ -56,14 +56,6 @@ export class MeterRead {
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
-  get timestamp(): Date {
-    return this.endDate;
-  }
-
-  set timestamp(value: Date) {
-    this.endDate = value;
-  }
-
   @ApiProperty()
   @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
   issuanceStartDate: Date;
@@ -80,5 +72,14 @@ export class MeterRead {
   @Expose()
   get enddate(): Date {
     return this.endDate;
+  }
+
+  @Expose()
+  get timestamp(): Date {
+    return this.endDate;
+  }
+
+  set timestamp(value: Date) {
+    this.endDate = value;
   }
 }

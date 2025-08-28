@@ -5,6 +5,7 @@ export type ReadsFilterDTO = {
   offset: number;
   start: string;
   end: string;
+  order?: 'ASC' | 'DESC';
 };
 
 export type AggregatedReadDTO = {
