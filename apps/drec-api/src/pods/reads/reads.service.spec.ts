@@ -18,18 +18,6 @@ import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { getQueueToken } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 
-jest.mock('@influxdata/influxdb-client', () => {
-  return {
-    InfluxDB: jest.fn().mockImplementation(() => {
-      return {
-        getQueryApi: jest.fn().mockReturnValue({
-          queryRows: jest.fn(),
-        }),
-      };
-    }),
-  };
-});
-
 describe('ReadsService', () => {
   let service: ReadsService;
   let aggregateRepository: Repository<AggregateMeterRead>;

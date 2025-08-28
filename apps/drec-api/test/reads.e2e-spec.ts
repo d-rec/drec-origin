@@ -35,7 +35,7 @@ describe('Reads tests', () => {
     await databaseService.truncate('user', 'device', 'organization');
 
     await app.init();
-    // clean influxdb
+
     await seed({
       userService,
       organizationService,

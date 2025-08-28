@@ -9,6 +9,7 @@ import { IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../utils/enums';
 import { Unit } from '../../types/reads';
+import { Expose } from 'class-transformer';
 
 @Entity({ name: 'meter_reads' })
 export class MeterRead {
@@ -70,4 +71,14 @@ export class MeterRead {
   @ApiProperty()
   @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
   issuanceEndDate: Date;
+
+  @Expose()
+  get startdate(): Date {
+    return this.startDate;
+  }
+
+  @Expose()
+  get enddate(): Date {
+    return this.endDate;
+  }
 }

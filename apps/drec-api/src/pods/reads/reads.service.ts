@@ -3,7 +3,6 @@ import {
   ConflictException,
   forwardRef,
   HttpException,
-  HttpStatus,
   Inject,
   Injectable,
   Logger,
@@ -11,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
 import { Queue } from 'bull';
 import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
@@ -44,22 +42,13 @@ import { convertToWh } from '../../utils/convert-to-power-units';
 import { ReadType } from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Queues } from '../../utils/enums/queues.enum';
-import {
-  getFormattedOffSetFromOffsetAsJson,
-  getLocalTime,
-  getLocalTimeZoneFromDevice,
-  getOffsetFromTimeZoneName,
-} from '../../utils/localTimeDetailsForDevice';
 import { validateTimezone } from '../../validations/timezone';
 import { BulkUploadType } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceService } from '../device/device.service';
 import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  AccumulationType,
-  FilterNoOffLimit,
-} from './dto/filter-no-off-limit.dto';
+import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
 import { FailedMeterRead } from './failed-reads.entity';
 import { MeterRead } from './reads.entity';
@@ -161,12 +150,13 @@ export class ReadsService {
     await this.repository.insert(reads);
   }
 
-  public async findCumulativeValue(device: DeviceDTO) {
+  public async findCumulativeValue(device: DeviceDTO): Promise<{ value: number; datetime: Date; }> {
     const cumulativeValue = await this.repository
       .createQueryBuilder('read')
       .select('SUM(read.value)', 'totalValue')
       .addSelect('MAX(read.end_date)', 'maxEndDate')
       .where('read.external_id = :deviceId', { deviceId: device.externalId })
+      .where('read.type IN (:...types)', { types: [ReadType.Delta, ReadType.Aggregate] })
       .getRawOne();
 
     return {
@@ -845,7 +835,8 @@ export class ReadsService {
 
     const sizeOfPage = 15;
 
-    const currentPage = !isNaN(pageNumber) && pageNumber > 0 ? pageNumber : 1;
+    const currentPage =
+      !isNaN(pageNumber) && pageNumber > 0 ? Number(pageNumber) : 1;
     const offset = (currentPage - 1) * sizeOfPage;
 
     const query = this.repository
@@ -862,8 +853,8 @@ export class ReadsService {
     return {
       historyread: reads.filter((read) => read.type === ReadType.History),
       ongoing: reads.filter((read) => read.type !== ReadType.History),
-      numberOfReads: reads.length,
-      numberOfPages: total,
+      numberOfReads: total,
+      numberOfPages: Math.round(total / sizeOfPage),
       currentPageNumber: currentPage,
     };
   }
@@ -874,262 +865,6 @@ export class ReadsService {
       .where('reads.external_id = :deviceExternalId', { deviceExternalId })
       .orderBy('reads.end_date', 'DESC')
       .getOne();
-  }
-
-  async getAccumulatedReads(
-    meter: string,
-    organizationId: number,
-    developerExternalId: string,
-    accumulationType: AccumulationType,
-    month: number,
-    year: number,
-  ): Promise<{
-    aggregateType: any;
-    accumulatedReads: {
-      timestamp?: string;
-      value?: any;
-    }[];
-    timezone: any;
-  }> {
-    let startDate;
-    let numberOfDays;
-    let endDate;
-    if (month && year) {
-      startDate = this.convertToISODate(month, year);
-      numberOfDays = this.getNumberOfDaysInMonth(month, year);
-      endDate =
-        DateTime.fromISO(startDate)
-          .plus({ days: numberOfDays })
-          .minus({ seconds: 1 })
-          .toISODate() + 'T00:00:00Z';
-    }
-    if (year && !month) {
-      month = 1;
-      startDate = this.convertToISODate(month, year);
-      this.logger.verbose('startDate for year:::::::::::::' + startDate);
-
-      endDate =
-        DateTime.fromISO(startDate)
-          .plus({ years: 1 })
-          .minus({ seconds: 1 })
-          .toISO({ suppressMilliseconds: true, includeOffset: false }) + 'Z';
-    }
-    this.logger.verbose('startDate::::::::::::' + startDate);
-    this.logger.verbose('End DAte:::::::::::::' + endDate);
-
-    let tempResults = [];
-    const finalResults: { timestamp?: string; value?: any }[] = [];
-    let response;
-    let url;
-    const offSet = await this.getOffSetForInfluxQuery(
-      developerExternalId,
-      organizationId,
-      startDate,
-    );
-    this.logger.verbose('THE OFFSET RETURNED:::' + offSet);
-
-    const formattedOffSet = offSet.formattedOffset;
-
-    const monthlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                              FROM "read"
-                              WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                              GROUP BY time (1d, ${formattedOffSet})`;
-    const yearlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                             FROM "read"
-                             WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                             GROUP BY time (30d, ${formattedOffSet})`;
-    this.logger.verbose(
-      'accumulation type:::::::::::::::::' + accumulationType,
-    );
-    if (accumulationType === 'Monthly' && month && year) {
-      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${monthlyQuery}`;
-    } else if (accumulationType === 'Yearly' && year) {
-      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${yearlyQuery}`;
-    } else {
-      throw new HttpException(
-        'Invalid accumulationType',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const config = {
-      auth: {
-        username: `${process.env.INFLUXDB_ADMIN_USER}`,
-        password: `${process.env.INFLUXDB_ADMIN_PASSWORD}`,
-      },
-    };
-
-    try {
-      response = await axios.get(url, config);
-
-      if (!response) {
-        throw new HttpException('Some Error occured', HttpStatus.AMBIGUOUS);
-      }
-
-      if (!response.data.results[0].series) {
-        throw new HttpException('No reads found', HttpStatus.CONFLICT);
-      }
-      tempResults = this.readFilterNullUndefined(
-        response.data.results[0].series[0].values,
-      );
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-
-    for (let i = 0; i < tempResults.length; i++) {
-      const resultObj: { startTime?: string; endTime?: string; value?: any } =
-        {};
-      for (let j = 0; j < 2; j++) {
-        if (j % 2 === 0) {
-          const startTimestamp = new Date(tempResults[i][j]).getTime();
-          const startDate = new Date(startTimestamp);
-          resultObj.startTime = startDate.toISOString();
-        } else {
-          resultObj.value = tempResults[i][j];
-          if (i < tempResults.length - 1) {
-            const endTimestamp = new Date(tempResults[i + 1][j - 1]).getTime();
-            const endDate = new Date(endTimestamp);
-            resultObj.endTime = endDate.toISOString();
-          } else {
-            resultObj.endTime = endDate;
-          }
-        }
-      }
-
-      finalResults.push(resultObj);
-    }
-    this.logger.verbose(finalResults);
-    return {
-      aggregateType: accumulationType,
-      accumulatedReads: finalResults,
-      timezone: offSet.localTimeZone,
-    };
-  }
-
-  readFilterNullUndefined(arr: [any]): any {
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = 0; j < 2; j++) {
-        if (j % 2 != 0) {
-          if (arr[i][j] == null || arr[i][j] == undefined) {
-            arr[i][j] = 0;
-          }
-        }
-      }
-    }
-    return arr;
-  }
-
-  convertToISODate(month: number, year: number): any {
-    return DateTime.fromObject({
-      year: year,
-      month: month,
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-      zone: 'utc',
-    }).toISO({ suppressMilliseconds: true });
-  }
-
-  getNumberOfDaysInMonth(month: number, year: number): any {
-    return DateTime.fromObject({
-      year: year,
-      month: month,
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }).daysInMonth;
-  }
-
-  async getPaginatedData(
-    meter: string,
-    filter: ReadsFilterDTO | any,
-    page: number,
-  ): Promise<unknown[]> {
-    this.logger.verbose('page: ' + page);
-    const data = await this.retrieveDataWithLastValue(meter, filter);
-    this.logger.verbose(`data: ${data}`);
-    return data;
-  }
-
-  async retrieveDataWithLastValue(
-    meter: string,
-    filter: ReadsFilterDTO,
-  ): Promise<any[]> {
-    const query = this.repository
-      .createQueryBuilder('read')
-      .where('read.externalId = :externalId', { externalId: meter })
-      .andWhere('read.type IN (:...types)', {
-        types: [ReadType.Delta, ReadType.Aggregate],
-      });
-
-    if (filter.end) {
-      const newStartDate = new Date(new Date(filter.end).getTime() + 1000);
-      query.andWhere('read.start_date <= :startDate', {
-        startDate: newStartDate,
-      });
-    } else if (filter.start) {
-      query.andWhere('read.start_date >= :startDate', {
-        startDate: new Date(filter.start),
-      });
-    }
-
-    if (filter.end) {
-      query.andWhere('read.end_date <= :endDate', {
-        endDate: new Date(filter.end),
-      });
-    }
-
-    const results = await query.getMany();
-
-    return results.map((read) => ({
-      startDate: read.startDate,
-      endDate: read.endDate,
-      value: read.value,
-      type: read.type,
-    }));
-  }
-
-  //
-  async getOffSetForInfluxQuery(
-    developerExternalId: string,
-    organizationId: number,
-    startDate: string | any,
-  ): Promise<{
-    formattedOffset: any;
-    offSetHours: number;
-    offSetMinutes: number;
-    localTimeZone: any;
-  }> {
-    let localTime = null;
-    let formattedOffset = null;
-    const device = await this.deviceService.findDeviceByDeveloperExternalId(
-      developerExternalId,
-      organizationId,
-    );
-
-    if (device.latitude && device.longitude) {
-      localTime = getLocalTime(startDate, device);
-    }
-
-    const localTimeZoneName = getLocalTimeZoneFromDevice(localTime, device);
-    const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
-    const offSet = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-    const offSetHoursString = offSet.hours.toString();
-    const offSetMinutesString = offSet.minutes.toString();
-
-    formattedOffset = offSetHoursString + 'h' + offSetMinutesString + 'm';
-
-    this.logger.verbose('FORMATTED OFFSET BEING RETURNED:::' + formattedOffset);
-
-    return {
-      formattedOffset: formattedOffset,
-      offSetHours: offSet.hours,
-      offSetMinutes: offSet.minutes,
-      localTimeZone: localTimeZoneName,
-    };
   }
 
   async validateAndStoreReads({
