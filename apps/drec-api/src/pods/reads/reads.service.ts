@@ -154,8 +154,8 @@ export class ReadsService {
       .select('SUM(read.value)', 'totalValue')
       .addSelect('MAX(read.end_date)', 'maxEndDate')
       .where('read.external_id = :deviceId', { deviceId: device.externalId })
-      .where('read.type IN (:...types)', {
-        types: [ReadType.Delta, ReadType.Aggregate],
+      .andWhere('read.type IN (:...types)', {
+        types: ReadType.Delta,
       })
       .getRawOne();
 
@@ -745,7 +745,7 @@ export class ReadsService {
     return this.repository
       .createQueryBuilder('read')
       .where('read.externalId = :deviceId', { deviceId })
-      .where('read.type = :type', {
+      .andWhere('read.type = :type', {
         type: ReadType.History,
       })
       .andWhere('read.startDate >= :startDate', { startDate })
@@ -1236,7 +1236,7 @@ export class ReadsService {
     return await this.repository.count({
       where: {
         externalId: externalId,
-        type: In([ReadType.Delta, ReadType.Aggregate]),
+        type: ReadType.Delta,
         startDate: MoreThanOrEqual(onboardedDate),
       },
     });
