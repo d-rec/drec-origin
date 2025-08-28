@@ -15,6 +15,6 @@ export default {
     });
   },
   enhanceApp({ app, router, siteData }) {
-    app.component('YouTubeEmbed', YouTubeEmbed) // [!code ++]
+    app.component('YouTubeEmbed', YouTubeEmbed)
   },
 };
