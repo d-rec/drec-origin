@@ -1,6 +1,3 @@
-import { FilterDTO } from '@energyweb/energy-api-influxdb';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Point } from '@influxdata/influxdb-client';
 import { InjectQueue } from '@nestjs/bull';
 import {
   ConflictException,
@@ -20,28 +17,33 @@ import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
 import * as momentTimeZone from 'moment-timezone';
 import {
+  Brackets,
   FindConditions,
   In,
+  LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
 import { DEFAULT_YIELD_VALUE, DEVICE_DEGRADATION } from '../../constants';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { writePoints } from '../../lib/influx-db';
 import { computeMaxEnergyCapacity } from '../../lib/meter-read';
 import { Profile } from '../../lib/profile';
-import { IAggregateIntermediate } from '../../models';
 import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
+import {
+  MeasurementDTO,
+  ReadDTO,
+  ReadsFilterDTO,
+  Unit,
+} from '../../types/reads';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { convertToWh } from '../../utils/convert-to-power-units';
 import { ReadType } from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Queues } from '../../utils/enums/queues.enum';
-import { Unit } from '../../utils/enums/unit.enum';
 import {
   getFormattedOffSetFromOffsetAsJson,
   getLocalTime,
@@ -59,10 +61,8 @@ import {
   FilterNoOffLimit,
 } from './dto/filter-no-off-limit.dto';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { MeasurementDTO, ReadDTO } from './dto/measurement.dto';
+import { FailedMeterRead } from './failed-reads.entity';
 import { MeterRead } from './reads.entity';
-
-export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
 @Injectable()
 export class ReadsService {
@@ -71,6 +71,8 @@ export class ReadsService {
   constructor(
     @InjectRepository(MeterRead)
     private readonly repository: Repository<MeterRead>,
+    @InjectRepository(FailedMeterRead)
+    private readonly failedReadsRepository: Repository<FailedMeterRead>,
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     @Inject(forwardRef(() => DeviceGroupService))
@@ -83,11 +85,15 @@ export class ReadsService {
   @Profile()
   public async find(
     meterId: string,
-    filter: FilterDTO,
+    filter: ReadsFilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     try {
       const reads = await this.repository.find({
-        where: { externalId: meterId },
+        where: {
+          externalId: meterId,
+          startDate: MoreThanOrEqual(filter.start),
+          endDate: LessThanOrEqual(filter.end),
+        },
         order: { endDate: 'DESC' },
         take: filter.limit,
         skip: filter.offset,
@@ -108,18 +114,20 @@ export class ReadsService {
   async storeFailedReads(
     meterId: string,
     read: number,
-    timeStamp: Date,
+    startDate: Date,
+    endDate: Date,
     unit: Unit,
+    type: ReadType,
   ): Promise<void> {
     const readInWh = convertToWh(read, unit);
-
-    const points: Point[] = [
-      new Point('failed_reads')
-        .tag('meter', meterId)
-        .intField('read', readInWh)
-        .timestamp(new Date(timeStamp)),
-    ];
-    await writePoints(points);
+    this.failedReadsRepository.insert({
+      externalId: meterId,
+      startDate: startDate,
+      endDate: endDate,
+      value: readInWh,
+      unit: unit,
+      type: type,
+    });
   }
 
   async bulkUploadJobProcessing(
@@ -140,7 +148,7 @@ export class ReadsService {
     }
   }
 
-  private async store(id: string, measurements: MeasurementDTO): Promise<void> {
+  async store(id: string, measurements: MeasurementDTO): Promise<void> {
     const reads = measurements.reads.map((read) => ({
       externalId: id,
       startDate: read.startDate,
@@ -242,12 +250,13 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     const lastRead = await this.findLatestRead(deviceId);
-    if (measurement.type === 'History') {
-      return this.processHistoricalReads(device, measurement);
-    } else if (measurement.type === 'Delta') {
-      return this.processDeltaReads(device, measurement, lastRead);
-    } else if (measurement.type === 'Aggregate') {
-      return this.processAggregateReads(device, measurement);
+    switch (measurement.type) {
+      case ReadType.History:
+        return this.processHistoricalReads(device, measurement);
+      case ReadType.Delta:
+        return this.processDeltaReads(device, measurement, lastRead);
+      case ReadType.Aggregate:
+        return this.processAggregateReads(device, measurement);
     }
   }
 
@@ -291,8 +300,10 @@ export class ReadsService {
         this.storeFailedReads(
           device.externalId,
           element.value,
+          element.starttimestamp,
           element.endtimestamp,
           measurement.unit,
+          ReadType.History,
         );
         throw new ConflictException({
           success: false,
@@ -325,8 +336,10 @@ export class ReadsService {
               this.storeFailedReads(
                 device.externalId,
                 element.value,
+                lastRead.endDate,
                 element.endtimestamp,
                 measurement.unit,
+                ReadType.Delta,
               );
               return reject(
                 new ConflictException({
@@ -381,8 +394,10 @@ export class ReadsService {
                 this.storeFailedReads(
                   device.externalId,
                   element.value,
+                  lastRead.endDate,
                   element.endtimestamp,
                   measurement.unit,
+                  ReadType.Delta,
                 );
                 return reject(
                   new ConflictException({
@@ -558,8 +573,17 @@ export class ReadsService {
       .andWhere('read.type = :type', {
         type: ReadType.History,
       })
-      .andWhere('read.start_date >= :startDate', { startDate })
-      .andWhere('read.end_date <= :endDate', { endDate });
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('read.startDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          }).orWhere('read.endDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          });
+        }),
+      );
   }
 
   private validateEnergy(
@@ -907,13 +931,13 @@ export class ReadsService {
     const formattedOffSet = offSet.formattedOffset;
 
     const monthlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                          FROM "read"
-                          WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                          GROUP BY time (1d, ${formattedOffSet})`;
+                              FROM "read"
+                              WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
+                              GROUP BY time (1d, ${formattedOffSet})`;
     const yearlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                         FROM "read"
-                         WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                         GROUP BY time (30d, ${formattedOffSet})`;
+                             FROM "read"
+                             WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
+                             GROUP BY time (30d, ${formattedOffSet})`;
     this.logger.verbose(
       'accumulation type:::::::::::::::::' + accumulationType,
     );
@@ -1021,7 +1045,7 @@ export class ReadsService {
 
   async getPaginatedData(
     meter: string,
-    filter: FilterDTO | any,
+    filter: ReadsFilterDTO | any,
     page: number,
   ): Promise<unknown[]> {
     this.logger.verbose('page: ' + page);
@@ -1032,7 +1056,7 @@ export class ReadsService {
 
   async retrieveDataWithLastValue(
     meter: string,
-    filter: FilterDTO,
+    filter: ReadsFilterDTO,
   ): Promise<any[]> {
     const query = this.repository
       .createQueryBuilder('read')
@@ -1482,8 +1506,10 @@ export class ReadsService {
       this.storeFailedReads(
         device.externalId,
         element.value,
+        element.starttimestamp,
         element.endtimestamp,
         unit,
+        ReadType.History,
       );
       throw new ConflictException({
         success: false,
@@ -1514,8 +1540,10 @@ export class ReadsService {
       this.storeFailedReads(
         device.externalId,
         element.value,
+        element.starttimestamp,
         element.endtimestamp,
         unit,
+        ReadType.History,
       );
       throw new ConflictException({
         success: false,

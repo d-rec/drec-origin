@@ -1,4 +1,4 @@
-import { ReadDTO } from '@energyweb/energy-api-influxdb';
+import { ReadDTO } from '../../types/reads';
 import {
   BadRequestException,
   Body,

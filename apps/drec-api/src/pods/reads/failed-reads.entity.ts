@@ -10,8 +10,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../utils/enums';
 import { Unit } from '../../types/reads';
 
-@Entity({ name: 'meter_reads' })
-export class MeterRead {
+@Entity({ name: 'failed_meter_reads' })
+export class FailedMeterRead {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -45,10 +45,6 @@ export class MeterRead {
   @Column({ type: 'timestamp', name: 'end_date' })
   endDate: Date;
 
-  @ApiProperty()
-  @Column({ default: false })
-  certified: boolean;
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
@@ -62,12 +58,4 @@ export class MeterRead {
   set timestamp(value: Date) {
     this.endDate = value;
   }
-
-  @ApiProperty()
-  @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
-  issuanceStartDate: Date;
-
-  @ApiProperty()
-  @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
-  issuanceEndDate: Date;
 }

@@ -13,7 +13,6 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { redisOptions } from '../../drec.module';
-import { influxDBConfig } from '../../lib/influx-db';
 import { RedisHealthIndicator } from './redis.health-indicator';
 
 @ApiTags('Health')
@@ -58,7 +57,6 @@ export class HealthController {
           'redis',
           `redis://${redisOptions.host}:${redisOptions.port}`,
         ),
-      () => this.http.pingCheck('influx-db', `${influxDBConfig.url}/health`),
     ]);
   }
 }

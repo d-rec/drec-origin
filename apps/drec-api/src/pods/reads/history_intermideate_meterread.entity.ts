@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { ReadType } from '../../utils/enums';
 import { IIntermediate } from '../../models';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../../types/reads';
 @Entity({ name: 'history_intermediate_meteread' })
 export class HistoryIntermediateMeterRead
   extends ExtendedBaseEntity

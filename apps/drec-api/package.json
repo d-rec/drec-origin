@@ -54,7 +54,6 @@
     "drec-backend": "./bin/drec-api"
   },
   "dependencies": {
-    "@energyweb/energy-api-influxdb": "0.8.3",
     "@energyweb/issuer": "6.0.2-alpha.1646058469.0",
     "@energyweb/issuer-api": "0.7.1",
     "@energyweb/origin-247-certificate": "4.1.5",

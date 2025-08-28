@@ -10,7 +10,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import { IDeltaIntermediate } from '../../models/Delta_firstread';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../../types/reads';
 @Entity({ name: 'delta_firstread' })
 export class DeltaFirstRead
   extends ExtendedBaseEntity

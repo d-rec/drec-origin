@@ -73,6 +73,7 @@ import { HealthModule } from './pods/health/health.module';
 import { MeterRead } from './pods/reads/reads.entity';
 
 import { getTypeOrmConfig } from './config/typeorm.config';
+import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -109,6 +110,7 @@ export const entities = [
   DeviceGroupNextIssueCertificate,
   AggregateMeterRead,
   MeterRead,
+  FailedMeterRead,
   HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
