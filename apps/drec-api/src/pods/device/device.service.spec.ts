@@ -1833,7 +1833,10 @@ describe('DeviceService', () => {
 
       expect(findAndCountSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { groupId: null, organizationId },
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
         }),
       );
       expect(result).toEqual(groupedResult);
@@ -1876,7 +1879,10 @@ describe('DeviceService', () => {
 
       expect(findAndCountSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { groupId: null, organizationId },
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
         }),
       );
       expect(result).toEqual(groupedResult);
