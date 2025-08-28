@@ -205,13 +205,24 @@ export class DeviceController {
   async getAllUngrouped(
     @UserDecorator() { organizationId }: ILoggedInUser,
     @Query(ValidationPipe) orderFilterDTO: DeviceGroupByDTO,
+    @Query(ValidationPipe) filterDTO?: FilterDTO,
+    @Query('pagenumber') pageNumber?: number | null,
     @Query('orgId') orgId?: number,
-  ): Promise<GroupedDevicesDTO[]> {
+  ): Promise<{
+    totalPages: number;
+    currentPage: number;
+    groups: GroupedDevicesDTO[];
+  }> {
     this.logger.verbose(`With in getAllUngrouped`);
     if (orgId) {
       organizationId = orgId;
     }
-    return this.deviceService.findUngrouped(organizationId, orderFilterDTO);
+    return this.deviceService.findUngrouped(
+      organizationId,
+      orderFilterDTO,
+      filterDTO,
+      pageNumber,
+    );
   }
 
   /**

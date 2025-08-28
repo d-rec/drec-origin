@@ -1778,6 +1778,17 @@ describe('DeviceService', () => {
       const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       }; // Provide necessary DTO properties
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      }; // Provide necessary DTO properties
+      const pageNumber = 1;
       const mockDevices = [
         { id: 1, groupId: null, organizationId: 1 },
         { id: 2, groupId: null, organizationId: 1 },
@@ -1790,6 +1801,8 @@ describe('DeviceService', () => {
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDTO,
+        filterDTO,
+        pageNumber,
       );
 
       expect(findSpy).toHaveBeenCalledWith({
@@ -1805,11 +1818,24 @@ describe('DeviceService', () => {
       const orderFilterDto: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       };
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      }; // Provide necessary DTO properties
+      const pageNumber = 1;
       const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDto,
+        filterDTO,
+        pageNumber,
       );
 
       expect(findSpy).toHaveBeenCalledWith({

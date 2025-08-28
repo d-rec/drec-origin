@@ -859,13 +859,39 @@ export class DeviceService {
   async findUngrouped(
     organizationId: number,
     orderFilterDto: DeviceGroupByDTO,
-  ): Promise<GroupedDevicesDTO[]> {
+    filterDto: FilterDTO,
+    pageNumber: number,
+  ): Promise<{
+    totalPages: number;
+    currentPage: number;
+    groups: GroupedDevicesDTO[];
+  }> {
     this.logger.verbose(`With in findUngrouped`);
-    const devices = await this.repository.find({
-      where: { groupId: null, organizationId },
-    });
+    const limit = 20;
+    let query = this.getFilteredQuery(filterDto);
+    if (pageNumber) {
+      query = {
+        ...query,
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      };
+    }
+    let where: any = query.where;
+
+    where = {
+      ...where,
+      groupId: null,
+      organizationId,
+    };
+
+    query.where = where;
+
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = pageNumber;
     delete devices['organization'];
-    return this.groupDevices(orderFilterDto, devices);
+    return this.groupDevices(orderFilterDto, devices, currentPage, totalPages);
   }
 
   async findUngroupedById(id: number): Promise<boolean> {
@@ -901,7 +927,13 @@ export class DeviceService {
   groupDevices(
     orderFilterDto: DeviceGroupByDTO,
     devices: Device[],
-  ): GroupedDevicesDTO[] {
+    currentPage?: number,
+    totalPages?: number,
+  ): {
+    totalPages: number;
+    currentPage: number;
+    groups: GroupedDevicesDTO[];
+  } {
     this.logger.verbose(`With in groupDevices`);
     const { orderBy } = orderFilterDto;
     const orderByRules: DeviceOrderBy[] = Array.isArray(orderBy)
@@ -922,23 +954,23 @@ export class DeviceService {
         ];
       },
     );
-    return groupedDevicesByProps.map((devices: DeviceDTO[]) => {
-      return {
+    return {
+      totalPages,
+      currentPage,
+      groups: groupedDevicesByProps.map((devices: DeviceDTO[]) => ({
         name: this.getDeviceGroupNameFromGroupedDevices(devices, orderByRules),
         devices: devices.map(
-          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
-            return {
-              ...device,
-              commissioningDateRange: getDateRangeFromYear(
-                device.commissioningDate,
-              ),
-              capacityRange: getCapacityRange(device.capacity),
-              selected: true,
-            };
-          },
+          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => ({
+            ...device,
+            commissioningDateRange: getDateRangeFromYear(
+              device.commissioningDate,
+            ),
+            capacityRange: getCapacityRange(device.capacity),
+            selected: true,
+          }),
         ),
-      };
-    });
+      })),
+    };
   }
 
   private getDeviceGroupNameFromGroupedDevices(
