@@ -1786,11 +1786,14 @@ export class DeviceGroupService {
             }
           } else return true;
         });
+        const organization =
+          await this.organizationService.findOne(organizationId);
 
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
           files,
+          organization.api_user_id,
         );
 
         devicesRegistered
