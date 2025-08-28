@@ -2469,8 +2469,7 @@ export class DeviceGroupService {
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
-        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
-
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
           const existingDevice = existing.developerdeviceIds.find(
             (item) => item === curr.id,
@@ -2481,7 +2480,7 @@ export class DeviceGroupService {
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
           acc.push({
-            dg_id: curr.devicegroupid,
+            dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
             developerdeviceIds: [curr.id],
@@ -2493,13 +2492,13 @@ export class DeviceGroupService {
     }
     if (role === 'Buyer' || role === Role.ApiUser) {
       deviceGroups = groupedData.reduce((acc, curr) => {
-        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
 
         if (existing) {
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
           acc.push({
-            dg_id: curr.devicegroupid,
+            dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
             internalCertificateId: [curr.internalCertificateId],
