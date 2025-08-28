@@ -10,13 +10,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { cloneDeep, defaults } from 'lodash';
 import {
-  Between,
   Brackets,
   FindConditions,
-  FindManyOptions,
-  FindOperator,
   LessThan,
-  Raw,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -25,10 +21,8 @@ import {
   CommissioningDateRange,
   DeviceTypeCode,
   FuelCode,
-  Installation,
   OffTaker,
   Role,
-  Sector,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
@@ -46,17 +40,13 @@ import {
 
 import moment from 'moment';
 
-import cleanDeep from 'clean-deep';
 import csv from 'csv-parser';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  DeviceCsvFileProcessingJobsEntity,
-  StatusCSV,
-} from './device_csv_processing_jobs.entity';
+import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 
 import CSVToJsonV2 from 'csvtojson';
@@ -72,6 +62,7 @@ import { validate } from 'class-validator';
 import { DateTime } from 'luxon';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { Profile } from '../../lib/profile';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { Queues } from '../../utils/enums/queues.enum';
 import { ICertificateMetadata } from '../../utils/types';
@@ -87,7 +78,6 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
-import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceGroupService {
