@@ -5,8 +5,7 @@ on:
     branches:
       - develop
   pull_request:
-    branches:
-      - develop
+    # runs on every PR regardless of target branch
 
 jobs:
   prettier:

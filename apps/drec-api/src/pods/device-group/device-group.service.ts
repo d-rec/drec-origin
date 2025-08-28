@@ -1,7 +1,9 @@
 import {
   ConflictException,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -38,8 +40,8 @@ import {
   UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 
-import moment from 'moment';
 import csv from 'csv-parser';
+import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
@@ -61,22 +63,20 @@ import { validate } from 'class-validator';
 import { DateTime } from 'luxon';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
+import { Profile } from '../../lib/profile';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { Queues } from '../../utils/enums/queues.enum';
-import { ICertificateMetadata } from '../../utils/types';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
 import { FilterDTO } from '../certificate-log/dto';
-import { FileService } from '../file';
 import { UserService } from '../user/user.service';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
-import { Profile } from '../../lib/profile';
 
 @Injectable()
 export class DeviceGroupService {
@@ -91,17 +91,13 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
+    @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
-    private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historyNextIssuanceDateRepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-    @InjectRepository(CertificateReadModelEntity)
-    private readonly certificateReadModuleRepository: Repository<
-      CertificateReadModelEntity<ICertificateMetadata>
-    >,
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,

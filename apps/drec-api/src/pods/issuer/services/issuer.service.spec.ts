@@ -249,13 +249,13 @@ describe('IssuerService', () => {
   });
 
   describe('newHistoryIssueCertificateForDevice', () => {
-    it('should return early if deviceHistoryRequest.readsvalue is less than 1000', async () => {
+    it('should return early if deviceHistoryRequest.value is less than 1000', async () => {
       const group = {
         buyerAddress: 'some-address',
         buyerId: 1,
       } as unknown as DeviceGroup;
       const deviceHistoryRequest = {
-        readsvalue: 999,
+        value: 999,
       } as unknown as MeterRead;
       const device = {} as unknown as IDevice;
 
@@ -282,9 +282,9 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
-        readsvalue: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        value: 1000,
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 
@@ -313,8 +313,8 @@ describe('IssuerService', () => {
 
       const deviceHistoryRequest = {
         value: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 
@@ -342,9 +342,9 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
-        readsvalue: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        value: 1000,
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 

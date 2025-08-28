@@ -5,9 +5,6 @@ import { ReadsFilterDTO } from '../../types/reads';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { DeltaFirstRead } from './delta_firstread.entity';
 import { DeviceService } from '../device';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
@@ -17,25 +14,17 @@ import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-lo
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { getQueueToken } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
+import { MeterRead } from './reads.entity';
+import { FailedMeterRead } from './failed-reads.entity';
 
 describe('ReadsService', () => {
   let service: ReadsService;
-  let aggregateRepository: Repository<AggregateMeterRead>;
-  let historyRepository: Repository<HistoryIntermediateMeterRead>;
-  let deltaRepository: Repository<DeltaFirstRead>;
-  let deviceService: DeviceService;
-  let deviceGroupService: DeviceGroupService;
-  let organizationService: OrganizationService;
-  let eventBus: EventBus;
+  let meterReadRepository: Repository<MeterRead>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReadsService,
-        {
-          provide: getRepositoryToken(AggregateMeterRead),
-          useClass: Repository,
-        },
         {
           provide: getRepositoryToken(BulkUploadFailedLogEntity),
           useClass: Repository,
@@ -45,11 +34,11 @@ describe('ReadsService', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(HistoryIntermediateMeterRead),
+          provide: getRepositoryToken(FailedMeterRead),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(DeltaFirstRead),
+          provide: getRepositoryToken(MeterRead),
           useClass: Repository,
         },
         {
@@ -87,6 +76,9 @@ describe('ReadsService', () => {
     }).compile();
 
     service = module.get<ReadsService>(ReadsService);
+    meterReadRepository = module.get<Repository<MeterRead>>(
+      getRepositoryToken(MeterRead),
+    );
   });
 
   it('should be defined', () => {
@@ -113,7 +105,9 @@ describe('ReadsService', () => {
       const meterId = 'test-meter-id';
       const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
 
-      jest.spyOn(service, 'find').mockRejectedValue(new Error('Test error'));
+      jest
+        .spyOn(meterReadRepository, 'find')
+        .mockRejectedValue(new Error('Test error'));
 
       const result = await service.find(meterId, filter);
 
@@ -125,7 +119,7 @@ describe('ReadsService', () => {
       const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
       const error = new Error('Test error');
 
-      jest.spyOn(service, 'find').mockRejectedValue(error);
+      jest.spyOn(meterReadRepository, 'find').mockRejectedValue(error);
       const loggerErrorSpy = jest
         .spyOn(service['logger'], 'error')
         .mockImplementation();

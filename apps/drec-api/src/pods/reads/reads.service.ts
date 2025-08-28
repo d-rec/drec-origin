@@ -150,13 +150,17 @@ export class ReadsService {
     await this.repository.insert(reads);
   }
 
-  public async findCumulativeValue(device: DeviceDTO): Promise<{ value: number; datetime: Date; }> {
+  public async findCumulativeValue(
+    device: DeviceDTO,
+  ): Promise<{ value: number; datetime: Date }> {
     const cumulativeValue = await this.repository
       .createQueryBuilder('read')
       .select('SUM(read.value)', 'totalValue')
       .addSelect('MAX(read.end_date)', 'maxEndDate')
       .where('read.external_id = :deviceId', { deviceId: device.externalId })
-      .where('read.type IN (:...types)', { types: [ReadType.Delta, ReadType.Aggregate] })
+      .where('read.type IN (:...types)', {
+        types: [ReadType.Delta, ReadType.Aggregate],
+      })
       .getRawOne();
 
     return {
@@ -1210,6 +1214,16 @@ export class ReadsService {
       },
     });
     return reads;
+  }
+
+  async countByType(deviceId: string, type: ReadType): Promise<number> {
+    this.logger.verbose('Within countByType');
+    return await this.repository.count({
+      where: {
+        type: type,
+        externalId: deviceId,
+      },
+    });
   }
 
   async countOngoingReadsSinceDeviceOnboardingDate(

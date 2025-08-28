@@ -10,10 +10,7 @@ on:
       - stage
       - prod
   pull_request:
-    branches:
-      - develop
-      - stage
-      - prod
+    # runs on every PR regardless of target branch
 
 jobs:
   editorconfig-checker:
