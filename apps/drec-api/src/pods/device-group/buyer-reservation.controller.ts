@@ -152,10 +152,6 @@ export class BuyerReservationController {
     | any
     | DeviceGroupDTO[]
   > {
-    // return new Promise((resolve,reject)=>{
-    //   resolve([]);
-    // });
-    /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     this.logger.verbose('With in getAll');
     let organization: any;
     if (!apiUserId) {
@@ -237,7 +233,7 @@ export class BuyerReservationController {
     description: 'User does not have permission to view buyer reservations.',
   })
   async getMyDevices(
-    @UserDecorator() { id, organizationId, role }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Query(
       new ValidationPipe({
         transform: true,
@@ -246,7 +242,9 @@ export class BuyerReservationController {
     )
     filterDTO: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber') pageNumber: number | null,
+    @Query('pagenumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -258,6 +256,7 @@ export class BuyerReservationController {
     | DeviceGroupDTO[]
   > {
     this.logger.verbose(`With in getMyDevices`);
+    const { id, organizationId, role } = user;
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
@@ -276,7 +275,14 @@ export class BuyerReservationController {
           filterDTO,
         );
       case Role.OrganizationAdmin:
-        return await this.deviceGroupService.getAll();
+        return await this.deviceGroupService.getAll(
+          user,
+          organizationId,
+          user.api_user_id,
+          pageNumber,
+          limit,
+          filterDTO,
+        );
       default:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId,
