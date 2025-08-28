@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - develop
-  pull_request:
-    # runs on every PR regardless of target branch
+  pull_request:   # runs on every PR regardless of target branch
 
 jobs:
   docs-check:
@@ -18,9 +17,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/iron
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: docs/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: docs
         run: npm install
@@ -28,7 +27,7 @@ jobs:
       - name: Run Prettier check
         working-directory: docs
         run: npm run prettier:check
-        
+
       - name: Build docs with VitePress
         working-directory: docs
         run: npm run docs:build
