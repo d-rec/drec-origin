@@ -180,6 +180,8 @@ export class DeviceService {
       const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
+        device['internalexternalId'] = device.externalId;
+        device.externalId = device.developerExternalId;
         delete device['developerExternalId'];
 
         delete device['organization'];
@@ -202,6 +204,9 @@ export class DeviceService {
 
     const newDevices = [];
     await devices.map((device: Device) => {
+      device['internalexternalId'] = device.externalId;
+      device.externalId = device.developerExternalId;
+      delete device['developerExternalId'];
       delete device['organization'];
       newDevices.push(device);
     });
