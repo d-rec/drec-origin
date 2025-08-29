@@ -392,7 +392,7 @@ export class IssuerService {
         );
 
       // Return the readings if found
-      if (previousReadings?.[0]) {
+      if (previousReadings?.length) {
         return previousReadings[0];
       }
 
