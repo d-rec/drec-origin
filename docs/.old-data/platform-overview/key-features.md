@@ -23,6 +23,7 @@ Once devices are registered, the platform offers comprehensive viewing and filte
 Accurate recording of energy production is critical, and the platform supports multiple types of meter reads to suit different data collection needs. Developers can add meter reads for their devices by supplying the external device ID, selecting the type of reading (History, Delta, or Aggregate), specifying the unit of measurement (Wh, kWh, MWh, or GWh), and providing the actual meter reading values.
 
 - **Historical Reads:** For historical readings, the platform requires both a start and an end datetime. Historical data is validated to ensure:
+
   - The data does not predate the device’s commissioning date.
   - The power readings do not exceed the device’s capacity.
   - Only data within a three-year window is accepted for certification.
