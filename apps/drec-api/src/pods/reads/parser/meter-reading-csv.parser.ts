@@ -1,4 +1,4 @@
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../../../types/reads';
 import { CsvParser } from '../../../utils/csv-parser';
 import { NewReadDTO } from '../../../models';
 import { ReadType } from '../../../utils/enums';

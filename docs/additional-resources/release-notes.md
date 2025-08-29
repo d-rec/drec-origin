@@ -59,6 +59,7 @@ The below collection covers the functionalities of
 - Created API for listing certified devices for developers, also added pagination and filter.
 
 - Certificates now shows meter reads date and time according to device's time zone.
+
   1. time zone of different countries is included.
   2. different time zone of each device is displayed when the devices are grouped from same country which have different time zones.
 

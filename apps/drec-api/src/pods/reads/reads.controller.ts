@@ -1,10 +1,4 @@
 import {
-  BaseReadsController,
-  ReadsService as BaseReadsService,
-  FilterDTO,
-  ReadDTO,
-} from '@energyweb/energy-api-influxdb';
-import {
   BadRequestException,
   Body,
   ConflictException,
@@ -12,7 +6,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Logger,
   Param,
   Post,
@@ -30,7 +23,8 @@ import * as momentTimeZone from 'moment-timezone';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser, IUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { ReadDTO, ReadsFilterDTO } from '../../types/reads';
+import { ReadType, Role } from '../../utils/enums';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceService } from '../device/device.service';
@@ -41,26 +35,21 @@ import { NewIntermediateMeterReadDTO } from '../reads/dto/intermediate_meter_rea
 import { Roles } from '../user/decorators/roles.decorator';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { UserService } from '../user/user.service';
-import { BASE_READ_SERVICE } from './constants';
 import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { ReadsService } from './reads.service';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
 @ApiTags('Meter Reads')
-export class ReadsController extends BaseReadsController {
+export class ReadsController {
   private readonly logger = new Logger(ReadsController.name);
 
   constructor(
-    private internalReadsService: ReadsService,
+    private readsService: ReadsService,
     private deviceService: DeviceService,
-    @Inject(BASE_READ_SERVICE)
-    baseReadsService: BaseReadsService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
-  ) {
-    super(baseReadsService);
-  }
+  ) {}
 
   /**
    * This api user for get all the timezone list and also from serach key
@@ -133,7 +122,7 @@ export class ReadsController extends BaseReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
     @Param('externalId') meterId: string,
-    @Query() filter: FilterDTO,
+    @Query() filter: ReadsFilterDTO,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -146,7 +135,11 @@ export class ReadsController extends BaseReadsController {
         message: `Invalid device id`,
       });
     }
-    return super.getReads(device.externalId, filter);
+
+    return this.readsService.find(device.externalId, {
+      type: ReadType.Delta,
+      ...filter,
+    });
   }
 
   /**
@@ -191,8 +184,6 @@ export class ReadsController extends BaseReadsController {
     @Param('externalId') meterId: string,
     @Query() filter: FilterNoOffLimit,
     @Query('pagenumber') pageNumber: number | null,
-    @Query('Month') month: number | null,
-    @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
@@ -246,10 +237,6 @@ export class ReadsController extends BaseReadsController {
     filter.offset = 0;
     filter.limit = 5;
     let device: DeviceDTO | null;
-    if (month && !year) {
-      this.logger.error(`Year is required when month is given`);
-      throw new HttpException('Year is required when month is given', 400);
-    }
 
     if (
       user.role === 'Buyer' ||
@@ -305,8 +292,9 @@ export class ReadsController extends BaseReadsController {
         }
       }
     } else {
-      device = await this.deviceService.findDeviceByExternalId(
-        meterId,
+      const serialNumber = meterId;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }
@@ -319,39 +307,48 @@ export class ReadsController extends BaseReadsController {
       });
     }
 
-    if (filter.readType === 'accumulated' && filter.accumulationType) {
-      return this.internalReadsService.getAccumulatedReads(
-        device.externalId,
-        user.organizationId,
-        device.serialNumber,
-        filter.accumulationType,
-        month,
-        year,
-      );
-    } else if (filter.readType === 'meterReads') {
-      const timezone = getLocalTimeZoneFromDevice(filter.start, device);
-      this.logger.log('the timezone we got from all reads is:::' + timezone);
-      const returnedObject = await this.internalReadsService.getAllRead(
-        device.externalId,
-        filter,
-        device.createdAt,
-        pageNumber,
-      );
-      this.logger.log(
-        'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
-      );
-      Object.assign(returnedObject, { timezone: timezone });
-      this.logger.log(
-        'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
-      );
-      return returnedObject;
-    } else {
-      this.logger.error(`Invalid readType parameter`);
-      throw new HttpException('Invalid readType parameter', 400);
-    }
+    const timezone = getLocalTimeZoneFromDevice(filter.start, device);
+    this.logger.log('the timezone we got from all reads is:::' + timezone);
+    const returnedObject = await this.readsService.getAllRead(
+      device.externalId,
+      filter,
+      device.createdAt,
+      pageNumber,
+    );
+
+    this.logger.log(
+      'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
+    );
+    Object.assign(returnedObject, { timezone: timezone });
+    this.logger.log(
+      'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
+    );
+    return returnedObject;
   }
 
   /* */
+
+  @Post('new/:id')
+  @ApiOperation({
+    summary: 'Add new meter read (to be deprecated)',
+    description:
+      'Stores new meter reads for historical data, delta readings, and aggregate readings.',
+  })
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    RolesGuard,
+    PermissionGuard,
+  )
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Permission('Write')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  public async newStoreRead(
+    @Param('id') id: string,
+    @Body() measurements: NewIntermediateMeterReadDTO,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<void> {
+    return this.create(id, measurements, user);
+  }
 
   /**
    * This api route use for add meter read of devices
@@ -360,7 +357,7 @@ export class ReadsController extends BaseReadsController {
    * @param user
    * @returns {NewIntermediateMeterReadDTO}
    */
-  @Post('new/:id')
+  @Post(':id')
   @ApiOperation({
     summary: 'Add new meter read',
     description:
@@ -387,12 +384,12 @@ export class ReadsController extends BaseReadsController {
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async newStoreRead(
-    @Param('id') id: string,
+  public async create(
+    @Param('externalId') id: string,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<void> {
-    this.logger.verbose(`With in newStoreRead`);
+    this.logger.verbose(`With in create`);
     if (measurements.organizationId) {
       await this.organizationService.checkIfCanManage({
         user,
@@ -400,7 +397,7 @@ export class ReadsController extends BaseReadsController {
       });
       user.organizationId = measurements.organizationId;
     }
-    return this.internalReadsService.validateAndStoreReads({
+    return this.readsService.validateAndStoreReads({
       deviceSerialNumber: id.trim(),
       measurements,
       organizationId: user.organizationId,
@@ -417,7 +414,7 @@ export class ReadsController extends BaseReadsController {
    * @returns {NewIntermediateMeterReadDTO}
    */
 
-  @Post('addByAdmin/new/:id')
+  @Post('addByAdmin/new/:externalId')
   @ApiOperation({
     summary: 'Add new meter read by admin',
     description:
@@ -447,7 +444,7 @@ export class ReadsController extends BaseReadsController {
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreReadAddByAdmin(
-    @Param('id') id: string,
+    @Param('externalId') id: string,
     @Query('organizationId') organizationId: number | null,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
@@ -460,7 +457,7 @@ export class ReadsController extends BaseReadsController {
     ) {
       organizationId = user.organizationId;
     }
-    return this.internalReadsService.validateAndStoreReads({
+    return this.readsService.validateAndStoreReads({
       deviceSerialNumber: id.trim(),
       measurements,
       organizationId,
@@ -472,6 +469,25 @@ export class ReadsController extends BaseReadsController {
    * @returns {enddate:DateTime,value:number}
    */
   @Get('/latestread/:externalId')
+  @ApiOperation({
+    summary: 'Get latest meter read',
+    description:
+      'this endpoint will be replaced by `/reads/:externalId/latest` in future. Returns the latest meter read of the given device by its external ID.',
+  })
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Permission('Read')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  public async getLatestMeterRead(
+    @Param('externalId') externalId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<any> {
+    return this.getLatestRead(externalId, user);
+  }
+
+  @Get('/:externalId/latest')
   @ApiOperation({
     summary: 'Get latest meter read',
     description:
@@ -496,8 +512,8 @@ export class ReadsController extends BaseReadsController {
   )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
-  public async getLatestMeterRead(
-    @Param('externalId') externalId: string,
+  public async getLatestRead(
+    @Param('externalId') id: string,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);
@@ -508,10 +524,11 @@ export class ReadsController extends BaseReadsController {
       user.role === 'ApiUser'
     ) {
       // in buyer case externalid means insert id
-      device = await this.deviceService.findOne(parseInt(externalId));
+      device = await this.deviceService.findOne(parseInt(id));
     } else {
-      device = await this.deviceService.findDeviceByExternalId(
-        externalId,
+      const serialNumber = id;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }
@@ -531,10 +548,7 @@ export class ReadsController extends BaseReadsController {
       this.logger.error(`Read not found`);
       throw new HttpException('Read not found', 400);
     } else {
-      latestReadObject = await this.internalReadsService.latestRead(
-        deviceExternalId,
-        device.createdAt,
-      );
+      latestReadObject = await this.readsService.latestRead(deviceExternalId);
 
       if (
         typeof latestReadObject === 'undefined' ||
@@ -552,8 +566,8 @@ export class ReadsController extends BaseReadsController {
       }
 
       return {
-        enddate: latestReadObject[0].timestamp,
-        value: latestReadObject[0].value,
+        enddate: latestReadObject.endDate,
+        value: latestReadObject.value,
       };
     }
   }

@@ -1,32 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { HttpService } from '@nestjs/axios';
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceService } from './device.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import {
-  Repository,
   FindManyOptions,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  In,
   Connection,
+  Repository,
 } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Device } from './device.entity';
-import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { ConflictException } from '@nestjs/common';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { Role } from '../../utils/enums/role.enum';
-import {
-  DeviceDTO,
-  DeviceGroupByDTO,
-  FilterDTO,
-  NewDeviceDTO,
-  UpdateDeviceDTO,
-} from './dto';
+import { DeviceDescription } from '../../models';
 import {
   DeviceOrderBy,
   DeviceTypeCode,
@@ -35,11 +21,7 @@ import {
   OrganizationStatus,
   OrganizationType,
 } from '../../utils/enums';
-import { DeviceDescription } from '../../models';
-import { Organization } from '../organization/organization.entity';
-import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
-import { HttpService } from '@nestjs/axios';
-import { User } from '../user/user.entity';
+import { Role } from '../../utils/enums/role.enum';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import {
@@ -50,19 +32,28 @@ import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { MailService } from '../../mail/mail.service';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { ReadsService } from '../reads/reads.service';
+import { User } from '../user/user.entity';
+import { UserService } from '../user/user.service';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { Device } from './device.entity';
+import { DeviceService } from './device.service';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import {
+  DeviceGroupByDTO,
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
   let deviceDocumentRepository: Repository<DocumentEntity>;
-  let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
-  let httpService: HttpService;
-  let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
-  let irecErrorLogRepository: Repository<IRECErrorLogInformationEntity>;
-  let organizationService: OrganizationService;
-  let userService: UserService;
-  let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
   let fileService: FileService;
   let connection: Connection;
   let documentService: DocumentUploadsService;
@@ -103,10 +94,6 @@ describe('DeviceService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediateMeterRead),
-          useClass: Repository,
-        },
-        {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceEntity,
           ),
@@ -142,6 +129,10 @@ describe('DeviceService', () => {
         },
         {
           provide: UserService,
+          useValue: {} as any,
+        },
+        {
+          provide: ReadsService,
           useValue: {} as any,
         },
         {
@@ -1334,7 +1325,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByExternalId', () => {
+  describe('findBySerialNumber', () => {
     it('should return the device with updated timezone when found', async () => {
       // Mock device object
       const mockDevice: Device = {
@@ -1358,7 +1349,7 @@ describe('DeviceService', () => {
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
 
       // Execute the function
-      const result = await service.findDeviceByExternalId('some-meter-id', 1);
+      const result = await service.findBySerialNumber('some-meter-id', 1);
 
       // Assert
       expect(result).toEqual(mockDevice);
@@ -1382,7 +1373,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null);
 
       // Execute the function
-      const result = await service.findDeviceByExternalId(
+      const result = await service.findBySerialNumber(
         'non-existent-meter-id',
         1,
       );
@@ -1399,7 +1390,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceBySerialNumberByApiUser', () => {
+  describe('findBySerialNumberAndApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1409,7 +1400,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceBySerialNumberByApiUser(
+      const result = await service.findBySerialNumberAndApiUser(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1441,7 +1432,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceBySerialNumberByApiUser(
+      const result = await service.findBySerialNumberAndApiUser(
         'existing-meter-id',
         'user-id',
       );
@@ -1719,7 +1710,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null); // Mock fingerprint check to return null
 
       const findDeviceByDeveloperExternalIdSpy = jest
-        .spyOn(service, 'findDeviceByExternalId')
+        .spyOn(service, 'findBySerialNumber')
         .mockResolvedValue(currentDevice);
 
       const saveSpy = jest
@@ -1777,27 +1768,69 @@ describe('DeviceService', () => {
       const organizationId = 1;
       const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
-      }; // Provide necessary DTO properties
+      };
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
       const mockDevices = [
-        { id: 1, groupId: null, organizationId: 1 },
-        { id: 2, groupId: null, organizationId: 1 },
-      ] as Device[];
+        {
+          id: 1,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+        {
+          id: 2,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+      ] as any;
 
-      const findSpy = jest
-        .spyOn(repository, 'find')
-        .mockResolvedValue(mockDevices);
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([mockDevices, mockDevices.length]);
+
+      const groupedResult = {
+        totalPages: 1,
+        currentPage: 1,
+        groups: [
+          {
+            name: 'group',
+            devices: mockDevices, // Now matches UngroupedDeviceDTO[]
+          },
+        ],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDTO,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      // Assuming groupDevices returns a transformed array based on your logic
-      // Replace with actual expected result from `groupDevices` method
-      expect(result).toEqual(expect.any(Array));
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
 
     it('should return an empty array when no ungrouped devices are found', async () => {
@@ -1805,17 +1838,45 @@ describe('DeviceService', () => {
       const orderFilterDto: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       };
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[], 0]);
+
+      // Optionally, mock groupDevices to return empty groups
+      const groupedResult = {
+        totalPages: 0,
+        currentPage: 1,
+        groups: [],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDto,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      expect(result).toEqual([]); // Assuming `groupDevices` returns an empty array
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
   });
 

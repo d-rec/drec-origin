@@ -7,7 +7,6 @@ import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { CountryCodeModule } from '../countrycode/countrycode.module';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { UserModule } from '../user/user.module';
@@ -19,19 +18,20 @@ import { EvidentModule } from '../evident/evident.module';
 import { Organization } from '../organization/organization.entity';
 import { EvidentSettings } from '../evident/evident-settings.entity';
 import { MailModule } from '../../mail/mail.module';
+import { ReadsModule } from '../reads/reads.module';
 
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
     forwardRef(() => EvidentModule),
     forwardRef(() => MailModule),
+    forwardRef(() => ReadsModule),
     CountryCodeModule,
     HttpModule,
     TypeOrmModule.forFeature([
       Device,
       ACLModulePermission,
       CheckCertificateIssueDateLogForDeviceEntity,
-      HistoryIntermediateMeterRead,
       IRECDevicesInformationEntity,
       IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,

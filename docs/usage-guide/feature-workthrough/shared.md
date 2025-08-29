@@ -19,6 +19,7 @@ This section covers the features and functionalities shared across different use
 Organization administrators have access to comprehensive user management capabilities:
 
 1. **View All Users**
+
    - Navigate to Organization > All Users
    - See all users within your organization
    - View details including Name, Email, Role, and Status
@@ -46,6 +47,7 @@ Organization administrators have access to comprehensive user management capabil
 #### Role Assignment Options
 
 - **For Developers:**
+
   - DeviceOwner
   - User
     ![developer invitation page](../dashboard-user-guide-images/developer-invitation.png)
@@ -113,11 +115,13 @@ Common search features include:
 ## Best Practices
 
 1. **User Management:**
+
    - Regularly review user access and permissions
    - Update or remove inactive users promptly
    - Verify email addresses before sending invitations
 
 2. **Account Security:**
+
    - Change passwords periodically
    - Use strong passwords meeting all requirements
    - Keep profile information up to date

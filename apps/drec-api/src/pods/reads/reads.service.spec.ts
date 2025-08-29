@@ -1,58 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  ReadsService as BaseReadsService,
-  FilterDTO,
-} from '@energyweb/energy-api-influxdb';
+import { ReadsFilterDTO, Unit } from '../../types/reads';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { DeltaFirstRead } from './delta_firstread.entity';
 import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';
 import { FileService } from '../file/file.service';
-import { BASE_READ_SERVICE } from './constants';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
 import { getQueueToken } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
-
-jest.mock('@influxdata/influxdb-client', () => {
-  return {
-    InfluxDB: jest.fn().mockImplementation(() => {
-      return {
-        getQueryApi: jest.fn().mockReturnValue({
-          queryRows: jest.fn(),
-        }),
-      };
-    }),
-  };
-});
+import { MeterRead } from './reads.entity';
+import { FailedMeterRead } from './failed-reads.entity';
+import { ReadType } from '../../utils/enums';
 
 describe('ReadsService', () => {
   let service: ReadsService;
-  let baseReadsService: BaseReadsService;
-  let aggregateRepository: Repository<AggregateMeterRead>;
-  let historyRepository: Repository<HistoryIntermediateMeterRead>;
-  let deltaRepository: Repository<DeltaFirstRead>;
-  let deviceService: DeviceService;
-  let deviceGroupService: DeviceGroupService;
-  let organizationService: OrganizationService;
-  let eventBus: EventBus;
+  let meterReadRepository: Repository<MeterRead>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReadsService,
-        {
-          provide: getRepositoryToken(AggregateMeterRead),
-          useClass: Repository,
-        },
         {
           provide: getRepositoryToken(BulkUploadFailedLogEntity),
           useClass: Repository,
@@ -62,18 +35,12 @@ describe('ReadsService', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(HistoryIntermediateMeterRead),
+          provide: getRepositoryToken(FailedMeterRead),
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(DeltaFirstRead),
+          provide: getRepositoryToken(MeterRead),
           useClass: Repository,
-        },
-        {
-          provide: BASE_READ_SERVICE,
-          useValue: {
-            find: jest.fn(),
-          } as any,
         },
         {
           provide: getQueueToken(Queues.ReadsBulkUpload),
@@ -110,7 +77,9 @@ describe('ReadsService', () => {
     }).compile();
 
     service = module.get<ReadsService>(ReadsService);
-    baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
+    meterReadRepository = module.get<Repository<MeterRead>>(
+      getRepositoryToken(MeterRead),
+    );
   });
 
   it('should be defined', () => {
@@ -120,25 +89,42 @@ describe('ReadsService', () => {
   describe('find', () => {
     it('should return device reads when find is successful', async () => {
       const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
-      const mockReads = [
-        { timestamp: new Date('2024-01-01T00:00:00Z'), value: 123.45 },
-        { timestamp: new Date('2024-01-02T00:00:00Z'), value: 678.9 },
+      const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
+
+      const mockReads: MeterRead[] = [
+        new MeterRead({
+          id: 2333,
+          externalId: meterId,
+          type: ReadType.Delta,
+          startDate: new Date('2024-01-01T00:00:00Z'),
+          endDate: new Date('2024-01-02T00:00:00Z'),
+          value: 123.45,
+          unit: Unit.Wh,
+        }),
+        new MeterRead({
+          id: 2334,
+          externalId: meterId,
+          type: ReadType.Delta,
+          startDate: new Date('2024-01-03T00:00:00Z'),
+          endDate: new Date('2024-01-04T00:00:00Z'),
+          value: 678.9,
+          unit: Unit.Wh,
+        }),
       ];
 
-      jest.spyOn(baseReadsService, 'find').mockResolvedValue(mockReads);
+      jest.spyOn(service, 'find').mockResolvedValue(mockReads);
 
       const result = await service.find(meterId, filter);
 
       expect(result).toEqual(mockReads);
     });
 
-    it('should handle errors thrown by baseReadsService.find', async () => {
+    it('should handle errors thrown by service.find', async () => {
       const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
+      const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
 
       jest
-        .spyOn(baseReadsService, 'find')
+        .spyOn(meterReadRepository, 'find')
         .mockRejectedValue(new Error('Test error'));
 
       const result = await service.find(meterId, filter);
@@ -146,12 +132,12 @@ describe('ReadsService', () => {
       expect(result).toBeUndefined(); // Expectation depends on how you handle errors in your service
     });
 
-    it('should log errors when baseReadsService.find throws an exception', async () => {
+    it('should log errors when service.find throws an exception', async () => {
       const meterId = 'test-meter-id';
-      const filter: FilterDTO = {} as unknown as FilterDTO; // Adjust as needed
+      const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
       const error = new Error('Test error');
 
-      jest.spyOn(baseReadsService, 'find').mockRejectedValue(error);
+      jest.spyOn(meterReadRepository, 'find').mockRejectedValue(error);
       const loggerErrorSpy = jest
         .spyOn(service['logger'], 'error')
         .mockImplementation();

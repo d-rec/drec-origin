@@ -11,7 +11,7 @@ import { DeviceService } from '../src/pods/device/device.service';
 import { OrganizationService } from '../src/pods/organization/organization.service';
 import { seed } from './seed';
 import { expect } from 'chai';
-import { MeasurementDTO, ReadDTO, Unit } from '@energyweb/energy-api-influxdb';
+import { MeasurementDTO, ReadDTO, Unit } from '../src/types/reads';
 
 describe('Reads tests', () => {
   let app: INestApplication;
@@ -35,7 +35,7 @@ describe('Reads tests', () => {
     await databaseService.truncate('user', 'device', 'organization');
 
     await app.init();
-    // clean influxdb
+
     await seed({
       userService,
       organizationService,
@@ -84,10 +84,12 @@ describe('Reads tests', () => {
 
     const date3 = new Date();
     date3.setHours(date3.getHours() - 1);
-    measurement1.reads = [{ timestamp: date1, value: 120000 }];
+    measurement1.reads = [
+      { startDate: startDate, endDate: date1, value: 120000 },
+    ];
     measurement2.reads = [
-      { timestamp: date2, value: 16000 },
-      { timestamp: date3, value: 9999999999 },
+      { startDate: startDate, endDate: date2, value: 16000 },
+      { startDate: startDate, endDate: date3, value: 9999999999 },
     ];
 
     await requestDeviceMultipleCodeReads(
