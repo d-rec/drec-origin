@@ -15,6 +15,7 @@ import { OrganizationService } from '../../organization/organization.service';
 import { MeterRead } from '../../reads/reads.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
+import { ReadType } from '../../../utils/enums';
 
 const ONE_SECOND_IN_MILLISECONDS = 1000;
 
@@ -430,6 +431,7 @@ export class IssuerService {
         limit: 5000,
         start: startDate.toString(),
         end: endDate.toString(),
+        type: ReadType.Delta,
         certified: false,
       },
     );
