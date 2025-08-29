@@ -100,7 +100,7 @@ import {
   getMinDateByFrequency,
 } from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
-import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import { SMALL_DEVICES_MAX_CAPACITY, LIMIT_PER_PAGE } from '../../constants';
 
 @Injectable()
 export class DeviceService {
@@ -133,7 +133,7 @@ export class DeviceService {
     OrgId?: number,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in find`);
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     let query = await this.getFilteredQuery(filterDto, OrgId);
     if (pageNumber) {
       query = {
@@ -147,7 +147,7 @@ export class DeviceService {
       relations: ['organization'],
       ...query,
     });
-    const totalPages = Math.ceil(totalCount / 20);
+    const totalPages = Math.ceil(totalCount / LIMIT_PER_PAGE);
     const currentPage = pageNumber;
     const newDevices = [];
 
@@ -177,7 +177,7 @@ export class DeviceService {
       Object.keys(filterDto).length != 0 &&
       (pageNumber != null || pageNumber != undefined)
     ) {
-      const limit = 20;
+      const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.ApiUser) {
@@ -867,9 +867,9 @@ export class DeviceService {
     groups: GroupedDevicesDTO[];
   }> {
     this.logger.verbose(`With in findUngrouped`);
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     let query = this.getFilteredQuery(filterDto);
-    if (pageNumber) {
+    if (pageNumber != null && pageNumber != undefined) {
       query = {
         ...query,
         skip: (pageNumber - 1) * limit,
@@ -889,7 +889,7 @@ export class DeviceService {
     const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
-    const currentPage = pageNumber;
+    const currentPage = pageNumber ?? 1;
     delete devices['organization'];
     return this.groupDevices(orderFilterDto, devices, currentPage, totalPages);
   }
@@ -1211,7 +1211,7 @@ export class DeviceService {
     pageNumber: number,
     api_user_id: string,
   ): Promise<any> {
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     let query = this.getFilteredQuery(filterDto);
     if (pageNumber) {
       query = {
