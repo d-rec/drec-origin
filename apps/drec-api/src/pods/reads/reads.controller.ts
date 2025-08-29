@@ -393,7 +393,7 @@ export class ReadsController {
       user.organizationId = measurements.organizationId;
     }
     return this.readsService.validateAndStoreReads({
-      deviceExternalId: id.trim(),
+      deviceSerialNumber: id.trim(),
       measurements,
       organizationId: user.organizationId,
     });
@@ -452,8 +452,13 @@ export class ReadsController {
     ) {
       organizationId = user.organizationId;
     }
+<<<<<<< HEAD
     return this.readsService.validateAndStoreReads({
       deviceExternalId: id.trim(),
+=======
+    return this.internalReadsService.validateAndStoreReads({
+      deviceSerialNumber: id.trim(),
+>>>>>>> develop
       measurements,
       organizationId,
     });

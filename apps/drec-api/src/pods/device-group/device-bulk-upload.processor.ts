@@ -3,7 +3,10 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
-import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
+import {
+  BulkUploadStatus,
+  BulkUploadType,
+} from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 import { Queues } from '../../utils/enums/queues.enum';
 import { DeviceFiles } from '../device/dto';
@@ -24,7 +27,10 @@ export class DeviceBulkUploadProcessor {
     const { s3Key } = job.data;
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
-        where: { jobId: job.id.toString() },
+        where: {
+          jobId: job.id.toString(),
+          type: BulkUploadType.Devices,
+        },
       });
     const files: DeviceFiles = {
       [DocumentType.FORM_SF_02]: [],
