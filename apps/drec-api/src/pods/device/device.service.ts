@@ -101,7 +101,7 @@ import EvidentDeviceApprovedTemplate, {
 import EvidentDeviceRejectedTemplate, {
   getEvidentDeviceRejectedSubject,
 } from '../evident/mail/evident-device-rejected.template';
-import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
+import { SMALL_DEVICES_MAX_CAPACITY, LIMIT_PER_PAGE } from '../../constants';
 
 @Injectable()
 export class DeviceService {
@@ -134,7 +134,7 @@ export class DeviceService {
     OrgId?: number,
   ): Promise<{ devices: Device[]; currentPage; totalPages; totalCount }> {
     this.logger.verbose(`With in find`);
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     let query = await this.getFilteredQuery(filterDto, OrgId);
     if (pageNumber) {
       query = {
@@ -148,7 +148,7 @@ export class DeviceService {
       relations: ['organization'],
       ...query,
     });
-    const totalPages = Math.ceil(totalCount / 20);
+    const totalPages = Math.ceil(totalCount / LIMIT_PER_PAGE);
     const currentPage = pageNumber;
     const newDevices = [];
 
@@ -178,7 +178,7 @@ export class DeviceService {
       Object.keys(filterDto).length != 0 &&
       (pageNumber != null || pageNumber != undefined)
     ) {
-      const limit = 20;
+      const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.ApiUser) {
@@ -863,13 +863,39 @@ export class DeviceService {
   async findUngrouped(
     organizationId: number,
     orderFilterDto: DeviceGroupByDTO,
-  ): Promise<GroupedDevicesDTO[]> {
+    filterDto: FilterDTO,
+    pageNumber: number,
+  ): Promise<{
+    totalPages: number;
+    currentPage: number;
+    groups: GroupedDevicesDTO[];
+  }> {
     this.logger.verbose(`With in findUngrouped`);
-    const devices = await this.repository.find({
-      where: { groupId: null, organizationId },
-    });
+    const limit = LIMIT_PER_PAGE;
+    let query = this.getFilteredQuery(filterDto);
+    if (pageNumber != null && pageNumber != undefined) {
+      query = {
+        ...query,
+        skip: (pageNumber - 1) * limit,
+        take: limit,
+      };
+    }
+    let where: any = query.where;
+
+    where = {
+      ...where,
+      groupId: null,
+      organizationId,
+    };
+
+    query.where = where;
+
+    const [devices, totalCount] = await this.repository.findAndCount(query);
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage = pageNumber ?? 1;
     delete devices['organization'];
-    return this.groupDevices(orderFilterDto, devices);
+    return this.groupDevices(orderFilterDto, devices, currentPage, totalPages);
   }
 
   async findUngroupedById(id: number): Promise<boolean> {
@@ -905,7 +931,13 @@ export class DeviceService {
   groupDevices(
     orderFilterDto: DeviceGroupByDTO,
     devices: Device[],
-  ): GroupedDevicesDTO[] {
+    currentPage?: number,
+    totalPages?: number,
+  ): {
+    totalPages: number;
+    currentPage: number;
+    groups: GroupedDevicesDTO[];
+  } {
     this.logger.verbose(`With in groupDevices`);
     const { orderBy } = orderFilterDto;
     const orderByRules: DeviceOrderBy[] = Array.isArray(orderBy)
@@ -926,23 +958,23 @@ export class DeviceService {
         ];
       },
     );
-    return groupedDevicesByProps.map((devices: DeviceDTO[]) => {
-      return {
+    return {
+      totalPages,
+      currentPage,
+      groups: groupedDevicesByProps.map((devices: DeviceDTO[]) => ({
         name: this.getDeviceGroupNameFromGroupedDevices(devices, orderByRules),
         devices: devices.map(
-          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => {
-            return {
-              ...device,
-              commissioningDateRange: getDateRangeFromYear(
-                device.commissioningDate,
-              ),
-              capacityRange: getCapacityRange(device.capacity),
-              selected: true,
-            };
-          },
+          (device: UngroupedDeviceDTO): UngroupedDeviceDTO => ({
+            ...device,
+            commissioningDateRange: getDateRangeFromYear(
+              device.commissioningDate,
+            ),
+            capacityRange: getCapacityRange(device.capacity),
+            selected: true,
+          }),
         ),
-      };
-    });
+      })),
+    };
   }
 
   private getDeviceGroupNameFromGroupedDevices(
@@ -1183,7 +1215,7 @@ export class DeviceService {
     pageNumber: number,
     api_user_id: string,
   ): Promise<any> {
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     let query = this.getFilteredQuery(filterDto);
     if (pageNumber) {
       query = {

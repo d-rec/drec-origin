@@ -23,6 +23,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { User } from '../user/user.entity';
+import { LIMIT_PER_PAGE } from '../../constants';
 
 describe('OrganizationService', () => {
   let service: OrganizationService;
@@ -348,7 +349,7 @@ describe('OrganizationService', () => {
   describe('findOrganizationUsers', () => {
     const orgId = 13;
     const pageNumber = 1;
-    const limit = 20;
+    const limit = LIMIT_PER_PAGE;
     const role = undefined;
 
     const users = [
