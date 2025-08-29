@@ -464,7 +464,7 @@ graph TD
 
 - Developers might have same External ID whereas in backend ID will be a combination of Device Name and Organisation ID to identify devices across the platform.(as Device Names can be duplicate across developers)
 
-- Backend External ID will be used to keep devices Identical and it will be used in meter reads influx DB consider production data.
+- Backend External ID will be used to keep devices Identical and it will be used in meter reads DB consider production data.
 
 - External ID validation not to include URL characters like #.
 

@@ -1,4 +1,4 @@
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../types/reads';
 
 export interface IDeltaIntermediate {
   id: number;

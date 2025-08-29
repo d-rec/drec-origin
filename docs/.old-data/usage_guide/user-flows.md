@@ -840,7 +840,7 @@ Requirements:
 
 **_Device ExternalId discussion:_**
 
-- As developers(from different organisations) might have same externalId we currently cannot make externalId as unique (Srinivas suggestion use device name + organisation id ), make use of deviceId in the meter reads in influx db consider production data.
+- As developers(from different organisations) might have same externalId we currently cannot make externalId as unique (Srinivas suggestion use device name + organisation id ), make use of deviceId in the meter reads in db consider production data.
 
 - Update the external ID validation not to include URL characters like #.(what will we do for French characters?). We could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 

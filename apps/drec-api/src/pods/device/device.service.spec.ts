@@ -1,32 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { HttpService } from '@nestjs/axios';
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceService } from './device.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import {
-  Repository,
   FindManyOptions,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  In,
   Connection,
+  Repository,
 } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Device } from './device.entity';
-import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { ConflictException } from '@nestjs/common';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { Role } from '../../utils/enums/role.enum';
-import {
-  DeviceDTO,
-  DeviceGroupByDTO,
-  FilterDTO,
-  NewDeviceDTO,
-  UpdateDeviceDTO,
-} from './dto';
+import { DeviceDescription } from '../../models';
 import {
   DeviceOrderBy,
   DeviceTypeCode,
@@ -35,11 +21,7 @@ import {
   OrganizationStatus,
   OrganizationType,
 } from '../../utils/enums';
-import { DeviceDescription } from '../../models';
-import { Organization } from '../organization/organization.entity';
-import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
-import { HttpService } from '@nestjs/axios';
-import { User } from '../user/user.entity';
+import { Role } from '../../utils/enums/role.enum';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import {
@@ -50,19 +32,28 @@ import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { MailService } from '../../mail/mail.service';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { ReadsService } from '../reads/reads.service';
+import { User } from '../user/user.entity';
+import { UserService } from '../user/user.service';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { Device } from './device.entity';
+import { DeviceService } from './device.service';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import {
+  DeviceGroupByDTO,
+  FilterDTO,
+  NewDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
+import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
-  let historyRepository: Repository<HistoryIntermediateMeterRead>;
   let repository: Repository<Device>;
   let deviceDocumentRepository: Repository<DocumentEntity>;
-  let checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
-  let httpService: HttpService;
-  let irecInfoRepository: Repository<IRECDevicesInformationEntity>;
-  let irecErrorLogRepository: Repository<IRECErrorLogInformationEntity>;
-  let organizationService: OrganizationService;
-  let userService: UserService;
-  let deviceLateOngoingCertificateRepository: DeviceLateOngoingIssueCertificateEntity;
   let fileService: FileService;
   let connection: Connection;
   let documentService: DocumentUploadsService;
@@ -103,10 +94,6 @@ describe('DeviceService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(HistoryIntermediateMeterRead),
-          useClass: Repository,
-        },
-        {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceEntity,
           ),
@@ -142,6 +129,10 @@ describe('DeviceService', () => {
         },
         {
           provide: UserService,
+          useValue: {} as any,
+        },
+        {
+          provide: ReadsService,
           useValue: {} as any,
         },
         {

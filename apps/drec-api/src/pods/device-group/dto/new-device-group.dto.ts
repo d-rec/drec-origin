@@ -1,22 +1,21 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString,
-  IsInt,
-  Min,
   IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
+  Min,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IDeviceGroup } from '../../../models';
 import {
-  OffTaker,
   CapacityRange,
   CommissioningDateRange,
+  OffTaker,
 } from '../../../utils/enums';
-import { Exclude } from 'class-transformer';
 export class NewDeviceGroupDTO
   implements Omit<IDeviceGroup, 'id' | 'organizationId'>
 {
@@ -148,7 +147,6 @@ export class NewDeviceGroupDTO
   deviceGroupUid?: string | null | undefined;
 
   @ApiProperty({ type: [Number] })
-  @Exclude()
   @IsInt({ each: true })
   @Min(1, { each: true })
   deviceIdsInt?: number[];

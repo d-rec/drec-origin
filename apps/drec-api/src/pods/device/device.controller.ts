@@ -66,6 +66,7 @@ import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { validateOrReject } from 'class-validator';
+import { ReadsService } from '../reads/reads.service';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -82,6 +83,7 @@ export class DeviceController {
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly readsService: ReadsService,
   ) {}
 
   /**
@@ -690,7 +692,7 @@ export class DeviceController {
           checkExternalId.externalId,
         );
       const noOfOnGoingRead: number =
-        await this.deviceService.getNumberOfOngoingReads(
+        await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
           checkExternalId.externalId,
           checkExternalId.createdAt,
         );

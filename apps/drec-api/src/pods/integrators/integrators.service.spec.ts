@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { Test, TestingModule } from '@nestjs/testing';
-import { DeviceService } from '../device/device.service';
 import { HttpService } from '@nestjs/axios';
-import { BASE_READ_SERVICE } from '../reads/constants';
-import { IntegratorsService } from './integrators.service';
 import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
-import { of, throwError } from 'rxjs';
+import { Test, TestingModule } from '@nestjs/testing';
 import { BigNumber } from 'ethers';
+import { of, throwError } from 'rxjs';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
+import { MeasurementDTO, ReadDTO, Unit } from '../../types/reads';
+import { ReadType } from '../../utils/enums';
+import { DeviceService } from '../device/device.service';
+import { ReadsService } from '../reads/reads.service';
+import { IntegratorsService } from './integrators.service';
 import { DateTime } from 'luxon';
-import {
-  MeasurementDTO,
-  ReadDTO,
-  Unit,
-  ReadsService as BaseReadsService,
-} from '@energyweb/energy-api-influxdb';
-import { AxiosResponse } from 'axios';
 
 describe('IntegratorsService', () => {
   let service: IntegratorsService;
@@ -25,7 +20,7 @@ describe('IntegratorsService', () => {
   let deviceService: DeviceService;
   let configService: ConfigService;
   let eventBus: EventBus;
-  let baseReadsService: BaseReadsService;
+  let readsService: ReadsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,13 +38,12 @@ describe('IntegratorsService', () => {
           useValue: {} as any,
         },
         {
-          provide: BASE_READ_SERVICE,
+          provide: ReadsService,
           useValue: {
             store: jest.fn(),
           } as any,
         },
         ConfigService,
-
         {
           provide: EventBus,
           useValue: {
@@ -64,7 +58,7 @@ describe('IntegratorsService', () => {
     deviceService = module.get<DeviceService>(DeviceService);
     configService = module.get<ConfigService>(ConfigService);
     eventBus = module.get<EventBus>(EventBus);
-    baseReadsService = module.get<BaseReadsService>(BASE_READ_SERVICE);
+    readsService = module.get<ReadsService>(ReadsService);
   });
 
   it('should be defined', () => {
@@ -248,7 +242,10 @@ describe('IntegratorsService', () => {
         externalId,
         [
           {
-            timestamp: new Date(mockEnergyData[0][1]),
+            startDate: DateTime.fromJSDate(new Date(mockEnergyData[0][1]))
+              .minus({ minutes: 30 })
+              .toJSDate(),
+            endDate: new Date(mockEnergyData[0][1]),
             value: parseFloat(mockEnergyData[0][0]),
           },
         ],
@@ -259,31 +256,42 @@ describe('IntegratorsService', () => {
   });
 
   describe('storeEnergy', () => {
-    it('should log measurements and call baseReadsService.store', async () => {
+    it('should log measurements and call readsService.store', async () => {
       const externalId = 'device123';
       const reads: ReadDTO[] = [
-        { timestamp: new Date('2023-01-01T00:00:00Z'), value: 100 },
+        {
+          startDate: new Date('2023-01-01T00:00:00Z'),
+          endDate: new Date('2023-01-01T00:30:00Z'),
+          value: 100,
+        },
       ];
       const unit = Unit.kWh;
       const organizationId = 1;
 
       await service.storeEnergy(externalId, reads, unit, organizationId);
 
-      const measurements = new MeasurementDTO();
-      measurements.reads = reads;
-      measurements.unit = unit;
+      const measurement: MeasurementDTO = {
+        reads,
+        unit,
+        type: ReadType.Delta,
+      };
 
-      expect(baseReadsService.store).toHaveBeenCalledWith(
-        externalId,
-        measurements,
-      );
+      expect(readsService.store).toHaveBeenCalledWith(externalId, measurement);
     });
 
     it('should publish GenerationReadingStoredEvent for each read', async () => {
       const externalId = 'device123';
       const reads: ReadDTO[] = [
-        { timestamp: new Date('2023-01-01T00:00:00Z'), value: 100 },
-        { timestamp: new Date('2023-01-01T01:00:00Z'), value: 200 },
+        {
+          startDate: new Date('2023-01-01T00:00:00Z'),
+          endDate: new Date('2023-01-01T00:30:00Z'),
+          value: 100,
+        },
+        {
+          startDate: new Date('2023-01-01T01:00:00Z'),
+          endDate: new Date('2023-01-01T01:30:00Z'),
+          value: 200,
+        },
       ];
       const unit = Unit.kWh;
       const organizationId = 1;
@@ -293,17 +301,12 @@ describe('IntegratorsService', () => {
       expect(eventBus.publish).toHaveBeenCalledTimes(reads.length);
 
       for (const read of reads) {
-        const startTime = DateTime.fromJSDate(read.timestamp)
-          .minus({ minutes: 30 })
-          .toJSDate();
-        const endTime = DateTime.fromJSDate(read.timestamp).toJSDate();
-
         expect(eventBus.publish).toHaveBeenCalledWith(
           new GenerationReadingStoredEvent({
             deviceId: externalId,
             energyValue: BigNumber.from(read.value),
-            fromTime: startTime,
-            toTime: endTime,
+            fromTime: read.startDate,
+            toTime: read.endDate,
             organizationId: organizationId.toString(),
           }),
         );

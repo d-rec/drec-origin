@@ -11,10 +11,10 @@ import {
   IsString,
   IsNotEmpty,
   IsEnum,
+  IsArray,
   IsBoolean,
   IsNumber,
   IsOptional,
-  IsArray,
   isNotEmpty,
 } from 'class-validator';
 import { IDeviceGroup, IFullOrganization } from '../../models';
@@ -23,6 +23,7 @@ import {
   CommissioningDateRange,
   OffTaker,
 } from '../../utils/enums';
+//import { Device } from '../device';
 import { Device } from '../device/device.entity';
 import { Exclude } from 'class-transformer';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -71,12 +72,10 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   // sectors: Sector[];
 
   @Column('text', { array: true })
-  @Exclude()
   commissioningDateRange: CommissioningDateRange[];
 
   @Column()
   @IsBoolean()
-  @Exclude()
   gridInterconnection: boolean;
 
   @Column()
@@ -89,7 +88,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @Column({ default: 1000 })
   @IsNumber()
-  @Exclude()
   yieldValue: number;
 
   // @Column('simple-array', { nullable: true })

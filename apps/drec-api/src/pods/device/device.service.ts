@@ -1,7 +1,10 @@
+import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
   HttpException,
+  Inject,
   Injectable,
   Logger,
   NotAcceptableException,
@@ -9,6 +12,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import cleanDeep from 'clean-deep';
+import { defaults } from 'lodash';
+import { DateTime } from 'luxon';
+import { Observable } from 'rxjs';
 import {
   Between,
   Brackets,
@@ -26,16 +33,20 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { Device } from './device.entity';
-import { NewDeviceDTO } from './dto/new-device.dto';
-import { defaults } from 'lodash';
+import { v4 as uuid } from 'uuid';
 import {
-  DeviceDTO,
-  FilterDTO,
-  GroupedDevicesDTO,
-  UngroupedDeviceDTO,
-  UpdateDeviceDTO,
-} from './dto';
+  getCycleEndDate,
+  getMaxDateByFrequency,
+  getMinDateByFrequency,
+} from '../../lib/helpers/getCycleEndDate';
+import { Profile } from '../../lib/profile';
+import {
+  DeviceKey,
+  DeviceSortPropertyMapper,
+  IREC_DEVICE_TYPES,
+  IREC_FUEL_TYPES,
+} from '../../models';
+import { SDGBenefits } from '../../models/Sdgbenefit';
 import {
   CertificateGenerationFrequency,
   DeviceOrderBy,
@@ -43,38 +54,34 @@ import {
   ReadType,
   Role,
 } from '../../utils/enums';
-import cleanDeep from 'clean-deep';
-import {
-  DeviceKey,
-  DeviceSortPropertyMapper,
-  IREC_DEVICE_TYPES,
-  IREC_FUEL_TYPES,
-} from '../../models';
-import { CodeNameDTO } from './dto/code-name.dto';
-import { DeviceGroupByDTO } from './dto/device-group-by.dto';
-import { groupByProps } from '../../utils/group-by-properties';
+import { regenerateToken } from '../../utils/evident-login';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { getCodeFromCountry } from '../../utils/getCodeFromCountry';
-import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
 import { getDeviceTypeFromCode } from '../../utils/getDeviceTypeFromCode';
-import { regenerateToken } from '../../utils/evident-login';
+import { getFuelNameFromCode } from '../../utils/getFuelNameFromCode';
+import { groupByProps } from '../../utils/group-by-properties';
+import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
+import { DeviceGroup } from '../device-group/device-group.entity';
+import { Organization } from '../organization/organization.entity';
+import { OrganizationService } from '../organization/organization.service';
+import { ReadsService } from '../reads/reads.service';
+import { UserService } from '../user/user.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
-import { InfluxDB } from '@influxdata/influxdb-client';
-import { SDGBenefits } from '../../models/Sdgbenefit';
-import { v4 as uuid } from 'uuid';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
-import { Observable } from 'rxjs';
+import { Device } from './device.entity';
+import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
+import {
+  DeviceDTO,
+  FilterDTO,
+  GroupedDevicesDTO,
+  UngroupedDeviceDTO,
+  UpdateDeviceDTO,
+} from './dto';
+import { CodeNameDTO } from './dto/code-name.dto';
+import { DeviceGroupByDTO } from './dto/device-group-by.dto';
+import { NewDeviceDTO } from './dto/new-device.dto';
 import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
-import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import { OrganizationService } from '../organization/organization.service';
-import { UserService } from '../user/user.service';
-import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
-import { HttpService } from '@nestjs/axios';
-import { Organization } from '../organization/organization.entity';
-import { DateTime } from 'luxon';
-import { DeviceGroup } from '../device-group/device-group.entity';
 import {
   DocumentTargetType,
   DocumentType,
@@ -94,12 +101,6 @@ import EvidentDeviceApprovedTemplate, {
 import EvidentDeviceRejectedTemplate, {
   getEvidentDeviceRejectedSubject,
 } from '../evident/mail/evident-device-rejected.template';
-import {
-  getCycleEndDate,
-  getMaxDateByFrequency,
-  getMinDateByFrequency,
-} from '../../lib/helpers/getCycleEndDate';
-import { Profile } from '../../lib/profile';
 import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @Injectable()
@@ -107,8 +108,6 @@ export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(HistoryIntermediateMeterRead)
-    private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
@@ -125,6 +124,8 @@ export class DeviceService {
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
     private readonly mailService: MailService,
+    @Inject(forwardRef(() => ReadsService))
+    private readonly readsService: ReadsService,
   ) {}
 
   public async find(
@@ -417,7 +418,7 @@ export class DeviceService {
     groupDevice = groupDevice.filter(
       (ele) =>
         ele.meterReadtype == ReadType.Delta ||
-        ele.meterReadtype == ReadType.ReadMeter,
+        ele.meterReadtype == ReadType.Aggregate,
     );
 
     const deviceGroupedByCountry = this.groupBy(groupDevice, 'countryCode');
@@ -486,6 +487,9 @@ export class DeviceService {
     const result = await this.repository.findOne({
       where: { externalId: meterId },
     });
+    if (!result) {
+      throw new NotFoundException(`No device found with id ${meterId}`);
+    }
     result.timezone = await getLocalTimeZoneFromDevice(
       result.createdAt,
       result,
@@ -1337,33 +1341,6 @@ export class DeviceService {
       );
   }
 
-  async getAllRead(
-    meterId: string,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
-    this.logger.verbose(`With in getallread`);
-    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: 0)
-      |> filter(fn: (r) => r.meter == "${meterId}" and r._field == "read")`;
-    return await this.execute(fluxQuery);
-  }
-
-  async execute(query: string | any): Promise<any> {
-    this.logger.verbose(`With in execute`);
-    const data = await this.dbReader.collectRows(query);
-    return data.map((record: any) => ({
-      timestamp: new Date(record._time),
-      value: Number(record._value),
-    }));
-  }
-
-  get dbReader(): any {
-    const url = process.env.INFLUXDB_URL;
-    const token = process.env.INFLUXDB_TOKEN;
-    const org = process.env.INFLUXDB_ORG;
-
-    return new InfluxDB({ url, token }).getQueryApi(org);
-  }
-
   async getOrganizationDevicesTotal(organizationId: number): Promise<Device[]> {
     this.logger.verbose(`With in getOrganizationDevicesTotal`);
     const devices = await this.repository.find({
@@ -1381,7 +1358,9 @@ export class DeviceService {
             accumulator + currentValue.readvalue_watthour,
           0,
         );
-        const totalAmount = await this.getAllRead(device.externalId);
+        const totalAmount = await this.readsService.getAllByExternalId(
+          device.externalId,
+        );
         const totalReadValue = totalAmount.reduce(
           (accumulator, currentValue) => accumulator + currentValue.value,
           0,
@@ -1403,10 +1382,11 @@ export class DeviceService {
     this.logger.verbose(`With in changeDeviceCreatedAt`);
     const numberOfHistoryReads: number =
       await this.getNumberOfHistoryReads(externalId);
-    const numberOfOngReads: number = await this.getNumberOfOngoingReads(
-      externalId,
-      onboardedDate,
-    );
+    const numberOfOngReads: number =
+      await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
+        externalId,
+        onboardedDate,
+      );
 
     if (numberOfHistoryReads <= 0 && numberOfOngReads <= 0) {
       return this.changeCreatedAtDate(onboardedDate, givenDate, externalId);
@@ -1423,33 +1403,7 @@ export class DeviceService {
 
   async getNumberOfHistoryReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
-    const query = this.historyRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId });
-    return await query.getCount();
-  }
-
-  async getNumberOfOngoingReads(
-    externalId: string,
-    onboardedDate: Date,
-  ): Promise<number> {
-    this.logger.verbose(`With in getNumberOfOngReads`);
-    new Date();
-    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-      |> range(start: ${onboardedDate})
-      |> filter(fn: (r) => r._measurement == "read"and r.meter == "${externalId}")
-      |> count()`;
-    return await this.ongExecute(fluxQuery);
-  }
-
-  async ongExecute(query: string | any): Promise<number> {
-    this.logger.verbose(`With in ongExecute`);
-    const data: any = await this.dbReader.collectRows(query);
-
-    if (typeof data[0] === 'undefined' || data.length == 0) {
-      return 0;
-    }
-    return Number(data[0]._value);
+    return this.readsService.countByType(deviceId, ReadType.History);
   }
 
   async changeCreatedAtDate(

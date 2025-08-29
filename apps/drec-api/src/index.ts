@@ -1,5 +1,9 @@
-import { LoggerService, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import {
+  LoggerService,
+  ValidationPipe,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
+import { Reflector, NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
@@ -41,6 +45,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   });
 
   app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.enableShutdownHooks();
   app.enableCors();
