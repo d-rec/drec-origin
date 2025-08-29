@@ -347,21 +347,9 @@ export class DeviceGroupService {
           .toString()
           .split(',')
           .map((id) => Number(id));
-        query.andWhere(
-          new Brackets((qb) => {
-            deviceIdsArray?.forEach((deviceId, index) => {
-              if (index === 0) {
-                qb.where(`device.id = :deviceId${index}`, {
-                  [`deviceId${index}`]: deviceId,
-                });
-              } else {
-                qb.orWhere(`device.id = :deviceId${index}`, {
-                  [`deviceId${index}`]: deviceId,
-                });
-              }
-            });
-          }),
-        );
+        query.andWhere('device.id IN (:...deviceIds)', {
+          deviceIds: deviceIdsArray,
+        });
       }
     }
 
