@@ -1,4 +1,3 @@
-import { ReadDTO } from '../../types/reads';
 import {
   BadRequestException,
   Body,
@@ -24,7 +23,8 @@ import * as momentTimeZone from 'moment-timezone';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser, IUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { ReadDTO, ReadsFilterDTO } from '../../types/reads';
+import { ReadType, Role } from '../../utils/enums';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceService } from '../device/device.service';
@@ -122,6 +122,7 @@ export class ReadsController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
     @Param('externalId') meterId: string,
+    @Query() filter: ReadsFilterDTO,
   ): Promise<ReadDTO[]> {
     this.logger.verbose(`With in getReads`);
     const device: DeviceDTO | null =
@@ -134,8 +135,11 @@ export class ReadsController {
         message: `Invalid device id`,
       });
     }
-    // return super.getReads(device.externalId, filter);
-    return [];
+
+    return this.readsService.find(device.externalId, {
+      type: ReadType.Delta,
+      ...filter,
+    });
   }
 
   /**
