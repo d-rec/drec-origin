@@ -16,7 +16,7 @@ import { getQueueToken } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { MeterRead } from './reads.entity';
 import { FailedMeterRead } from './failed-reads.entity';
-import { ReadType } from 'src/utils/enums';
+import { ReadType } from '../../utils/enums';
 
 describe('ReadsService', () => {
   let service: ReadsService;
