@@ -80,11 +80,14 @@ export class ReadsService {
       const where: FindConditions<MeterRead> = {
         externalId: meterId,
         endDate: Between(new Date(filter.start), new Date(filter.end)),
-        type: ReadType.Delta,
       };
 
       if (filter.certified != undefined && filter.certified != null) {
         where.certified = filter.certified;
+      }
+
+      if (filter.type != undefined && filter.type != null) {
+        where.type = filter.type;
       }
 
       return await this.repository.find({
@@ -528,6 +531,7 @@ export class ReadsService {
     return await this.find(meterId, {
       start: startDate.toISOString(),
       end: endDate.toISOString(),
+      type: ReadType.Delta,
       offset: 0,
       limit: 1,
       order: 'DESC',
