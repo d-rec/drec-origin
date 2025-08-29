@@ -15,9 +15,9 @@ import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
 import * as momentTimeZone from 'moment-timezone';
 import {
+  Between,
   Brackets,
   FindConditions,
-  In,
   MoreThanOrEqual,
   Repository,
   SelectQueryBuilder,
@@ -76,18 +76,18 @@ export class ReadsService {
     filter: ReadsFilterDTO,
   ): Promise<Array<{ timestamp: Date; value: number }>> {
     try {
-      return await this.repository
-        .createQueryBuilder('read')
-        .where('read.externalId = :meterId', { meterId })
-        .andWhere('read.type = :type', { type: ReadType.Delta })
-        .andWhere('read.endDate >= :startDate', {
-          startDate: new Date(filter.start),
-        })
-        .andWhere('read.endDate <= :endDate', { endDate: new Date(filter.end) })
-        .orderBy('read.endDate', filter.order || 'ASC')
-        .take(filter.limit)
-        .skip(filter.offset)
-        .getMany();
+      return await this.repository.find({
+        where: {
+          externalId: meterId,
+          endDate: Between(new Date(filter.start), new Date(filter.end)),
+          type: ReadType.Delta,
+        },
+        order: {
+          endDate: filter.order || 'ASC',
+        },
+        take: filter.limit,
+        skip: filter.offset,
+      });
     } catch (e) {
       this.logger.error(
         'exception caught in between device onboarding checking for createdAt',
