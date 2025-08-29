@@ -1,7 +1,5 @@
 import { Certificate } from '@energyweb/issuer-api';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../../device/check_certificate_issue_date_log_for_device.entity';
-import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
-import { ICertificateMetadata } from '../../../utils/types';
 
 export class CertificateWithPerDeviceLog extends Certificate {
   id: number;
@@ -14,10 +12,6 @@ export class CertificateWithPerDeviceLog extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity[];
   metadata: string;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CertificateNewWithPerDeviceLog
-  extends ICertificateReadModel<ICertificateMetadata> {}
 
 export class CertificateNewWithPerDeviceLog {
   certificateStartDate: string;

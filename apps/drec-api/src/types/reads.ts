@@ -1,10 +1,11 @@
 import { ReadType } from '../utils/enums/read-type.enum';
 
 export type ReadsFilterDTO = {
-  limit: number;
-  offset: number;
+  limit?: number;
+  offset?: number;
   start: string;
   end: string;
+  type?: ReadType;
   order?: 'ASC' | 'DESC';
   certified?: boolean;
 };

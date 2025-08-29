@@ -17,6 +17,7 @@ import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
 import { Profile } from '../../../lib/profile';
 import { CronExpression } from '@nestjs/schedule';
+import { ReadType } from '../../../utils/enums';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -257,6 +258,7 @@ export class LateOngoingIssuanceService {
     const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
       {
+        type: ReadType.Delta,
         offset: 0,
         limit: 5000,
         start: cycle.lateStartDateUTC.toString(),
