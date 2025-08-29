@@ -305,22 +305,6 @@ export class IssuerService {
 
     let filteredReadings = [...deviceReadings];
 
-    if (device.meterReadtype === 'Delta') {
-      const firstDeltaRead =
-        await this.readsService.getDeltaMeterReadsFirstEntryOfDevice(
-          device.externalId,
-        );
-
-      // Optimize by extracting timestamps to a Set for O(1) lookups
-      const deltaReadTimestamps = new Set(
-        firstDeltaRead.map((entry) => entry.endDate.getTime()),
-      );
-
-      filteredReadings = filteredReadings.filter(
-        (reading) => !deltaReadTimestamps.has(reading.timestamp.getTime()),
-      );
-    }
-
     this.logger.debug(
       `Filtered out ${filteredReadings.length}/${deviceReadings.length} readings for ${device.externalId}`,
     );

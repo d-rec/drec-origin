@@ -141,7 +141,7 @@ export class ReadsService {
       value: convertToWh(read.value, measurements.unit),
       unit: Unit.Wh,
       type: measurements.type,
-      certified: measurements.type === ReadType.Delta ? true : false,
+      certified: false,
     }));
     await this.repository.insert(reads);
   }
@@ -796,22 +796,6 @@ export class ReadsService {
         startDate: 'ASC',
       },
       take: 1,
-    });
-  }
-
-  // add new function for Delta firstread filter
-  @Profile()
-  async getDeltaMeterReadsFirstEntryOfDevice(
-    meterId: string,
-  ): Promise<ReadDTO[]> {
-    return this.repository.find({
-      where: {
-        externalId: meterId,
-        type: ReadType.Delta,
-      },
-      order: {
-        endDate: 'ASC',
-      },
     });
   }
 

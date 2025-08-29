@@ -16,6 +16,7 @@ import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
 import { Profile } from '../../../lib/profile';
+import { CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -38,7 +39,7 @@ export class LateOngoingIssuanceService {
    *
    * @returns Promise that resolves when all jobs are queued
    */
-  @NonConcurrentCron('0 0 */8 * * *')
+  @NonConcurrentCron(CronExpression.EVERY_8_HOURS)
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/8h]: Late ongoing certificate issuance check');
     try {
