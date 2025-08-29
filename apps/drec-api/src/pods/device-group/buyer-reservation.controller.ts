@@ -256,7 +256,7 @@ export class BuyerReservationController {
     | DeviceGroupDTO[]
   > {
     this.logger.verbose(`With in getMyDevices`);
-    const { id, organizationId, role } = user;
+    const { organizationId, role } = user;
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
@@ -264,13 +264,13 @@ export class BuyerReservationController {
         );
       case Role.Buyer:
         return await this.deviceGroupService.getDeviceGroups(
-          id,
+          organizationId,
           pageNumber,
           filterDTO,
         );
       case Role.SubBuyer:
         return await this.deviceGroupService.getDeviceGroups(
-          id,
+          organizationId,
           pageNumber,
           filterDTO,
         );

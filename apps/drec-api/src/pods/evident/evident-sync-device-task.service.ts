@@ -9,7 +9,7 @@ export class EvidentSyncDeviceTaskService {
 
   constructor(private readonly deviceService: DeviceService) {}
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   public async synchronizeDeviceStatuses(): Promise<void> {
     this.logger.verbose('Device status synchronization started');
 

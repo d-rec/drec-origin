@@ -47,7 +47,7 @@ export class EvidentIssuanceService {
     private readonly deviceGroupService: DeviceGroupService,
   ) {}
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   async processIssuanceByFrequency(): Promise<void> {
     this.logger.verbose('Issuance request creation started');
     const organizationsSettings =
@@ -73,7 +73,7 @@ export class EvidentIssuanceService {
     }
   }
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   async processDeviceGroupIssuanceFrequency(): Promise<void> {
     this.logger.verbose('Device group issuance request creation started');
     const organizationsSettings =
@@ -103,7 +103,7 @@ export class EvidentIssuanceService {
     }
   }
 
-  @NonConcurrentCron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
   async processSingleDevicePathWayIssuanceFrequency(): Promise<void> {
     this.logger.verbose(
       'Single device pathway issuance request creation started',
