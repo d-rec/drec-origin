@@ -126,7 +126,7 @@ export class HistoricalIssuanceService {
     }
 
     // Mark the request as completed
-    await this.groupService.updateHistoryCertificateIssueDate(
+    await this.groupService.updateHistoryCertificateIssueStatus(
       historyDevice.id,
       HistoryNextIssuanceStatus.Completed,
     );
@@ -297,8 +297,8 @@ export class HistoricalIssuanceService {
     // Issue certificate
     await this.certificateService.issue(issuance);
 
-    await this.readService.updateHistoryCertificateIssueDate(
-      deviceHistoryRequest.id,
+    await this.readService.updateCertificateIssueDate(
+      [deviceHistoryRequest.id],
       deviceHistoryRequest.startDate,
       deviceHistoryRequest.endDate,
     );

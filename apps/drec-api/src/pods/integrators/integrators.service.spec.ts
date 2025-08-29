@@ -12,6 +12,7 @@ import { ReadType } from '../../utils/enums';
 import { DeviceService } from '../device/device.service';
 import { ReadsService } from '../reads/reads.service';
 import { IntegratorsService } from './integrators.service';
+import { DateTime } from 'luxon';
 
 describe('IntegratorsService', () => {
   let service: IntegratorsService;
@@ -36,8 +37,13 @@ describe('IntegratorsService', () => {
           provide: DeviceService,
           useValue: {} as any,
         },
+        {
+          provide: ReadsService,
+          useValue: {
+            store: jest.fn(),
+          } as any,
+        },
         ConfigService,
-
         {
           provide: EventBus,
           useValue: {
@@ -236,7 +242,10 @@ describe('IntegratorsService', () => {
         externalId,
         [
           {
-            timestamp: new Date(mockEnergyData[0][1]),
+            startDate: DateTime.fromJSDate(new Date(mockEnergyData[0][1]))
+              .minus({ minutes: 30 })
+              .toJSDate(),
+            endDate: new Date(mockEnergyData[0][1]),
             value: parseFloat(mockEnergyData[0][0]),
           },
         ],

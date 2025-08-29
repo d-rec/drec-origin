@@ -61,7 +61,6 @@ import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevic
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationService } from '../organization/organization.service';
-import { HistoryIntermediateMeterRead } from '../reads/history_intermideate_meterread.entity';
 import { ReadsService } from '../reads/reads.service';
 import { UserService } from '../user/user.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
@@ -85,8 +84,6 @@ export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(HistoryIntermediateMeterRead)
-    private readonly historyRepository: Repository<HistoryIntermediateMeterRead>,
     @InjectRepository(Device) private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
@@ -1228,10 +1225,7 @@ export class DeviceService {
 
   async getNumberOfHistoryReads(deviceId: string): Promise<number> {
     this.logger.verbose(`With in getNumberOfHistReads`);
-    const query = this.historyRepository
-      .createQueryBuilder('devicehistory')
-      .where('devicehistory.externalId = :deviceId', { deviceId });
-    return await query.getCount();
+    return this.readsService.countByType(deviceId, ReadType.History);
   }
 
   async changeCreatedAtDate(

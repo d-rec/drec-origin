@@ -44,8 +44,6 @@ import { PermissionModule } from './pods/permission/permission.module';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
-import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
@@ -53,7 +51,6 @@ import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
-import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
@@ -108,15 +105,12 @@ export const entities = [
   DeviceCsvFileProcessingJobsEntity,
   DeviceCsvProcessingFailedRowsEntity,
   DeviceGroupNextIssueCertificate,
-  AggregateMeterRead,
   MeterRead,
   FailedMeterRead,
-  HistoryIntermediateMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SDGBenefit,
-  DeltaFirstRead,
   IRECDevicesInformationEntity,
   IRECErrorLogInformationEntity,
   UserLoginSessionEntity,

@@ -14,22 +14,13 @@ import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { DeviceModule } from '../device/device.module';
 import { FileModule } from '../file';
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { DeltaFirstRead } from './delta_firstread.entity';
-import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
 import { ReadsBulkUploadProcessor } from './reads-bulk-upload.processor';
 import { MeterRead } from './reads.entity';
 import { FailedMeterRead } from './failed-reads.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      AggregateMeterRead,
-      HistoryIntermediateMeterRead,
-      MeterRead,
-      DeltaFirstRead,
-      FailedMeterRead,
-    ]),
+    TypeOrmModule.forFeature([MeterRead, FailedMeterRead]),
     BullModule.registerQueue({
       name: Queues.ReadsBulkUpload,
       defaultJobOptions: defaultBullJobOptions,
