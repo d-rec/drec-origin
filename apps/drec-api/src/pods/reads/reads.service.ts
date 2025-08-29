@@ -161,8 +161,8 @@ export class ReadsService {
       .select('SUM(read.value)', 'totalValue')
       .addSelect('MAX(read.end_date)', 'maxEndDate')
       .where('read.external_id = :deviceId', { deviceId: device.externalId })
-      .andWhere('read.type IN (:...types)', {
-        types: ReadType.Delta,
+      .andWhere('read.type = :type', {
+        type: ReadType.Delta,
       })
       .getRawOne();
 
@@ -452,25 +452,27 @@ export class ReadsService {
         `In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`,
       );
     }
+    const cumulativeValue = await this.findCumulativeValue(device);
+
     await new Promise((resolve, reject) => {
       measurement.reads.forEach(async (element, measurementReadIndex) => {
-        const lastValue = await this.findCumulativeValue(device);
-        const delta = Math.abs(element.value - lastValue.value);
+        const delta = Math.abs(element.value - cumulativeValue.value);
+
         if (
           new Date(element.endtimestamp).getTime() <
-            new Date(lastValue.datetime).getTime() ||
-          element.value <= lastValue.value
+            new Date(cumulativeValue.datetime).getTime() ||
+          element.value <= cumulativeValue.value
         ) {
           return reject(
             new ConflictException({
               success: false,
-              message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue.datetime}/${lastValue.value} `,
+              message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent meter read date/value ${cumulativeValue.datetime}/${cumulativeValue.value} `,
             }),
           );
         }
 
         const read: ReadDTO = {
-          startDate: new Date(lastValue.datetime),
+          startDate: new Date(cumulativeValue.datetime),
           endDate: new Date(element.endtimestamp),
           value: delta,
         };
@@ -484,7 +486,7 @@ export class ReadsService {
           );
         }
         reads.push({
-          startDate: new Date(lastValue.datetime),
+          startDate: new Date(cumulativeValue.datetime),
           endDate: new Date(element.endtimestamp),
           value: delta,
         });
