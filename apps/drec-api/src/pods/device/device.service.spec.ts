@@ -1777,27 +1777,69 @@ describe('DeviceService', () => {
       const organizationId = 1;
       const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
-      }; // Provide necessary DTO properties
+      };
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
       const mockDevices = [
-        { id: 1, groupId: null, organizationId: 1 },
-        { id: 2, groupId: null, organizationId: 1 },
-      ] as Device[];
+        {
+          id: 1,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+        {
+          id: 2,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+      ] as any;
 
-      const findSpy = jest
-        .spyOn(repository, 'find')
-        .mockResolvedValue(mockDevices);
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([mockDevices, mockDevices.length]);
+
+      const groupedResult = {
+        totalPages: 1,
+        currentPage: 1,
+        groups: [
+          {
+            name: 'group',
+            devices: mockDevices, // Now matches UngroupedDeviceDTO[]
+          },
+        ],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDTO,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      // Assuming groupDevices returns a transformed array based on your logic
-      // Replace with actual expected result from `groupDevices` method
-      expect(result).toEqual(expect.any(Array));
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
 
     it('should return an empty array when no ungrouped devices are found', async () => {
@@ -1805,17 +1847,45 @@ describe('DeviceService', () => {
       const orderFilterDto: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       };
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[], 0]);
+
+      // Optionally, mock groupDevices to return empty groups
+      const groupedResult = {
+        totalPages: 0,
+        currentPage: 1,
+        groups: [],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDto,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      expect(result).toEqual([]); // Assuming `groupDevices` returns an empty array
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
   });
 
