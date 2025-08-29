@@ -11,6 +11,7 @@ import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
+  BulkUploadType,
 } from '../bulk-upload/bulk-uploads.entity';
 import { Queues } from '../../utils/enums/queues.enum';
 
@@ -32,7 +33,10 @@ export class ReadsBulkUploadProcessor {
     this.logger.debug(`Processing file with s3Key: ${s3Key}`);
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
-        where: { jobId: job.id.toString() },
+        where: {
+          jobId: job.id.toString(),
+          type: BulkUploadType.Reads,
+        },
       });
 
     if (!bulkUpload) {
@@ -79,7 +83,7 @@ export class ReadsBulkUploadProcessor {
     for (const record of meterReads) {
       try {
         await this.readsService.validateAndStoreReads({
-          deviceExternalId: record.deviceExternalId,
+          deviceSerialNumber: record.serialNumber,
           measurements: record.measurements,
           organizationId: bulkUpload.organizationId,
         });
