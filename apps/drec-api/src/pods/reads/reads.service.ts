@@ -1,12 +1,8 @@
-import { FilterDTO } from '@energyweb/energy-api-influxdb';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
-import { Point } from '@influxdata/influxdb-client';
 import { InjectQueue } from '@nestjs/bull';
 import {
   ConflictException,
   forwardRef,
   HttpException,
-  HttpStatus,
   Inject,
   Injectable,
   Logger,
@@ -14,12 +10,13 @@ import {
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
-import axios from 'axios';
 import { Queue } from 'bull';
 import { BigNumber } from 'ethers';
 import { DateTime } from 'luxon';
 import * as momentTimeZone from 'moment-timezone';
 import {
+  Between,
+  Brackets,
   FindConditions,
   In,
   MoreThanOrEqual,
@@ -28,41 +25,33 @@ import {
 } from 'typeorm';
 import { DEFAULT_YIELD_VALUE, DEVICE_DEGRADATION } from '../../constants';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { writePoints } from '../../lib/influx-db';
 import { computeMaxEnergyCapacity } from '../../lib/meter-read';
 import { Profile } from '../../lib/profile';
-import { IAggregateIntermediate } from '../../models';
 import {
   toTimezoneDate,
   toTimezoneDateFormat,
 } from '../../transformers/timezone';
+import {
+  MeasurementDTO,
+  ReadDTO,
+  ReadsFilterDTO,
+  Unit,
+} from '../../types/reads';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { convertToWh } from '../../utils/convert-to-power-units';
 import { ReadType } from '../../utils/enums';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { Queues } from '../../utils/enums/queues.enum';
-import { Unit } from '../../utils/enums/unit.enum';
-import {
-  getFormattedOffSetFromOffsetAsJson,
-  getLocalTime,
-  getLocalTimeZoneFromDevice,
-  getOffsetFromTimeZoneName,
-} from '../../utils/localTimeDetailsForDevice';
 import { validateTimezone } from '../../validations/timezone';
 import { BulkUploadType } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceService } from '../device/device.service';
 import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
-import {
-  AccumulationType,
-  FilterNoOffLimit,
-} from './dto/filter-no-off-limit.dto';
+import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { NewIntermediateMeterReadDTO } from './dto/intermediate_meter_read.dto';
-import { MeasurementDTO, ReadDTO } from './dto/measurement.dto';
+import { FailedMeterRead } from './failed-reads.entity';
 import { MeterRead } from './reads.entity';
-
-export type TUserBaseEntity = ExtendedBaseEntity & IAggregateIntermediate;
 
 @Injectable()
 export class ReadsService {
@@ -71,6 +60,8 @@ export class ReadsService {
   constructor(
     @InjectRepository(MeterRead)
     private readonly repository: Repository<MeterRead>,
+    @InjectRepository(FailedMeterRead)
+    private readonly failedReadsRepository: Repository<FailedMeterRead>,
     @Inject(forwardRef(() => DeviceService))
     private readonly deviceService: DeviceService,
     @Inject(forwardRef(() => DeviceGroupService))
@@ -83,20 +74,27 @@ export class ReadsService {
   @Profile()
   public async find(
     meterId: string,
-    filter: FilterDTO,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
+    filter: ReadsFilterDTO,
+  ): Promise<Array<MeterRead>> {
     try {
-      const reads = await this.repository.find({
-        where: { externalId: meterId },
-        order: { endDate: 'DESC' },
+      const where: FindConditions<MeterRead> = {
+        externalId: meterId,
+        endDate: Between(new Date(filter.start), new Date(filter.end)),
+        type: ReadType.Delta,
+      };
+
+      if (filter.certified != undefined && filter.certified != null) {
+        where.certified = filter.certified;
+      }
+
+      return await this.repository.find({
+        where,
+        order: {
+          endDate: filter.order || 'ASC',
+        },
         take: filter.limit,
         skip: filter.offset,
       });
-      return reads.map((read) => ({
-        ...read,
-        timestamp: read.endDate,
-        value: read.value,
-      }));
     } catch (e) {
       this.logger.error(
         'exception caught in between device onboarding checking for createdAt',
@@ -108,18 +106,20 @@ export class ReadsService {
   async storeFailedReads(
     meterId: string,
     read: number,
-    timeStamp: Date,
+    startDate: Date,
+    endDate: Date,
     unit: Unit,
+    type: ReadType,
   ): Promise<void> {
     const readInWh = convertToWh(read, unit);
-
-    const points: Point[] = [
-      new Point('failed_reads')
-        .tag('meter', meterId)
-        .intField('read', readInWh)
-        .timestamp(new Date(timeStamp)),
-    ];
-    await writePoints(points);
+    this.failedReadsRepository.insert({
+      externalId: meterId,
+      startDate: startDate,
+      endDate: endDate,
+      value: readInWh,
+      unit: unit,
+      type: type,
+    });
   }
 
   async bulkUploadJobProcessing(
@@ -140,7 +140,7 @@ export class ReadsService {
     }
   }
 
-  private async store(id: string, measurements: MeasurementDTO): Promise<void> {
+  async store(id: string, measurements: MeasurementDTO): Promise<void> {
     const reads = measurements.reads.map((read) => ({
       externalId: id,
       startDate: read.startDate,
@@ -148,17 +148,22 @@ export class ReadsService {
       value: convertToWh(read.value, measurements.unit),
       unit: Unit.Wh,
       type: measurements.type,
-      certified: measurements.type === ReadType.Delta ? true : false,
+      certified: false,
     }));
     await this.repository.insert(reads);
   }
 
-  public async findCumulativeValue(device: DeviceDTO) {
+  public async findCumulativeValue(
+    device: DeviceDTO,
+  ): Promise<{ value: number; datetime: Date }> {
     const cumulativeValue = await this.repository
       .createQueryBuilder('read')
       .select('SUM(read.value)', 'totalValue')
       .addSelect('MAX(read.end_date)', 'maxEndDate')
       .where('read.external_id = :deviceId', { deviceId: device.externalId })
+      .andWhere('read.type = :type', {
+        type: ReadType.Delta,
+      })
       .getRawOne();
 
     return {
@@ -242,12 +247,13 @@ export class ReadsService {
     device: DeviceDTO,
   ): Promise<MeasurementDTO> {
     const lastRead = await this.findLatestRead(deviceId);
-    if (measurement.type === 'History') {
-      return this.processHistoricalReads(device, measurement);
-    } else if (measurement.type === 'Delta') {
-      return this.processDeltaReads(device, measurement, lastRead);
-    } else if (measurement.type === 'Aggregate') {
-      return this.processAggregateReads(device, measurement);
+    switch (measurement.type) {
+      case ReadType.History:
+        return this.processHistoricalReads(device, measurement);
+      case ReadType.Delta:
+        return this.processDeltaReads(device, measurement, lastRead);
+      case ReadType.Aggregate:
+        return this.processAggregateReads(device, measurement);
     }
   }
 
@@ -291,8 +297,10 @@ export class ReadsService {
         this.storeFailedReads(
           device.externalId,
           element.value,
+          element.starttimestamp,
           element.endtimestamp,
           measurement.unit,
+          ReadType.History,
         );
         throw new ConflictException({
           success: false,
@@ -325,8 +333,10 @@ export class ReadsService {
               this.storeFailedReads(
                 device.externalId,
                 element.value,
+                lastRead.endDate,
                 element.endtimestamp,
                 measurement.unit,
+                ReadType.Delta,
               );
               return reject(
                 new ConflictException({
@@ -381,8 +391,10 @@ export class ReadsService {
                 this.storeFailedReads(
                   device.externalId,
                   element.value,
+                  lastRead.endDate,
                   element.endtimestamp,
                   measurement.unit,
+                  ReadType.Delta,
                 );
                 return reject(
                   new ConflictException({
@@ -440,25 +452,27 @@ export class ReadsService {
         `In this device you can add read for ${device?.meterReadtype} type but you are sending  ${measurement.type}`,
       );
     }
+    const cumulativeValue = await this.findCumulativeValue(device);
+
     await new Promise((resolve, reject) => {
       measurement.reads.forEach(async (element, measurementReadIndex) => {
-        const lastValue = await this.findCumulativeValue(device);
-        const delta = Math.abs(element.value - lastValue.value);
+        const delta = Math.abs(element.value - cumulativeValue.value);
+
         if (
           new Date(element.endtimestamp).getTime() <
-            new Date(lastValue.datetime).getTime() ||
-          element.value <= lastValue.value
+            new Date(cumulativeValue.datetime).getTime() ||
+          element.value <= cumulativeValue.value
         ) {
           return reject(
             new ConflictException({
               success: false,
-              message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent mter read date/value ${lastValue.datetime}/${lastValue.value} `,
+              message: `The sent date/value for reading ${element.endtimestamp}/${element.value} is less than last sent meter read date/value ${cumulativeValue.datetime}/${cumulativeValue.value} `,
             }),
           );
         }
 
         const read: ReadDTO = {
-          startDate: new Date(lastValue.datetime),
+          startDate: new Date(cumulativeValue.datetime),
           endDate: new Date(element.endtimestamp),
           value: delta,
         };
@@ -472,7 +486,7 @@ export class ReadsService {
           );
         }
         reads.push({
-          startDate: new Date(lastValue.datetime),
+          startDate: new Date(cumulativeValue.datetime),
           endDate: new Date(element.endtimestamp),
           value: delta,
         });
@@ -497,7 +511,7 @@ export class ReadsService {
     return await this.repository.findOne({
       where: {
         externalId: meterId,
-        type: In([ReadType.Delta, ReadType.Aggregate]),
+        type: ReadType.Delta,
       },
       order: {
         endDate: 'DESC',
@@ -510,19 +524,14 @@ export class ReadsService {
     meterId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
-    const read = await this.repository.findOne({
-      where: {
-        externalId: meterId,
-        startDate,
-        endDate,
-        type: [ReadType.Delta],
-      },
-      order: {
-        endDate: 'DESC',
-      },
+  ): Promise<Array<MeterRead>> {
+    return await this.find(meterId, {
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+      offset: 0,
+      limit: 1,
+      order: 'DESC',
     });
-    return [read];
   }
 
   private async checkHistoryReadExist(
@@ -558,8 +567,17 @@ export class ReadsService {
       .andWhere('read.type = :type', {
         type: ReadType.History,
       })
-      .andWhere('read.start_date >= :startDate', { startDate })
-      .andWhere('read.end_date <= :endDate', { endDate });
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('read.startDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          }).orWhere('read.endDate BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          });
+        }),
+      );
   }
 
   private validateEnergy(
@@ -662,7 +680,7 @@ export class ReadsService {
             endTimestamp <= reservedEndDate &&
             endTimestamp > reservedStartDate
           ) {
-            this.deviceGroupService.updateHistoryCertificateIssueDate(
+            this.deviceGroupService.updateHistoryCertificateIssueStatus(
               historyNextIssue.id,
               HistoryNextIssuanceStatus.Pending,
             );
@@ -736,7 +754,7 @@ export class ReadsService {
     return this.repository
       .createQueryBuilder('read')
       .where('read.externalId = :deviceId', { deviceId })
-      .where('read.type = :type', {
+      .andWhere('read.type = :type', {
         type: ReadType.History,
       })
       .andWhere('read.startDate >= :startDate', { startDate })
@@ -755,23 +773,19 @@ export class ReadsService {
     );
   }
 
-  async updateHistoryCertificateIssueDate(
-    id: number,
+  async updateCertificateIssueDate(
+    ids: number[],
     startDate: Date,
     endDate: Date,
-  ): Promise<MeterRead> {
-    const historyDevice = await this.getDeviceHistoryCertificateIssueDate({
-      id: id,
-    });
-    let updatedHistoryIssue = new MeterRead();
-    if (historyDevice) {
-      historyDevice.type = ReadType.History;
-      historyDevice.startDate = startDate;
-      historyDevice.endDate = endDate;
-      historyDevice.certified = true;
-      updatedHistoryIssue = await this.repository.save(historyDevice);
-    }
-    return updatedHistoryIssue;
+  ): Promise<void> {
+    await this.repository.update(
+      { id: In(ids) },
+      {
+        certified: true,
+        issuanceStartDate: startDate,
+        issuanceEndDate: endDate,
+      },
+    );
   }
 
   @Profile()
@@ -781,22 +795,12 @@ export class ReadsService {
     return this.repository.find({
       where: {
         externalId: meterId,
-        type: ReadType.Aggregate,
-      },
-      take: 1,
-    });
-  }
-
-  // add new function for Delta firstread filter
-  @Profile()
-  async getDeltaMeterReadsFirstEntryOfDevice(
-    meterId: string,
-  ): Promise<ReadDTO[]> {
-    return this.repository.find({
-      where: {
-        externalId: meterId,
         type: ReadType.Delta,
       },
+      order: {
+        startDate: 'ASC',
+      },
+      take: 1,
     });
   }
 
@@ -821,7 +825,8 @@ export class ReadsService {
 
     const sizeOfPage = 15;
 
-    const currentPage = !isNaN(pageNumber) && pageNumber > 0 ? pageNumber : 1;
+    const currentPage =
+      !isNaN(pageNumber) && pageNumber > 0 ? Number(pageNumber) : 1;
     const offset = (currentPage - 1) * sizeOfPage;
 
     const query = this.repository
@@ -838,274 +843,23 @@ export class ReadsService {
     return {
       historyread: reads.filter((read) => read.type === ReadType.History),
       ongoing: reads.filter((read) => read.type !== ReadType.History),
-      numberOfReads: reads.length,
-      numberOfPages: total,
+      numberOfReads: total,
+      numberOfPages: Math.round(total / sizeOfPage),
       currentPageNumber: currentPage,
     };
   }
 
   async latestRead(deviceExternalId: string): Promise<any> {
-    return this.repository
-      .createQueryBuilder('reads')
-      .where('reads.external_id = :deviceExternalId', { deviceExternalId })
-      .orderBy('reads.end_date', 'DESC')
-      .getOne();
-  }
-
-  async getAccumulatedReads(
-    meter: string,
-    organizationId: number,
-    developerExternalId: string,
-    accumulationType: AccumulationType,
-    month: number,
-    year: number,
-  ): Promise<{
-    aggregateType: any;
-    accumulatedReads: {
-      timestamp?: string;
-      value?: any;
-    }[];
-    timezone: any;
-  }> {
-    let startDate;
-    let numberOfDays;
-    let endDate;
-    if (month && year) {
-      startDate = this.convertToISODate(month, year);
-      numberOfDays = this.getNumberOfDaysInMonth(month, year);
-      endDate =
-        DateTime.fromISO(startDate)
-          .plus({ days: numberOfDays })
-          .minus({ seconds: 1 })
-          .toISODate() + 'T00:00:00Z';
-    }
-    if (year && !month) {
-      month = 1;
-      startDate = this.convertToISODate(month, year);
-      this.logger.verbose('startDate for year:::::::::::::' + startDate);
-
-      endDate =
-        DateTime.fromISO(startDate)
-          .plus({ years: 1 })
-          .minus({ seconds: 1 })
-          .toISO({ suppressMilliseconds: true, includeOffset: false }) + 'Z';
-    }
-    this.logger.verbose('startDate::::::::::::' + startDate);
-    this.logger.verbose('End DAte:::::::::::::' + endDate);
-
-    let tempResults = [];
-    const finalResults: { timestamp?: string; value?: any }[] = [];
-    let response;
-    let url;
-    const offSet = await this.getOffSetForInfluxQuery(
-      developerExternalId,
-      organizationId,
-      startDate,
-    );
-    this.logger.verbose('THE OFFSET RETURNED:::' + offSet);
-
-    const formattedOffSet = offSet.formattedOffset;
-
-    const monthlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                          FROM "read"
-                          WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                          GROUP BY time (1d, ${formattedOffSet})`;
-    const yearlyQuery = `SELECT time, SUM ("read") AS total_meter_reads
-                         FROM "read"
-                         WHERE time >= '${startDate}' AND time < '${endDate}' AND meter = '${meter}'
-                         GROUP BY time (30d, ${formattedOffSet})`;
-    this.logger.verbose(
-      'accumulation type:::::::::::::::::' + accumulationType,
-    );
-    if (accumulationType === 'Monthly' && month && year) {
-      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${monthlyQuery}`;
-    } else if (accumulationType === 'Yearly' && year) {
-      url = `${process.env.INFLUXDB_URL}/query?db=${process.env.INFLUXDB_DB}&q=${yearlyQuery}`;
-    } else {
-      throw new HttpException(
-        'Invalid accumulationType',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const config = {
-      auth: {
-        username: `${process.env.INFLUXDB_ADMIN_USER}`,
-        password: `${process.env.INFLUXDB_ADMIN_PASSWORD}`,
+    return this.repository.find({
+      where: {
+        externalId: deviceExternalId,
+        type: ReadType.Delta,
       },
-    };
-
-    try {
-      response = await axios.get(url, config);
-
-      if (!response) {
-        throw new HttpException('Some Error occured', HttpStatus.AMBIGUOUS);
-      }
-
-      if (!response.data.results[0].series) {
-        throw new HttpException('No reads found', HttpStatus.CONFLICT);
-      }
-      tempResults = this.readFilterNullUndefined(
-        response.data.results[0].series[0].values,
-      );
-    } catch (error) {
-      this.logger.error(error);
-      throw error;
-    }
-
-    for (let i = 0; i < tempResults.length; i++) {
-      const resultObj: { startTime?: string; endTime?: string; value?: any } =
-        {};
-      for (let j = 0; j < 2; j++) {
-        if (j % 2 === 0) {
-          const startTimestamp = new Date(tempResults[i][j]).getTime();
-          const startDate = new Date(startTimestamp);
-          resultObj.startTime = startDate.toISOString();
-        } else {
-          resultObj.value = tempResults[i][j];
-          if (i < tempResults.length - 1) {
-            const endTimestamp = new Date(tempResults[i + 1][j - 1]).getTime();
-            const endDate = new Date(endTimestamp);
-            resultObj.endTime = endDate.toISOString();
-          } else {
-            resultObj.endTime = endDate;
-          }
-        }
-      }
-
-      finalResults.push(resultObj);
-    }
-    this.logger.verbose(finalResults);
-    return {
-      aggregateType: accumulationType,
-      accumulatedReads: finalResults,
-      timezone: offSet.localTimeZone,
-    };
-  }
-
-  readFilterNullUndefined(arr: [any]): any {
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = 0; j < 2; j++) {
-        if (j % 2 != 0) {
-          if (arr[i][j] == null || arr[i][j] == undefined) {
-            arr[i][j] = 0;
-          }
-        }
-      }
-    }
-    return arr;
-  }
-
-  convertToISODate(month: number, year: number): any {
-    return DateTime.fromObject({
-      year: year,
-      month: month,
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-      zone: 'utc',
-    }).toISO({ suppressMilliseconds: true });
-  }
-
-  getNumberOfDaysInMonth(month: number, year: number): any {
-    return DateTime.fromObject({
-      year: year,
-      month: month,
-      day: 1,
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }).daysInMonth;
-  }
-
-  async getPaginatedData(
-    meter: string,
-    filter: FilterDTO | any,
-    page: number,
-  ): Promise<unknown[]> {
-    this.logger.verbose('page: ' + page);
-    const data = await this.retrieveDataWithLastValue(meter, filter);
-    this.logger.verbose(`data: ${data}`);
-    return data;
-  }
-
-  async retrieveDataWithLastValue(
-    meter: string,
-    filter: FilterDTO,
-  ): Promise<any[]> {
-    const query = this.repository
-      .createQueryBuilder('read')
-      .where('read.externalId = :externalId', { externalId: meter })
-      .andWhere('read.type IN (:...types)', {
-        types: [ReadType.Delta, ReadType.Aggregate],
-      });
-
-    if (filter.end) {
-      const newStartDate = new Date(new Date(filter.end).getTime() + 1000);
-      query.andWhere('read.start_date <= :startDate', {
-        startDate: newStartDate,
-      });
-    } else if (filter.start) {
-      query.andWhere('read.start_date >= :startDate', {
-        startDate: new Date(filter.start),
-      });
-    }
-
-    if (filter.end) {
-      query.andWhere('read.end_date <= :endDate', {
-        endDate: new Date(filter.end),
-      });
-    }
-
-    const results = await query.getMany();
-
-    return results.map((read) => ({
-      startDate: read.startDate,
-      endDate: read.endDate,
-      value: read.value,
-      type: read.type,
-    }));
-  }
-
-  //
-  async getOffSetForInfluxQuery(
-    developerExternalId: string,
-    organizationId: number,
-    startDate: string | any,
-  ): Promise<{
-    formattedOffset: any;
-    offSetHours: number;
-    offSetMinutes: number;
-    localTimeZone: any;
-  }> {
-    let localTime = null;
-    let formattedOffset = null;
-    const device = await this.deviceService.findDeviceByDeveloperExternalId(
-      developerExternalId,
-      organizationId,
-    );
-
-    if (device.latitude && device.longitude) {
-      localTime = getLocalTime(startDate, device);
-    }
-
-    const localTimeZoneName = getLocalTimeZoneFromDevice(localTime, device);
-    const nonFormattedOffSet = getOffsetFromTimeZoneName(localTimeZoneName);
-    const offSet = getFormattedOffSetFromOffsetAsJson(nonFormattedOffSet);
-    const offSetHoursString = offSet.hours.toString();
-    const offSetMinutesString = offSet.minutes.toString();
-
-    formattedOffset = offSetHoursString + 'h' + offSetMinutesString + 'm';
-
-    this.logger.verbose('FORMATTED OFFSET BEING RETURNED:::' + formattedOffset);
-
-    return {
-      formattedOffset: formattedOffset,
-      offSetHours: offSet.hours,
-      offSetMinutes: offSet.minutes,
-      localTimeZone: localTimeZoneName,
-    };
+      order: {
+        endDate: 'DESC',
+      },
+      take: 1,
+    });
   }
 
   async validateAndStoreReads({
@@ -1453,6 +1207,16 @@ export class ReadsService {
     return reads;
   }
 
+  async countByType(deviceId: string, type: ReadType): Promise<number> {
+    this.logger.verbose('Within countByType');
+    return await this.repository.count({
+      where: {
+        type: type,
+        externalId: deviceId,
+      },
+    });
+  }
+
   async countOngoingReadsSinceDeviceOnboardingDate(
     externalId: string,
     onboardedDate: Date,
@@ -1461,7 +1225,7 @@ export class ReadsService {
     return await this.repository.count({
       where: {
         externalId: externalId,
-        type: In([ReadType.Delta, ReadType.Aggregate]),
+        type: ReadType.Delta,
         startDate: MoreThanOrEqual(onboardedDate),
       },
     });
@@ -1482,8 +1246,10 @@ export class ReadsService {
       this.storeFailedReads(
         device.externalId,
         element.value,
+        element.starttimestamp,
         element.endtimestamp,
         unit,
+        ReadType.History,
       );
       throw new ConflictException({
         success: false,
@@ -1514,8 +1280,10 @@ export class ReadsService {
       this.storeFailedReads(
         device.externalId,
         element.value,
+        element.starttimestamp,
         element.endtimestamp,
         unit,
+        ReadType.History,
       );
       throw new ConflictException({
         success: false,

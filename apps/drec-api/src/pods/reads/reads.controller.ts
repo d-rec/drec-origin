@@ -1,4 +1,4 @@
-import { ReadDTO } from '@energyweb/energy-api-influxdb';
+import { ReadDTO } from '../../types/reads';
 import {
   BadRequestException,
   Body,
@@ -178,8 +178,6 @@ export class ReadsController {
     @Param('externalId') meterId: string,
     @Query() filter: FilterNoOffLimit,
     @Query('pagenumber') pageNumber: number | null,
-    @Query('Month') month: number | null,
-    @Query('Year') year: number | null,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in newgetReads`);
@@ -233,10 +231,6 @@ export class ReadsController {
     filter.offset = 0;
     filter.limit = 5;
     let device: DeviceDTO | null;
-    if (month && !year) {
-      this.logger.error(`Year is required when month is given`);
-      throw new HttpException('Year is required when month is given', 400);
-    }
 
     if (
       user.role === 'Buyer' ||
@@ -306,37 +300,23 @@ export class ReadsController {
       });
     }
 
-    if (filter.readType === 'accumulated' && filter.accumulationType) {
-      return this.readsService.getAccumulatedReads(
-        device.externalId,
-        user.organizationId,
-        device.developerExternalId,
-        filter.accumulationType,
-        month,
-        year,
-      );
-    } else if (filter.readType === 'meterReads') {
-      const timezone = getLocalTimeZoneFromDevice(filter.start, device);
-      this.logger.log('the timezone we got from all reads is:::' + timezone);
-      const returnedObject = await this.readsService.getAllRead(
-        device.externalId,
-        filter,
-        device.createdAt,
-        pageNumber,
-      );
+    const timezone = getLocalTimeZoneFromDevice(filter.start, device);
+    this.logger.log('the timezone we got from all reads is:::' + timezone);
+    const returnedObject = await this.readsService.getAllRead(
+      device.externalId,
+      filter,
+      device.createdAt,
+      pageNumber,
+    );
 
-      this.logger.log(
-        'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
-      );
-      Object.assign(returnedObject, { timezone: timezone });
-      this.logger.log(
-        'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
-      );
-      return returnedObject;
-    } else {
-      this.logger.error(`Invalid readType parameter`);
-      throw new HttpException('Invalid readType parameter', 400);
-    }
+    this.logger.log(
+      'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
+    );
+    Object.assign(returnedObject, { timezone: timezone });
+    this.logger.log(
+      'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
+    );
+    return returnedObject;
   }
 
   /* */

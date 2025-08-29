@@ -9,16 +9,9 @@ import { IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../utils/enums';
 import { Unit } from '../../types/reads';
-import { Expose } from 'class-transformer';
 
-@Entity({ name: 'meter_reads' })
-export class MeterRead {
-  constructor(attributes?: Partial<MeterRead>) {
-    if (attributes) {
-      Object.assign(this, attributes);
-    }
-  }
-
+@Entity({ name: 'failed_meter_reads' })
+export class FailedMeterRead {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -52,35 +45,12 @@ export class MeterRead {
   @Column({ type: 'timestamp', name: 'end_date' })
   endDate: Date;
 
-  @ApiProperty()
-  @Column({ default: false })
-  certified?: boolean;
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt: Date = new Date();
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt: Date = new Date();
+  updatedAt: Date;
 
-  @ApiProperty()
-  @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
-  issuanceStartDate?: Date;
-
-  @ApiProperty()
-  @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
-  issuanceEndDate?: Date;
-
-  @Expose()
-  get startdate(): Date {
-    return this.startDate;
-  }
-
-  @Expose()
-  get enddate(): Date {
-    return this.endDate;
-  }
-
-  @Expose()
   get timestamp(): Date {
     return this.endDate;
   }

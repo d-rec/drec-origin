@@ -4,7 +4,7 @@ import {
   QueryApi,
   WriteApi,
 } from '@influxdata/influxdb-client';
-import { EnergyUnit } from '../types/units';
+import { Unit } from '../types/reads';
 
 export const influxDBConfig = {
   url: process.env.INFLUXDB_URL || 'http://localhost:8086',
@@ -71,7 +71,7 @@ const mapReadsToMeterReadsTableFormat = async (
   onboardingDate: Date
 ): Promise<Array<{
   externalId: string;
-  unit: EnergyUnit;
+  unit: Unit;
   value: number;
   startDate: Date;
   endDate: Date;
@@ -86,7 +86,7 @@ const mapReadsToMeterReadsTableFormat = async (
     
     return reads.map((read, index) => ({
       externalId: meterId,
-      unit: EnergyUnit.Wh,
+      unit: Unit.Wh,
       value: read.value,
       startDate: index === 0 ? new Date(onboardingDate) : reads[index - 1].time,
       endDate: read.time

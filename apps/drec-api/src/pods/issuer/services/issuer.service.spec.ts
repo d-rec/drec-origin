@@ -11,12 +11,12 @@ import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
-import { Queues } from '../../../utils/enums/queues.enum';
 import {
   roundDecimalToFixedPrecision,
   splitValueIntoIntegerAndDecimal,
 } from '../../../lib/helpers/splitValueIntoIntegerAndDecimal';
 import { IDevice } from '../../../models';
+import { Queues } from '../../../utils/enums/queues.enum';
 import { ICertificateMetadata } from '../../../utils/types';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
 import { DeviceService } from '../../device';
@@ -25,14 +25,13 @@ import { DeviceGroupService } from '../../device-group/device-group.service';
 import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
 import { Organization } from '../../organization/organization.entity';
 import { OrganizationService } from '../../organization/organization.service';
-import { BASE_READ_SERVICE } from '../../reads/constants';
+import { MeterRead } from '../../reads/reads.entity';
 import { ReadsService } from '../../reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
-import { MeterRead } from '../../reads/reads.entity';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;
@@ -108,7 +107,7 @@ describe('IssuerService', () => {
             updateCertificateIssueDate: jest.fn(),
             getNextHistoryIssuanceDeviceLog: jest.fn(),
             addCertificateIssueDateLogForDeviceGroup: jest.fn(),
-            updateHistoryCertificateIssueDate: jest.fn(),
+            updateHistoryCertificateIssueStatus: jest.fn(),
             updateTotalReadingRequestedForCertificateIssuance: jest.fn(),
             countGroupIdHistoryIssuanceDeviceLog: jest.fn(),
             getGroupCertificateIssueDate: jest.fn(),
@@ -145,17 +144,11 @@ describe('IssuerService', () => {
           provide: ReadsService,
           useValue: {
             getCheckHistoryCertificateIssueDateLogForDevice: jest.fn(),
-            updateHistoryCertificateIssueDate: jest.fn(),
+            updateCertificateIssueDate: jest.fn(),
             getDeltaMeterReadsFirstEntryOfDevice: jest.fn(),
             latestRead: jest.fn(),
             findLastReadForMeterWithinRange: jest.fn(),
             getAggregateMeterReadsFirstEntryOfDevice: jest.fn(),
-          } as any,
-        },
-        {
-          provide: BASE_READ_SERVICE,
-          useValue: {
-            find: jest.fn(),
           } as any,
         },
         {
@@ -256,13 +249,13 @@ describe('IssuerService', () => {
   });
 
   describe('newHistoryIssueCertificateForDevice', () => {
-    it('should return early if deviceHistoryRequest.readsvalue is less than 1000', async () => {
+    it('should return early if deviceHistoryRequest.value is less than 1000', async () => {
       const group = {
         buyerAddress: 'some-address',
         buyerId: 1,
       } as unknown as DeviceGroup;
       const deviceHistoryRequest = {
-        readsvalue: 999,
+        value: 999,
       } as unknown as MeterRead;
       const device = {} as unknown as IDevice;
 
@@ -274,9 +267,7 @@ describe('IssuerService', () => {
 
       expect(certificateLogService.createForDevice).not.toHaveBeenCalled();
       expect(certificateLogService.createForGroup).not.toHaveBeenCalled();
-      expect(
-        readsService.updateHistoryCertificateIssueDate,
-      ).not.toHaveBeenCalled();
+      expect(readsService.updateCertificateIssueDate).not.toHaveBeenCalled();
     });
 
     it('should call AddCertificateIssueDateLogForDevice and log details correctly when all conditions are met', async () => {
@@ -289,9 +280,9 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
-        readsvalue: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        value: 1000,
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 
@@ -320,8 +311,8 @@ describe('IssuerService', () => {
 
       const deviceHistoryRequest = {
         value: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 
@@ -349,9 +340,9 @@ describe('IssuerService', () => {
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
-        readsvalue: 1000,
-        readsStartDate: new Date(),
-        readsEndDate: new Date(),
+        value: 1000,
+        startDate: new Date(),
+        endDate: new Date(),
         id: 1,
       } as unknown as MeterRead;
 
@@ -366,10 +357,8 @@ describe('IssuerService', () => {
         device,
       );
 
-      expect(
-        readsService.updateHistoryCertificateIssueDate,
-      ).toHaveBeenCalledWith(
-        deviceHistoryRequest.id,
+      expect(readsService.updateCertificateIssueDate).toHaveBeenCalledWith(
+        [deviceHistoryRequest.id],
         deviceHistoryRequest.startDate,
         deviceHistoryRequest.endDate,
       );
