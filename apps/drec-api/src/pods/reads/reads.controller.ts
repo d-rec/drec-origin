@@ -288,8 +288,9 @@ export class ReadsController {
         }
       }
     } else {
-      device = await this.deviceService.findDeviceByExternalId(
-        meterId,
+      const serialNumber = meterId;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }
@@ -452,13 +453,8 @@ export class ReadsController {
     ) {
       organizationId = user.organizationId;
     }
-<<<<<<< HEAD
     return this.readsService.validateAndStoreReads({
-      deviceExternalId: id.trim(),
-=======
-    return this.internalReadsService.validateAndStoreReads({
       deviceSerialNumber: id.trim(),
->>>>>>> develop
       measurements,
       organizationId,
     });
@@ -474,7 +470,10 @@ export class ReadsController {
     description:
       'this endpoint will be replaced by `/reads/:externalId/latest` in future. Returns the latest meter read of the given device by its external ID.',
   })
-  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
@@ -510,7 +509,7 @@ export class ReadsController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestRead(
-    @Param('externalId') externalId: string,
+    @Param('externalId') id: string,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);
@@ -521,10 +520,11 @@ export class ReadsController {
       user.role === 'ApiUser'
     ) {
       // in buyer case externalid means insert id
-      device = await this.deviceService.findOne(parseInt(externalId));
+      device = await this.deviceService.findOne(parseInt(id));
     } else {
-      device = await this.deviceService.findDeviceByExternalId(
-        externalId,
+      const serialNumber = id;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }

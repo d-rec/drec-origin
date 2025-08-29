@@ -80,7 +80,7 @@ import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { EvidentDeviceService } from '../evident/evident-device.service';
-import { GroupType } from 'src/utils/enums/group-type.enum';
+import { GroupType } from '../../utils/enums/group-type.enum';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import {

@@ -1,22 +1,22 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
-import {
-  IsString,
-  IsNotEmpty,
-  IsEnum,
   IsArray,
   IsBoolean,
+  IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   isNotEmpty,
 } from 'class-validator';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
   CapacityRange,
@@ -24,10 +24,9 @@ import {
   OffTaker,
 } from '../../utils/enums';
 //import { Device } from '../device';
-import { Device } from '../device/device.entity';
-import { Exclude } from 'class-transformer';
 import { EvidentRegistrationStatus } from '../../types/evident';
 import { GroupType } from '../../utils/enums/group-type.enum';
+import { Device } from '../device/device.entity';
 import { Organization } from '../organization/organization.entity';
 
 @Entity()

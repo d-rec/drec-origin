@@ -499,11 +499,11 @@ export class DeviceService {
     return result ?? null;
   }
 
-  async findDeviceByExternalId(
+  async findBySerialNumber(
     serialNumber: string,
     organizationId: number,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceByExternalId`);
+    this.logger.verbose(`With in findBySerialNumber`);
     const device: Device = await this.repository.findOne({
       where: {
         serialNumber: serialNumber,
@@ -521,11 +521,11 @@ export class DeviceService {
     return device;
   }
 
-  async findDeviceBySerialNumberByApiUser(
+  async findBySerialNumberAndApiUser(
     serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findDeviceBySerialNumberByApiUser`);
+    this.logger.verbose(`With in findBySerialNumberAndApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
         serialNumber: serialNumber,
@@ -780,7 +780,7 @@ export class DeviceService {
   async update(
     organizationId: number,
     role: Role,
-    externalId: string,
+    serialNumber: string,
     updateDeviceDTO: UpdateDeviceDTO,
   ): Promise<Device> {
     this.logger.verbose(`With in update`);
@@ -793,13 +793,13 @@ export class DeviceService {
           }
         : undefined;
 
-    let currentDevice = await this.findDeviceByExternalId(
-      externalId.trim(),
+    let currentDevice = await this.findBySerialNumber(
+      serialNumber.trim(),
       organizationId,
     );
     if (!currentDevice) {
-      this.logger.error(`No device found with id ${externalId}`);
-      throw new NotFoundException(`No device found with id ${externalId}`);
+      this.logger.error(`No device found with id ${serialNumber}`);
+      throw new NotFoundException(`No device found with id ${serialNumber}`);
     }
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgBenefitList = SDGBenefits;

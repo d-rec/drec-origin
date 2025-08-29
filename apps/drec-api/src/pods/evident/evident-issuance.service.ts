@@ -492,7 +492,7 @@ export class EvidentIssuanceService {
       'unit',
     ];
     const csvRows = [headers.join(',')];
-    
+
     reads.forEach((record) => {
       const row = [
         device.evidentDeviceId,

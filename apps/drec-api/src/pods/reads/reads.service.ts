@@ -887,7 +887,7 @@ export class ReadsService {
     }
 
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByExternalId(
+      await this.deviceService.findBySerialNumber(
         deviceSerialNumber,
         organizationId,
       );
