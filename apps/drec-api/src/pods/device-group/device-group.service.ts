@@ -1960,11 +1960,11 @@ export class DeviceGroupService {
       (await this.historyNextIssuanceDateRepository.findOne(conditions)) ?? null
     );
   }
-  async updateHistoryCertificateIssueDate(
+  async updateHistoryCertificateIssueStatus(
     id: number,
     Status: HistoryNextIssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
+    this.logger.verbose(`With in updateHistoryCertificateIssueStatus`);
     const historyNextDate = await this.getHistoryCertificateIssueDate({
       id: id,
     });

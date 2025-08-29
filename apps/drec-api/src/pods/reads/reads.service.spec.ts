@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { ReadsFilterDTO } from '../../types/reads';
+import { ReadsFilterDTO, Unit } from '../../types/reads';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
@@ -16,6 +16,7 @@ import { getQueueToken } from '@nestjs/bull';
 import { Queues } from '../../utils/enums/queues.enum';
 import { MeterRead } from './reads.entity';
 import { FailedMeterRead } from './failed-reads.entity';
+import { ReadType } from 'src/utils/enums';
 
 describe('ReadsService', () => {
   let service: ReadsService;
@@ -89,9 +90,26 @@ describe('ReadsService', () => {
     it('should return device reads when find is successful', async () => {
       const meterId = 'test-meter-id';
       const filter: ReadsFilterDTO = {} as unknown as ReadsFilterDTO; // Adjust as needed
-      const mockReads = [
-        { timestamp: new Date('2024-01-01T00:00:00Z'), value: 123.45 },
-        { timestamp: new Date('2024-01-02T00:00:00Z'), value: 678.9 },
+
+      const mockReads: MeterRead[] = [
+        new MeterRead({
+          id: 2333,
+          externalId: meterId,
+          type: ReadType.Delta,
+          startDate: new Date('2024-01-01T00:00:00Z'),
+          endDate: new Date('2024-01-02T00:00:00Z'),
+          value: 123.45,
+          unit: Unit.Wh,
+        }),
+        new MeterRead({
+          id: 2334,
+          externalId: meterId,
+          type: ReadType.Delta,
+          startDate: new Date('2024-01-03T00:00:00Z'),
+          endDate: new Date('2024-01-04T00:00:00Z'),
+          value: 678.9,
+          unit: Unit.Wh,
+        }),
       ];
 
       jest.spyOn(service, 'find').mockResolvedValue(mockReads);

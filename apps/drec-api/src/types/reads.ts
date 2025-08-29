@@ -6,6 +6,7 @@ export type ReadsFilterDTO = {
   start: string;
   end: string;
   order?: 'ASC' | 'DESC';
+  certified?: boolean;
 };
 
 export type AggregatedReadDTO = {

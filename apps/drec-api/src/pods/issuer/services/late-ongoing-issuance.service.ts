@@ -96,7 +96,7 @@ export class LateOngoingIssuanceService {
     const cycles = await this.deviceService.findAllLateCycle(groupId);
 
     if (!cycles?.length) {
-      this.logger.error('No late ongoing read cycles found');
+      this.logger.log('No late ongoing read cycles found');
       return;
     }
 

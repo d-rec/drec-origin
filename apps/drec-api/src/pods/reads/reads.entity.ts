@@ -13,6 +13,12 @@ import { Expose } from 'class-transformer';
 
 @Entity({ name: 'meter_reads' })
 export class MeterRead {
+  constructor(attributes?: Partial<MeterRead>) {
+    if (attributes) {
+      Object.assign(this, attributes);
+    }
+  }
+
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn()
   id: number;
@@ -48,21 +54,21 @@ export class MeterRead {
 
   @ApiProperty()
   @Column({ default: false })
-  certified: boolean;
+  certified?: boolean;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt: Date;
+  createdAt: Date = new Date();
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt: Date;
+  updatedAt: Date = new Date();
 
   @ApiProperty()
   @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
-  issuanceStartDate: Date;
+  issuanceStartDate?: Date;
 
   @ApiProperty()
   @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
-  issuanceEndDate: Date;
+  issuanceEndDate?: Date;
 
   @Expose()
   get startdate(): Date {

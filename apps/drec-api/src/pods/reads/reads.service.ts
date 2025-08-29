@@ -18,6 +18,7 @@ import {
   Between,
   Brackets,
   FindConditions,
+  In,
   MoreThanOrEqual,
   Repository,
   SelectQueryBuilder,
@@ -74,14 +75,20 @@ export class ReadsService {
   public async find(
     meterId: string,
     filter: ReadsFilterDTO,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
+  ): Promise<Array<MeterRead>> {
     try {
+      const where: FindConditions<MeterRead> = {
+        externalId: meterId,
+        endDate: Between(new Date(filter.start), new Date(filter.end)),
+        type: ReadType.Delta,
+      };
+
+      if (filter.certified != undefined && filter.certified != null) {
+        where.certified = filter.certified;
+      }
+
       return await this.repository.find({
-        where: {
-          externalId: meterId,
-          endDate: Between(new Date(filter.start), new Date(filter.end)),
-          type: ReadType.Delta,
-        },
+        where,
         order: {
           endDate: filter.order || 'ASC',
         },
@@ -515,7 +522,7 @@ export class ReadsService {
     meterId: string,
     startDate: Date,
     endDate: Date,
-  ): Promise<Array<{ timestamp: Date; value: number }>> {
+  ): Promise<Array<MeterRead>> {
     return await this.find(meterId, {
       start: startDate.toISOString(),
       end: endDate.toISOString(),
@@ -671,7 +678,7 @@ export class ReadsService {
             endTimestamp <= reservedEndDate &&
             endTimestamp > reservedStartDate
           ) {
-            this.deviceGroupService.updateHistoryCertificateIssueDate(
+            this.deviceGroupService.updateHistoryCertificateIssueStatus(
               historyNextIssue.id,
               HistoryNextIssuanceStatus.Pending,
             );
@@ -764,23 +771,19 @@ export class ReadsService {
     );
   }
 
-  async updateHistoryCertificateIssueDate(
-    id: number,
+  async updateCertificateIssueDate(
+    ids: number[],
     startDate: Date,
     endDate: Date,
-  ): Promise<MeterRead> {
-    const historyDevice = await this.getDeviceHistoryCertificateIssueDate({
-      id: id,
-    });
-    let updatedHistoryIssue = new MeterRead();
-    if (historyDevice) {
-      historyDevice.type = ReadType.History;
-      historyDevice.certified = true;
-      historyDevice.issuanceStartDate = startDate;
-      historyDevice.issuanceEndDate = endDate;
-      updatedHistoryIssue = await this.repository.save(historyDevice);
-    }
-    return updatedHistoryIssue;
+  ): Promise<void> {
+    await this.repository.update(
+      { id: In(ids) },
+      {
+        certified: true,
+        issuanceStartDate: startDate,
+        issuanceEndDate: endDate,
+      },
+    );
   }
 
   @Profile()
