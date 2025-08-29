@@ -1,22 +1,21 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsString,
+} from 'class-validator';
+import {
   Column,
   Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
   JoinColumn,
   OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { OffTaker, FuelCode, DeviceTypeCode } from '../../utils/enums';
-import {
-  IsEnum,
-  IsBoolean,
-  IsString,
-  IsNumber,
-  IsArray,
-} from 'class-validator';
-import { Exclude } from 'class-transformer';
 import { DeviceDescription, IDevice } from '../../models';
+import { DeviceTypeCode, FuelCode, OffTaker } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -36,7 +35,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
-  @Exclude()
   developerExternalId?: string;
 
   // @Column({ nullable: true, default: DeviceStatus.Active })

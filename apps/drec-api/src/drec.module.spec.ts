@@ -16,12 +16,9 @@ import { ACLModulePermission } from './pods/permission/permission.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
 import { DeviceCsvProcessingFailedRowsEntity } from './pods/device-group/device_csv_processing_failed_rows.entity';
 import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_group_issuecertificate.entity';
-import { AggregateMeterRead } from './pods/reads/aggregate_readvalue.entity';
-import { HistoryIntermediateMeterRead } from './pods/reads/history_intermideate_meterread.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
-import { DeltaFirstRead } from './pods/reads/delta_firstread.entity';
 import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
 import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
@@ -161,20 +158,6 @@ describe('DRECModule', () => {
     expect(deviceGroupNextIssueCertificateRepository).toBeDefined();
   });
 
-  it('should provide AggregateMeterRead repository', () => {
-    const aggregateMeterReadRepository = module.get<
-      Repository<AggregateMeterRead>
-    >(getRepositoryToken(AggregateMeterRead));
-    expect(aggregateMeterReadRepository).toBeDefined();
-  });
-
-  it('should provide HistoryIntermediateMeterRead repository', () => {
-    const historyIntermediateMeterReadRepository = module.get<
-      Repository<HistoryIntermediateMeterRead>
-    >(getRepositoryToken(HistoryIntermediateMeterRead));
-    expect(historyIntermediateMeterReadRepository).toBeDefined();
-  });
-
   it('should provide CheckCertificateIssueDateLogForDeviceEntity repository', () => {
     const checkCertificateIssueDateLogForDeviceRepository = module.get<
       Repository<CheckCertificateIssueDateLogForDeviceEntity>
@@ -194,13 +177,6 @@ describe('DRECModule', () => {
       getRepositoryToken(SDGBenefit),
     );
     expect(sdgBenefitRepository).toBeDefined();
-  });
-
-  it('should provide DeltaFirstRead repository', () => {
-    const deltaFirstReadRepository = module.get<Repository<DeltaFirstRead>>(
-      getRepositoryToken(DeltaFirstRead),
-    );
-    expect(deltaFirstReadRepository).toBeDefined();
   });
 
   it('should provide IRECDevicesInformationEntity repository', () => {

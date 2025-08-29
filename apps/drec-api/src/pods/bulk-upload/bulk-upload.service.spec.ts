@@ -13,18 +13,6 @@ import { ReadsService } from '../reads/reads.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { Organization } from '../organization/organization.entity';
 
-jest.mock('@influxdata/influxdb-client', () => {
-  return {
-    InfluxDB: jest.fn().mockImplementation(() => {
-      return {
-        getQueryApi: jest.fn().mockReturnValue({
-          queryRows: jest.fn(),
-        }),
-      };
-    }),
-  };
-});
-
 describe('BulkUploadService', () => {
   let service: BulkUploadService;
 

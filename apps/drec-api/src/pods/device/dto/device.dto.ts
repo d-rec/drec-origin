@@ -1,18 +1,17 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
-  IsNumber,
-  IsEnum,
-  IsBoolean,
   IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
   IsOptional,
+  IsString,
   Matches,
   IsNotEmpty,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
-import { Exclude } from 'class-transformer';
 import { Trim } from '../../../transformers/string';
+import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -23,7 +22,6 @@ export class DeviceDTO implements IDevice {
   externalId?: string;
 
   @IsString()
-  @Exclude()
   developerExternalId?: string;
 
   @ApiProperty()

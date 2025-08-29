@@ -1,32 +1,32 @@
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
-import {
-  IsString,
-  IsNotEmpty,
-  IsEnum,
+  IsArray,
   IsBoolean,
+  IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsArray,
+  IsString,
   isNotEmpty,
 } from 'class-validator';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IDeviceGroup, IFullOrganization } from '../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
   OffTaker,
 } from '../../utils/enums';
-import { Device } from '../device/device.entity';
-import { Exclude } from 'class-transformer';
+//import { Device } from '../device';
 import { EvidentRegistrationStatus } from '../../types/evident';
 import { GroupType } from '../../utils/enums/group-type.enum';
+import { Device } from '../device/device.entity';
 import { Organization } from '../organization/organization.entity';
 
 @Entity()
@@ -71,12 +71,10 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   // sectors: Sector[];
 
   @Column('text', { array: true })
-  @Exclude()
   commissioningDateRange: CommissioningDateRange[];
 
   @Column()
   @IsBoolean()
-  @Exclude()
   gridInterconnection: boolean;
 
   @Column()
@@ -89,7 +87,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
 
   @Column({ default: 1000 })
   @IsNumber()
-  @Exclude()
   yieldValue: number;
 
   // @Column('simple-array', { nullable: true })

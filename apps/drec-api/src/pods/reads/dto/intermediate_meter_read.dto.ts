@@ -6,7 +6,7 @@ import {
   IsDate,
   ValidateNested,
 } from 'class-validator';
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../../../types/reads';
 import { ApiProperty } from '@nestjs/swagger';
 import { ReadType } from '../../../utils/enums';
 import { IIntermediate, NewReadDTO } from '../../../models';

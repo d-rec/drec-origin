@@ -16,6 +16,8 @@ import { OrganizationService } from '../../organization/organization.service';
 import { ReadsService } from '../../reads/reads.service';
 import { IssuerService } from './issuer.service';
 import { Profile } from '../../../lib/profile';
+import { CronExpression } from '@nestjs/schedule';
+import { ReadType } from '../../../utils/enums';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -38,7 +40,7 @@ export class LateOngoingIssuanceService {
    *
    * @returns Promise that resolves when all jobs are queued
    */
-  @NonConcurrentCron('0 0 */8 * * *')
+  @NonConcurrentCron(CronExpression.EVERY_8_HOURS)
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/8h]: Late ongoing certificate issuance check');
     try {
@@ -95,7 +97,7 @@ export class LateOngoingIssuanceService {
     const cycles = await this.deviceService.findAllLateCycle(groupId);
 
     if (!cycles?.length) {
-      this.logger.error('No late ongoing read cycles found');
+      this.logger.log('No late ongoing read cycles found');
       return;
     }
 
@@ -161,7 +163,7 @@ export class LateOngoingIssuanceService {
 
     // Fetch last read and next issuance data in parallel
     const [lastRead, nextIssuance] = await Promise.all([
-      this.readsService.latestRead(device.externalId, device.createdAt),
+      this.readsService.latestRead(device.externalId),
       this.groupService.getGroupCertificateIssueDate({ groupId: group.id }),
     ]);
 
@@ -256,6 +258,7 @@ export class LateOngoingIssuanceService {
     const allReadsForDeviceBetweenTimeRange = await this.readsService.find(
       device.externalId,
       {
+        type: ReadType.Delta,
         offset: 0,
         limit: 5000,
         start: cycle.lateStartDateUTC.toString(),

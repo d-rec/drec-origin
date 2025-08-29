@@ -1,0 +1,91 @@
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { IsEnum } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { ReadType } from '../../utils/enums';
+import { Unit } from '../../types/reads';
+import { Expose } from 'class-transformer';
+
+@Entity({ name: 'meter_reads' })
+export class MeterRead {
+  constructor(attributes?: Partial<MeterRead>) {
+    if (attributes) {
+      Object.assign(this, attributes);
+    }
+  }
+
+  @ApiProperty({ type: Number })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ApiProperty()
+  @Column({
+    name: 'external_id',
+    type: 'citext',
+  })
+  externalId: string;
+
+  @ApiProperty({ enum: ReadType, enumName: 'type' })
+  @Column()
+  @IsEnum(ReadType)
+  type: ReadType;
+
+  @ApiProperty()
+  @Column({ type: 'double precision' })
+  value: number;
+
+  @ApiProperty({ enum: Unit, enumName: 'unit' })
+  @Column()
+  @IsEnum(Unit)
+  unit: Unit;
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'start_date' })
+  startDate: Date;
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'end_date' })
+  endDate: Date;
+
+  @ApiProperty()
+  @Column({ default: false })
+  certified?: boolean;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date = new Date();
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt: Date = new Date();
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'issuance_start_date', nullable: true })
+  issuanceStartDate?: Date;
+
+  @ApiProperty()
+  @Column({ type: 'timestamp', name: 'issuance_end_date', nullable: true })
+  issuanceEndDate?: Date;
+
+  @Expose()
+  get startdate(): Date {
+    return this.startDate;
+  }
+
+  @Expose()
+  get enddate(): Date {
+    return this.endDate;
+  }
+
+  @Expose()
+  get timestamp(): Date {
+    return this.endDate;
+  }
+
+  set timestamp(value: Date) {
+    this.endDate = value;
+  }
+}

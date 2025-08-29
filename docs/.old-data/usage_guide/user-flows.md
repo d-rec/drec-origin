@@ -601,6 +601,7 @@ flowchart TD
 ```
 
 - Buyer should be able to filter the devices on the below listed parameters while making a reservation:
+
   1. Country Code
 
   2. Fuel Type (Fuel Code)
@@ -840,7 +841,7 @@ Requirements:
 
 **_Device ExternalId discussion:_**
 
-- As developers(from different organisations) might have same externalId we currently cannot make externalId as unique (Srinivas suggestion use device name + organisation id ), make use of deviceId in the meter reads in influx db consider production data.
+- As developers(from different organisations) might have same externalId we currently cannot make externalId as unique (Srinivas suggestion use device name + organisation id ), make use of deviceId in the meter reads in db consider production data.
 
 - Update the external ID validation not to include URL characters like #.(what will we do for French characters?). We could restrict them to the Alphanumeric characters and then allow to use – and \_ .
 
@@ -907,6 +908,7 @@ API Input
 Validation:
 
 - **Validations on Requirements collected during February Meetings:**
+
   - Old devices registered before shall also be able to send the meter reads data
 
   - New devices registered shall also be able to send the meter reads data.
@@ -934,6 +936,7 @@ Invite user: here, there should be following text fields to enter by the user:
 - Email address
 
 - Role (should be drop down) to choose roles from
+
   - Device owner
 
   - User
@@ -1001,6 +1004,7 @@ Invite user: here, there should be following text fields to enter by the user:
 - Email address
 
 - Role (should be drop down) to choose roles from
+
   - sub buyer
 
   - User

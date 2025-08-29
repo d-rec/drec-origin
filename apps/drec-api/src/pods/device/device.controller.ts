@@ -66,6 +66,7 @@ import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import { validateOrReject } from 'class-validator';
+import { ReadsService } from '../reads/reads.service';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -82,6 +83,7 @@ export class DeviceController {
     private readonly deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly readsService: ReadsService,
   ) {}
 
   /**
@@ -466,11 +468,11 @@ export class DeviceController {
     status: HttpStatus.FORBIDDEN,
     description: 'User does not have permission to view this device.',
   })
-  async getByExternalId(
-    @Param('id') externalId: string,
+  async getBySerialNumber(
+    @Param('id') serialNumber: string,
     @UserDecorator() loginUser: ILoggedInUser,
   ): Promise<DeviceDTO | null> {
-    this.logger.verbose(`With in getByExternalId`);
+    this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
     if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
@@ -478,13 +480,13 @@ export class DeviceController {
         loginUser.api_user_id = null;
       }
 
-      deviceData = await this.deviceService.findDeviceBySerialNumberByApiUser(
-        externalId,
+      deviceData = await this.deviceService.findBySerialNumberAndApiUser(
+        serialNumber,
         loginUser.api_user_id,
       );
     } else {
-      deviceData = await this.deviceService.findDeviceByExternalId(
-        externalId,
+      deviceData = await this.deviceService.findBySerialNumber(
+        serialNumber,
         loginUser.organizationId,
       );
     }
@@ -667,7 +669,7 @@ export class DeviceController {
   })
   public async update(
     @UserDecorator() user: ILoggedInUser,
-    @Param('externalId') externalId: string,
+    @Param('externalId') serialNumber: string,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
@@ -677,12 +679,12 @@ export class DeviceController {
     });
     user.organizationId = deviceToUpdate.organizationId;
 
-    if (deviceToUpdate.externalId) {
-      const checkExternalId = await this.deviceService.findDeviceByExternalId(
-        deviceToUpdate.externalId,
+    if (deviceToUpdate.serialNumber) {
+      const checkSerialNumber = await this.deviceService.findBySerialNumber(
+        deviceToUpdate.serialNumber,
         user.organizationId,
       );
-      if (checkExternalId) {
+      if (checkSerialNumber) {
         this.logger.log('Line No: 236');
         throw new ConflictException({
           success: false,
@@ -692,30 +694,30 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkExternalId = await this.deviceService.findDeviceByExternalId(
-        externalId,
+      const checkSerialNumber = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
       const noOfHistRead: number =
         await this.deviceService.getNumberOfHistoryReads(
-          checkExternalId.externalId,
+          checkSerialNumber.serialNumber,
         );
       const noOfOnGoingRead: number =
-        await this.deviceService.getNumberOfOngoingReads(
-          checkExternalId.externalId,
-          checkExternalId.createdAt,
+        await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
+          checkSerialNumber.serialNumber,
+          checkSerialNumber.createdAt,
         );
 
       if (
-        deviceToUpdate.commissioningDate != checkExternalId.commissioningDate
+        deviceToUpdate.commissioningDate != checkSerialNumber.commissioningDate
       ) {
         if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
           this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
+            `Commissioning date cannot be changed due to existing meter reads available for ${checkSerialNumber.serialNumber}`,
           );
           throw new ConflictException({
             success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkExternalId.serialNumber}`,
+            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkSerialNumber.serialNumber}`,
           });
         }
       }
@@ -723,7 +725,7 @@ export class DeviceController {
     return await this.deviceService.update(
       user.organizationId,
       user.role,
-      externalId,
+      serialNumber,
       deviceToUpdate,
     );
   }
@@ -838,7 +840,7 @@ export class DeviceController {
   })
   async changeOnBoardingDate(
     @UserDecorator() { organizationId }: ILoggedInUser,
-    @Query('deviceId') deviceId: string,
+    @Query('deviceId') serialNumber: string,
     @Query('givenDate') givenDate: string,
   ): Promise<string> {
     this.logger.verbose(`With in changeOnBoardingDate`);
@@ -847,7 +849,7 @@ export class DeviceController {
       throw new HttpException('Currently not in dev environment', 400);
     }
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByExternalId(deviceId, organizationId);
+      await this.deviceService.findBySerialNumber(serialNumber, organizationId);
     this.logger.debug(
       'THE DEVICE FROM ExTERNALID IS::::::::::::' + device.externalId,
     );

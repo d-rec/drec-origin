@@ -479,7 +479,10 @@ export class EvidentIssuanceService {
     startDate: Date,
     endDate: Date,
   ) {
-    const reads = await this.readService.findAll(device, startDate, endDate);
+    const reads = await this.readService.find(device.externalId, {
+      start: startDate.toISOString(),
+      end: endDate.toISOString(),
+    });
     const headers = [
       'Device ID',
       'D-REC Device ID',
@@ -492,8 +495,8 @@ export class EvidentIssuanceService {
 
     reads.forEach((record) => {
       const row = [
-        record.deviceId,
-        record.drecDeviceId,
+        device.evidentDeviceId,
+        device.externalId,
         record.startDate,
         record.endDate,
         record.value,

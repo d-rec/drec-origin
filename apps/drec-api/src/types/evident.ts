@@ -1,4 +1,4 @@
-import { Device } from 'src/pods/device/device.entity';
+import { Device } from '../pods/device/device.entity';
 
 export enum EvidentRegistrationStatus {
   Draft = 'Draft',

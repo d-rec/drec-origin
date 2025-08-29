@@ -1,46 +1,26 @@
-import { ReadsService as BaseReadService } from '@energyweb/energy-api-influxdb';
 import { forwardRef, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DeviceGroupModule } from '../device-group/device-group.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { UserModule } from '../user/user.module';
-import { BASE_READ_SERVICE } from './constants';
 import { ReadsController } from './reads.controller';
 import { ReadsService } from './reads.service';
-import { BaseReadServiceForCi } from './baseReadServiceForCi.service';
-import { DeviceGroupModule } from '../device-group/device-group.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AggregateMeterRead } from './aggregate_readvalue.entity';
-import { HistoryIntermediateMeterRead } from './history_intermideate_meterread.entity';
-import { DeltaFirstRead } from './delta_firstread.entity';
 import { BullModule } from '@nestjs/bull';
-import { FileModule } from '../file';
-import { ReadsBulkUploadProcessor } from './reads-bulk-upload.processor';
-import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { CqrsModule } from '@nestjs/cqrs';
-import { DeviceModule } from '../device/device.module';
 import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
-
-const baseReadServiceProvider = {
-  provide: BASE_READ_SERVICE,
-  useFactory: (configService: ConfigService<Record<string, any>>) => {
-    if (configService.get<string>('MODE') == 'CI') {
-      return new BaseReadServiceForCi();
-    } else {
-      return new BaseReadService(configService as any);
-    }
-  },
-  inject: [ConfigService],
-};
+import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
+import { DeviceModule } from '../device/device.module';
+import { FileModule } from '../file';
+import { ReadsBulkUploadProcessor } from './reads-bulk-upload.processor';
+import { MeterRead } from './reads.entity';
+import { FailedMeterRead } from './failed-reads.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      AggregateMeterRead,
-      HistoryIntermediateMeterRead,
-      DeltaFirstRead,
-    ]),
+    TypeOrmModule.forFeature([MeterRead, FailedMeterRead]),
     BullModule.registerQueue({
       name: Queues.ReadsBulkUpload,
       defaultJobOptions: defaultBullJobOptions,
@@ -55,7 +35,7 @@ const baseReadServiceProvider = {
     forwardRef(() => BulkUploadModule),
   ],
   controllers: [ReadsController],
-  providers: [baseReadServiceProvider, ReadsService, ReadsBulkUploadProcessor],
-  exports: [baseReadServiceProvider, ReadsService, BullModule],
+  providers: [ReadsService, ReadsBulkUploadProcessor],
+  exports: [ReadsService, BullModule],
 })
 export class ReadsModule {}
