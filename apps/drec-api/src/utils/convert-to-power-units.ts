@@ -1,4 +1,4 @@
-import { Unit } from '@energyweb/energy-api-influxdb';
+import { Unit } from '../types/reads';
 
 export const getWhMultiplier = (unit: string): number => {
   switch (unit) {
@@ -14,7 +14,7 @@ export const getWhMultiplier = (unit: string): number => {
 };
 
 // Convert to Watt per Hour
-export const convertToWh = (measurement: number, unit: string): number => {
+export const convertToWh = (measurement: number, unit: Unit): number => {
   const multiplier = getWhMultiplier(unit) || 1;
 
   return measurement * multiplier;

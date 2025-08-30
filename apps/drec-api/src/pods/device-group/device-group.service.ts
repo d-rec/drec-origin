@@ -1,7 +1,9 @@
 import {
   ConflictException,
+  forwardRef,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -38,9 +40,8 @@ import {
   UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 
-import moment from 'moment';
-
 import csv from 'csv-parser';
+import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
 import { getCapacityRange } from '../../utils/get-capacity-range';
@@ -65,14 +66,12 @@ import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueInt
 import { Profile } from '../../lib/profile';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { Queues } from '../../utils/enums/queues.enum';
-import { ICertificateMetadata } from '../../utils/types';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
 import { FilterDTO } from '../certificate-log/dto';
-import { FileService } from '../file';
 import { UserService } from '../user/user.service';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
@@ -92,17 +91,13 @@ export class DeviceGroupService {
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
+    @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
-    private readonly fileService: FileService,
     private yieldConfigService: YieldConfigService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
     private readonly historyNextIssuanceDateRepository: Repository<HistoryDeviceGroupNextIssueCertificate>,
-    @InjectRepository(CertificateReadModelEntity)
-    private readonly certificateReadModuleRepository: Repository<
-      CertificateReadModelEntity<ICertificateMetadata>
-    >,
     private readonly userService: UserService,
     @InjectRepository(CertificateSettingEntity)
     private readonly certificateSettingsRepository: Repository<CertificateSettingEntity>,
@@ -1965,11 +1960,11 @@ export class DeviceGroupService {
       (await this.historyNextIssuanceDateRepository.findOne(conditions)) ?? null
     );
   }
-  async updateHistoryCertificateIssueDate(
+  async updateHistoryCertificateIssueStatus(
     id: number,
     Status: HistoryNextIssuanceStatus,
   ): Promise<HistoryDeviceGroupNextIssueCertificate> {
-    this.logger.verbose(`With in updateHistoryCertificateIssueDate`);
+    this.logger.verbose(`With in updateHistoryCertificateIssueStatus`);
     const historyNextDate = await this.getHistoryCertificateIssueDate({
       id: id,
     });

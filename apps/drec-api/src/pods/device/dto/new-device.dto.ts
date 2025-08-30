@@ -1,25 +1,25 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
-  IsString,
-  IsEnum,
-  IsBoolean,
   IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsIn,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsNotEmpty,
+  IsString,
   Matches,
+  MaxDate,
   Min,
   ValidateIf,
-  IsIn,
-  IsDate,
-  MaxDate,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { DeviceDescription, IDevice } from '../../../models';
-import { Exclude, Transform } from 'class-transformer';
+import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
-import { countryCodesList } from '../../../models/country-code';
+import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 
 export class NewDeviceDTO
   implements
@@ -40,7 +40,6 @@ export class NewDeviceDTO
 
   @IsOptional()
   @IsString()
-  @Exclude()
   developerExternalId?: string;
 
   @ApiProperty()

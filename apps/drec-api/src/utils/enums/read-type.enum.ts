@@ -1,7 +1,7 @@
 export enum ReadType {
   History = 'History',
   Delta = 'Delta',
-  ReadMeter = 'Aggregate',
+  Aggregate = 'Aggregate',
 }
 
 export enum ReadStatus {

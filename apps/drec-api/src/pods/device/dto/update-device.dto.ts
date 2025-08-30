@@ -1,23 +1,23 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
-  IsString,
-  IsEnum,
-  IsBoolean,
   IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsIn,
   IsNumber,
   IsOptional,
+  IsString,
   Matches,
-  Min,
-  IsIn,
-  IsDate,
   MaxDate,
+  Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { OffTaker, FuelCode, DeviceTypeCode } from '../../../utils/enums';
 import { IDevice } from '../../../models';
-import { Exclude, Transform } from 'class-transformer';
-import { Trim } from '../../../transformers/string';
 import { countryCodesList } from '../../../models/country-code';
+import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
+import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -42,7 +42,6 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   @IsString()
-  @Exclude()
   developerExternalId?: string;
 
   @ApiProperty()

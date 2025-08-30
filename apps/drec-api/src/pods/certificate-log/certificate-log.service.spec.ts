@@ -21,11 +21,7 @@ import { CertificateLogResponse } from './dto';
 
 describe('CertificateLogService', () => {
   let service: CertificateLogService;
-  let repository: Repository<CheckCertificateIssueDateLogForDeviceEntity>;
-  let certificateRepository: Repository<Certificate>;
-  let certificateReadModelEntity: Repository<CertificateReadModelEntity<any>>;
   let mockResponse: Partial<Response>;
-  let deviceService: DeviceService;
   let deviceGroupService: DeviceGroupService;
 
   beforeEach(async () => {
@@ -73,20 +69,6 @@ describe('CertificateLogService', () => {
     }).compile();
 
     service = module.get<CertificateLogService>(CertificateLogService);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    repository = module.get<
-      Repository<CheckCertificateIssueDateLogForDeviceEntity>
-    >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    certificateRepository = module.get<Repository<Certificate>>(
-      getRepositoryToken(Certificate),
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    certificateReadModelEntity = module.get<
-      Repository<CertificateReadModelEntity<any>>
-    >(getRepositoryToken(CertificateReadModelEntity));
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    deviceService = module.get<DeviceService>(DeviceService);
     deviceGroupService = module.get<DeviceGroupService>(DeviceGroupService);
 
     mockResponse = {
