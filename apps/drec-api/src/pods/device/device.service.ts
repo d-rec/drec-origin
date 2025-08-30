@@ -563,7 +563,7 @@ export class DeviceService {
     const devices = await this.repository.find({
       where: {
         evidentDeviceId: Not(IsNull()),
-      }
+      },
     });
     for (const device of devices) {
       try {
