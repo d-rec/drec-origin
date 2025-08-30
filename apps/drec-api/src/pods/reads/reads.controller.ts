@@ -305,7 +305,6 @@ export class ReadsController {
     }
 
     const timezone = getLocalTimeZoneFromDevice(filter.start, device);
-    this.logger.log('the timezone we got from all reads is:::' + timezone);
     const returnedObject = await this.readsService.getAllRead(
       device.externalId,
       filter,
@@ -313,13 +312,7 @@ export class ReadsController {
       pageNumber,
     );
 
-    this.logger.log(
-      'THE RETURNED OBJECT KEYS:::' + Object.keys(returnedObject),
-    );
     Object.assign(returnedObject, { timezone: timezone });
-    this.logger.log(
-      'THE CHANGED OBJECT KEYS::::::' + Object.keys(returnedObject),
-    );
     return returnedObject;
   }
 
