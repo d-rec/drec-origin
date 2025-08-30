@@ -25,6 +25,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  IsNull,
   LessThan,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -559,7 +560,11 @@ export class DeviceService {
   }
 
   async syncStatusesWithEvident(): Promise<void> {
-    const devices = await this.repository.find();
+    const devices = await this.repository.find({
+      where: {
+        evidentDeviceId: Not(IsNull()),
+      }
+    });
     for (const device of devices) {
       try {
         const updatedStatus = await this.evidentDeviceService.getStatus(
