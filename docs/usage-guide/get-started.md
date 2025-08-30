@@ -24,6 +24,9 @@ All new users follow the same registration process. The only difference occurs d
 
 ### Registration Workflow
 
+<br/>
+<YouTubeEmbed video-id="jqYnkn4oxvc" />
+
 1. **Access the Signup Page:**  
    Navigate to the signup page.
 
