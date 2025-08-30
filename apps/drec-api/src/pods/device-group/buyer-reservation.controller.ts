@@ -231,7 +231,7 @@ export class BuyerReservationController {
     description: 'User does not have permission to view buyer reservations.',
   })
   async getMyDevices(
-    @UserDecorator() { id, organizationId, role }: ILoggedInUser,
+    @UserDecorator() { organizationId, role }: ILoggedInUser,
     @Query(
       new ValidationPipe({
         transform: true,

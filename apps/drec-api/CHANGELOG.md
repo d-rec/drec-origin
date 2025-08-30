@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.2](https://github.com/d-rec/drec-origin/compare/v0.7.1...v0.7.2) (2025-08-30)
+
+### Improvements
+
+- update dependencies ([fa5c42f](https://github.com/d-rec/drec-origin/commit/fa5c42ff92ce5945a61d3219467ef71e413d83f1))
+
+### [0.7.1](https://github.com/d-rec/drec-origin/compare/v0.7.0...v0.7.1) (2025-08-30)
+
+### Improvements
+
+- cleanup ([d4449c6](https://github.com/d-rec/drec-origin/commit/d4449c68cc4c799f0211dd16c0a6eba0c8fce2d9))
+
 ## [0.7.0](https://github.com/d-rec/drec-origin/compare/v0.6.0...v0.7.0) (2025-08-30)
 
 ### Features
