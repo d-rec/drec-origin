@@ -4,6 +4,9 @@ order: 2
 
 # Key Features
 
+<br/>
+<YouTubeEmbed video-id="7_RHBYSVpL4" />
+
 This a summary of the features that are currently supported by the D-REC platform. Each feature area is described in detail, explaining the functionality and benefits offered by the platform.
 
 ## User & Organization Management
