@@ -797,6 +797,7 @@ export class DeviceService {
       serialNumber.trim(),
       organizationId,
     );
+    console.log('currentDevice', currentDevice);
     if (!currentDevice) {
       this.logger.error(`No device found with id ${serialNumber}`);
       throw new NotFoundException(`No device found with id ${serialNumber}`);
@@ -855,9 +856,9 @@ export class DeviceService {
     }
     updateDeviceDTO.fingerprint = fingerprint;
 
-    currentDevice = defaults(updateDeviceDTO, currentDevice);
-    const result = await this.repository.save(currentDevice);
-    return result;
+    Object.assign(currentDevice, updateDeviceDTO);
+    currentDevice.updatedAt = new Date();
+    return await this.repository.save(currentDevice);
   }
 
   async findUngrouped(
