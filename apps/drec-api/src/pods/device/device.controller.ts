@@ -672,14 +672,14 @@ export class DeviceController {
     @Param('externalId') serialNumber: string,
     @Query('serialNumberChanged') serialNumberChanged: string,
     @Body() deviceToUpdate: UpdateDeviceDTO,
-  ): Promise<Device> {
+  ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
     await this.organizationService.checkIfCanManage({
       user,
       organizationId: deviceToUpdate.organizationId,
     });
     user.organizationId = deviceToUpdate.organizationId;
-    const isSerialNumberChanged = serialNumberChanged === 'true' ? true : false;
+    const isSerialNumberChanged = serialNumberChanged === 'true';
     if (isSerialNumberChanged) {
       if (deviceToUpdate.serialNumber) {
         const checkSerialNumber = await this.deviceService.findBySerialNumber(

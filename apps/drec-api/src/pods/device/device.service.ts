@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import cleanDeep from 'clean-deep';
-import { defaults } from 'lodash';
 import { DateTime } from 'luxon';
 import { Observable } from 'rxjs';
 import {
@@ -793,11 +792,11 @@ export class DeviceService {
           }
         : undefined;
 
-    let currentDevice = await this.findBySerialNumber(
+    const currentDevice = await this.findBySerialNumber(
       serialNumber.trim(),
       organizationId,
     );
-    console.log('currentDevice', currentDevice);
+
     if (!currentDevice) {
       this.logger.error(`No device found with id ${serialNumber}`);
       throw new NotFoundException(`No device found with id ${serialNumber}`);
