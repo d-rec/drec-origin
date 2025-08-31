@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.2](https://github.com/d-rec/drec-origin/compare/v0.7.1...v0.7.2) (2025-08-30)
+
+### Improvements
+
+- update dependencies ([fa5c42f](https://github.com/d-rec/drec-origin/commit/fa5c42ff92ce5945a61d3219467ef71e413d83f1))
+
+### [0.7.1](https://github.com/d-rec/drec-origin/compare/v0.7.0...v0.7.1) (2025-08-30)
+
+### Improvements
+
+- cleanup ([d4449c6](https://github.com/d-rec/drec-origin/commit/d4449c68cc4c799f0211dd16c0a6eba0c8fce2d9))
+
+## [0.7.0](https://github.com/d-rec/drec-origin/compare/v0.6.0...v0.7.0) (2025-08-30)
+
+### Features
+
+- Add createdAt on the meter reads migration ([8deb76f](https://github.com/d-rec/drec-origin/commit/8deb76fc7f19114c63dc02d4524ce1af9cc43119))
+- migrate history read to meter reads table ([#673](https://github.com/d-rec/drec-origin/issues/673)) ([a75e3be](https://github.com/d-rec/drec-origin/commit/a75e3beeaf3c69fff3e630962ad2ed2df352357b))
+- migrate reads from influxdb to meter reads table ([#671](https://github.com/d-rec/drec-origin/issues/671)) ([b6fcfbb](https://github.com/d-rec/drec-origin/commit/b6fcfbba72219efda51111f10ceea0aa5c9c9970))
+- rename AWS env variables ([6232966](https://github.com/d-rec/drec-origin/commit/62329667d6b8cdead5edb0b41cbdd780fb4b38d7))
+
+### Bug Fixes
+
+- an issue preventing certificates from being generated without buyer id ([#684](https://github.com/d-rec/drec-origin/issues/684)) ([5667d6b](https://github.com/d-rec/drec-origin/commit/5667d6b1383cda32c1ed399415f882b44dbce55b))
+- create a new Meter Reading Table ([#639](https://github.com/d-rec/drec-origin/issues/639)) ([d1d9591](https://github.com/d-rec/drec-origin/commit/d1d9591fb03675ca4b7e35382c30abf2b2354259)), closes [#624](https://github.com/d-rec/drec-origin/issues/624) [#628](https://github.com/d-rec/drec-origin/issues/628)
+- failing tests ([e2a168e](https://github.com/d-rec/drec-origin/commit/e2a168edfc4762326894141eaf8c3b4bcee750d8))
+- invalid id for fetching device groups ([cbe2d6b](https://github.com/d-rec/drec-origin/commit/cbe2d6b44cd15b3190f8566bc01b2a700a9c16a6))
+- old previous read always used as latest ([e6428a0](https://github.com/d-rec/drec-origin/commit/e6428a0620404f6e5b4e546d75911bd83fb539fa))
+- ongoing reads start date calculation and ordering ([#674](https://github.com/d-rec/drec-origin/issues/674)) ([3bb0697](https://github.com/d-rec/drec-origin/commit/3bb069781a843bbd87fe0bee509b8f1ae58fa88f))
+
+### Improvements
+
+- add type to reads find ([24e5703](https://github.com/d-rec/drec-origin/commit/24e57032a2438195373a15c218c42db78fa87681))
+- cleanup ([4f4880c](https://github.com/d-rec/drec-origin/commit/4f4880c3ac7efd6c882e1ecab73903d0052d6fb2))
+- cleanup influxdb usage ([#717](https://github.com/d-rec/drec-origin/issues/717)) ([aa120bc](https://github.com/d-rec/drec-origin/commit/aa120bc75428023b8fe338c8d47ec566b8df5118))
+- cleanup reads controller ([cb672ce](https://github.com/d-rec/drec-origin/commit/cb672ce75ad38d7d704a9e586b6c52be52e0fbf7))
+- fix linting issues ([46d25bf](https://github.com/d-rec/drec-origin/commit/46d25bf49635c5e8dd1dc209baf3c41214733350))
+- integrate demo videos in docs ([#720](https://github.com/d-rec/drec-origin/issues/720)) ([0ad28e7](https://github.com/d-rec/drec-origin/commit/0ad28e71ed6bee1287526cdc18a25f60bbbf3bf1))
+- merge certificate log type ([2b16062](https://github.com/d-rec/drec-origin/commit/2b160627816b66246a662b6370240a787788994f))
+- remove all influx db usage in core components ([#722](https://github.com/d-rec/drec-origin/issues/722)) ([3b11350](https://github.com/d-rec/drec-origin/commit/3b1135098b7b2489967e4a44ee2336d786358097))
+
 ## [0.6.0](https://github.com/d-rec/drec-origin/compare/v0.5.0...v0.6.0) (2025-07-21)
 
 ### Features
