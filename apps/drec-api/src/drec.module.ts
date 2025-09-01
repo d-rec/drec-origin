@@ -51,8 +51,6 @@ import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
@@ -118,8 +116,6 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SDGBenefit,
-  IRECDevicesInformationEntity,
-  IRECErrorLogInformationEntity,
   UserLoginSessionEntity,
   DeviceLateOngoingIssueCertificateEntity,
   CertificateSettingEntity,
