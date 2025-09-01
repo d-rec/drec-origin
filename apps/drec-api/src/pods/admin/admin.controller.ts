@@ -488,39 +488,6 @@ export class AdminController {
 
     return responseSuccess();
   }
-  // api for device registration into I-REC
-  @Post('/add/device-into-Irec/:id')
-  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin)
-  @Permission('Write')
-  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
-  @ApiOperation({
-    summary: 'Register a device in I-REC',
-    description:
-      'Registers a device with the specified ID in the I-REC system.',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Successfully registered the device in I-REC.',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid device ID provided.',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'The device with the specified ID does not exist.',
-  })
-  @ApiResponse({
-    status: HttpStatus.FORBIDDEN,
-    description: 'Forbidden. User does not have the required permissions.',
-  })
-  public async irecDeviceRegister(
-    @Param('id') id: number,
-    // @Body() irecDevice: {deviceid:number}
-  ): Promise<any> {
-    return await this.deviceService.irecPostData(id);
-  }
 
   @Get('/devices/autocomplete')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)

@@ -73,6 +73,16 @@ export class EvidentDeviceService {
       return await this.saveDeviceDetails(device, files);
     } catch (error) {
       this.logger.error('Error registering device:', error.message);
+      if (error.isAxiosError && error?.response) {
+        const { response } = error;
+        this.logger.error({
+          axiosError: {
+            status: response?.status,
+            statusText: response?.statusText,
+            data: JSON.stringify(response.data),
+          },
+        });
+      }
       throw error;
     }
   }
