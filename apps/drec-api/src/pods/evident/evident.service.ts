@@ -142,11 +142,13 @@ export class EvidentService {
     }
   }
 
-  async getIssuerByCountry(organizationId, country: string): Promise<any> {
-    const evidentInstance = await this.getApiInstance(organizationId);
-    return await evidentInstance.get(
-      `/organisations?pagination=false&q=${country}&roles=issuer`,
-    );
+  async getIssuerByCountry(
+    country: string,
+  ): Promise<EvidentIssuersEntity | undefined> {
+    return await this.issuerRepository
+      .createQueryBuilder('issuer')
+      .where('issuer.regions @> :country', { country: `{${country}}` })
+      .getOne();
   }
 
   async registerIssuer(

@@ -29,6 +29,7 @@ import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 import EvidentDeviceGroupRegistrationTemplate, {
   getEvidentDeviceGroupRegistrationSubject,
 } from './mail/evident-device-group-registration';
+import { EvidentIssuersEntity } from './evident-issuers.entity';
 
 @Injectable()
 export class EvidentDeviceService {
@@ -115,7 +116,8 @@ export class EvidentDeviceService {
     );
 
     if (device.capacity >= SMALL_DEVICES_MAX_CAPACITY) {
-      payload.issuer = await this.getIssuerForDevice(device);
+      const issuerId = await this.getIssuerForDevice(device);
+      payload.issuer = `/organisations/${issuerId}`;
     } else {
       payload.issuer = `/organisations/${this.issuerId}`;
     }
@@ -270,17 +272,14 @@ export class EvidentDeviceService {
   }
 
   private async getIssuerForDevice(device: Device): Promise<string> {
-    const country = findCountryByCode(device.countryCode).country;
-    const issuer = await this.evidentService.getIssuerByCountry(
-      device.organizationId,
-      country,
-    );
+    const issuer: EvidentIssuersEntity =
+      await this.evidentService.getIssuerByCountry(device.countryCode);
 
-    if (issuer.data['hydra:member'].length > 0) {
-      return issuer.data['hydra:member'][0]['@id'];
+    if (!issuer) {
+      throw new Error(`No issuer found for country ${device.countryCode}`);
     }
 
-    return null;
+    return issuer.issuerId;
   }
 
   private async sendEmail(
