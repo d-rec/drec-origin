@@ -272,8 +272,9 @@ export class EvidentDeviceService {
   }
 
   private async getIssuerForDevice(device: Device): Promise<string> {
-    const issuer: EvidentIssuersEntity =
-      await this.evidentService.getIssuerByCountry(device.countryCode);
+    const issuer = await this.evidentService.getIssuerByCountry(
+      device.countryCode,
+    );
 
     if (!issuer) {
       throw new Error(`No issuer found for country ${device.countryCode}`);
