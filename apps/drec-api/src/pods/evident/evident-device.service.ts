@@ -29,7 +29,6 @@ import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 import EvidentDeviceGroupRegistrationTemplate, {
   getEvidentDeviceGroupRegistrationSubject,
 } from './mail/evident-device-group-registration';
-import { EvidentIssuersEntity } from './evident-issuers.entity';
 
 @Injectable()
 export class EvidentDeviceService {
