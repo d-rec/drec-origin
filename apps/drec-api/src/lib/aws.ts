@@ -25,7 +25,7 @@ export const sendSms = async ({
       },
       'AWS.SNS.SMS.SenderID': {
         DataType: 'String',
-        StringValue: 'DREC',
+        StringValue: 'D-REC',
       },
     },
   };
