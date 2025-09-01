@@ -47,8 +47,6 @@ import {
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
@@ -114,14 +112,6 @@ describe('DeviceService', () => {
               release: jest.fn(),
             }),
           },
-        },
-        {
-          provide: getRepositoryToken(IRECDevicesInformationEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(IRECErrorLogInformationEntity),
-          useClass: Repository,
         },
         {
           provide: OrganizationService,
