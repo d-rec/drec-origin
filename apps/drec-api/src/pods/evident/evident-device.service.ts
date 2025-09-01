@@ -74,7 +74,7 @@ export class EvidentDeviceService {
     } catch (error) {
       if (error.isAxiosError && error?.response) {
         const { response } = error;
-        console.error({
+        this.logger.error('Error registering Evident device:', {
           axiosError: {
             status: response?.status,
             statusText: response?.statusText,
