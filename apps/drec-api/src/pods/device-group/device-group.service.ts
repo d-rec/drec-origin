@@ -340,6 +340,15 @@ export class DeviceGroupService {
           });
         }
       }
+      if (filterDTO.deviceIds) {
+        const deviceIdsArray = filterDTO.deviceIds
+          .toString()
+          .split(',')
+          .map((id) => Number(id));
+        query.andWhere('device.id IN (:...deviceIds)', {
+          deviceIds: deviceIdsArray,
+        });
+      }
     }
 
     const [groups, totalCount] = await query
@@ -348,17 +357,19 @@ export class DeviceGroupService {
       .getManyAndCount();
     const totalPages = Math.ceil(totalCount / limit);
     const groupsWithOrganization = await Promise.all(
-      groups.map(async (group: DeviceGroupDTO) => {
+      groups.map(async (group: DeviceGroup) => {
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
         group.organization = {
           name: organization.name,
         };
+        const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+        group.devices = devices;
+
         return group;
       }),
     );
-
     return {
       groupedData: groupsWithOrganization,
       currentPage: pageNumber,

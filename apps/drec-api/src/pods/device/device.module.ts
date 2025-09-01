@@ -7,8 +7,6 @@ import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { CountryCodeModule } from '../countrycode/countrycode.module';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
@@ -32,8 +30,6 @@ import { ReadsModule } from '../reads/reads.module';
       Device,
       ACLModulePermission,
       CheckCertificateIssueDateLogForDeviceEntity,
-      IRECDevicesInformationEntity,
-      IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,
       Organization,
       EvidentSettings, // Ensure EvidentSettings is imported correctly

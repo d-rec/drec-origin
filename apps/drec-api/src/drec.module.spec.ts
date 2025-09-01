@@ -19,8 +19,6 @@ import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_grou
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
-import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
@@ -177,20 +175,6 @@ describe('DRECModule', () => {
       getRepositoryToken(SDGBenefit),
     );
     expect(sdgBenefitRepository).toBeDefined();
-  });
-
-  it('should provide IRECDevicesInformationEntity repository', () => {
-    const irecDevicesInformationRepository = module.get<
-      Repository<IRECDevicesInformationEntity>
-    >(getRepositoryToken(IRECDevicesInformationEntity));
-    expect(irecDevicesInformationRepository).toBeDefined();
-  });
-
-  it('should provide IRECErrorLogInformationEntity repository', () => {
-    const irecErrorLogInformationRepository = module.get<
-      Repository<IRECErrorLogInformationEntity>
-    >(getRepositoryToken(IRECErrorLogInformationEntity));
-    expect(irecErrorLogInformationRepository).toBeDefined();
   });
 
   it('should provide UserLoginSessionEntity repository', () => {
