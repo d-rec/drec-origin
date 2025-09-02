@@ -670,6 +670,7 @@ export class DeviceController {
   public async update(
     @UserDecorator() user: ILoggedInUser,
     @Param('externalId') serialNumber: string,
+    @Query('serialNumberChanged') serialNumberChanged: string,
     @Body() deviceToUpdate: UpdateDeviceDTO,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
@@ -678,18 +679,20 @@ export class DeviceController {
       organizationId: deviceToUpdate.organizationId,
     });
     user.organizationId = deviceToUpdate.organizationId;
-
-    if (deviceToUpdate.serialNumber) {
-      const checkSerialNumber = await this.deviceService.findBySerialNumber(
-        deviceToUpdate.serialNumber,
-        user.organizationId,
-      );
-      if (checkSerialNumber) {
-        this.logger.log('Line No: 236');
-        throw new ConflictException({
-          success: false,
-          message: `ExternalId already exist in this organization, can't update with same external id ${deviceToUpdate.externalId}`,
-        });
+    const isSerialNumberChanged = serialNumberChanged === 'true';
+    if (isSerialNumberChanged) {
+      if (deviceToUpdate.serialNumber) {
+        const checkSerialNumber = await this.deviceService.findBySerialNumber(
+          deviceToUpdate.serialNumber,
+          user.organizationId,
+        );
+        if (checkSerialNumber) {
+          this.logger.log('Line No: 236');
+          throw new ConflictException({
+            success: false,
+            message: `SerialNumber already exist in this organization, can't update with same serialNumber ${deviceToUpdate.serialNumber}`,
+          });
+        }
       }
     }
 
