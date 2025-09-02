@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import cleanDeep from 'clean-deep';
-import { defaults } from 'lodash';
 import { DateTime } from 'luxon';
 import {
   Between,
@@ -656,10 +655,11 @@ export class DeviceService {
           }
         : undefined;
 
-    let currentDevice = await this.findBySerialNumber(
+    const currentDevice = await this.findBySerialNumber(
       serialNumber.trim(),
       organizationId,
     );
+
     if (!currentDevice) {
       this.logger.error(`No device found with id ${serialNumber}`);
       throw new NotFoundException(`No device found with id ${serialNumber}`);
@@ -718,9 +718,9 @@ export class DeviceService {
     }
     updateDeviceDTO.fingerprint = fingerprint;
 
-    currentDevice = defaults(updateDeviceDTO, currentDevice);
-    const result = await this.repository.save(currentDevice);
-    return result;
+    Object.assign(currentDevice, updateDeviceDTO);
+    currentDevice.updatedAt = new Date();
+    return await this.repository.save(currentDevice);
   }
 
   async findUngrouped(
