@@ -32,7 +32,7 @@ const getData = (text: string): TypedMessage<TextInformationTypes> => {
 export async function recoverTypedSignatureAddress(
   text: string,
   signedMessage: string,
-) {
+): Promise<string> {
   return recoverTypedSignature({
     data: getData(text),
     signature: signedMessage,
