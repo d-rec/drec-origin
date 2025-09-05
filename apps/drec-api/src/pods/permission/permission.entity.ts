@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { EntityType } from '../../utils/enums';
 import { IsEnum, IsArray } from 'class-validator';

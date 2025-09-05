@@ -17,10 +17,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import {
-  NullOrUndefinedResultInterceptor,
-  SuccessResponseDTO,
-} from '@energyweb/origin-backend-utils';
+import { NullOrUndefinedResultInterceptor } from '../../interceptors/null-or-undefined-result-interceptor';
+import { SuccessResponseDTO } from '../../dto/success-response.dto';
 
 import {
   ApiBearerAuth,

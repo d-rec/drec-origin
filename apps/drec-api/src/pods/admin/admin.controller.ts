@@ -26,11 +26,6 @@ import {
   ApiQuery,
   ApiOperation,
 } from '@nestjs/swagger';
-
-import {
-  NullOrUndefinedResultInterceptor,
-  SuccessResponseDTO,
-} from '@energyweb/origin-backend-utils';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from '../user/dto/user.dto';
 import { UserService } from '../user/user.service';
@@ -52,6 +47,8 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Organization } from '../organization/organization.entity';
+import { NullOrUndefinedResultInterceptor } from '../../interceptors/null-or-undefined-result-interceptor';
+import { SuccessResponseDTO } from '../../dto/success-response.dto';
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')

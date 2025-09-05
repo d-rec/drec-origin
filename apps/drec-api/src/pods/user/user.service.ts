@@ -32,7 +32,7 @@ import {
   OrganizationType,
 } from '../../utils/enums';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
 import { validate } from 'class-validator';
 import { UserRole } from './user_role.entity';
 import { UserDTO } from './dto/user.dto';

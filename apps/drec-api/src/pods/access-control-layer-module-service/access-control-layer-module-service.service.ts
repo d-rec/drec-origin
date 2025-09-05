@@ -13,7 +13,7 @@ import {
   UpdateACLModuleDTO,
 } from './dto/aclmodule.dto';
 import { IACLModuleConfig } from '../../models';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 
 export type TModuleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;

@@ -7,7 +7,7 @@ import {
 import { FindConditions, Repository } from 'typeorm';
 import { ACLModulePermission } from './permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
 import {
   ApiUserPermissionUpdateDTO,
   NewApiUserPermissionDTO,

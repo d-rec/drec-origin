@@ -122,6 +122,7 @@
     "passport-strategy": "1.x.x",
     "pg": "8.7.1",
     "pkcs7-padding": "0.1.1",
+    "polly-js": "^1.8.3",
     "qs": "^6.10.3",
     "redis": "4.3.1",
     "reflect-metadata": "^0.1.13",

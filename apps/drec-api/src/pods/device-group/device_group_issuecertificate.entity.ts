@@ -1,4 +1,4 @@
-import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
+import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsDate } from 'class-validator';
 import { IDeviceGroupNextIssueCertificate } from '../../models';
