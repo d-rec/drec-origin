@@ -1,8 +1,15 @@
-import ethSigUtil from 'eth-sig-util';
+import {
+  recoverTypedSignature,
+  SignTypedDataVersion,
+  TypedMessage,
+} from '@metamask/eth-sig-util';
 
-type EIP712TypedData = any;
+type TextInformationTypes = {
+  EIP712Domain: { name: string; type: string }[];
+  TextInformation: { name: string; type: string }[];
+};
 
-const getData = (text: string): EIP712TypedData => {
+const getData = (text: string): TypedMessage<TextInformationTypes> => {
   return {
     types: {
       EIP712Domain: [
@@ -26,8 +33,9 @@ export async function recoverTypedSignatureAddress(
   text: string,
   signedMessage: string,
 ) {
-  return ethSigUtil.recoverTypedSignature({
-    sig: signedMessage,
+  return recoverTypedSignature({
     data: getData(text),
+    signature: signedMessage,
+    version: SignTypedDataVersion.V4,
   });
 }

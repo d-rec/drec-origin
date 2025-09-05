@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
-import { getProviderWithFallback } from '../../utils/provider';
+import { getProviderWithFallback } from '../../utils/blockchain-provider';
 import { recoverTypedSignatureAddress } from '../../utils/signings';
 import { utils, Wallet } from 'ethers';
 import { ConfigService } from '@nestjs/config';
