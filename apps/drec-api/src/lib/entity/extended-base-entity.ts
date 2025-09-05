@@ -1,6 +1,5 @@
 import { Entity, BaseEntity, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
 export class ExtendedBaseEntity extends BaseEntity {
     @CreateDateColumn({
         type: 'timestamptz',
