@@ -10,10 +10,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
-import {
-  getProviderWithFallback,
-  recoverTypedSignatureAddress,
-} from '@energyweb/utils-general';
+import { getProviderWithFallback } from '../../utils/provider';
+import { recoverTypedSignatureAddress } from '../../utils/signings';
 import { utils, Wallet } from 'ethers';
 import { ConfigService } from '@nestjs/config';
 import { Organization } from './organization.entity';

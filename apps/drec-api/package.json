@@ -97,6 +97,7 @@
     "decode-uri-component": "^0.2.1",
     "dotenv": "8.2.0",
     "ejs": "^3.1.7",
+    "eth-sig-util": "^3.0.1",
     "ethers": "5.3.1",
     "express": "4.19.2",
     "follow-redirects": "1.15.6",
