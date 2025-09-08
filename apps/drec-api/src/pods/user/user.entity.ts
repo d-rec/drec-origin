@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
+import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   Role,

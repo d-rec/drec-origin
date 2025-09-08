@@ -3,7 +3,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
-import { DatabaseService } from '../src/pods/origin-backend-utils/database.service';
+import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
 import { OrganizationType } from '../src/utils/enums/organization-type.enum';
 
 import { bootstrapTestInstance } from './drec-api';

@@ -12,7 +12,7 @@ import { FindConditions, Repository } from 'typeorm';
 import { ILoggedInUser, IYieldConfig } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
 import { UpdateYieldValueDTO, YieldConfigDTO } from './dto';
-import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
+import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
 import { YieldConfig } from './yieldconfig.entity';
 
 export type TUserBaseEntity = ExtendedBaseEntity & IYieldConfig;

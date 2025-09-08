@@ -32,7 +32,7 @@ import {
   OrganizationType,
 } from '../../utils/enums';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
+import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
 import { validate } from 'class-validator';
 import { UserRole } from './user_role.entity';
 import { UserDTO } from './dto/user.dto';

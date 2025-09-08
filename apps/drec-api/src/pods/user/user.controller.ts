@@ -1,4 +1,4 @@
-import { NullOrUndefinedResultInterceptor } from '../../interceptors/null-or-undefined-result-interceptor';
+import { NullOrUndefinedResultInterceptor } from '../utils/origin-backend-utils/null-or-undefined-result-interceptor';
 import {
   ClassSerializerInterceptor,
   Controller,
@@ -46,7 +46,7 @@ import {
   EmailConfirmationService,
   SuccessResponse,
 } from '../email-confirmation/email-confirmation.service';
-import { SuccessResponseDTO } from '../../dto/success-response.dto';
+import { SuccessResponseDTO } from '../utils/origin-backend-utils/success-response.dto';
 import { Request, Response } from 'express';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { Permission } from '../permission/decorators/permission.decorator';

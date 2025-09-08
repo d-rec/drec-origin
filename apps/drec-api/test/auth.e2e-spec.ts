@@ -3,7 +3,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { expect } from 'chai';
-import { DatabaseService } from '../src/pods/origin-backend-utils/database.service';
+import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
 import { ConfigService } from '@nestjs/config';
 import { bootstrapTestInstance } from './drec-api';
 import { UserService } from '../src/pods/user/user.service';

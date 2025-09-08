@@ -3,7 +3,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { useContainer } from 'class-validator';
-import { DatabaseService } from '../src/pods/origin-backend-utils/database.service';
+import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 import { Contracts } from '@energyweb/issuer';

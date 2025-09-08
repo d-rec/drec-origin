@@ -1,4 +1,4 @@
-import { NullOrUndefinedResultInterceptor } from '../../interceptors/null-or-undefined-result-interceptor';
+import { NullOrUndefinedResultInterceptor } from '../utils/origin-backend-utils/null-or-undefined-result-interceptor';
 import {
   Controller,
   Get,
@@ -51,7 +51,7 @@ import {
   responseSuccess,
 } from '../../models';
 import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
-import { SuccessResponseDTO } from '../../dto/success-response.dto';
+import { SuccessResponseDTO } from '../utils/origin-backend-utils/success-response.dto';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';

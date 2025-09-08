@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { IsEmail, IsEnum, IsString, IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ExtendedBaseEntity } from '../../lib/entity/extended-base-entity';
+import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
 import { OrganizationInvitationStatus, Role } from '../../utils/enums';
 import { IOrganizationInvitation, OrganizationRole } from '../../models';
 import { Organization } from '../organization/organization.entity';
