@@ -105,6 +105,7 @@ specifiers:
   passport-strategy: 1.x.x
   pg: 8.7.1
   pkcs7-padding: 0.1.1
+  polly-js: ^1.8.3
   prettier: ~3.2.5
   qs: ^6.10.3
   redis: 4.3.1
@@ -236,6 +237,7 @@ dependencies:
   passport-strategy: 1.0.0
   pg: 8.7.1
   pkcs7-padding: 0.1.1
+  polly-js: 1.8.3
   prettier: 3.2.5
   qs: 6.12.1
   redis: 4.3.1
@@ -15252,7 +15254,7 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-agVL6cfIIGWCzqWgJ4mma0GU6EQJfA3059YW0imH/l+++u4ZJfHBGG5JkAoxv5XiPcnGWoAe204wIjoaojRgcw==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-Q3ydKCMawLfP7RZsNSjJ/x7CMOr6SXITlyycoL2a5xZaXzh1uPose6C+5Cjem8VYjXEgQUeSkK9gqkPPvByMoA==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
@@ -15354,6 +15356,7 @@ packages:
       passport-strategy: 1.0.0
       pg: 8.7.1
       pkcs7-padding: 0.1.1
+      polly-js: 1.8.3
       prettier: 3.2.5
       qs: 6.12.1
       redis: 4.3.1
