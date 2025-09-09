@@ -1,4 +1,3 @@
-//import { IUser, UserStatus } from '@energyweb/origin-backend-core';//
 import { IUser, LoggedInUser } from '../models';
 import {
   CanActivate,

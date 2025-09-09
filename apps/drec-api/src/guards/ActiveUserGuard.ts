@@ -1,4 +1,4 @@
-import { IUser, UserStatus } from '@energyweb/origin-backend-core';
+import { IUser, UserStatus } from '../types/utils/user';
 import {
   CanActivate,
   ExecutionContext,

@@ -1,4 +1,4 @@
-import { UserPasswordUpdate } from '@energyweb/origin-backend-core';
+import { UserPasswordUpdate } from '../../../types/utils/user';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Match } from '../decorators/match.decorator';
