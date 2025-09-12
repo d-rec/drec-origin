@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { useContainer } from 'class-validator';
 import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
 import { BlockchainPropertiesService } from '@energyweb/issuer-api';
-import { getProviderWithFallback } from '@energyweb/utils-general';
+import { getProviderWithFallback } from '../src/utils/blockchain-provider';
 import { Contracts } from '@energyweb/issuer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
