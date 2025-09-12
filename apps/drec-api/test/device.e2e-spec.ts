@@ -26,7 +26,7 @@ import {
   Sector,
   StandardCompliance,
 } from '../src/utils/enums';
-import { DeviceStatus } from '@energyweb/origin-backend-core';
+import { DeviceStatus } from '../src/utils/enums/device-status.enum';
 import { DeviceGroupByDTO } from '../src/pods/device/dto/device-group-by.dto';
 
 describe('Device tests', () => {
