@@ -1,4 +1,4 @@
-import { Unit } from '@energyweb/utils-general';
+import { Unit } from '../types/reads';
 import { BigNumber } from '@ethersproject/bignumber';
 import { BigNumber as BigNumberEthers } from 'ethers';
 
