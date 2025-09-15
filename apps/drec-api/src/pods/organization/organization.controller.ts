@@ -18,6 +18,7 @@ import {
   DefaultValuePipe,
   ValidationPipe,
   Logger,
+  UploadedFiles,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -28,13 +29,13 @@ import {
   ApiBody,
   ApiQuery,
   ApiOperation,
+  ApiConsumes,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-
 import {
   OrganizationDTO,
   NewOrganizationDTO,
   BindBlockchainAccountDTO,
+  organizationDocuments,
 } from './dto';
 import { OrganizationService } from './organization.service';
 import { UserService } from '../user/user.service';
@@ -50,20 +51,30 @@ import {
   IUser,
   responseSuccess,
 } from '../../models';
-import { ActiveUserGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { SuccessResponseDTO } from '../utils/origin-backend-utils/success-response.dto';
+import { AuthVerifiedGuard, PermissionGuard, RolesGuard } from '../../guards';
 import { InvitationDTO } from '../invitation/dto/invitation.dto';
 import { UpdateMemberDTO } from './dto/organization-update-member.dto';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { Organization } from './organization.entity';
+import {
+  DocumentEntity,
+  DocumentTargetType,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AuthGuard } from '@nestjs/passport';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
 
 @ApiTags('Organization')
 @ApiBearerAuth('access-token')
 @ApiSecurity('drec')
 @Controller('/Organization')
-@UseGuards(AuthGuard('jwt'), PermissionGuard)
 @UseInterceptors(NullOrUndefinedResultInterceptor)
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
@@ -72,6 +83,9 @@ export class OrganizationController {
     private readonly organizationService: OrganizationService,
     private userService: UserService,
     private invitationService: InvitationService,
+    private readonly documentUploadsService: DocumentUploadsService,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
   ) {}
 
   /**
@@ -79,7 +93,156 @@ export class OrganizationController {
    * @param param0
    * @returns
    */
+
+  @Post('/upload/verification-documents')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  @Roles(Role.OrganizationAdmin)
+  @Permission('Write')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: DocumentType.INCORPORATION_CERTIFICATE, maxCount: 1 },
+        { name: DocumentType.LEGAL_REPRESENTATIVE_PASSPORT, maxCount: 1 },
+        { name: DocumentType.ADDRESS_PROOF, maxCount: 1 },
+        { name: DocumentType.OWNERS_DECLARATION, maxCount: 1 },
+      ],
+      {
+        storage: multer.memoryStorage(),
+        fileFilter: (req, file, callback) => {
+          const allowedMimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+          ];
+          if (!allowedMimeTypes.includes(file.mimetype)) {
+            return callback(
+              new BadRequestException(
+                'Invalid file type. Only PDF, JPEG, and PNG files are allowed.',
+              ),
+              false,
+            );
+          }
+          callback(null, true);
+        },
+      },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload a document',
+    description:
+      'Upload a single document file (PDF, JPEG, or PNG) associated with a specific target type and document type. The file will be linked to the authenticated user.',
+  })
+  @ApiQuery({
+    name: 'targetType',
+    enum: DocumentTargetType,
+    description: 'Type of entity the document belongs to (e.g., ORGANIZATION)',
+    required: true,
+    example: DocumentTargetType.ORGANIZATION,
+  })
+  @ApiBody({
+    description: 'Device registration with documents',
+    schema: {
+      type: 'object',
+      properties: {
+        [DocumentType.INCORPORATION_CERTIFICATE]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.LEGAL_REPRESENTATIVE_PASSPORT]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.ADDRESS_PROOF]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.OWNERS_DECLARATION]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Document has been successfully uploaded and processed.',
+    type: DocumentEntity,
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - Invalid file type, missing document, or invalid parameters.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - User is not authenticated.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Forbidden - User does not have permission to upload documents.',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Not Found - Target entity specified in targetType does not exist.',
+  })
+  async uploadVerificationDocuments(
+    @UploadedFiles() files: organizationDocuments,
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @Query('targetType') targetType: DocumentTargetType,
+  ): Promise<void[]> {
+    const organization = await this.organizationService.findOne(organizationId);
+    const targetId = organization.id;
+    const allFileTypes = [
+      DocumentType.INCORPORATION_CERTIFICATE,
+      DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      DocumentType.ADDRESS_PROOF,
+      DocumentType.OWNERS_DECLARATION,
+    ];
+    const missingFiles = allFileTypes.filter((fileType) => {
+      const fileArray = files[fileType];
+      return !Array.isArray(fileArray) || fileArray.length === 0;
+    });
+
+    if (missingFiles.length > 0) {
+      throw new BadRequestException(
+        `Missing required file types: ${missingFiles.join(', ')}`,
+      );
+    }
+    const documentTypeMap: Record<string, DocumentType> = {
+      [DocumentType.INCORPORATION_CERTIFICATE]:
+        DocumentType.INCORPORATION_CERTIFICATE,
+      [DocumentType.LEGAL_REPRESENTATIVE_PASSPORT]:
+        DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      [DocumentType.ADDRESS_PROOF]: DocumentType.ADDRESS_PROOF,
+      [DocumentType.OWNERS_DECLARATION]: DocumentType.OWNERS_DECLARATION,
+    };
+    const uploadedDocuments = await Promise.all(
+      Object.entries(files).flatMap(([fileKey, fileArray]) => {
+        const documentType = documentTypeMap[fileKey];
+        return fileArray.map((file) =>
+          this.documentUploadsService.upload(
+            targetId,
+            targetType,
+            documentType,
+            file,
+          ),
+        );
+      }),
+    );
+
+    await this.organizationRepository.update(targetId, {
+      verifiedAt: new Date(),
+    });
+
+    return uploadedDocuments;
+  }
+
   @Get('/me')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -114,7 +277,10 @@ export class OrganizationController {
    * @returns
    */
   @Get('/apiuser/all_organization')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -170,7 +336,10 @@ export class OrganizationController {
    * @returns
    */
   @Get('/users')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -235,7 +404,10 @@ export class OrganizationController {
    * and undefined when there is no particular record not available.
    */
   @Get('/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   //  @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -277,7 +449,7 @@ export class OrganizationController {
    * @returns
    */
   @Get('/:id/invitations')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -326,7 +498,7 @@ export class OrganizationController {
    * @returns {OrganizationDTO}
    */
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -374,7 +546,7 @@ export class OrganizationController {
    * @returns {SuccessResponseDTO}
    */
   @Put(':id/change-role/:userId')
-  @UseGuards(AuthGuard(), ActiveUserGuard, RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.OrganizationAdmin, Role.Admin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
@@ -432,7 +604,7 @@ export class OrganizationController {
    * @returns {BindBlockchainAccountDTO}
    */
   @Post('chain-address')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: BindBlockchainAccountDTO })
@@ -485,8 +657,7 @@ export class OrganizationController {
   }
   @Delete('/user/:id')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Delete')

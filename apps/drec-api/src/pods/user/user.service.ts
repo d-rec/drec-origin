@@ -45,13 +45,12 @@ import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
-
+import { OtpService } from '../otp/otp.service';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-
   constructor(
     @InjectRepository(User) private readonly repository: Repository<User>,
     @InjectRepository(UserRole)
@@ -64,6 +63,7 @@ export class UserService {
     private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
+    private readonly otpService: OtpService,
   ) {}
 
   public async seed(
@@ -165,19 +165,19 @@ export class UserService {
         email: data.email.toLowerCase(),
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
-        terms_accepted_at: data.termsAndConditions ? new Date() : null,
+        termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
         status: status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
+        phoneNumberVerifiedAt: null,
       });
       const { ...userData } = user;
       this.logger.debug(
         `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
-
       await this.emailConfirmationService.create(user);
       return user;
     } catch (error) {
@@ -299,9 +299,8 @@ export class UserService {
     return await this.repository.findByIds(ids);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
+  public async findByEmail(email: string): Promise<IUser | null> {
     const lowerCaseEmail = email.toLowerCase();
-
     return this.findOne({ email: lowerCaseEmail });
   }
 
@@ -390,12 +389,11 @@ export class UserService {
 
   async updateProfile(
     id: number,
-    { firstName, lastName, email }: UpdateUserProfileDTO,
+    { firstName, lastName }: UpdateUserProfileDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
     const updateEntity = new User({
       firstName,
       lastName,
-      email: email.toLowerCase(),
     });
 
     const validationErrors = await validate(updateEntity, {
@@ -408,10 +406,7 @@ export class UserService {
         errors: validationErrors,
       });
     }
-    const updateUser = await this.findById(id);
-    if (!(updateUser.email === email.toLowerCase())) {
-      await this.checkForExistingUser(email.toLowerCase());
-    }
+
     await this.repository.update(id, updateEntity);
 
     return this.findOne({ id });
@@ -451,7 +446,12 @@ export class UserService {
       errors: `Incorrect current password.`,
     });
   }
-
+  async acceptTermsAndCondition(email: string): Promise<User> {
+    const user = await this.repository.findOne({ where: { email: email } });
+    if (!user) throw new NotFoundException('User not found');
+    user.termsAcceptedAt = new Date();
+    return await this.repository.save(user);
+  }
   async changePassword(
     emailConfirmation: UserDTO,
     user: UserChangePasswordUpdate,
@@ -788,5 +788,49 @@ export class UserService {
     conditions: FindConditions<UserLoginSessionEntity>,
   ): Promise<boolean> {
     return Boolean(await this.userLoginSessionRepository.findOne(conditions));
+  }
+
+  async verifyEmail(userId: number): Promise<User> {
+    this.logger.verbose(`Updating emailVerifiedAt for user ${userId}`);
+
+    await this.repository.update(
+      { id: userId },
+      { emailVerifiedAt: new Date() },
+    );
+
+    return this.repository.findOne({ id: userId });
+  }
+
+  async updatePhoneNumber(
+    email: string,
+    phoneNumber: string,
+  ): Promise<{ message: string }> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.checkIfPhoneNumberExists(phoneNumber);
+
+    const updateEntity = new User({
+      phoneNumber: phoneNumber,
+    });
+
+    const validationErrors = await validate(updateEntity, {
+      skipUndefinedProperties: true,
+    });
+
+    if (validationErrors.length > 0) {
+      throw new UnprocessableEntityException({
+        success: false,
+        errors: validationErrors,
+      });
+    }
+
+    await this.repository.update(user.id, updateEntity);
+
+    await this.otpService.send(phoneNumber);
+
+    return { message: 'Phone number updated successfully' };
   }
 }

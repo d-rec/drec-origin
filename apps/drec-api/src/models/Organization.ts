@@ -21,6 +21,7 @@ export class IPublicOrganization {
 
   blockchainAccountAddress?: string;
   blockchainAccountSignedMessage?: string;
+  verifiedAt?: Date;
 }
 
 export interface IFullOrganization extends IPublicOrganization {

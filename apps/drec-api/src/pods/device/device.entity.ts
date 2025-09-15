@@ -10,12 +10,15 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
+import { EvidentRegistrationStatus } from '../../types/evident';
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -28,7 +31,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ unique: true })
   @IsString()
-  externalId: string;
+  externalId?: string;
 
   @Column()
   @IsString()
@@ -41,6 +44,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   organizationId: number;
+
   @ManyToOne(() => Organization, { eager: true }) // Make sure you have the correct type for Organization
   @JoinColumn({ name: 'organizationId' }) // Make sure the column name matches your database schema
   organization: Organization;
@@ -179,4 +183,36 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   api_user_id: string;
+
+  @Column({ nullable: true, name: 'state_province' })
+  stateProvince: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'postcode' })
+  postcode: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'fingerprint' })
+  fingerprint: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'evident_device_id' })
+  evidentDeviceId: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'evident_status' })
+  evidentStatus: EvidentRegistrationStatus | null;
+
+  @Column({ type: 'varchar', nullable: false, name: 'data_source_brand' })
+  dataSourceBrand: string;
+  @Column({ type: 'varchar', nullable: false, name: 'data_source' })
+  dataSource: string;
+
+  @Column({ type: 'varchar', nullable: true, name: 'other_data_source' })
+  otherDataSource: string | null;
+
+  @Column({ type: 'varchar', nullable: false, name: 'serial_number' })
+  serialNumber: string;
+
+  @OneToMany(
+    () => CheckCertificateIssueDateLogForDeviceEntity,
+    (certificateLog) => certificateLog.device,
+  )
+  certificateLogs: CheckCertificateIssueDateLogForDeviceEntity[];
 }

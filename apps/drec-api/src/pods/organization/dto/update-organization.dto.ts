@@ -111,3 +111,9 @@ export class UpdateOrganizationDTO
   @IsOptional()
   signatoryDocumentIds?: string[];
 }
+export type organizationDocuments = {
+  incorporationCertificate: Express.Multer.File[];
+  legalRepresentativePassport: Express.Multer.File[];
+  addressProof: Express.Multer.File[];
+  ownersDeclaration: Express.Multer.File[];
+};

@@ -3,17 +3,17 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
 
-import { bootstrapTestInstance } from './drec-api';
-import { UserService } from '../src/pods/user/user.service';
-import { OrganizationService } from '../src/pods/organization/organization.service';
-import { seed } from './seed';
 import { expect } from 'chai';
-import { DeviceService } from '../src/pods/device/device.service';
-import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UserRegistrationData } from '../src/models';
-import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
+import { DeviceService } from '../src/pods/device/device.service';
+import { OrganizationService } from '../src/pods/organization/organization.service';
+import { CreateUserOrgDTO } from '../src/pods/user/dto/create-user.dto';
 import { UpdateOwnUserSettingsDTO } from '../src/pods/user/dto/update-own-user-settings.dto';
+import { UpdateUserProfileDTO } from '../src/pods/user/dto/update-user-profile.dto';
+import { UserService } from '../src/pods/user/user.service';
 import { OrganizationType } from '../src/utils/enums';
+import { bootstrapTestInstance } from './drec-api';
+import { seed } from './seed';
 
 export const userToRegister: UserRegistrationData = {
   title: 'Mr',
@@ -106,7 +106,6 @@ describe('Users tests', () => {
     const partialUser: UpdateUserProfileDTO = {
       firstName: 'Updated first name',
       lastName: 'Updated last name',
-      email: 'updated@mailinator.com',
     };
     const { body: updatedUser } = await request(app.getHttpServer())
       .put(`/user/profile`)
@@ -115,7 +114,6 @@ describe('Users tests', () => {
       .expect(HttpStatus.OK);
     expect(updatedUser.firstName).to.eq(partialUser.firstName);
     expect(updatedUser.lastName).to.eq(partialUser.lastName);
-    expect(updatedUser.email).to.eq(partialUser.email);
   });
 
   it('should update notifications for user', async () => {

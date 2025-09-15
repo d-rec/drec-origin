@@ -867,17 +867,17 @@ export class ReadsService {
   }
 
   async validateAndStoreReads({
-    deviceExternalId,
+    deviceSerialNumber,
     measurements,
     organizationId,
   }: {
-    deviceExternalId: string;
+    deviceSerialNumber: string;
     measurements: NewIntermediateMeterReadDTO;
     organizationId: number;
   }): Promise<void> {
     if (
-      deviceExternalId.trim() === '' &&
-      deviceExternalId.trim() === undefined
+      deviceSerialNumber.trim() === '' &&
+      deviceSerialNumber.trim() === undefined
     ) {
       this.logger.error(`id should not be empty`);
       throw new ConflictException({
@@ -887,8 +887,8 @@ export class ReadsService {
     }
 
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
-        deviceExternalId,
+      await this.deviceService.findBySerialNumber(
+        deviceSerialNumber,
         organizationId,
       );
     if (device === null) {

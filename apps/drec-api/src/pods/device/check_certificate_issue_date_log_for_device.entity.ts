@@ -1,6 +1,14 @@
 import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsString, IsNumber, IsDate } from 'class-validator';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Device } from './device.entity';
+import { EvidentIssuanceStatus } from '../../types/evident';
 
 @Entity('check_certificate_issue_date_log_for_device')
 export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEntity {
@@ -46,4 +54,20 @@ export class CheckCertificateIssueDateLogForDeviceEntity extends ExtendedBaseEnt
   @Column()
   @IsDate()
   ongoing_end_date: string;
+
+  @Column({ name: 'evident_synced_at' })
+  @IsDate()
+  evidentSyncedAt: Date | null;
+
+  @Column({ name: 'evident_issuance_request_id' })
+  @IsString()
+  evidentIssuanceRequestId: string | null;
+
+  @Column({ name: 'evident_issuance_request_status' })
+  @IsString()
+  evidentIssuanceRequestStatus: EvidentIssuanceStatus | null;
+
+  @ManyToOne(() => Device, (device) => device.certificateLogs)
+  @JoinColumn({ name: 'externalId', referencedColumnName: 'externalId' })
+  device: Device;
 }

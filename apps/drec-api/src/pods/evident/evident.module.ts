@@ -1,0 +1,66 @@
+import { BullModule } from '@nestjs/bull';
+import { forwardRef, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { defaultBullJobOptions } from '../../config/bull.config';
+import { Queues } from '../../utils/enums/queues.enum';
+import { DeviceModule } from '../device/device.module';
+import { OrganizationModule } from '../organization/organization.module';
+import { ReadsModule } from '../reads/reads.module';
+import { EvidentDeviceRegistrationProcessor } from './evident-device-registration.processor';
+import { EvidentDeviceService } from './evident-device.service';
+import { EvidentIssuanceService } from './evident-issuance.service';
+import { EvidentSettingsController } from './evident-settings.controller';
+import { EvidentSettings } from './evident-settings.entity';
+import { EvidentSettingsService } from './evident-settings.service';
+import { EvidentService } from './evident.service';
+import { Device } from '../device/device.entity';
+import { Organization } from '../organization/organization.entity';
+import { EvidentSyncDeviceTaskService } from './evident-sync-device-task.service';
+import { MailModule } from '../../mail/mail.module';
+import { UserModule } from '../user/user.module';
+import { DeviceGroupModule } from '../device-group/device-group.module';
+import { EvidentDeviceGroupRegistrationProcessor } from './evident-device-group-registration.processor';
+import { EvidentIssuersEntity } from './evident-issuers.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([
+      EvidentSettings,
+      Device,
+      Organization,
+      EvidentIssuersEntity,
+    ]),
+    forwardRef(() => DeviceModule),
+    forwardRef(() => OrganizationModule),
+    forwardRef(() => ReadsModule),
+    forwardRef(() => MailModule),
+    forwardRef(() => UserModule),
+    forwardRef(() => DeviceGroupModule),
+    BullModule.registerQueue({
+      name: Queues.EvidentDeviceRegistration,
+      defaultJobOptions: defaultBullJobOptions,
+    }),
+    BullModule.registerQueue({
+      name: Queues.EvidentDeviceGroupRegistration,
+      defaultJobOptions: defaultBullJobOptions,
+    }),
+  ],
+  controllers: [EvidentSettingsController],
+  providers: [
+    EvidentSettingsService,
+    EvidentService,
+    EvidentIssuanceService,
+    EvidentDeviceRegistrationProcessor,
+    EvidentDeviceGroupRegistrationProcessor,
+    EvidentSettingsService,
+    EvidentDeviceService,
+    EvidentSyncDeviceTaskService,
+  ],
+  exports: [
+    EvidentService,
+    EvidentDeviceService,
+    EvidentSettingsService,
+    EvidentSyncDeviceTaskService,
+  ],
+})
+export class EvidentModule {}

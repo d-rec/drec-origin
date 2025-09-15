@@ -144,7 +144,7 @@ export class NewDeviceGroupDTO
 
   @ApiProperty({ type: String })
   @IsOptional()
-  devicegroup_uid?: string | null | undefined;
+  deviceGroupUid?: string | null | undefined;
 
   @ApiProperty({ type: [Number] })
   @IsInt({ each: true })
@@ -154,7 +154,4 @@ export class NewDeviceGroupDTO
   @ApiPropertyOptional({ type: Date })
   @IsOptional()
   reservationExpiryDate?: Date;
-  // @ApiProperty({ type: String })
-  // @IsOptional()
-  // type?: string;
 }

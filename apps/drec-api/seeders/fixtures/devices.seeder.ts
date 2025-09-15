@@ -3,9 +3,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Device } from '../src/pods/device/device.entity';
-import { Organization } from '../src/pods/organization/organization.entity';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../src/utils/enums';
+import { Device } from '../../src/pods/device/device.entity';
+import { Organization } from '../../src/pods/organization/organization.entity';
+import { DeviceTypeCode, FuelCode, OffTaker } from '../../src/utils/enums';
 
 @Injectable()
 export class DevicesSeeder {

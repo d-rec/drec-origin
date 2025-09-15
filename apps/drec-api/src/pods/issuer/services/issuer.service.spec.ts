@@ -19,7 +19,7 @@ import { IDevice } from '../../../models';
 import { Queues } from '../../../utils/enums/queues.enum';
 import { ICertificateMetadata } from '../../../utils/types';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
-import { DeviceService } from '../../device';
+import { DeviceService } from '../../device/device.service';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { DeviceGroupService } from '../../device-group/device-group.service';
 import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
@@ -276,7 +276,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -306,7 +306,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {
@@ -336,7 +336,7 @@ describe('IssuerService', () => {
         buyerId: 1,
         id: 123,
         name: 'Test Group',
-        devicegroup_uid: 'uid',
+        deviceGroupUid: 'uid',
       } as unknown as DeviceGroup;
 
       const deviceHistoryRequest = {

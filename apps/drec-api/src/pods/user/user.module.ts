@@ -10,6 +10,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserLoginSessionEntity } from './user_login_session.entity';
     ]),
     forwardRef(() => EmailConfirmationModule),
     forwardRef(() => OrganizationModule),
+    OtpModule,
   ],
   providers: [UserService, OauthClientCredentialsService],
   controllers: [UserController],

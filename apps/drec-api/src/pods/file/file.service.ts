@@ -13,6 +13,7 @@ import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 import { File } from './file.entity';
+import axios from 'axios';
 
 export type FileUpload = {
   originalname: string;
@@ -66,7 +67,7 @@ export class FileService {
     this.logger.debug(
       `User ${
         user ? JSON.stringify(user) : 'Anonymous'
-      } has stored ${JSON.stringify(storedFile)}`,
+      } has stored ${JSON.stringify(storedFile.length)}`,
     );
 
     return storedFile;
@@ -195,7 +196,7 @@ export class FileService {
 
   async upload(file: Express.Multer.File): Promise<any> {
     this.logger.verbose(`With in upload`);
-    this.logger.debug(file);
+    this.logger.debug(`Uploading file: ${file.fieldname}`);
     const { originalname } = file;
     const bucketS3 = process.env.AWS_S3_BUCKET;
     return await this.uploadS3(file.buffer, bucketS3, originalname);
@@ -205,11 +206,20 @@ export class FileService {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
-    const a = name.substr(0, name.indexOf('.csv'));
-    this.logger.debug(a);
+
+    // Extract file extension
+    const fileExtension = name.includes('.') ? name.split('.').pop() : '';
+    const fileNameWithoutExtension = name.includes('.')
+      ? name.substring(0, name.lastIndexOf('.'))
+      : name;
+
+    this.logger.debug(
+      `File name without extension: ${fileNameWithoutExtension}`,
+    );
+
     const params = {
       Bucket: bucket,
-      Key: `${a}-${uuid()}.csv`,
+      Key: `${fileNameWithoutExtension}-${uuid()}${fileExtension ? `.${fileExtension}` : ''}`,
       Body: file,
       ACL: 'public-read',
     };
@@ -258,6 +268,29 @@ export class FileService {
     throw new NotFoundException();
   }
 
+  public async deleteFileFromS3(key: string): Promise<void> {
+    try {
+      const s3 = this.getS3();
+      await s3
+        .deleteObject({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: key,
+        })
+        .promise();
+    } catch (error) {
+      this.logger.error(`Failed to delete file from S3: ${error.message}`);
+    }
+  }
+  async fetchBuffer(url: string): Promise<Buffer> {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      throw new Error(
+        `fetchFileBuffer failed for ${url}: ${error?.message || error}`,
+      );
+    }
+  }
   // public async getPrivateFile(key: string) {
   //   const s3 = this.getS3();
   // if (key) {

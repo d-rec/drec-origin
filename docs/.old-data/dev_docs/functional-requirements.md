@@ -47,7 +47,6 @@ order: 1
        Bulk upload.
 
     3. Meter reads
-
        - Under this functionality, there are three fields:
 
     All reads:

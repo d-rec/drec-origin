@@ -1,11 +1,19 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
-import { IsArray, IsEnum, IsISO31661Alpha2, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsISO31661Alpha2,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IFullOrganization } from '../../models';
 import { OrganizationStatus, OrganizationType } from '../../utils/enums';
 import { User } from '../user/user.entity';
 import { Invitation } from '../invitation/invitation.entity';
+import { Device } from '../device/device.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
 
 @Entity({ name: 'organization' })
 export class Organization
@@ -137,4 +145,17 @@ export class Organization
 
   @Column()
   api_user_id: string;
+
+  @Column({ name: 'verified_at', default: null })
+  @IsDate()
+  verifiedAt: Date;
+
+  @OneToMany(() => Device, (device) => device.organization)
+  devices: Device[];
+
+  @OneToMany(
+    () => EvidentSettings,
+    (evidentSettings) => evidentSettings.organization,
+  )
+  evidentSettings: EvidentSettings[];
 }

@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Queues } from '../../../utils/enums/queues.enum';
-import { Device } from '../../device';
+import { Device } from '../../device/device.entity';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { DeviceGroupService } from '../../device-group/device-group.service';
 import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';

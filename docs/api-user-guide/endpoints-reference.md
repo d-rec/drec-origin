@@ -4,5 +4,4 @@ order: 2
 
 # Endpoints Reference
 
-> [!WARNING]
-> This section is a work-in-progress.
+[Redocly Documentation](https://dev-api.drecs.org/docs)
