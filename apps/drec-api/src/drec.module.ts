@@ -9,11 +9,6 @@ import {
   BlockchainPropertiesModule,
   entities as IssuerEntities,
 } from '@energyweb/issuer-api';
-import {
-  OnChainCertificateEntities,
-  OffChainCertificateEntities,
-  OnChainCertificateModule,
-} from '@energyweb/origin-247-certificate';
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -76,6 +71,12 @@ import { EvidentIssuersEntity } from './pods/evident/evident-issuers.entity';
 import { MeterRead } from './pods/reads/reads.entity';
 import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 
+import { OffChainCertificateEntities, OnChainCertificateEntities } from './types/utils/certificates';
+import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
+import { CertificateEventEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-event.entity';
+import { CertificateSynchronizationAttemptEntity } from './pods/utils/origin-247-certificate/offchain-certificate/synchronize/certificate-synchronization-attempt.entity';
+import { CertificateReadModelEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { CertificateCommandEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-command/certificate-command.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -128,6 +129,10 @@ export const entities = [
   Otp,
   EvidentSettings,
   EvidentIssuersEntity,
+  CertificateEventEntity,
+  CertificateCommandEntity,
+  CertificateReadModelEntity,
+  CertificateSynchronizationAttemptEntity
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {

@@ -1,4 +1,4 @@
-import { ICertificate as IOriginalCertificate } from '@energyweb/origin-247-certificate';
+import { ICertificate as IOriginalCertificate } from '../types/utils/certificates';
 import { StandardCompliance, CertificateType } from './enums';
 
 export interface ICertificateMetadata {

@@ -26,7 +26,6 @@ import {
 } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { IDevice, ILoggedInUser } from '../../models';
@@ -36,6 +35,7 @@ import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { DateTime } from 'luxon';
 import { Profile } from '../../lib/profile';
+import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;
