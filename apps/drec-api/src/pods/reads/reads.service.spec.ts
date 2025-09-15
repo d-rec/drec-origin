@@ -5,7 +5,7 @@ import { ReadsFilterDTO, Unit } from '../../types/reads';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ReadsService } from './reads.service';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { OrganizationService } from '../organization/organization.service';
 import { EventBus } from '@nestjs/cqrs';

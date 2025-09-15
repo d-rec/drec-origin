@@ -21,7 +21,6 @@ import {
   ApiQuery,
   ApiOperation,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import {
@@ -34,7 +33,6 @@ import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { CertificateNewWithPerDeviceLog, CertificateLogResponse } from './dto';
 import { PowerFormatter } from '../../utils/PowerFormatter';
-import { ActiveUserGuard } from '../../guards/ActiveUserGuard';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
@@ -43,6 +41,7 @@ import { Role } from '../../utils/enums';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
 import { Response } from 'express';
+import { AuthVerifiedGuard } from '../../guards';
 
 /*
  * It is Controller of ACL Module with the endpoints of ACL module operations.
@@ -66,7 +65,7 @@ export class CertificateLogController {
    * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns all issue logs of device
    */
   @Get()
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -127,7 +126,7 @@ export class CertificateLogController {
    * @return { Array<CheckCertificateIssueDateLogForDeviceEntity> } returns the logs of certicates
    */
   @Get('/by-reservation-groupId')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -163,7 +162,7 @@ export class CertificateLogController {
    * @param user
    */
   @Get('/issuer/certified/:groupUid')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -190,7 +189,7 @@ export class CertificateLogController {
   ): Promise<CertificateNewWithPerDeviceLog[]> {
     this.logger.verbose(`With in getissueCertificate`);
     const deviceGroup = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
     });
 
     if (
@@ -216,7 +215,10 @@ export class CertificateLogController {
    * @param { groupid } Need to ask Namrata
    */
   @Get('/issuer/certified/new/:groupUid')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -246,7 +248,7 @@ export class CertificateLogController {
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
 
     const deviceGroup = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
     });
 
     if (user.role === Role.ApiUser) {
@@ -286,7 +288,7 @@ export class CertificateLogController {
    * This is GET api used in previous version of DREC, after claiming certicate user can view the redemption report
    */
   @Get('/redemption-report')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -321,7 +323,7 @@ export class CertificateLogController {
    * It is GET api to list all the readings of organization witn pagination and filered by device
    */
   @Get('/certificateReadModule')
-  @UseGuards(AuthGuard('jwt'), ActiveUserGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -391,7 +393,10 @@ export class CertificateLogController {
   }
 
   @Get('/issuer/certifiedlogOfdevices')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiQuery({
@@ -484,6 +489,15 @@ export class CertificateLogController {
       );
     }
 
+    if (filterDTO.reservationId) {
+      certificateLogs.certificatelog = (
+        certificateLogs.certificatelog as CertificateNewWithPerDeviceLog[]
+      ).filter(
+        (log) =>
+          log.metadata?.buyerReservationId === String(filterDTO.reservationId),
+      );
+    }
+
     return certificateLogs;
   }
 
@@ -494,7 +508,7 @@ export class CertificateLogController {
    * @returns
    */
   @Get('/expoert_perdevice/:groupUid')
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('CERTIFICATE_LOG_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -522,7 +536,7 @@ export class CertificateLogController {
     this.logger.verbose(`With in getByGroupId`);
     this.logger.verbose('With in getCertificatesFromUpdatedCertificateTables');
     const deviceGroup = await this.deviceGroupService.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
     });
     if (user.role === Role.ApiUser) {
       if (deviceGroup.api_user_id != user.api_user_id) {

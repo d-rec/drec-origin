@@ -14,7 +14,6 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
-
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -52,8 +51,6 @@ import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
-import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { ApiUserEntity } from './pods/user/api-user.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
@@ -67,10 +64,18 @@ import { BulkUploadEntity } from './pods/bulk-upload/bulk-uploads.entity';
 import { BulkUploadFailedLogEntity } from './pods/bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
-import { MeterRead } from './pods/reads/reads.entity';
+import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
+import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
+import { OtpModule } from './pods/otp/otp.module';
+import { Otp } from './pods/otp/otp.entity';
+import { EvidentModule } from './pods/evident/evident.module';
+import { EvidentSettings } from './pods/evident/evident-settings.entity';
 
 import { getTypeOrmConfig } from './config/typeorm.config';
+import { EvidentIssuersEntity } from './pods/evident/evident-issuers.entity';
+import { MeterRead } from './pods/reads/reads.entity';
 import { FailedMeterRead } from './pods/reads/failed-reads.entity';
+
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',
@@ -111,8 +116,6 @@ export const entities = [
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SDGBenefit,
-  IRECDevicesInformationEntity,
-  IRECErrorLogInformationEntity,
   UserLoginSessionEntity,
   DeviceLateOngoingIssueCertificateEntity,
   CertificateSettingEntity,
@@ -121,6 +124,10 @@ export const entities = [
   ...OffChainCertificateEntities,
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
+  DocumentEntity,
+  Otp,
+  EvidentSettings,
+  EvidentIssuersEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -134,7 +141,7 @@ export const originAppTypeOrmModule = (): DynamicModule => {
 
 export const redisOptions = {
   host: process.env.REDIS_URL ?? 'localhost',
-  port: 6379,
+  port: Number(process.env.REDIS_PORT ?? 6379),
 };
 
 const queueModule = () => {
@@ -178,6 +185,9 @@ const queueModule = () => {
     BlockchainPropertiesModule,
     BulkUploadModule,
     HealthModule,
+    DocumentUploadsModule,
+    OtpModule,
+    EvidentModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import { after, before } from 'mocha';
 import { OrganizationFilterDTO } from '../src/pods/admin/dto/organization-filter.dto';
 import { IFullOrganization } from '../src/models';
-import { Device } from '../src/pods/device';
+import { Device } from '../src/pods/device/device.entity';
 import {
   AddGroupDTO,
   DeviceIdsDTO,
@@ -23,6 +23,7 @@ import { CertificateGenerationFrequency } from '../src/utils/enums';
 import { bootstrapTestInstance } from './drec-api';
 import { seed } from './seed';
 import TestDevicesToGroup from './test-devices-for-grouping.json';
+import { GroupType } from '../src/utils/enums/group-type.enum';
 
 describe('Device Group tests', () => {
   let app: INestApplication;
@@ -131,6 +132,7 @@ describe('Device Group tests', () => {
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
+      type: GroupType.Multiple,
     };
     await postDeviceGroup('', HttpStatus.NOT_ACCEPTABLE, newDeviceGroup);
   });
@@ -205,6 +207,7 @@ describe('Device Group tests', () => {
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
+      type: GroupType.Multiple,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -255,6 +258,7 @@ describe('Device Group tests', () => {
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
+      type: GroupType.Multiple,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
     const { body: deviceGroups } = await requestDeviceGroup('', HttpStatus.OK);
@@ -305,6 +309,7 @@ describe('Device Group tests', () => {
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
+      type: GroupType.Multiple,
     };
     await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
 
@@ -361,6 +366,7 @@ describe('Device Group tests', () => {
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: false,
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration:
         false,
+      type: GroupType.Multiple,
     };
     return await postDeviceGroup('', HttpStatus.CREATED, newDeviceGroup);
   };

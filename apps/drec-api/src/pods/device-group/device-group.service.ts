@@ -14,9 +14,11 @@ import { cloneDeep, defaults } from 'lodash';
 import {
   Brackets,
   FindConditions,
+  In,
   LessThan,
   Repository,
   SelectQueryBuilder,
+  UpdateResult,
 } from 'typeorm';
 import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import {
@@ -28,7 +30,7 @@ import {
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
 import { DeviceService } from '../device/device.service';
-import { DeviceDTO, NewDeviceDTO } from '../device/dto';
+import { DeviceDTO, DeviceFiles, NewDeviceDTO } from '../device/dto';
 import { DeviceGroup } from './device-group.entity';
 import {
   AddGroupDTO,
@@ -77,6 +79,21 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { GroupType } from '../../utils/enums/group-type.enum';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
+import {
+  EvidentIssuanceStatus,
+  EvidentRegistrationStatus,
+} from '../../types/evident';
+import { FileService } from '../file/file.service';
+
+type DeviceRegistrationError = {
+  isError: boolean;
+  device: NewDeviceDTO;
+  errorDetail: any;
+};
 
 @Injectable()
 export class DeviceGroupService {
@@ -88,12 +105,15 @@ export class DeviceGroupService {
     private readonly repositoryCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
     @InjectRepository(DeviceGroup)
     private readonly repository: Repository<DeviceGroup>,
+    @InjectRepository(DocumentEntity)
+    private readonly documentsRepository: Repository<DocumentEntity>,
     @InjectRepository(DeviceGroupNextIssueCertificate)
     private readonly repositoryNextDeviceGroupCertificate: Repository<DeviceGroupNextIssueCertificate>,
     private organizationService: OrganizationService,
     @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
     private yieldConfigService: YieldConfigService,
+    private readonly fileService: FileService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
     @InjectRepository(HistoryDeviceGroupNextIssueCertificate)
@@ -106,6 +126,7 @@ export class DeviceGroupService {
     @InjectRepository(BulkUploadFailedLogEntity)
     public readonly bulkUploadFailedLogRepository: Repository<BulkUploadFailedLogEntity>,
     @InjectQueue(Queues.DeviceBulkUpload) private deviceQueue: Queue,
+    private readonly evidentDeviceService: EvidentDeviceService,
   ) {}
 
   async getAll(
@@ -139,7 +160,9 @@ export class DeviceGroupService {
         query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
-
+    if (user?.role === Role.OrganizationAdmin) {
+      query.andWhere(`group.organizationId = '${user.organizationId}'`);
+    }
     if (organizationId) {
       query.andWhere(`group.organizationId = '${organizationId}'`);
     }
@@ -306,6 +329,7 @@ export class DeviceGroupService {
         const baseQuery = 'group.name ILIKE :name';
         query.andWhere(baseQuery, { name: `%${name}%` });
       }
+
       if (filterDTO.reservationActive) {
         if (filterDTO.reservationActive === 'Active') {
           query.andWhere('group.reservationActive = :active', { active: true });
@@ -316,6 +340,15 @@ export class DeviceGroupService {
           });
         }
       }
+      if (filterDTO.deviceIds) {
+        const deviceIdsArray = filterDTO.deviceIds
+          .toString()
+          .split(',')
+          .map((id) => Number(id));
+        query.andWhere('device.id IN (:...deviceIds)', {
+          deviceIds: deviceIdsArray,
+        });
+      }
     }
 
     const [groups, totalCount] = await query
@@ -324,17 +357,19 @@ export class DeviceGroupService {
       .getManyAndCount();
     const totalPages = Math.ceil(totalCount / limit);
     const groupsWithOrganization = await Promise.all(
-      groups.map(async (group: DeviceGroupDTO) => {
+      groups.map(async (group: DeviceGroup) => {
         const organization = await this.organizationService.findOne(
           group.organizationId,
         );
         group.organization = {
           name: organization.name,
         };
+        const devices = await this.deviceService.findByIds(group.deviceIdsInt);
+        group.devices = devices;
+
         return group;
       }),
     );
-
     return {
       groupedData: groupsWithOrganization,
       currentPage: pageNumber,
@@ -570,6 +605,15 @@ export class DeviceGroupService {
               );
             }
 
+            if (groupFilterDTO.deviceIds?.length > 0) {
+              qb.andWhere(
+                'dg."deviceIdsInt" && ARRAY[:...deviceIds]::bigint[]',
+                {
+                  deviceIds: groupFilterDTO.deviceIds,
+                },
+              );
+            }
+
             if (groupFilterDTO.start_date && groupFilterDTO.end_date) {
               qb.orWhere(
                 new Brackets((db) => {
@@ -636,6 +680,7 @@ export class DeviceGroupService {
               const baseQuery = 'dg.name ILIKE :name';
               qb.andWhere(baseQuery, { name: `%${name}%` });
             }
+
             if (groupFilterDTO.reservationActive) {
               if (groupFilterDTO.reservationActive === 'Active') {
                 qb.orWhere('dg.reservationActive = :active', { active: true });
@@ -669,42 +714,67 @@ export class DeviceGroupService {
       }
     }
 
-    // If deviceGroups is not an array, return an empty array
-    const finalReservation = groupedData.map((deviceGroup) => ({
-      id: deviceGroup.dg_id,
-      createdAt: deviceGroup.dg_createdAt,
-      name: deviceGroup.dg_name,
-      organizationId: deviceGroup.dg_organizationId,
-      fuelCode: deviceGroup.dg_fuelCode,
-      countryCode: deviceGroup.dg_countryCode,
-      deviceTypeCodes: deviceGroup.dg_deviceTypeCodes,
-      offTakers: deviceGroup.dg_offTakers,
-      commissioningDateRange: deviceGroup.dg_commissioningDateRange,
-      gridInterconnection: deviceGroup.dg_gridInterconnection,
-      aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
-      yieldValue: deviceGroup.dg_yieldValue,
-      buyerId: deviceGroup.dg_buyerId,
-      buyerAddress: deviceGroup.dg_buyerAddress,
-      leftoverReads: deviceGroup.dg_leftoverReads,
-      capacityRange: deviceGroup.dg_capacityRange,
-      frequency: deviceGroup.dg_frequency,
-      reservationStartDate: deviceGroup.dg_reservationStartDate,
-      reservationEndDate: deviceGroup.dg_reservationEndDate,
-      reservationActive: deviceGroup.dg_reservationActive,
-      targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
-      targetVolumeCertificateGenerationRequestedInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
-      targetVolumeCertificateGenerationSucceededInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
-      targetVolumeCertificateGenerationFailedInMegaWattHour:
-        deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
-      authorityToExceed: deviceGroup.dg_authorityToExceed,
-      leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
-      devicegroup_uid: deviceGroup.dg_devicegroup_uid,
-      type: deviceGroup.dg_type,
-      deviceIds: deviceGroup.dg_deviceIdsInt,
-      SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
-    }));
+    const getDevices = async (deviceIds: string[]) => {
+      if (!deviceIds || deviceIds.length === 0) return [];
+      const numericIds = deviceIds
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      const deviceQuery = this.repository.manager
+        .createQueryBuilder(Device, 'device')
+        .select(['device.id', 'device.projectName', 'device.serialNumber'])
+        .where('device.id IN (:...ids)', { ids: numericIds });
+
+      return await deviceQuery.getRawMany();
+    };
+
+    const finalReservation = await Promise.all(
+      groupedData.map(async (deviceGroup) => {
+        const devices = await getDevices(deviceGroup.dg_deviceIdsInt);
+        return {
+          id: deviceGroup.dg_id,
+          createdAt: deviceGroup.dg_createdAt,
+          name: deviceGroup.dg_name,
+          organizationId: deviceGroup.dg_organizationId,
+          fuelCode: deviceGroup.dg_fuelCode,
+          countryCode: deviceGroup.dg_countryCode,
+          deviceTypeCodes: deviceGroup.dg_deviceTypeCodes,
+          offTakers: deviceGroup.dg_offTakers,
+          commissioningDateRange: deviceGroup.dg_commissioningDateRange,
+          gridInterconnection: deviceGroup.dg_gridInterconnection,
+          aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
+          yieldValue: deviceGroup.dg_yieldValue,
+          buyerId: deviceGroup.dg_buyerId,
+          buyerAddress: deviceGroup.dg_buyerAddress,
+          leftoverReads: deviceGroup.dg_leftoverReads,
+          capacityRange: deviceGroup.dg_capacityRange,
+          frequency: deviceGroup.dg_frequency,
+          reservationStartDate: deviceGroup.dg_reservationStartDate,
+          reservationEndDate: deviceGroup.dg_reservationEndDate,
+          reservationActive: deviceGroup.dg_reservationActive,
+          targetVolumeInMegaWattHour: deviceGroup.dg_targetVolumeInMegaWattHour,
+          targetVolumeCertificateGenerationRequestedInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationRequestedInMegaWattHour,
+          targetVolumeCertificateGenerationSucceededInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationSucceededInMegaWattHour,
+          targetVolumeCertificateGenerationFailedInMegaWattHour:
+            deviceGroup.dg_targetVolumeCertificateGenerationFailedInMegaWattHour,
+          authorityToExceed: deviceGroup.dg_authorityToExceed,
+          leftoverReadsByCountryCode: deviceGroup.dg_leftoverReadsByCountryCode,
+          deviceGroupUid: deviceGroup.dg_devicegroup_uid,
+          type: deviceGroup.dg_type,
+          deviceIds: deviceGroup.dg_deviceIdsInt,
+          SDGBenefits: Array.from(new Set(deviceGroup.sdgBenefits)),
+          devices: devices.map((device) => {
+            return {
+              id: device.device_id,
+              serialNumber: device.device_serial_number,
+              projectName: device.device_projectName,
+            };
+          }),
+        };
+      }),
+    );
+
     return {
       groupedData: finalReservation,
       pageNumber,
@@ -726,7 +796,7 @@ export class DeviceGroupService {
     errorDetails: Array<any>,
     successfullyAddedRowsAndExternalIds: Array<{
       rowNumber: number;
-      externalId: string;
+      serialNumber: string;
     }>,
   ): Promise<BulkUploadFailedLogEntity> {
     this.logger.verbose(`With in createFailedRowDetailsForCSVJob`);
@@ -737,9 +807,10 @@ export class DeviceGroupService {
       },
     });
   }
+
   async create(
     organizationId: number,
-    data: NewDeviceGroupDTO,
+    data: any,
     fromBulk = false,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in create`);
@@ -750,6 +821,7 @@ export class DeviceGroupService {
       ...data,
       name: groupName,
     });
+
     const devices = await this.deviceService.findByIds(data.deviceIds);
 
     const allDevicesHaveHistoricalIssuanceAndNoNextIssuance = devices.every(
@@ -802,10 +874,74 @@ export class DeviceGroupService {
         );
       }),
     );
+    if (data.type === GroupType.Single) {
+      await this.registerSingleDeviceToEvident(devices[0], group);
+    } else {
+      await this.evidentDeviceService.queueDeviceGroupRegistration(group);
+    }
 
     return group;
   }
 
+  private async registerSingleDeviceToEvident(
+    device: Device,
+    group: DeviceGroup,
+  ): Promise<void> {
+    const files = await this.documentsRepository.find({
+      where: {
+        targetType: 'device',
+        targetId: device.id,
+      },
+    });
+    const deviceDocuments = await this.buildDeviceDocumentsMap(files);
+    await this.evidentDeviceService.queueDeviceRegistration(
+      device,
+      deviceDocuments,
+      group,
+    );
+  }
+  private async buildDeviceDocumentsMap(
+    files: DocumentEntity[],
+  ): Promise<Record<DocumentType, Express.Multer.File[]>> {
+    const buildDeviceDocuments = async (
+      files: DocumentEntity[],
+      type: DocumentType,
+    ): Promise<Express.Multer.File[]> => {
+      const filtered = files.filter((f) => f.type === type);
+      if (filtered.length === 0) return [];
+      const buffers = await Promise.all(
+        filtered.map(async (f) => {
+          return await this.fileService.fetchBuffer(f.url);
+        }),
+      );
+      return filtered
+        .map((entity, idx) => {
+          return {
+            fieldname: entity.type,
+            originalname: entity.url || '',
+            encoding: '7bit',
+            mimetype: 'application/octet-stream',
+            size: buffers[idx].length,
+            buffer: buffers[idx],
+            destination: '',
+            filename: entity.url || '',
+            path: entity.url,
+            stream: null,
+          };
+        })
+        .filter((f) => f !== null);
+    };
+
+    const deviceDocuments: Record<DocumentType, Express.Multer.File[]> =
+      {} as any;
+    for (const docType of Object.values(DocumentType)) {
+      deviceDocuments[docType] = await buildDeviceDocuments(
+        files,
+        docType as DocumentType,
+      );
+    }
+    return deviceDocuments;
+  }
   async createOne(
     organizationId: number,
     group: AddGroupDTO,
@@ -942,6 +1078,7 @@ export class DeviceGroupService {
       deviceGroup['reservationStartDate'] = group.reservationStartDate;
       deviceGroup['reservationEndDate'] = group.reservationEndDate;
       deviceGroup['authorityToExceed'] = group.authorityToExceed;
+      deviceGroup['type'] = group.type;
       deviceGroup['targetVolumeInMegaWattHour'] =
         group.targetCapacityInMegaWattHour;
       deviceGroup['targetVolumeCertificateGenerationFailedInMegaWattHour'] = 0;
@@ -1132,42 +1269,42 @@ export class DeviceGroupService {
     organizationId: number,
   ): Promise<Array<string>> {
     this.logger.verbose(`With in checkIfDeviceExisting`);
-    const allExternalIds: Array<string> = [];
-    const existingDeviceIds: Array<string> = [];
-    newDevices?.forEach((singleDevice) =>
-      allExternalIds.push(singleDevice.externalId),
+    const allSerialNumbers: Array<string> = [];
+    const existingSerialNumbers: Array<string> = [];
+    newDevices.forEach((singleDevice) =>
+      allSerialNumbers.push(singleDevice.serialNumber),
     );
     const existingDevices =
       await this.deviceService.findMultipleDevicesBasedExternalId(
-        allExternalIds,
+        allSerialNumbers,
         organizationId,
       );
 
     if (existingDevices && existingDevices.length > 0) {
-      existingDevices?.forEach((ele) =>
-        existingDeviceIds.push(ele?.developerExternalId),
+      existingDevices.forEach((ele) =>
+        existingSerialNumbers.push(ele?.serialNumber),
       );
     }
-    return existingDeviceIds;
+    return existingSerialNumbers;
   }
 
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
+    files: DeviceFiles,
     api_user_id?: string,
-  ): Promise<
-    (DeviceDTO | { isError: boolean; device: NewDeviceDTO; errorDetail: any })[]
-  > {
+  ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
     return await Promise.all(
       newDevices.map(async (device: NewDeviceDTO) => {
         try {
           if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device);
+            return await this.deviceService.register(orgCode, device, files);
           } else {
             return await this.deviceService.register(
               orgCode,
               device,
+              files,
               api_user_id,
               Role.ApiUser,
             );
@@ -1342,12 +1479,13 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
+    files: DeviceFiles,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
     const records: Array<NewDeviceDTO> = [];
     const recordsErrors: Array<{
-      externalId: string;
+      serialNumber: string;
       rowNumber: number;
       isError: boolean;
       errorsList: Array<any>;
@@ -1365,6 +1503,7 @@ export class DeviceGroupService {
         data.groupId = null;
 
         const dataToStore: NewDeviceDTO = {
+          dataSourceBrand: '',
           externalId: '',
           projectName: '',
           address: '',
@@ -1385,6 +1524,9 @@ export class DeviceGroupService {
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
+          dataSource: '',
+          otherDataSource: '',
+          serialNumber: '',
         };
         for (const key in dataToStore) {
           if (key === 'SDGBenefits' || key === 'version') {
@@ -1416,7 +1558,7 @@ export class DeviceGroupService {
         }
         records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({
-          externalId: '',
+          serialNumber: '',
           rowNumber: rowsConvertedToCsvCount,
           isError: false,
           errorsList: [],
@@ -1435,14 +1577,14 @@ export class DeviceGroupService {
               delete ele.children;
             });
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: true,
               errorsList: errors,
             };
           } else {
             recordsErrors[index] = {
-              externalId: records[index].externalId,
+              serialNumber: records[index].serialNumber,
               rowNumber: index,
               isError: false,
               errorsList: errors,
@@ -1579,51 +1721,51 @@ export class DeviceGroupService {
             ) {
               recordsErrors[index].isError = true;
               recordsErrors[index].errorsList.push({
-                value: singleRecord.externalId,
-                property: 'externalId',
+                value: singleRecord.serialNumber,
+                property: 'serialNumber',
                 constraints: {
-                  externalIdExists:
-                    'ExternalId already exist, cant add entry with same external id',
+                  serialNumberExists:
+                    'serialNumber already exist, cant add entry with same serial number',
                 },
               });
             }
           });
         }
         const recordsCopy = cloneDeep(records);
-        recordsCopy?.forEach((ele) => (ele['statusDuplicate'] = false));
-        const duplicatesExternalId: any = [];
+        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
+        const duplicateserialNumbers: any = [];
         for (let i = 0; i < recordsCopy.length - 1; i++) {
-          this.logger.debug(recordsCopy[i].externalId);
+          this.logger.debug(recordsCopy[i].serialNumber);
           for (let j = i + 1; j < recordsCopy.length; j++) {
-            this.logger.debug(recordsCopy[j].externalId);
+            this.logger.debug(recordsCopy[j].serialNumber);
             if (
-              recordsCopy[i].externalId != null &&
-              recordsCopy[j].externalId != null
+              recordsCopy[i].serialNumber != null &&
+              recordsCopy[j].serialNumber != null
             ) {
               if (
-                recordsCopy[i].externalId.toLowerCase() ===
-                  recordsCopy[j].externalId.toLowerCase() &&
+                recordsCopy[i].serialNumber.toLowerCase() ===
+                  recordsCopy[j].serialNumber.toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
-                duplicatesExternalId.push({
+                duplicateserialNumbers.push({
                   duplicateIndex: j,
                   duplicateWith: i,
                   projectName: records[j].projectName,
-                  externalId: records[j].externalId,
+                  serialNumber: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
                 recordsErrors[j].errorsList.push({
-                  value: recordsCopy[j].externalId,
-                  property: 'externalId',
+                  value: recordsCopy[j].serialNumber,
+                  property: 'serialNumber',
                   constraints: {
                     externalIdExists:
                       'Row ' +
                       (j + 1) +
                       ' Duplicate with row ' +
                       (i + 1) +
-                      ' Exists with externalId ' +
-                      records[j].externalId,
+                      ' Exists with serialNumber ' +
+                      records[j].serialNumber,
                   },
                 });
               }
@@ -1633,7 +1775,7 @@ export class DeviceGroupService {
 
         const successfullyAddedRowsAndExternalIds: Array<{
           rowNumber: number;
-          externalId: string;
+          serialNumber: string;
         }> = [];
         const recordsToRegister = records.filter((ele, index) => {
           if (recordsErrors[index].errorsList.length > 0) {
@@ -1641,7 +1783,7 @@ export class DeviceGroupService {
             if (
               recordsErrors[index].errorsList.find(
                 (errorRec) =>
-                  errorRec.property === 'externalId' ||
+                  errorRec.property === 'serialNumber' ||
                   errorRec.property === 'commissioningDate' ||
                   errorRec.property === 'capacity' ||
                   errorRec.property === 'countryCode',
@@ -1653,32 +1795,55 @@ export class DeviceGroupService {
             }
           } else return true;
         });
+        const organization =
+          await this.organizationService.findOne(organizationId);
 
         const devicesRegistered = await this.registerCSVBulkDevices(
           organizationId,
           recordsToRegister,
+          files,
+          organization.api_user_id,
         );
 
         devicesRegistered
           .filter((ele) => (ele as any).isError === undefined)
           ?.forEach((ele) => {
             successfullyAddedRowsAndExternalIds.push({
-              externalId: (ele as any).externalId,
+              serialNumber: (ele as any).serialNumber,
               rowNumber: records.findIndex(
-                (recEle) =>
-                  recEle.developerExternalId === (ele as any).externalId,
+                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
               ),
             });
           });
 
-        recordsErrors?.forEach((ele, index) => {
+        devicesRegistered
+          .filter((device: DeviceRegistrationError) => device.isError)
+          .forEach((device: DeviceRegistrationError) => {
+            const serialNumber = device.device?.serialNumber;
+            const errorIndex = recordsErrors.findIndex(
+              (record) => record.serialNumber === serialNumber,
+            );
+
+            if (errorIndex !== -1) {
+              recordsErrors[errorIndex].isError = true;
+              recordsErrors[errorIndex].errorsList.push({
+                value: recordsErrors[errorIndex].serialNumber,
+                property: 'Device error',
+                constraints: {
+                  error: device.errorDetail?.response?.message,
+                },
+              });
+            }
+          });
+
+        recordsErrors.forEach((ele, index) => {
           if (ele.isError === false) {
             ele['status'] = 'Success';
           } else if (
             ele.isError === true &&
             successfullyAddedRowsAndExternalIds.find(
               (successEle) =>
-                successEle.externalId === ele.externalId &&
+                successEle.serialNumber === ele.serialNumber &&
                 successEle.rowNumber === index,
             )
           ) {
@@ -1688,15 +1853,25 @@ export class DeviceGroupService {
             ele['status'] = 'Failed';
           }
         });
+
         this.createFailedRowDetailsForCSVJob(
           filesAddedForProcessing.id,
           recordsErrors,
           successfullyAddedRowsAndExternalIds,
         );
 
+        const failedRowsSize = recordsErrors.filter(
+          (row) => row.isError,
+        ).length;
+
         this.bulkUploadRepository.update(
           { jobId: filesAddedForProcessing.jobId },
-          { status: BulkUploadStatus.Completed },
+          {
+            status:
+              failedRowsSize === 0
+                ? BulkUploadStatus.Completed
+                : BulkUploadStatus.Failed,
+          },
         );
       });
   }
@@ -1998,7 +2173,7 @@ export class DeviceGroupService {
   ): Promise<any> {
     this.logger.verbose(`With in getcurrentInformationOfDevicesInReservation`);
     const group = await this.findOne({
-      devicegroup_uid: groupId,
+      deviceGroupUid: groupId,
       reservationActive: true,
     });
     if (group === null) {
@@ -2095,7 +2270,7 @@ export class DeviceGroupService {
         "dg_log.certificateTransactionUID = (crm.metadata::jsonb)->>'certificateTransactionUID'",
       )
       .select(
-        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
+        'DISTINCT ON (dg.id, crm.internalCertificateId) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, crm.internalCertificateId',
       )
       .orderBy(
         'dg.id, crm.internalCertificateId, dg_log.readvalue_watthour',
@@ -2303,8 +2478,7 @@ export class DeviceGroupService {
     let deviceGroups: any;
     if (role === 'OrganizationAdmin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
-        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
-
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
           const existingDevice = existing.developerdeviceIds.find(
             (item) => item === curr.id,
@@ -2315,7 +2489,7 @@ export class DeviceGroupService {
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
           acc.push({
-            dg_id: curr.devicegroupid,
+            dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
             developerdeviceIds: [curr.id],
@@ -2327,13 +2501,13 @@ export class DeviceGroupService {
     }
     if (role === 'Buyer' || role === Role.ApiUser) {
       deviceGroups = groupedData.reduce((acc, curr) => {
-        const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
+        const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
 
         if (existing) {
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
           acc.push({
-            dg_id: curr.devicegroupid,
+            dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
             internalCertificateId: [curr.internalCertificateId],
@@ -2383,7 +2557,7 @@ export class DeviceGroupService {
         'CAST(issuer.deviceId AS INTEGER) = dg.id',
       )
       .select(
-        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupId, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
+        'DISTINCT ON (dg.id, issuer.id) dg.id AS deviceGroupUid, dg.name, dg.deviceIdsInt, d.*, dg_log.readvalue_watthour, issuer.id As issuerId',
       )
       .orderBy('dg.id, issuer.id, dg_log.readvalue_watthour', 'ASC');
 
@@ -2726,5 +2900,69 @@ export class DeviceGroupService {
 
     // 4. Return the integer component for certificate issuance
     return integralVal;
+  }
+
+  async updateEvidentStatus(
+    groupId: number,
+    deviceGroupUid: string,
+    evidentGroupId: string,
+    status: EvidentRegistrationStatus,
+  ): Promise<void> {
+    this.logger.verbose(`With in updateEvidentStatus`);
+    status =
+      status === EvidentRegistrationStatus.InProgress
+        ? EvidentRegistrationStatus.Submitted
+        : status;
+
+    await this.repository.update(
+      { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
+      { evidentGroupId: evidentGroupId, evidentStatus: status },
+    );
+  }
+
+  async getRegisteredEvident(
+    organizationId: number,
+    type: GroupType,
+  ): Promise<DeviceGroup[]> {
+    this.logger.verbose(`With in getRegisteredEvident`);
+    return await this.repository
+      .createQueryBuilder('deviceGroup')
+      .where('deviceGroup.evident_status = :evidentStatus', {
+        evidentStatus: EvidentRegistrationStatus.Submitted,
+      })
+      .andWhere('deviceGroup.evident_group_id IS NOT NULL')
+      .andWhere('deviceGroup.organizationId = :organizationId', {
+        organizationId,
+      })
+      .andWhere('deviceGroup.type = :type', { type: type })
+      .orderBy('deviceGroup.createdAt', 'DESC')
+      .getMany();
+  }
+
+  async findCertificateLogs(
+    groupId: number,
+  ): Promise<CheckCertificateIssueDateLogForDeviceGroupEntity[]> {
+    return await this.checkDeviceGroupLogCertificateRepository
+      .createQueryBuilder('groupCertificates')
+      .where('groupCertificates.evidentSyncedAt IS NULL')
+      .where('groupCertificates.groupid = :groupId', { groupId })
+      .orderBy('groupCertificates.certificate_issuance_startdate', 'ASC')
+      .getMany();
+  }
+
+  async updateCertificatesEvidentIssuance(
+    certificateIds: number[],
+    issuanceId: number,
+    evidentIssuanceStatus: EvidentIssuanceStatus,
+  ): Promise<UpdateResult> {
+    this.logger.verbose(`With in updateCertificatesEvidentIssuance`);
+    return await this.checkDeviceGroupLogCertificateRepository.update(
+      { id: In(certificateIds) },
+      {
+        evidentIssuanceRequestId: issuanceId.toString(),
+        evidentIssuanceRequestStatus: evidentIssuanceStatus,
+        evidentSyncedAt: new Date(),
+      },
+    );
   }
 }

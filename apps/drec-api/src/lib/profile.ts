@@ -4,9 +4,8 @@ import { Logger } from '@nestjs/common';
 const PROFILE_CODE = process.env.PROFILE_CODE === 'true';
 
 function Profile(): MethodDecorator {
-  return function(target, propertyKey, descriptor: PropertyDescriptor) {
-
-     if(!PROFILE_CODE) {
+  return function (target, propertyKey, descriptor: PropertyDescriptor) {
+    if (!PROFILE_CODE) {
       return descriptor;
     }
 
@@ -19,12 +18,12 @@ function Profile(): MethodDecorator {
       const duration = (end - start).toFixed(2);
       logger.warn(`${name}: Executed in ${duration} ms`);
     };
-    
-    descriptor.value = function(...args: any[]) {
+
+    descriptor.value = function (...args: any[]) {
       const name = `${String(propertyKey)}`;
       const start = performance.now();
 
-      if(!isAsync){
+      if (!isAsync) {
         const result = originalMethod.apply(this, args);
         logPerformance(name, start);
         return result;

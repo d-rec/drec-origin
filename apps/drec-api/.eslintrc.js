@@ -10,6 +10,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
     'prettier',
     'prettier/@typescript-eslint',
   ],
@@ -17,6 +18,11 @@ module.exports = {
   env: {
     node: true,
     jest: true,
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',

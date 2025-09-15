@@ -19,8 +19,6 @@ import { DeviceGroupNextIssueCertificate } from './pods/device-group/device_grou
 import { CheckCertificateIssueDateLogForDeviceEntity } from './pods/device/check_certificate_issue_date_log_for_device.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
-import { IRECDevicesInformationEntity } from './pods/device/irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './pods/device/irec_error_log_information.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
@@ -37,7 +35,7 @@ import { IssuerModule } from './pods/issuer/issuer.module';
 import { ReadsModule } from './pods/reads/reads.module';
 import { FileModule } from './pods/file';
 import { DeviceGroupModule } from './pods/device-group/device-group.module';
-import { DeviceModule } from './pods/device';
+import { DeviceModule } from './pods/device/device.module';
 import { UserModule } from './pods/user/user.module';
 import { OrganizationModule } from './pods/organization/organization.module';
 import { MailModule } from './mail';
@@ -46,6 +44,8 @@ import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { getConnection } from 'typeorm';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
+import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
+import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
 
 describe('DRECModule', () => {
   let module: TestingModule;
@@ -177,20 +177,6 @@ describe('DRECModule', () => {
     expect(sdgBenefitRepository).toBeDefined();
   });
 
-  it('should provide IRECDevicesInformationEntity repository', () => {
-    const irecDevicesInformationRepository = module.get<
-      Repository<IRECDevicesInformationEntity>
-    >(getRepositoryToken(IRECDevicesInformationEntity));
-    expect(irecDevicesInformationRepository).toBeDefined();
-  });
-
-  it('should provide IRECErrorLogInformationEntity repository', () => {
-    const irecErrorLogInformationRepository = module.get<
-      Repository<IRECErrorLogInformationEntity>
-    >(getRepositoryToken(IRECErrorLogInformationEntity));
-    expect(irecErrorLogInformationRepository).toBeDefined();
-  });
-
   it('should provide UserLoginSessionEntity repository', () => {
     const userLoginSessionRepository = module.get<
       Repository<UserLoginSessionEntity>
@@ -203,6 +189,13 @@ describe('DRECModule', () => {
       Repository<DeviceLateOngoingIssueCertificateEntity>
     >(getRepositoryToken(DeviceLateOngoingIssueCertificateEntity));
     expect(deviceLateongoingIssueCertificateRepository).toBeDefined();
+  });
+
+  it('should provide DocumentEntity repository', () => {
+    const documentEntityRepository = module.get<Repository<DocumentEntity>>(
+      getRepositoryToken(DocumentEntity),
+    );
+    expect(documentEntityRepository).toBeDefined();
   });
 
   it('should import HttpModule', () => {
@@ -321,5 +314,10 @@ describe('DRECModule', () => {
   it('should import BlockchainPropertiesModule', () => {
     const blockchainPropertiesModule = module.get(BlockchainPropertiesModule);
     expect(blockchainPropertiesModule).toBeDefined();
+  });
+
+  it('should import DocumentUploadsModule', () => {
+    const documentUploadsModule = module.get(DocumentUploadsModule);
+    expect(documentUploadsModule).toBeDefined();
   });
 });

@@ -5,7 +5,7 @@ import { AdminController } from './admin.controller';
 
 import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
-import { DeviceModule } from '../device';
+import { DeviceModule } from '../device/device.module';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { InvitationModule } from '../invitation/invitation.module';
 
