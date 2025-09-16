@@ -1,6 +1,6 @@
 import { ICertificateEvent } from '../../../../../../events/certificate.events';
 import { EntityManager } from 'typeorm';
-import { CertificateSynchronizationAttemptEntity } from '../../synchronize/certificate-synchronization-attempt.entity';
+import { CertificateSynchronizationAttemptEntity } from './certificate-synchronization-attempt.entity';
 
 export interface IGetToProcessOptions {
     limit: number | null;

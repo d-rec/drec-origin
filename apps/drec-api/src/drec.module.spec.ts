@@ -40,12 +40,12 @@ import { UserModule } from './pods/user/user.module';
 import { OrganizationModule } from './pods/organization/organization.module';
 import { MailModule } from './mail';
 import { AuthModule } from './auth/auth.module';
-import { OnChainCertificateModule } from '@energyweb/origin-247-certificate';
 import { BlockchainPropertiesModule } from '@energyweb/issuer-api';
 import { getConnection } from 'typeorm';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
 import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
+import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
 
 describe('DRECModule', () => {
   let module: TestingModule;

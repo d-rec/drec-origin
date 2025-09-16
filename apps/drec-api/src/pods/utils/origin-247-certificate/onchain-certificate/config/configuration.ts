@@ -1,7 +1,7 @@
+import { OnchainConfiguration } from './config.interface';
 import { memoize } from 'lodash';
 import { validateOrReject } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-import { OnchainConfiguration } from './onchain-certificate/config/config.interface';
 
 export const getConfiguration = memoize(
     (): OnchainConfiguration => ({

@@ -2,6 +2,9 @@ import { OffChainCertificateService } from '../../offchain-certificate.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { chunk } from 'lodash';
 import { CertificateEventType, CertificateTransferredEvent } from '../../../../../../events/certificate.events';
+import { BATCH_CONFIGURATION_TOKEN, BatchConfigurationService } from '../strategies/batch/batch.configuration';
+import { OnChainCertificateService } from '../../../onchain-certificate/onchain-certificate.service';
+import { ONCHAIN_CERTIFICATE_SERVICE_TOKEN } from '../../../onchain-certificate/types';
 
 @Injectable()
 export class TransferPersistHandler {

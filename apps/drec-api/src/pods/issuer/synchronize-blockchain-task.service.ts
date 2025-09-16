@@ -1,7 +1,7 @@
-import { BlockchainSynchronizeService } from '@energyweb/origin-247-certificate';
 import { Injectable, Logger } from '@nestjs/common';
 import { CronExpression } from '@nestjs/schedule';
 import { NonConcurrentCron } from '../../lib/cron';
+import { BlockchainSynchronizeService } from '../utils/origin-247-certificate/offchain-certificate/synchronize/blockchain-synchronize.service';
 @Injectable()
 export class SynchronizeBlockchainTaskService {
   private logger = new Logger(SynchronizeBlockchainTaskService.name);

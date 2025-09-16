@@ -1,15 +1,15 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CertificateSynchronizationAttemptEntity } from './synchronize/certificate-synchronization-attempt.entity';
+import { CertificateSynchronizationAttemptEntity } from './repositories/certificate-event/certificate-synchronization-attempt.entity';
 import { CertificateCommandEntity } from './repositories/certificate-command/certificate-command.entity';
 import { CertificateReadModelEntity } from './repositories/certificate-read-modal/certificate-read-model.entity';
 import { CertificateEventEntity } from './repositories/certificate-event/certificate-event.entity';
-import { OnChainCertificateModule } from '../onchain-certificate/onchain-certificate.module';
+import { OnChainCertificateForUnitTestsModule, OnChainCertificateModule } from '../onchain-certificate/onchain-certificate.module';
 import { validateConfiguration } from '../configuration';
 import { BullModule } from '@nestjs/bull';
 import { OffChainCertificateService } from './offchain-certificate.service';
-import { CERTIFICATE_COMMAND_REPOSITORY, CERTIFICATE_EVENT_REPOSITORY, CERTIFICATE_READ_MODEL_REPOSITORY, CERTIFICATE_READ_MODEL_REPOSITORY, SYNCHRONIZE_QUEUE_NAME } from '../repository.keys';
+import { CERTIFICATE_COMMAND_REPOSITORY, CERTIFICATE_EVENT_REPOSITORY, CERTIFICATE_READ_MODEL_REPOSITORY, SYNCHRONIZE_QUEUE_NAME } from '../repository.keys';
 import { CertificateCommandInMemoryRepository } from './repositories/certificate-command/certificate-command-in-memory.repository';
 import { CertificateCommandPostgresRepository } from './repositories/certificate-command/certificate-command-postgres.repository';
 import { CertificateEventService } from './repositories/certificate-event/certificate-event.service';
@@ -19,13 +19,16 @@ import { CertificateReadModelPostgresRepository } from './repositories/certifica
 import { BlockchainSynchronizeQueuedService } from './synchronize/blockchain-synchronize-queued.service';
 import { BlockchainSynchronizeTask } from './synchronize/blockchain-synchronize.task';
 import { BlockchainSynchronizeService } from './synchronize/blockchain-synchronize.service';
-import { ClaimPersistHandler, ClaimPersistHandler } from './synchronize/handlers/claim-persist.handler';
+import { ClaimPersistHandler } from './synchronize/handlers/claim-persist.handler';
 import { IssuePersistHandler } from './synchronize/handlers/issue-persist.handler';
 import { TransferPersistHandler } from './synchronize/handlers/transfer-persist.handler';
 import { BlockchainSynchronizeSyncService } from './synchronize/blockchain-synchronize-sync.service';
 import { BATCH_CONFIGURATION_TOKEN, BatchConfigurationService, BatchConfigurationServiceForUnitTests } from './synchronize/strategies/batch/batch.configuration';
 import { BatchSynchronizeStrategy } from './synchronize/strategies/batch/batch-synchronize.strategy';
 import { SYNCHRONIZE_STRATEGY } from './synchronize/strategies/synchronize.strategy';
+import { CertificateEventPostgresRepository } from './repositories/certificate-event/certificate-event-postgres.repository';
+import { CertificateEventInMemoryRepository } from './repositories/certificate-event/certificate-event-in-memory.repository';
+import { CertificateReadModelInMemoryRepository } from './repositories/certificate-read-modal/certificate-read-model-in-memory.repository';
 
 
 @Module({

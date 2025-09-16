@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { getConfiguration } from '../../../../configuration';
+import { getConfiguration } from '../../../config/configuration';
 
 export interface BatchConfiguration {
     issueBatchSize: number;

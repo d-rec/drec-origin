@@ -74,7 +74,7 @@ import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 import { OffChainCertificateEntities, OnChainCertificateEntities } from './types/utils/certificates';
 import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
 import { CertificateEventEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-event.entity';
-import { CertificateSynchronizationAttemptEntity } from './pods/utils/origin-247-certificate/offchain-certificate/synchronize/certificate-synchronization-attempt.entity';
+import { CertificateSynchronizationAttemptEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-synchronization-attempt.entity';
 import { CertificateReadModelEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 import { CertificateCommandEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-command/certificate-command.entity';
 const getEnvFilePath = () => {

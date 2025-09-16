@@ -2,6 +2,9 @@ import { OffChainCertificateService } from '../../offchain-certificate.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { chunk } from 'lodash';
 import { CertificateEventType, CertificateIssuedEvent } from '../../../../../../events/certificate.events';
+import { ONCHAIN_CERTIFICATE_SERVICE_TOKEN } from '../../../onchain-certificate/types';
+import { BATCH_CONFIGURATION_TOKEN, BatchConfigurationService } from '../strategies/batch/batch.configuration';
+import { OnChainCertificateService } from '../../../onchain-certificate/onchain-certificate.service';
 
 @Injectable()
 export class IssuePersistHandler {

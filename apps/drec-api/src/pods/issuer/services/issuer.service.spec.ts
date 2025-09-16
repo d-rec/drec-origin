@@ -1,10 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import {
-  IGetAllCertificatesOptions,
-  IIssueCommandParams,
-  OffChainCertificateService,
-} from '@energyweb/origin-247-certificate';
 import { HttpService } from '@nestjs/axios';
 import { getQueueToken } from '@nestjs/bull';
 import { Logger, NotFoundException } from '@nestjs/common';
@@ -32,6 +26,9 @@ import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
+import { OffChainCertificateService } from '../../utils/origin-247-certificate/offchain-certificate/offchain-certificate.service';
+import { IIssueCommandParams } from '../../../types/utils/issuer';
+import { IGetAllCertificatesOptions } from '../../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model-postgres.repository';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;

@@ -20,10 +20,6 @@ import {
 } from './dto';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { DeviceGroupDTO } from '../device-group/dto';
-import {
-  ICertificateReadModel,
-  IIssueCommandParams,
-} from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { DeviceGroup } from '../device-group/device-group.entity';
@@ -36,6 +32,8 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-grou
 import { DateTime } from 'luxon';
 import { Profile } from '../../lib/profile';
 import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { ICertificateReadModel } from '../../types/utils/certificates';
+import { IIssueCommandParams } from '../../types/utils/issuer';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;

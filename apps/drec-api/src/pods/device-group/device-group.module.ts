@@ -12,7 +12,6 @@ import { YieldConfigModule } from '../yield-config/yieldconfig.module';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { Certificate } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
@@ -26,6 +25,7 @@ import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
 import { EvidentModule } from '../evident/evident.module';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 @Module({
   imports: [

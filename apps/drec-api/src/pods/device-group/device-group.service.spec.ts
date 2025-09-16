@@ -1,4 +1,3 @@
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { getQueueToken } from '@nestjs/bull';
 import {
   ConflictException,
@@ -29,6 +28,7 @@ import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;

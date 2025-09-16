@@ -57,7 +57,6 @@ import CSVToJsonV2 from 'csvtojson';
 import { countryCodesList } from '../../models/country-code';
 
 import { Certificate } from '@energyweb/issuer-api';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { plainToClass } from 'class-transformer';
@@ -88,6 +87,7 @@ import {
   EvidentRegistrationStatus,
 } from '../../types/evident';
 import { FileService } from '../file/file.service';
+import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 type DeviceRegistrationError = {
   isError: boolean;

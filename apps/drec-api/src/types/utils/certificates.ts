@@ -1,7 +1,7 @@
 import { CertificateUtils, IClaim, IOwnershipCommitmentProof } from "@energyweb/issuer";
 import { CertificateEventEntity } from "../../pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-event.entity";
-import { DeploymentPropertiesEntity } from "../../pods/utils/origin-247-certificate/deployment-properties.entity";
-import { CertificateSynchronizationAttemptEntity } from "../../pods/utils/origin-247-certificate/offchain-certificate/synchronize/certificate-synchronization-attempt.entity";
+import { DeploymentPropertiesEntity } from "../../pods/utils/origin-247-certificate/onchain-certificate/repositories/deploymentProperties/deployment-properties.entity";
+import { CertificateSynchronizationAttemptEntity } from "../../pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-synchronization-attempt.entity";
 import { CertificateCommandEntity } from "../../pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-command/certificate-command.entity";
 import { CertificateReadModelEntity, CertificateTransaction } from "../../pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity";
 
