@@ -71,7 +71,10 @@ import { EvidentIssuersEntity } from './pods/evident/evident-issuers.entity';
 import { MeterRead } from './pods/reads/reads.entity';
 import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 
-import { OffChainCertificateEntities, OnChainCertificateEntities } from './types/utils/certificates';
+import {
+  OffChainCertificateEntities,
+  OnChainCertificateEntities,
+} from './types/utils/certificates';
 import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
 import { CertificateEventEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-event.entity';
 import { CertificateSynchronizationAttemptEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-synchronization-attempt.entity';
@@ -132,7 +135,7 @@ export const entities = [
   CertificateEventEntity,
   CertificateCommandEntity,
   CertificateReadModelEntity,
-  CertificateSynchronizationAttemptEntity
+  CertificateSynchronizationAttemptEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {

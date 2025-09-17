@@ -2,50 +2,58 @@ import { Injectable } from '@nestjs/common';
 
 import { CertificateCommandEntity } from './certificate-command.entity';
 import {
-    CertificateCommandRepository,
-    NewCertificateCommand
+  CertificateCommandRepository,
+  NewCertificateCommand,
 } from './certificate-command.repository';
 
 @Injectable()
-export class CertificateCommandInMemoryRepository implements CertificateCommandRepository {
-    private db: CertificateCommandEntity[] = [];
+export class CertificateCommandInMemoryRepository
+  implements CertificateCommandRepository
+{
+  private db: CertificateCommandEntity[] = [];
 
-    public async save(command: NewCertificateCommand): Promise<CertificateCommandEntity> {
-        const entity = {
-            ...command,
-            createdAt: new Date(),
-            id: this.db.length + 1
-        };
+  public async save(
+    command: NewCertificateCommand,
+  ): Promise<CertificateCommandEntity> {
+    const entity = {
+      ...command,
+      createdAt: new Date(),
+      id: this.db.length + 1,
+    };
 
-        this.db.push(entity);
+    this.db.push(entity);
 
-        return entity;
-    }
+    return entity;
+  }
 
-    public async saveMany(commands: NewCertificateCommand[]): Promise<CertificateCommandEntity[]> {
-        const savedEntities: CertificateCommandEntity[] = [];
+  public async saveMany(
+    commands: NewCertificateCommand[],
+  ): Promise<CertificateCommandEntity[]> {
+    const savedEntities: CertificateCommandEntity[] = [];
 
-        commands.forEach((command) => {
-            const entity = {
-                ...command,
-                createdAt: new Date(),
-                id: this.db.length + 1
-            };
+    commands.forEach((command) => {
+      const entity = {
+        ...command,
+        createdAt: new Date(),
+        id: this.db.length + 1,
+      };
 
-            this.db.push(entity);
-            savedEntities.push(entity);
-        });
+      this.db.push(entity);
+      savedEntities.push(entity);
+    });
 
-        return savedEntities;
-    }
+    return savedEntities;
+  }
 
-    public async getAll(): Promise<CertificateCommandEntity[]> {
-        return this.db;
-    }
+  public async getAll(): Promise<CertificateCommandEntity[]> {
+    return this.db;
+  }
 
-    public async getById(commandId: number): Promise<CertificateCommandEntity | null> {
-        const found = this.db.find((e) => e.id === commandId);
+  public async getById(
+    commandId: number,
+  ): Promise<CertificateCommandEntity | null> {
+    const found = this.db.find((e) => e.id === commandId);
 
-        return found ?? null;
-    }
+    return found ?? null;
+  }
 }

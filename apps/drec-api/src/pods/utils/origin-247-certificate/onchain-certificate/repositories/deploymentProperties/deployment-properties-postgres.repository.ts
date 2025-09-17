@@ -8,30 +8,30 @@ import { DeploymentPropertiesRepositoryImpl } from './deployment-properties.repo
 
 @Injectable()
 export class DeploymentPropertiesPostgresRepository extends DeploymentPropertiesRepository {
-    constructor(
-        @InjectRepository(DeploymentPropertiesEntity)
-        private repository: Repository<DeploymentPropertiesEntity>
-    ) {
-        super();
-    }
+  constructor(
+    @InjectRepository(DeploymentPropertiesEntity)
+    private repository: Repository<DeploymentPropertiesEntity>,
+  ) {
+    super();
+  }
 
-    public async get(): Promise<DeploymentProperties> {
-        const [properties] = await this.repository.find();
-        if (!properties) {
-            throw new Error('No deployment properties');
-        }
-        return properties;
+  public async get(): Promise<DeploymentProperties> {
+    const [properties] = await this.repository.find();
+    if (!properties) {
+      throw new Error('No deployment properties');
     }
+    return properties;
+  }
 
-    public async save(properties: DeploymentProperties): Promise<void> {
-        if (await this.propertiesExist()) {
-            throw new Error('Deployment properties already exist');
-        }
-        await this.repository.save(properties);
+  public async save(properties: DeploymentProperties): Promise<void> {
+    if (await this.propertiesExist()) {
+      throw new Error('Deployment properties already exist');
     }
+    await this.repository.save(properties);
+  }
 
-    public async propertiesExist(): Promise<boolean> {
-        const [properties] = await this.repository.find();
-        return properties ? true : false;
-    }
+  public async propertiesExist(): Promise<boolean> {
+    const [properties] = await this.repository.find();
+    return properties ? true : false;
+  }
 }

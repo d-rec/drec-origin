@@ -2,144 +2,155 @@ import { OnChainCertificateService } from './onchain-certificate.service';
 import { BigNumber } from 'ethers';
 import { ICertificate } from './types';
 import { Injectable } from '@nestjs/common';
-import { IClaimCommand, IIssueCommandParams, ITransferCommand } from '../../../../types/utils/issuer';
+import {
+  IClaimCommand,
+  IIssueCommandParams,
+  ITransferCommand,
+} from '../../../../types/utils/issuer';
 
 type PublicPart<T> = { [K in keyof T]: T[K] };
 @Injectable()
-export class CertificateForUnitTestsService<T> implements PublicPart<OnChainCertificateService<T>> {
-    protected serial = 0;
-    private db: ICertificate<T>[] = [];
+export class CertificateForUnitTestsService<T>
+  implements PublicPart<OnChainCertificateService<T>>
+{
+  protected serial = 0;
+  private db: ICertificate<T>[] = [];
 
-    public async issue(params: IIssueCommandParams<T>): Promise<number> {
-        this.serial += 1;
+  public async issue(params: IIssueCommandParams<T>): Promise<number> {
+    this.serial += 1;
 
-        const certificate: ICertificate<T> = {
-            claims: [],
-            claimers: {},
-            creationTransactionHash: '',
-            creationTime: Math.floor(Date.now() / 1000),
-            deviceId: params.deviceId,
-            generationStartTime: Math.floor(params.fromTime.getTime() / 1000),
-            generationEndTime: Math.floor(params.toTime.getTime() / 1000),
-            id: this.serial,
-            issuedPrivately: false,
-            metadata: params.metadata,
-            owners: {
-                [params.toAddress]: params.energyValue
-            },
-            latestCommitment: null,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        };
+    const certificate: ICertificate<T> = {
+      claims: [],
+      claimers: {},
+      creationTransactionHash: '',
+      creationTime: Math.floor(Date.now() / 1000),
+      deviceId: params.deviceId,
+      generationStartTime: Math.floor(params.fromTime.getTime() / 1000),
+      generationEndTime: Math.floor(params.toTime.getTime() / 1000),
+      id: this.serial,
+      issuedPrivately: false,
+      metadata: params.metadata,
+      owners: {
+        [params.toAddress]: params.energyValue,
+      },
+      latestCommitment: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-        this.db.push(certificate);
+    this.db.push(certificate);
 
-        return certificate.id;
+    return certificate.id;
+  }
+
+  public async claim(command: IClaimCommand): Promise<void> {
+    const certificate = this.db.find((c) => c.id === command.certificateId);
+
+    if (!certificate) {
+      return;
     }
 
-    public async claim(command: IClaimCommand): Promise<void> {
-        const certificate = this.db.find((c) => c.id === command.certificateId);
+    const value = command.energyValue;
 
-        if (!certificate) {
-            return;
-        }
+    certificate.claims.push({
+      claimData: command.claimData,
+      value: value,
+      topic: '0',
+      from: command.forAddress,
+      id: 0,
+      to: command.forAddress,
+    });
+    const ownedValue = certificate.owners[command.forAddress];
 
-        const value = command.energyValue;
+    certificate.owners[command.forAddress] = BigNumber.from(ownedValue)
+      .sub(BigNumber.from(value))
+      .toString();
 
-        certificate.claims.push({
-            claimData: command.claimData,
-            value: value,
-            topic: '0',
-            from: command.forAddress,
-            id: 0,
-            to: command.forAddress
-        });
-        const ownedValue = certificate.owners[command.forAddress];
+    certificate.claimers![command.forAddress] = value;
+  }
 
-        certificate.owners[command.forAddress] = BigNumber.from(ownedValue)
-            .sub(BigNumber.from(value))
-            .toString();
+  public async transfer(command: ITransferCommand): Promise<void> {
+    const certificate = this.db.find((c) => c.id === command.certificateId);
 
-        certificate.claimers![command.forAddress] = value;
+    if (!certificate) {
+      return;
     }
 
-    public async transfer(command: ITransferCommand): Promise<void> {
-        const certificate = this.db.find((c) => c.id === command.certificateId);
+    const value = Number(command.energyValue);
 
-        if (!certificate) {
-            return;
-        }
+    certificate.owners[command.fromAddress] = (
+      Number(certificate.owners[command.fromAddress]) - value
+    ).toString();
+    certificate.owners[command.toAddress] = (
+      Number(certificate.owners[command.toAddress] ?? 0) + value
+    ).toString();
+  }
 
-        const value = Number(command.energyValue);
-
-        certificate.owners[command.fromAddress] = (
-            Number(certificate.owners[command.fromAddress]) - value
-        ).toString();
-        certificate.owners[command.toAddress] = (
-            Number(certificate.owners[command.toAddress] ?? 0) + value
-        ).toString();
+  public async batchIssue(
+    originalCertificates: IIssueCommandParams<T>[],
+  ): Promise<number[]> {
+    if (originalCertificates.length === 0) {
+      return [];
     }
 
-    public async batchIssue(originalCertificates: IIssueCommandParams<T>[]): Promise<number[]> {
-        if (originalCertificates.length === 0) {
-            return [];
-        }
+    const result = await Promise.all(
+      originalCertificates.map((certificate) => this.issue(certificate)),
+    );
 
-        const result = await Promise.all(
-            originalCertificates.map((certificate) => this.issue(certificate))
-        );
+    return result;
+  }
 
-        return result;
+  public async batchClaim(command: IClaimCommand[]): Promise<void> {
+    if (command.length === 0) {
+      return;
     }
 
-    public async batchClaim(command: IClaimCommand[]): Promise<void> {
-        if (command.length === 0) {
-            return;
-        }
+    await Promise.all(command.map((claim) => this.claim(claim)));
+  }
 
-        await Promise.all(command.map((claim) => this.claim(claim)));
+  public async batchTransfer(command: ITransferCommand[]): Promise<void> {
+    if (command.length === 0) {
+      return;
     }
 
-    public async batchTransfer(command: ITransferCommand[]): Promise<void> {
-        if (command.length === 0) {
-            return;
-        }
+    await Promise.all(command.map((transfer) => this.transfer(transfer)));
+  }
 
-        await Promise.all(command.map((transfer) => this.transfer(transfer)));
-    }
+  public async batchIssueWithTxHash(command: IIssueCommandParams<T>[]) {
+    return {
+      certificateIds: await this.batchIssue(command),
+      transactionHash: 'txHash',
+    };
+  }
 
-    public async batchIssueWithTxHash(command: IIssueCommandParams<T>[]) {
-        return { certificateIds: await this.batchIssue(command), transactionHash: 'txHash' };
-    }
+  public async batchTransferWithTxHash(command: ITransferCommand[]) {
+    await this.batchTransfer(command);
+    return { transactionHash: 'txHash' };
+  }
 
-    public async batchTransferWithTxHash(command: ITransferCommand[]) {
-        await this.batchTransfer(command);
-        return { transactionHash: 'txHash' };
-    }
+  public async batchClaimWithTxHash(command: IClaimCommand[]) {
+    await this.batchClaim(command);
+    return { transactionHash: 'txHash' };
+  }
 
-    public async batchClaimWithTxHash(command: IClaimCommand[]) {
-        await this.batchClaim(command);
-        return { transactionHash: 'txHash' };
-    }
+  public async issueWithTxHash<T>(command: IIssueCommandParams<T>) {
+    await this.issue(command as any);
 
-    public async issueWithTxHash<T>(command: IIssueCommandParams<T>) {
-        await this.issue(command as any);
+    return {
+      certificateId: this.db.find((c) => c.deviceId === command.deviceId)?.id!,
+      transactionHash: 'txHash',
+    };
+  }
 
-        return {
-            certificateId: this.db.find((c) => c.deviceId === command.deviceId)?.id!,
-            transactionHash: 'txHash'
-        };
-    }
+  public async transferWithTxHash(command: ITransferCommand) {
+    await this.transfer(command);
 
-    public async transferWithTxHash(command: ITransferCommand) {
-        await this.transfer(command);
+    return { transactionHash: 'txHash' };
+  }
 
-        return { transactionHash: 'txHash' };
-    }
+  public async claimWithTxHash(command: IClaimCommand) {
+    await this.claim(command);
 
-    public async claimWithTxHash(command: IClaimCommand) {
-        await this.claim(command);
-
-        return { transactionHash: 'txHash' };
-    }
+    return { transactionHash: 'txHash' };
+  }
 }

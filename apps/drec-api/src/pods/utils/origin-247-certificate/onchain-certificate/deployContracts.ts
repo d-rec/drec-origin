@@ -4,26 +4,32 @@ import { DeploymentProperties } from './types';
 import { DeployParameters } from '../../../../types/utils/deploy';
 
 export interface DeploymentPropertiesWithQuery extends DeploymentProperties {
-    insertQuery: string;
+  insertQuery: string;
 }
 
 export async function deployContracts(
-    web3: string,
-    issuerPrivateKey: string,
-    deployParameters?: DeployParameters
+  web3: string,
+  issuerPrivateKey: string,
+  deployParameters?: DeployParameters,
 ): Promise<DeploymentPropertiesWithQuery> {
-    const provider = new providers.FallbackProvider([new providers.JsonRpcProvider(web3)]);
+  const provider = new providers.FallbackProvider([
+    new providers.JsonRpcProvider(web3),
+  ]);
 
-    const registry = await Contracts.migrateRegistry(provider, issuerPrivateKey);
-    const issuer = await Contracts.migrateIssuer(provider, issuerPrivateKey, registry.address);
+  const registry = await Contracts.migrateRegistry(provider, issuerPrivateKey);
+  const issuer = await Contracts.migrateIssuer(
+    provider,
+    issuerPrivateKey,
+    registry.address,
+  );
 
-    return {
-        registry: registry.address,
-        issuer: issuer.address,
-        insertQuery: `INSERT INTO certificate_deployment_properties VALUES ('${registry.address}', '${issuer.address}');`
-    };
+  return {
+    registry: registry.address,
+    issuer: issuer.address,
+    insertQuery: `INSERT INTO certificate_deployment_properties VALUES ('${registry.address}', '${issuer.address}');`,
+  };
 }
 
 export function getSelectDeploymentPropertiesQuery(): string {
-    return `SELECT * FROM certificate_deployment_properties;`;
+  return `SELECT * FROM certificate_deployment_properties;`;
 }

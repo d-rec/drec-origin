@@ -36,7 +36,7 @@ export class HistoricalIssuanceService {
     private readonly certificateLogService: CertificateLogService,
   ) {}
 
-  @NonConcurrentCron(CronExpression.EVERY_5_MINUTES)
+  @NonConcurrentCron(CronExpression.EVERY_MINUTE)
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/5m]: Historical certificate issuance check');
 

@@ -6,26 +6,29 @@ import { IIssueCommand } from '../../../../../../types/utils/issuer';
 
 @Injectable()
 export class IssueCertificateHandler {
-    constructor(private readonly blockchainPropertiesService: BlockchainPropertiesService) {}
+  constructor(
+    private readonly blockchainPropertiesService: BlockchainPropertiesService,
+  ) {}
 
-    async execute({
-        toAddress,
-        energyValue,
-        fromTime,
-        toTime,
-        deviceId,
-        metadata
-    }: IIssueCommand<any>): Promise<ContractTransaction> {
-        const blockchainProperties = await this.blockchainPropertiesService.getWrapped();
+  async execute({
+    toAddress,
+    energyValue,
+    fromTime,
+    toTime,
+    deviceId,
+    metadata,
+  }: IIssueCommand<any>): Promise<ContractTransaction> {
+    const blockchainProperties =
+      await this.blockchainPropertiesService.getWrapped();
 
-        return await CertificateFacade.create(
-            toAddress,
-            BigNumber.from(energyValue),
-            fromTime,
-            toTime,
-            deviceId,
-            blockchainProperties,
-            metadata
-        );
-    }
+    return await CertificateFacade.create(
+      toAddress,
+      BigNumber.from(energyValue),
+      fromTime,
+      toTime,
+      deviceId,
+      blockchainProperties,
+      metadata,
+    );
+  }
 }

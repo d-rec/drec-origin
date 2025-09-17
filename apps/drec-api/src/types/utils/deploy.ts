@@ -1,4 +1,4 @@
 export type DeployParameters = {
-    gasLimit?: number;
-    gasPrice?: number;
+  gasLimit?: number;
+  gasPrice?: number;
 };

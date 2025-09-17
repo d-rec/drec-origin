@@ -6,25 +6,33 @@ import { IBatchIssueCommand } from '../../../../../../types/utils/issuer';
 
 @Injectable()
 export class BatchIssueCertificatesHandler {
-    constructor(private readonly blockchainPropertiesService: BlockchainPropertiesService) {}
+  constructor(
+    private readonly blockchainPropertiesService: BlockchainPropertiesService,
+  ) {}
 
-    async execute({ certificates }: IBatchIssueCommand<any>): Promise<ContractTransaction> {
-        const blockchainProperties = await this.blockchainPropertiesService.getWrapped();
+  async execute({
+    certificates,
+  }: IBatchIssueCommand<any>): Promise<ContractTransaction> {
+    const blockchainProperties =
+      await this.blockchainPropertiesService.getWrapped();
 
-        try {
-            return CertificateBatchOperations.issueCertificates(
-                certificates.map((info) => ({
-                    to: info.toAddress,
-                    deviceId: info.deviceId,
-                    generationStartTime: info.fromTime,
-                    generationEndTime: info.toTime,
-                    amount: BigNumber.from(info.energyValue),
-                    metadata: JSON.stringify(info.metadata)
-                })),
-                blockchainProperties
-            );
-        } catch (error) {
-            throw new HttpException(JSON.stringify(error), HttpStatus.FAILED_DEPENDENCY);
-        }
+    try {
+      return CertificateBatchOperations.issueCertificates(
+        certificates.map((info) => ({
+          to: info.toAddress,
+          deviceId: info.deviceId,
+          generationStartTime: info.fromTime,
+          generationEndTime: info.toTime,
+          amount: BigNumber.from(info.energyValue),
+          metadata: JSON.stringify(info.metadata),
+        })),
+        blockchainProperties,
+      );
+    } catch (error) {
+      throw new HttpException(
+        JSON.stringify(error),
+        HttpStatus.FAILED_DEPENDENCY,
+      );
     }
+  }
 }
