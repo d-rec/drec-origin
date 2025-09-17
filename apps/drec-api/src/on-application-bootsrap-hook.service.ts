@@ -1,10 +1,10 @@
-import { DeploymentPropertiesRepository } from '@energyweb/origin-247-certificate/dist/js/src/onchain-certificate/repositories/deploymentProperties/deploymentProperties.repository';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import {
   BlockchainProperties,
   BlockchainPropertiesService,
 } from '@energyweb/issuer-api';
 import { ModuleRef } from '@nestjs/core';
+import { DeploymentPropertiesRepository } from './pods/utils/origin-247-certificate/onchain-certificate/repositories/deploymentProperties/deployment-properties.repository';
 
 @Injectable()
 export class OnApplicationBootstrapHookService

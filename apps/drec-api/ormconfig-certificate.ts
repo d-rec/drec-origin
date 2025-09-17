@@ -5,7 +5,7 @@ const {
   migrationsTableName,
   ...dbConfig
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-} = require('@energyweb/origin-247-certificate/dist/js/ormconfig.js');
+} = require('./src/pods/utils/origin-247-certificate/config/ormconfig.ts');
 
 // Create your custom DataSourceOptions object
 const config: ConnectionOptions = {

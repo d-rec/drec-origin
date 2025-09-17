@@ -25,6 +25,7 @@ import { BatchClaimCertificatesHandler } from "./certificate-operations/claim/ba
 import { BlockchainPropertiesService } from "./blockchain-properties.service";
 import { OnChainCertificateFacade } from "./onchain-certificate-facade";
 import { CertificateReadModelInMemoryRepository } from "../offchain-certificate/repositories/certificate-read-modal/certificate-read-model-in-memory.repository";
+import { DeploymentPropertiesRepositoryImpl } from "./repositories/deploymentProperties/deployment-properties.repository.impl";
 
 const realCertificateProvider = {
     provide: ONCHAIN_CERTIFICATE_SERVICE_TOKEN,
@@ -54,7 +55,7 @@ const realCertificateProvider = {
         {
             provide: CERTIFICATE_READ_MODEL_REPOSITORY,
             useClass: CertificateReadModelPostgresRepository
-        }
+        },
     ],
     exports: [realCertificateProvider, OnChainCertificateFacade],
     imports: [

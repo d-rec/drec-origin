@@ -1,9 +1,9 @@
 import { Certificate } from '@energyweb/issuer-api';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../../device/check_certificate_issue_date_log_for_device.entity';
-import { ICertificateReadModel } from '@energyweb/origin-247-certificate';
 import { ICertificateMetadata } from '../../../utils/types';
 import { IClaim } from '@energyweb/issuer';
-import { CertificateTransaction } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
+import { ICertificateReadModel } from '../../../types/utils/certificates';
+import { CertificateTransaction } from '../../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 export class CertificateWithPerDeviceLog extends Certificate {
   id: number;

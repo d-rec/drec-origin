@@ -4,13 +4,16 @@ import { Repository } from 'typeorm';
 import { DeploymentPropertiesRepository } from './deployment-properties.repository';
 import { DeploymentPropertiesEntity } from './deployment-properties.entity';
 import { DeploymentProperties } from '../../types';
+import { DeploymentPropertiesRepositoryImpl } from './deployment-properties.repository.impl';
 
 @Injectable()
-export class DeploymentPropertiesPostgresRepository implements DeploymentPropertiesRepository {
+export class DeploymentPropertiesPostgresRepository extends DeploymentPropertiesRepository {
     constructor(
         @InjectRepository(DeploymentPropertiesEntity)
         private repository: Repository<DeploymentPropertiesEntity>
-    ) {}
+    ) {
+        super();
+    }
 
     public async get(): Promise<DeploymentProperties> {
         const [properties] = await this.repository.find();

@@ -4,7 +4,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import { Certificate } from '@energyweb/issuer-api';
-import { CertificateReadModelEntity } from '@energyweb/origin-247-certificate/dist/js/src/offchain-certificate/repositories/CertificateReadModel/CertificateReadModel.entity';
 import { DeviceService } from '../device/device.service';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { Response } from 'express';
@@ -18,6 +17,7 @@ import {
 } from '../../utils/enums';
 import { FilterDTO } from './dto/filter.dto';
 import { CertificateLogResponse } from './dto';
+import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 describe('CertificateLogService', () => {
   let service: CertificateLogService;

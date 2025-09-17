@@ -6,8 +6,6 @@ import { getConfiguration } from './config/configuration';
 import { DeploymentPropertiesRepository } from './repositories/deploymentProperties/deployment-properties.repository';
 import { waitForState } from '../../../../types/utils/wait.utils';
 import { DeployParameters } from '../../../../types/utils/deploy';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DeploymentPropertiesEntity } from './repositories/deploymentProperties/deployment-properties.entity';
 
 export interface BlockchainProperties {
     rpcNode: string;
@@ -23,7 +21,6 @@ export class BlockchainPropertiesService {
     private readonly issuerPrivateKey: string;
 
     constructor(
-        @InjectRepository(DeploymentPropertiesEntity)
         private deploymentPropsRepo: DeploymentPropertiesRepository
         ) {
         const { primaryRPC, fallbackRPC } = getConfiguration().WEB3;
@@ -89,7 +86,12 @@ export class BlockchainPropertiesService {
         return await this.deploymentPropsRepo.propertiesExist();
     }
 
-    async wrap(privateKey: string) {
+    async wrap(privateKey: string): Promise<{
+    web3: providers.Provider;
+    registry: any;
+    issuer: any;
+    activeUser: Signer;
+}> {
         const { registry, issuer } = await this.deploymentPropsRepo.get();
 
         const { web3 } = await this.getWrapped();
