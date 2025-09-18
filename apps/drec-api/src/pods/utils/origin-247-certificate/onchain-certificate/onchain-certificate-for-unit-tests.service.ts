@@ -140,7 +140,8 @@ export class CertificateForUnitTestsService<T>
     await this.issue(command as any);
 
     return {
-      certificateId: this.db.find((c) => c.deviceId === command.deviceId)?.id!,
+      certificateId:
+        this.db.find((c) => c.deviceId === command.deviceId)?.id ?? 0,
       transactionHash: 'txHash',
     };
   }
