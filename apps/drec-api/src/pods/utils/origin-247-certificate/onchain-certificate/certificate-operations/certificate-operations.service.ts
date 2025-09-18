@@ -37,7 +37,7 @@ export class CertificateOperationsService {
     | BatchIssuanceActionResult
     | BatchTransferActionResult
     | BatchClaimActionResult
-    | IssuanceActionResult<any>
+    | IssuanceActionResult
     | TransferActionResult
     | ClaimActionResult
   > {
@@ -61,7 +61,7 @@ export class CertificateOperationsService {
 
   private async issue(
     params: IIssueCommand<any>,
-  ): Promise<IssuanceActionResult<any>> {
+  ): Promise<IssuanceActionResult> {
     this.logger.debug(`Triggering issuance for: ${JSON.stringify(params)}`);
 
     const issuanceTx = await this.issueCertificateHandler.execute(params);
@@ -167,7 +167,7 @@ export type BatchTransferActionResult = TransactionHashResult;
 
 export type BatchClaimActionResult = TransactionHashResult;
 
-export type IssuanceActionResult<MetadataType> = {
+export type IssuanceActionResult = {
   certificateId: number;
 } & TransactionHashResult;
 

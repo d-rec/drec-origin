@@ -13,7 +13,7 @@ import { BlockchainPropertiesService } from '../../blockchain-properties.service
 import { IBatchClaimCommand } from '../../../../../../types/utils/issuer';
 
 @Injectable()
-export class BatchClaimCertificatesHandler<T = null> {
+export class BatchClaimCertificatesHandler {
   constructor(
     private readonly blockchainPropertiesService: BlockchainPropertiesService,
   ) {}

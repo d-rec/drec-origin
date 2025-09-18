@@ -37,7 +37,7 @@ export class OnChainCertificateService<T = null> {
 
   public async issueWithTxHash(
     params: IIssueCommandParams<T>,
-  ): Promise<IssuanceActionResult<T>> {
+  ): Promise<IssuanceActionResult> {
     const command = {
       ...params,
       fromTime: Math.round(params.fromTime.getTime() / 1000),
@@ -54,9 +54,9 @@ export class OnChainCertificateService<T = null> {
       jobOptions,
     );
 
-    return await OnChainCertificateService.waitForJobResult<
-      IssuanceActionResult<T>
-    >(job);
+    return await OnChainCertificateService.waitForJobResult<IssuanceActionResult>(
+      job,
+    );
   }
 
   public async issue(params: IIssueCommandParams<T>): Promise<number> {

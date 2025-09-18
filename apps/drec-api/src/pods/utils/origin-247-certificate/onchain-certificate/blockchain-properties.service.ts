@@ -5,7 +5,6 @@ import { getProviderWithFallback } from '@energyweb/utils-general';
 import { getConfiguration } from './config/configuration';
 import { DeploymentPropertiesRepository } from './repositories/deploymentProperties/deployment-properties.repository';
 import { waitForState } from '../../../../types/utils/wait.utils';
-import { DeployParameters } from '../../../../types/utils/deploy';
 
 export interface BlockchainProperties {
   rpcNode: string;
@@ -69,7 +68,7 @@ export class BlockchainPropertiesService {
     };
   }
 
-  async deploy(deployParameters?: DeployParameters): Promise<void> {
+  async deploy(): Promise<void> {
     if (await this.deploymentPropsRepo.propertiesExist()) {
       return;
     }

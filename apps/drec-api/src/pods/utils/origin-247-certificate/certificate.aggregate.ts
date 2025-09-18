@@ -4,7 +4,6 @@ import {
   CertificateClaimPersistedEvent,
   CertificateIssuancePersistedEvent,
   CertificateIssuedEvent,
-  CertificatePersistErrorEvent,
   CertificateTransferPersistedEvent,
   CertificateTransferredEvent,
 } from '../../../events/certificate.events';
@@ -13,7 +12,18 @@ import {
   ICertificateEvent,
   ICertificateReadModel,
 } from '../../../types/utils/certificates';
-import { CertificateErrors } from './errors';
+import {
+  CertificateAlreadyIssued,
+  TransferFromZeroAddress,
+  TransferToZeroAddress,
+  TransferNotEnoughBalance,
+  ClaimForZeroAddress,
+  ClaimNotEnoughBalance,
+  UnknownEventType,
+  FirstCertificateEventIsNotIssuance,
+  CertificateNoEvents,
+  CertificateTooManyPersisted,
+} from './errors';
 import { compareDates } from '../../../utils/date';
 
 type Cert<T> = ICertificateReadModel<T>;
@@ -28,11 +38,11 @@ export class CertificateAggregate<T> {
     const [firstEvent, ...restEvents] = sortedEvents;
 
     if (!firstEvent) {
-      throw new CertificateErrors.CertificateNoEvents();
+      throw new CertificateNoEvents();
     }
 
     if (firstEvent.type !== CertificateEventType.Issued) {
-      throw new CertificateErrors.FirstCertificateEventIsNotIssuance(
+      throw new FirstCertificateEventIsNotIssuance(
         firstEvent.internalCertificateId,
         firstEvent.type,
       );
@@ -74,10 +84,7 @@ export class CertificateAggregate<T> {
       case CertificateEventType.PersistError:
         return this.persistError(certificate);
       default:
-        throw new CertificateErrors.UnknownEventType(
-          event.internalCertificateId,
-          event.type,
-        );
+        throw new UnknownEventType(event.internalCertificateId, event.type);
     }
   }
 
@@ -118,9 +125,7 @@ export class CertificateAggregate<T> {
   }
 
   private issue(certificate: Cert<T>, event: CertificateIssuedEvent): Cert<T> {
-    throw new CertificateErrors.Issuance.CertificateAlreadyIssued(
-      event.internalCertificateId,
-    );
+    throw new CertificateAlreadyIssued(event.internalCertificateId);
   }
 
   private issuancePersisted(
@@ -251,20 +256,15 @@ export class CertificateAggregate<T> {
     } = event;
 
     if (this.isZeroAddress(fromAddress)) {
-      throw new CertificateErrors.Transfer.FromZeroAddress(
-        internalCertificateId,
-      );
+      throw new TransferFromZeroAddress(internalCertificateId);
     }
 
     if (this.isZeroAddress(toAddress)) {
-      throw new CertificateErrors.Transfer.ToZeroAddress(internalCertificateId);
+      throw new TransferToZeroAddress(internalCertificateId);
     }
 
     if (!this.hasEnoughBalance(certificate, fromAddress, energyValue)) {
-      throw new CertificateErrors.Transfer.NotEnoughBalance(
-        internalCertificateId,
-        fromAddress,
-      );
+      throw new TransferNotEnoughBalance(internalCertificateId, fromAddress);
     }
   }
 
@@ -278,14 +278,11 @@ export class CertificateAggregate<T> {
     } = event;
 
     if (this.isZeroAddress(forAddress)) {
-      throw new CertificateErrors.Claim.ForZeroAddress(internalCertificateId);
+      throw new ClaimForZeroAddress(internalCertificateId);
     }
 
     if (!this.hasEnoughBalance(certificate, forAddress, energyValue)) {
-      throw new CertificateErrors.Claim.NotEnoughBalance(
-        internalCertificateId,
-        forAddress,
-      );
+      throw new ClaimNotEnoughBalance(internalCertificateId, forAddress);
     }
   }
 
@@ -319,10 +316,7 @@ export class CertificateAggregate<T> {
         case CertificateEventType.PersistError:
           return toPersistCounter;
         default:
-          throw new CertificateErrors.UnknownEventType(
-            event.internalCertificateId,
-            event.type,
-          );
+          throw new UnknownEventType(event.internalCertificateId, event.type);
       }
     }, 0);
 
@@ -331,7 +325,7 @@ export class CertificateAggregate<T> {
     } else if (toPersistCounter === 0) {
       return true;
     } else {
-      throw new CertificateErrors.CertificateTooManyPersisted(
+      throw new CertificateTooManyPersisted(
         events[0].internalCertificateId,
         Math.abs(toPersistCounter),
       );

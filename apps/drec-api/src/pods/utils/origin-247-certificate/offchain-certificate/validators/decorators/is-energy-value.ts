@@ -25,7 +25,7 @@ export class IsEnergyValueConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsEnergyValue(validationOptions?: ValidationOptions) {
-  return (object: Object, propertyName: string) => {
+  return (object: object, propertyName: string) => {
     registerDecorator({
       name: 'isEnergyValue',
       target: object.constructor,

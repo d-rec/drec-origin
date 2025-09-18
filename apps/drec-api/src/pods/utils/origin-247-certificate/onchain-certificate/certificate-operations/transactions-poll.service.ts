@@ -7,7 +7,7 @@ type TxHash = string;
 type BlockchainCertificateId = number;
 
 @Injectable()
-export class TransactionPollService<T = null> {
+export class TransactionPollService {
   /**
    * @NOTE
    *

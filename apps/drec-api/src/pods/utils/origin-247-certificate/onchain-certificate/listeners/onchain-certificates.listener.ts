@@ -110,7 +110,7 @@ export class OnChainWatcher implements OnModuleInit {
         ]);
         break;
 
-      case BlockchainEventType.IssuanceBatch:
+      case BlockchainEventType.IssuanceBatch: {
         const ids = event._ids.map((id: any) => id.toNumber());
         this.logEvent(BlockchainEventType.IssuanceBatch, ids);
         this.transactionPollService.saveNewCertificate(
@@ -118,7 +118,7 @@ export class OnChainWatcher implements OnModuleInit {
           ids,
         );
         break;
-
+      }
       case BlockchainEventType.TransferSingle:
         this.logEvent(BlockchainEventType.TransferSingle, [
           event.id.toNumber(),

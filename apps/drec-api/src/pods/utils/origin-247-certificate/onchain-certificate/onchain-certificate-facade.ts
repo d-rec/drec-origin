@@ -4,7 +4,6 @@ import {
   BlockchainProperties,
   BlockchainPropertiesService,
 } from './blockchain-properties.service';
-import { DeployParameters } from '../../../../types/utils/deploy';
 
 @Injectable()
 export class OnChainCertificateFacade {
@@ -12,8 +11,8 @@ export class OnChainCertificateFacade {
     private blockchainPropertiesService: BlockchainPropertiesService,
   ) {}
 
-  public async deploy(deployParameters?: DeployParameters): Promise<void> {
-    await this.blockchainPropertiesService.deploy(deployParameters);
+  public async deploy(): Promise<void> {
+    await this.blockchainPropertiesService.deploy();
   }
 
   public async getBlockchainProperties(): Promise<BlockchainProperties> {

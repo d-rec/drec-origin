@@ -8,7 +8,7 @@ import { BlockchainPropertiesService } from '../../blockchain-properties.service
 import { IClaimCommand } from '../../../../../../types/utils/issuer';
 
 @Injectable()
-export class ClaimCertificateHandler<T = null> {
+export class ClaimCertificateHandler {
   constructor(
     private readonly blockchainPropertiesService: BlockchainPropertiesService,
   ) {}

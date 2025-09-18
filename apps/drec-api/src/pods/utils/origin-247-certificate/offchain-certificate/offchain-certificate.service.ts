@@ -20,7 +20,6 @@ import {
   isPersistedEvent,
   PersistedEvent,
 } from '../../../../events/certificate.events';
-import { CertificateErrors } from '../errors';
 import { CertificateAggregate } from '../certificate.aggregate';
 import {
   IClaimCommand,
@@ -62,6 +61,7 @@ import {
   CertificateReadModelRepository,
   IGetAllCertificatesOptions,
 } from './repositories/certificate-read-modal/certificate-read-model-postgres.repository';
+import { BatchError } from '../errors';
 
 @Injectable()
 export class OffChainCertificateService<T = null> {
@@ -305,7 +305,7 @@ export class OffChainCertificateService<T = null> {
         ]);
       });
     } catch (err) {
-      throw new CertificateErrors.BatchError(err);
+      throw new BatchError(err);
     }
   }
 
@@ -319,7 +319,7 @@ export class OffChainCertificateService<T = null> {
         (events) => this.createAggregate(events),
       );
     } catch (err) {
-      throw new CertificateErrors.BatchError(err);
+      throw new BatchError(err);
     }
   }
 
@@ -335,7 +335,7 @@ export class OffChainCertificateService<T = null> {
         (events) => this.createAggregate(events),
       );
     } catch (err) {
-      throw new CertificateErrors.BatchError(err);
+      throw new BatchError(err);
     }
   }
 

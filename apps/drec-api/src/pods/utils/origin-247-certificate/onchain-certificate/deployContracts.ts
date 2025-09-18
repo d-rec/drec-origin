@@ -10,7 +10,6 @@ export interface DeploymentPropertiesWithQuery extends DeploymentProperties {
 export async function deployContracts(
   web3: string,
   issuerPrivateKey: string,
-  deployParameters?: DeployParameters,
 ): Promise<DeploymentPropertiesWithQuery> {
   const provider = new providers.FallbackProvider([
     new providers.JsonRpcProvider(web3),

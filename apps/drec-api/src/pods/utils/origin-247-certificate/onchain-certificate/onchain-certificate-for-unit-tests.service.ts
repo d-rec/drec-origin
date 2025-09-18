@@ -66,7 +66,10 @@ export class CertificateForUnitTestsService<T>
       .sub(BigNumber.from(value))
       .toString();
 
-    certificate.claimers![command.forAddress] = value;
+    if (!certificate.claimers) {
+      certificate.claimers = {};
+    }
+    certificate.claimers[command.forAddress] = value;
   }
 
   public async transfer(command: ITransferCommand): Promise<void> {

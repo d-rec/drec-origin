@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { DeploymentPropertiesRepository } from './deployment-properties.repository';
 import { DeploymentPropertiesEntity } from './deployment-properties.entity';
 import { DeploymentProperties } from '../../types';
-import { DeploymentPropertiesRepositoryImpl } from './deployment-properties.repository.impl';
 
 @Injectable()
 export class DeploymentPropertiesPostgresRepository extends DeploymentPropertiesRepository {

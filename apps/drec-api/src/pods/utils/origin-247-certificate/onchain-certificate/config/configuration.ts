@@ -10,8 +10,8 @@ export const getConfiguration = memoize(
       : 10000,
     ISSUER_PRIVATE_KEY: process.env.ISSUER_PRIVATE_KEY!,
     WEB3: {
-      primaryRPC: process.env.WEB3?.split(';')?.[0]!,
-      fallbackRPC: process.env.WEB3?.split(';')?.[1]!,
+      primaryRPC: process.env.WEB3?.split(';')?.[0] ?? '',
+      fallbackRPC: process.env.WEB3?.split(';')?.[1] ?? '',
     },
     BLOCKCHAIN_POLLING_INTERVAL: process.env.BLOCKCHAIN_POLLING_INTERVAL
       ? parseInt(process.env.BLOCKCHAIN_POLLING_INTERVAL, 10)

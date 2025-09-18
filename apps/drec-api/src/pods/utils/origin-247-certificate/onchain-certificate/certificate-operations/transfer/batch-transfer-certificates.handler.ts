@@ -8,7 +8,7 @@ import { BlockchainPropertiesService } from '../../blockchain-properties.service
 import { IBatchTransferCommand } from '../../../../../../types/utils/issuer';
 
 @Injectable()
-export class BatchTransferCertificatesHandler<T = null> {
+export class BatchTransferCertificatesHandler {
   constructor(
     private readonly blockchainPropertiesService: BlockchainPropertiesService,
   ) {}
