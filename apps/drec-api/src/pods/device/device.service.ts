@@ -84,7 +84,8 @@ export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(Device) private readonly repository: Repository<Device>,
+    @InjectRepository(Device)
+    private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     private httpService: HttpService,
@@ -647,7 +648,7 @@ export class DeviceService {
             },
           }
         : undefined;
-    let currentDevice = await this.findDeviceByDeveloperExternalId(
+    const currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
     );
@@ -685,8 +686,9 @@ export class DeviceService {
     } else {
       updateDeviceDTO.SDGBenefits = [];
     }
-    currentDevice = defaults(updateDeviceDTO, currentDevice);
-    const result = await this.repository.save(currentDevice);
+
+    const data = defaults(updateDeviceDTO, currentDevice.toJSON());
+    const result = await this.repository.save(data);
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
     delete result['developerExternalId'];

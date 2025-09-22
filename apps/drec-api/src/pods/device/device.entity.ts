@@ -16,6 +16,7 @@ import {
 import { DeviceDescription, IDevice } from '../../models';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
+import { classToPlain } from 'class-transformer';
 @Entity()
 export class Device extends ExtendedBaseEntity implements IDevice {
   constructor(device: Partial<Device>) {
@@ -179,4 +180,8 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   api_user_id: string;
+
+  toJSON(): Device {
+    return classToPlain(this) as Device;
+  }
 }
