@@ -54,6 +54,7 @@ describe('DeviceService', () => {
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
+            toJSON: jest.fn(),
           } as any,
         },
         {
@@ -1510,12 +1511,17 @@ describe('DeviceService', () => {
         labels: 'labels',
       };
 
-      const currentDevice = {
+      const currentDeviceData = {
         id: 1,
         externalId: 'external-id-1',
         developerExternalId: 'old-developer-external-id',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
+      };
+
+      const currentDevice = {
+        ...currentDeviceData,
+        toJSON: () => currentDeviceData,
       } as Device;
 
       const savedDevice = {
