@@ -21,10 +21,7 @@ import {
 import { CertificateCommandInMemoryRepository } from './repositories/certificate-command/certificate-command-in-memory.repository';
 import { CertificateCommandPostgresRepository } from './repositories/certificate-command/certificate-command-postgres.repository';
 import { CertificateEventService } from './repositories/certificate-event/certificate-event.service';
-import {
-  ENTITY_MANAGER,
-  InMemoryEntityManager,
-} from '../utils/entity-manager';
+import { ENTITY_MANAGER, InMemoryEntityManager } from '../utils/entity-manager';
 import { EntityManager } from 'typeorm';
 import { CertificateReadModelPostgresRepository } from './repositories/certificate-read-modal/certificate-read-model.repository';
 import { BlockchainSynchronizeQueuedService } from './synchronize/blockchain-synchronize-queued.service';
