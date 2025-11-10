@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../../pods/device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import {
   Brackets,
   getManager,
@@ -10,30 +10,30 @@ import {
 } from 'typeorm';
 import { FilterDTO } from './dto/filter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Device } from '../../pods/device/device.entity';
+import { Device } from '../device/device.entity';
 import { Certificate } from '@energyweb/issuer-api';
-import { DeviceService } from '../../pods/device/device.service';
+import { DeviceService } from '../device/device.service';
 import {
   CertificateLogResponse,
   CertificateNewWithPerDeviceLog,
   CertificateWithPerDeviceLog,
 } from './dto';
-import { DeviceGroupService } from '../../pods/device-group/device-group.service';
-import { DeviceGroupDTO } from '../../pods/device-group/dto';
+import { DeviceGroupService } from '../device-group/device-group.service';
+import { DeviceGroupDTO } from '../device-group/dto';
 import { ICertificateMetadata } from '../../utils/types';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
-import { DeviceGroup } from '../../pods/device-group/device-group.entity';
+import { DeviceGroup } from '../device-group/device-group.entity';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { IDevice, ILoggedInUser } from '../../models';
 import { Role, SingleDeviceIssuanceStatus } from '../../utils/enums';
 import { Response } from 'express';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
-import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../../pods/device-group/check_certificate_issue_date_log_for_device_group.entity';
+import { CheckCertificateIssueDateLogForDeviceGroupEntity } from '../device-group/check_certificate_issue_date_log_for_device_group.entity';
 import { DateTime } from 'luxon';
 import { Profile } from '../../lib/profile';
-import { CertificateReadModelEntity } from '../certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
-import { ICertificateReadModel } from '../certificates/types/utils/certificates';
-import { IIssueCommandParams } from '../certificates/types/utils/issuer';
+import { CertificateReadModelEntity } from '../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { ICertificateReadModel } from '../../lib/certificates/types/utils/certificates';
+import { IIssueCommandParams } from '../../lib/certificates/types/utils/issuer';
 
 export interface newCertificate extends Certificate {
   perDeviceCertificateLog: CheckCertificateIssueDateLogForDeviceEntity;

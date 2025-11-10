@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../../pods/device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import { Certificate } from '@energyweb/issuer-api';
-import { DeviceService } from '../../pods/device/device.service';
-import { DeviceGroupService } from '../../pods/device-group/device-group.service';
+import { DeviceService } from '../device/device.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
 import { Response } from 'express';
 import { ILoggedInUser } from '../../models/LoggedInUser';
 import {
@@ -17,7 +17,7 @@ import {
 } from '../../utils/enums';
 import { FilterDTO } from './dto/filter.dto';
 import { CertificateLogResponse } from './dto';
-import { CertificateReadModelEntity } from '../certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { CertificateReadModelEntity } from '../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 describe('CertificateLogService', () => {
   let service: CertificateLogService;

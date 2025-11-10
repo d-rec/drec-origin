@@ -87,7 +87,7 @@ import {
 } from '../../types/evident';
 import { FileService } from '../file/file.service';
 import { CertificateReadModelEntity } from '../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
-import { FilterDTO } from '../../lib/certificate-log/dto/filter.dto';
+import { FilterDTO } from '../certificate-log/dto/filter.dto';
 
 type DeviceRegistrationError = {
   isError: boolean;

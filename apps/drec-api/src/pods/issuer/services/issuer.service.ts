@@ -12,7 +12,7 @@ import { MeterRead } from '../../../pods/reads/reads.entity';
 import { ReadsService } from '../../../pods/reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { ReadType } from '../../../utils/enums';
-import { CertificateLogService } from '../../../lib/certificate-log/certificate-log.service';
+import { CertificateLogService } from '../../certificate-log/certificate-log.service';
 import { Profile } from '../../../lib/profile';
 
 const ONE_SECOND_IN_MILLISECONDS = 1000;

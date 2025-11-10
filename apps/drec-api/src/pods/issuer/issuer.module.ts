@@ -9,7 +9,7 @@ import { DeviceGroupModule } from '../device-group/device-group.module';
 import { IssuerService } from './services/issuer.service';
 import { DRECIssuerController } from './drec-issuer.controller';
 import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.service';
-import { CertificateLogModule } from '../../lib/certificate-log/certificate-log.module';
+import { CertificateLogModule } from '../certificate-log/certificate-log.module';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
 import { BullModule } from '@nestjs/bull';

@@ -43,7 +43,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
-import { CertificateLogModule } from './lib/certificate-log/certificate-log.module';
+import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';

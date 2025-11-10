@@ -21,25 +21,25 @@ import {
   ApiQuery,
   ApiOperation,
 } from '@nestjs/swagger';
-import { CheckCertificateIssueDateLogForDeviceEntity } from '../../pods/device/check_certificate_issue_date_log_for_device.entity';
+import { CheckCertificateIssueDateLogForDeviceEntity } from '../device/check_certificate_issue_date_log_for_device.entity';
 import { CertificateLogService } from './certificate-log.service';
 import {
   AmountFormattingDTO,
   FilterDTO,
   GroupIDBasedFilteringDTO,
 } from './dto/filter.dto';
-import { UserDecorator } from '../../pods/user/decorators/user.decorator';
+import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
-import { DeviceGroupService } from '../../pods/device-group/device-group.service';
+import { DeviceGroupService } from '../device-group/device-group.service';
 import { CertificateNewWithPerDeviceLog, CertificateLogResponse } from './dto';
 import { PowerFormatter } from '../../utils/PowerFormatter';
 import { PermissionGuard } from '../../guards/PermissionGuard';
-import { Permission } from '../../pods/permission/decorators/permission.decorator';
-import { ACLModules } from '../../pods/access-control-layer-module-service/decorator/aclModule.decorator';
+import { Permission } from '../permission/decorators/permission.decorator';
+import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { DeviceFilterDTO } from './dto/deviceFilter.dto';
 import { Role } from '../../utils/enums';
-import { OrganizationService } from '../../pods/organization/organization.service';
-import { UserService } from '../../pods/user/user.service';
+import { OrganizationService } from '../organization/organization.service';
+import { UserService } from '../user/user.service';
 import { Response } from 'express';
 import { AuthVerifiedGuard } from '../../guards';
 
