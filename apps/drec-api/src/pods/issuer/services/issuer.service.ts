@@ -1,21 +1,19 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
-
-import { Profile } from '../../../lib/profile';
 import { IDevice } from '../../../models';
-import { CertificateLogService } from '../../certificate-log/certificate-log.service';
-import { Device } from '../../device/device.entity';
-import { DeviceGroup } from '../../device-group/device-group.entity';
-import { DeviceGroupService } from '../../device-group/device-group.service';
-import { DeviceGroupNextIssueCertificate } from '../../device-group/device_group_issuecertificate.entity';
-import { DeviceService } from '../../device/device.service';
-import { OrganizationService } from '../../organization/organization.service';
-import { MeterRead } from '../../reads/reads.entity';
-import { ReadsService } from '../../reads/reads.service';
+import { Device } from '../../../pods/device/device.entity';
+import { DeviceGroup } from '../../../pods/device-group/device-group.entity';
+import { DeviceGroupService } from '../../../pods/device-group/device-group.service';
+import { DeviceGroupNextIssueCertificate } from '../../../pods/device-group/device_group_issuecertificate.entity';
+import { DeviceService } from '../../../pods/device/device.service';
+import { OrganizationService } from '../../../pods/organization/organization.service';
+import { MeterRead } from '../../../pods/reads/reads.entity';
+import { ReadsService } from '../../../pods/reads/reads.service';
 import { CertificateService } from './certificate.service';
 import { ReadType } from '../../../utils/enums';
+import { CertificateLogService } from '../../../lib/certificate-log/certificate-log.service';
+import { Profile } from '../../../lib/profile';
 
 const ONE_SECOND_IN_MILLISECONDS = 1000;
 

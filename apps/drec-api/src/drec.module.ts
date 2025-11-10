@@ -43,7 +43,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
-import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
+import { CertificateLogModule } from './lib/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
@@ -74,12 +74,12 @@ import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 import {
   OffChainCertificateEntities,
   OnChainCertificateEntities,
-} from './types/utils/certificates';
-import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
-import { CertificateEventEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-event.entity';
-import { CertificateSynchronizationAttemptEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-event/certificate-synchronization-attempt.entity';
-import { CertificateReadModelEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
-import { CertificateCommandEntity } from './pods/utils/origin-247-certificate/offchain-certificate/repositories/certificate-command/certificate-command.entity';
+} from './lib/certificates/types/utils/certificates';
+import { OnChainCertificateModule } from './lib/certificates/onchain-certificate/onchain-certificate.module';
+import { CertificateEventEntity } from './lib/certificates/offchain-certificate/repositories/certificate-event/certificate-event.entity';
+import { CertificateSynchronizationAttemptEntity } from './lib/certificates/offchain-certificate/repositories/certificate-event/certificate-synchronization-attempt.entity';
+import { CertificateReadModelEntity } from './lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { CertificateCommandEntity } from './lib/certificates/offchain-certificate/repositories/certificate-command/certificate-command.entity';
 const getEnvFilePath = () => {
   const pathsToTest = [
     '../../../.env',

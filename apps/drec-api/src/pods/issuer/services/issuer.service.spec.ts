@@ -12,7 +12,7 @@ import {
 import { IDevice } from '../../../models';
 import { Queues } from '../../../utils/enums/queues.enum';
 import { ICertificateMetadata } from '../../../utils/types';
-import { CertificateLogService } from '../../certificate-log/certificate-log.service';
+import { CertificateLogService } from '../../../lib/certificate-log/certificate-log.service';
 import { DeviceService } from '../../device/device.service';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { DeviceGroupService } from '../../device-group/device-group.service';
@@ -26,9 +26,9 @@ import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
 import { LateOngoingIssuanceService } from './late-ongoing-issuance.service';
 import { OngoingIssuanceService } from './ongoing-issuance.service';
-import { OffChainCertificateService } from '../../utils/origin-247-certificate/offchain-certificate/offchain-certificate.service';
-import { IIssueCommandParams } from '../../../types/utils/issuer';
-import { IGetAllCertificatesOptions } from '../../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model-postgres.repository';
+import { OffChainCertificateService } from '../../../lib/certificates/offchain-certificate/offchain-certificate.service';
+import { IIssueCommandParams } from '../../../lib/certificates/types/utils/issuer';
+import { IGetAllCertificatesOptions } from '../../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model-postgres.repository';
 
 describe('IssuerService', () => {
   let offChainCertificateService: OffChainCertificateService;

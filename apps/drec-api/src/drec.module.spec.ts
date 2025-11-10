@@ -21,7 +21,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './pods/device-
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
-import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
+import { CertificateLogModule } from './lib/certificate-log/certificate-log.module';
 import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { PermissionModule } from './pods/permission/permission.module';
@@ -45,7 +45,7 @@ import { getConnection } from 'typeorm';
 import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
 import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
-import { OnChainCertificateModule } from './pods/utils/origin-247-certificate/onchain-certificate/onchain-certificate.module';
+import { OnChainCertificateModule } from './lib/certificates/onchain-certificate/onchain-certificate.module';
 
 describe('DRECModule', () => {
   let module: TestingModule;

@@ -4,9 +4,9 @@ import { IDevice } from '../../../models';
 import { CertificateType, StandardCompliance } from '../../../utils/enums';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { Profile } from '../../../lib/profile';
-import { OffChainCertificateService } from '../../utils/origin-247-certificate/offchain-certificate/offchain-certificate.service';
-import { IIssueCommandParams } from '../../../types/utils/issuer';
-import { IGetAllCertificatesOptions } from '../../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model-postgres.repository';
+import { OffChainCertificateService } from '../../../lib/certificates/offchain-certificate/offchain-certificate.service';
+import { IIssueCommandParams } from '../../../lib/certificates/types/utils/issuer';
+import { IGetAllCertificatesOptions } from '../../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model-postgres.repository';
 
 @Injectable()
 export class CertificateService {

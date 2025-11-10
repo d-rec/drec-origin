@@ -72,7 +72,6 @@ import {
   BulkUploadEntity,
   BulkUploadStatus,
 } from '../bulk-upload/bulk-uploads.entity';
-import { FilterDTO } from '../certificate-log/dto';
 import { UserService } from '../user/user.service';
 import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
@@ -87,7 +86,8 @@ import {
   EvidentRegistrationStatus,
 } from '../../types/evident';
 import { FileService } from '../file/file.service';
-import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { CertificateReadModelEntity } from '../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { FilterDTO } from '../../lib/certificate-log/dto/filter.dto';
 
 type DeviceRegistrationError = {
   isError: boolean;

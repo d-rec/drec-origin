@@ -25,7 +25,7 @@ import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
 import { EvidentModule } from '../evident/evident.module';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
-import { CertificateReadModelEntity } from '../utils/origin-247-certificate/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
+import { CertificateReadModelEntity } from '../../lib/certificates/offchain-certificate/repositories/certificate-read-modal/certificate-read-model.entity';
 
 @Module({
   imports: [

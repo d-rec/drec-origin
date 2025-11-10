@@ -1,4 +1,4 @@
-import { ICertificate as IOriginalCertificate } from '../types/utils/certificates';
+import { ICertificate as IOriginalCertificate } from '../lib/certificates/types/utils/certificates';
 import { StandardCompliance, CertificateType } from './enums';
 
 export interface ICertificateMetadata {
