@@ -1,4 +1,4 @@
-import { UserPasswordUpdate } from '../../../types/utils/user';
+import { UserPasswordUpdate } from '../../../lib/backend-core/utils/user';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Match } from '../decorators/match.decorator';

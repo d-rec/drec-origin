@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
-import { UserLoginReturnData } from '../types/utils/user';
+import { UserLoginReturnData } from '../lib/backend-core/utils/user';
 import { IUser } from '../models';
 
 import { UserService } from '../pods/user/user.service';

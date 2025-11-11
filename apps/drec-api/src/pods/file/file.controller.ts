@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { FILE_SUPPORTED_MIMETYPES } from '../../types/utils/file';
+import { FILE_SUPPORTED_MIMETYPES } from '../../lib/backend-core/utils/file';
 import {
   Controller,
   Get,

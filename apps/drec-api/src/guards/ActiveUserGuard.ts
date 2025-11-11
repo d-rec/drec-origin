@@ -1,4 +1,4 @@
-import { IUser, UserStatus } from '../types/utils/user';
+import { IUser, UserStatus } from '../lib/backend-core/utils/user';
 import {
   CanActivate,
   ExecutionContext,

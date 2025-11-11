@@ -24,7 +24,7 @@ import { OrganizationDTO } from '../organization/dto';
 import { MailService } from '../../mail/mail.service';
 import { UpdateInviteStatusDTO } from './dto/invite.dto';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
-import { UserStatus } from '../../types/utils/user';
+import { UserStatus } from '../../lib/backend-core/utils/user';
 
 @Injectable()
 export class InvitationService {
