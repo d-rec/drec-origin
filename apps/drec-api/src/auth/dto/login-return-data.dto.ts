@@ -1,4 +1,4 @@
-import { UserLoginReturnData } from '../../lib/backend-core/utils/user';
+import { UserLoginReturnData } from '../../lib/backend-core/types/user';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
