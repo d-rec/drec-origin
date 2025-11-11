@@ -9,7 +9,7 @@ import {
   Contracts as IssuerContracts,
   IContractsLookup,
 } from '@energyweb/issuer';
-import { getProviderWithFallback } from '../src/utils/blockchain-provider';
+import { getProviderWithFallback } from '../src/lib/utils-general/blockchain-provider';
 
 import {
   IFullOrganization,

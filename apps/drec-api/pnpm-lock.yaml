@@ -1720,7 +1720,6 @@ packages:
       rxjs: ^7.2.0
       typeorm: ^0.2.34
 
-
   '@noble/curves@1.4.2':
     resolution: {integrity: sha512-TavHr8qycMChk8UwMld0ZDRvatedkzWfH8IiaeGCfymOP5i0hSCozz9vHOL0nkwk7HRMlFnAiKpS2jrUmSybcw==}
 
@@ -9988,10 +9987,10 @@ snapshots:
       '@scure/base': 1.1.9
       '@types/debug': 4.1.12
       '@types/lodash': 4.17.20
-      debug: 4.4.0
+      debug: 4.4.1
       lodash: 4.17.21
       pony-cause: 2.1.11
-      semver: 7.7.1
+      semver: 7.7.2
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
@@ -10350,7 +10349,6 @@ snapshots:
       typeorm: 0.2.41(ioredis@5.6.1)(pg@8.7.1)(redis@4.3.1)
       uuid: 8.3.2
 
-
   '@noble/curves@1.4.2':
     dependencies:
       '@noble/hashes': 1.4.0
@@ -10358,7 +10356,6 @@ snapshots:
   '@noble/hashes@1.4.0': {}
 
   '@noble/hashes@1.7.1': {}
-
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -13261,7 +13258,7 @@ snapshots:
 
   eth-lib@0.2.7:
     dependencies:
-      bn.js: 4.12.1
+      bn.js: 4.12.2
       elliptic: 6.6.1
       xhr-request-promise: 0.1.3
 
@@ -13274,7 +13271,7 @@ snapshots:
 
   ethereum-bloom-filters@1.2.0:
     dependencies:
-      '@noble/hashes': 1.8.0
+      '@noble/hashes': 1.7.1
 
   ethereum-cryptography@0.1.3:
     dependencies:
