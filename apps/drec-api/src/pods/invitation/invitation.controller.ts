@@ -17,8 +17,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-import { NullOrUndefinedResultInterceptor } from '../utils/origin-backend-utils/null-or-undefined-result-interceptor';
-import { SuccessResponseDTO } from '../utils/origin-backend-utils/success-response.dto';
+import { NullOrUndefinedResultInterceptor } from '../../lib/backend-utils/null-or-undefined-result-interceptor';
+import { SuccessResponseDTO } from '../../lib/backend-utils/success-response.dto';
 
 import {
   ApiBearerAuth,

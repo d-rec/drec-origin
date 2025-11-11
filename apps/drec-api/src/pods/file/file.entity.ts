@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import { IsBoolean, IsString } from 'class-validator';
 
 @Entity()

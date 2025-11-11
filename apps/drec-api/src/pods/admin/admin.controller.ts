@@ -46,8 +46,8 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Organization } from '../organization/organization.entity';
-import { NullOrUndefinedResultInterceptor } from '../utils/origin-backend-utils/null-or-undefined-result-interceptor';
-import { SuccessResponseDTO } from '../utils/origin-backend-utils/success-response.dto';
+import { NullOrUndefinedResultInterceptor } from '../../lib/backend-utils/null-or-undefined-result-interceptor';
+import { SuccessResponseDTO } from '../../lib/backend-utils/success-response.dto';
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')

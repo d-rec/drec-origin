@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 import { IEmailConfirmation } from '@energyweb/origin-backend-core';
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import { IsBoolean, IsInt, IsString, Min } from 'class-validator';
 import { User } from '../user/user.entity';
 

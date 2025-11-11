@@ -1,4 +1,4 @@
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from './extended-base-entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IsString } from 'class-validator';
 

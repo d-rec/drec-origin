@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import { YieldStatus } from '../../utils/enums';
 import { IYieldConfig } from '../../models';
 

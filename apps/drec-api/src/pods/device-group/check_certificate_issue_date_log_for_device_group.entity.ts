@@ -1,4 +1,4 @@
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import {
   Column,
   Entity,

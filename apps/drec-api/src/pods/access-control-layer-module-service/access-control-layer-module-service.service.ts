@@ -13,7 +13,7 @@ import {
   UpdateACLModuleDTO,
 } from './dto/aclmodule.dto';
 import { IACLModuleConfig } from '../../models';
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import { DecimalPermissionValue } from './common/permissionBitposition';
 
 export type TModuleBaseEntity = ExtendedBaseEntity & IACLModuleConfig;

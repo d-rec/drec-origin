@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
+import { DatabaseService } from '../src/lib/backend-utils/database.service';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import request from 'supertest';

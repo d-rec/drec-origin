@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { DatabaseService } from '../src/pods/utils/origin-backend-utils/database.service';
+import { DatabaseService } from '../src/lib/backend-utils/database.service';
 
 import { expect } from 'chai';
 import { UserRegistrationData } from '../src/models';

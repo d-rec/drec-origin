@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ExtendedBaseEntity } from '../utils/origin-backend-utils/extended-base-entity';
+import { ExtendedBaseEntity } from '../../lib/backend-utils/extended-base-entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { EntityType } from '../../utils/enums';
 import { IsEnum, IsArray } from 'class-validator';
