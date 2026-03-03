@@ -55,26 +55,18 @@ sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh |
 nvm install 20.14.0
 ```
 
-Install `rush`, `pnpm` if you don't have it:
+Install `rush` and `pnpm` if you don't have them:
 
 ```sh
 npm i -g @microsoft/rush
 npm i -g pnpm
 ```
 
-Create and change directory:
-
-```sh
-mkdir drec
-cd drec
-```
-
 Clone repository:
-It should be cloned in both local and Ubuntu environment.
 
 ```sh
-git clone https://github.com/drec/drec-origin.git
-chmod -R 777 drec-origin/
+git clone https://github.com/d-rec/drec-origin.git
+cd drec-origin
 ```
 
 Copy `.env.example` to `.env` and adjust `.env` with your environment specific parameters.
@@ -85,7 +77,7 @@ cp .env.example .env
 
 Start Postgres, Redis, InfluxDB instance
 
-Please create and start your Postgres, Redis and InfluxDB by running below command in our root directory, after that anytime you can manage this images through your docker desktop installed on your system.
+Please create and start your Postgres, Redis and InfluxDB by running below command in the root directory, after that anytime you can manage these images through your docker desktop installed on your system.
 
 ```sh
 docker-compose up --build
@@ -99,42 +91,43 @@ psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
 
 Create Default Admin:
 
-Please update below environment variables under defauld admin credential with the values that you wanted to create as default admin user.
+Please update below environment variables under default admin credential with the values that you wanted to create as default admin user.
 
 ```sh
 ADMIN_EMAIL
 ADMIN_PASSWORD
 ```
 
-Install dependencies, Run db migrations:
+Navigate to the API project and install dependencies:
 
 ```sh
-rush install
-rush build
+cd apps/drec-api
+pnpm install
+pnpm build
 ```
 
-Run API project
+Run API project in development mode:
 
 ```sh
-rush start:dev
+pnpm start:dev
 ```
 
-For the initial setup, run this command to seed the database with the basic permissions and content
+For the initial setup, run this command to seed the database with the basic permissions and content:
 
 ```sh
-npm run seed
+pnpm seed
 ```
 
-To populate the database with organizations and devices dummy data, run this command
+To populate the database with organizations and devices dummy data, run this command:
 
 ```sh
-npm run seed:dummy-data
+pnpm seed:dummy-data
 ```
 
-You may also want to drop local databases with
+You may also want to drop local databases with:
 
 ```sh
-rush drop
+pnpm drop
 ```
 
 ## How to use
