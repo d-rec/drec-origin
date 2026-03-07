@@ -127,7 +127,13 @@ pnpm start:dev
 For the initial setup, run this command to seed the database with the basic permissions and content:
 
 ```sh
-pnpm seed
+pnpm seed:permissions
+```
+
+To approve unverified users, run this command. This can be run anytime after a new user has been added to verify them:
+
+```sh
+pnpm seed:verifications
 ```
 
 To populate the database with organizations and devices dummy data, run this command:
