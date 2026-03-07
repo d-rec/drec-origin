@@ -142,12 +142,6 @@ To populate the database with organizations and devices dummy data, run this com
 pnpm seed:dummy-data
 ```
 
-You may also want to drop local databases with:
-
-```sh
-pnpm drop
-```
-
 ## How to use
 
 Go inside integrators-scripts folder
