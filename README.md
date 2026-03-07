@@ -31,27 +31,39 @@
 
 Repository for Origin DREC project
 
-## Local environment setup of Ubuntu
+## Local environment setup
 
-Install `wsl`,`ubuntu-20.04` in command prompt running as administrator:
+### Windows only: Install WSL and Ubuntu
+
+Install `wsl` and `ubuntu-20.04` in command prompt running as administrator:
 
 ```sh
 wsl --install
 wsl --install --distribution Ubuntu-20.04
 ```
 
-Install `Influx-Client`:
+> **Note:** The following steps should be run inside the WSL Ubuntu terminal on Windows, or directly in your terminal on macOS/Linux.
+
+### Install Influx Client
+
+**Linux / WSL (Ubuntu/Debian):**
 
 ```sh
-sudo apt install influx client
 sudo apt update
+sudo apt install influxdb-client
 ```
 
-Restart the Ubuntu terminal once, after installation done.
-Clone and Install `nvm`:
+**macOS:**
 
 ```sh
-sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+brew install influxdb-cli
+```
+
+Restart the terminal once after installation is done.
+
+Install `nvm` following the [official installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating), then install the required Node.js version:
+
+```sh
 nvm install 20.14.0
 ```
 
