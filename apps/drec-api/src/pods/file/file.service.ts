@@ -235,10 +235,15 @@ export class FileService {
   }
 
   getS3(): any {
-    return new S3({
+    const options: S3.ClientConfiguration = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    });
+    };
+    if (process.env.AWS_S3_ENDPOINT) {
+      options.endpoint = process.env.AWS_S3_ENDPOINT;
+      options.s3ForcePathStyle = true;
+    }
+    return new S3(options);
   }
 
   public async getUploadS3(key: string): Promise<any> {

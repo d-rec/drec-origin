@@ -147,17 +147,17 @@ export class UserService {
         orgId = data.orgid;
       }
       let role;
-      let roleId;
       if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-        roleId = 4;
       } else if (data.organizationType === OrganizationType.Developer) {
         role = Role.OrganizationAdmin;
-        roleId = 2;
       } else if (data.organizationType === OrganizationType.ApiUser) {
         role = Role.ApiUser;
-        roleId = 6;
       }
+      const roleRecord = await this.userRoleRepository.findOne({
+        where: { name: role },
+      });
+      const roleId = roleRecord?.id;
 
       const user = await this.repository.save({
         firstName: data.firstName,
@@ -228,14 +228,15 @@ export class UserService {
       }
 
       let role;
-      let roleId;
       if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-        roleId = 4;
       } else {
         role = Role.OrganizationAdmin;
-        roleId = 2;
       }
+      const roleRecord = await this.userRoleRepository.findOne({
+        where: { name: role },
+      });
+      const roleId = roleRecord?.id;
       const user = await this.repository.save({
         firstName: data.firstName,
         lastName: data.lastName,
