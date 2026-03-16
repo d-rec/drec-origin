@@ -67,10 +67,9 @@ Install `nvm` following the [official installation instructions](https://github.
 nvm install 20.14.0
 ```
 
-Install `rush` and `pnpm` if you don't have them:
+Install `pnpm` if you don't have it:
 
 ```sh
-npm i -g @microsoft/rush
 npm i -g pnpm
 ```
 
