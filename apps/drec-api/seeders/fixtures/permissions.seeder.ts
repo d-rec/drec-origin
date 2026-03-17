@@ -190,6 +190,14 @@ export class PermissionsSeeder implements SeederInterface {
         permissionValue: 1,
         status: 1,
       },
+      {
+        aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
+        entityId: 6, // ApiUser
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
     ]);
 
     await this.aclPermissionsRepository.save(permissions);

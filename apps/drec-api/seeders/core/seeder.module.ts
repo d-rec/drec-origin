@@ -14,11 +14,13 @@ import { VerifyPhoneNumbersSeeder } from '../fixtures/verify-phone-number.seeder
 import { TermsAndConditionsSeeder } from '../fixtures/terms-and-condition-seeder';
 import { VerifyEmailsSeeder } from '../fixtures/verify-emails.seeder';
 import { FingerprintSeeder } from '../fixtures/fingerprint.seeder';
+import { ApiUserSeeder } from '../fixtures/api-user.seeder';
+import { ApiUserEntity } from '../../src/pods/user/api-user.entity';
 
 @Module({
   imports: [
     originAppTypeOrmModule(),
-    TypeOrmModule.forFeature([ACLModulePermission, Organization, User, Device]),
+    TypeOrmModule.forFeature([ACLModulePermission, Organization, User, Device, ApiUserEntity]),
   ],
   providers: [
     PermissionsSeeder,
@@ -30,6 +32,7 @@ import { FingerprintSeeder } from '../fixtures/fingerprint.seeder';
     TermsAndConditionsSeeder,
     VerifyEmailsSeeder,
     FingerprintSeeder,
+    ApiUserSeeder,
   ],
 })
 export class SeederModule {}
