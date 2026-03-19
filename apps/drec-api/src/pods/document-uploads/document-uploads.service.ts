@@ -24,6 +24,7 @@ export class DocumentUploadsService {
     targetType: DocumentTargetType,
     documentType: DocumentType,
     file: Express.Multer.File,
+    subfolder?: string,
   ): Promise<any> {
     const extension = file.originalname.split('.').pop()?.toLowerCase();
     this.logger.log(`Uploading document for target ID: ${targetId}`);
@@ -35,7 +36,7 @@ export class DocumentUploadsService {
     let uploadedFileKey: string | null = null;
 
     try {
-      const uploadResult = await this.fileService.upload(file);
+      const uploadResult = await this.fileService.upload(file, subfolder);
       uploadedFileKey = uploadResult.key;
 
       const newDocumentUpload = this.documentUploadsRepository.create({

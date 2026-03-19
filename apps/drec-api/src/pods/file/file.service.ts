@@ -194,15 +194,20 @@ export class FileService {
   //   });
   // }
 
-  async upload(file: Express.Multer.File): Promise<any> {
+  async upload(file: Express.Multer.File, subfolder?: string): Promise<any> {
     this.logger.verbose(`With in upload`);
     this.logger.debug(`Uploading file: ${file.fieldname}`);
     const { originalname } = file;
     const bucketS3 = process.env.AWS_S3_BUCKET;
-    return await this.uploadS3(file.buffer, bucketS3, originalname);
+    return await this.uploadS3(file.buffer, bucketS3, originalname, subfolder);
   }
 
-  async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {
+  async uploadS3(
+    file: Buffer,
+    bucket: string,
+    name: string,
+    subfolder?: string,
+  ): Promise<any> {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
@@ -217,9 +222,12 @@ export class FileService {
       `File name without extension: ${fileNameWithoutExtension}`,
     );
 
+    const filename = `${fileNameWithoutExtension}-${uuid()}${fileExtension ? `.${fileExtension}` : ''}`;
+    const key = subfolder ? `${subfolder}/${filename}` : filename;
+
     const params = {
       Bucket: bucket,
-      Key: `${fileNameWithoutExtension}-${uuid()}${fileExtension ? `.${fileExtension}` : ''}`,
+      Key: key,
       Body: file,
       ACL: 'public-read',
     };

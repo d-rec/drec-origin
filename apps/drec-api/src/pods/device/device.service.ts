@@ -615,6 +615,11 @@ export class DeviceService {
         [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
       };
 
+      const projectName = (result.projectName || 'project')
+        .replace(/[^a-zA-Z0-9-_]/g, '-')
+        .toLowerCase();
+      const projectSubfolder = `${projectName}-${uuid()}`;
+
       for (const [field, documentType] of Object.entries(documentTypes)) {
         const deviceId = result.id;
         for (const file of files[field]) {
@@ -624,6 +629,7 @@ export class DeviceService {
               DocumentTargetType.DEVICE,
               documentType,
               file,
+              projectSubfolder,
             );
           } catch (error) {
             this.logger.error(`Failed to upload ${field}: ${error.message}`);

@@ -70,6 +70,7 @@ import { Repository } from 'typeorm';
 import { AuthGuard } from '@nestjs/passport';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
+import { v4 as uuid } from 'uuid';
 
 @ApiTags('Organization')
 @ApiBearerAuth('access-token')
@@ -220,6 +221,7 @@ export class OrganizationController {
       [DocumentType.ADDRESS_PROOF]: DocumentType.ADDRESS_PROOF,
       [DocumentType.OWNERS_DECLARATION]: DocumentType.OWNERS_DECLARATION,
     };
+    const orgSubfolder = `organization-${uuid()}`;
     const uploadedDocuments = await Promise.all(
       Object.entries(files).flatMap(([fileKey, fileArray]) => {
         const documentType = documentTypeMap[fileKey];
@@ -229,6 +231,7 @@ export class OrganizationController {
             targetType,
             documentType,
             file,
+            orgSubfolder,
           ),
         );
       }),
