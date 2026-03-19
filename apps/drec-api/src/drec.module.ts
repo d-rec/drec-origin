@@ -66,6 +66,7 @@ import { BulkUploadModule } from './pods/bulk-upload/bulk-upload.module';
 import { HealthModule } from './pods/health/health.module';
 import { DocumentUploadsModule } from './pods/document-uploads/document-uploads.module';
 import { DocumentEntity } from './pods/document-uploads/entities/documents.entity';
+import { SubmissionEntity } from './pods/document-uploads/entities/submission.entity';
 import { OtpModule } from './pods/otp/otp.module';
 import { Otp } from './pods/otp/otp.entity';
 import { EvidentModule } from './pods/evident/evident.module';
@@ -125,6 +126,7 @@ export const entities = [
   BulkUploadEntity,
   BulkUploadFailedLogEntity,
   DocumentEntity,
+  SubmissionEntity,
   Otp,
   EvidentSettings,
   EvidentIssuersEntity,
