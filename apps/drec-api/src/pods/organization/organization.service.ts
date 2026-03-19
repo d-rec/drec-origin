@@ -117,7 +117,7 @@ export class OrganizationService {
           .andWhere(
             'organization.organizationType NOT IN (:...excludedRoles)',
             {
-              excludedRoles: ['ApiUser', 'Admin'],
+              excludedRoles: ['Admin'],
             },
           );
       }

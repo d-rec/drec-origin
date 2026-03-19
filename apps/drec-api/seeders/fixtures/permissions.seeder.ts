@@ -192,10 +192,34 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
-        entityId: 6, // ApiUser
+        entityId: 6, // Market Intermediary
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 1,
+        status: 1,
+      },
+      {
+        aclmodulesId: 4, // DEVICE_MANAGEMENT_CRUDL
+        entityId: 6, // Market Intermediary
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
+      {
+        aclmodulesId: 3, // FILE_MANAGEMENT_CRUDL
+        entityId: 6, // Market Intermediary
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
+      {
+        aclmodulesId: 7, // READS_MANAGEMENT_CRUDL
+        entityId: 6, // Market Intermediary
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
         status: 1,
       },
     ]);
