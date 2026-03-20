@@ -76,6 +76,10 @@ import { getTypeOrmConfig } from './config/typeorm.config';
 import { EvidentIssuersEntity } from './pods/evident/evident-issuers.entity';
 import { MeterRead } from './pods/reads/reads.entity';
 import { FailedMeterRead } from './pods/reads/failed-reads.entity';
+import { Chat } from './pods/chat/chat.entity';
+import { ChatConversation } from './pods/chat/chat-conversation.entity';
+import { ChatModule } from './pods/chat/chat.module';
+import { DeviceSubmissionsModule } from './pods/device-submissions/device-submissions.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -130,6 +134,8 @@ export const entities = [
   Otp,
   EvidentSettings,
   EvidentIssuersEntity,
+  Chat,
+  ChatConversation,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -190,6 +196,8 @@ const queueModule = () => {
     DocumentUploadsModule,
     OtpModule,
     EvidentModule,
+    ChatModule,
+    DeviceSubmissionsModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
