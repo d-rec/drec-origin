@@ -52,6 +52,13 @@ services:
       timeout: 5s
       retries: 5
 
+  drec-mailpit:
+    image: axllent/mailpit:latest
+    container_name: drec-mailpit
+    ports:
+      - 1025:1025   # SMTP
+      - 8025:8025   # Web inbox UI
+
   drec-minio-init:
     image: minio/mc:latest
     container_name: drec-minio-init

@@ -172,6 +172,29 @@ Before running the script, make sure:
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
 
+## Testing email locally (Mailpit)
+
+In local dev, emails are captured by **Mailpit** — a local SMTP server that accepts everything without authentication and shows a web inbox. Nothing is actually delivered.
+
+The `docker-compose.yml` runs it as `drec-mailpit` and the local `.env` already points at it:
+
+```
+SMTP_HOST=localhost
+SMTP_PORT=1025
+```
+
+**To start Mailpit:**
+
+```sh
+docker compose up -d drec-mailpit
+```
+
+**To view captured emails:**
+
+Open **http://localhost:8025** in your browser.
+
+**For production**, replace the `.env` SMTP values with real credentials (e.g. `smtp.gmail.com` + a Gmail App Password or SMTP relay).
+
 ## Browsing MinIO (local dev)
 
 MinIO is the S3-compatible object store used for device submission documents. In local dev it runs as a Docker container and exposes two ports:
