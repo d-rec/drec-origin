@@ -1,13 +1,13 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DeviceSubmissionsController } from './device-submissions.controller';
-import { DeviceSubmissionsService } from './device-submissions.service';
+import { DeviceReviewsController } from './device-reviews.controller';
+import { DeviceReviewsService } from './device-reviews.service';
 import { FileModule } from '../file/file.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([]), FileModule, forwardRef(() => UserModule)],
-  controllers: [DeviceSubmissionsController],
-  providers: [DeviceSubmissionsService],
+  controllers: [DeviceReviewsController],
+  providers: [DeviceReviewsService],
 })
-export class DeviceSubmissionsModule {}
+export class DeviceReviewsModule {}

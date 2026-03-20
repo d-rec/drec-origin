@@ -1,20 +1,20 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { DeviceSubmissionsService, AssetDto } from './device-submissions.service';
+import { DeviceReviewsService, AssetDto } from './device-reviews.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 
-@ApiTags('Device Submissions')
+@ApiTags('Device Reviews')
 @ApiBearerAuth('access-token')
-@Controller('device-submissions')
-export class DeviceSubmissionsController {
-  constructor(private readonly service: DeviceSubmissionsService) {}
+@Controller('device-reviews')
+export class DeviceReviewsController {
+  constructor(private readonly service: DeviceReviewsService) {}
 
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
-  @ACLModules('DEVICE_SUBMISSIONS_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'List all devices with their submission documents and signed S3 URLs' })
   @ApiResponse({ status: 200, description: 'Array of device assets with document URLs' })
   findAll(): Promise<AssetDto[]> {

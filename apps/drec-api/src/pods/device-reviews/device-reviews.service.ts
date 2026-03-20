@@ -28,8 +28,8 @@ export interface AssetDto {
 }
 
 @Injectable()
-export class DeviceSubmissionsService {
-  private readonly logger = new Logger(DeviceSubmissionsService.name);
+export class DeviceReviewsService {
+  private readonly logger = new Logger(DeviceReviewsService.name);
 
   constructor(
     @InjectConnection() private readonly connection: Connection,

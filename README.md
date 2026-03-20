@@ -172,6 +172,40 @@ Before running the script, make sure:
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
 
+## Browsing MinIO (local dev)
+
+MinIO is the S3-compatible object store used for device submission documents. In local dev it runs as a Docker container and exposes two ports:
+
+| Port | Purpose |
+|------|---------|
+| 9000 | S3 API (used by the backend) |
+| 9001 | Web console (browser UI) |
+
+**To open the browser console:**
+
+1. Make sure the Docker services are running:
+   ```sh
+   docker compose up -d drec-minio
+   ```
+2. Open **http://localhost:9001** in your browser.
+3. Log in with:
+   - **Username:** `minioadmin`
+   - **Password:** `minioadmin`
+4. Navigate to **Buckets → drec-documents** to browse uploaded files.
+
+**Useful `mc` (MinIO client) commands** (run inside the `drec-minio-init` container or with `mc` installed locally):
+
+```sh
+# List all objects in the bucket
+mc ls local/drec-documents --recursive
+
+# Download a specific file
+mc cp local/drec-documents/<key> ./output-file
+
+# Set an alias pointing at the local server
+mc alias set local http://localhost:9000 minioadmin minioadmin
+```
+
 ## Dependencies
 
 This project uses a variety of dependencies developed for D-REC. For a detailed list of these dependencies—including their GitHub links and version information—please refer to the [Dependencies](./DEPENDENCIES.md) page.
