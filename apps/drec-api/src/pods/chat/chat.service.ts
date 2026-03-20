@@ -62,16 +62,22 @@ export class ChatService {
   }
 
   async getConversation(
-    participant1: string,
-    participant2: string,
+    participant1?: string,
+    participant2?: string,
+    deviceProjectName?: string,
   ): Promise<ChatConversation | null> {
-    return this.conversationRepository
-      .createQueryBuilder('conv')
-      .where(
+    const qb = this.conversationRepository.createQueryBuilder('conv');
+    if (deviceProjectName) {
+      qb.where('conv.deviceProjectName = :dpn', { dpn: deviceProjectName });
+    }
+    if (participant1 && participant2) {
+      const method = deviceProjectName ? 'andWhere' : 'where';
+      qb[method](
         '(conv.participant1 = :p1 AND conv.participant2 = :p2) OR (conv.participant1 = :p2 AND conv.participant2 = :p1)',
         { p1: participant1, p2: participant2 },
-      )
-      .getOne();
+      );
+    }
+    return qb.getOne();
   }
 
   async startConversation(
@@ -127,6 +133,14 @@ export class ChatService {
 
   async getAllConversations(): Promise<ChatConversation[]> {
     return this.conversationRepository.find();
+  }
+
+  async getConversationsForUser(email: string): Promise<ChatConversation[]> {
+    return this.conversationRepository
+      .createQueryBuilder('conv')
+      .where('conv.participant1 = :email OR conv.participant2 = :email', { email })
+      .orderBy('conv.id', 'DESC')
+      .getMany();
   }
 
   async getConversationPartners(): Promise<string[]> {

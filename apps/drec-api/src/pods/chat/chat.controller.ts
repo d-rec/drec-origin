@@ -13,9 +13,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
-import { Permission } from '../permission/decorators/permission.decorator';
-import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { AuthVerifiedGuard } from '../../guards';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { ChatDto, ConversationDto } from './dto/chat.dto';
@@ -25,13 +23,11 @@ import { ChatConversation } from './chat-conversation.entity';
 @ApiTags('Chat')
 @ApiBearerAuth('access-token')
 @Controller('chat')
+@UseGuards(AuthVerifiedGuard('jwt'))
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Post('messages')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Append a chat message node (standalone)' })
   @ApiResponse({ status: 201, type: ChatDto })
   async appendMessage(@Body() dto: SendMessageDto): Promise<Chat> {
@@ -43,9 +39,6 @@ export class ChatController {
   }
 
   @Post('conversations/:id/messages')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Append a message to a conversation (updates lastEntryUuid)' })
   @ApiResponse({ status: 201, type: ChatDto })
   async appendToConversation(
@@ -56,9 +49,6 @@ export class ChatController {
   }
 
   @Get('chain/:headUuid')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Traverse linked list from head UUID' })
   @ApiResponse({ status: 200, type: [ChatDto] })
   async traverseChain(@Param('headUuid') headUuid: string): Promise<Chat[]> {
@@ -66,9 +56,6 @@ export class ChatController {
   }
 
   @Get('node/:uuid')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Get a single chat node by UUID' })
   @ApiResponse({ status: 200, type: ChatDto })
   async getNode(@Param('uuid') uuid: string): Promise<Chat> {
@@ -76,9 +63,6 @@ export class ChatController {
   }
 
   @Get('admin')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Get the admin user info' })
   async getAdminUser(): Promise<any> {
     const admin = await this.chatService.getAdminUser();
@@ -92,31 +76,31 @@ export class ChatController {
   }
 
   @Get('conversations')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'List all conversations' })
   @ApiResponse({ status: 200, type: [ConversationDto] })
   async getAllConversations(): Promise<ChatConversation[]> {
     return this.chatService.getAllConversations();
   }
 
+  @Get('conversations/user/:email')
+  @ApiOperation({ summary: 'Get all conversations for a user by email' })
+  @ApiResponse({ status: 200, type: [ConversationDto] })
+  async getConversationsForUser(
+    @Param('email') email: string,
+  ): Promise<ChatConversation[]> {
+    return this.chatService.getConversationsForUser(email);
+  }
+
   @Post('conversations/find')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Find conversation between two participants' })
   @ApiResponse({ status: 200, type: ConversationDto })
   async getConversation(
-    @Body() body: { participant1: string; participant2: string },
+    @Body() body: { participant1: string; participant2: string; deviceProjectName?: string },
   ): Promise<ChatConversation | null> {
-    return this.chatService.getConversation(body.participant1, body.participant2);
+    return this.chatService.getConversation(body.participant1, body.participant2, body.deviceProjectName);
   }
 
   @Post('conversations/start')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('CHAT_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Start a new conversation with a first message' })
   async startConversation(
     @Body()
