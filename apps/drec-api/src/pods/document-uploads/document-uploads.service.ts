@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Connection } from 'typeorm';
 import {
@@ -19,6 +19,14 @@ export class DocumentUploadsService {
     private readonly connection: Connection,
   ) {}
 
+  async getSignedUrl(id: number): Promise<string> {
+    const doc = await this.documentUploadsRepository.findOne({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException(`Document ${id} not found`);
+    }
+    return this.fileService.getSignedUrl(doc.url);
+  }
+
   async upload(
     targetId: number,
     targetType: DocumentTargetType,
@@ -37,14 +45,14 @@ export class DocumentUploadsService {
 
     try {
       const uploadResult = await this.fileService.upload(file, subfolder);
-      uploadedFileKey = uploadResult.key;
+      uploadedFileKey = uploadResult.Key;
 
       const newDocumentUpload = this.documentUploadsRepository.create({
         targetId: targetId,
         targetType: targetType,
         type: documentType,
         extension: extension,
-        url: uploadResult.Location,
+        url: uploadResult.Key,
       });
 
       const savedDocumentUpload =
@@ -55,7 +63,7 @@ export class DocumentUploadsService {
       return savedDocumentUpload;
     } catch (error) {
       if (uploadedFileKey) {
-        await this.fileService.deleteFileFromS3(uploadedFileKey);
+        await this.fileService.deleteFileFromS3(uploadedFileKey).catch(() => {});
       }
 
       await queryRunner.rollbackTransaction();

@@ -18,6 +18,7 @@ export enum DocumentType {
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
+  COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
 }
 
 export enum DocumentTargetType {

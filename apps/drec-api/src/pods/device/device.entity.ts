@@ -89,6 +89,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsNumber()
   capacity: number;
 
+  @Column({ nullable: true })
+  @IsNumber()
+  acCapacity: number;
+
   @Column('simple-array', { nullable: true })
   @IsArray()
   SDGBenefits?: string[];

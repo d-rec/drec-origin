@@ -515,6 +515,7 @@ export class DeviceController {
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+        { name: DocumentType.COD_PROOF, maxCount: 10 },
       ],
       {
         fileFilter: fileFilter,
@@ -544,6 +545,10 @@ export class DeviceController {
           items: { type: 'string', format: 'binary' },
         },
         [DocumentType.PROJECT_PHOTOS]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.COD_PROOF]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -618,6 +623,7 @@ export class DeviceController {
       DocumentType.METERING_EVIDENCE,
       DocumentType.SINGLE_LINE_DIAGRAM,
       DocumentType.PROJECT_PHOTOS,
+      DocumentType.COD_PROOF,
     ];
     const missingFiles = allFileTypes.filter((fileType) => {
       const fileArray = files[fileType];

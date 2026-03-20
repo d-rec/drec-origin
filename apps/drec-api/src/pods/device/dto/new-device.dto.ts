@@ -124,6 +124,13 @@ export class NewDeviceDTO
   @Transform((value) => parseFloat(value))
   capacity: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Transform((value) => (value != null ? parseFloat(value) : undefined))
+  acCapacity?: number;
+
   @ApiProperty()
   @Transform((value) => new Date(value))
   @IsDate()
@@ -263,6 +270,7 @@ export class DeviceRegistrationBody {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.COD_PROOF]: Express.Multer.File[];
   deviceToRegister: NewDeviceDTO;
 }
 
@@ -272,4 +280,5 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.COD_PROOF]: Express.Multer.File[];
 };

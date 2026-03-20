@@ -229,7 +229,6 @@ export class FileService {
       Bucket: bucket,
       Key: key,
       Body: file,
-      ACL: 'public-read',
     };
     return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
@@ -279,6 +278,18 @@ export class FileService {
     }
     this.logger.error(`Object not found`);
     throw new NotFoundException();
+  }
+
+  public async getSignedUrl(
+    key: string,
+    expiresInSeconds = 3600,
+  ): Promise<string> {
+    const s3 = this.getS3();
+    return s3.getSignedUrlPromise('getObject', {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+      Expires: expiresInSeconds,
+    });
   }
 
   public async deleteFileFromS3(key: string): Promise<void> {
