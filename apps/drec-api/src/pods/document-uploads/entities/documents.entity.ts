@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -66,4 +67,8 @@ export class DocumentEntity {
   @IsDate()
   @IsNotEmpty()
   updatedAt: Date;
+
+  @Column({ name: 'reviewed_flag', type: 'boolean', default: false })
+  @IsBoolean()
+  reviewedFlag: boolean;
 }

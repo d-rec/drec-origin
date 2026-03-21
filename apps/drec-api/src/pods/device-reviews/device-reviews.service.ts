@@ -3,6 +3,11 @@ import { InjectConnection } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { FileService } from '../file/file.service';
 
+export interface DocMeta {
+  docId: number;
+  reviewed: boolean;
+}
+
 export interface AssetDto {
   id: string;
   serial: string;
@@ -27,6 +32,7 @@ export interface AssetDto {
   sf02cUrl: string | null;
   meteringEvidenceUrl: string | null;
   pictureUrls: string[];
+  docMeta: Record<string, DocMeta>;
 }
 
 @Injectable()
@@ -37,6 +43,14 @@ export class DeviceReviewsService {
     @InjectConnection() private readonly connection: Connection,
     private readonly fileService: FileService,
   ) {}
+
+  async toggleReviewedFlag(docId: number): Promise<{ reviewed: boolean }> {
+    const rows: any[] = await this.connection.query(
+      `UPDATE documents SET reviewed_flag = NOT reviewed_flag WHERE id = $1 RETURNING reviewed_flag`,
+      [docId],
+    );
+    return { reviewed: !!rows[0]?.reviewed_flag };
+  }
 
   async findAll(): Promise<AssetDto[]> {
     const deviceRows: any[] = await this.connection.query(`
@@ -71,7 +85,7 @@ export class DeviceReviewsService {
     `);
 
     const docRows: any[] = await this.connection.query(
-      `SELECT target_id, type, url FROM documents WHERE target_type = 'device'`,
+      `SELECT id, target_id, type, url, reviewed_flag FROM documents WHERE target_type = 'device'`,
     );
 
     // Group documents by device id
@@ -98,6 +112,15 @@ export class DeviceReviewsService {
       }),
     );
 
+    // Map document DB types to frontend keys
+    const typeToKey: Record<string, string> = {
+      SINGLE_LINE_DIAGRAM: 'sld',
+      FORM_SF_02: 'sf02',
+      SF_02C: 'sf02c',
+      COD_PROOF: 'codProof',
+      METERING_EVIDENCE: 'meteringEvidence',
+    };
+
     return deviceRows.map((r) => {
       const devDocs: any[] = docsByDevice[String(r.id)] ?? [];
       const byType = (t: string) => {
@@ -109,6 +132,20 @@ export class DeviceReviewsService {
           .filter((d) => d.type === t)
           .map((d) => signedUrls[d.url])
           .filter((u): u is string => !!u);
+
+      // Build docMeta keyed the same way the frontend uses: 'sld', 'sf02', 'pic:0', etc.
+      const docMeta: Record<string, DocMeta> = {};
+      for (const doc of devDocs) {
+        const key = typeToKey[doc.type];
+        if (key) {
+          docMeta[key] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+        }
+      }
+      // Pictures: index-based keys
+      const picDocs = devDocs.filter((d) => d.type === 'PROJECT_PHOTOS' && signedUrls[d.url]);
+      picDocs.forEach((doc, i) => {
+        docMeta[`pic:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+      });
 
       return {
         id:                  String(r.id),
@@ -134,6 +171,7 @@ export class DeviceReviewsService {
         sf02cUrl:            byType('SF_02C'),
         meteringEvidenceUrl: byType('METERING_EVIDENCE'),
         pictureUrls:         allOfType('PROJECT_PHOTOS'),
+        docMeta,
       };
     });
   }
