@@ -19,6 +19,8 @@ export interface AssetDto {
   modifiedDate: Date | null;
   status: string;
   notes: string;
+  evidentDeviceId: string | null;
+  evidentStatus: string | null;
   codProofUrl: string | null;
   sldUrl: string | null;
   sf02Url: string | null;
@@ -50,6 +52,8 @@ export class DeviceReviewsService {
         d.capacity,
         d."acCapacity",
         d."countryCode",
+        d."evident_device_id" AS "evidentDeviceId",
+        d."evident_status" AS "evidentStatus",
         s.status,
         s.reviewer_name,
         s.submitted_at,
@@ -122,6 +126,8 @@ export class DeviceReviewsService {
         modifiedDate:        r.updatedAt ?? null,
         status:              r.status ?? 'pending',
         notes:               '',
+        evidentDeviceId:     r.evidentDeviceId ?? null,
+        evidentStatus:       r.evidentStatus ?? null,
         codProofUrl:         byType('COD_PROOF'),
         sldUrl:              byType('SINGLE_LINE_DIAGRAM'),
         sf02Url:             byType('FORM_SF_02'),
