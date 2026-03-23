@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -98,6 +99,15 @@ export class ChatController {
     @Body() body: { participant1: string; participant2: string; deviceProjectName?: string },
   ): Promise<ChatConversation | null> {
     return this.chatService.getConversation(body.participant1, body.participant2, body.deviceProjectName);
+  }
+
+  @Delete('conversations/:id')
+  @ApiOperation({ summary: 'Clear/delete a conversation and all its messages' })
+  async clearConversation(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ success: boolean }> {
+    await this.chatService.clearConversation(id);
+    return { success: true };
   }
 
   @Post('conversations/start')

@@ -44,6 +44,13 @@ export class DocumentUploadsService {
     let uploadedFileKey: string | null = null;
 
     try {
+      // Clear reviewed_flag on existing documents of the same type for this target,
+      // so reviewers must re-review after a new upload
+      await this.documentUploadsRepository.update(
+        { targetId, targetType, type: documentType },
+        { reviewedFlag: false },
+      );
+
       const uploadResult = await this.fileService.upload(file, subfolder);
       uploadedFileKey = uploadResult.Key;
 

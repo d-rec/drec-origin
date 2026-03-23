@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DeviceReviewsService, AssetDto } from './device-reviews.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
@@ -19,6 +19,19 @@ export class DeviceReviewsController {
   @ApiResponse({ status: 200, description: 'Array of device assets with document URLs' })
   findAll(): Promise<AssetDto[]> {
     return this.service.findAll();
+  }
+
+  @Patch(':deviceId/status')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Update review status for a device' })
+  @ApiResponse({ status: 200, description: 'Updated status' })
+  updateStatus(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body('status') status: string,
+  ): Promise<{ status: string }> {
+    return this.service.updateReviewStatus(deviceId, status);
   }
 
   @Patch('documents/:id/reviewed')

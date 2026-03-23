@@ -44,6 +44,45 @@ export class DeviceReviewsService {
     private readonly fileService: FileService,
   ) {}
 
+  async updateReviewStatus(
+    deviceId: number,
+    status: string,
+  ): Promise<{ status: string }> {
+    // Try to update existing submission row
+    const rows: any[] = await this.connection.query(
+      `UPDATE submissions s
+       SET status = $2, updated_at = now()
+       FROM device d
+       WHERE d.id = $1
+         AND regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+           = regexp_replace(s.project_subfolder,
+               '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+               '', 'i')
+       RETURNING s.status`,
+      [deviceId, status],
+    );
+    if (rows.length > 0) {
+      return { status: rows[0].status };
+    }
+
+    // No submission row exists — create one from the device's projectName
+    const deviceRows: any[] = await this.connection.query(
+      `SELECT "projectName" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (!deviceRows.length) {
+      return { status };
+    }
+    const projectName = deviceRows[0].projectName ?? '';
+    const subfolder = projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    await this.connection.query(
+      `INSERT INTO submissions (project_subfolder, submitted_at, status, created_at, updated_at)
+       VALUES ($1, now(), $2, now(), now())`,
+      [subfolder, status],
+    );
+    return { status };
+  }
+
   async toggleReviewedFlag(docId: number): Promise<{ reviewed: boolean }> {
     const rows: any[] = await this.connection.query(
       `UPDATE documents SET reviewed_flag = NOT reviewed_flag WHERE id = $1 RETURNING reviewed_flag`,

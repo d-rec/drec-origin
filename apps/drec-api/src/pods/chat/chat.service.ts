@@ -143,6 +143,33 @@ export class ChatService {
       .getMany();
   }
 
+  async clearConversation(conversationId: number): Promise<void> {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId },
+    });
+    if (!conversation) {
+      throw new NotFoundException(`Conversation ${conversationId} not found`);
+    }
+
+    // Collect all chat node UUIDs in this conversation's chain
+    const uuids: string[] = [];
+    let currentUuid: string | null = conversation.headUuid;
+    while (currentUuid) {
+      const node = await this.chatRepository.findOne({ where: { uuid: currentUuid } });
+      if (!node) break;
+      uuids.push(node.uuid);
+      currentUuid = node.nextEntryUuid;
+    }
+
+    // Delete all chat nodes
+    if (uuids.length) {
+      await this.chatRepository.delete(uuids);
+    }
+
+    // Delete the conversation
+    await this.conversationRepository.delete(conversationId);
+  }
+
   async getConversationPartners(): Promise<string[]> {
     const conversations = await this.conversationRepository.find();
     const adminUser = await this.getAdminUser();

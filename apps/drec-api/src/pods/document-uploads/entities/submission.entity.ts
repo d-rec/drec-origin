@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 export enum SubmissionStatus {
+  DRAFT = 'draft',
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',

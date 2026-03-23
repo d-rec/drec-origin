@@ -200,6 +200,7 @@ export class DeviceService {
 
         newDevices.push(device);
       });
+      await this.attachReviewStatus(newDevices);
       return {
         devices: newDevices,
         currentPage,
@@ -220,7 +221,33 @@ export class DeviceService {
       newDevices.push(device);
     });
 
+    await this.attachReviewStatus(newDevices);
     return newDevices;
+  }
+
+  private async attachReviewStatus(devices: any[]): Promise<void> {
+    if (!devices.length) return;
+    const ids = devices.map((d) => d.id);
+    const rows: any[] = await this.connection.query(
+      `SELECT
+         d.id AS device_id,
+         s.status AS review_status
+       FROM device d
+       LEFT JOIN submissions s
+         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+          = regexp_replace(s.project_subfolder,
+              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+              '', 'i')
+       WHERE d.id = ANY($1::int[])`,
+      [ids],
+    );
+    const statusMap: Record<number, string> = {};
+    for (const r of rows) {
+      statusMap[r.device_id] = r.review_status ?? 'pending';
+    }
+    for (const device of devices) {
+      device.reviewStatus = statusMap[device.id] ?? 'pending';
+    }
   }
 
   public getLatestDeviceByOrganization(
