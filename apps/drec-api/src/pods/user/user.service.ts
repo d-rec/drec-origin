@@ -12,7 +12,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import bcrypt from 'bcryptjs';
 import {
-  FindConditions,
+  FindOptionsWhere,
   FindManyOptions,
   Not,
   Repository,
@@ -318,8 +318,9 @@ export class UserService {
     return user ?? null;
   }
 
-  async findOne(conditions: FindConditions<User>): Promise<TUserBaseEntity> {
-    const user = await (this.repository.findOne(conditions, {
+  async findOne(conditions: FindOptionsWhere<User>): Promise<TUserBaseEntity> {
+    const user = await (this.repository.findOne({
+      where: conditions,
       relations: ['organization'],
     }) as Promise<IUser> as Promise<TUserBaseEntity>);
 
@@ -338,7 +339,7 @@ export class UserService {
     return bcrypt.hashSync(password, 8);
   }
 
-  private async hasUser(conditions: FindConditions<User>) {
+  private async hasUser(conditions: FindOptionsWhere<User>) {
     return Boolean(await this.findOne(conditions));
   }
 
@@ -786,9 +787,9 @@ export class UserService {
   }
 
   async hasValidUserSession(
-    conditions: FindConditions<UserLoginSessionEntity>,
+    conditions: FindOptionsWhere<UserLoginSessionEntity>,
   ): Promise<boolean> {
-    return Boolean(await this.userLoginSessionRepository.findOne(conditions));
+    return Boolean(await this.userLoginSessionRepository.findOne({ where: conditions }));
   }
 
   async verifyEmail(userId: number): Promise<User> {
@@ -799,7 +800,7 @@ export class UserService {
       { emailVerifiedAt: new Date() },
     );
 
-    return this.repository.findOne({ id: userId });
+    return this.repository.findOne({ where: { id: userId } });
   }
 
   async updatePhoneNumber(

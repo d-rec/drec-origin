@@ -16,8 +16,8 @@ import { DateTime } from 'luxon';
 import {
   Between,
   Brackets,
-  Connection,
-  FindConditions,
+  DataSource,
+  FindOptionsWhere,
   FindManyOptions,
   FindOneOptions,
   FindOperator,
@@ -109,7 +109,7 @@ export class DeviceService {
     private readonly userService: UserService,
     @InjectRepository(DeviceLateOngoingIssueCertificateEntity)
     private readonly lateDeviceCertificateRepository: Repository<DeviceLateOngoingIssueCertificateEntity>,
-    private readonly connection: Connection,
+    private readonly connection: DataSource,
     private readonly documentsService: DocumentUploadsService,
     private readonly evidentDeviceService: EvidentDeviceService,
     private readonly mailService: MailService,
@@ -897,7 +897,7 @@ export class DeviceService {
     orgId?: number,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getFilteredQuery`);
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
@@ -1085,7 +1085,7 @@ export class DeviceService {
     limit,
   ): FindManyOptions<Device> {
     this.logger.verbose(`With in getBuyerFilteredQuery`);
-    const where: FindConditions<Device> = cleanDeep({
+    const where: FindOptionsWhere<Device> = cleanDeep({
       fuelCode: filter.fuelCode,
       deviceTypeCode: filter.deviceTypeCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),

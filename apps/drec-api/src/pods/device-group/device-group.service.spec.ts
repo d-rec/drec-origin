@@ -650,7 +650,7 @@ describe('DeviceGroupService', () => {
 
       const result = await service.findOne({ id: 1 });
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(result).toEqual(mockDeviceGroup);
     });
 
@@ -659,7 +659,7 @@ describe('DeviceGroupService', () => {
 
       const result = await service.findOne({ id: 999 });
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 999 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
       expect(result).toBeNull();
     });
 
@@ -672,7 +672,7 @@ describe('DeviceGroupService', () => {
         'Database error',
       );
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
     });
   });
 

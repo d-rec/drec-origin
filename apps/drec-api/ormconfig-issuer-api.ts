@@ -1,4 +1,4 @@
-import { ConnectionOptions } from 'typeorm';
+import { DataSourceOptions } from 'typeorm';
 
 // Import the configuration from @energyweb/issuer-api
 const {
@@ -8,7 +8,7 @@ const {
 } = require('@energyweb/issuer-api/dist/js/ormconfig.js');
 
 // Create your custom DataSourceOptions object
-const config: ConnectionOptions = {
+const config: DataSourceOptions = {
   ...dbConfig,
   synchronize: false,
   migrationsRun: true,

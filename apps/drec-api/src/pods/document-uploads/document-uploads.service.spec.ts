@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentUploadsService } from './document-uploads.service';
 import { DocumentEntity } from './entities/documents.entity';
 import { FileService } from '../file/file.service';
-import { Connection, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../organization/organization.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
@@ -37,7 +37,7 @@ describe('DocumentUploadsService', () => {
           },
         },
         {
-          provide: Connection,
+          provide: DataSource,
           useValue: {
             createQueryRunner: jest.fn().mockReturnValue({
               connect: jest.fn(),

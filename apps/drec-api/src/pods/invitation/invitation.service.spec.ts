@@ -36,10 +36,12 @@ describe('InvitationService', () => {
         InvitationService,
         {
           provide: getRepositoryToken(Invitation),
-          useClass: Repository,
           useValue: {
-            findOne: jest.fn(), // Mock function
-            delete: jest.fn(), // Mock function
+            findOne: jest.fn(),
+            delete: jest.fn(),
+            save: jest.fn(),
+            find: jest.fn(),
+            createQueryBuilder: jest.fn(),
           },
         },
         {
@@ -829,7 +831,7 @@ describe('InvitationService', () => {
       await service.remove(email, orgId);
 
       await expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: email.toLowerCase(), organization: orgId },
+        where: { email: email.toLowerCase(), organization: { id: orgId } },
         relations: ['organization'],
       });
     });
@@ -856,7 +858,7 @@ describe('InvitationService', () => {
       await service.remove(email, orgId);
 
       await expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: email.toLowerCase(), organization: orgId },
+        where: { email: email.toLowerCase(), organization: { id: orgId } },
         relations: ['organization'],
       });
 
@@ -909,7 +911,7 @@ describe('InvitationService', () => {
       await service.remove(email, orgId);
 
       await expect(findOneSpy).toHaveBeenCalledWith({
-        where: { email: email.toLowerCase(), organization: orgId },
+        where: { email: email.toLowerCase(), organization: { id: orgId } },
         relations: ['organization'],
       });
       await expect(deleteSpy).toHaveBeenCalledWith(orgId);

@@ -1,6 +1,6 @@
-import { ConnectionOptions } from 'typeorm';
+import { DataSourceOptions } from 'typeorm';
 
-const getDBConnectionOptions = (): ConnectionOptions => {
+const getDBConnectionOptions = (): DataSourceOptions => {
   return process.env.DATABASE_URL
     ? {
         type: 'postgres',
@@ -19,7 +19,7 @@ const getDBConnectionOptions = (): ConnectionOptions => {
       };
 };
 
-const config: ConnectionOptions = {
+const config: DataSourceOptions = {
   ...getDBConnectionOptions(),
   synchronize: false,
   migrationsRun: true,

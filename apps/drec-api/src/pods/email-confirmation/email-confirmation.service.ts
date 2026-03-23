@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import crypto from 'crypto';
 import { DateTime } from 'luxon';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { MailService } from '../../mail';
 import { IEmailConfirmationToken, ISuccessResponse, IUser } from '../../models';
 import { EmailConfirmationResponse, Role } from '../../utils/enums';
@@ -132,10 +132,11 @@ export class EmailConfirmationService {
     );
   }
   async findOne(
-    conditions: FindConditions<EmailConfirmation>,
+    conditions: FindOptionsWhere<EmailConfirmation>,
   ): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in findOne`);
-    return await (this.repository.findOne(conditions, {
+    return await (this.repository.findOne({
+      where: conditions,
       relations: ['user'],
     }) as Promise<EmailConfirmation> as Promise<EmailConfirmation | undefined>);
   }

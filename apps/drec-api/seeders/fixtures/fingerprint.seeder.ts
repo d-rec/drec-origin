@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SeederInterface } from '../core/seeder-interface';
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { generateDeviceFingerprint } from '../../src/lib/device';
 
 @Injectable()
 export class FingerprintSeeder implements SeederInterface {
   private readonly logger = new Logger(FingerprintSeeder.name);
   constructor(
-    @InjectConnection()
-    private readonly connection: Connection,
+    @InjectDataSource()
+    private readonly connection: DataSource,
   ) {}
   async run(): Promise<void> {
     try {

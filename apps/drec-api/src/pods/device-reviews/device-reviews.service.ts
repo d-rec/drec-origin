@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/typeorm';
-import { Connection } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
 
 export interface DocMeta {
@@ -40,7 +40,7 @@ export class DeviceReviewsService {
   private readonly logger = new Logger(DeviceReviewsService.name);
 
   constructor(
-    @InjectConnection() private readonly connection: Connection,
+    @InjectDataSource() private readonly connection: DataSource,
     private readonly fileService: FileService,
   ) {}
 

@@ -324,7 +324,7 @@ export class InvitationService {
     const orgInvite = await this.invitationRepository.findOne({
       where: {
         email: lowerCaseEmail,
-        organization: orgId,
+        organization: { id: orgId },
       },
       relations: ['organization'],
     });

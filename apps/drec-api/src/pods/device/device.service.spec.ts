@@ -9,7 +9,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Connection,
+  DataSource,
   Repository,
 } from 'typeorm';
 import { DeviceDescription } from '../../models';
@@ -53,7 +53,7 @@ describe('DeviceService', () => {
   let repository: Repository<Device>;
   let deviceDocumentRepository: Repository<DocumentEntity>;
   let fileService: FileService;
-  let connection: Connection;
+  let dataSource: DataSource;
   let documentService: DocumentUploadsService;
 
   beforeEach(async () => {
@@ -102,8 +102,9 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
-          provide: Connection,
+          provide: DataSource,
           useValue: {
+            query: jest.fn().mockResolvedValue([]),
             createQueryRunner: jest.fn().mockReturnValue({
               connect: jest.fn(),
               startTransaction: jest.fn(),
@@ -159,7 +160,7 @@ describe('DeviceService', () => {
       getRepositoryToken(DocumentEntity),
     );
     fileService = module.get<FileService>(FileService);
-    connection = module.get<Connection>(Connection);
+    dataSource = module.get<DataSource>(DataSource);
   });
 
   it('should be defined', () => {
@@ -1083,32 +1084,32 @@ describe('DeviceService', () => {
             _type: 'lessThanOrEqual',
             _value: '200', // Adjust as needed
             _useParameter: true,
-          },
+          } as any,
           countryCode: filterDTO.country,
-          organizationId: orgId.toString(), // Use orgId provided dynamically
+          organizationId: orgId.toString() as any, // Use orgId provided dynamically
           commissioningDate: {
             _type: 'moreThanOrEqual',
             _value: new Date().toISOString(), // Use current date or adjust as needed
             _useParameter: true,
-          },
+          } as any,
           SDGBenefits: {
             _type: 'raw',
             _value: [],
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
           deviceTypeCode: {
             _type: 'raw',
             _value: [filterDTO.deviceTypeCode], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
           offTaker: {
             _type: 'raw',
             _value: [filterDTO.offTaker], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
         },
         order: { organizationId: 'DESC' },
         skip: (pageNumber - 1) * limit,

@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Connection } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import {
   DocumentEntity,
   DocumentType,
@@ -16,7 +16,7 @@ export class DocumentUploadsService {
     @InjectRepository(DocumentEntity)
     private readonly documentUploadsRepository: Repository<DocumentEntity>,
     private readonly fileService: FileService,
-    private readonly connection: Connection,
+    private readonly connection: DataSource,
   ) {}
 
   async getSignedUrl(id: number): Promise<string> {

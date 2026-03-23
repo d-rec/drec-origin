@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository, FindConditions } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
@@ -236,7 +236,7 @@ describe('EmailConfirmationService', () => {
 
   describe('findOne', () => {
     it('should return email confirmation if conditions match', async () => {
-      const conditions: FindConditions<EmailConfirmation> = {
+      const conditions: FindOptionsWhere<EmailConfirmation> = {
         token: 'testToken',
       };
       const emailConfirmation = {
@@ -250,14 +250,15 @@ describe('EmailConfirmationService', () => {
 
       const result = await service.findOne(conditions);
 
-      expect(findOneSpy).toHaveBeenCalledWith(conditions, {
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: conditions,
         relations: ['user'],
       });
       expect(result).toEqual(emailConfirmation);
     });
 
     it('should return undefined if no email confirmation matches conditions', async () => {
-      const conditions: FindConditions<EmailConfirmation> = {
+      const conditions: FindOptionsWhere<EmailConfirmation> = {
         token: 'nonExistentToken',
       };
 
@@ -267,7 +268,8 @@ describe('EmailConfirmationService', () => {
 
       const result = await service.findOne(conditions);
 
-      expect(findOneSpy).toHaveBeenCalledWith(conditions, {
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: conditions,
         relations: ['user'],
       });
       expect(result).toBeUndefined();

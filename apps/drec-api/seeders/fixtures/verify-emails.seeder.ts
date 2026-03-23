@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Connection } from 'typeorm';
-import { InjectConnection } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { SeederInterface } from '../core/seeder-interface';
 
 @Injectable()
@@ -8,8 +8,8 @@ export class VerifyEmailsSeeder implements SeederInterface {
   private readonly logger = new Logger(VerifyEmailsSeeder.name);
 
   constructor(
-    @InjectConnection()
-    private readonly connection: Connection,
+    @InjectDataSource()
+    private readonly connection: DataSource,
   ) {}
 
   async run(): Promise<void> {

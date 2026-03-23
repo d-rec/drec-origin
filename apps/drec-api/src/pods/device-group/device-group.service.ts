@@ -13,7 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { cloneDeep, defaults } from 'lodash';
 import {
   Brackets,
-  FindConditions,
+  FindOptionsWhere,
   In,
   LessThan,
   Repository,
@@ -81,7 +81,7 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { GroupType } from '../../utils/enums/group-type.enum';
-import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { DocumentEntity, DocumentTargetType } from '../document-uploads/entities/documents.entity';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import {
   EvidentIssuanceStatus,
@@ -785,10 +785,10 @@ export class DeviceGroupService {
 
   @Profile()
   async findOne(
-    conditions: FindConditions<DeviceGroup>,
+    conditions: FindOptionsWhere<DeviceGroup>,
   ): Promise<DeviceGroup | null> {
     this.logger.verbose(`With in findOne`);
-    return (await this.repository.findOne(conditions)) ?? null;
+    return (await this.repository.findOne({ where: conditions })) ?? null;
   }
 
   async createFailedRowDetailsForCSVJob(
@@ -889,7 +889,7 @@ export class DeviceGroupService {
   ): Promise<void> {
     const files = await this.documentsRepository.find({
       where: {
-        targetType: 'device',
+        targetType: DocumentTargetType.DEVICE,
         targetId: device.id,
       },
     });
@@ -1317,7 +1317,7 @@ export class DeviceGroupService {
     );
   }
 
-  private async hasDeviceGroup(conditions: FindConditions<DeviceGroup>) {
+  private async hasDeviceGroup(conditions: FindOptionsWhere<DeviceGroup>) {
     this.logger.verbose(`With in hasDeviceGroup`);
     return Boolean(await this.findOne(conditions));
   }
@@ -1959,11 +1959,11 @@ export class DeviceGroupService {
 
   @Profile()
   async getGroupCertificateIssueDate(
-    conditions: FindConditions<DeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<DeviceGroupNextIssueCertificate>,
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
     return (
-      (await this.repositoryNextDeviceGroupCertificate.findOne(conditions)) ??
+      (await this.repositoryNextDeviceGroupCertificate.findOne({ where: conditions })) ??
       null
     );
   }
@@ -2128,11 +2128,11 @@ export class DeviceGroupService {
   }
 
   async getHistoryCertificateIssueDate(
-    conditions: FindConditions<HistoryDeviceGroupNextIssueCertificate>,
+    conditions: FindOptionsWhere<HistoryDeviceGroupNextIssueCertificate>,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historyNextIssuanceDateRepository.findOne(conditions)) ?? null
+      (await this.historyNextIssuanceDateRepository.findOne({ where: conditions })) ?? null
     );
   }
   async updateHistoryCertificateIssueStatus(

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindConditions, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { ILoggedInUser, IYieldConfig } from '../../models';
 import { NewYieldConfigDTO } from './dto/new-yieldconfig.dto';
 import { UpdateYieldValueDTO, YieldConfigDTO } from './dto';
@@ -66,15 +66,15 @@ export class YieldConfigService {
       });
     }
   }
-  private async hasValue(conditions: FindConditions<YieldConfig>) {
+  private async hasValue(conditions: FindOptionsWhere<YieldConfig>) {
     return Boolean(await this.findOne(conditions));
   }
   async findOne(
-    conditions: FindConditions<YieldConfig>,
+    conditions: FindOptionsWhere<YieldConfig>,
   ): Promise<TUserBaseEntity> {
-    return await (this.repository.findOne(
-      conditions,
-    ) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
+    return await (this.repository.findOne({
+      where: conditions,
+    }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
   }
   async findById(id: number): Promise<IYieldConfig> {
     const yieldValueById = this.findOne({ id });
