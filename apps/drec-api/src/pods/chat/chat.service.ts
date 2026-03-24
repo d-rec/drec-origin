@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Chat } from './chat.entity';
@@ -7,6 +7,8 @@ import { User } from '../user/user.entity';
 
 @Injectable()
 export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
+
   constructor(
     @InjectRepository(Chat)
     private readonly chatRepository: Repository<Chat>,
@@ -27,6 +29,8 @@ export class ChatService {
       nextEntryUuid: null,
     });
     const saved = await this.chatRepository.save(node);
+
+    this.logger.log(`New chat message from ${username}: ${chatEntry}`);
 
     if (previousEntryUuid) {
       await this.chatRepository.update(previousEntryUuid, {

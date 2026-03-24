@@ -503,8 +503,10 @@ export class DeviceController {
   @Post()
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    RolesGuard,
     PermissionGuard,
   )
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @UseInterceptors(

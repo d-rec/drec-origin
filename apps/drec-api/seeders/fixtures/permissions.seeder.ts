@@ -224,7 +224,18 @@ export class PermissionsSeeder implements SeederInterface {
       },
     ]);
 
-    await this.aclPermissionsRepository.save(permissions);
+    for (const perm of permissions) {
+      const exists = await this.aclPermissionsRepository.findOne({
+        where: {
+          aclmodulesId: perm.aclmodulesId,
+          entityId: perm.entityId,
+          entityType: perm.entityType,
+        },
+      });
+      if (!exists) {
+        await this.aclPermissionsRepository.save(perm);
+      }
+    }
   }
 
   async drop(): Promise<void> {

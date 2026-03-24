@@ -101,9 +101,9 @@ export class UpdateDeviceDTO
 
   @ApiProperty()
   @IsString()
-  @Matches(/^[a-zA-Z0-9_-]+$/, {
+  @Matches(/^[a-zA-Z0-9_;-]+$/, {
     message:
-      'serialNumber must contain only letters, numbers, underscores, or hyphens — no spaces allowed',
+      'serialNumber must contain only letters, numbers, underscores, hyphens, or semicolons — no spaces allowed',
   })
   serialNumber: string;
 

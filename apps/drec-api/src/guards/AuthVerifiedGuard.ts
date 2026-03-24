@@ -14,7 +14,15 @@ import { IUser } from '../models/User';
 import { ActiveUserGuard } from './ActiveUserGuard';
 import { Reflector } from '@nestjs/core';
 
+const SKIP_VERIFICATION_MODES = ['dev', 'stage', 'test'];
+
 const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
+  const mode = process.env.MODE || '';
+  if (SKIP_VERIFICATION_MODES.includes(mode)) {
+    logger.verbose(`Skipping verification checks (MODE=${mode})`);
+    return true;
+  }
+
   logger.verbose('Checking if user is verified');
 
   const request = context.switchToHttp().getRequest();

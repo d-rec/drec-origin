@@ -10,4 +10,5 @@ export enum IRECDeviceStatus {
   Rejected = 'Rejected',
   Referred = 'Referred',
   Approved = 'Approved',
+  Legacy = 'Legacy',
 }

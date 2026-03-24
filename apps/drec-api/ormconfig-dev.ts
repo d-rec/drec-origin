@@ -1,7 +1,7 @@
 import Dotenv from 'dotenv';
 Dotenv.config({ path: '../../.env' });
 
-import { DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
 const getDBConnectionOptions = (): DataSourceOptions => {
   return process.env.DATABASE_URL
@@ -31,4 +31,4 @@ const config: DataSourceOptions = {
   migrationsTableName: 'migrations_drec',
 };
 
-export = config;
+export default new DataSource(config);

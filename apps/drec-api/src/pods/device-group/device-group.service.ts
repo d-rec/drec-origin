@@ -2279,20 +2279,22 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (role === 'OrganizationAdmin') {
+      if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User') {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
-      }
-      if (role === 'Buyer') {
+      } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
         });
-      }
-
-      if (role === 'ApiUser') {
+      } else if (role === 'ApiUser') {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
+        });
+      } else {
+        // Admin or any other role — filter by org
+        whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
+          orgId: orgId,
         });
       }
 
@@ -2476,7 +2478,7 @@ export class DeviceGroupService {
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
     let deviceGroups: any;
-    if (role === 'OrganizationAdmin') {
+    if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User' || role === 'Admin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
@@ -2498,8 +2500,7 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    }
-    if (role === 'Buyer' || role === Role.ApiUser) {
+    } else if (role === 'Buyer' || role === 'SubBuyer' || role === Role.ApiUser) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
 
@@ -2563,19 +2564,21 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (role === 'OrganizationAdmin') {
+      if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User') {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
-      }
-      if (role === 'Buyer') {
+      } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
         });
-      }
-      if (role === 'ApiUser') {
+      } else if (role === 'ApiUser') {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
+        });
+      } else {
+        whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
+          orgId: orgId,
         });
       }
       whereOrganizationId
@@ -2755,7 +2758,7 @@ export class DeviceGroupService {
     const totalPages = Math.ceil(totalCount / pageSize);
 
     let deviceGroups: any;
-    if (role === 'OrganizationAdmin') {
+    if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User' || role === 'Admin') {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
@@ -2778,8 +2781,7 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    }
-    if (role === 'Buyer' || role === Role.ApiUser) {
+    } else if (role === 'Buyer' || role === 'SubBuyer' || role === Role.ApiUser) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 

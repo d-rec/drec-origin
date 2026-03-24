@@ -229,6 +229,67 @@ mc cp local/drec-documents/<key> ./output-file
 mc alias set local http://localhost:9000 minioadmin minioadmin
 ```
 
+## Logging (Grafana Loki)
+
+The API uses [Winston](https://github.com/winstonjs/winston) with a [Grafana Loki](https://grafana.com/oss/loki/) transport for centralized, long-term logging. The same setup works locally (Docker) and on AWS — just change `.env` variables.
+
+### Local setup
+
+Start Loki and Grafana:
+
+```sh
+docker compose up -d drec-loki drec-grafana
+```
+
+Add to your `.env`:
+
+```
+LOKI_ENABLED=true
+LOKI_URL=http://localhost:3100
+```
+
+Restart the API, then open **http://localhost:3001** (Grafana, login: admin/admin).
+Go to **Explore → Loki** and query `{app="drec-api"}`.
+
+### AWS setup
+
+Point `LOKI_URL` at your Loki instance and optionally set basic auth:
+
+```
+LOKI_ENABLED=true
+LOKI_URL=https://loki.your-domain.com
+LOKI_AUTH_USER=<user>
+LOKI_AUTH_PASS=<password>
+```
+
+### Optional: file logging
+
+```
+LOG_FILE_ENABLED=true
+LOG_DIR=logs
+```
+
+Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-DD.log` (errors only, kept 90 days).
+
+### All logging env vars
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOG_LEVEL` | `info` | Min level: `error`, `warn`, `info`, `verbose`, `debug` |
+| `LOG_FILE_ENABLED` | `false` | Enable daily rotate log files |
+| `LOG_DIR` | `logs` | Directory for log files |
+| `LOKI_ENABLED` | `false` | Push logs to Grafana Loki |
+| `LOKI_URL` | `http://localhost:3100` | Loki push endpoint |
+| `LOKI_AUTH_USER` | | Basic-auth user (optional) |
+| `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
+| `LOKI_LABELS` | `{}` | Extra labels as JSON |
+
+## Staging Database
+
+```
+DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
+```
+
 ## Dependencies
 
 This project uses a variety of dependencies developed for D-REC. For a detailed list of these dependencies—including their GitHub links and version information—please refer to the [Dependencies](./DEPENDENCIES.md) page.

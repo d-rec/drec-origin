@@ -147,6 +147,8 @@ export class DeviceService {
       newDevices.push(device);
     });
 
+    await this.attachReviewStatus(newDevices);
+
     return {
       devices: newDevices,
       currentPage,
@@ -545,6 +547,20 @@ export class DeviceService {
 
     const sdgBenefitList = SDGBenefits;
 
+    const checkProjectName = await this.repository.findOne({
+      where: {
+        projectName: newDevice.projectName,
+        organizationId: organizationId,
+      },
+    });
+
+    if (checkProjectName) {
+      throw new ConflictException({
+        success: false,
+        message: `A device with site name "${newDevice.projectName}" already exists in this organization`,
+      });
+    }
+
     const checkSerialNumber = await this.repository.findOne({
       where: {
         serialNumber: newDevice.serialNumber,
@@ -697,6 +713,22 @@ export class DeviceService {
       this.logger.error(`No device found with id ${serialNumber}`);
       throw new NotFoundException(`No device found with id ${serialNumber}`);
     }
+
+    if (updateDeviceDTO.projectName) {
+      const duplicateName = await this.repository.findOne({
+        where: {
+          projectName: updateDeviceDTO.projectName,
+          organizationId: organizationId,
+        },
+      });
+      if (duplicateName && duplicateName.id !== currentDevice.id) {
+        throw new ConflictException({
+          success: false,
+          message: `A device with site name "${updateDeviceDTO.projectName}" already exists in this organization`,
+        });
+      }
+    }
+
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgBenefitList = SDGBenefits;
 
