@@ -216,32 +216,13 @@ MinIO is the S3-compatible object store used for device submission documents. In
    - **Password:** `minioadmin`
 4. Navigate to **Buckets → drec-documents** to browse uploaded files.
 
-**Useful `mc` (MinIO client) commands** (run inside the `drec-minio-init` container or with `mc` installed locally):
-
-```sh
-# List all objects in the bucket
-mc ls local/drec-documents --recursive
-
-# Download a specific file
-mc cp local/drec-documents/<key> ./output-file
-
-# Set an alias pointing at the local server
-mc alias set local http://localhost:9000 minioadmin minioadmin
-```
-
 ## Logging (Grafana Loki)
 
 The API uses [Winston](https://github.com/winstonjs/winston) with a [Grafana Loki](https://grafana.com/oss/loki/) transport for centralized, long-term logging. The same setup works locally (Docker) and on AWS — just change `.env` variables.
 
 ### Local setup
 
-Start Loki and Grafana:
-
-```sh
-docker compose up -d drec-loki drec-grafana
-```
-
-Add to your `.env`:
+Loki and Grafana are included in `docker compose up -d` (no extra step needed). Add to your `.env`:
 
 ```
 LOKI_ENABLED=true

@@ -200,7 +200,7 @@ export class DeviceReviewsService {
         dateAdded:           r.createdAt ?? null,
         dateSubmitted:       r.submitted_at ?? null,
         modifiedDate:        r.updatedAt ?? null,
-        status:              r.status ?? 'pending',
+        status:              r.status ?? 'draft',
         notes:               '',
         evidentDeviceId:     r.evidentDeviceId ?? null,
         evidentStatus:       r.evidentStatus ?? null,

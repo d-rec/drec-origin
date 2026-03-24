@@ -245,10 +245,10 @@ export class DeviceService {
     );
     const statusMap: Record<number, string> = {};
     for (const r of rows) {
-      statusMap[r.device_id] = r.review_status ?? 'pending';
+      statusMap[r.device_id] = r.review_status ?? 'draft';
     }
     for (const device of devices) {
-      device.reviewStatus = statusMap[device.id] ?? 'pending';
+      device.reviewStatus = statusMap[device.id] ?? 'draft';
     }
   }
 
