@@ -1680,7 +1680,7 @@ describe('DeviceService', () => {
         serialNumber: 'SN12345',
       };
 
-      const currentDevice = {
+      const currentDeviceData = {
         id: 1,
         externalId: 'external-id-1',
         serialNumber: 'SN12345',
