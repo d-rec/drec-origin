@@ -126,7 +126,10 @@ export function createWinstonLogger() {
       winston.format((info) => {
         // Promote logType to a Loki label so it's filterable
         if (info.logType) {
-          info.labels = { ...(info.labels as Record<string, string>), type: info.logType as string };
+          info.labels = {
+            ...(info.labels as Record<string, string>),
+            type: info.logType as string,
+          };
         }
         return info;
       })(),
