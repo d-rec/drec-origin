@@ -178,7 +178,7 @@ In local dev, emails are captured by **Mailpit** — a local SMTP server that ac
 
 The `docker-compose.yml` runs it as `drec-mailpit` and the local `.env` already points at it:
 
-```
+```ini
 SMTP_HOST=localhost
 SMTP_PORT=1025
 ```
@@ -191,7 +191,7 @@ docker compose up -d drec-mailpit
 
 **To view captured emails:**
 
-Open **http://localhost:8025** in your browser.
+Open <http://localhost:8025> in your browser.
 
 **For production**, replace the `.env` SMTP values with real credentials (e.g. `smtp.gmail.com` + a Gmail App Password or SMTP relay).
 
@@ -207,10 +207,12 @@ MinIO is the S3-compatible object store used for device submission documents. In
 **To open the browser console:**
 
 1. Make sure the Docker services are running:
+
    ```sh
    docker compose up -d drec-minio
    ```
-2. Open **http://localhost:9001** in your browser.
+
+2. Open <http://localhost:9001> in your browser.
 3. Log in with:
    - **Username:** `minioadmin`
    - **Password:** `minioadmin`
@@ -224,19 +226,19 @@ The API uses [Winston](https://github.com/winstonjs/winston) with a [Grafana Lok
 
 Loki and Grafana are included in `docker compose up -d` (no extra step needed). Add to your `.env`:
 
-```
+```ini
 LOKI_ENABLED=true
 LOKI_URL=http://localhost:3100
 ```
 
-Restart the API, then open **http://localhost:3001** (Grafana, login: admin/admin).
+Restart the API, then open <http://localhost:3001> (Grafana, login: admin/admin).
 Go to **Explore → Loki** and query `{app="drec-api"}`.
 
 ### AWS setup
 
 Point `LOKI_URL` at your Loki instance and optionally set basic auth:
 
-```
+```ini
 LOKI_ENABLED=true
 LOKI_URL=https://loki.your-domain.com
 LOKI_AUTH_USER=<user>
@@ -245,7 +247,7 @@ LOKI_AUTH_PASS=<password>
 
 ### Optional: file logging
 
-```
+```ini
 LOG_FILE_ENABLED=true
 LOG_DIR=logs
 ```
@@ -267,7 +269,7 @@ Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-
 
 ## Staging Database
 
-```
+```ini
 DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
 ```
 
