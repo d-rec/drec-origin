@@ -62,6 +62,7 @@ export class DeviceReviewsService {
       [deviceId, status],
     );
     if (rows.length > 0) {
+      this.logger.log(`Device ${deviceId} review status changed to "${status}"`);
       return { status: rows[0].status };
     }
 
@@ -80,7 +81,13 @@ export class DeviceReviewsService {
        VALUES ($1, now(), $2, now(), now())`,
       [subfolder, status],
     );
+    this.logger.log(`Device ${deviceId} review status set to "${status}" (new submission created for "${projectName}")`);
     return { status };
+  }
+
+  async refreshSignedUrl(key: string): Promise<{ url: string }> {
+    const url = await this.fileService.getSignedUrl(decodeURIComponent(key), 43200);
+    return { url };
   }
 
   async toggleReviewedFlag(docId: number): Promise<{ reviewed: boolean }> {
@@ -144,7 +151,7 @@ export class DeviceReviewsService {
           // DB stores URL-encoded keys (e.g. "Site%20Photo") but MinIO objects
           // use the decoded name ("Site Photo"). Decode before signing so the
           // presigned URL references the object that actually exists.
-          signedUrls[key] = await this.fileService.getSignedUrl(decodeURIComponent(key));
+          signedUrls[key] = await this.fileService.getSignedUrl(decodeURIComponent(key), 43200);
         } catch {
           signedUrls[key] = null;
         }

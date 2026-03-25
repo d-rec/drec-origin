@@ -30,7 +30,7 @@ export class ChatService {
     });
     const saved = await this.chatRepository.save(node);
 
-    this.logger.log(`New chat message from ${username}: ${chatEntry}`);
+    this.logger.log(`Chat message sent by ${username}: ${chatEntry}`);
 
     if (previousEntryUuid) {
       await this.chatRepository.update(previousEntryUuid, {
@@ -103,6 +103,7 @@ export class ChatService {
       deviceProjectName: deviceProjectName ?? null,
     });
     const savedConversation = await this.conversationRepository.save(conversation);
+    this.logger.log(`Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`);
     return { conversation: savedConversation, message };
   }
 
@@ -128,6 +129,7 @@ export class ChatService {
       lastEntryUuid: message.uuid,
     });
 
+    this.logger.log(`Message appended to conversation ${conversationId} by ${username}`);
     return message;
   }
 
@@ -172,6 +174,7 @@ export class ChatService {
 
     // Delete the conversation
     await this.conversationRepository.delete(conversationId);
+    this.logger.log(`Conversation ${conversationId} cleared (${uuids.length} messages deleted)`);
   }
 
   async getConversationPartners(): Promise<string[]> {

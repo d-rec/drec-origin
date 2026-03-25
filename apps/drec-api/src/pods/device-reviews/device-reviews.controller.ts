@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DeviceReviewsService, AssetDto } from './device-reviews.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
@@ -32,6 +32,18 @@ export class DeviceReviewsController {
     @Body('status') status: string,
   ): Promise<{ status: string }> {
     return this.service.updateReviewStatus(deviceId, status);
+  }
+
+  @Post('refresh-url')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Get a fresh signed S3 URL for a document key' })
+  @ApiResponse({ status: 200, description: 'Fresh signed URL' })
+  refreshUrl(
+    @Body('key') key: string,
+  ): Promise<{ url: string }> {
+    return this.service.refreshSignedUrl(key);
   }
 
   @Patch('documents/:id/reviewed')
