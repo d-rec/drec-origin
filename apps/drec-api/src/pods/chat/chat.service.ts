@@ -31,7 +31,11 @@ export class ChatService {
     });
     const saved = await this.chatRepository.save(node);
 
-    typedLog(this.logger, 'chat', `Chat message sent by ${username}: ${chatEntry}`);
+    typedLog(
+      this.logger,
+      'chat',
+      `Chat message sent by ${username}: ${chatEntry}`,
+    );
 
     if (previousEntryUuid) {
       await this.chatRepository.update(previousEntryUuid, {
@@ -103,8 +107,13 @@ export class ChatService {
       lastEntryUuid: message.uuid,
       deviceProjectName: deviceProjectName ?? null,
     });
-    const savedConversation = await this.conversationRepository.save(conversation);
-    typedLog(this.logger, 'chat', `Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`);
+    const savedConversation =
+      await this.conversationRepository.save(conversation);
+    typedLog(
+      this.logger,
+      'chat',
+      `Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`,
+    );
     return { conversation: savedConversation, message };
   }
 
@@ -130,7 +139,11 @@ export class ChatService {
       lastEntryUuid: message.uuid,
     });
 
-    typedLog(this.logger, 'chat', `Message appended to conversation ${conversationId} by ${username}`);
+    typedLog(
+      this.logger,
+      'chat',
+      `Message appended to conversation ${conversationId} by ${username}`,
+    );
     return message;
   }
 
@@ -145,7 +158,9 @@ export class ChatService {
   async getConversationsForUser(email: string): Promise<ChatConversation[]> {
     return this.conversationRepository
       .createQueryBuilder('conv')
-      .where('conv.participant1 = :email OR conv.participant2 = :email', { email })
+      .where('conv.participant1 = :email OR conv.participant2 = :email', {
+        email,
+      })
       .orderBy('conv.id', 'DESC')
       .getMany();
   }
@@ -162,7 +177,9 @@ export class ChatService {
     const uuids: string[] = [];
     let currentUuid: string | null = conversation.headUuid;
     while (currentUuid) {
-      const node = await this.chatRepository.findOne({ where: { uuid: currentUuid } });
+      const node = await this.chatRepository.findOne({
+        where: { uuid: currentUuid },
+      });
       if (!node) break;
       uuids.push(node.uuid);
       currentUuid = node.nextEntryUuid;
@@ -175,7 +192,11 @@ export class ChatService {
 
     // Delete the conversation
     await this.conversationRepository.delete(conversationId);
-    typedLog(this.logger, 'chat', `Conversation ${conversationId} cleared (${uuids.length} messages deleted)`);
+    typedLog(
+      this.logger,
+      'chat',
+      `Conversation ${conversationId} cleared (${uuids.length} messages deleted)`,
+    );
   }
 
   async getConversationPartners(): Promise<string[]> {

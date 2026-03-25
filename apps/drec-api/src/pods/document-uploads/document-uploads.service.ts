@@ -70,7 +70,9 @@ export class DocumentUploadsService {
       return savedDocumentUpload;
     } catch (error) {
       if (uploadedFileKey) {
-        await this.fileService.deleteFileFromS3(uploadedFileKey).catch(() => {});
+        await this.fileService
+          .deleteFileFromS3(uploadedFileKey)
+          .catch(() => {});
       }
 
       await queryRunner.rollbackTransaction();

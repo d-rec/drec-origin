@@ -62,7 +62,9 @@ export class DeviceReviewsService {
       [deviceId, status],
     );
     if (rows.length > 0) {
-      this.logger.log(`Device ${deviceId} review status changed to "${status}"`);
+      this.logger.log(
+        `Device ${deviceId} review status changed to "${status}"`,
+      );
       return { status: rows[0].status };
     }
 
@@ -81,12 +83,17 @@ export class DeviceReviewsService {
        VALUES ($1, now(), $2, now(), now())`,
       [subfolder, status],
     );
-    this.logger.log(`Device ${deviceId} review status set to "${status}" (new submission created for "${projectName}")`);
+    this.logger.log(
+      `Device ${deviceId} review status set to "${status}" (new submission created for "${projectName}")`,
+    );
     return { status };
   }
 
   async refreshSignedUrl(key: string): Promise<{ url: string }> {
-    const url = await this.fileService.getSignedUrl(decodeURIComponent(key), 43200);
+    const url = await this.fileService.getSignedUrl(
+      decodeURIComponent(key),
+      43200,
+    );
     return { url };
   }
 
@@ -151,7 +158,10 @@ export class DeviceReviewsService {
           // DB stores URL-encoded keys (e.g. "Site%20Photo") but MinIO objects
           // use the decoded name ("Site Photo"). Decode before signing so the
           // presigned URL references the object that actually exists.
-          signedUrls[key] = await this.fileService.getSignedUrl(decodeURIComponent(key), 43200);
+          signedUrls[key] = await this.fileService.getSignedUrl(
+            decodeURIComponent(key),
+            43200,
+          );
         } catch {
           signedUrls[key] = null;
         }
@@ -171,7 +181,7 @@ export class DeviceReviewsService {
       const devDocs: any[] = docsByDevice[String(r.id)] ?? [];
       const byType = (t: string) => {
         const doc = devDocs.find((d) => d.type === t);
-        return doc ? (signedUrls[doc.url] ?? null) : null;
+        return doc ? signedUrls[doc.url] ?? null : null;
       };
       const allOfType = (t: string) =>
         devDocs
@@ -188,35 +198,37 @@ export class DeviceReviewsService {
         }
       }
       // Pictures: index-based keys
-      const picDocs = devDocs.filter((d) => d.type === 'PROJECT_PHOTOS' && signedUrls[d.url]);
+      const picDocs = devDocs.filter(
+        (d) => d.type === 'PROJECT_PHOTOS' && signedUrls[d.url],
+      );
       picDocs.forEach((doc, i) => {
         docMeta[`pic:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
       });
 
       return {
-        id:                  String(r.id),
-        serial:              r.externalId ?? r.developerExternalId ?? '',
-        lat:                 r.latitude  ? parseFloat(r.latitude)  : null,
-        long:                r.longitude ? parseFloat(r.longitude) : null,
-        projectName:         r.projectName ?? '',
-        capacity:            r.capacity  != null ? parseFloat(r.capacity)  : null,
-        acCapacity:          r.acCapacity != null ? parseFloat(r.acCapacity) : null,
-        countryCode:         r.countryCode ?? '',
-        submitterEmail:      r.submitter_email ?? '',
-        reviewer:            r.reviewer_name ?? '',
-        dateAdded:           r.createdAt ?? null,
-        dateSubmitted:       r.submitted_at ?? null,
-        modifiedDate:        r.updatedAt ?? null,
-        status:              r.status ?? 'draft',
-        notes:               '',
-        evidentDeviceId:     r.evidentDeviceId ?? null,
-        evidentStatus:       r.evidentStatus ?? null,
-        codProofUrl:         byType('COD_PROOF'),
-        sldUrl:              byType('SINGLE_LINE_DIAGRAM'),
-        sf02Url:             byType('FORM_SF_02'),
-        sf02cUrl:            byType('SF_02C'),
+        id: String(r.id),
+        serial: r.externalId ?? r.developerExternalId ?? '',
+        lat: r.latitude ? parseFloat(r.latitude) : null,
+        long: r.longitude ? parseFloat(r.longitude) : null,
+        projectName: r.projectName ?? '',
+        capacity: r.capacity != null ? parseFloat(r.capacity) : null,
+        acCapacity: r.acCapacity != null ? parseFloat(r.acCapacity) : null,
+        countryCode: r.countryCode ?? '',
+        submitterEmail: r.submitter_email ?? '',
+        reviewer: r.reviewer_name ?? '',
+        dateAdded: r.createdAt ?? null,
+        dateSubmitted: r.submitted_at ?? null,
+        modifiedDate: r.updatedAt ?? null,
+        status: r.status ?? 'draft',
+        notes: '',
+        evidentDeviceId: r.evidentDeviceId ?? null,
+        evidentStatus: r.evidentStatus ?? null,
+        codProofUrl: byType('COD_PROOF'),
+        sldUrl: byType('SINGLE_LINE_DIAGRAM'),
+        sf02Url: byType('FORM_SF_02'),
+        sf02cUrl: byType('SF_02C'),
         meteringEvidenceUrl: byType('METERING_EVIDENCE'),
-        pictureUrls:         allOfType('PROJECT_PHOTOS'),
+        pictureUrls: allOfType('PROJECT_PHOTOS'),
         docMeta,
       };
     });

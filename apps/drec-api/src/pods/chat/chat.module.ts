@@ -8,7 +8,10 @@ import { User } from '../user/user.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, ChatConversation, User]), forwardRef(() => UserModule)],
+  imports: [
+    TypeOrmModule.forFeature([Chat, ChatConversation, User]),
+    forwardRef(() => UserModule),
+  ],
   controllers: [ChatController],
   providers: [ChatService],
   exports: [ChatService],

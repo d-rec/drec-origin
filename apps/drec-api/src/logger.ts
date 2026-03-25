@@ -58,13 +58,17 @@ export function createWinstonLogger() {
     colorize({ all: true }),
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     errors({ stack: true }),
-    printf(({ timestamp, level, message, context, logType, stack, ...meta }) => {
-      const ctx = context ? `[${context}] ` : '';
-      const typeTag = logType ? `[${logType}] ` : '';
-      const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
-      const stackStr = stack ? `\n${stack}` : '';
-      return `${timestamp} ${level} ${ctx}${typeTag}${message}${metaStr}${stackStr}`;
-    }),
+    printf(
+      ({ timestamp, level, message, context, logType, stack, ...meta }) => {
+        const ctx = context ? `[${context}] ` : '';
+        const typeTag = logType ? `[${logType}] ` : '';
+        const metaStr = Object.keys(meta).length
+          ? ` ${JSON.stringify(meta)}`
+          : '';
+        const stackStr = stack ? `\n${stack}` : '';
+        return `${timestamp} ${level} ${ctx}${typeTag}${message}${metaStr}${stackStr}`;
+      },
+    ),
   );
 
   const structuredFormat = combine(

@@ -6,7 +6,11 @@ import { FileModule } from '../file/file.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([]), FileModule, forwardRef(() => UserModule)],
+  imports: [
+    TypeOrmModule.forFeature([]),
+    FileModule,
+    forwardRef(() => UserModule),
+  ],
   controllers: [DeviceReviewsController],
   providers: [DeviceReviewsService],
 })

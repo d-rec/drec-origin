@@ -5,7 +5,12 @@ import { Injectable } from '@nestjs/common';
 import { User } from '../../src/pods/user/user.entity';
 import { Organization } from '../../src/pods/organization/organization.entity';
 import { ApiUserEntity } from '../../src/pods/user/api-user.entity';
-import { Role, UserStatus, OrganizationType, UserPermissionStatus } from '../../src/utils/enums';
+import {
+  Role,
+  UserStatus,
+  OrganizationType,
+  UserPermissionStatus,
+} from '../../src/utils/enums';
 import { OrganizationStatus } from '../../src/utils/enums/organization-status.enum';
 import bcrypt from 'bcryptjs';
 
