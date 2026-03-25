@@ -248,8 +248,7 @@ export class DeviceService {
       statusMap[r.device_id] = r.review_status ?? 'draft';
     }
     for (const device of devices) {
-      const fallback =
-        device.IREC_Status === 'Legacy' ? 'legacy' : 'draft';
+      const fallback = device.IREC_Status === 'Legacy' ? 'legacy' : 'draft';
       device.reviewStatus = statusMap[device.id] ?? fallback;
     }
   }
