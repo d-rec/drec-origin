@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { UserLoginReturnData } from '@energyweb/origin-backend-core';
@@ -23,6 +23,7 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly blacklist: Set<string> = new Set();
   constructor(
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly oauthClientService: OauthClientCredentialsService,

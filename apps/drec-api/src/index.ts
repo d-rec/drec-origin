@@ -38,10 +38,11 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   logger?.log(`Backend versions: ${JSON.stringify(getVersion())}`);
 
   const app = await NestFactory.create(DRECModule, {
-    logger:
-      process.env.NODE_ENV === 'development'
+    ...(logger ? { logger } : {
+      logger: process.env.NODE_ENV === 'development'
         ? ['log', 'debug', 'error', 'verbose', 'warn']
         : ['error', 'warn', 'log'],
+    }),
   });
 
   app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));

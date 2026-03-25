@@ -67,10 +67,9 @@ Install `nvm` following the [official installation instructions](https://github.
 nvm install 20.14.0
 ```
 
-Install `rush` and `pnpm` if you don't have them:
+Install `pnpm` if you don't have it:
 
 ```sh
-npm i -g @microsoft/rush
 npm i -g pnpm
 ```
 
@@ -127,19 +126,19 @@ pnpm start:dev
 For the initial setup, run this command to seed the database with the basic permissions and content:
 
 ```sh
-pnpm seed
+pnpm seed:permissions
+```
+
+To approve unverified users, run this command. This can be run anytime after a new user has been added to verify them:
+
+```sh
+pnpm seed:verifications
 ```
 
 To populate the database with organizations and devices dummy data, run this command:
 
 ```sh
 pnpm seed:dummy-data
-```
-
-You may also want to drop local databases with:
-
-```sh
-pnpm drop
 ```
 
 ## How to use
@@ -172,6 +171,107 @@ Before running the script, make sure:
 3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
 4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
 5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
+
+## Testing email locally (Mailpit)
+
+In local dev, emails are captured by **Mailpit** — a local SMTP server that accepts everything without authentication and shows a web inbox. Nothing is actually delivered.
+
+The `docker-compose.yml` runs it as `drec-mailpit` and the local `.env` already points at it:
+
+```ini
+SMTP_HOST=localhost
+SMTP_PORT=1025
+```
+
+**To start Mailpit:**
+
+```sh
+docker compose up -d drec-mailpit
+```
+
+**To view captured emails:**
+
+Open <http://localhost:8025> in your browser.
+
+**For production**, replace the `.env` SMTP values with real credentials (e.g. `smtp.gmail.com` + a Gmail App Password or SMTP relay).
+
+## Browsing MinIO (local dev)
+
+MinIO is the S3-compatible object store used for device submission documents. In local dev it runs as a Docker container and exposes two ports:
+
+| Port | Purpose |
+|------|---------|
+| 9000 | S3 API (used by the backend) |
+| 9001 | Web console (browser UI) |
+
+**To open the browser console:**
+
+1. Make sure the Docker services are running:
+
+   ```sh
+   docker compose up -d drec-minio
+   ```
+
+2. Open <http://localhost:9001> in your browser.
+3. Log in with:
+   - **Username:** `minioadmin`
+   - **Password:** `minioadmin`
+4. Navigate to **Buckets → drec-documents** to browse uploaded files.
+
+## Logging (Grafana Loki)
+
+The API uses [Winston](https://github.com/winstonjs/winston) with a [Grafana Loki](https://grafana.com/oss/loki/) transport for centralized, long-term logging. The same setup works locally (Docker) and on AWS — just change `.env` variables.
+
+### Local setup
+
+Loki and Grafana are included in `docker compose up -d` (no extra step needed). Add to your `.env`:
+
+```ini
+LOKI_ENABLED=true
+LOKI_URL=http://localhost:3100
+```
+
+Restart the API, then open <http://localhost:3001> (Grafana, login: admin/admin).
+Go to **Explore → Loki** and query `{app="drec-api"}`.
+
+### AWS setup
+
+Point `LOKI_URL` at your Loki instance and optionally set basic auth:
+
+```ini
+LOKI_ENABLED=true
+LOKI_URL=https://loki.your-domain.com
+LOKI_AUTH_USER=<user>
+LOKI_AUTH_PASS=<password>
+```
+
+### Optional: file logging
+
+```ini
+LOG_FILE_ENABLED=true
+LOG_DIR=logs
+```
+
+Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-DD.log` (errors only, kept 90 days).
+
+### All logging env vars
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOG_LEVEL` | `info` | Min level: `error`, `warn`, `info`, `verbose`, `debug` |
+| `LOG_FILE_ENABLED` | `false` | Enable daily rotate log files |
+| `LOG_DIR` | `logs` | Directory for log files |
+| `LOKI_ENABLED` | `false` | Push logs to Grafana Loki |
+| `LOKI_URL` | `http://localhost:3100` | Loki push endpoint |
+| `LOKI_AUTH_USER` | | Basic-auth user (optional) |
+| `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
+| `LOKI_LABELS` | `{}` | Extra labels as JSON |
+
+## Staging Database
+
+```ini
+DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
+```
 
 ## Dependencies
 

@@ -100,6 +100,14 @@ export class UpdateDeviceDTO
   deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
+  @IsString()
+  @Matches(/^[a-zA-Z0-9_;-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, hyphens, or semicolons — no spaces allowed',
+  })
+  serialNumber: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsOptional()
   @Min(0.001, {
@@ -107,6 +115,13 @@ export class UpdateDeviceDTO
   })
   @Transform((value) => parseFloat(value))
   capacity: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Transform((value) => (value != null ? parseFloat(value) : undefined))
+  acCapacity?: number;
 
   @ApiProperty()
   @IsOptional()
@@ -189,4 +204,13 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   organizationId?: number;
+
+  @IsString()
+  @IsOptional()
+  postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }

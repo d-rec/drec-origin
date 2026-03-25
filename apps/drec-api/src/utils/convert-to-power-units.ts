@@ -1,6 +1,6 @@
 import { Unit } from '../types/reads';
 
-export const getWhMultiplier = (unit: string): number => {
+export const getWhMultiplier = (unit: Unit): number => {
   switch (unit) {
     case Unit.kWh:
       return 10 ** 3;
@@ -14,8 +14,26 @@ export const getWhMultiplier = (unit: string): number => {
 };
 
 // Convert to Watt per Hour
-export const convertToWh = (measurement: number, unit: Unit): number => {
-  const multiplier = getWhMultiplier(unit) || 1;
+export const convertToWh = (
+  measurement: number,
+  unit: string | Unit,
+): number => {
+  const multiplier = getWhMultiplier(unit as Unit) || 1;
 
   return measurement * multiplier;
+};
+
+export const convertToPowerUnit = ({
+  value,
+  unit,
+  targetUnit,
+}: {
+  value: number;
+  unit: string | Unit;
+  targetUnit: string | Unit;
+}): number => {
+  const valueInWh = convertToWh(value, unit as Unit);
+  const targetMultiplier = getWhMultiplier(targetUnit as Unit);
+
+  return valueInWh / targetMultiplier;
 };

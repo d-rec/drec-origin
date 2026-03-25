@@ -1,9 +1,9 @@
 import { startAPI } from '.';
-import { Logger } from '@nestjs/common';
+import { createNestWinstonLogger } from './logger';
 
 process.setMaxListeners(0);
 
-const logger = new Logger();
+const logger = createNestWinstonLogger();
 
 process.on('warning', (e) => {
   logger.warn(e.stack);
@@ -26,4 +26,4 @@ https://stackoverflow.com/questions/57115918/maxlistenersexceededwarning-possibl
 got this in log when trying to issue 50 certificates
 */
 
-startAPI();
+startAPI(logger);

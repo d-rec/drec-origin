@@ -19,6 +19,7 @@ import { DeviceDescription, IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
+import { DocumentType } from '../../document-uploads/entities/documents.entity';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 
 export class NewDeviceDTO
@@ -30,13 +31,8 @@ export class NewDeviceDTO
 {
   @ApiProperty()
   @Trim()
-  @IsNotEmpty({ message: 'externalId should not be empty' })
-  @IsString()
-  @Matches(/^[a-zA-Z\d\-_\s]+$/, {
-    message:
-      'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between',
-  })
-  externalId: string;
+  @IsOptional()
+  externalId?: string;
 
   @IsOptional()
   @IsString()
@@ -44,8 +40,33 @@ export class NewDeviceDTO
 
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
+  dataSource: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  otherDataSource?: string;
+
+  @ApiProperty()
+  @Trim()
+  @Matches(/^[a-zA-Z0-9_;-]+$/, {
+    message:
+      'serialNumber must contain only letters, numbers, underscores, hyphens, or semicolons — no spaces allowed',
+  })
+  @IsString()
+  @IsNotEmpty()
+  serialNumber: string;
+
+  @ApiProperty()
+  @IsString()
   @IsOptional()
   projectName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  dataSourceBrand: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -102,6 +123,13 @@ export class NewDeviceDTO
   })
   @Transform((value) => parseFloat(value))
   capacity: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Transform((value) => (value != null ? parseFloat(value) : undefined))
+  acCapacity?: number;
 
   @ApiProperty()
   @Transform((value) => new Date(value))
@@ -220,4 +248,37 @@ export class NewDeviceDTO
   @IsOptional()
   @IsNumber()
   yieldValue?: number | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  stateProvince?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  fingerprint?: string | null;
 }
+export class DeviceRegistrationBody {
+  [DocumentType.FORM_SF_02]: Express.Multer.File[];
+  [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+  [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.COD_PROOF]: Express.Multer.File[];
+  deviceToRegister: NewDeviceDTO;
+}
+
+export type DeviceFiles = {
+  [DocumentType.FORM_SF_02]: Express.Multer.File[];
+  [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+  [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.COD_PROOF]: Express.Multer.File[];
+};

@@ -17,7 +17,7 @@ import * as momentTimeZone from 'moment-timezone';
 import {
   Between,
   Brackets,
-  FindConditions,
+  FindOptionsWhere,
   In,
   MoreThanOrEqual,
   Repository,
@@ -77,7 +77,7 @@ export class ReadsService {
     filter: ReadsFilterDTO,
   ): Promise<Array<MeterRead>> {
     try {
-      const where: FindConditions<MeterRead> = {
+      const where: FindOptionsWhere<MeterRead> = {
         externalId: meterId,
         endDate: Between(new Date(filter.start), new Date(filter.end)),
       };
@@ -767,12 +767,14 @@ export class ReadsService {
   }
 
   async getDeviceHistoryCertificateIssueDate(
-    conditions: FindConditions<MeterRead>,
+    conditions: FindOptionsWhere<MeterRead>,
   ): Promise<MeterRead | null> {
     return (
       (await this.repository.findOne({
-        ...conditions,
-        type: ReadType.History,
+        where: {
+          ...conditions,
+          type: ReadType.History,
+        },
       })) ?? null
     );
   }
@@ -867,17 +869,17 @@ export class ReadsService {
   }
 
   async validateAndStoreReads({
-    deviceExternalId,
+    deviceSerialNumber,
     measurements,
     organizationId,
   }: {
-    deviceExternalId: string;
+    deviceSerialNumber: string;
     measurements: NewIntermediateMeterReadDTO;
     organizationId: number;
   }): Promise<void> {
     if (
-      deviceExternalId.trim() === '' &&
-      deviceExternalId.trim() === undefined
+      deviceSerialNumber.trim() === '' &&
+      deviceSerialNumber.trim() === undefined
     ) {
       this.logger.error(`id should not be empty`);
       throw new ConflictException({
@@ -887,8 +889,8 @@ export class ReadsService {
     }
 
     const device: DeviceDTO | null =
-      await this.deviceService.findDeviceByDeveloperExternalId(
-        deviceExternalId,
+      await this.deviceService.findBySerialNumber(
+        deviceSerialNumber,
         organizationId,
       );
     if (device === null) {
@@ -1205,7 +1207,7 @@ export class ReadsService {
     this.logger.verbose('Within get');
     const reads = await this.repository.find({
       where: {
-        external_id: externalId,
+        externalId: externalId,
       },
     });
     return reads;

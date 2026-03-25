@@ -9,6 +9,7 @@ import {
   In,
   LessThanOrEqual,
   MoreThanOrEqual,
+  DataSource,
   Repository,
 } from 'typeorm';
 import { DeviceDescription } from '../../models';
@@ -22,6 +23,15 @@ import {
 } from '../../utils/enums';
 import { Role } from '../../utils/enums/role.enum';
 import * as deviceUtils from '../../utils/localTimeDetailsForDevice';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import {
+  DocumentEntity,
+  DocumentType,
+} from '../document-uploads/entities/documents.entity';
+import { FileService } from '../file';
+import { EvidentService } from '../evident/evident.service';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { MailService } from '../../mail/mail.service';
 import { Organization } from '../organization/organization.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { ReadsService } from '../reads/reads.service';
@@ -37,24 +47,48 @@ import {
   NewDeviceDTO,
   UpdateDeviceDTO,
 } from './dto';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 
 describe('DeviceService', () => {
   let service: DeviceService;
   let repository: Repository<Device>;
+  let deviceDocumentRepository: Repository<DocumentEntity>;
+  let fileService: FileService;
+  let dataSource: DataSource;
+  let documentService: DocumentUploadsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeviceService,
+        DocumentUploadsService,
+        {
+          provide: getRepositoryToken(DocumentEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+          },
+        },
+        {
+          provide: FileService,
+          useValue: {
+            upload: jest.fn().mockResolvedValue({
+              key: 'mock-file-key',
+              Location: 'mock-url',
+            }),
+            deleteFileFromS3: jest.fn(),
+          },
+        },
         {
           provide: getRepositoryToken(Device),
           useClass: Repository,
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
-            toJSON: jest.fn(),
+            find: jest.fn(),
+            findAndCount: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
           } as any,
         },
         {
@@ -68,12 +102,17 @@ describe('DeviceService', () => {
           useValue: {} as any,
         },
         {
-          provide: getRepositoryToken(IRECDevicesInformationEntity),
-          useClass: Repository,
-        },
-        {
-          provide: getRepositoryToken(IRECErrorLogInformationEntity),
-          useClass: Repository,
+          provide: DataSource,
+          useValue: {
+            query: jest.fn().mockResolvedValue([]),
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+            }),
+          },
         },
         {
           provide: OrganizationService,
@@ -91,11 +130,37 @@ describe('DeviceService', () => {
           provide: getRepositoryToken(DeviceLateOngoingIssueCertificateEntity),
           useClass: Repository,
         },
+        {
+          provide: EvidentService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: EvidentDeviceService,
+          useValue: {
+            queueDeviceRegistration: jest.fn(),
+            registerDevice: jest.fn(),
+          },
+        },
+        {
+          provide: MailService,
+          useValue: {},
+        },
       ],
     }).compile();
 
     service = module.get<DeviceService>(DeviceService);
     repository = module.get<Repository<Device>>(getRepositoryToken(Device));
+    documentService = module.get<DocumentUploadsService>(
+      DocumentUploadsService,
+    );
+    deviceDocumentRepository = module.get<Repository<DocumentEntity>>(
+      getRepositoryToken(DocumentEntity),
+    );
+    fileService = module.get<FileService>(FileService);
+    dataSource = module.get<DataSource>(DataSource);
   });
 
   it('should be defined', () => {
@@ -107,6 +172,10 @@ describe('DeviceService', () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
         externalId: 'ExternalId1',
+        dataSourceBrand: 'Sample Brand',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -131,7 +200,9 @@ describe('DeviceService', () => {
       const role = Role.OrganizationAdmin;
 
       const deviceEntity = {
-        externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -166,16 +237,95 @@ describe('DeviceService', () => {
         yieldValue: 1500,
       };
 
+      type RequiredDocumentType =
+        | DocumentType.FORM_SF_02
+        | DocumentType.SF_02C
+        | DocumentType.METERING_EVIDENCE
+        | DocumentType.SINGLE_LINE_DIAGRAM
+        | DocumentType.PROJECT_PHOTOS;
+
+      const files: Record<RequiredDocumentType, Express.Multer.File[]> = {
+        [DocumentType.FORM_SF_02]: [
+          {
+            fieldname: DocumentType.FORM_SF_02,
+            originalname: 'file1.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.SF_02C]: [
+          {
+            fieldname: DocumentType.SF_02C,
+            originalname: 'file2.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.METERING_EVIDENCE]: [
+          {
+            fieldname: DocumentType.METERING_EVIDENCE,
+            originalname: 'file3.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [
+          {
+            fieldname: DocumentType.SINGLE_LINE_DIAGRAM,
+            originalname: 'file4.pdf',
+            encoding: '7bit',
+            mimetype: 'application/pdf',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+        [DocumentType.PROJECT_PHOTOS]: [
+          {
+            fieldname: DocumentType.PROJECT_PHOTOS,
+            originalname: 'file5.jpg',
+            encoding: '7bit',
+            mimetype: 'image/jpeg',
+            buffer: Buffer.from('file content'),
+            size: 1234,
+            stream: null,
+            destination: null,
+            filename: null,
+            path: null,
+          },
+        ],
+      };
       jest.spyOn(repository, 'findOne').mockReturnValue(undefined);
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(deviceEntity as any);
 
-      const result = await service.register(orgCode, newDevice);
+      const result = await service.register(orgCode, newDevice, files as any);
 
       const options = {
         where: {
-          developerExternalId: newDevice.externalId,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
@@ -186,7 +336,11 @@ describe('DeviceService', () => {
     it('should reject registration with existing external ID', async () => {
       const orgCode = 3;
       const newDevice: NewDeviceDTO = {
+        dataSourceBrand: 'Sample Brand',
         externalId: 'ExternalId1',
+        dataSource: 'Inverter',
+        otherDataSource: '',
+        serialNumber: 'SN31',
         projectName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
@@ -250,15 +404,30 @@ describe('DeviceService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValue(deviceEntity as any);
 
+      const files = {
+        [DocumentType.FORM_SF_02]: [],
+        [DocumentType.SF_02C]: [],
+        [DocumentType.METERING_EVIDENCE]: [],
+        [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+        [DocumentType.PROJECT_PHOTOS]: [],
+      };
       const options = {
         where: {
-          developerExternalId: newDevice.externalId,
+          serialNumber: newDevice.serialNumber,
           organizationId: orgCode,
         },
       };
+      const correctedFiles = {
+        [DocumentType.FORM_SF_02]: files[DocumentType.FORM_SF_02],
+        [DocumentType.SF_02C]: files[DocumentType.SF_02C],
+        [DocumentType.METERING_EVIDENCE]: files[DocumentType.METERING_EVIDENCE],
+        [DocumentType.SINGLE_LINE_DIAGRAM]:
+          files[DocumentType.SINGLE_LINE_DIAGRAM],
+        [DocumentType.PROJECT_PHOTOS]: files[DocumentType.PROJECT_PHOTOS],
+      };
 
       await expect(
-        service.register(orgCode, newDevice, apiUserId, role),
+        service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
       await expect(findOneSpy).toHaveBeenCalledWith(options);
@@ -915,32 +1084,32 @@ describe('DeviceService', () => {
             _type: 'lessThanOrEqual',
             _value: '200', // Adjust as needed
             _useParameter: true,
-          },
+          } as any,
           countryCode: filterDTO.country,
-          organizationId: orgId.toString(), // Use orgId provided dynamically
+          organizationId: orgId.toString() as any, // Use orgId provided dynamically
           commissioningDate: {
             _type: 'moreThanOrEqual',
             _value: new Date().toISOString(), // Use current date or adjust as needed
             _useParameter: true,
-          },
+          } as any,
           SDGBenefits: {
             _type: 'raw',
             _value: [],
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
           deviceTypeCode: {
             _type: 'raw',
             _value: [filterDTO.deviceTypeCode], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
           offTaker: {
             _type: 'raw',
             _value: [filterDTO.offTaker], // Adjust as needed
             _useParameter: true,
             _multipleParameters: true,
-          },
+          } as any,
         },
         order: { organizationId: 'DESC' },
         skip: (pageNumber - 1) * limit,
@@ -977,7 +1146,7 @@ describe('DeviceService', () => {
         {
           id: 1,
           externalId: 'EXT123',
-          developerExternalId: 'DEV123',
+          serialNumber: 'DEV123',
         } as Device,
       ];
 
@@ -1001,8 +1170,8 @@ describe('DeviceService', () => {
       expect(result).toEqual([
         {
           id: 1,
-          internalexternalId: 'EXT123',
-          externalId: 'DEV123',
+          externalId: 'EXT123',
+          serialNumber: 'DEV123',
         },
       ]);
     });
@@ -1032,7 +1201,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1147,12 +1316,12 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByDeveloperExternalId', () => {
+  describe('findBySerialNumber', () => {
     it('should return the device with updated timezone when found', async () => {
       // Mock device object
       const mockDevice: Device = {
         id: 1,
-        developerExternalId: 'some-meter-id',
+        serialNumber: 'some-meter-id',
         organizationId: 1,
         createdAt: new Date('2024-02-27T07:00:32.963Z'),
         timezone: null,
@@ -1171,16 +1340,13 @@ describe('DeviceService', () => {
       //jest.spyOn(getLocalTimeZoneFromDevice, 'mockImplementation').mockResolvedValue('America/New_York');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId(
-        'some-meter-id',
-        1,
-      );
+      const result = await service.findBySerialNumber('some-meter-id', 1);
 
       // Assert
       expect(result).toEqual(mockDevice);
       expect(result?.timezone).toBe('America/New_York');
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { developerExternalId: 'some-meter-id', organizationId: 1 },
+        where: { serialNumber: 'some-meter-id', organizationId: 1 },
       });
       expect(getLocalTimeZoneFromDeviceSpy).toHaveBeenCalledWith(
         mockDevice.createdAt,
@@ -1198,7 +1364,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(null);
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalId(
+      const result = await service.findBySerialNumber(
         'non-existent-meter-id',
         1,
       );
@@ -1207,7 +1373,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           organizationId: 1,
         },
       });
@@ -1215,7 +1381,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findDeviceByDeveloperExternalIByApiUser', () => {
+  describe('findBySerialNumberAndApiUser', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1225,7 +1391,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findBySerialNumberAndApiUser(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1234,7 +1400,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'non-existent-meter-id',
+          serialNumber: 'non-existent-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1257,7 +1423,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findDeviceByDeveloperExternalIByApiUser(
+      const result = await service.findBySerialNumberAndApiUser(
         'existing-meter-id',
         'user-id',
       );
@@ -1267,7 +1433,7 @@ describe('DeviceService', () => {
       expect(result?.timezone).toBe('Asia/Kolkata');
       expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: 'existing-meter-id',
+          serialNumber: 'existing-meter-id',
           api_user_id: 'user-id',
         },
       });
@@ -1293,7 +1459,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['non-existent-meter-id']),
+          serialNumber: In(['non-existent-meter-id']),
           organizationId: 1,
         },
       });
@@ -1305,7 +1471,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1365,7 +1531,7 @@ describe('DeviceService', () => {
         updatedAt: '2024-07-16T09:46:59.846Z',
         id: 54,
         externalId: 'fca54a71-9cd5-41e4-92f6-c407da1bd064',
-        developerExternalId: 'EXCESS',
+        serialNumber: 'EXCESS',
         organizationId: 94,
         projectName: null,
         address: 'MAA',
@@ -1435,7 +1601,7 @@ describe('DeviceService', () => {
       expect(result).toEqual([deviceEntity1, deviceEntity2]);
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['externalId1', 'externalId2']),
+          serialNumber: In(['externalId1', 'externalId2']),
           organizationId: 1,
         },
       });
@@ -1455,7 +1621,7 @@ describe('DeviceService', () => {
       expect(result).toBeNull();
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1474,7 +1640,7 @@ describe('DeviceService', () => {
 
       expect(findSpy).toHaveBeenCalledWith({
         where: {
-          developerExternalId: In(['meter-id-1']),
+          serialNumber: In(['meter-id-1']),
           organizationId: 1,
         },
       });
@@ -1492,12 +1658,12 @@ describe('DeviceService', () => {
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
-        fuelCode: FuelCode.ES100, //'ES100',
-        deviceTypeCode: DeviceTypeCode.TC110, //'TC110',
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
         capacity: 2500,
         commissioningDate: '2024-02-01T06:59:11.000Z',
         gridInterconnection: true,
-        offTaker: OffTaker.School, //'School',
+        offTaker: OffTaker.School,
         impactStory: null,
         data: null,
         images: null,
@@ -1509,12 +1675,13 @@ describe('DeviceService', () => {
         IREC_ID: null,
         yieldValue: 1500,
         labels: 'labels',
+        serialNumber: 'SN12345',
       };
 
       const currentDeviceData = {
         id: 1,
         externalId: 'external-id-1',
-        developerExternalId: 'old-developer-external-id',
+        serialNumber: 'SN12345',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
       };
@@ -1527,14 +1694,21 @@ describe('DeviceService', () => {
       const savedDevice = {
         ...currentDevice,
         ...updateDeviceDTO,
-        externalId: 'old-developer-external-id', // Will be swapped back
-        developerExternalId: 'external-id-1', // As per your method logic
+        externalId: 'external-id-1',
+        serialNumber: 'SN123455',
         organization: undefined,
+        SDGBenefits: ['invalid'], // The service transforms this value
       };
 
+      // Mock repository methods
+      const findOneSpy = jest
+        .spyOn(repository, 'findOne')
+        .mockResolvedValue(null); // Mock fingerprint check to return null
+
       const findDeviceByDeveloperExternalIdSpy = jest
-        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .spyOn(service, 'findBySerialNumber')
         .mockResolvedValue(currentDevice);
+
       const saveSpy = jest
         .spyOn(repository, 'save')
         .mockResolvedValue(savedDevice as unknown as Device);
@@ -1550,6 +1724,7 @@ describe('DeviceService', () => {
         externalId.trim(),
         organizationId,
       );
+      expect(findOneSpy).toHaveBeenCalled(); // Verify fingerprint check was called
       expect(saveSpy).toHaveBeenCalledWith(
         expect.objectContaining(updateDeviceDTO),
       );
@@ -1557,8 +1732,6 @@ describe('DeviceService', () => {
         expect.objectContaining({
           id: 1,
           externalId: 'external-id-1',
-          internalexternalId: 'old-developer-external-id',
-          //developerExternalId: undefined, // Because it's deleted
           projectName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
@@ -1572,7 +1745,7 @@ describe('DeviceService', () => {
           impactStory: null,
           data: null,
           images: null,
-          SDGBenefits: ['invalid'], // Assuming "No Poverty" was not found and set to 'invalid'
+          SDGBenefits: ['invalid'], // Updated to match actual service behavior
           countryCode: 'IND',
           organizationId: 3,
           meterReadtype: null,
@@ -1580,6 +1753,7 @@ describe('DeviceService', () => {
           IREC_ID: null,
           yieldValue: 1500,
           labels: 'labels',
+          serialNumber: 'SN123455',
         }),
       );
     });
@@ -1590,27 +1764,69 @@ describe('DeviceService', () => {
       const organizationId = 1;
       const orderFilterDTO: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
-      }; // Provide necessary DTO properties
+      };
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
       const mockDevices = [
-        { id: 1, groupId: null, organizationId: 1 },
-        { id: 2, groupId: null, organizationId: 1 },
-      ] as Device[];
+        {
+          id: 1,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+        {
+          id: 2,
+          groupId: null,
+          organizationId: 1,
+          commissioningDateRange: '2024',
+          capacityRange: '1000-2000',
+          selected: true,
+        },
+      ] as any;
 
-      const findSpy = jest
-        .spyOn(repository, 'find')
-        .mockResolvedValue(mockDevices);
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([mockDevices, mockDevices.length]);
+
+      const groupedResult = {
+        totalPages: 1,
+        currentPage: 1,
+        groups: [
+          {
+            name: 'group',
+            devices: mockDevices, // Now matches UngroupedDeviceDTO[]
+          },
+        ],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDTO,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      // Assuming groupDevices returns a transformed array based on your logic
-      // Replace with actual expected result from `groupDevices` method
-      expect(result).toEqual(expect.any(Array));
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
 
     it('should return an empty array when no ungrouped devices are found', async () => {
@@ -1618,17 +1834,45 @@ describe('DeviceService', () => {
       const orderFilterDto: DeviceGroupByDTO = {
         orderBy: [DeviceOrderBy.CommissioningDate],
       };
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+      const filterDTO: FilterDTO = {
+        fuelCode: FuelCode.ES100,
+        deviceTypeCode: DeviceTypeCode.TC110,
+        capacity: 0,
+        start_date: '',
+        end_date: '',
+        gridInterconnection: false,
+        offTaker: OffTaker.School,
+        country: '',
+      };
+      const pageNumber = 1;
+      const findAndCountSpy = jest
+        .spyOn(repository, 'findAndCount')
+        .mockResolvedValue([[], 0]);
+
+      // Optionally, mock groupDevices to return empty groups
+      const groupedResult = {
+        totalPages: 0,
+        currentPage: 1,
+        groups: [],
+      };
+      jest.spyOn(service, 'groupDevices').mockReturnValue(groupedResult);
 
       const result = await service.findUngrouped(
         organizationId,
         orderFilterDto,
+        filterDTO,
+        pageNumber,
       );
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: { groupId: null, organizationId },
-      });
-      expect(result).toEqual([]); // Assuming `groupDevices` returns an empty array
+      expect(findAndCountSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            groupId: null,
+            organizationId,
+          }),
+        }),
+      );
+      expect(result).toEqual(groupedResult);
     });
   });
 

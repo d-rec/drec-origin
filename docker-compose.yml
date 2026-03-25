@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   drec-postgres:
     image: postgres:14.17
@@ -34,6 +32,72 @@ services:
       - influxdb-data:/var/lib/influxdb
       - ./influxdb.conf:/etc/influxdb/influxdb.conf
 
+  drec-minio:
+    image: minio/minio:latest
+    container_name: drec-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:9000/minio/health/live]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  drec-mailpit:
+    image: axllent/mailpit:latest
+    container_name: drec-mailpit
+    ports:
+      - 1025:1025   # SMTP
+      - 8025:8025   # Web inbox UI
+
+  drec-minio-init:
+    image: minio/mc:latest
+    container_name: drec-minio-init
+    depends_on:
+      drec-minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://drec-minio:9000 minioadmin minioadmin &&
+      mc mb --ignore-existing local/drec-documents &&
+      mc anonymous set public local/drec-documents
+      "
+
+  drec-loki:
+    image: grafana/loki:3.4.2
+    container_name: drec-loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - 3100:3100
+    volumes:
+      - loki-data:/loki
+
+  drec-grafana:
+    image: grafana/grafana:11.6.0
+    container_name: drec-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+    ports:
+      - 3001:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/loki.yml
+    depends_on:
+      - drec-loki
+
 volumes:
   postgres-data:
   influxdb-data:
+  minio-data:
+  loki-data:
+  grafana-data:

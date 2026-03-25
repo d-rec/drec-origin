@@ -29,7 +29,7 @@
   },
   {
     "id": 5,
-    "name": "BUYER_RESERVATION_MANAGEMENT_CRUDL",
+    "name": "DEVICE_GROUPING_MANAGEMENT_CRUDL",
     "description": "ACL Module Name for Buyer Reservation module management",
     "status": "Enable",
     "permissions": ["Read", "Write", "Update", "Delete"]
@@ -82,5 +82,12 @@
     "description": "ACL Module Name for Permission module management",
     "status": "Enable",
     "permissions": ["Read", "Write", "Update"]
+  },
+  {
+    "id": 13,
+    "name": "SUBMISSION_MANAGEMENT_CRUDL",
+    "description": "ACL Module Name for S3 project submission management",
+    "status": "Enable",
+    "permissions": ["Read", "Write", "Update", "Delete"]
   }
 ]

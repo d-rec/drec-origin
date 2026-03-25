@@ -154,7 +154,7 @@ Device Bulk ACL Module Name: **DEVICE_BULK_MANAGEMENT_CRUDL**
 
 ### Device Group Module
 
-Device Group ACL Module Name: **BUYER_RESERVATION_MANAGEMENT_CRUDL**
+Device Group ACL Module Name: **DEVICE_GROUPING_MANAGEMENT_CRUDL**
 
 #### Device Group API
 

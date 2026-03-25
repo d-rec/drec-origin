@@ -6,7 +6,7 @@ import {
   Repository,
   DeepPartial,
   FindManyOptions,
-  FindConditions,
+  FindOptionsWhere,
 } from 'typeorm';
 import { User } from './user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -29,6 +29,7 @@ import { v4 as uuid } from 'uuid';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
+import { OtpService } from '../otp/otp.service';
 
 describe('UserService', () => {
   let service: UserService;
@@ -46,11 +47,20 @@ describe('UserService', () => {
         UserService,
         {
           provide: getRepositoryToken(User),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            save: jest.fn(),
+            update: jest.fn(),
+            create: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(UserRole),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+          },
         },
         {
           provide: EmailConfirmationService,
@@ -75,11 +85,26 @@ describe('UserService', () => {
         },
         {
           provide: getRepositoryToken(ApiUserEntity),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            save: jest.fn(),
+            update: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(UserLoginSessionEntity),
-          useClass: Repository,
+          useValue: {
+            findOne: jest.fn(),
+            find: jest.fn(),
+            save: jest.fn(),
+          },
+        },
+        {
+          provide: OtpService,
+          useValue: {
+            send: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -120,6 +145,7 @@ describe('UserService', () => {
         orgName: 'DIRECT_ORG_DEVELOPER1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
+        phoneNumber: '+1234567890',
       } as CreateUserOrgDTO;
 
       const orgData: Organization = {
@@ -147,6 +173,9 @@ describe('UserService', () => {
       };
       jest.spyOn(service, 'checkForExistingUser').mockResolvedValue(undefined);
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+      jest
+        .spyOn(roleRepository, 'findOne')
+        .mockResolvedValue({ id: 6, name: 'ApiUser' } as any);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({
@@ -200,6 +229,7 @@ describe('UserService', () => {
           roleId: 6,
           organization: { id: 1 },
           api_user_id: userData.api_user_id,
+          phoneNumber: userData.phoneNumber,
         }),
       );
     });
@@ -405,6 +435,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 2,
@@ -418,6 +449,7 @@ describe('UserService', () => {
         roleId: 4,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 3,
@@ -431,6 +463,7 @@ describe('UserService', () => {
         roleId: 3,
         organization: mockOrganizationEntity1,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 4,
@@ -444,6 +477,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
       {
         id: 5,
@@ -457,6 +491,7 @@ describe('UserService', () => {
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
+        phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       },
     ];
 
@@ -876,10 +911,10 @@ describe('UserService', () => {
       const result = await service.findOne({ email: mockUserEntity.email });
 
       expect(result).toBeNull();
-      expect(findOneSpy).toHaveBeenCalledWith(
-        { email: mockUserEntity.email } as FindConditions<User>,
-        { relations: ['organization'] },
-      );
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { email: mockUserEntity.email } as FindOptionsWhere<User>,
+        relations: ['organization'],
+      });
       expect(emailConfirmationService.get).not.toHaveBeenCalled();
     });
 
@@ -896,10 +931,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockUserEntity));
       expect(result.emailConfirmed).toBe(true);
-      expect(findOneSpy).toHaveBeenCalledWith(
-        { email: 'test@example.com' } as FindConditions<User>,
-        { relations: ['organization'] },
-      );
+      expect(findOneSpy).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
+        relations: ['organization'],
+      });
       expect(emailConfirmationSpy).toHaveBeenCalledWith(1);
     });
 
@@ -912,10 +947,10 @@ describe('UserService', () => {
 
       expect(result).toEqual(expect.objectContaining(mockUserEntity));
       expect(result.emailConfirmed).toBe(false);
-      expect(repository.findOne).toHaveBeenCalledWith(
-        { email: 'test@example.com' } as FindConditions<User>,
-        { relations: ['organization'] },
-      );
+      expect(repository.findOne).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' } as FindOptionsWhere<User>,
+        relations: ['organization'],
+      });
       expect(emailConfirmationService.get).toHaveBeenCalledWith(1);
     });
   });

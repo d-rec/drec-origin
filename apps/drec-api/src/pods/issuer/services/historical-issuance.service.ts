@@ -10,7 +10,7 @@ import { IDevice } from '../../../models';
 import { HistoryNextIssuanceStatus } from '../../../utils/enums/history_next_issuance.enum';
 import { Queues } from '../../../utils/enums/queues.enum';
 import { CertificateLogService } from '../../certificate-log/certificate-log.service';
-import { Device } from '../../device';
+import { Device } from '../../device/device.entity';
 import { DeviceGroup } from '../../device-group/device-group.entity';
 import { DeviceGroupService } from '../../device-group/device-group.service';
 import { HistoryDeviceGroupNextIssueCertificate } from '../../device-group/history_next_issuance_date_log.entity';

@@ -3,9 +3,14 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { FileService } from '../file';
 import { BulkUploadService } from '../bulk-upload/bulk-upload.service';
-import { BulkUploadStatus } from '../bulk-upload/bulk-uploads.entity';
+import {
+  BulkUploadStatus,
+  BulkUploadType,
+} from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 import { Queues } from '../../utils/enums/queues.enum';
+import { DeviceFiles } from '../device/dto';
+import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Processor(Queues.DeviceBulkUpload)
 export class DeviceBulkUploadProcessor {
@@ -18,12 +23,23 @@ export class DeviceBulkUploadProcessor {
   ) {}
 
   @Process({ concurrency: 1 })
-  async process(job: Job<{ fileId: string; s3Key: string }>): Promise<any> {
+  async process(job: Job<{ s3Key: string }>): Promise<any> {
     const { s3Key } = job.data;
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
-        where: { jobId: job.id.toString() },
+        where: {
+          jobId: job.id.toString(),
+          type: BulkUploadType.Devices,
+        },
       });
+    const files: DeviceFiles = {
+      [DocumentType.FORM_SF_02]: [],
+      [DocumentType.SF_02C]: [],
+      [DocumentType.METERING_EVIDENCE]: [],
+      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+      [DocumentType.PROJECT_PHOTOS]: [],
+      [DocumentType.COD_PROOF]: [],
+    };
 
     if (!bulkUpload) {
       this.logger.error(`Bulk upload not found for jobId: ${job.id}`);
@@ -35,6 +51,7 @@ export class DeviceBulkUploadProcessor {
         fileContent,
         bulkUpload.organizationId,
         bulkUpload,
+        files,
       );
     } catch (error) {
       this.logger.error(`Failed to process file: ${error}`);

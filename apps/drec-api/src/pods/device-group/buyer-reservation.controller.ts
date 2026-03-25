@@ -28,7 +28,6 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { DeviceGroupService } from './device-group.service';
 import {
   AddGroupDTO,
@@ -40,22 +39,28 @@ import {
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { Role } from '../../utils/enums';
-import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
-import { CertificateGenerationFrequency } from '../../utils/enums';
 import { FileService } from '../file';
 
 import { parse } from 'csv-parse';
 import csv from 'csv-parser';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { PermissionGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
+import { DeviceService } from '../device/device.service';
+import {
+  checkOrganizationAndUser,
+  isDeviceGroupable,
+  validateDeviceGroupToRegister,
+  validateDevicesAreHomogeneous,
+} from '../../validations/device-group';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../constants';
 
 @ApiTags('Buyer Reservation')
 @ApiBearerAuth('access-token')
@@ -74,6 +79,7 @@ export class BuyerReservationController {
     private readonly fileService: FileService,
     private organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly deviceService: DeviceService,
   ) {}
 
   /**
@@ -82,13 +88,13 @@ export class BuyerReservationController {
    */
   @Get()
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
   )
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -146,10 +152,6 @@ export class BuyerReservationController {
     | any
     | DeviceGroupDTO[]
   > {
-    // return new Promise((resolve,reject)=>{
-    //   resolve([]);
-    // });
-    /* for now commenting because ui is giving error because it has removed fields sectors standard complaince of devices */
     this.logger.verbose('With in getAll');
     let organization: any;
     if (!apiUserId) {
@@ -212,7 +214,7 @@ export class BuyerReservationController {
    * @returns {Array<DeviceGroupDTO>}
    */
   @Get('/my')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
@@ -231,7 +233,7 @@ export class BuyerReservationController {
     description: 'User does not have permission to view buyer reservations.',
   })
   async getMyDevices(
-    @UserDecorator() { organizationId, role }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Query(
       new ValidationPipe({
         transform: true,
@@ -240,7 +242,9 @@ export class BuyerReservationController {
     )
     filterDTO: UnreservedDeviceGroupsFilterDTO,
 
-    @Query('pagenumber') pageNumber: number | null,
+    @Query('pagenumber', new DefaultValuePipe(1), ParseIntPipe)
+    pageNumber: number,
+    @Query('limit', new DefaultValuePipe(0), ParseIntPipe) limit: number,
   ): Promise<
     | {
         devicegroups: DeviceGroupDTO[];
@@ -252,6 +256,7 @@ export class BuyerReservationController {
     | DeviceGroupDTO[]
   > {
     this.logger.verbose(`With in getMyDevices`);
+    const { organizationId, role } = user;
     switch (role) {
       case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
@@ -270,7 +275,14 @@ export class BuyerReservationController {
           filterDTO,
         );
       case Role.OrganizationAdmin:
-        return await this.deviceGroupService.getAll();
+        return await this.deviceGroupService.getAll(
+          user,
+          organizationId,
+          user.api_user_id,
+          pageNumber,
+          limit,
+          filterDTO,
+        );
       default:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId,
@@ -284,9 +296,12 @@ export class BuyerReservationController {
    * @returns {DeviceGroupDTO | null} DeviceGroupDTO is when the record found, returns null when the record not found by id
    */
   @Get('/:id')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
-  @ACLModules('BUYER_RESERVATION_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -358,9 +373,9 @@ export class BuyerReservationController {
    * @returns {ResponseDeviceGroupDTO | null}
    */
   @Post()
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), RolesGuard)
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.Admin, Role.ApiUser, Role.Buyer)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -392,197 +407,88 @@ export class BuyerReservationController {
   ): Promise<ResponseDeviceGroupDTO | null> {
     this.logger.verbose(`With in createOne`);
     deviceGroupToRegister.api_user_id = user.api_user_id;
-    if (orgId) {
-      const organization = await this.organizationService.findOne(orgId);
-      const orgUser = await this.userService.findByEmail(organization.orgEmail);
-      if (user.role === Role.ApiUser) {
-        if (organization.api_user_id !== user.api_user_id) {
-          this.logger.error(`Organization requested belongs to other apiuser`);
-          throw new BadRequestException({
-            success: false,
-            message: 'Organization requested belongs to other apiuser',
-          });
-        }
-        if (orgUser.role === Role.Buyer) {
-          organizationId = orgId;
-          deviceGroupToRegister.api_user_id = user.api_user_id;
-        }
-        if (orgUser.role != Role.Buyer) {
-          this.logger.error(`Unauthorized for ${orgUser.role}`);
-          throw new UnauthorizedException({
-            success: false,
-            message: `Unauthorized for ${orgUser.role}`,
-          });
-        }
-      } else {
-        if (user.role === Role.Buyer) {
-          if (organizationId !== organization.id) {
-            this.logger.error(
-              `User does not associated with the requested organization`,
-            );
-            throw new BadRequestException({
-              success: false,
-              message:
-                'User does not associated with the requested organization',
-            });
-          }
-        }
-      }
-    }
-    //integer range which is for deviceId in device(id) table
-    //-2147483648 to +2147483647
-    //https://www.postgresql.org/docs/9.1/datatype-numeric.html
-
-    if (
-      !Array.isArray(deviceGroupToRegister.deviceIds) ||
-      deviceGroupToRegister.deviceIds.filter(
-        (ele) => ele >= -2147483648 && ele <= 2147483647,
-      ).length !== deviceGroupToRegister.deviceIds.length
-    ) {
-      this.logger.error(`One or more device ids are invalid`);
-      throw new ConflictException({
-        success: false,
-        message: 'One or more device ids are invalid',
-      });
-    }
-    if (deviceGroupToRegister.deviceIds.length == 0) {
-      this.logger.error(
-        `Please provide devices for reservation, deviceIds is empty atleast one device is required`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          'Please provide devices for reservation, deviceIds is empty atleast one device is required',
-      });
-    }
-    if (
-      isNaN(deviceGroupToRegister.targetCapacityInMegaWattHour) ||
-      deviceGroupToRegister.targetCapacityInMegaWattHour <= 0 ||
-      Object.is(deviceGroupToRegister.targetCapacityInMegaWattHour, -0)
-    ) {
-      this.logger.error(
-        `targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0`,
-      );
-      throw new ConflictException({
-        success: false,
-        message:
-          'targetCapacityInMegaWattHour should be valid number can include decimal but should be greater than 0',
-      });
-    }
-
-    if (typeof deviceGroupToRegister.reservationStartDate === 'string') {
-      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationStartDate)) {
-        this.logger.error(
-          `Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid reservationStartDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        });
-      }
-      deviceGroupToRegister.reservationStartDate = new Date(
-        deviceGroupToRegister.reservationStartDate,
-      );
-    }
-    if (typeof deviceGroupToRegister.reservationEndDate === 'string') {
-      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationEndDate)) {
-        this.logger.error(
-          `Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid reservationEndDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        });
-      }
-      deviceGroupToRegister.reservationEndDate = new Date(
-        deviceGroupToRegister.reservationEndDate,
-      );
-    }
-    if (typeof deviceGroupToRegister.reservationExpiryDate === 'string') {
-      if (!isValidUTCDateFormat(deviceGroupToRegister.reservationExpiryDate)) {
-        this.logger.error(
-          `Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z`,
-        );
-        throw new ConflictException({
-          success: false,
-          message:
-            ' Invalid reservationExpiryDate, valid format is  YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z ',
-        });
-      }
-      deviceGroupToRegister.reservationExpiryDate = new Date(
-        deviceGroupToRegister.reservationExpiryDate,
-      );
-    }
-    if (
-      deviceGroupToRegister.reservationStartDate &&
-      deviceGroupToRegister.reservationEndDate &&
-      deviceGroupToRegister.reservationStartDate.getTime() >=
-        deviceGroupToRegister.reservationEndDate.getTime()
-    ) {
-      this.logger.error(`start date cannot be less than or same as end date`);
-      throw new ConflictException({
-        success: false,
-        message: 'start date cannot be less than or same as end date',
-      });
-    }
-    if (
-      deviceGroupToRegister.reservationStartDate &&
-      deviceGroupToRegister.reservationEndDate &&
-      deviceGroupToRegister.reservationExpiryDate &&
-      (deviceGroupToRegister.reservationExpiryDate.getTime() <=
-        deviceGroupToRegister.reservationStartDate.getTime() ||
-        deviceGroupToRegister.reservationExpiryDate.getTime() <
-          deviceGroupToRegister.reservationEndDate.getTime())
-    ) {
-      this.logger.error(
-        `Expiry date cannot be less than from start and end date`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: 'Expiry date cannot be less than from start and end date',
-      });
-    }
-
-    const maximumBackDateForReservation: Date = new Date(
-      new Date().getTime() - 3.164e10 * 3,
+    const devices = await this.deviceService.findByIds(
+      deviceGroupToRegister.deviceIds,
     );
-    if (
-      deviceGroupToRegister.reservationStartDate.getTime() <=
-        maximumBackDateForReservation.getTime() ||
-      deviceGroupToRegister.reservationEndDate.getTime() <=
-        maximumBackDateForReservation.getTime()
-    ) {
-      this.logger.error(
-        `start date or end date cannot be less than 3 year from current date`,
-      );
+
+    organizationId = await checkOrganizationAndUser(
+      orgId,
+      user,
+      organizationId,
+      this.organizationService,
+      this.userService,
+    );
+    isDeviceGroupable(devices, organizationId);
+
+    const totalCapacity = devices.reduce(
+      (acc, device) => acc + device.capacity,
+      0,
+    );
+    if (totalCapacity > SMALL_DEVICES_MAX_CAPACITY) {
       throw new ConflictException({
         success: false,
-        message:
-          'start date or end date cannot be less than 3 year from current date',
-      });
-    }
-    if (organizationId === null || organizationId === undefined) {
-      this.logger.error(`User does not has organization associated`);
-      throw new ConflictException({
-        success: false,
-        message: 'User does not has organization associated',
-      });
-    }
-    const frequency = deviceGroupToRegister.frequency.toLowerCase();
-    if (
-      frequency === CertificateGenerationFrequency.monthly ||
-      frequency === CertificateGenerationFrequency.quarterly ||
-      frequency === CertificateGenerationFrequency.weekly
-    ) {
-      this.logger.error(`This frequency is currently not supported`);
-      throw new ConflictException({
-        success: false,
-        message: 'This frequency is currently not supported',
+        message: `Total capacity of devices in the group cannot exceed ${SMALL_DEVICES_MAX_CAPACITY}KW`,
       });
     }
 
+    validateDevicesAreHomogeneous(devices);
+    validateDeviceGroupToRegister(deviceGroupToRegister, organizationId);
+    return await this.deviceGroupService.createOne(
+      organizationId,
+      deviceGroupToRegister,
+      user.id,
+      process.env.DREC_BLOCKCHAIN_ADDRESS,
+    );
+  }
+
+  @Post('pathway')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
+  @ApiQuery({
+    name: 'orgId',
+    type: Number,
+    required: false,
+    description: 'This query parameter is used for Apiuser',
+  })
+  @ApiOperation({
+    summary: 'Create single device pathway',
+    description: 'Register a new single device pathway in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: DeviceGroupDTO,
+    description: 'Successfully created the single device pathway.',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'The provided data is invalid or missing required fields.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description:
+      'User does not have permission to create single device pathways.',
+  })
+  public async storeSingleDevicePathway(
+    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
+    @Body() deviceGroupToRegister: AddGroupDTO,
+    @Query('orgId') orgId: number | null,
+  ): Promise<ResponseDeviceGroupDTO | null> {
+    deviceGroupToRegister.api_user_id = user.api_user_id;
+    organizationId = await checkOrganizationAndUser(
+      orgId,
+      user,
+      organizationId,
+      this.organizationService,
+      this.userService,
+    );
+    if (deviceGroupToRegister.deviceIds.length !== 1) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Only one device can be added in single device pathway',
+      });
+    }
+    validateDeviceGroupToRegister(deviceGroupToRegister, organizationId);
     return await this.deviceGroupService.createOne(
       organizationId,
       deviceGroupToRegister,
@@ -599,7 +505,7 @@ export class BuyerReservationController {
    * @returns
    */
   @Patch('/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
     summary: 'Update buyer reservation by ID',
     description: 'Modify an existing buyer reservation using its ID.',
@@ -662,7 +568,7 @@ export class BuyerReservationController {
    * @returns {void}
    */
   @Delete('/:id')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)
   @ApiOperation({
     summary: 'Remove buyer reservation by ID',
@@ -730,7 +636,7 @@ export class BuyerReservationController {
    * @returns {void}
    */
   @Delete('endreservation/:id')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
     summary: 'End reservation by ID',
     description:
@@ -773,7 +679,7 @@ export class BuyerReservationController {
    * @returns {any}
    */
   @Get('current-information/:groupUid')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch current reservation information',

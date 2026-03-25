@@ -63,7 +63,7 @@ export class OauthClientCredentialsService {
 
   async edit(id: number, client_id: string): Promise<OauthClientCredentials> {
     const clientCredentials = await this.clientCredentialsRepository.findOne({
-      id: id,
+      where: { id: id },
     });
     if (!clientCredentials) {
       // Handle error, throw exception, etc.

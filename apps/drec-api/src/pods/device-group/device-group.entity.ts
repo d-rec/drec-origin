@@ -4,15 +4,17 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
-  isNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  isNotEmpty,
 } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IDeviceGroup, IFullOrganization } from '../../models';
@@ -22,15 +24,18 @@ import {
   OffTaker,
 } from '../../utils/enums';
 //import { Device } from '../device';
+import { EvidentRegistrationStatus } from '../../types/evident';
+import { GroupType } from '../../utils/enums/group-type.enum';
 import { Device } from '../device/device.entity';
+import { Organization } from '../organization/organization.entity';
 
 @Entity()
 export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @PrimaryGeneratedColumn('uuid')
-  devicegroup_uid: string;
+  @PrimaryGeneratedColumn('uuid', { name: 'devicegroup_uid' })
+  deviceGroupUid: string;
 
   @Column({ unique: true })
   @IsNotEmpty()
@@ -179,6 +184,25 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3,
   })
   reservationExpiryDate: Date;
+
+  @Column({ type: 'text', nullable: true, name: 'evident_group_id' })
+  @IsString()
+  @IsOptional()
+  evidentGroupId: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'evident_status' })
+  @IsEnum(EvidentRegistrationStatus)
+  @IsOptional()
+  evidentStatus: EvidentRegistrationStatus | null;
+
+  @Column({ type: 'enum', enum: GroupType, nullable: false })
+  @IsEnum(GroupType)
+  @IsOptional()
+  type: GroupType;
+
+  @ManyToOne(() => Organization, { eager: false })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
+  organizations: Organization;
 
   isExpired(): boolean {
     return (

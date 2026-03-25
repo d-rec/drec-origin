@@ -7,16 +7,22 @@ import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { CountryCodeModule } from '../countrycode/countrycode.module';
-import { IRECDevicesInformationEntity } from './irec_devices_information.entity';
-import { IRECErrorLogInformationEntity } from './irec_error_log_information.entity';
 import { UserModule } from '../user/user.module';
 import { OrganizationModule } from '../organization/organization.module';
 import { DeviceLateOngoingIssueCertificateEntity } from './device_lateongoing_certificate.entity';
 import { HttpModule } from '@nestjs/axios';
+import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
+import { EvidentModule } from '../evident/evident.module';
+import { Organization } from '../organization/organization.entity';
+import { EvidentSettings } from '../evident/evident-settings.entity';
+import { MailModule } from '../../mail/mail.module';
 import { ReadsModule } from '../reads/reads.module';
+
 @Module({
   imports: [
     forwardRef(() => DeviceGroupModule),
+    forwardRef(() => EvidentModule),
+    forwardRef(() => MailModule),
     forwardRef(() => ReadsModule),
     CountryCodeModule,
     HttpModule,
@@ -24,12 +30,13 @@ import { ReadsModule } from '../reads/reads.module';
       Device,
       ACLModulePermission,
       CheckCertificateIssueDateLogForDeviceEntity,
-      IRECDevicesInformationEntity,
-      IRECErrorLogInformationEntity,
       DeviceLateOngoingIssueCertificateEntity,
+      Organization,
+      EvidentSettings, // Ensure EvidentSettings is imported correctly
     ]),
-    UserModule,
-    OrganizationModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => OrganizationModule),
+    DocumentUploadsModule,
   ],
   providers: [DeviceService],
   exports: [DeviceService],

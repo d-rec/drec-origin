@@ -49,6 +49,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+package-lock.json
 
 # Optional npm cache directory
 .npm
@@ -76,6 +77,7 @@ jspm_packages/
 
 # OS X temporary files
 .DS_Store
+**/__MACOSX/
 
 # Rush temporary files
 common/deploy/

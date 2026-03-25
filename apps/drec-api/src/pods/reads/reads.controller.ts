@@ -12,7 +12,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -21,14 +20,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import * as momentTimeZone from 'moment-timezone';
-import { PermissionGuard } from '../../guards';
+import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { ILoggedInUser, IUser } from '../../models';
 import { ReadDTO, ReadsFilterDTO } from '../../types/reads';
 import { ReadType, Role } from '../../utils/enums';
 import { getLocalTimeZoneFromDevice } from '../../utils/localTimeDetailsForDevice';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
-import { DeviceService } from '../device';
+import { DeviceService } from '../device/device.service';
 import { DeviceDTO } from '../device/dto';
 import { OrganizationService } from '../organization/organization.service';
 import { Permission } from '../permission/decorators/permission.decorator';
@@ -118,7 +117,7 @@ export class ReadsController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden. User does not have the required permissions.',
   })
-  @UseGuards(AuthGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getReads(
@@ -175,7 +174,10 @@ export class ReadsController {
     status: HttpStatus.NOT_FOUND,
     description: 'Device not found for the given external ID.',
   })
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newGetReads(
@@ -290,8 +292,9 @@ export class ReadsController {
         }
       }
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
-        meterId,
+      const serialNumber = meterId;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }
@@ -325,7 +328,7 @@ export class ReadsController {
       'Stores new meter reads for historical data, delta readings, and aggregate readings.',
   })
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
   )
@@ -367,7 +370,7 @@ export class ReadsController {
     description: 'Forbidden. User does not have the required permissions.',
   })
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     RolesGuard,
     PermissionGuard,
   )
@@ -388,7 +391,7 @@ export class ReadsController {
       user.organizationId = measurements.organizationId;
     }
     return this.readsService.validateAndStoreReads({
-      deviceExternalId: id.trim(),
+      deviceSerialNumber: id.trim(),
       measurements,
       organizationId: user.organizationId,
     });
@@ -429,7 +432,7 @@ export class ReadsController {
     type: Number,
     description: 'This query parameter is used to for admin...',
   })
-  @UseGuards(AuthGuard('jwt'), RolesGuard, PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
@@ -448,7 +451,7 @@ export class ReadsController {
       organizationId = user.organizationId;
     }
     return this.readsService.validateAndStoreReads({
-      deviceExternalId: id.trim(),
+      deviceSerialNumber: id.trim(),
       measurements,
       organizationId,
     });
@@ -464,7 +467,10 @@ export class ReadsController {
     description:
       'this endpoint will be replaced by `/reads/:externalId/latest` in future. Returns the latest meter read of the given device by its external ID.',
   })
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestMeterRead(
@@ -493,11 +499,14 @@ export class ReadsController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden. User does not have the required permissions.',
   })
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async getLatestRead(
-    @Param('externalId') externalId: string,
+    @Param('externalId') id: string,
     @UserDecorator() user: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in getLatestMeterRead`);
@@ -508,10 +517,11 @@ export class ReadsController {
       user.role === 'ApiUser'
     ) {
       // in buyer case externalid means insert id
-      device = await this.deviceService.findOne(parseInt(externalId));
+      device = await this.deviceService.findOne(parseInt(id));
     } else {
-      device = await this.deviceService.findDeviceByDeveloperExternalId(
-        externalId,
+      const serialNumber = id;
+      device = await this.deviceService.findBySerialNumber(
+        serialNumber,
         user.organizationId,
       );
     }
@@ -542,9 +552,9 @@ export class ReadsController {
       }
       if (user.role === 'Buyer' || user.role === 'ApiUser') {
         return {
-          externalId: device.developerExternalId,
-          timestamp: latestReadObject.endDate,
-          value: latestReadObject.value,
+          externalId: device.serialNumber,
+          timestamp: latestReadObject[0].timestamp,
+          value: latestReadObject[0].value,
         };
       }
 

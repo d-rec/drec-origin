@@ -42,7 +42,6 @@ export class WithoutAuthGuard implements CanActivate {
         }
         break;
 
-      case UrlPath.ConfirmEmail:
       case UrlPath.ResetPassword:
         if (isEmail(request.params.token)) {
           this.logger.verbose(`Token is an email: ${request.params.token}`);
@@ -60,13 +59,16 @@ export class WithoutAuthGuard implements CanActivate {
         const userData = await this.userService.findOne({ role: Role.Admin });
         const userOrganizationTypes = [
           OrganizationType.Developer,
-          OrganizationType.ApiUser,
           OrganizationType.Buyer,
         ];
 
-        if (userOrganizationTypes.includes(request.body.organizationType)) {
+        if (
+          userOrganizationTypes.includes(request.body.organizationType) &&
+          !request.body.api_user_id
+        ) {
           user = userData;
         } else if (
+          request.body.api_user_id &&
           request.body.api_user_id !== userData.api_user_id &&
           (request.body.organizationType === OrganizationType.Developer ||
             request.body.organizationType === OrganizationType.Buyer)

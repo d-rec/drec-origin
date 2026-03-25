@@ -14,8 +14,8 @@ import {
   UseInterceptors,
   ConflictException,
   Res,
+  Patch,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiResponse,
@@ -29,9 +29,14 @@ import { UserDecorator } from './decorators/user.decorator';
 import { UserDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
-import { IEmailConfirmationToken, ILoggedInUser } from '../../models';
+import {
+  IEmailConfirmationToken,
+  ILoggedInUser,
+  LoggedInUser,
+} from '../../models';
 import {
   ActiveUserGuard,
+  AuthVerifiedGuard,
   PermissionGuard,
   RolesGuard,
   WithoutAuthGuard,
@@ -54,6 +59,7 @@ import { ACLModules } from '../access-control-layer-module-service/decorator/acl
 import { Roles } from './decorators/roles.decorator';
 import { Role } from '../../utils/enums';
 import { isEmail } from 'class-validator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -190,6 +196,7 @@ export class UserController {
     }
     return this.userService.newCreateUser(userRegistrationData);
   }
+
   /**
    * this api route using for update Profile.
    * @body { 'firstName':string,'lastName':string,'email':string}.
@@ -197,8 +204,7 @@ export class UserController {
    */
   @Put('profile')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Write')
@@ -241,8 +247,7 @@ export class UserController {
    */
   @Put('password')
   @UseGuards(
-    AuthGuard(['jwt', 'oauth2-client-password']),
-    ActiveUserGuard,
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
   @Permission('Write')
@@ -321,10 +326,6 @@ export class UserController {
    * @returns {EmailConfirmationResponse}:"Email confirmed successfully"
    */
   @Put('confirm-email/:token')
-  @UseGuards(WithoutAuthGuard, PermissionGuard)
-  //@UseGuards(PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Confirm Email Address',
     description:
@@ -349,9 +350,7 @@ export class UserController {
    * @returns
    */
   @Put('resend-confirm-email')
-  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']), PermissionGuard)
-  @Permission('Write')
-  @ACLModules('USER_MANAGEMENT_CRUDL')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({
     summary: 'Resend Confirmation Email',
     description:
@@ -364,9 +363,13 @@ export class UserController {
       'Returns a success message indicating that the confirmation email has been resent.',
   })
   public async reSendEmailConfirmation(
-    @UserDecorator() { email }: ILoggedInUser,
+    @Req() request: Request,
   ): Promise<SuccessResponseDTO> {
-    return this.emailConfirmationService.sendConfirmationEmail(email);
+    const user = request.user as any;
+    return this.emailConfirmationService.sendConfirmationEmail(
+      user.email,
+      user.firstName,
+    );
   }
 
   /**
@@ -403,6 +406,28 @@ export class UserController {
     return this.userService.getTokenForResetPassword(body.email);
   }
 
+  @Patch('accept-terms-and-conditions')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: 'Accept terms and conditions for existing user',
+    description:
+      'User accepts terms and condition when they havent done so in registration',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Terms and conditions accepted successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description:
+      'User not found. The specified user email does not correspond to any existing user.',
+  })
+  public async acceptTermsAndCondition(
+    @UserDecorator() user: LoggedInUser,
+  ): Promise<UserDTO | null> {
+    return this.userService.acceptTermsAndCondition(user.email);
+  }
+
   @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
   @Roles(Role.ApiUser)
@@ -425,5 +450,14 @@ export class UserController {
     @Res() res: Response,
   ): Promise<any> {
     return await this.oauthClientService.createKeyFile(api_user_id, res);
+  }
+
+  @Patch('update-phone-number')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  public async updatePhoneNumber(
+    @UserDecorator() user: LoggedInUser,
+    @Body() body: Pick<UserDTO, 'phoneNumber'>,
+  ): Promise<{ message: string }> {
+    return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
   }
 }

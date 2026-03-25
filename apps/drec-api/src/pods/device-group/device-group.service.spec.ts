@@ -9,13 +9,13 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ILoggedInUser } from '../../models';
-import { Role } from '../../utils/enums';
+import { PermissionString, Role } from '../../utils/enums';
 import { Repository } from 'typeorm';
 import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
+import { DeviceGroupService } from './device-group.service';
 import { DeviceService } from '../device/device.service';
-import { IRECErrorLogInformationEntity } from '../device/irec_error_log_information.entity';
 import { FileService } from '../file';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
@@ -23,11 +23,12 @@ import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { DeviceGroup } from './device-group.entity';
-import { DeviceGroupService } from './device-group.service';
 import { DeviceCsvFileProcessingJobsEntity } from './device_csv_processing_jobs.entity';
 import { DeviceGroupNextIssueCertificate } from './device_group_issuecertificate.entity';
 import { UnreservedDeviceGroupsFilterDTO } from './dto';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
+import { EvidentDeviceService } from '../evident/evident-device.service';
+import { DocumentEntity } from '../document-uploads/entities/documents.entity';
 
 describe('DeviceGroupService', () => {
   let service: DeviceGroupService;
@@ -37,132 +38,138 @@ describe('DeviceGroupService', () => {
   let userService: UserService;
 
   beforeEach(async () => {
+    // Create mock implementations
+    const mockDeviceService = {
+      findForGroup: jest.fn().mockResolvedValue([]),
+      findByIds: jest.fn().mockResolvedValue([]),
+      findOne: jest.fn().mockResolvedValue(null),
+      addGroupIdToDeviceForReserving: jest.fn().mockResolvedValue({}),
+      removeFromGroup: jest.fn().mockResolvedValue({}),
+      findByIdsWithoutGroupIdsAssignedImpliesWithoutReservation: jest
+        .fn()
+        .mockResolvedValue([]),
+      findMultipleDevicesBasedExternalId: jest.fn().mockResolvedValue([]),
+      register: jest.fn().mockResolvedValue({}),
+    };
+
+    const mockYieldConfigService = {
+      getYieldConfig: jest.fn().mockResolvedValue({}),
+    };
+
+    const mockUserService = {
+      findByEmail: jest.fn().mockResolvedValue({ role: 'ORGANIZATION_ADMIN' }),
+    };
+
+    const mockOrganizationService = {
+      findOne: jest.fn().mockResolvedValue({ id: 1, name: 'Test Org' }),
+    };
+
+    const mockEvidentDeviceService = {
+      getDevice: jest.fn().mockResolvedValue({}),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeviceGroupService,
-        {
-          provide: getRepositoryToken(DeviceGroup),
-          useClass: Repository,
-        },
+        // 1. DeviceCsvFileProcessingJobsEntity repository
         {
           provide: getRepositoryToken(DeviceCsvFileProcessingJobsEntity),
           useClass: Repository,
         },
-
+        // 2. DeviceGroup repository
         {
-          provide: getRepositoryToken(BulkUploadEntity),
-          useValue: {},
+          provide: getRepositoryToken(DeviceGroup),
+          useClass: Repository,
         },
-        {
-          provide: getRepositoryToken(BulkUploadFailedLogEntity),
-          useValue: {
-            findOne: jest.fn(),
-            save: jest.fn(),
-            create: jest.fn(),
-          },
-        },
+        // 3. DeviceGroupNextIssueCertificate repository
         {
           provide: getRepositoryToken(DeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
-        {
-          provide: getRepositoryToken(IRECErrorLogInformationEntity),
-          useClass: Repository,
-        },
+        // 4. OrganizationService
         {
           provide: OrganizationService,
-          useValue: {
-            findOne: jest
-              .fn()
-              .mockResolvedValue({ id: 1, name: 'Organization Name' }),
-          } as any,
+          useValue: mockOrganizationService,
         },
-        {
-          provide: UserService,
-          useValue: {
-            findByEmail: jest
-              .fn()
-              .mockResolvedValue({ role: Role.OrganizationAdmin }),
-          } as any,
-        },
+        // 5. DeviceService
         {
           provide: DeviceService,
-          useValue: {
-            findForGroup: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
-          } as any,
+          useValue: mockDeviceService,
         },
-        {
-          provide: FileService,
-          useValue: {} as any,
-        },
+        // 6. YieldConfigService
         {
           provide: YieldConfigService,
-          useValue: {} as any,
+          useValue: mockYieldConfigService,
         },
-        {
-          provide: getQueueToken(Queues.DeviceBulkUpload),
-          useValue: {},
-        },
+        // 7. CheckCertificateIssueDateLogForDeviceGroupEntity repository
         {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceGroupEntity,
           ),
           useClass: Repository,
         },
+        // 8. HistoryDeviceGroupNextIssueCertificate repository
         {
           provide: getRepositoryToken(HistoryDeviceGroupNextIssueCertificate),
           useClass: Repository,
         },
+        // 9. CertificateReadModelEntity repository
         {
           provide: getRepositoryToken(CertificateReadModelEntity),
           useClass: Repository,
         },
+        // 10. UserService
+        {
+          provide: UserService,
+          useValue: mockUserService,
+        },
+        // 11. CertificateSettingEntity repository
         {
           provide: getRepositoryToken(CertificateSettingEntity),
           useClass: Repository,
+        },
+        // 12. BulkUploadEntity repository
+        {
+          provide: getRepositoryToken(BulkUploadEntity),
+          useClass: Repository,
+        },
+        // 13. BulkUploadFailedLogEntity repository
+        {
+          provide: getRepositoryToken(BulkUploadFailedLogEntity),
+          useClass: Repository,
+        },
+        // 14. DocumentEntity repository
+        {
+          provide: getRepositoryToken(DocumentEntity),
+          useClass: Repository,
+        },
+        // 15. Bull Queue
+        {
+          provide: getQueueToken(Queues.DeviceBulkUpload),
+          useValue: {
+            add: jest.fn().mockResolvedValue({}),
+          },
+        },
+        // 16. EvidentDeviceService
+        {
+          provide: EvidentDeviceService,
+          useValue: mockEvidentDeviceService,
+        },
+        // 17. FileService
+        {
+          provide: FileService,
+          useValue: {},
         },
       ],
     }).compile();
 
     service = module.get<DeviceGroupService>(DeviceGroupService);
-
     repository = module.get<Repository<DeviceGroup>>(
       getRepositoryToken(DeviceGroup),
     );
-
-    // repositoryJobFailedRows = module.get<
-    //   Repository<DeviceCsvProcessingFailedRowsEntity>
-    // >(getRepositoryToken(DeviceCsvProcessingFailedRowsEntity));
-
-    // repositoryCSVJobProcessing = module.get<
-    //   Repository<DeviceCsvFileProcessingJobsEntity>
-    // >(getRepositoryToken(DeviceCsvFileProcessingJobsEntity));
-
-    // repositoryNextDeviceGroupCertificate = module.get<
-    //   Repository<DeviceGroupNextIssueCertificate>
-    // >(getRepositoryToken(DeviceGroupNextIssueCertificate));
-
     organizationService = module.get<OrganizationService>(OrganizationService);
-
     deviceService = module.get<DeviceService>(DeviceService);
-
-    //fileService = module.get<FileService>(FileService);
-
-    //yieldConfigService = module.get<YieldConfigService>(YieldConfigService);
-
     userService = module.get<UserService>(UserService);
-
-    // checkDeviceGroupLogCertificateRepository = module.get<
-    //   Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>
-    // >(getRepositoryToken(CheckCertificateIssueDateLogForDeviceGroupEntity));
-
-    // historyNextIssuanceDateRepository = module.get<
-    //   Repository<HistoryDeviceGroupNextIssueCertificate>
-    // >(getRepositoryToken(HistoryDeviceGroupNextIssueCertificate));
-
-    // certificateReadModelEntity = module.get<
-    //   Repository<CertificateReadModelEntity<ICertificateMetadata>>
-    // >(getRepositoryToken(CertificateReadModelEntity));
   });
 
   it('should be defined', () => {
@@ -193,8 +200,24 @@ describe('DeviceGroupService', () => {
           getManyAndCount: jest.fn().mockResolvedValue([deviceGroups, 1]),
         } as any;
       });
-
-      const result = await service.getAll();
+      const dummyUser: ILoggedInUser = {
+        id: 1,
+        role: Role.User,
+        api_user_id: 'someid',
+        organizationId: 1,
+        email: 'test@example.com',
+        blockchainAccountAddress: '0xabc',
+        hasRole: function (): boolean {
+          throw new Error('Function not implemented.');
+        },
+        ownerId: '',
+        hasOrganization: false,
+        permissions: PermissionString.Read,
+        hasPermission: function (): boolean {
+          throw new Error('Function not implemented.');
+        },
+      };
+      const result = await service.getAll(dummyUser);
       expect(result).toEqual({
         groupedData: deviceGroups,
         currentPage: undefined,
@@ -250,9 +273,9 @@ describe('DeviceGroupService', () => {
 
   describe('findById', () => {
     it('should successfully return a device group when found', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -266,7 +289,7 @@ describe('DeviceGroupService', () => {
         .spyOn(deviceService, 'findForGroup')
         .mockResolvedValue([{ id: 1 }, { id: 2 }] as any);
 
-      const result = await service.findById(deviceGroupId);
+      const result = await service.findById(deviceGroupUid);
 
       expect(result).toEqual({
         ...mockDeviceGroup,
@@ -276,19 +299,19 @@ describe('DeviceGroupService', () => {
     });
 
     it('should throw NotFoundException if no device group is found', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
 
-      await expect(service.findById(deviceGroupId)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid)).rejects.toThrow(
         NotFoundException,
       );
     });
 
     it('should throw UnauthorizedException if an API user tries to access a device group not belonging to their organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -308,15 +331,15 @@ describe('DeviceGroupService', () => {
         .spyOn(service, 'checkDeveloperOrganization')
         .mockResolvedValue(false);
 
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
       );
     });
 
     it('should allow access if an API user is part of the organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 1,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -334,15 +357,15 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
-      const result = await service.findById(deviceGroupId, mockUser);
+      const result = await service.findById(deviceGroupUid, mockUser);
 
       expect(result).toEqual(mockDeviceGroup);
     });
 
     it('should throw UnauthorizedException if a buyer tries to access a device group from another organization', async () => {
-      const deviceGroupId = 1;
+      const deviceGroupUid = 1;
       const mockDeviceGroup = {
-        id: deviceGroupId,
+        id: deviceGroupUid,
         organizationId: 2,
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
@@ -354,7 +377,7 @@ describe('DeviceGroupService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
       jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
-      await expect(service.findById(deviceGroupId, mockUser)).rejects.toThrow(
+      await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
       );
     });
@@ -368,9 +391,9 @@ describe('DeviceGroupService', () => {
           id: 1,
           name: 'Group 1',
           organizationId: 1,
-          createdAt: new Date('2024-01-01T00:00:00Z'),
+          createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
-          devicegroup_uid: 'uid-1',
+          deviceGroupUid: 'uid-1',
           yieldValue: 100,
           deviceIdsInt: [1, 2],
           api_user_id: 'user123',
@@ -391,9 +414,9 @@ describe('DeviceGroupService', () => {
           id: 2,
           name: 'Group 2',
           organizationId: 1,
-          createdAt: new Date('2024-02-01T00:00:00Z'),
+          createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
-          devicegroup_uid: 'uid-2',
+          deviceGroupUid: 'uid-2',
           yieldValue: 200,
           deviceIdsInt: [3, 4],
           api_user_id: 'user456',
@@ -482,7 +505,18 @@ describe('DeviceGroupService', () => {
           sdgBenefits: ['Benefit1', 'Benefit2'],
         },
       ];
-
+      const mockDevices = [
+        {
+          device_id: 1,
+          device_serial_number: 'ABC123',
+          device_projectName: 'Solar Farm 1',
+        },
+        {
+          device_id: 2,
+          device_serial_number: 'DEF456',
+          device_projectName: 'Solar Farm 2',
+        },
+      ];
       const mockCount = 1;
 
       jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
@@ -500,6 +534,14 @@ describe('DeviceGroupService', () => {
         getCount: jest.fn().mockResolvedValue(mockCount),
       } as any);
 
+      (repository as any).manager = {
+        createQueryBuilder: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnThis(),
+          where: jest.fn().mockReturnThis(),
+          getRawMany: jest.fn().mockResolvedValue(mockDevices),
+        }),
+      };
+
       // Calling the service function with necessary parameters
       const result = await service.getDeviceGroups(buyerId, 1);
 
@@ -508,6 +550,14 @@ describe('DeviceGroupService', () => {
           id: 1,
           name: 'Group 1',
           organizationId: 1,
+          buyerId: 1,
+          buyerAddress: 'buyers addr',
+          deviceGroupUid: 'UID-123',
+          deviceIds: [1, 2],
+          devices: [
+            { id: 1, projectName: 'Solar Farm 1', serialNumber: 'ABC123' },
+            { id: 2, projectName: 'Solar Farm 2', serialNumber: 'DEF456' },
+          ],
           countryCode: ['IND'],
           fuelCode: ['TS100'],
           deviceTypeCodes: ['type1'],
@@ -515,9 +565,8 @@ describe('DeviceGroupService', () => {
           gridInterconnection: true,
           aggregatedCapacity: 200,
           commissioningDateRange: ['Year_3'],
-          buyerId: 1,
-          buyerAddress: 'buyers addr',
           leftoverReads: 90,
+          leftoverReadsByCountryCode: { IND: 30 },
           reservationStartDate: new Date('2024-08-01'),
           reservationEndDate: new Date('2024-08-30'),
           reservationActive: true,
@@ -526,11 +575,9 @@ describe('DeviceGroupService', () => {
           targetVolumeCertificateGenerationSucceededInMegaWattHour: 70,
           targetVolumeCertificateGenerationFailedInMegaWattHour: 10,
           authorityToExceed: false,
-          leftoverReadsByCountryCode: { IND: 30 },
-          devicegroup_uid: 'UID-123',
           type: 'typeA',
-          deviceIds: [1, 2],
           SDGBenefits: ['Benefit1', 'Benefit2'],
+          capacityRange: undefined,
         },
       ]);
 
@@ -603,7 +650,7 @@ describe('DeviceGroupService', () => {
 
       const result = await service.findOne({ id: 1 });
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(result).toEqual(mockDeviceGroup);
     });
 
@@ -612,7 +659,7 @@ describe('DeviceGroupService', () => {
 
       const result = await service.findOne({ id: 999 });
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 999 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 999 } });
       expect(result).toBeNull();
     });
 
@@ -625,7 +672,7 @@ describe('DeviceGroupService', () => {
         'Database error',
       );
 
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
     });
   });
 

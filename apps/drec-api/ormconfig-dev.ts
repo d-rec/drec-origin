@@ -1,9 +1,9 @@
 import Dotenv from 'dotenv';
 Dotenv.config({ path: '../../.env' });
 
-import { ConnectionOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-const getDBConnectionOptions = (): ConnectionOptions => {
+const getDBConnectionOptions = (): DataSourceOptions => {
   return process.env.DATABASE_URL
     ? {
         type: 'postgres',
@@ -22,16 +22,13 @@ const getDBConnectionOptions = (): ConnectionOptions => {
       };
 };
 
-const config: ConnectionOptions = {
+const config: DataSourceOptions = {
   ...getDBConnectionOptions(),
   entities: ['src/**/*.entity.ts'],
   synchronize: false,
   migrationsRun: true,
   migrations: ['migrations/*.ts'],
   migrationsTableName: 'migrations_drec',
-  cli: {
-    migrationsDir: 'migrations',
-  },
 };
 
-export = config;
+export default new DataSource(config);

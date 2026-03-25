@@ -3,9 +3,9 @@ import {
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository, InjectConnection } from '@nestjs/typeorm';
+import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import * as path from 'path';
-import { Connection, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ILoggedInUser, LoggedInUser } from '../../models';
 import { Role } from '../../utils/enums';
@@ -13,6 +13,7 @@ import { S3 } from 'aws-sdk';
 
 //import { DeviceCsvFileProcessingJobsEntity, StatusCSV } from '../device-group/device_csv_processing_jobs.entity';
 import { File } from './file.entity';
+import axios from 'axios';
 
 export type FileUpload = {
   originalname: string;
@@ -27,8 +28,8 @@ export class FileService {
     @InjectRepository(File) private readonly repository: Repository<File>,
     // @InjectRepository(DeviceCsvFileProcessingJobsEntity)
     // private readonly repositoyCSVJobProcessing: Repository<DeviceCsvFileProcessingJobsEntity>,
-    @InjectConnection()
-    private readonly connection: Connection,
+    @InjectDataSource()
+    private readonly connection: DataSource,
   ) {}
 
   public async store(
@@ -66,7 +67,7 @@ export class FileService {
     this.logger.debug(
       `User ${
         user ? JSON.stringify(user) : 'Anonymous'
-      } has stored ${JSON.stringify(storedFile)}`,
+      } has stored ${JSON.stringify(storedFile.length)}`,
     );
 
     return storedFile;
@@ -193,25 +194,41 @@ export class FileService {
   //   });
   // }
 
-  async upload(file: Express.Multer.File): Promise<any> {
+  async upload(file: Express.Multer.File, subfolder?: string): Promise<any> {
     this.logger.verbose(`With in upload`);
-    this.logger.debug(file);
+    this.logger.debug(`Uploading file: ${file.fieldname}`);
     const { originalname } = file;
     const bucketS3 = process.env.AWS_S3_BUCKET;
-    return await this.uploadS3(file.buffer, bucketS3, originalname);
+    return await this.uploadS3(file.buffer, bucketS3, originalname, subfolder);
   }
 
-  async uploadS3(file: Buffer, bucket: string, name: string): Promise<any> {
+  async uploadS3(
+    file: Buffer,
+    bucket: string,
+    name: string,
+    subfolder?: string,
+  ): Promise<any> {
     this.logger.verbose(`With in uploadS3`);
     const s3 = this.getS3();
     this.logger.debug(`${uuid()}-${String(name)}`);
-    const a = name.substr(0, name.indexOf('.csv'));
-    this.logger.debug(a);
+
+    // Extract file extension
+    const fileExtension = name.includes('.') ? name.split('.').pop() : '';
+    const fileNameWithoutExtension = name.includes('.')
+      ? name.substring(0, name.lastIndexOf('.'))
+      : name;
+
+    this.logger.debug(
+      `File name without extension: ${fileNameWithoutExtension}`,
+    );
+
+    const filename = `${fileNameWithoutExtension}-${uuid()}${fileExtension ? `.${fileExtension}` : ''}`;
+    const key = subfolder ? `${subfolder}/${filename}` : filename;
+
     const params = {
       Bucket: bucket,
-      Key: `${a}-${uuid()}.csv`,
+      Key: key,
       Body: file,
-      ACL: 'public-read',
     };
     return new Promise((resolve, reject) => {
       s3.upload(params, (err, data) => {
@@ -225,10 +242,15 @@ export class FileService {
   }
 
   getS3(): any {
-    return new S3({
+    const options: S3.ClientConfiguration = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    });
+    };
+    if (process.env.AWS_S3_ENDPOINT) {
+      options.endpoint = process.env.AWS_S3_ENDPOINT;
+      options.s3ForcePathStyle = true;
+    }
+    return new S3(options);
   }
 
   public async getUploadS3(key: string): Promise<any> {
@@ -258,6 +280,41 @@ export class FileService {
     throw new NotFoundException();
   }
 
+  public async getSignedUrl(
+    key: string,
+    expiresInSeconds = 3600,
+  ): Promise<string> {
+    const s3 = this.getS3();
+    return s3.getSignedUrlPromise('getObject', {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: key,
+      Expires: expiresInSeconds,
+    });
+  }
+
+  public async deleteFileFromS3(key: string): Promise<void> {
+    try {
+      const s3 = this.getS3();
+      await s3
+        .deleteObject({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: key,
+        })
+        .promise();
+    } catch (error) {
+      this.logger.error(`Failed to delete file from S3: ${error.message}`);
+    }
+  }
+  async fetchBuffer(url: string): Promise<Buffer> {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      return Buffer.from(response.data);
+    } catch (error: any) {
+      throw new Error(
+        `fetchFileBuffer failed for ${url}: ${error?.message || error}`,
+      );
+    }
+  }
   // public async getPrivateFile(key: string) {
   //   const s3 = this.getS3();
   // if (key) {

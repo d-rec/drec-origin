@@ -25,7 +25,10 @@ export const canManageOrganization = ({
     return false;
   }
 
-  if (organizationAdmin.role !== Role.OrganizationAdmin) {
+  if (
+    organizationAdmin.role !== Role.OrganizationAdmin &&
+    organizationAdmin.role !== Role.ApiUser
+  ) {
     return false;
   }
 
