@@ -6,6 +6,27 @@ import { WinstonModule } from 'nest-winston';
 const { combine, timestamp, json, printf, colorize, errors } = winston.format;
 
 /**
+ * Known log types. Services can tag log entries with a type so they can be
+ * filtered independently in Grafana Loki (e.g. {type="chat"}).
+ */
+export type LogType = 'chat' | 'device' | 'review' | 'auth' | 'general';
+
+/**
+ * Helper to emit a typed log entry via a NestJS Logger.
+ *
+ * Usage:
+ *   typedLog(this.logger, 'chat', `Message sent by ${user}`);
+ */
+export function typedLog(
+  logger: { log: (...args: any[]) => void },
+  type: LogType,
+  message: string,
+): void {
+  // nest-winston forwards the second argument as Winston metadata
+  logger.log({ message, logType: type });
+}
+
+/**
  * Build a Winston logger instance configured from environment variables.
  *
  * Env vars:
@@ -37,11 +58,12 @@ export function createWinstonLogger() {
     colorize({ all: true }),
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     errors({ stack: true }),
-    printf(({ timestamp, level, message, context, stack, ...meta }) => {
+    printf(({ timestamp, level, message, context, logType, stack, ...meta }) => {
       const ctx = context ? `[${context}] ` : '';
+      const typeTag = logType ? `[${logType}] ` : '';
       const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
       const stackStr = stack ? `\n${stack}` : '';
-      return `${timestamp} ${level} ${ctx}${message}${metaStr}${stackStr}`;
+      return `${timestamp} ${level} ${ctx}${typeTag}${message}${metaStr}${stackStr}`;
     }),
   );
 
@@ -94,6 +116,19 @@ export function createWinstonLogger() {
       // ignore malformed JSON
     }
 
+    const lokiFormat = combine(
+      timestamp(),
+      errors({ stack: true }),
+      winston.format((info) => {
+        // Promote logType to a Loki label so it's filterable
+        if (info.logType) {
+          info.labels = { ...info.labels, type: info.logType };
+        }
+        return info;
+      })(),
+      json(),
+    );
+
     const lokiOptions: any = {
       host: lokiUrl,
       labels: {
@@ -102,7 +137,7 @@ export function createWinstonLogger() {
         ...extraLabels,
       },
       json: true,
-      format: structuredFormat,
+      format: lokiFormat,
       replaceTimestamp: true,
       onConnectionError: (err: Error) => {
         console.error('Loki connection error:', err.message);

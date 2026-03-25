@@ -79,6 +79,7 @@ import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 import { Chat } from './pods/chat/chat.entity';
 import { ChatConversation } from './pods/chat/chat-conversation.entity';
 import { ChatModule } from './pods/chat/chat.module';
+import { TranslateModule } from './pods/translate/translate.module';
 import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module';
 
 const getEnvFilePath = () => {
@@ -198,6 +199,7 @@ const queueModule = () => {
     EvidentModule,
     ChatModule,
     DeviceReviewsModule,
+    TranslateModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
