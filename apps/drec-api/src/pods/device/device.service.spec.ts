@@ -66,6 +66,8 @@ describe('DeviceService', () => {
           useValue: {
             create: jest.fn(),
             save: jest.fn(),
+            update: jest.fn(),
+            findOne: jest.fn(),
           },
         },
         {
