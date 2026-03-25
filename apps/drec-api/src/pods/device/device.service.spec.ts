@@ -1691,7 +1691,7 @@ describe('DeviceService', () => {
       const currentDevice = {
         ...currentDeviceData,
         toJSON: () => currentDeviceData,
-      } as Device;
+      } as unknown as Device;
 
       const savedDevice = {
         ...currentDevice,
