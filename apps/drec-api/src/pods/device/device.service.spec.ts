@@ -1686,7 +1686,12 @@ describe('DeviceService', () => {
         serialNumber: 'SN12345',
         organizationId: 1,
         SDGBenefits: ['1', '4'],
-      } as Device;
+      };
+
+      const currentDevice = {
+        ...currentDeviceData,
+        toJSON: () => currentDeviceData,
+      } as unknown as Device;
 
       const savedDevice = {
         ...currentDevice,
