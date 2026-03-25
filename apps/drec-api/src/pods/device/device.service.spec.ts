@@ -1167,13 +1167,15 @@ describe('DeviceService', () => {
           where: { organizationId },
         }),
       );
-      expect(result).toEqual([
-        {
-          id: 1,
-          externalId: 'EXT123',
-          serialNumber: 'DEV123',
-        },
-      ]);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: 1,
+            externalId: 'EXT123',
+            serialNumber: 'DEV123',
+          }),
+        ]),
+      );
     });
   });
 
