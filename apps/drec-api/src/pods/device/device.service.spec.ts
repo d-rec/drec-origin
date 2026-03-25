@@ -432,7 +432,13 @@ describe('DeviceService', () => {
         service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
-      await expect(findOneSpy).toHaveBeenCalledWith(options);
+      // Service checks projectName first, then serialNumber
+      await expect(findOneSpy).toHaveBeenCalledWith({
+        where: {
+          projectName: newDevice.projectName,
+          organizationId: orgCode,
+        },
+      });
       await expect(findOneSpy).toBeDefined();
     });
   });
