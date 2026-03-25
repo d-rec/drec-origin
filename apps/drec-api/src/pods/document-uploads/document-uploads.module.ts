@@ -7,7 +7,11 @@ import { DocumentEntity } from './entities/documents.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DocumentEntity]), FileModule, forwardRef(() => UserModule)],
+  imports: [
+    TypeOrmModule.forFeature([DocumentEntity]),
+    FileModule,
+    forwardRef(() => UserModule),
+  ],
   controllers: [DocumentUploadsController],
   providers: [DocumentUploadsService],
   exports: [DocumentUploadsService],

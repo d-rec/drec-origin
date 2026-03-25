@@ -20,7 +20,13 @@ import { ApiUserEntity } from '../../src/pods/user/api-user.entity';
 @Module({
   imports: [
     originAppTypeOrmModule(),
-    TypeOrmModule.forFeature([ACLModulePermission, Organization, User, Device, ApiUserEntity]),
+    TypeOrmModule.forFeature([
+      ACLModulePermission,
+      Organization,
+      User,
+      Device,
+      ApiUserEntity,
+    ]),
   ],
   providers: [
     PermissionsSeeder,

@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DeviceReviewsService, AssetDto } from './device-reviews.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
@@ -15,8 +29,14 @@ export class DeviceReviewsController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
-  @ApiOperation({ summary: 'List all devices with their submission documents and signed S3 URLs' })
-  @ApiResponse({ status: 200, description: 'Array of device assets with document URLs' })
+  @ApiOperation({
+    summary:
+      'List all devices with their submission documents and signed S3 URLs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Array of device assets with document URLs',
+  })
   findAll(): Promise<AssetDto[]> {
     return this.service.findAll();
   }
@@ -40,9 +60,7 @@ export class DeviceReviewsController {
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Get a fresh signed S3 URL for a document key' })
   @ApiResponse({ status: 200, description: 'Fresh signed URL' })
-  refreshUrl(
-    @Body('key') key: string,
-  ): Promise<{ url: string }> {
+  refreshUrl(@Body('key') key: string): Promise<{ url: string }> {
     return this.service.refreshSignedUrl(key);
   }
 

@@ -789,7 +789,9 @@ export class UserService {
   async hasValidUserSession(
     conditions: FindOptionsWhere<UserLoginSessionEntity>,
   ): Promise<boolean> {
-    return Boolean(await this.userLoginSessionRepository.findOne({ where: conditions }));
+    return Boolean(
+      await this.userLoginSessionRepository.findOne({ where: conditions }),
+    );
   }
 
   async verifyEmail(userId: number): Promise<User> {

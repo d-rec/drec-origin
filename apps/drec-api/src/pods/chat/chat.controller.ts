@@ -40,13 +40,19 @@ export class ChatController {
   }
 
   @Post('conversations/:id/messages')
-  @ApiOperation({ summary: 'Append a message to a conversation (updates lastEntryUuid)' })
+  @ApiOperation({
+    summary: 'Append a message to a conversation (updates lastEntryUuid)',
+  })
   @ApiResponse({ status: 201, type: ChatDto })
   async appendToConversation(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { username: string; chatEntry: string },
   ): Promise<Chat> {
-    return this.chatService.appendToConversation(id, body.username, body.chatEntry);
+    return this.chatService.appendToConversation(
+      id,
+      body.username,
+      body.chatEntry,
+    );
   }
 
   @Get('chain/:headUuid')
@@ -96,9 +102,18 @@ export class ChatController {
   @ApiOperation({ summary: 'Find conversation between two participants' })
   @ApiResponse({ status: 200, type: ConversationDto })
   async getConversation(
-    @Body() body: { participant1: string; participant2: string; deviceProjectName?: string },
+    @Body()
+    body: {
+      participant1: string;
+      participant2: string;
+      deviceProjectName?: string;
+    },
   ): Promise<ChatConversation | null> {
-    return this.chatService.getConversation(body.participant1, body.participant2, body.deviceProjectName);
+    return this.chatService.getConversation(
+      body.participant1,
+      body.participant2,
+      body.deviceProjectName,
+    );
   }
 
   @Delete('conversations/:id')

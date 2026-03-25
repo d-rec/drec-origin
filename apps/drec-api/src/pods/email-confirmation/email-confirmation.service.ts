@@ -279,10 +279,9 @@ export class EmailConfirmationService {
     this.logger.verbose(`With in generateEmailToken`);
     const MOCK_EMAIL_TOKEN = '123456';
     return {
-      token:
-        ['dev', 'stage', 'test'].includes(process.env.MODE || '')
-          ? MOCK_EMAIL_TOKEN
-          : crypto.randomBytes(64).toString('hex'),
+      token: ['dev', 'stage', 'test'].includes(process.env.MODE || '')
+        ? MOCK_EMAIL_TOKEN
+        : crypto.randomBytes(64).toString('hex'),
       expiryTimestamp: Math.floor(
         DateTime.now().plus({ hours: 8 }).toSeconds(),
       ),

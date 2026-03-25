@@ -20,6 +20,7 @@ export class DocumentsUrlToS3Key1757000000004 implements MigrationInterface {
     `);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Down migration cannot reconstruct the original URLs without knowing the
     // endpoint and bucket, so this is intentionally left as a no-op.

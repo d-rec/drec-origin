@@ -81,7 +81,10 @@ import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certif
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import { GroupType } from '../../utils/enums/group-type.enum';
-import { DocumentEntity, DocumentTargetType } from '../document-uploads/entities/documents.entity';
+import {
+  DocumentEntity,
+  DocumentTargetType,
+} from '../document-uploads/entities/documents.entity';
 import { DocumentType } from '../document-uploads/entities/documents.entity';
 import {
   EvidentIssuanceStatus,
@@ -1963,8 +1966,9 @@ export class DeviceGroupService {
   ): Promise<DeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getGroupCertificateIssueDate`);
     return (
-      (await this.repositoryNextDeviceGroupCertificate.findOne({ where: conditions })) ??
-      null
+      (await this.repositoryNextDeviceGroupCertificate.findOne({
+        where: conditions,
+      })) ?? null
     );
   }
   async getAllNextRequestCertificate(): Promise<
@@ -2132,7 +2136,9 @@ export class DeviceGroupService {
   ): Promise<HistoryDeviceGroupNextIssueCertificate | null> {
     this.logger.verbose(`With in getHistoryCertificateIssueDate`);
     return (
-      (await this.historyNextIssuanceDateRepository.findOne({ where: conditions })) ?? null
+      (await this.historyNextIssuanceDateRepository.findOne({
+        where: conditions,
+      })) ?? null
     );
   }
   async updateHistoryCertificateIssueStatus(
@@ -2279,7 +2285,11 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User') {
+      if (
+        role === 'OrganizationAdmin' ||
+        role === 'DeviceOwner' ||
+        role === 'User'
+      ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
@@ -2478,7 +2488,12 @@ export class DeviceGroupService {
     this.logger.debug('totalCountQuery', totalCount);
     const totalPages = Math.ceil(totalCount / pageSize);
     let deviceGroups: any;
-    if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User' || role === 'Admin') {
+    if (
+      role === 'OrganizationAdmin' ||
+      role === 'DeviceOwner' ||
+      role === 'User' ||
+      role === 'Admin'
+    ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
@@ -2500,7 +2515,11 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    } else if (role === 'Buyer' || role === 'SubBuyer' || role === Role.ApiUser) {
+    } else if (
+      role === 'Buyer' ||
+      role === 'SubBuyer' ||
+      role === Role.ApiUser
+    ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
 
@@ -2564,7 +2583,11 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User') {
+      if (
+        role === 'OrganizationAdmin' ||
+        role === 'DeviceOwner' ||
+        role === 'User'
+      ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
@@ -2758,7 +2781,12 @@ export class DeviceGroupService {
     const totalPages = Math.ceil(totalCount / pageSize);
 
     let deviceGroups: any;
-    if (role === 'OrganizationAdmin' || role === 'DeviceOwner' || role === 'User' || role === 'Admin') {
+    if (
+      role === 'OrganizationAdmin' ||
+      role === 'DeviceOwner' ||
+      role === 'User' ||
+      role === 'Admin'
+    ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
@@ -2781,7 +2809,11 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    } else if (role === 'Buyer' || role === 'SubBuyer' || role === Role.ApiUser) {
+    } else if (
+      role === 'Buyer' ||
+      role === 'SubBuyer' ||
+      role === Role.ApiUser
+    ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
