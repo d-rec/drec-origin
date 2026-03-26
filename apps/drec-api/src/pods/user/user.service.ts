@@ -159,10 +159,6 @@ export class UserService {
         role = Role.SeniorReviewer;
       }
 
-      const isReviewer =
-        data.organizationType === OrganizationType.Reviewer ||
-        data.organizationType === OrganizationType.SeniorReviewer;
-
       const roleRecord = await this.userRoleRepository.findOne({
         where: { name: role },
       });
@@ -176,7 +172,7 @@ export class UserService {
         password: this.hashPassword(data.password),
         termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
-        status: isReviewer ? UserStatus.Pending : status || UserStatus.Active,
+        status: status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
@@ -188,17 +184,6 @@ export class UserService {
         `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
       await this.emailConfirmationService.create(user);
-
-      if (isReviewer) {
-        const roleName =
-          data.organizationType === OrganizationType.SeniorReviewer
-            ? 'Senior Reviewer'
-            : 'Reviewer';
-        await this.emailConfirmationService.sendReviewerApprovalRequest(
-          user,
-          roleName,
-        );
-      }
 
       return user;
     } catch (error) {
@@ -574,6 +559,7 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
+    const roleValue = data.role;
     data = new User({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -595,12 +581,16 @@ export class UserService {
       await this.checkForExistingUser(data.email);
     }
 
-    await this.repository.update(id, {
+    const updatePayload: any = {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
       status: data.status,
-    });
+    };
+    if (roleValue) {
+      updatePayload.role = roleValue;
+    }
+    await this.repository.update(id, updatePayload);
 
     return this.findOne({ id });
   }

@@ -267,9 +267,13 @@ Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-
 | `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
 | `LOKI_LABELS` | `{}` | Extra labels as JSON |
 
-## Staging Database
+## Databases
 
 ```ini
+# Production
+DB_HOST=drec.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
+
+# Staging
 DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
 ```
 
