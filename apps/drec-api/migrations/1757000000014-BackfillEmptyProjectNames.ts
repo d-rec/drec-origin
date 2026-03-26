@@ -11,7 +11,7 @@ export class BackfillEmptyProjectNames1757000000014
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // Cannot reliably revert — original values were already empty/null
   }
 }
