@@ -40,5 +40,17 @@
     "name": "SubBuyer",
     "description": "Same as buyer but not delete any user of org",
     "status": true
+  },
+  {
+    "id": 8,
+    "name": "Reviewer",
+    "description": "Reviewer role for device reviews",
+    "status": true
+  },
+  {
+    "id": 9,
+    "name": "SeniorReviewer",
+    "description": "Senior Reviewer role for device reviews",
+    "status": true
   }
 ]

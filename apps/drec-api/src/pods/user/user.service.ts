@@ -153,7 +153,16 @@ export class UserService {
         role = Role.OrganizationAdmin;
       } else if (data.organizationType === OrganizationType.ApiUser) {
         role = Role.ApiUser;
+      } else if (data.organizationType === OrganizationType.Reviewer) {
+        role = Role.Reviewer;
+      } else if (data.organizationType === OrganizationType.SeniorReviewer) {
+        role = Role.SeniorReviewer;
       }
+
+      const isReviewer =
+        data.organizationType === OrganizationType.Reviewer ||
+        data.organizationType === OrganizationType.SeniorReviewer;
+
       const roleRecord = await this.userRoleRepository.findOne({
         where: { name: role },
       });
@@ -167,7 +176,7 @@ export class UserService {
         password: this.hashPassword(data.password),
         termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
-        status: status || UserStatus.Active,
+        status: isReviewer ? UserStatus.Pending : status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
@@ -179,6 +188,18 @@ export class UserService {
         `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
       await this.emailConfirmationService.create(user);
+
+      if (isReviewer) {
+        const roleName =
+          data.organizationType === OrganizationType.SeniorReviewer
+            ? 'Senior Reviewer'
+            : 'Reviewer';
+        await this.emailConfirmationService.sendReviewerApprovalRequest(
+          user,
+          roleName,
+        );
+      }
+
       return user;
     } catch (error) {
       if (error instanceof ConflictException) {

@@ -3,4 +3,6 @@ export enum OrganizationType {
   Developer = 'Developer',
   ApiUser = 'ApiUser',
   Admin = 'Admin',
+  Reviewer = 'Reviewer',
+  SeniorReviewer = 'SeniorReviewer',
 }

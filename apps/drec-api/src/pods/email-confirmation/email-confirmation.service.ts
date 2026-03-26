@@ -360,6 +360,39 @@ export class EmailConfirmationService {
     await this.repository.delete(confirmation.id);
   }
 
+  public async sendReviewerApprovalRequest(
+    user: User,
+    roleName: string,
+  ): Promise<void> {
+    this.logger.verbose(`Sending reviewer approval request to admin`);
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (!adminEmail) {
+      this.logger.warn(
+        'ADMIN_EMAIL not set — cannot send reviewer approval notification',
+      );
+      return;
+    }
+    const approveUrl = `${process.env.UI_BASE_URL}/admin/All_users`;
+    const result = await this.mailService.send({
+      to: adminEmail,
+      subject: `[D-REC] New ${roleName} registration requires approval`,
+      html: `
+      <p>A new <b>${roleName}</b> has registered and requires your approval.</p>
+      <p><b>Name:</b> ${user.firstName} ${user.lastName}<br/>
+      <b>Email:</b> ${user.email}<br/>
+      <b>Role:</b> ${roleName}</p>
+      <p>Please review and activate this account:</p>
+      <a href="${approveUrl}" style="display: inline-block; padding: 12px 24px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px;">Review Pending Users</a>
+      <p>D-REC Team</p>
+    `,
+    });
+    if (result) {
+      this.logger.log(
+        `Reviewer approval notification sent to admin (${adminEmail}).`,
+      );
+    }
+  }
+
   public async sendInvitation(
     inviteUser: any | CreateUserOrgDTO,
     email: string,
