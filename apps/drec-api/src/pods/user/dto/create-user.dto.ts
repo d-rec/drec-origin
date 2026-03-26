@@ -106,9 +106,12 @@ export class CreateUserOrgDTO
       OrganizationType.Developer,
       OrganizationType.ApiUser,
       OrganizationType.Buyer,
+      OrganizationType.Reviewer,
+      OrganizationType.SeniorReviewer,
     ],
     {
-      message: 'organizationType value should be Developer/Buyer/ApiUser',
+      message:
+        'organizationType value should be Developer/Buyer/ApiUser/Reviewer/SeniorReviewer',
     },
   )
   organizationType: string;
