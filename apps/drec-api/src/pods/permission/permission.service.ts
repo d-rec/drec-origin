@@ -59,7 +59,7 @@ export class PermissionService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr) => {
+      data.permissions.forEach((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
@@ -206,7 +206,7 @@ export class PermissionService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr) => {
+      data.permissions.forEach((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }

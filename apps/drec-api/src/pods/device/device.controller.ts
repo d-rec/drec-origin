@@ -773,7 +773,7 @@ export class DeviceController {
     @UserDecorator() { organizationId, role }: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in remove`);
-    const checkIsUnGroup = this.deviceService.findUngroupedById(id);
+    const checkIsUnGroup = await this.deviceService.findUngroupedById(id);
     if (checkIsUnGroup) {
       let filterOptions: any;
       if (role === 'Admin') {

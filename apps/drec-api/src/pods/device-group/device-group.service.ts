@@ -255,17 +255,10 @@ export class DeviceGroupService {
         query.andWhere(
           new Brackets((qb) => {
             offTakerArray?.forEach((offTaker, index) => {
-              if (index === 0) {
-                qb.orWhere(
-                  `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
-                  { [`offtaker${index}`]: `%${offTaker}%` },
-                );
-              } else {
-                qb.orWhere(
-                  `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
-                  { [`offtaker${index}`]: `%${offTaker}%` },
-                );
-              }
+              qb.orWhere(
+                `EXISTS (SELECT 1 FROM unnest(group.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                { [`offtaker${index}`]: `%${offTaker}%` },
+              );
             });
           }),
         );
@@ -592,17 +585,10 @@ export class DeviceGroupService {
               qb.orWhere(
                 new Brackets((qb) => {
                   offTakerArray?.forEach((offTaker, index) => {
-                    if (index === 0) {
-                      qb.orWhere(
-                        `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
-                        { [`offtaker${index}`]: `%${offTaker}%` },
-                      );
-                    } else {
-                      qb.orWhere(
-                        `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
-                        { [`offtaker${index}`]: `%${offTaker}%` },
-                      );
-                    }
+                    qb.orWhere(
+                      `EXISTS (SELECT 1 FROM unnest(dg.offTakers) ot WHERE ot LIKE :offtaker${index})`,
+                      { [`offtaker${index}`]: `%${offTaker}%` },
+                    );
                   });
                 }),
               );
@@ -660,7 +646,7 @@ export class DeviceGroupService {
 
               const sdgBenefitsArray = newSDG.split(',');
 
-              sdgBenefitsArray.map((benefit) => benefit).join(',');
+
 
               qb.orWhere(
                 new Brackets((qb) => {
@@ -1089,8 +1075,6 @@ export class DeviceGroupService {
         0;
       deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] =
         0;
-      deviceGroup['targetVolumeCertificateGenerationRequestedInMegaWattHour'] =
-        0;
       deviceGroup['frequency'] = group.frequency;
       deviceGroup['deviceIdsInt'] = group.deviceIds;
       deviceGroup['reservationActive'] = true;
@@ -1409,14 +1393,6 @@ export class DeviceGroupService {
         0,
       ),
     );
-    // averageYieldValue
-    Math.floor(
-      devices.reduce(
-        (accumulator, currentValue: DeviceDTO) =>
-          accumulator + currentValue.yieldValue,
-        0,
-      ) / devices.length,
-    );
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
@@ -1557,7 +1533,7 @@ export class DeviceGroupService {
           }
         }
         for (const key in dataToStore) {
-          dataToStore[key] === '' ? (dataToStore[key] = null) : '';
+          if (dataToStore[key] === '') { dataToStore[key] = null; }
         }
         records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({
@@ -1706,10 +1682,6 @@ export class DeviceGroupService {
             singleRecord[error.property] = null; //making null field if it has any validation issue
           });
         });
-        // noErrorRecords
-        records.filter(
-          (record, index) => recordsErrors[index].isError === false,
-        );
         const listOfExistingDevices = await this.checkIfDeviceExisting(
           records,
           organizationId,
@@ -2325,8 +2297,6 @@ export class DeviceGroupService {
         .andWhere(
           new Brackets((qb) => {
             if (filterDTO.country) {
-              const string = filterDTO.country;
-              string.split(',');
               let CountryInvalid = false;
               filterDTO.country = filterDTO.country.toUpperCase();
               if (
@@ -2434,7 +2404,7 @@ export class DeviceGroupService {
               const newSDG = filterDTO.SDGBenefits.toString();
               const sdgBenefitsArray = newSDG.split(',');
               // sdgBenefitString
-              sdgBenefitsArray.map((benefit) => benefit).join(',');
+
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray?.forEach((benefit, index) => {
@@ -2611,8 +2581,6 @@ export class DeviceGroupService {
         .andWhere(
           new Brackets((qb) => {
             if (filterDTO.country) {
-              const string = filterDTO.country;
-              string.split(',');
               let CountryInvalid = false;
               filterDTO.country = filterDTO.country.toUpperCase();
               if (
@@ -2721,7 +2689,7 @@ export class DeviceGroupService {
               const newSDG = filterDTO.SDGBenefits.toString();
               const sdgBenefitsArray = newSDG.split(',');
               //sdgBenefitString
-              sdgBenefitsArray.map((benefit) => benefit).join(',');
+
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray?.forEach((benefit, index) => {

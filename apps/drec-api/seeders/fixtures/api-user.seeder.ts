@@ -27,10 +27,10 @@ export class ApiUserSeeder implements SeederInterface {
 
   async run(): Promise<void> {
     const email = process.env.APIUSER_EMAIL?.toLowerCase() || '';
-    const password = process.env.APIUSER_PASSWORD || 'defaultPassword';
+    const password = process.env.APIUSER_PASSWORD;
 
-    if (!email) {
-      console.error('APIUSER_EMAIL is not set — skipping ApiUser seed.');
+    if (!email || !password) {
+      console.error('APIUSER_EMAIL and APIUSER_PASSWORD must be set — skipping ApiUser seed.');
       return;
     }
 

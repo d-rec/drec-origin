@@ -77,7 +77,7 @@ export class YieldConfigService {
     }) as Promise<IYieldConfig> as Promise<TUserBaseEntity>);
   }
   async findById(id: number): Promise<IYieldConfig> {
-    const yieldValueById = this.findOne({ id });
+    const yieldValueById = await this.findOne({ id });
     if (!yieldValueById) {
       throw new NotFoundException(`No Yield value found with id ${id}`);
     }
