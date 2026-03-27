@@ -6,7 +6,6 @@ name: Check Generic
 on:
   push:
     branches:
-      - develop
       - stage
       - prod
   pull_request:   # runs on every PR regardless of target branch

@@ -873,6 +873,8 @@ Page number in query param is to request which page we want to view.
 
 ![Get Certificate Log Response1](./img/apiuser-manual/21c1dadd-5f63-46a1-bf57-26a83d900844.png)
 
+> **Note:** Each entry in `perDeviceCertificateLog` now includes a `developerId` field containing the developer's external reference (e.g. Powertrust Site ID). Use this field to correlate certificates with devices in external systems.
+
 #### ISSUER CERTIFIED API
 
 **Request Type:** GET

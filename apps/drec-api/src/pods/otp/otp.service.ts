@@ -19,7 +19,9 @@ export class OtpService {
   ) {}
 
   private generate(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    const bytes = require('crypto').randomBytes(4);
+    const num = (bytes.readUInt32BE(0) % 900000) + 100000;
+    return num.toString();
   }
 
   private async checkValidity(

@@ -25,9 +25,7 @@ import { ClientJwtStrategy } from './client-jwt.strategy';
           secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
           signOptions: {
             expiresIn:
-              '180 days' ||
-              configService.get<string>('JWT_EXPIRY_TIME') ||
-              '7 days',
+              configService.get<string>('JWT_EXPIRY_TIME') || '180 days',
           },
         };
       },

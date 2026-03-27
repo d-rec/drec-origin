@@ -52,7 +52,13 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.enableShutdownHooks();
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',')
+      : process.env.NODE_ENV === 'development'
+        ? true
+        : ['https://app.drecs.org', 'https://stage.drecs.org', 'https://demo.drecs.org'],
+  });
   app.setGlobalPrefix('api');
 
   useContainer(app.select(DRECModule), { fallbackOnErrors: true });

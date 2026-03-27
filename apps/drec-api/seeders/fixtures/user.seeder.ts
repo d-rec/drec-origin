@@ -17,9 +17,13 @@ export class UsersSeeder implements SeederInterface {
   async run(): Promise<void> {
     const buyerEmail = process.env.BUYER_EMAIL?.toLowerCase() || '';
     const developerEmail = process.env.DEVELOPER_EMAIL?.toLowerCase() || '';
-    const buyerPassword = process.env.BUYER_PASSWORD || 'defaultPassword';
-    const developerPassword =
-      process.env.DEVELOPER_PASSWORD || 'defaultPassword';
+    const buyerPassword = process.env.BUYER_PASSWORD;
+    const developerPassword = process.env.DEVELOPER_PASSWORD;
+
+    if (!buyerPassword || !developerPassword) {
+      console.error('Error: BUYER_PASSWORD and DEVELOPER_PASSWORD must be set.');
+      return;
+    }
 
     const buyerOrg = await this.organizationRepository.findOne({
       where: { orgEmail: buyerEmail },

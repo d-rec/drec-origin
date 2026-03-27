@@ -28,11 +28,17 @@ RUN pnpm run sentry:sourcemaps
 # Remove development dependencies
 RUN pnpm prune --prod
 
+# Create non-root user
+RUN addgroup -S app && adduser -S app -G app
+
 # Set port number
 ENV PORT=3040
 
 # Expose port
 EXPOSE 3040
+
+# Run as non-root
+USER app
 
 # Command to run the application
 CMD ["npm", "run", "start:prod"]

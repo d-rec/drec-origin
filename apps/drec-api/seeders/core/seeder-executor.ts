@@ -8,7 +8,7 @@ type Seeder = Type<SeederInterface> | Abstract<SeederInterface>;
 export class SeederExecutor {
   static async run(seeders: Seeder[]): Promise<void> {
     try {
-      this.bootstrapAndExecute(seeders);
+      await this.bootstrapAndExecute(seeders);
     } catch (error) {
       console.error('Seeder failed:', error);
       process.exit(1);

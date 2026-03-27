@@ -38,7 +38,7 @@ export class AccessControlLayerModuleServiceService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr) => {
+      data.permissions.forEach((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }
@@ -76,7 +76,7 @@ export class AccessControlLayerModuleServiceService {
 
   async findById(id: number): Promise<IACLModuleConfig | null> {
     this.logger.verbose(`With in findById`);
-    const user = this.findOne({ id });
+    const user = await this.findOne({ id });
     if (!user) {
       this.logger.error(`No module found with id ${id}`);
       throw new NotFoundException(`No module found with id ${id}`);
@@ -109,7 +109,7 @@ export class AccessControlLayerModuleServiceService {
       Update: false,
     };
     for (const key in addedPermissionList) {
-      data.permissions.map((myArr) => {
+      data.permissions.forEach((myArr) => {
         if (myArr === key) {
           addedPermissionList[key] = true;
         }

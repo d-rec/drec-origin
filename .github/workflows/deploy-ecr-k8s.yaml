@@ -29,14 +29,17 @@ jobs:
           aws-region: ${{ secrets.aws-region }}
 
       - name: Set up kubectl
+        env:
+          AWS_REGION: ${{ secrets.aws-region }}
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.aws-region }} --name drec
+          aws eks update-kubeconfig --region "$AWS_REGION" --name drec
 
       - name: Deploy to Kubernetes
         env:
           ECR_REGISTRY: ${{ secrets.ecr-registry }}
           ECR_REPOSITORY: drec-api
           IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
+          K8S_NAMESPACE: ${{ inputs.environment }}
         run: |
-          kubectl -n ${{ inputs.environment }} set image deployment/drec-api \
+          kubectl -n "$K8S_NAMESPACE" set image deployment/drec-api \
             drec-api=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

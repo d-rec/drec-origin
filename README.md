@@ -31,6 +31,17 @@
 
 Repository for Origin DREC project
 
+## Environments
+
+| Environment | Purpose | Infrastructure |
+|---|---|---|
+| `development` | Local development and testing | localhost / Docker |
+| `stage` | Pre-production validation | AWS EKS + RDS |
+| `demo` | Stakeholder demos | AWS EKS + RDS |
+| `prod` | Production | AWS EKS + RDS |
+
+> **Note:** The `develop` branch is intended for local development only. It runs against a local PostgreSQL database seeded with `rush start:dev`. There is no cloud infrastructure for the develop environment — do not deploy it to AWS.
+
 ## Local environment setup
 
 ### Windows only: Install WSL and Ubuntu
@@ -267,9 +278,13 @@ Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-
 | `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
 | `LOKI_LABELS` | `{}` | Extra labels as JSON |
 
-## Staging Database
+## Databases
 
 ```ini
+# Production
+DB_HOST=drec.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
+
+# Staging
 DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
 ```
 

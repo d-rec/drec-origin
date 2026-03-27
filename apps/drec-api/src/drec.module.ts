@@ -14,6 +14,8 @@ import {
   OffChainCertificateEntities,
   OnChainCertificateModule,
 } from '@energyweb/origin-247-certificate';
+import { DataSource } from 'typeorm';
+import { EntityManagerCompatModule } from './entity-manager-compat.module';
 import { AuthModule } from './auth/auth.module';
 import { User } from './pods/user/user.entity';
 import { UserRole } from './pods/user/user_role.entity';
@@ -169,6 +171,7 @@ const queueModule = () => {
       isGlobal: true,
     }),
     originAppTypeOrmModule(),
+    EntityManagerCompatModule,
     queueModule(),
     ScheduleModule.forRoot(),
     AuthModule,

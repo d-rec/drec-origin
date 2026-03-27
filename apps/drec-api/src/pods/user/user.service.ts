@@ -574,6 +574,7 @@ export class UserService {
     id: number,
     data: UpdateUserDTO,
   ): Promise<ExtendedBaseEntity & IUser> {
+    const roleValue = data.role;
     data = new User({
       firstName: data.firstName,
       lastName: data.lastName,
@@ -595,12 +596,16 @@ export class UserService {
       await this.checkForExistingUser(data.email);
     }
 
-    await this.repository.update(id, {
+    const updatePayload: any = {
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
       status: data.status,
-    });
+    };
+    if (roleValue) {
+      updatePayload.role = roleValue;
+    }
+    await this.repository.update(id, updatePayload);
 
     return this.findOne({ id });
   }

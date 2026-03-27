@@ -322,6 +322,7 @@ export class CertificateLogService {
         );
         return deviceLogs.map((deviceLog) => {
           deviceLog.externalId = device.externalId;
+          deviceLog['developerId'] = device.developerExternalId;
           deviceLog['timezone'] = getLocalTimeZoneFromDevice(
             device.createdAt,
             device,
@@ -728,6 +729,7 @@ export class CertificateLogService {
                     //   );
                     deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId = device.externalId;
+                      singleDeviceLogEle['developerId'] = device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -770,6 +772,7 @@ export class CertificateLogService {
                     );
                   deviceLog?.forEach((singleDeviceLogEle) => {
                     singleDeviceLogEle.serialNumber = device.serialNumber;
+                    singleDeviceLogEle['developerId'] = device.developerExternalId;
                     singleDeviceLogEle['deviceId'] = device.id;
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(
                       device.createdAt,
@@ -894,6 +897,7 @@ export class CertificateLogService {
                         );
                       deviceLog?.forEach((singleDeviceLogEle) => {
                         singleDeviceLogEle.serialNumber = device.serialNumber;
+                        singleDeviceLogEle['developerId'] = device.developerExternalId;
                         singleDeviceLogEle['deviceId'] = device.id;
                         singleDeviceLogEle['timezone'] =
                           getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -940,6 +944,7 @@ export class CertificateLogService {
                       );
                     deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.serialNumber = device.serialNumber;
+                      singleDeviceLogEle['developerId'] = device.developerExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);

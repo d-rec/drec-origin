@@ -140,12 +140,9 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    this.randPassword = Array(10)
-      .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
-      .map(function (x) {
-        return x[Math.floor(Math.random() * x.length)];
-      })
-      .join('');
+    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const bytes = require('crypto').randomBytes(10);
+    this.randPassword = Array.from(bytes, (b: number) => chars[b % chars.length]).join('');
     const inviteUser: CreateUserOrgDTO = {
       firstName: firstName,
       lastName: lastName,

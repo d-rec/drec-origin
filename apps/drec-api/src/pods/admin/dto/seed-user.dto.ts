@@ -30,7 +30,7 @@ export class SeedUserDTO
 {
   @ApiProperty({ type: String })
   @MaxLength(20)
-  @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
+  @Matches(/^(?=.*[0-9])(?=.*[A-Za-z]).{6,}$/, {
     message:
       'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
   })
@@ -40,7 +40,7 @@ export class SeedUserDTO
 
   @ApiProperty({ type: String })
   @MaxLength(20)
-  @Matches(/((?=.*[0-9])(?=.*[A-Za-z]).{6,})/, {
+  @Matches(/^(?=.*[0-9])(?=.*[A-Za-z]).{6,}$/, {
     message:
       'Password must contain minimum 6 characters (upper and/or lower case) and at least 1 digit',
   })
