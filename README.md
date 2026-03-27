@@ -31,6 +31,17 @@
 
 Repository for Origin DREC project
 
+## Environments
+
+| Environment | Purpose | Infrastructure |
+|---|---|---|
+| `development` | Local development and testing | localhost / Docker |
+| `stage` | Pre-production validation | AWS EKS + RDS |
+| `demo` | Stakeholder demos | AWS EKS + RDS |
+| `prod` | Production | AWS EKS + RDS |
+
+> **Note:** The `develop` branch is intended for local development only. It runs against a local PostgreSQL database seeded with `rush start:dev`. There is no cloud infrastructure for the develop environment — do not deploy it to AWS.
+
 ## Local environment setup
 
 ### Windows only: Install WSL and Ubuntu
