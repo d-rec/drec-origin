@@ -1,9 +1,6 @@
 name: Check Docs
 
 on:
-  push:
-    branches:
-      - develop
   pull_request:   # runs on every PR regardless of target branch
 
 jobs:
