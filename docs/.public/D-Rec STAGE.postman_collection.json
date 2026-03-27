@@ -26,8 +26,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/user/registerWithOrganization",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "user", "registerWithOrganization"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "user",
+                "registerWithOrganization"
+              ]
             }
           },
           "response": []
@@ -40,7 +48,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im11bHRpZGV2QGdtYWlsLmNvbSIsImlkIjoxODMsImlhdCI6MTY2Nzc0MTc5MCwiZXhwIjoxNjgzMjkzNzkwfQ.2PdxEXDstUmMxZOoG_NBTSRZRoYtrK-z2Ek1oAez_OU",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -59,8 +67,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/auth/login",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -73,7 +89,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdF9zdGFnZV9kZXZlbG9wZXIxXzIzMTEyMkBnbWFpbC5jb20iLCJpZCI6MTc4LCJpYXQiOjE2NjkxOTkzMzksImV4cCI6MTY4NDc1MTMzOX0.Vc1a_OQ4PwcHNksRyI9fLNSefswBNcOSjGdihYwrQCc",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -92,8 +108,15 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/device",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "device"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "device"
+              ]
             }
           },
           "response": []
@@ -109,7 +132,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneWRldjVAZ21haWwuY29tIiwiaWQiOjE2MywiaWF0IjoxNjY4NTk4NTE0LCJleHAiOjE2ODQxNTA1MTR9.waYrxU3DKBRn7XFsaJP0c3HkPUmvEnG7wIeoTuDHo8Y",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -128,8 +151,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/device/my",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "device", "my"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "device",
+                "my"
+              ]
             }
           },
           "response": []
@@ -142,7 +173,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdF9zdGFnZV9kZXZlbG9wZXIxXzIzMTEyMkBnbWFpbC5jb20iLCJpZCI6MTc4LCJpYXQiOjE2NjkxOTkzMzksImV4cCI6MTY4NDc1MTMzOX0.Vc1a_OQ4PwcHNksRyI9fLNSefswBNcOSjGdihYwrQCc",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -161,8 +192,17 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/meter-reads/new/UAT_STAGE_Drec4",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "meter-reads", "new", "UAT_STAGE_Drec4"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "meter-reads",
+                "new",
+                "UAT_STAGE_Drec4"
+              ]
             }
           },
           "response": []
@@ -175,7 +215,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneWRldjVAZ21haWwuY29tIiwiaWQiOjE2MywiaWF0IjoxNjY4NTk4NTE0LCJleHAiOjE2ODQxNTA1MTR9.waYrxU3DKBRn7XFsaJP0c3HkPUmvEnG7wIeoTuDHo8Y",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -194,8 +234,17 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/meter-reads/new/EnergyT",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "meter-reads", "new", "EnergyT"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "meter-reads",
+                "new",
+                "EnergyT"
+              ]
             }
           },
           "response": []
@@ -208,7 +257,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneWRldjVAZ21haWwuY29tIiwiaWQiOjE2MywiaWF0IjoxNjY4NTk4NTE0LCJleHAiOjE2ODQxNTA1MTR9.waYrxU3DKBRn7XFsaJP0c3HkPUmvEnG7wIeoTuDHo8Y",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -227,8 +276,17 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/meter-reads/new/EnergyT1",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "meter-reads", "new", "EnergyT1"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "meter-reads",
+                "new",
+                "EnergyT1"
+              ]
             }
           },
           "response": []
@@ -255,8 +313,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/user/registerWithOrganization",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "user", "registerWithOrganization"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "user",
+                "registerWithOrganization"
+              ]
             }
           },
           "response": []
@@ -278,8 +344,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/auth/login",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           },
           "response": []
@@ -292,7 +366,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkyMDAzOTcsImV4cCI6MTY4NDc1MjM5N30.O_sB4TFQUhZ7bGixqDekScEc194J81_bnBnlEj64-38",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -311,8 +385,15 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/device-group",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "device-group"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "device-group"
+              ]
             }
           },
           "response": []
@@ -325,7 +406,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkxOTc3OTksImV4cCI6MTY4NDc0OTc5OX0.C2ZE3Ps-LVZj7cJDGeyznQnk2Ma0kPZSBAeoR5auXbQ",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -335,8 +416,17 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/device/ungrouped/buyerreservation",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "device", "ungrouped", "buyerreservation"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "device",
+                "ungrouped",
+                "buyerreservation"
+              ]
             }
           },
           "response": []
@@ -352,7 +442,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkxOTc3OTksImV4cCI6MTY4NDc0OTc5OX0.C2ZE3Ps-LVZj7cJDGeyznQnk2Ma0kPZSBAeoR5auXbQ",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -371,7 +461,11 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/certificate-log/issuer/certified/89c400e2-c222-42ac-98ee-74d588cb2dfb",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
               "path": [
                 "api",
                 "certificate-log",
@@ -394,7 +488,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkyMDAzOTcsImV4cCI6MTY4NDc1MjM5N30.O_sB4TFQUhZ7bGixqDekScEc194J81_bnBnlEj64-38",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -413,8 +507,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/certificate-log/by-reservation-groupId?groupId=4",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "certificate-log", "by-reservation-groupId"],
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "certificate-log",
+                "by-reservation-groupId"
+              ],
               "query": [
                 {
                   "key": "groupId",
@@ -433,7 +535,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6MTc3LCJpYXQiOjE2NjkyMDAzOTcsImV4cCI6MTY4NDc1MjM5N30.O_sB4TFQUhZ7bGixqDekScEc194J81_bnBnlEj64-38",
+                  "value": "YOUR_JWT_TOKEN_HERE",
                   "type": "string"
                 }
               ]
@@ -443,8 +545,16 @@
             "url": {
               "raw": "https://stage-api.drecs.org/api/device-group/my",
               "protocol": "https",
-              "host": ["stage-api", "drecs", "org"],
-              "path": ["api", "device-group", "my"]
+              "host": [
+                "stage-api",
+                "drecs",
+                "org"
+              ],
+              "path": [
+                "api",
+                "device-group",
+                "my"
+              ]
             }
           },
           "response": []

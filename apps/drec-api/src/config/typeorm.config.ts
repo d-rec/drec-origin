@@ -9,15 +9,6 @@ const getDBConfig = () => ({
 });
 
 const getMainDBConfig = () => {
-  if (process.env.DATABASE_URL) {
-    return {
-      url: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    };
-  }
-
   return getDBConfig();
 };
 

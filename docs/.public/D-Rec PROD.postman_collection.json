@@ -23,8 +23,16 @@
         "url": {
           "raw": "https://api.drecs.org/api/user/registerWithOrganization",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "user", "registerWithOrganization"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "user",
+            "registerWithOrganization"
+          ]
         }
       },
       "response": []
@@ -46,8 +54,16 @@
         "url": {
           "raw": "https://api.drecs.org/api/auth/login",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "auth", "login"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
         }
       },
       "response": []
@@ -60,7 +76,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdHRlc3Rpbmdfcmlja3lAZ21haWwuY29tIiwiaWQiOjksImlhdCI6MTY2MjY0NDYwMywiZXhwIjoxNjY1MjM2NjAzfQ.eQcMOE75mtBscLaEbL69hIBdlcaLABLxvEpnT9t9FOg",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -69,7 +85,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"externalId\": \"uatDeviceId14\",\r\n    \"projectName\": \"RoofSolarTopProject1\",\r\n    \"address\": \"nexus\",\r\n    \"latitude\": \"19�20'50.97\\\"S\",\r\n    \"longitude\": \"46� 3'3.21\\\"W\",\r\n    \"countryCode\": \"IN\",\r\n    \"fuelCode\": \"fuel8\",\r\n    \"deviceTypeCode\": \"type3\",\r\n    \"capacity\": 25,\r\n    \"commissioningDate\": \"2022-08-09T19:00:00\",\r\n    \"gridInterconnection\": true,\r\n    \"offTaker\": \"School\",\r\n    \"yieldValue\": 0,\r\n    \"labels\": \"demoo\",\r\n    \"impactStory\": \"Demo impact story\",\r\n    \"data\": \"\",\r\n    \"images\": [\r\n        \"string\"\r\n    ],\r\n    \"deviceDescription\": \"Rooftop Solar\",\r\n    \"energyStorage\": true,\r\n    \"energyStorageCapacity\": 0,\r\n    \"qualityLabels\": \"quality labels\",\r\n    \"groupId\": 0,\r\n    \"SDGBenefits\": 1\r\n}",
+          "raw": "{\r\n    \"externalId\": \"uatDeviceId14\",\r\n    \"projectName\": \"RoofSolarTopProject1\",\r\n    \"address\": \"nexus\",\r\n    \"latitude\": \"19\ufffd20'50.97\\\"S\",\r\n    \"longitude\": \"46\ufffd 3'3.21\\\"W\",\r\n    \"countryCode\": \"IN\",\r\n    \"fuelCode\": \"fuel8\",\r\n    \"deviceTypeCode\": \"type3\",\r\n    \"capacity\": 25,\r\n    \"commissioningDate\": \"2022-08-09T19:00:00\",\r\n    \"gridInterconnection\": true,\r\n    \"offTaker\": \"School\",\r\n    \"yieldValue\": 0,\r\n    \"labels\": \"demoo\",\r\n    \"impactStory\": \"Demo impact story\",\r\n    \"data\": \"\",\r\n    \"images\": [\r\n        \"string\"\r\n    ],\r\n    \"deviceDescription\": \"Rooftop Solar\",\r\n    \"energyStorage\": true,\r\n    \"energyStorageCapacity\": 0,\r\n    \"qualityLabels\": \"quality labels\",\r\n    \"groupId\": 0,\r\n    \"SDGBenefits\": 1\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -79,8 +95,15 @@
         "url": {
           "raw": "https://api.drecs.org/api/device",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "device"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "device"
+          ]
         }
       },
       "response": []
@@ -93,7 +116,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdHRlc3Rpbmdfcmlja3lAZ21haWwuY29tIiwiaWQiOjksImlhdCI6MTY2MjY0NDYwMywiZXhwIjoxNjY1MjM2NjAzfQ.eQcMOE75mtBscLaEbL69hIBdlcaLABLxvEpnT9t9FOg",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -103,8 +126,16 @@
         "url": {
           "raw": "https://api.drecs.org/api/device/my",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "device", "my"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "device",
+            "my"
+          ]
         }
       },
       "response": []
@@ -117,7 +148,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdHRlc3Rpbmdfcmlja3lAZ21haWwuY29tIiwiaWQiOjksImlhdCI6MTY2MjY0NDYwMywiZXhwIjoxNjY1MjM2NjAzfQ.eQcMOE75mtBscLaEbL69hIBdlcaLABLxvEpnT9t9FOg",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -136,8 +167,17 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId12",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "meter-reads", "new", "uatDeviceId12"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "meter-reads",
+            "new",
+            "uatDeviceId12"
+          ]
         }
       },
       "response": []
@@ -150,7 +190,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdHRlc3Rpbmdfcmlja3lAZ21haWwuY29tIiwiaWQiOjksImlhdCI6MTY2MjY0NDYwMywiZXhwIjoxNjY1MjM2NjAzfQ.eQcMOE75mtBscLaEbL69hIBdlcaLABLxvEpnT9t9FOg",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -169,8 +209,17 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId13",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "meter-reads", "new", "uatDeviceId13"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "meter-reads",
+            "new",
+            "uatDeviceId13"
+          ]
         }
       },
       "response": []
@@ -183,7 +232,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVhdHRlc3Rpbmdfcmlja3lAZ21haWwuY29tIiwiaWQiOjksImlhdCI6MTY2MjY0NDYwMywiZXhwIjoxNjY1MjM2NjAzfQ.eQcMOE75mtBscLaEbL69hIBdlcaLABLxvEpnT9t9FOg",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -202,8 +251,17 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId14",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "meter-reads", "new", "uatDeviceId14"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "meter-reads",
+            "new",
+            "uatDeviceId14"
+          ]
         }
       },
       "response": []
@@ -216,7 +274,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVuZXJneTIxMkBnbWFpbC5jb20iLCJpZCI6NzUsImlhdCI6MTY2MzkzMzQzMCwiZXhwIjoxNjc5NDg1NDMwfQ.SfVIJKgMVPJsBBJY9r7bUQHWTH9GrEPFY_Z6ripaIvU",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -235,8 +293,15 @@
         "url": {
           "raw": "https://api.drecs.org/api/device-group",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "device-group"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "device-group"
+          ]
         }
       },
       "response": []
@@ -249,8 +314,17 @@
         "url": {
           "raw": "https://api.drecs.org/api/device/ungrouped/buyerreservation",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "device", "ungrouped", "buyerreservation"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "device",
+            "ungrouped",
+            "buyerreservation"
+          ]
         }
       },
       "response": []
@@ -272,8 +346,17 @@
         "url": {
           "raw": "https://api.drecs.org/api/device-group/endresavation/{id}",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "device-group", "endresavation", "{id}"]
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "device-group",
+            "endresavation",
+            "{id}"
+          ]
         }
       },
       "response": []
@@ -286,7 +369,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Impvc2VwaHNAZGUuZW5lcmd5IiwiaWQiOjEwLCJpYXQiOjE2NjQ2NDY1MTMsImV4cCI6MTY4MDE5ODUxM30._u3x6qjHIepjfc3hz_GIGCcgltkpIWuEtlP2E93rsN8",
+              "value": "YOUR_JWT_TOKEN_HERE",
               "type": "string"
             }
           ]
@@ -296,8 +379,16 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/Xion Mall?start=2022-09-25T21:59:30.519Z&end=2022-09-29T21:59:30.519Z&limit=1000&offset=0",
           "protocol": "https",
-          "host": ["api", "drecs", "org"],
-          "path": ["api", "meter-reads", "Xion Mall"],
+          "host": [
+            "api",
+            "drecs",
+            "org"
+          ],
+          "path": [
+            "api",
+            "meter-reads",
+            "Xion Mall"
+          ],
           "query": [
             {
               "key": "start",

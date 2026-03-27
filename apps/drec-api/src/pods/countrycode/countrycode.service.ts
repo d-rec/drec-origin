@@ -12,7 +12,8 @@ export class CountryCodeService {
     this.logger.verbose(`With in getCountryCode`);
     const countries = countryCodesList;
     if (filterDTO.searchKeyWord && filterDTO.searchKeyWord.length > 0) {
-      const regex = new RegExp(`${filterDTO.searchKeyWord}`, 'i');
+      const escaped = filterDTO.searchKeyWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, 'i');
       return countries.filter(
         (ele) => regex.test(ele.country) || regex.test(ele.countryCode),
       );
