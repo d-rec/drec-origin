@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   Injectable,
   BadRequestException,
@@ -19,7 +20,7 @@ export class OtpService {
   ) {}
 
   private generate(): string {
-    const bytes = require('crypto').randomBytes(4);
+    const bytes = crypto.randomBytes(4);
     const num = (bytes.readUInt32BE(0) % 900000) + 100000;
     return num.toString();
   }

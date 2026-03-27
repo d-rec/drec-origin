@@ -2,7 +2,6 @@ import * as crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // 96 bits recommended for GCM
-const AUTH_TAG_LENGTH = 16;
 
 const checkEncryptionSecret = () => {
   if (!process.env.ENCRYPTION_SECRET) {

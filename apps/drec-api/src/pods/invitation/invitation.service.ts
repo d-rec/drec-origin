@@ -1,3 +1,4 @@
+import * as crypto from 'crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -141,7 +142,7 @@ export class InvitationService {
       });
     }
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const bytes = require('crypto').randomBytes(10);
+    const bytes = crypto.randomBytes(10);
     this.randPassword = Array.from(bytes, (b: number) => chars[b % chars.length]).join('');
     const inviteUser: CreateUserOrgDTO = {
       firstName: firstName,
