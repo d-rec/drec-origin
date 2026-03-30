@@ -64,7 +64,11 @@ import { CodeNameDTO } from './dto/code-name.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
-import { DocumentType } from '../document-uploads/entities/documents.entity';
+import {
+  DocumentType,
+  DocumentTargetType,
+} from '../document-uploads/entities/documents.entity';
+import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { validateOrReject } from 'class-validator';
 import { ReadsService } from '../reads/reads.service';
 
@@ -84,6 +88,7 @@ export class DeviceController {
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly readsService: ReadsService,
+    private readonly documentUploadsService: DocumentUploadsService,
   ) {}
 
   /**
@@ -657,6 +662,22 @@ export class DeviceController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: DocumentType.FORM_SF_02, maxCount: 10 },
+        { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
+        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
+        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+        { name: DocumentType.COD_PROOF, maxCount: 10 },
+      ],
+      {
+        fileFilter: fileFilter,
+      },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Update device by external ID',
     description:
@@ -679,9 +700,35 @@ export class DeviceController {
     @UserDecorator() user: ILoggedInUser,
     @Param('externalId') serialNumber: string,
     @Query('serialNumberChanged') serialNumberChanged: string,
-    @Body() deviceToUpdate: UpdateDeviceDTO,
+    @Body() body: any,
+    @UploadedFiles() files: DeviceFiles,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
+    // When sent as multipart/form-data (files attached), body.deviceToUpdate is a JSON string.
+    // When sent as application/json (no files), body IS the device data directly.
+    const deviceToUpdate = (
+      body.deviceToUpdate != null
+        ? parseMetadata(body.deviceToUpdate as unknown as Record<string, unknown>)
+        : body
+    ) as UpdateDeviceDTO;
+    if (!deviceToUpdate)
+      throw new BadRequestException('Invalid device data format');
+    const deviceDtoInstance = plainToClass(UpdateDeviceDTO, deviceToUpdate);
+    try {
+      await validateOrReject(deviceDtoInstance, { skipMissingProperties: true });
+    } catch (errors) {
+      throw new BadRequestException(
+        errors
+          .map((error) =>
+            error.constraints
+              ? Object.values(error.constraints).join(', ')
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      );
+    }
+
     await this.organizationService.checkIfCanManage({
       user,
       organizationId: deviceToUpdate.organizationId,
@@ -733,12 +780,60 @@ export class DeviceController {
         }
       }
     }
-    return await this.deviceService.update(
+    const result = await this.deviceService.update(
       user.organizationId,
       user.role,
       serialNumber,
       deviceToUpdate,
     );
+
+    if (files) {
+      const existingDevice = await this.deviceService.findBySerialNumber(
+        result.serialNumber || serialNumber,
+        user.organizationId,
+      );
+
+      if (existingDevice) {
+        const documentTypes = {
+          [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+          [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+          [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+          [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+          [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+        };
+
+        const projectName = (existingDevice.projectName || 'project')
+          .replace(/[^a-zA-Z0-9-_]/g, '-')
+          .toLowerCase();
+        const projectSubfolder = `${projectName}-${existingDevice.id}`;
+
+        for (const [field, documentType] of Object.entries(documentTypes)) {
+          if (files[field] && Array.isArray(files[field])) {
+            for (const file of files[field]) {
+              try {
+                await this.documentUploadsService.upload(
+                  existingDevice.id,
+                  DocumentTargetType.DEVICE,
+                  documentType as DocumentType,
+                  file,
+                  projectSubfolder,
+                );
+              } catch (error) {
+                this.logger.error(
+                  `Failed to upload ${field}: ${error.message}`,
+                );
+                throw new BadRequestException(
+                  `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
