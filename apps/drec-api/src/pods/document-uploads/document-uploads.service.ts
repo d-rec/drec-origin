@@ -27,6 +27,39 @@ export class DocumentUploadsService {
     return this.fileService.getSignedUrl(doc.url);
   }
 
+  async findByTarget(
+    targetId: number,
+    targetType: DocumentTargetType,
+  ): Promise<{ type: string; url: string; id: number }[]> {
+    const docs = await this.documentUploadsRepository.find({
+      where: { targetId, targetType },
+    });
+    const results: { type: string; url: string; id: number }[] = [];
+    for (const doc of docs) {
+      try {
+        const signedUrl = await this.fileService.getSignedUrl(doc.url);
+        results.push({ type: doc.type, url: signedUrl, id: doc.id });
+      } catch {
+        results.push({ type: doc.type, url: '', id: doc.id });
+      }
+    }
+    return results;
+  }
+
+  async deleteByType(
+    targetId: number,
+    targetType: DocumentTargetType,
+    documentType: DocumentType,
+  ): Promise<void> {
+    const docs = await this.documentUploadsRepository.find({
+      where: { targetId, targetType, type: documentType },
+    });
+    for (const doc of docs) {
+      await this.fileService.deleteFileFromS3(doc.url).catch(() => {});
+    }
+    await this.documentUploadsRepository.remove(docs);
+  }
+
   async upload(
     targetId: number,
     targetType: DocumentTargetType,

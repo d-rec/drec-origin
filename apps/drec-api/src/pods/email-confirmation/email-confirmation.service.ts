@@ -113,6 +113,34 @@ export class EmailConfirmationService {
     return emailConfirmation;
   }
 
+  public async createForReviewer(user: User): Promise<EmailConfirmation> {
+    this.logger.verbose(`With in createForReviewer`);
+    const exists = await this.repository.findOne({
+      where: { user: { email: user.email } },
+      relations: ['user'],
+    });
+    if (exists) {
+      // Update the existing record with a fresh token
+      const { token, expiryTimestamp } = this.generateEmailToken();
+      await this.repository.update(exists.id, {
+        confirmed: false,
+        token,
+        expiryTimestamp,
+      });
+      exists.confirmed = false;
+      exists.token = token;
+      exists.expiryTimestamp = expiryTimestamp;
+      return exists;
+    }
+    const { token, expiryTimestamp } = this.generateEmailToken();
+    return await this.repository.save({
+      user,
+      confirmed: false,
+      token,
+      expiryTimestamp,
+    });
+  }
+
   async get(userId: IUser['id']): Promise<EmailConfirmation | undefined> {
     this.logger.verbose(`With in get`);
     const all = await this.repository.find({ relations: ['user'] });
@@ -390,6 +418,32 @@ export class EmailConfirmationService {
       this.logger.log(
         `Reviewer approval notification sent to admin (${adminEmail}).`,
       );
+    }
+  }
+
+  public async sendReviewerAddedNotification(
+    email: string,
+    firstName: string,
+    roleName: string,
+    adminName: string,
+    token: string,
+  ): Promise<void> {
+    const setPasswordUrl = `${process.env.UI_BASE_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(roleName)}`;
+    const result = await this.mailService.send({
+      to: email,
+      subject: `[D-REC] You have been added as a ${roleName}`,
+      html: `
+      <p>Dear ${firstName},</p>
+      <p>Administrator <b>${adminName}</b> has added you as a D-REC <b>${roleName}</b>.</p>
+      <p>To get started, please set your password by clicking the button below:</p>
+      <p><a href="${setPasswordUrl}" style="display: inline-block; padding: 12px 24px; background-color: #475569; color: #ffffff; text-decoration: none; border-radius: 5px;">Set Your Password</a></p>
+      <p style="font-size: 12px; color: #64748b;">This link will expire in 8 hours. If it expires, ask your administrator to resend the invitation.</p>
+      <hr>
+      <p>Thank you<br>D-REC Initiative</p>
+      `,
+    });
+    if (result) {
+      this.logger.log(`Reviewer-added notification sent to ${email}.`);
     }
   }
 

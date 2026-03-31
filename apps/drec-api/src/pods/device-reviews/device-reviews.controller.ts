@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   ParseIntPipe,
   Patch,
@@ -62,6 +64,20 @@ export class DeviceReviewsController {
   @ApiResponse({ status: 200, description: 'Fresh signed URL' })
   refreshUrl(@Body('key') key: string): Promise<{ url: string }> {
     return this.service.refreshSignedUrl(key);
+  }
+
+  @Delete('documents/:id')
+  @HttpCode(204)
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Delete a document from DB and S3' })
+  @ApiResponse({ status: 204, description: 'Document deleted' })
+  @ApiResponse({ status: 404, description: 'Document not found' })
+  async deleteDocument(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    return this.service.deleteDocument(id);
   }
 
   @Patch('documents/:id/reviewed')

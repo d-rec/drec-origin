@@ -8,6 +8,7 @@ export enum Role {
   ApiUser = 'ApiUser',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
+  Operator = 'Operator',
 }
 export enum RoleStatus {
   Enable = 'Enable',

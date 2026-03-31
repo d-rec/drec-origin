@@ -5,4 +5,5 @@ export enum OrganizationType {
   Admin = 'Admin',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
+  Operator = 'Operator',
 }

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
@@ -104,6 +104,28 @@ export class DeviceReviewsService {
       [docId],
     );
     return { reviewed: !!rows[0]?.reviewed_flag };
+  }
+
+  async deleteDocument(docId: number): Promise<void> {
+    const rows: any[] = await this.connection.query(
+      `SELECT id, url FROM documents WHERE id = $1`,
+      [docId],
+    );
+    if (!rows.length) {
+      throw new NotFoundException(`Document ${docId} not found`);
+    }
+    const doc = rows[0];
+    // Delete from S3
+    if (doc.url) {
+      await this.fileService
+        .deleteFileFromS3(decodeURIComponent(doc.url))
+        .catch((err) =>
+          this.logger.warn(`Failed to delete S3 object: ${err.message}`),
+        );
+    }
+    // Delete from DB
+    await this.connection.query(`DELETE FROM documents WHERE id = $1`, [docId]);
+    this.logger.log(`Document ${docId} deleted from DB and S3`);
   }
 
   async findAll(): Promise<AssetDto[]> {

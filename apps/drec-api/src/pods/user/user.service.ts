@@ -89,6 +89,7 @@ export class UserService {
   }
 
   public async checkIfPhoneNumberExists(phoneNumber: string): Promise<void> {
+    if (!phoneNumber) return;
     const existingTelephone = await this.repository.findOne({
       where: { phoneNumber },
     });
@@ -205,8 +206,20 @@ export class UserService {
       const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
+      const isReviewer =
+        data.organizationType === OrganizationType.Reviewer ||
+        data.organizationType === OrganizationType.SeniorReviewer;
       let orgId;
-      if (!inviteUser) {
+      if (isReviewer) {
+        // Reviewers join the admin's organization
+        const adminUser = admin
+          ? await this.repository.findOne({
+              where: { api_user_id: admin.api_user_id },
+              relations: ['organization'],
+            })
+          : null;
+        orgId = adminUser?.organization?.id ?? null;
+      } else if (!inviteUser) {
         const organizationData = {
           name: data.orgName !== undefined ? data.orgName : '',
           organizationType: data.organizationType as OrganizationType,
@@ -236,6 +249,10 @@ export class UserService {
       let role;
       if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
+      } else if (data.organizationType === OrganizationType.Reviewer) {
+        role = Role.Reviewer;
+      } else if (data.organizationType === OrganizationType.SeniorReviewer) {
+        role = Role.SeniorReviewer;
       } else {
         role = Role.OrganizationAdmin;
       }
@@ -243,6 +260,9 @@ export class UserService {
         where: { name: role },
       });
       const roleId = roleRecord?.id;
+      const reviewerWithInvite =
+        isReviewer && data.emailNotification;
+
       const user = await this.repository.save({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -250,17 +270,43 @@ export class UserService {
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
         notifications: true,
-        status: status || UserStatus.Active,
+        status: reviewerWithInvite
+          ? UserStatus.Pending
+          : status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: admin ? admin.api_user_id : null,
       });
-      const { ...userData } = user;
       this.logger.debug(
-        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
+        `Successfully registered a new user with id ${JSON.stringify(user.id)}`,
       );
-      await this.emailConfirmationService.adminCreate(user, data.password);
+
+      if (reviewerWithInvite) {
+        // Create email confirmation with token for password-set flow
+        const emailConfirmation =
+          await this.emailConfirmationService.createForReviewer(user);
+
+        const adminUser = admin
+          ? await this.repository.findOne({
+              where: { api_user_id: admin.api_user_id },
+            })
+          : null;
+        const adminName = adminUser
+          ? `${adminUser.firstName} ${adminUser.lastName}`
+          : 'An administrator';
+        const roleName =
+          role === Role.SeniorReviewer ? 'Senior Reviewer' : 'Reviewer';
+        await this.emailConfirmationService.sendReviewerAddedNotification(
+          user.email,
+          user.firstName,
+          roleName,
+          adminName,
+          emailConfirmation.token,
+        );
+      } else {
+        await this.emailConfirmationService.adminCreate(user, data.password);
+      }
 
       return new User(user);
     } catch (error) {
@@ -465,22 +511,22 @@ export class UserService {
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
     if (emailConfirmation) {
-      const updateEntity = new User({
-        password: this.hashPassword(user.newPassword),
+      const hashedPassword = this.hashPassword(user.newPassword);
+
+      await this.repository.update(emailConfirmation.id, {
+        password: hashedPassword,
       });
 
-      const validationErrors = await validate(updateEntity, {
-        skipUndefinedProperties: true,
+      // Activate the user if they were pending (e.g. reviewer setting password for the first time)
+      const currentUser = await this.repository.findOne({
+        where: { id: emailConfirmation.id },
       });
-
-      if (validationErrors.length > 0) {
-        throw new UnprocessableEntityException({
-          success: false,
-          errors: validationErrors,
+      if (currentUser?.status === UserStatus.Pending) {
+        await this.repository.update(emailConfirmation.id, {
+          status: UserStatus.Active,
         });
       }
 
-      await this.repository.update(emailConfirmation.id, updateEntity);
       return emailConfirmation;
     }
 

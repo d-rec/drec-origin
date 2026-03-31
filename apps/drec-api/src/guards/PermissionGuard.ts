@@ -56,9 +56,8 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
     if (
-      (request.url.split('/')[3] === 'confirm-email' ||
-        request.url.split('/')[3] === 'reset') &&
-      user.role === Role.ApiUser
+      request.url.split('/')[3] === 'confirm-email' ||
+      request.url.split('/')[3] === 'reset'
     ) {
       return true;
     }

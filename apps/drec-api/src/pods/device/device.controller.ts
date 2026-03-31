@@ -499,6 +499,20 @@ export class DeviceController {
     return deviceData;
   }
 
+  @Get('/:id/documents')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Get documents for a device' })
+  public async getDocuments(
+    @Param('id') id: string,
+  ): Promise<{ type: string; url: string; id: number }[]> {
+    return this.documentUploadsService.findByTarget(
+      parseInt(id, 10),
+      DocumentTargetType.DEVICE,
+    );
+  }
+
   /**
    * It is POST api to create an device
    * @param param0 It is organizationId from user at request
@@ -809,6 +823,12 @@ export class DeviceController {
 
         for (const [field, documentType] of Object.entries(documentTypes)) {
           if (files[field] && Array.isArray(files[field])) {
+            // Remove old documents of this type before uploading replacements
+            await this.documentUploadsService.deleteByType(
+              existingDevice.id,
+              DocumentTargetType.DEVICE,
+              documentType as DocumentType,
+            );
             for (const file of files[field]) {
               try {
                 await this.documentUploadsService.upload(
