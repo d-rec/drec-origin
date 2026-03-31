@@ -44,7 +44,7 @@ function readPackage(packageJson, context) {
     'js-yaml': '>=3.13.1',
     'jsonwebtoken': '>=9.0.0',
     'jws': '>=3.2.3',
-    'minimatch': '>=3.1.4',
+    'minimatch': '~3.1.4',
     'moment': '>=2.29.4',
     'path-to-regexp': '>=0.1.12',
     'pbkdf2': '>=3.1.3',
