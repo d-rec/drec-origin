@@ -31,7 +31,14 @@ To register one device at a time:
    - Device Type Code (e.g., PV Ground mounted)
    - SDG Benefits
 3. Click "Add More Details" if you need to provide additional information
-4. Click "Submit" to register the device
+4. (Optional) Upload supporting documents in the "Supporting Documents" section:
+   - SF-02 Form
+   - SF-02C Form
+   - Metering Evidence
+   - Single Line Diagram
+   - Project Photos
+   - COD Proof
+5. Click "Submit" to register the device
 
 ![Single Device Registration](../dashboard-user-guide-images/single-device.png)
 
@@ -94,6 +101,7 @@ From the My Devices page, use the three-dot menu (⋮) in the Actions column to:
 
    - Select edit from the menu
    - Update necessary fields in the Device Update Form
+   - You can also upload or replace supporting documents (SF-02, SF-02C, Metering Evidence, Single Line Diagram, Project Photos, COD Proof)
    - Click "Update" to save changes
    - Click "Cancel" to discard changes
 
