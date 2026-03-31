@@ -46,7 +46,6 @@ function readPackage(packageJson, context) {
     'jws': '>=3.2.3',
     'minimatch': '~3.1.4',
     'moment': '>=2.29.4',
-    'path-to-regexp': '>=0.1.12',
     'pbkdf2': '>=3.1.3',
     'picomatch': '>=2.3.2',
     'qs': '>=6.9.7',
@@ -64,6 +63,17 @@ function readPackage(packageJson, context) {
     if (packageJson.devDependencies && packageJson.devDependencies[pkg]) {
       packageJson.devDependencies[pkg] = version;
     }
+  }
+
+  // Express 4 needs path-to-regexp 0.x (function-based API).
+  // Do NOT apply the global >=0.1.12 override — newer versions (8.x) are ESM
+  // with a completely different API and break express routing.
+  if (
+    packageJson.name === 'express' &&
+    packageJson.dependencies &&
+    packageJson.dependencies['path-to-regexp']
+  ) {
+    packageJson.dependencies['path-to-regexp'] = '0.1.12';
   }
 
   return packageJson;
