@@ -111,9 +111,11 @@ export class WithoutAuthGuard implements CanActivate {
       (await this.userService.findOne({ role: Role.Admin })) as IUser
     ).api_user_id;
 
-    const isPasswordReset = pathSegment === UrlPath.ResetPassword;
+    const skipRoleCheck =
+      pathSegment === UrlPath.ResetPassword ||
+      pathSegment === UrlPath.Login;
     if (
-      !isPasswordReset &&
+      !skipRoleCheck &&
       request.body.organizationType === undefined &&
       user.role != Role.Admin &&
       user.role != Role.ApiUser &&
