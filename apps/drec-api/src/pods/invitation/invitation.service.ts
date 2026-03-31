@@ -141,9 +141,13 @@ export class InvitationService {
         sender: sender ? `${sender.firstName} ${sender.lastName}` : '',
       });
     }
-    const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const chars =
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const bytes = crypto.randomBytes(10);
-    this.randPassword = Array.from(bytes, (b: number) => chars[b % chars.length]).join('');
+    this.randPassword = Array.from(
+      bytes,
+      (b: number) => chars[b % chars.length],
+    ).join('');
     const inviteUser: CreateUserOrgDTO = {
       firstName: firstName,
       lastName: lastName,

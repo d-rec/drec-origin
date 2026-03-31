@@ -57,7 +57,11 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
       ? process.env.CORS_ORIGIN.split(',')
       : process.env.NODE_ENV === 'development'
         ? true
-        : ['https://app.drecs.org', 'https://stage.drecs.org', 'https://demo.drecs.org'],
+        : [
+            'https://app.drecs.org',
+            'https://stage.drecs.org',
+            'https://demo.drecs.org',
+          ],
   });
   app.setGlobalPrefix('api');
 

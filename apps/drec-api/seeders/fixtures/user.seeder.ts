@@ -21,7 +21,9 @@ export class UsersSeeder implements SeederInterface {
     const developerPassword = process.env.DEVELOPER_PASSWORD;
 
     if (!buyerPassword || !developerPassword) {
-      console.error('Error: BUYER_PASSWORD and DEVELOPER_PASSWORD must be set.');
+      console.error(
+        'Error: BUYER_PASSWORD and DEVELOPER_PASSWORD must be set.',
+      );
       return;
     }
 
