@@ -32,6 +32,7 @@ export interface AssetDto {
   sf02cUrl: string | null;
   meteringEvidenceUrl: string | null;
   pictureUrls: string[];
+  screenshotUrls: string[];
   docMeta: Record<string, DocMeta>;
 }
 
@@ -181,7 +182,7 @@ export class DeviceReviewsService {
       const devDocs: any[] = docsByDevice[String(r.id)] ?? [];
       const byType = (t: string) => {
         const doc = devDocs.find((d) => d.type === t);
-        return doc ? signedUrls[doc.url] ?? null : null;
+        return doc ? (signedUrls[doc.url] ?? null) : null;
       };
       const allOfType = (t: string) =>
         devDocs
@@ -203,6 +204,13 @@ export class DeviceReviewsService {
       );
       picDocs.forEach((doc, i) => {
         docMeta[`pic:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+      });
+      // Screenshots: index-based keys
+      const ssDocs = devDocs.filter(
+        (d) => d.type === 'SCREENSHOTS' && signedUrls[d.url],
+      );
+      ssDocs.forEach((doc, i) => {
+        docMeta[`ss:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
       });
 
       return {
@@ -229,6 +237,7 @@ export class DeviceReviewsService {
         sf02cUrl: byType('SF_02C'),
         meteringEvidenceUrl: byType('METERING_EVIDENCE'),
         pictureUrls: allOfType('PROJECT_PHOTOS'),
+        screenshotUrls: allOfType('SCREENSHOTS'),
         docMeta,
       };
     });

@@ -22,13 +22,10 @@ import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 
-export class NewDeviceDTO
-  implements
-    Omit<
-      IDevice,
-      'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
-    >
-{
+export class NewDeviceDTO implements Omit<
+  IDevice,
+  'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
+> {
   @ApiProperty()
   @Trim()
   @IsOptional()
@@ -270,6 +267,7 @@ export class DeviceRegistrationBody {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
   deviceToRegister: NewDeviceDTO;
 }
@@ -280,5 +278,6 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
 };
