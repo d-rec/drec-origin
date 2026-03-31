@@ -25,5 +25,5 @@ export const toTimezoneDateFormat = (
 ): string | null => {
   if (!date) return null;
 
-  return momentTimeZone.tz(date, timezone).format();
+  return momentTimeZone.tz(date, timezone).toISOString();
 };

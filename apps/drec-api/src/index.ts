@@ -4,6 +4,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { Reflector, NestFactory } from '@nestjs/core';
+import { NormalizeDatesInterceptor } from './interceptors/normalize-dates.interceptor';
 import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'fs';
@@ -49,7 +50,10 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   });
 
   app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector)),
+    new NormalizeDatesInterceptor(),
+  );
 
   app.enableShutdownHooks();
   app.enableCors({
