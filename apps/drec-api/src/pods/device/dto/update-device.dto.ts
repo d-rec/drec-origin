@@ -100,6 +100,7 @@ export class UpdateDeviceDTO
   deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   @Matches(/^[a-zA-Z0-9_;-]+$/, {
     message:

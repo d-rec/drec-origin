@@ -1,3 +1,11 @@
+// Force typeorm 0.3.x to create the global MetadataArgsStorage BEFORE
+// any @energyweb packages (which depend on typeorm 0.2.x) get a chance to.
+// Both versions share the same globalScope.typeormMetadataArgsStorage key;
+// whichever version creates it first wins.  0.3.x adds methods like
+// filterForeignKeys that the EntityMetadataBuilder needs at startup.
+import { getMetadataArgsStorage } from 'typeorm';
+getMetadataArgsStorage();
+
 import { startAPI } from '.';
 import { createNestWinstonLogger } from './logger';
 
