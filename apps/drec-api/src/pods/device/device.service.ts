@@ -529,12 +529,13 @@ export class DeviceService {
     organizationId: number,
     newDevice: NewDeviceDTO,
     files: {
-      [DocumentType.FORM_SF_02]: Express.Multer.File[];
-      [DocumentType.SF_02C]: Express.Multer.File[];
-      [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
-      [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
-      [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
-    },
+      [DocumentType.FORM_SF_02]?: Express.Multer.File[];
+      [DocumentType.SF_02C]?: Express.Multer.File[];
+      [DocumentType.METERING_EVIDENCE]?: Express.Multer.File[];
+      [DocumentType.SINGLE_LINE_DIAGRAM]?: Express.Multer.File[];
+      [DocumentType.PROJECT_PHOTOS]?: Express.Multer.File[];
+      [DocumentType.COD_PROOF]?: Express.Multer.File[];
+    } | null,
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
@@ -657,6 +658,7 @@ export class DeviceService {
         [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
         [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
         [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+        [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
       };
 
       const projectName = (result.projectName || 'project')
@@ -666,7 +668,7 @@ export class DeviceService {
 
       for (const [field, documentType] of Object.entries(documentTypes)) {
         const deviceId = result.id;
-        for (const file of files[field]) {
+        for (const file of files[field] || []) {
           try {
             await this.documentsService.upload(
               deviceId,

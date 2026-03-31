@@ -529,9 +529,9 @@ export class DeviceController {
       },
     ),
   )
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes('multipart/form-data', 'application/json')
   @ApiBody({
-    description: 'Device registration with documents',
+    description: 'Device registration with optional documents',
     schema: {
       type: 'object',
       properties: {
@@ -582,12 +582,18 @@ export class DeviceController {
     @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Body() body: DeviceRegistrationBody,
     @UploadedFiles()
-    files: DeviceFiles,
+    files: DeviceFiles | undefined,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    const deviceToRegister = parseMetadata(
-      body.deviceToRegister as unknown as Record<string, unknown>,
-    );
+    // Dual-path: multipart sends device data in `deviceToRegister` field;
+    // plain JSON sends it directly as the body.
+    const deviceToRegister = (
+      body.deviceToRegister != null
+        ? parseMetadata(
+            body.deviceToRegister as unknown as Record<string, unknown>,
+          )
+        : (body as unknown as NewDeviceDTO)
+    ) as NewDeviceDTO;
     if (!deviceToRegister)
       throw new BadRequestException('Invalid device data format');
     const deviceDtoInstance = plainToClass(NewDeviceDTO, deviceToRegister);
@@ -624,28 +630,10 @@ export class DeviceController {
       );
       api_user_id = organization.api_user_id;
     }
-    const allFileTypes = [
-      DocumentType.FORM_SF_02,
-      DocumentType.SF_02C,
-      DocumentType.METERING_EVIDENCE,
-      DocumentType.SINGLE_LINE_DIAGRAM,
-      DocumentType.PROJECT_PHOTOS,
-      DocumentType.COD_PROOF,
-    ];
-    const missingFiles = allFileTypes.filter((fileType) => {
-      const fileArray = files[fileType];
-      return !Array.isArray(fileArray) || fileArray.length === 0;
-    });
-
-    if (missingFiles.length > 0) {
-      throw new BadRequestException(
-        `Missing required file types: ${missingFiles.join(', ')}`,
-      );
-    }
     return await this.deviceService.register(
       organizationId,
       deviceToRegister,
-      files,
+      files || null,
       api_user_id,
       role,
     );
