@@ -696,14 +696,18 @@ export class DeviceController {
     // When sent as application/json (no files), body IS the device data directly.
     const deviceToUpdate = (
       body.deviceToUpdate != null
-        ? parseMetadata(body.deviceToUpdate as unknown as Record<string, unknown>)
+        ? parseMetadata(
+            body.deviceToUpdate as unknown as Record<string, unknown>,
+          )
         : body
     ) as UpdateDeviceDTO;
     if (!deviceToUpdate)
       throw new BadRequestException('Invalid device data format');
     const deviceDtoInstance = plainToClass(UpdateDeviceDTO, deviceToUpdate);
     try {
-      await validateOrReject(deviceDtoInstance, { skipMissingProperties: true });
+      await validateOrReject(deviceDtoInstance, {
+        skipMissingProperties: true,
+      });
     } catch (errors) {
       throw new BadRequestException(
         errors

@@ -646,8 +646,6 @@ export class DeviceGroupService {
 
               const sdgBenefitsArray = newSDG.split(',');
 
-
-
               qb.orWhere(
                 new Brackets((qb) => {
                   sdgBenefitsArray?.forEach((benefit, index) => {
@@ -1533,7 +1531,9 @@ export class DeviceGroupService {
           }
         }
         for (const key in dataToStore) {
-          if (dataToStore[key] === '') { dataToStore[key] = null; }
+          if (dataToStore[key] === '') {
+            dataToStore[key] = null;
+          }
         }
         records.push(plainToClass(NewDeviceDTO, dataToStore));
         recordsErrors.push({

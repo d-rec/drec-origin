@@ -1059,7 +1059,9 @@ export class DeviceService {
         `in removeFromGroup 373 No device found with id ${deviceId} and groupId: ${groupId}`,
       );
     }
-    if (currentDevice) { currentDevice.groupId = null; }
+    if (currentDevice) {
+      currentDevice.groupId = null;
+    }
 
     return await this.repository.save(currentDevice);
   }

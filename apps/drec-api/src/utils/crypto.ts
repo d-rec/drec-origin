@@ -40,7 +40,9 @@ export const decrypt = (encryptedText: string): string => {
       process.env.ENCRYPTION_SECRET!,
       iv,
     );
-    return decipher.update(encryptedHex, 'hex', 'utf8') + decipher.final('utf8');
+    return (
+      decipher.update(encryptedHex, 'hex', 'utf8') + decipher.final('utf8')
+    );
   }
 
   // GCM format (iv:ciphertext:authTag)
