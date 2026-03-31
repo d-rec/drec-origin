@@ -522,6 +522,7 @@ export class DeviceController {
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+        { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
       ],
       {
@@ -552,6 +553,10 @@ export class DeviceController {
           items: { type: 'string', format: 'binary' },
         },
         [DocumentType.PROJECT_PHOTOS]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.SCREENSHOTS]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -658,6 +663,7 @@ export class DeviceController {
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+        { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
       ],
       {
@@ -792,6 +798,7 @@ export class DeviceController {
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+          [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
         };
 

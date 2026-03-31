@@ -18,6 +18,7 @@ export enum DocumentType {
   METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
+  SCREENSHOTS = 'SCREENSHOTS', //Screenshots
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
   COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
 }
