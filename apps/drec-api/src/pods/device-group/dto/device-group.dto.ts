@@ -13,6 +13,7 @@ import {
   CapacityRange,
   CommissioningDateRange,
   OffTaker,
+  OperatingConfiguration,
 } from '../../../utils/enums';
 import { DeviceDTO } from '../../device/dto';
 import { OrganizationDTO } from '../../organization/dto';
@@ -76,6 +77,15 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty()
   @IsBoolean()
   gridInterconnection: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Distinct operating configurations across grouped devices',
+    isArray: true,
+    enum: OperatingConfiguration,
+  })
+  @IsEnum(OperatingConfiguration, { each: true })
+  @IsOptional()
+  operatingConfigurations?: OperatingConfiguration[];
 
   @ApiProperty()
   @IsNumber()

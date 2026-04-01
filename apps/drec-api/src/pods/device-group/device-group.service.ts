@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   HttpException,
@@ -26,6 +27,7 @@ import {
   DeviceTypeCode,
   FuelCode,
   OffTaker,
+  OperatingConfiguration,
   Role,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
@@ -1391,9 +1393,44 @@ export class DeviceGroupService {
         0,
       ),
     );
+
+    // D-REC Methodology §3: aggregate capacity must not exceed 250 kW
+    if (aggregatedCapacity > 250) {
+      throw new BadRequestException({
+        success: false,
+        message: `Aggregate capacity of ${aggregatedCapacity} kW exceeds the D-REC methodology limit of 250 kW`,
+      });
+    }
+
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
+
+    // Collect distinct operating configurations across all devices
+    const operatingConfigurations: OperatingConfiguration[] = Array.from(
+      new Set(
+        devices
+          .map((d) => d.operatingConfiguration)
+          .filter((c): c is OperatingConfiguration => c != null),
+      ),
+    );
+
+    // Validate that all devices with a source access mode share the same mode
+    const sourceAccessModes = Array.from(
+      new Set(
+        devices
+          .map((d) => d.sourceAccessMode)
+          .filter((m) => m != null) as string[],
+      ),
+    );
+    if (sourceAccessModes.length > 1) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'All devices in a group must share the same Source Access Mode. ' +
+          `Found: ${sourceAccessModes.join(', ')}`,
+      });
+    }
 
     const fuelCode = Array.from(
       new Set(
@@ -1430,6 +1467,7 @@ export class DeviceGroupService {
       deviceTypeCodes: deviceTypeCodes,
       offTakers: offTakers,
       gridInterconnection,
+      operatingConfigurations,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),

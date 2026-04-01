@@ -22,6 +22,7 @@ import {
   CapacityRange,
   CommissioningDateRange,
   OffTaker,
+  OperatingConfiguration,
 } from '../../utils/enums';
 //import { Device } from '../device';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -76,6 +77,10 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column()
   @IsBoolean()
   gridInterconnection: boolean;
+
+  @Column('text', { array: true, nullable: true })
+  @IsOptional()
+  operatingConfigurations: OperatingConfiguration[];
 
   @Column()
   @IsNumber()
