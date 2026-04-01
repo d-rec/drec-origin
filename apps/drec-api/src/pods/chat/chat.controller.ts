@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -122,6 +123,33 @@ export class ChatController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<{ success: boolean }> {
     await this.chatService.clearConversation(id);
+    return { success: true };
+  }
+
+  @Get('unread-count/:email')
+  @ApiOperation({ summary: 'Get unread conversation count for a user' })
+  async getUnreadCount(
+    @Param('email') email: string,
+  ): Promise<{ count: number }> {
+    const count = await this.chatService.getUnreadCount(email);
+    return { count };
+  }
+
+  @Get('unread-devices/:email')
+  @ApiOperation({ summary: 'Get device project names with unread messages' })
+  async getUnreadDeviceNames(
+    @Param('email') email: string,
+  ): Promise<string[]> {
+    return this.chatService.getUnreadDeviceNames(email);
+  }
+
+  @Patch('conversations/:id/read')
+  @ApiOperation({ summary: 'Mark a conversation as read for a user' })
+  async markConversationRead(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { email: string },
+  ): Promise<{ success: boolean }> {
+    await this.chatService.markConversationRead(id, body.email);
     return { success: true };
   }
 

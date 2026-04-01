@@ -185,7 +185,7 @@ export function createWinstonLogger() {
           gzip: true,
           dataUploadInterval: 1000 * 60 * 5,
           fileRotationInterval: 1000 * 60 * 60,
-        },
+        } as any,
       }) as unknown as winston.transport,
     );
   }

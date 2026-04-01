@@ -92,3 +92,7 @@ apps/drec-api/bin/drec-api
 apps/drec-api/documentation
 docs/.vitepress/cache
 docs/.vitepress/dist
+
+# Root-level artifacts
+/package.json
+/pnpm-lock.yaml

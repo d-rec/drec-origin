@@ -199,6 +199,72 @@ export class ChatService {
     );
   }
 
+  async getUnreadCount(email: string): Promise<number> {
+    // Count conversations where the user has unread messages
+    // (a message exists after their lastReadAt)
+    const rows = await this.conversationRepository
+      .createQueryBuilder('conv')
+      .innerJoin(
+        Chat,
+        'latest',
+        'latest.uuid = conv."lastEntryUuid"',
+      )
+      .where(
+        '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
+        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+        { email },
+      )
+      // Exclude conversations where the latest message is from the user themselves
+      .andWhere('latest.username != :email', { email })
+      .getCount();
+
+    return rows;
+  }
+
+  async markConversationRead(
+    conversationId: number,
+    email: string,
+  ): Promise<void> {
+    const conversation = await this.conversationRepository.findOne({
+      where: { id: conversationId },
+    });
+    if (!conversation) {
+      throw new NotFoundException(`Conversation ${conversationId} not found`);
+    }
+
+    const now = new Date();
+    if (conversation.participant1 === email) {
+      await this.conversationRepository.update(conversationId, {
+        lastReadAt1: now,
+      });
+    } else if (conversation.participant2 === email) {
+      await this.conversationRepository.update(conversationId, {
+        lastReadAt2: now,
+      });
+    }
+  }
+
+  async getUnreadDeviceNames(email: string): Promise<string[]> {
+    const rows = await this.conversationRepository
+      .createQueryBuilder('conv')
+      .innerJoin(
+        Chat,
+        'latest',
+        'latest.uuid = conv."lastEntryUuid"',
+      )
+      .select('conv."deviceProjectName"', 'deviceProjectName')
+      .where('conv."deviceProjectName" IS NOT NULL')
+      .andWhere(
+        '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
+        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+        { email },
+      )
+      .andWhere('latest.username != :email', { email })
+      .getRawMany();
+
+    return rows.map((r) => r.deviceProjectName);
+  }
+
   async getConversationPartners(): Promise<string[]> {
     const conversations = await this.conversationRepository.find();
     const adminUser = await this.getAdminUser();
