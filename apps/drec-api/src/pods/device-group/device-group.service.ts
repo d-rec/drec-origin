@@ -49,6 +49,7 @@ import csv from 'csv-parser';
 import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { classifyEvidencePathway } from '../../utils/evidence-pathway-classifier';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
@@ -1449,6 +1450,26 @@ export class DeviceGroupService {
         message:
           'All devices in a group must share the same Source Access Mode. ' +
           `Found: ${sourceAccessModes.join(', ')}`,
+      });
+    }
+
+    // D-REC §3.5: Evidence-pathway compatibility — all devices must resolve
+    // to the same evidence pathway so verification rules are uniform.
+    const pathways = Array.from(
+      new Set(
+        devices
+          .map((d) =>
+            classifyEvidencePathway(d.operatingConfiguration as any, d.sourceAccessMode as any),
+          )
+          .filter((p): p is string => p != null),
+      ),
+    );
+    if (pathways.length > 1) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'All devices in a group must have the same evidence pathway. ' +
+          `Found: ${pathways.join(', ')}`,
       });
     }
 
