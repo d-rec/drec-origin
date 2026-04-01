@@ -266,6 +266,25 @@ export class DeviceReviewsController {
     return this.service.checkProductionCeiling(deviceId);
   }
 
+  @Get(':deviceId/compensating-controls')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Evaluate compensating controls for a Mode 4 device',
+    description:
+      'D-REC §3.9: Checks whether all compensating controls are satisfied for Mode 4 (lowest data trust) devices.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Compensating controls evaluation results',
+  })
+  evaluateCompensatingControls(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.evaluateCompensatingControls(deviceId);
+  }
+
   @Get(':deviceId/source-access-verify')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

@@ -17,6 +17,11 @@ import {
   estimateIrradiance,
   IrradianceEstimate,
 } from '../../utils/irradiance-estimate';
+import {
+  requiresCompensatingControls,
+  CompensatingControlResult,
+  CompensatingControlsEvaluation,
+} from '../../utils/compensating-controls';
 
 export interface DocMeta {
   docId: number;
@@ -958,5 +963,132 @@ export class DeviceReviewsService {
       yieldMismatch,
       recentReadings,
     };
+  }
+
+  /**
+   * D-REC §3.9: Evaluate compensating controls for Mode 4 devices.
+   * Runs all required checks and returns pass/fail for each.
+   */
+  async evaluateCompensatingControls(
+    deviceId: number,
+  ): Promise<CompensatingControlsEvaluation> {
+    // Get device info
+    const rows: any[] = await this.connection.query(
+      `SELECT "sourceAccessMode", latitude, capacity FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const mode = rows[0].sourceAccessMode as SourceAccessMode | null;
+    const isMode4 = requiresCompensatingControls(mode);
+
+    if (!isMode4) {
+      return { isMode4: false, allSatisfied: true, controls: [] };
+    }
+
+    const controls: CompensatingControlResult[] = [];
+
+    // Control 1: All Mode 4 required documents present
+    const docs: Array<{ type: string }> = await this.connection.query(
+      `SELECT DISTINCT type FROM documents
+       WHERE target_type = 'device' AND target_id = $1`,
+      [deviceId],
+    );
+    const existingTypes = new Set(docs.map((d) => d.type));
+    const mode4Required = ['METERING_EVIDENCE', 'SCREENSHOTS', 'FORM_SF_02', 'SF_02C', 'COD_PROOF'];
+    const missingDocs = mode4Required.filter((t) => !existingTypes.has(t));
+    controls.push({
+      id: 'required_documents',
+      label: 'All required documents uploaded',
+      satisfied: missingDocs.length === 0,
+      detail: missingDocs.length === 0
+        ? 'All 5 required document types are present'
+        : `Missing: ${missingDocs.join(', ')}`,
+    });
+
+    // Control 2: COD / third-party attestation specifically verified
+    const hasCod = existingTypes.has('COD_PROOF');
+    controls.push({
+      id: 'cod_attestation',
+      label: 'COD proof / third-party attestation',
+      satisfied: hasCod,
+      detail: hasCod
+        ? 'COD proof document is present'
+        : 'COD proof or equivalent attestation is required for Mode 4',
+    });
+
+    // Control 3: No ceiling exceedances (stricter — no margin tolerance)
+    let ceilingOk = true;
+    let ceilingDetail = 'No meter readings to check';
+    try {
+      const ceilingResult = await this.checkProductionCeiling(deviceId);
+      const exceedCount = ceilingResult.recentReadings.filter(
+        (r: any) => r.exceedsCeiling,
+      ).length;
+      if (ceilingResult.recentReadings.length > 0) {
+        ceilingOk = exceedCount === 0 && !ceilingResult.yieldMismatch;
+        ceilingDetail = ceilingOk
+          ? `${ceilingResult.recentReadings.length} readings all within ceiling`
+          : `${exceedCount} reading(s) exceed ceiling${ceilingResult.yieldMismatch ? ', yield mismatch detected' : ''}`;
+      }
+    } catch {
+      ceilingDetail = 'Could not run ceiling check';
+      ceilingOk = false;
+    }
+    controls.push({
+      id: 'production_ceiling',
+      label: 'Production within irradiance ceiling',
+      satisfied: ceilingOk,
+      detail: ceilingDetail,
+    });
+
+    // Control 4: No critical anomalies in historical data
+    let consistencyOk = true;
+    let consistencyDetail = 'No meter readings to check';
+    try {
+      const consistency = await this.reviewHistoricalConsistency(deviceId);
+      const criticalCount = consistency.anomalies.filter(
+        (a: any) => a.severity === 'critical',
+      ).length;
+      if (consistency.totalReadings > 0) {
+        consistencyOk = criticalCount === 0;
+        consistencyDetail = consistencyOk
+          ? `${consistency.totalReadings} readings, no critical anomalies`
+          : `${criticalCount} critical anomaly(ies) found`;
+      }
+    } catch {
+      consistencyDetail = 'Could not run consistency check';
+      consistencyOk = false;
+    }
+    controls.push({
+      id: 'historical_consistency',
+      label: 'No critical anomalies in production history',
+      satisfied: consistencyOk,
+      detail: consistencyDetail,
+    });
+
+    // Control 5: Ownership verified
+    const ownershipRows: any[] = await this.connection.query(
+      `SELECT ownership_status FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    const ownershipStatus = ownershipRows[0]?.ownership_status;
+    controls.push({
+      id: 'ownership_verified',
+      label: 'Ownership verification complete',
+      satisfied: ownershipStatus === 'verified',
+      detail: ownershipStatus === 'verified'
+        ? 'Device ownership has been verified'
+        : `Ownership status is "${ownershipStatus || 'unverified'}"`,
+    });
+
+    const allSatisfied = controls.every((c) => c.satisfied);
+
+    await this.logAudit(deviceId, 'compensating_controls',
+      `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
+      'system', { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) });
+
+    return { isMode4: true, allSatisfied, controls };
   }
 }
