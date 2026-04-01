@@ -1,5 +1,3 @@
-# DB
-/influxdb-local
 # sAMPLE DATA FILE
 /integrators-scripts/integrator-devices/BBOX-devices.json
 /integrators-scripts/integrator-devices/Candi-devices.json

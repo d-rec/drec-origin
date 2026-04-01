@@ -55,23 +55,6 @@ wsl --install --distribution Ubuntu-20.04
 
 > **Note:** The following steps should be run inside the WSL Ubuntu terminal on Windows, or directly in your terminal on macOS/Linux.
 
-### Install Influx Client
-
-**Linux / WSL (Ubuntu/Debian):**
-
-```sh
-sudo apt update
-sudo apt install influxdb-client
-```
-
-**macOS:**
-
-```sh
-brew install influxdb-cli
-```
-
-Restart the terminal once after installation is done.
-
 Install `nvm` following the [official installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating), then install the required Node.js version:
 
 ```sh
@@ -97,9 +80,9 @@ Copy `.env.example` to `.env` and adjust `.env` with your environment specific p
 cp .env.example .env
 ```
 
-Start Postgres, Redis, InfluxDB instance
+Start Postgres and Redis
 
-Please create and start your Postgres, Redis and InfluxDB by running below command in the root directory, after that anytime you can manage these images through your docker desktop installed on your system.
+Please create and start your Postgres and Redis by running below command in the root directory, after that anytime you can manage these images through your docker desktop installed on your system.
 
 ```sh
 docker-compose up --build
@@ -277,6 +260,19 @@ Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-
 | `LOKI_AUTH_USER` | | Basic-auth user (optional) |
 | `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
 | `LOKI_LABELS` | `{}` | Extra labels as JSON |
+
+## Solar panel detection (Roboflow)
+
+The device-reviews satellite map includes a "Detect Panels" button that uses [Roboflow](https://roboflow.com/) zero-shot segmentation to identify solar panels in the satellite imagery.
+
+The API key is kept server-side. Add these env vars:
+
+```ini
+ROBOFLOW_WORKFLOW_URL=https://serverless.roboflow.com/peters-workspace-dsmnf/workflows/general-segmentation-api
+ROBOFLOW_API_KEY=<your Roboflow publishable API key>
+```
+
+The frontend calls `POST /device-reviews/detect-panels` which proxies the request to Roboflow.
 
 ## Databases
 

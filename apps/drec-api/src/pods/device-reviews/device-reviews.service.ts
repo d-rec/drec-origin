@@ -128,6 +128,29 @@ export class DeviceReviewsService {
     this.logger.log(`Document ${docId} deleted from DB and S3`);
   }
 
+  async detectPanels(imageBase64: string): Promise<any> {
+    const url = process.env.ROBOFLOW_WORKFLOW_URL;
+    const key = process.env.ROBOFLOW_API_KEY;
+    if (!url || !key) {
+      throw new Error('ROBOFLOW_WORKFLOW_URL or ROBOFLOW_API_KEY not configured');
+    }
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: key,
+        inputs: {
+          image: { type: 'base64', value: imageBase64 },
+          classes: 'solar-panel',
+        },
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`Roboflow API returned ${res.status}`);
+    }
+    return res.json();
+  }
+
   async findAll(): Promise<AssetDto[]> {
     const deviceRows: any[] = await this.connection.query(`
       SELECT
@@ -147,15 +170,15 @@ export class DeviceReviewsService {
         s.status,
         s.reviewer_name,
         s.submitted_at,
-        u.email AS submitter_email
+        u.email AS submitter_email,
+        COALESCE(NULLIF(TRIM(CONCAT(u."firstName", ' ', u."lastName")), ''), u.email) AS submitter_name
       FROM device d
       LEFT JOIN submissions s
         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
          = regexp_replace(s.project_subfolder,
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')
-      LEFT JOIN public.user u ON u."organizationId" = d."organizationId"
-        AND u.role = 'OrganizationAdmin'
+      LEFT JOIN public.user u ON u.api_user_id = d.api_user_id
       WHERE d."externalId" IS NOT NULL AND d."externalId" <> ''
       ORDER BY d."createdAt" DESC
     `);
@@ -245,6 +268,7 @@ export class DeviceReviewsService {
         acCapacity: r.acCapacity != null ? parseFloat(r.acCapacity) : null,
         countryCode: r.countryCode ?? '',
         submitterEmail: r.submitter_email ?? '',
+        submitterName: r.submitter_name ?? '',
         reviewer: r.reviewer_name ?? '',
         dateAdded: r.createdAt ?? null,
         dateSubmitted: r.submitted_at ?? null,

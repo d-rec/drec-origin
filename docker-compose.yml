@@ -17,21 +17,6 @@ services:
     ports:
       - 6379:6379
 
-  drec-influxdb:
-    image: influxdb:1.8
-    container_name: drec-influxdb
-    environment:
-      INFLUXDB_DB: energy
-      INFLUXDB_ADMIN_USER: test
-      INFLUXDB_ADMIN_PASSWORD: test
-      INFLUXDB_USER: api
-      INFLUXDB_USER_PASSWORD: secret
-    ports:
-      - 8086:8086
-    volumes:
-      - influxdb-data:/var/lib/influxdb
-      - ./influxdb.conf:/etc/influxdb/influxdb.conf
-
   drec-minio:
     image: minio/minio:latest
     container_name: drec-minio
@@ -97,7 +82,6 @@ services:
 
 volumes:
   postgres-data:
-  influxdb-data:
   minio-data:
   loki-data:
   grafana-data:

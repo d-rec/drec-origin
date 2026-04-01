@@ -43,6 +43,16 @@ export class DeviceReviewsController {
     return this.service.findAll();
   }
 
+  @Post('detect-panels')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Proxy solar panel detection to Roboflow' })
+  @ApiResponse({ status: 200, description: 'Roboflow detection results' })
+  detectPanels(@Body('image') image: string): Promise<any> {
+    return this.service.detectPanels(image);
+  }
+
   @Patch(':deviceId/status')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
