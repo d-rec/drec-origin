@@ -285,6 +285,25 @@ export class DeviceReviewsController {
     return this.service.evaluateCompensatingControls(deviceId);
   }
 
+  @Get(':deviceId/cross-source')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Cross-source verification of production data',
+    description:
+      'D-REC §3.10: Compares actual meter readings against irradiance-modeled production using a regression-based Performance Factor.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cross-source verification results with PF, R², and flags',
+  })
+  crossSourceVerification(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.crossSourceVerification(deviceId);
+  }
+
   @Get(':deviceId/source-access-verify')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

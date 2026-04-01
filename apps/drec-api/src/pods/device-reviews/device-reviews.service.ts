@@ -22,6 +22,11 @@ import {
   CompensatingControlResult,
   CompensatingControlsEvaluation,
 } from '../../utils/compensating-controls';
+import {
+  computeCrossSourceVerification,
+  CrossSourceResult,
+  MonthlyComparison,
+} from '../../utils/cross-source-verification';
 
 export interface DocMeta {
   docId: number;
@@ -1090,5 +1095,131 @@ export class DeviceReviewsService {
       'system', { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) });
 
     return { isMode4: true, allSatisfied, controls };
+  }
+
+  /**
+   * D-REC §3.10: Cross-source verification.
+   *
+   * Compares actual meter readings against irradiance-modeled monthly
+   * production, computing a regression-based Performance Factor.
+   */
+  async crossSourceVerification(deviceId: number): Promise<CrossSourceResult> {
+    // Fetch device
+    const rows: any[] = await this.connection.query(
+      `SELECT id, latitude, longitude, capacity, "yieldValue", "externalId"
+       FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const device = rows[0];
+    const lat = device.latitude ? parseFloat(device.latitude) : null;
+    const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
+    const externalId = device.externalId;
+
+    if (lat === null || isNaN(lat) || capacityKw <= 0) {
+      return computeCrossSourceVerification([]);
+    }
+
+    // Modeled annual yield from irradiance
+    const irr = estimateIrradiance(lat, capacityKw);
+    // Use midpoint between yieldHigh and yieldLow for expected
+    const expectedAnnualKwhPerKw = (irr.yieldHigh + irr.yieldLow) / 2;
+
+    // Monthly distribution weights based on latitude
+    // Equatorial: roughly flat; higher latitudes: summer-heavy
+    const monthWeights = this.monthlyDistribution(lat);
+
+    // Fetch all meter readings
+    const reads: any[] = await this.connection.query(
+      `SELECT value, unit, start_date, end_date
+       FROM meter_reads
+       WHERE external_id = $1
+       ORDER BY end_date ASC`,
+      [externalId],
+    );
+
+    if (reads.length === 0) {
+      return computeCrossSourceVerification([]);
+    }
+
+    // Bucket actual readings by YYYY-MM (using midpoint of period)
+    const actualByMonth = new Map<string, number>();
+    for (const r of reads) {
+      const start = new Date(r.start_date);
+      const end = new Date(r.end_date);
+      const mid = new Date((start.getTime() + end.getTime()) / 2);
+      const key = `${mid.getFullYear()}-${String(mid.getMonth() + 1).padStart(2, '0')}`;
+
+      let kwh = parseFloat(r.value);
+      if (r.unit === 'Wh') kwh /= 1000;
+      else if (r.unit === 'MWh') kwh *= 1000;
+
+      actualByMonth.set(key, (actualByMonth.get(key) ?? 0) + kwh);
+    }
+
+    // Build comparison array — one entry per month that has actual data
+    const months: MonthlyComparison[] = [];
+    for (const [monthKey, actualKwh] of actualByMonth) {
+      const monthIdx = parseInt(monthKey.split('-')[1], 10) - 1; // 0-based
+      const modelKwh =
+        capacityKw * expectedAnnualKwhPerKw * monthWeights[monthIdx];
+
+      months.push({
+        month: monthKey,
+        actualKwh: Math.round(actualKwh * 100) / 100,
+        modelKwh: Math.round(modelKwh * 100) / 100,
+        ratio: 0, // filled by computeCrossSourceVerification
+      });
+    }
+
+    // Sort chronologically
+    months.sort((a, b) => a.month.localeCompare(b.month));
+
+    const result = computeCrossSourceVerification(months);
+
+    await this.logAudit(
+      deviceId,
+      'cross_source_verification',
+      `PF=${result.performanceFactor}, R²=${result.rSquared}, ${result.monthsCompared} months, ${result.flags.length} flag(s)`,
+      'system',
+      {
+        performanceFactor: result.performanceFactor,
+        simpleRatio: result.simpleRatio,
+        rSquared: result.rSquared,
+        monthsCompared: result.monthsCompared,
+        flagCount: result.flags.length,
+      },
+    );
+
+    return result;
+  }
+
+  /**
+   * Generate monthly distribution weights (sum = 1.0) accounting for
+   * latitude-dependent seasonal variation.
+   *
+   * Near equator: flat ~0.083/month.
+   * Higher latitudes: peak in local summer, trough in winter.
+   */
+  private monthlyDistribution(latitude: number): number[] {
+    const absLat = Math.abs(latitude);
+    // Seasonality amplitude: 0 at equator, up to 0.6 at lat 60+
+    const amplitude = Math.min(0.6, absLat / 100);
+
+    // Northern hemisphere peaks around June (month 5, 0-indexed)
+    // Southern hemisphere peaks around December (month 11)
+    const peakMonth = latitude >= 0 ? 5 : 11;
+
+    const raw: number[] = [];
+    for (let m = 0; m < 12; m++) {
+      // Cosine-based seasonal curve
+      const offset = ((m - peakMonth + 12) % 12) / 12;
+      raw.push(1 + amplitude * Math.cos(2 * Math.PI * offset));
+    }
+
+    const sum = raw.reduce((a, b) => a + b, 0);
+    return raw.map((v) => v / sum);
   }
 }
