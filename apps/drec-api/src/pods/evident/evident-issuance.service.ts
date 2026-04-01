@@ -304,7 +304,7 @@ export class EvidentIssuanceService {
       );
     }
 
-    const format = "yyyy-MM-dd'T'HH:mm:ssZZ";
+    const format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     const startDateFormatted = DateTime.fromISO(issuance.startDate).toFormat(
       format,
