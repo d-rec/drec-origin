@@ -23,16 +23,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/user/registerWithOrganization",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "user",
-            "registerWithOrganization"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "user", "registerWithOrganization"]
         }
       },
       "response": []
@@ -54,16 +46,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/auth/login",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "auth", "login"]
         }
       },
       "response": []
@@ -95,15 +79,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/device",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "device"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "device"]
         }
       },
       "response": []
@@ -126,16 +103,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/device/my",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "device",
-            "my"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "device", "my"]
         }
       },
       "response": []
@@ -167,17 +136,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId12",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "meter-reads",
-            "new",
-            "uatDeviceId12"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "meter-reads", "new", "uatDeviceId12"]
         }
       },
       "response": []
@@ -209,17 +169,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId13",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "meter-reads",
-            "new",
-            "uatDeviceId13"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "meter-reads", "new", "uatDeviceId13"]
         }
       },
       "response": []
@@ -251,17 +202,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/new/uatDeviceId14",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "meter-reads",
-            "new",
-            "uatDeviceId14"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "meter-reads", "new", "uatDeviceId14"]
         }
       },
       "response": []
@@ -293,15 +235,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/device-group",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "device-group"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "device-group"]
         }
       },
       "response": []
@@ -314,17 +249,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/device/ungrouped/buyerreservation",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "device",
-            "ungrouped",
-            "buyerreservation"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "device", "ungrouped", "buyerreservation"]
         }
       },
       "response": []
@@ -346,17 +272,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/device-group/endresavation/{id}",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "device-group",
-            "endresavation",
-            "{id}"
-          ]
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "device-group", "endresavation", "{id}"]
         }
       },
       "response": []
@@ -379,16 +296,8 @@
         "url": {
           "raw": "https://api.drecs.org/api/meter-reads/Xion Mall?start=2022-09-25T21:59:30.519Z&end=2022-09-29T21:59:30.519Z&limit=1000&offset=0",
           "protocol": "https",
-          "host": [
-            "api",
-            "drecs",
-            "org"
-          ],
-          "path": [
-            "api",
-            "meter-reads",
-            "Xion Mall"
-          ],
+          "host": ["api", "drecs", "org"],
+          "path": ["api", "meter-reads", "Xion Mall"],
           "query": [
             {
               "key": "start",
