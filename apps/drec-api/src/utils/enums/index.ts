@@ -22,3 +22,4 @@ export * from './sdgbenefits.enum';
 export * from './certificate-generation-frequency.enum';
 export * from './operating-configuration.enum';
 export * from './source-access-mode.enum';
+export * from './group-review-status.enum';

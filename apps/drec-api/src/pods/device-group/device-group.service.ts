@@ -26,6 +26,7 @@ import {
   CommissioningDateRange,
   DeviceTypeCode,
   FuelCode,
+  GroupReviewStatus,
   OffTaker,
   OperatingConfiguration,
   Role,
@@ -863,11 +864,8 @@ export class DeviceGroupService {
         );
       }),
     );
-    if (data.type === GroupType.Single) {
-      await this.registerSingleDeviceToEvident(devices[0], group);
-    } else {
-      await this.evidentDeviceService.queueDeviceGroupRegistration(group);
-    }
+    // D-REC Methodology §2.5: Evident submission is deferred until group review is approved.
+    // When a reviewer approves the group, approveGroupReview() triggers the Evident queue.
 
     return group;
   }
@@ -2958,6 +2956,34 @@ export class DeviceGroupService {
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
     );
+  }
+
+  async updateGroupReviewStatus(
+    groupId: number,
+    status: GroupReviewStatus,
+  ): Promise<DeviceGroup> {
+    this.logger.verbose(`With in updateGroupReviewStatus`);
+    const group = await this.repository.findOne({ where: { id: groupId } });
+    if (!group) {
+      throw new NotFoundException(`Device group ${groupId} not found`);
+    }
+
+    group.groupReviewStatus = status;
+    const saved = await this.repository.save(group);
+
+    // When approved, trigger Evident registration (deferred from group creation)
+    if (status === GroupReviewStatus.Approved) {
+      const devices = await this.deviceService.findByIds(
+        group.deviceIdsInt || [],
+      );
+      if (group.type === GroupType.Single && devices.length > 0) {
+        await this.registerSingleDeviceToEvident(devices[0], saved);
+      } else {
+        await this.evidentDeviceService.queueDeviceGroupRegistration(saved);
+      }
+    }
+
+    return saved;
   }
 
   async getRegisteredEvident(

@@ -38,7 +38,7 @@ import {
   UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { Role } from '../../utils/enums';
+import { GroupReviewStatus, Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -567,6 +567,40 @@ export class BuyerReservationController {
    * @param param1 is getting organizationId from loggedIn user
    * @returns {void}
    */
+  @Patch('/:id/review-status')
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
+  @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Update group review status',
+    description:
+      'Approve or reject a device group. When approved, Evident registration is triggered.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: DeviceGroupDTO,
+    description: 'Successfully updated the group review status.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'No device group found with the specified ID.',
+  })
+  public async updateGroupReviewStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: GroupReviewStatus,
+  ): Promise<DeviceGroupDTO> {
+    this.logger.verbose(`With in updateGroupReviewStatus`);
+    if (
+      !status ||
+      !Object.values(GroupReviewStatus).includes(status)
+    ) {
+      throw new BadRequestException({
+        success: false,
+        message: `Invalid review status. Must be one of: ${Object.values(GroupReviewStatus).join(', ')}`,
+      });
+    }
+    return await this.deviceGroupService.updateGroupReviewStatus(id, status);
+  }
+
   @Delete('/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)

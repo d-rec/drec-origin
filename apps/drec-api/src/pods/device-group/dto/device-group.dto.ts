@@ -12,6 +12,7 @@ import { IDeviceGroup } from '../../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
+  GroupReviewStatus,
   OffTaker,
   OperatingConfiguration,
 } from '../../../utils/enums';
@@ -86,6 +87,14 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @IsEnum(OperatingConfiguration, { each: true })
   @IsOptional()
   operatingConfigurations?: OperatingConfiguration[];
+
+  @ApiPropertyOptional({
+    description: 'D-REC group-level review status',
+    enum: GroupReviewStatus,
+  })
+  @IsEnum(GroupReviewStatus)
+  @IsOptional()
+  groupReviewStatus?: GroupReviewStatus | null;
 
   @ApiProperty()
   @IsNumber()
