@@ -8,10 +8,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -74,8 +76,9 @@ export class DeviceReviewsController {
   updateStatus(
     @Param('deviceId', ParseIntPipe) deviceId: number,
     @Body('status') status: string,
+    @Req() req: Request,
   ): Promise<{ status: string }> {
-    return this.service.updateReviewStatus(deviceId, status);
+    return this.service.updateReviewStatus(deviceId, status, req.ip);
   }
 
   @Post('refresh-url')
@@ -139,6 +142,22 @@ export class DeviceReviewsController {
       file,
       projectSubfolder,
     );
+  }
+
+  @Get(':deviceId/audit-trail')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Get the full audit trail for a device',
+    description:
+      'D-REC §3.8: Returns the immutable log of all verification actions taken on this device.',
+  })
+  @ApiResponse({ status: 200, description: 'Audit trail entries' })
+  getAuditTrail(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.getAuditTrail(deviceId);
   }
 
   @Get(':deviceId/duplicates')

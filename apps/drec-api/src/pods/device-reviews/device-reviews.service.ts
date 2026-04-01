@@ -64,9 +64,55 @@ export class DeviceReviewsService {
     private readonly fileService: FileService,
   ) {}
 
+  /**
+   * D-REC §3.8: Append an immutable audit log entry.
+   */
+  /**
+   * Append an immutable audit log entry.
+   * @param ipAddress - Caller's IP address (from request context)
+   */
+  async logAudit(
+    deviceId: number,
+    actionType: string,
+    detail: string,
+    performedBy: string = 'system',
+    metadata?: Record<string, any>,
+    ipAddress?: string,
+  ): Promise<void> {
+    const meta = { ...metadata };
+    if (ipAddress) meta.ip = ipAddress;
+    await this.connection.query(
+      `INSERT INTO audit_log (device_id, action_type, detail, performed_by, metadata)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [deviceId, actionType, detail, performedBy, Object.keys(meta).length > 0 ? JSON.stringify(meta) : null],
+    );
+  }
+
+  /**
+   * D-REC §3.8: Retrieve the full audit trail for a device.
+   */
+  async getAuditTrail(deviceId: number): Promise<Array<{
+    id: number;
+    actionType: string;
+    detail: string | null;
+    performedBy: string;
+    metadata: Record<string, any> | null;
+    createdAt: Date;
+  }>> {
+    return this.connection.query(
+      `SELECT id, action_type AS "actionType", detail, performed_by AS "performedBy",
+              metadata, created_at AS "createdAt"
+       FROM audit_log
+       WHERE device_id = $1
+       ORDER BY created_at DESC`,
+      [deviceId],
+    );
+  }
+
   async updateReviewStatus(
     deviceId: number,
     status: string,
+    ipAddress?: string,
   ): Promise<{ status: string }> {
     // Try to update existing submission row
     const rows: any[] = await this.connection.query(
@@ -85,6 +131,7 @@ export class DeviceReviewsService {
       this.logger.log(
         `Device ${deviceId} review status changed to "${status}"`,
       );
+      await this.logAudit(deviceId, 'status_change', `Status changed to "${status}"`, 'reviewer', undefined, ipAddress);
       // D-REC §3.1: Classify evidence pathway
       // D-REC §2.7: Verify ownership on approval
       if (status === 'approved') {
@@ -424,6 +471,10 @@ export class DeviceReviewsService {
       });
     }
 
+    await this.logAudit(deviceId, 'duplicate_screening',
+      `${duplicates.length} potential duplicate(s) found`,
+      'reviewer', { duplicateCount: duplicates.length });
+
     return { duplicates };
   }
 
@@ -470,6 +521,9 @@ export class DeviceReviewsService {
           ? ` (missing: ${missingDocuments.join(', ')})`
           : ''),
     );
+    await this.logAudit(deviceId, 'ownership_verification',
+      `Ownership ${ownershipStatus}${missingDocuments.length ? ': missing ' + missingDocuments.join(', ') : ''}`,
+      'system', { ownershipStatus, missingDocuments });
 
     return { ownershipStatus, missingDocuments };
   }
@@ -521,6 +575,9 @@ export class DeviceReviewsService {
       `Device ${deviceId} classified as: ${pathway ?? 'unclassified'} ` +
         `(config=${operatingConfiguration}, mode=${sourceAccessMode})`,
     );
+    await this.logAudit(deviceId, 'pathway_classification',
+      `Classified as: ${pathway ?? 'unclassified'}`,
+      'system', { pathway, operatingConfiguration, sourceAccessMode });
 
     return { evidencePathway: pathway, requirements };
   }
@@ -792,6 +849,10 @@ export class DeviceReviewsService {
         `${periodMonths} months, ${anomalies.length} anomalies`,
     );
 
+    await this.logAudit(deviceId, 'historical_consistency',
+      `${reads.length} readings, ${anomalies.length} anomalies over ${periodMonths} months`,
+      'reviewer', { totalReadings: reads.length, anomalyCount: anomalies.length });
+
     return {
       totalReadings: reads.length,
       periodMonths,
@@ -884,6 +945,11 @@ export class DeviceReviewsService {
         `mismatch=${yieldMismatch}, ` +
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
+
+    const exceedCount = recentReadings.filter((r) => r.exceedsCeiling).length;
+    await this.logAudit(deviceId, 'ceiling_check',
+      `Yield mismatch: ${yieldMismatch}, ${exceedCount}/${recentReadings.length} readings exceed ceiling`,
+      'reviewer', { configuredYield, irradianceYield: irradiance?.yieldHigh, yieldMismatch, exceedCount });
 
     return {
       irradiance,
