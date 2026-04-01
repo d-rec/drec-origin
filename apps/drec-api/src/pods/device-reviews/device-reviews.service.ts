@@ -128,6 +128,14 @@ export class DeviceReviewsService {
     this.logger.log(`Document ${docId} deleted from DB and S3`);
   }
 
+  async getProjectName(deviceId: number): Promise<string> {
+    const rows: any[] = await this.connection.query(
+      `SELECT "projectName" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    return rows[0]?.projectName ?? '';
+  }
+
   async detectPanels(imageBase64: string): Promise<any> {
     const url = process.env.ROBOFLOW_WORKFLOW_URL;
     const key = process.env.ROBOFLOW_API_KEY;
@@ -170,6 +178,7 @@ export class DeviceReviewsService {
         s.status,
         s.reviewer_name,
         s.submitted_at,
+        CASE WHEN s.status IN ('approved', 'rejected') THEN s.updated_at ELSE NULL END AS closed_at,
         u.email AS submitter_email,
         COALESCE(NULLIF(TRIM(CONCAT(u."firstName", ' ', u."lastName")), ''), u.email) AS submitter_name
       FROM device d
@@ -271,9 +280,9 @@ export class DeviceReviewsService {
         submitterName: r.submitter_name ?? '',
         reviewer: r.reviewer_name ?? '',
         dateAdded: r.createdAt ?? null,
-        dateSubmitted: r.submitted_at ?? null,
+        dateSubmitted: r.closed_at ?? null,
         modifiedDate: r.updatedAt ?? null,
-        status: r.status ?? 'draft',
+        status: r.status ?? 'pending',
         notes: '',
         evidentDeviceId: r.evidentDeviceId ?? null,
         evidentStatus: r.evidentStatus ?? null,

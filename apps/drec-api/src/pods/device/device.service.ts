@@ -117,6 +117,24 @@ export class DeviceService {
     private readonly readsService: ReadsService,
   ) {}
 
+  getConnection(): DataSource {
+    return this.connection;
+  }
+
+  /** Return the set of device IDs that have an approved review submission. */
+  async getApprovedDeviceIds(): Promise<Set<number>> {
+    const rows: { id: number }[] = await this.connection.query(
+      `SELECT d.id FROM device d
+       INNER JOIN submissions s
+         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+          = regexp_replace(s.project_subfolder,
+              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+              '', 'i')
+       WHERE s.status = 'approved'`,
+    );
+    return new Set(rows.map((r) => r.id));
+  }
+
   public async find(
     filterDto: FilterDTO,
     pageNumber: number,
@@ -245,10 +263,10 @@ export class DeviceService {
     );
     const statusMap: Record<number, string> = {};
     for (const r of rows) {
-      statusMap[r.device_id] = r.review_status ?? 'draft';
+      statusMap[r.device_id] = r.review_status ?? 'pending';
     }
     for (const device of devices) {
-      const fallback = device.IREC_Status === 'Legacy' ? 'legacy' : 'draft';
+      const fallback = device.IREC_Status === 'Legacy' ? 'legacy' : 'pending';
       device.reviewStatus = statusMap[device.id] ?? fallback;
     }
   }
@@ -823,7 +841,13 @@ export class DeviceService {
 
     query.where = where;
 
-    const [devices, totalCount] = await this.repository.findAndCount(query);
+    // Only include devices with an approved review
+    const approvedIds = await this.getApprovedDeviceIds();
+    const [allDevices] = await this.repository.findAndCount(query);
+    const filtered = allDevices.filter((d) => approvedIds.has(d.id));
+    const totalCount = filtered.length;
+    const start = pageNumber != null ? (pageNumber - 1) * limit : 0;
+    const devices = filtered.slice(start, start + limit);
 
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage = pageNumber ?? 1;
@@ -1170,7 +1194,13 @@ export class DeviceService {
 
     query.where = where;
 
-    const [devices, totalCount] = await this.repository.findAndCount(query);
+    // Only include devices with an approved review
+    const approvedIds = await this.getApprovedDeviceIds();
+    const [allDevices] = await this.repository.findAndCount(query);
+    const filtered = allDevices.filter((d) => approvedIds.has(d.id));
+    const totalCount = filtered.length;
+    const start = pageNumber ? (pageNumber - 1) * limit : 0;
+    const devices = filtered.slice(start, start + limit);
 
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage = pageNumber;

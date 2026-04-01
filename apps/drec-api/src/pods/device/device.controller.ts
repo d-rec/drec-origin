@@ -432,7 +432,7 @@ export class DeviceController {
     @Param('id') id: number,
     @Query('apiUserId') api_user_id: string | null,
     @Query('organizationId') organizationId: number | null,
-  ): Promise<DeviceDTO | null> {
+  ): Promise<any> {
     this.logger.verbose(`With in get`);
     let deviceData: Device;
     if (api_user_id && organizationId) {
@@ -443,7 +443,23 @@ export class DeviceController {
     } else {
       deviceData = await this.deviceService.findOne(id);
     }
-    return deviceData;
+
+    // Look up review status from submissions table
+    let reviewStatus: string | null = null;
+    if (deviceData?.projectName) {
+      const rows: any[] = await this.deviceService.getConnection().query(
+        `SELECT s.status FROM submissions s
+         WHERE regexp_replace(s.project_subfolder,
+           '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+           '', 'i')
+         = regexp_replace(lower($1), '[^a-z0-9]+', '-', 'g')
+         LIMIT 1`,
+        [deviceData.projectName],
+      );
+      reviewStatus = rows[0]?.status ?? null;
+    }
+
+    return { ...deviceData, reviewStatus };
   }
 
   /**
