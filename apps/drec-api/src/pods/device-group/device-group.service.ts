@@ -965,32 +965,54 @@ export class DeviceGroupService {
     let allDevicesAvailableForBuyerReservation = true;
     const unavailableDeviceIds: Array<number> = [];
     const unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
+
+    // D-REC §2.6: Screen for date-range overlap against historical issuance records
+    if (group.reservationStartDate && group.reservationEndDate) {
+      const deviceExternalIds = devices.map((d) => d.externalId).filter(Boolean);
+      if (deviceExternalIds.length > 0) {
+        const startDate = new Date(group.reservationStartDate);
+        const endDate = new Date(group.reservationEndDate);
+        const allHistory = await this.historyNextIssuanceDateRepository.find({
+          where: deviceExternalIds.map((eid) => ({
+            device_externalid: eid,
+          })),
+        });
+        const overlapping = allHistory.filter((h) => {
+          const hStart = new Date(h.reservationStartDate);
+          const hEnd = new Date(h.reservationEndDate);
+          return hStart < endDate && hEnd > startDate;
+        });
+        const overlappingExternalIds = new Set(
+          overlapping.map((h) => h.device_externalid),
+        );
+        overlappingExternalIds.forEach((eid) => {
+          const device = devices.find((d) => d.externalId === eid);
+          if (device) {
+            unavailableDeviceIdsDueToCertificateAlreadyIssued.push(device.id);
+          }
+        });
+      }
+    }
+
+    // Block devices that have overlapping certificate date ranges
+    if (unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0) {
+      throw new ConflictException({
+        success: false,
+        message:
+          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(', ')} ` +
+          `have already certified data in that date range. ` +
+          `Please remove them or select a different date range.`,
+      });
+    }
+
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       this.logger.error(
         `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       );
-      return new Promise((resolve, reject) => {
-        let message = '';
-        if (
-          unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
-        ) {
-          message =
-            message +
-            `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
-        }
-        this.logger.error(
-          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`,
-        );
-        message =
-          message +
-          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
-        reject(
-          new ConflictException({
-            success: false,
-            message: message,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       });
     }
     group.deviceIds?.forEach((ele) => {

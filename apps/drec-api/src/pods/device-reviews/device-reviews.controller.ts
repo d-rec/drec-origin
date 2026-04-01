@@ -140,4 +140,20 @@ export class DeviceReviewsController {
       projectSubfolder,
     );
   }
+
+  @Get(':deviceId/duplicates')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Screen device for potential duplicates across all organizations',
+    description:
+      'D-REC §2.6: Checks coordinate proximity (<100m), cross-org serial number, and fingerprint matches.',
+  })
+  @ApiResponse({ status: 200, description: 'Duplicate screening results' })
+  screenForDuplicates(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.screenForDuplicates(deviceId);
+  }
 }

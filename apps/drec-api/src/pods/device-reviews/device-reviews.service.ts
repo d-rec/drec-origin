@@ -303,4 +303,100 @@ export class DeviceReviewsService {
       };
     });
   }
+
+  /**
+   * D-REC §2.6: Screen a device for potential duplicates across all organizations.
+   * Checks coordinate proximity (< 100m), cross-org serial number, and fingerprint.
+   */
+  async screenForDuplicates(deviceId: number): Promise<{
+    duplicates: Array<{
+      id: number;
+      externalId: string;
+      projectName: string;
+      serialNumber: string;
+      organizationId: number;
+      matchType: string;
+    }>;
+  }> {
+    const deviceRows: any[] = await this.connection.query(
+      `SELECT id, latitude, longitude, "serialNumber", fingerprint
+       FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (deviceRows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const device = deviceRows[0];
+    const duplicates: Array<{
+      id: number;
+      externalId: string;
+      projectName: string;
+      serialNumber: string;
+      organizationId: number;
+      matchType: string;
+    }> = [];
+
+    // 1. Coordinate proximity (< 100m via Haversine)
+    if (device.latitude && device.longitude) {
+      const lat = parseFloat(device.latitude);
+      const lng = parseFloat(device.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const nearby: any[] = await this.connection.query(
+          `SELECT id, "externalId", "projectName", "serialNumber", "organizationId",
+                  (6371000 * acos(LEAST(1, GREATEST(-1,
+                    cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
+                    * cos(radians(CAST(longitude AS double precision)) - radians($2))
+                    + sin(radians($1)) * sin(radians(CAST(latitude AS double precision)))
+                  )))) AS distance_m
+           FROM device
+           WHERE id != $3
+             AND latitude IS NOT NULL
+             AND longitude IS NOT NULL
+           ORDER BY distance_m
+           LIMIT 20`,
+          [lat, lng, deviceId],
+        );
+        nearby
+          .filter((r) => r.distance_m < 100)
+          .forEach((d) =>
+            duplicates.push({
+              ...d,
+              matchType: `coordinates (${Math.round(d.distance_m)}m)`,
+            }),
+          );
+      }
+    }
+
+    // 2. Cross-org serial number
+    if (device.serialNumber) {
+      const serialMatches: any[] = await this.connection.query(
+        `SELECT id, "externalId", "projectName", "serialNumber", "organizationId"
+         FROM device
+         WHERE "serialNumber" = $1 AND id != $2`,
+        [device.serialNumber, deviceId],
+      );
+      serialMatches.forEach((d) => {
+        if (!duplicates.find((dup) => dup.id === d.id)) {
+          duplicates.push({ ...d, matchType: 'serial number' });
+        }
+      });
+    }
+
+    // 3. Fingerprint match
+    if (device.fingerprint) {
+      const fpMatches: any[] = await this.connection.query(
+        `SELECT id, "externalId", "projectName", "serialNumber", "organizationId"
+         FROM device
+         WHERE fingerprint = $1 AND id != $2`,
+        [device.fingerprint, deviceId],
+      );
+      fpMatches.forEach((d) => {
+        if (!duplicates.find((dup) => dup.id === d.id)) {
+          duplicates.push({ ...d, matchType: 'fingerprint' });
+        }
+      });
+    }
+
+    return { duplicates };
+  }
 }
