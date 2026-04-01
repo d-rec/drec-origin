@@ -30,9 +30,12 @@ function maskSecret(secret: string): string {
 }
 
 function sanitizeWebhook(webhook: ChatWebhook): any {
+  const { user, ...rest } = webhook;
   return {
-    ...webhook,
+    ...rest,
     secret: maskSecret(webhook.secret),
+    userName: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || null : null,
+    userEmail: user?.email ?? null,
   };
 }
 

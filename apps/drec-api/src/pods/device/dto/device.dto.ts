@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -116,6 +116,11 @@ export class DeviceDTO implements IDevice {
   @IsBoolean()
   @IsOptional()
   gridInterconnection: boolean;
+
+  @ApiProperty({ enum: OperatingConfiguration })
+  @IsEnum(OperatingConfiguration)
+  @IsOptional()
+  operatingConfiguration?: OperatingConfiguration;
 
   @ApiProperty()
   @IsEnum(OffTaker)

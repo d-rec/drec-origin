@@ -20,3 +20,4 @@ export * from './history_next_issuance.enum';
 export * from './fuel&devicetype-code.enum';
 export * from './sdgbenefits.enum';
 export * from './certificate-generation-frequency.enum';
+export * from './operating-configuration.enum';

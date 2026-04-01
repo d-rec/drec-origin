@@ -962,6 +962,7 @@ export class DeviceService {
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
+      operatingConfiguration: filter.operatingConfiguration,
       countryCode: filter.country && getCodeFromCountry(filter.country),
     });
     if (orgId != null || orgId != undefined) {

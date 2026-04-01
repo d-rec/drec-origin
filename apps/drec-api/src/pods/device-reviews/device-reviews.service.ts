@@ -24,6 +24,7 @@ export interface AssetDto {
   modifiedDate: Date | null;
   status: string;
   notes: string;
+  operatingConfiguration: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
   codProofUrl: string | null;
@@ -173,6 +174,7 @@ export class DeviceReviewsService {
         d.capacity,
         d."acCapacity",
         d."countryCode",
+        d."operatingConfiguration",
         d."evident_device_id" AS "evidentDeviceId",
         d."evident_status" AS "evidentStatus",
         s.status,
@@ -284,6 +286,7 @@ export class DeviceReviewsService {
         modifiedDate: r.updatedAt ?? null,
         status: r.status ?? 'pending',
         notes: '',
+        operatingConfiguration: r.operatingConfiguration ?? null,
         evidentDeviceId: r.evidentDeviceId ?? null,
         evidentStatus: r.evidentStatus ?? null,
         codProofUrl: byType('COD_PROOF'),

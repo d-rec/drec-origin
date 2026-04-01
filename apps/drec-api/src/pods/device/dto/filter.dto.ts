@@ -5,6 +5,7 @@ import {
   FuelCode,
   DeviceTypeCode,
   SDGBenefitsList,
+  OperatingConfiguration,
 } from '../../../utils/enums';
 
 export class FilterDTO {
@@ -55,6 +56,14 @@ export class FilterDTO {
   @IsOptional()
   @ApiPropertyOptional({ type: Boolean, description: 'Grid Interconnection' })
   gridInterconnection: boolean;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description: 'Operating Configuration',
+    enum: OperatingConfiguration,
+  })
+  operatingConfiguration?: OperatingConfiguration;
 
   @IsOptional()
   @ApiPropertyOptional({

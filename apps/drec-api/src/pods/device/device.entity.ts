@@ -15,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -104,6 +104,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   @IsBoolean()
   gridInterconnection: boolean;
+
+  @Column({ nullable: true })
+  @IsEnum(OperatingConfiguration)
+  operatingConfiguration: OperatingConfiguration;
 
   @Column({ nullable: true })
   @IsEnum(OffTaker)

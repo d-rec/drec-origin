@@ -216,3 +216,83 @@ Frontend (drec-ui) -- uncommitted:
   - Chat message alignment and bubble color styling
   - Device registrant display (submitterName)
   - Backend proxy for Roboflow API (removed hardcoded key from frontend)
+
+
+APRIL 1, 2026 UPDATE
+=====================
+
+BUG FIXES
+---------
+
+Panel Detection "Request Entity Too Large"
+  - Satellite image capture was sending the full viewport as base64, which
+    exceeded the API body size limit when zoomed in at high res. Fixed by
+    cropping to center 80% and downscaling to max 1024px at 85% JPEG quality.
+
+Chat Notification Bell Not Reacting
+  - Polling only updated unread count, not device names -- fixed to call
+    fetchUnreadCount which updates both
+  - getUnreadDeviceNames and getCurrentUserEmail were private -- made public
+  - Migration defaulted lastReadAt to NOW(), marking everything as "read" --
+    changed to nullable with no default, nulled existing values
+  - Staging DB had wrong participant (admin@drec.local as both sides) --
+    fixed with SQL UPDATE
+
+Chat Reply Button Not Working (from Bell Notification)
+  - Opening a conversation from the bell notification left partnerEmail
+    empty because openForDevice$ was not emitted. Fixed header component
+    to derive partner from conversation participants and emit properly.
+
+NEW FEATURES
+------------
+
+Chat API for External Integration
+  - Full REST API for chat, usable by external platforms (e.g. Powertrust)
+  - Dual auth: JWT (browser) + OAuth2 client credentials (API users)
+  - Endpoints: list conversations, find conversation, start conversation,
+    send message, get message history, unread count, unread device names,
+    mark as read
+
+Webhook System for Chat Notifications
+  - Configurable webhooks for real-time chat event notifications
+  - Events: message.new, conversation.created
+  - HMAC-SHA256 signed payloads (X-Webhook-Signature header)
+  - Auto-generated 64-char hex secret, masked in subsequent responses
+  - Async fire-and-forget delivery with exponential backoff retry
+    (3 attempts: immediate, 1s, 4s)
+  - CRUD endpoints: create, list, get, update, delete, test ping
+  - Admin sees all webhooks; other users see only their own
+
+Webhook Admin UI
+  - Admin panel page under "Chat Webhooks" in sidebar
+  - Table with User (name + email), URL, events, secret, active toggle,
+    created date, and actions (test ping, edit, delete)
+  - Add/edit form with event checkboxes and optional secret field
+  - Secret shown in full only on creation with copy button
+  - ManyToOne eager-loaded User relation on webhook entity for user display
+
+Unread Message Bold Rendering in Chat
+  - Messages from the other participant arriving after the chat window
+    opens are rendered bold for 5 seconds, then fade back to normal
+
+Chat & Webhooks Documentation
+  - docs/api-user-guide/chat-api.md -- full endpoint reference with
+    request/response examples and typical integration flow
+  - docs/api-user-guide/webhooks.md -- event types, payload formats,
+    HMAC verification examples (Node.js + Python), retry behavior
+
+INFRASTRUCTURE
+--------------
+
+Root package.json Cleanup
+  - Removed stray ts-node dependency and root package.json/pnpm-lock.yaml
+    from accidental pnpm install at repo root
+  - Added /package.json and /pnpm-lock.yaml to .gitignore
+
+Migration: chat_webhooks Table
+  - 1757000000017-CreateChatWebhooksTable -- id, userId, organizationId,
+    url, secret, events (simple-array), active, createdAt, updatedAt
+
+Migration: lastReadAt Columns on Conversations
+  - 1757000000016-AddLastReadAtToConversations -- nullable timestamptz
+    columns for per-participant read tracking

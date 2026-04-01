@@ -3,6 +3,7 @@ import {
   OffTaker,
   FuelCode,
   DeviceTypeCode,
+  OperatingConfiguration,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -24,6 +25,7 @@ export interface IDevice {
   capacity: number;
   commissioningDate: string;
   gridInterconnection: boolean;
+  operatingConfiguration?: OperatingConfiguration;
   offTaker: OffTaker;
   //sector: Sector;
   //standardCompliance: StandardCompliance;

@@ -17,7 +17,7 @@ import { IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration } from '../../../utils/enums';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -137,6 +137,18 @@ export class UpdateDeviceDTO
   @IsBoolean()
   @IsOptional()
   gridInterconnection: boolean;
+
+  @ApiProperty({
+    enum: OperatingConfiguration,
+    description: 'Operating configuration per D-REC methodology',
+  })
+  @IsEnum(OperatingConfiguration, {
+    message:
+      'Valid operating configurations are: ' +
+      Object.values(OperatingConfiguration).join(', '),
+  })
+  @IsOptional()
+  operatingConfiguration?: OperatingConfiguration;
 
   @ApiProperty()
   @IsEnum(OffTaker, {

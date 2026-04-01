@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Entity({ name: 'chat_webhooks' })
 export class ChatWebhook {
@@ -13,6 +16,10 @@ export class ChatWebhook {
 
   @Column({ type: 'int' })
   userId: number;
+
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @Column({ type: 'int', nullable: true })
   organizationId: number | null;
