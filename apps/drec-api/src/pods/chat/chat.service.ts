@@ -5,6 +5,7 @@ import { Chat } from './chat.entity';
 import { ChatConversation } from './chat-conversation.entity';
 import { User } from '../user/user.entity';
 import { typedLog } from '../../logger';
+import { ChatWebhookService } from './chat-webhook.service';
 
 @Injectable()
 export class ChatService {
@@ -17,6 +18,7 @@ export class ChatService {
     private readonly conversationRepository: Repository<ChatConversation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly webhookService: ChatWebhookService,
   ) {}
 
   async appendMessage(
@@ -114,6 +116,22 @@ export class ChatService {
       'chat',
       `Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`,
     );
+
+    // Fire-and-forget webhook dispatch
+    this.webhookService.dispatch('conversation.created', {
+      conversation: {
+        id: savedConversation.id,
+        participant1: savedConversation.participant1,
+        participant2: savedConversation.participant2,
+        deviceProjectName: savedConversation.deviceProjectName,
+      },
+      message: {
+        uuid: message.uuid,
+        username: firstMessageUsername,
+        chatEntry: firstMessageEntry,
+      },
+    });
+
     return { conversation: savedConversation, message };
   }
 
@@ -144,6 +162,19 @@ export class ChatService {
       'chat',
       `Message appended to conversation ${conversationId} by ${username}`,
     );
+
+    // Fire-and-forget webhook dispatch
+    this.webhookService.dispatch('message.new', {
+      conversationId,
+      message: {
+        uuid: message.uuid,
+        username,
+        chatEntry,
+        createdAt: message.createdAt,
+      },
+      deviceProjectName: conversation.deviceProjectName,
+    });
+
     return message;
   }
 

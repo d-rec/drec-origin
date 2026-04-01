@@ -25,7 +25,7 @@ import { ChatConversation } from './chat-conversation.entity';
 @ApiTags('Chat')
 @ApiBearerAuth('access-token')
 @Controller('chat')
-@UseGuards(AuthVerifiedGuard('jwt'))
+@UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
