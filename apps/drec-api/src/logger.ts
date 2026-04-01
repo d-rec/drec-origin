@@ -1,6 +1,7 @@
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import LokiTransport from 'winston-loki';
+import { S3StreamTransport } from 'winston-s3-transport';
 import { WinstonModule } from 'nest-winston';
 
 const { combine, timestamp, json, printf, colorize, errors } = winston.format;
@@ -38,6 +39,10 @@ export function typedLog(
  *   LOKI_AUTH_USER      – basic-auth user (optional)
  *   LOKI_AUTH_PASS      – basic-auth password (optional)
  *   LOKI_LABELS         – extra labels as JSON        (default: '{}')
+ *   S3_LOG_BUCKET       – S3 bucket name              (enables S3 transport)
+ *   S3_LOG_PREFIX       – bucket path prefix           (default: "drec-api")
+ *   S3_LOG_REGION       – AWS region                   (default: "eu-west-1")
+ *   S3_LOG_LEVEL        – min level for S3             (default: "info")
  */
 export function createWinstonLogger() {
   const level = process.env.LOG_LEVEL || 'info';
@@ -155,7 +160,34 @@ export function createWinstonLogger() {
       lokiOptions.basicAuth = `${process.env.LOKI_AUTH_USER}:${process.env.LOKI_AUTH_PASS || ''}`;
     }
 
+    lokiOptions.level = process.env.LOKI_LEVEL || 'warn';
     transports.push(new LokiTransport(lokiOptions));
+  }
+
+  // AWS S3 transport
+  if (process.env.S3_LOG_BUCKET) {
+    const prefix = process.env.S3_LOG_PREFIX || 'drec-api';
+    const env = process.env.NODE_ENV || 'development';
+
+    transports.push(
+      new S3StreamTransport({
+        s3ClientConfig: {
+          region: process.env.S3_LOG_REGION || 'eu-west-1',
+        },
+        s3TransportConfig: {
+          bucket: process.env.S3_LOG_BUCKET,
+          generateBucketPath: (group: string) => {
+            const now = new Date();
+            const date = now.toISOString().slice(0, 10);
+            const ts = now.toISOString().replace(/[:.]/g, '-');
+            return `${prefix}/${env}/${date}/${group}-${ts}.log`;
+          },
+          gzip: true,
+          dataUploadInterval: 1000 * 60 * 5,
+          fileRotationInterval: 1000 * 60 * 60,
+        },
+      }) as unknown as winston.transport,
+    );
   }
 
   return winston.createLogger({
