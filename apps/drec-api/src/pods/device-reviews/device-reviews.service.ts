@@ -75,6 +75,42 @@ export class DeviceReviewsService {
   ) {}
 
   /**
+   * Ensure the device has a classified evidence pathway (§3.1 sequencing rule).
+   * If not yet classified, auto-classify from operatingConfiguration + sourceAccessMode.
+   * Returns a note string if classification couldn't be determined (missing fields),
+   * or null if the pathway is set.
+   */
+  private async ensurePathwayClassified(
+    deviceId: number,
+  ): Promise<string | null> {
+    const rows: any[] = await this.connection.query(
+      `SELECT evidence_pathway, "operatingConfiguration", "sourceAccessMode"
+       FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) return null;
+    if (rows[0].evidence_pathway) return null;
+
+    // Try to auto-classify
+    const config = rows[0].operatingConfiguration;
+    const mode = rows[0].sourceAccessMode;
+    if (!config || !mode) {
+      return (
+        'Evidence pathway could not be auto-classified: ' +
+        (!config && !mode
+          ? 'operatingConfiguration and sourceAccessMode are not set'
+          : !config
+            ? 'operatingConfiguration is not set'
+            : 'sourceAccessMode is not set') +
+        '. Set these fields first for full verification accuracy.'
+      );
+    }
+
+    await this.classifyDevicePathway(deviceId);
+    return null;
+  }
+
+  /**
    * D-REC §3.8: Append an immutable audit log entry.
    */
   /**
@@ -603,7 +639,9 @@ export class DeviceReviewsService {
     missingRequired: string[];
     missingRecommended: string[];
     manualChecks: ModeCheck[];
+    pathwayNote?: string;
   }> {
+    const pathwayNote = await this.ensurePathwayClassified(deviceId);
     const deviceRows: any[] = await this.connection.query(
       `SELECT "sourceAccessMode" FROM device WHERE id = $1`,
       [deviceId],
@@ -660,6 +698,7 @@ export class DeviceReviewsService {
       missingRequired,
       missingRecommended,
       manualChecks: rules.checks,
+      ...(pathwayNote ? { pathwayNote } : {}),
     };
   }
 
@@ -683,7 +722,9 @@ export class DeviceReviewsService {
       minKwh: number;
       maxKwh: number;
     } | null;
+    pathwayNote?: string;
   }> {
+    const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Get device externalId
     const deviceRows: any[] = await this.connection.query(
       `SELECT "externalId" FROM device WHERE id = $1`,
@@ -868,6 +909,7 @@ export class DeviceReviewsService {
       periodMonths,
       anomalies,
       summary,
+      ...(pathwayNote ? { pathwayNote } : {}),
     };
   }
 
@@ -889,7 +931,9 @@ export class DeviceReviewsService {
       ceilingKwh: number;
       exceedsCeiling: boolean;
     }>;
+    pathwayNote?: string;
   }> {
+    const pathwayNote = await this.ensurePathwayClassified(deviceId);
     const rows: any[] = await this.connection.query(
       `SELECT id, latitude, longitude, capacity, "yieldValue", "commissioningDate"
        FROM device WHERE id = $1`,
@@ -967,6 +1011,7 @@ export class DeviceReviewsService {
       capacityKw,
       yieldMismatch,
       recentReadings,
+      ...(pathwayNote ? { pathwayNote } : {}),
     };
   }
 
@@ -976,7 +1021,8 @@ export class DeviceReviewsService {
    */
   async evaluateCompensatingControls(
     deviceId: number,
-  ): Promise<CompensatingControlsEvaluation> {
+  ): Promise<CompensatingControlsEvaluation & { pathwayNote?: string }> {
+    const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Get device info
     const rows: any[] = await this.connection.query(
       `SELECT "sourceAccessMode", latitude, capacity FROM device WHERE id = $1`,
@@ -1094,7 +1140,7 @@ export class DeviceReviewsService {
       `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
       'system', { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) });
 
-    return { isMode4: true, allSatisfied, controls };
+    return { isMode4: true, allSatisfied, controls, ...(pathwayNote ? { pathwayNote } : {}) };
   }
 
   /**
@@ -1103,7 +1149,8 @@ export class DeviceReviewsService {
    * Compares actual meter readings against irradiance-modeled monthly
    * production, computing a regression-based Performance Factor.
    */
-  async crossSourceVerification(deviceId: number): Promise<CrossSourceResult> {
+  async crossSourceVerification(deviceId: number): Promise<CrossSourceResult & { pathwayNote?: string }> {
+    const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Fetch device
     const rows: any[] = await this.connection.query(
       `SELECT id, latitude, longitude, capacity, "yieldValue", "externalId"
@@ -1193,7 +1240,7 @@ export class DeviceReviewsService {
       },
     );
 
-    return result;
+    return { ...result, ...(pathwayNote ? { pathwayNote } : {}) };
   }
 
   /**
