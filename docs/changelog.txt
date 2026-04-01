@@ -1,0 +1,178 @@
+DREC Changelog
+Report date: April 1, 2026
+
+
+BUG FIXES
+=========
+
+Timestamp Format Regression
+---------------------------
+After upgrading TypeORM to 0.3.28, all API timestamps switched from the
+standard "Z" suffix to "+00:00", breaking integrations (e.g. Powertrust
+portal validation). Root causes:
+
+  - TypeORM 0.3.28 changed internal timestamp serialization from
+    .toISOString() (which outputs Z) to a Luxon-based format that
+    outputs +00:00
+  - Outbound Evident API calls also used Luxon's ZZ format token,
+    producing +00:00 instead of Z
+
+Fixes applied:
+  - Added a global NormalizeDatesInterceptor that rewrites all +00:00
+    suffixes to Z in API responses
+  - Fixed the Evident issuance service to use a literal 'Z' in the
+    outbound timestamp format
+  - Fixed timezone.ts transformer to use .toISOString() instead of
+    .format()
+
+CORS Whitelisting
+-----------------
+Added stage-portal.drecs.org to the backend CORS origin allowlist after
+the new staging portal URL was deployed.
+
+Prettier CI Failures
+--------------------
+Fixed Prettier formatting in Postman collections and data-models.md that
+were causing the "Check Docs" CI workflow to fail.
+
+Device Registrant Display
+-------------------------
+The device reviews panel showed "--" for the Registrant field because the
+SQL query joined user on the wrong key. Fixed by joining on
+user.api_user_id = device.api_user_id (UUID) and displaying the user's
+full name or email.
+
+
+NEW FEATURES
+============
+
+Solar Panel Detection via Satellite Imagery (Roboflow ML)
+---------------------------------------------------------
+Added an AI-powered solar panel detection feature to the device reviews
+satellite map. Reviewers can click "Detect Panels" to verify that solar
+installations actually exist at the claimed coordinates.
+
+  - Uses Roboflow's zero-shot segmentation API with a "solar-panel"
+    text prompt
+  - Captures the visible map tiles to a canvas, crops to the center 70%,
+    converts to base64 JPEG, and sends to a backend proxy endpoint
+  - Draws polygon overlays on detected regions with confidence labels
+  - API key is kept server-side (ROBOFLOW_WORKFLOW_URL and
+    ROBOFLOW_API_KEY env vars) -- the frontend never sees it
+
+Earlier attempts using classical computer vision (color-based and
+edge/shape-based detection via OpenCV.js) produced too many false
+positives on trees and failed to detect actual panels. The ML approach
+works significantly better.
+
+Satellite Map Imagery Upgrade
+-----------------------------
+Switched the satellite tile provider from ESRI to Google Satellite
+(mt1.google.com) for higher-resolution imagery globally, especially at
+high zoom levels (up to zoom 21).
+
+Chat Message Alignment and Styling
+-----------------------------------
+  - Admin and Reviewer messages now consistently appear on the right side
+    (own messages), regardless of the sender's email, using role-based
+    alignment logic
+  - Updated chat bubble colors: own messages are teal, partner messages
+    are light blue
+
+Multipart Device Registration
+------------------------------
+The POST /device endpoint now accepts multipart/form-data, allowing
+document files (SF-02, SF-02C, metering evidence, single-line diagram,
+project photos, screenshots, COD proof) to be uploaded together with the
+device registration in a single request. The endpoint also still accepts
+plain JSON for backward compatibility (files optional). The PATCH /device
+endpoint was similarly updated to support document uploads on edit.
+
+Document Upload on Device Edit
+------------------------------
+Added document upload support to the edit-device form, allowing users to
+attach or replace documents after initial registration.
+
+Client-Side OCR for Image Previews
+-----------------------------------
+Added Tesseract.js-based OCR to image previews in the document review
+panel, allowing reviewers to extract text from uploaded device photos and
+screenshots.
+
+Reviewer Role Access
+--------------------
+  - Granted Reviewer and SeniorReviewer roles access to the device
+    reviews UI
+  - Added reviewer password-set flow via email token link
+  - Added cancel button to add-user form, improved reset-password UX
+
+
+INFRASTRUCTURE
+==============
+
+InfluxDB Removal
+----------------
+Removed all InfluxDB-related code and configuration. InfluxDB was dead
+code -- meter reads are now stored directly in PostgreSQL.
+
+  - Deleted influx-db.ts client library and influxdb.conf
+  - Removed drec-influxdb service from docker-compose.yml
+  - Removed @influxdata/influxdb-client dependency
+  - Removed INFLUXDB_* environment variables
+  - Removed InfluxDB services from CI workflow (check.yml)
+  - Stubbed the migration file to a no-op (kept for migration history)
+  - Removed InfluxDB references from architecture documentation
+
+Dependabot Vulnerability Fixes
+------------------------------
+Resolved remaining frontend Dependabot vulnerabilities via pdfjs-dist
+and picomatch upgrades, plus pnpm overrides for transitive dependencies.
+
+Dev Environment Database Deletion
+---------------------------------
+The cloud-based development RDS instance (db.t3.micro) was deleted as
+part of the dev environment decommission reported on March 30.
+Development now runs entirely locally via Docker.
+
+Staging Database
+----------------
+The staging database is a fresh clone of the production database. It is
+a separate RDS instance (drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com)
+and can be used safely for testing without risk to production data.
+
+
+COMMITS SINCE LAST REPORT
+==========================
+
+Backend (drec-origin) -- deployed to staging:
+  - fix: normalize API timestamps to Z suffix instead of +00:00
+  - fix: use Z suffix in outbound Evident API timestamps
+  - fix: add stage-portal.drecs.org to CORS whitelist
+  - style: fix Prettier formatting in docs
+  - feat: reviewer password-set flow via email token link
+  - fix: pin path-to-regexp for express 4, add SCREENSHOTS to bulk upload
+  - feat: add SCREENSHOTS document type to device endpoints
+  - feat: add document upload support to device PATCH endpoint
+  - fix: make POST /device accept plain JSON again (files optional)
+
+Backend (drec-origin) -- uncommitted on develop:
+  - InfluxDB removal (12 files changed, 415 lines removed)
+  - Roboflow proxy endpoint (POST /device-reviews/detect-panels)
+  - Device registrant query fix (submitterName)
+
+Frontend (drec-ui) -- committed:
+  - feat: add client-side OCR for image previews
+  - feat: add document upload support to edit-device form
+  - fix: resolve remaining Dependabot vulnerabilities via pnpm overrides
+  - feat: grant Reviewer/SeniorReviewer access to device reviews UI
+  - feat: add reviewer roles, delete confirmation, neutral UI theme
+  - refactor: extract shared PDF preview component with OCR and translate
+  - fix: add dev proxy, fix empty toaster, improve missing-file UX
+  - feat: add cancel button to add-user, improve reset-password UX
+  - fix: resolve Dependabot vulnerabilities via pdfjs-dist and picomatch
+
+Frontend (drec-ui) -- uncommitted:
+  - Roboflow solar panel detection in satellite window
+  - Chat message alignment and bubble color styling
+  - Device registrant display (submitterName)
+  - Backend proxy for Roboflow API (removed hardcoded key from frontend)
