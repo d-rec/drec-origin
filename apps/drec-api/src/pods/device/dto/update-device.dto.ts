@@ -17,7 +17,7 @@ import { IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode } from '../../../utils/enums';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -149,6 +149,18 @@ export class UpdateDeviceDTO
   })
   @IsOptional()
   operatingConfiguration?: OperatingConfiguration;
+
+  @ApiProperty({
+    enum: SourceAccessMode,
+    description: 'Source-access mode per D-REC methodology (Mode 1–4)',
+  })
+  @IsEnum(SourceAccessMode, {
+    message:
+      'Valid source-access modes are: ' +
+      Object.values(SourceAccessMode).join(', '),
+  })
+  @IsOptional()
+  sourceAccessMode?: SourceAccessMode;
 
   @ApiProperty()
   @IsEnum(OffTaker, {

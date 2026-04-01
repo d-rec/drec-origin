@@ -4,6 +4,7 @@ import {
   FuelCode,
   DeviceTypeCode,
   OperatingConfiguration,
+  SourceAccessMode,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -26,6 +27,7 @@ export interface IDevice {
   commissioningDate: string;
   gridInterconnection: boolean;
   operatingConfiguration?: OperatingConfiguration;
+  sourceAccessMode?: SourceAccessMode;
   offTaker: OffTaker;
   //sector: Sector;
   //standardCompliance: StandardCompliance;

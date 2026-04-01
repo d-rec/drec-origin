@@ -963,6 +963,7 @@ export class DeviceService {
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
       operatingConfiguration: filter.operatingConfiguration,
+      sourceAccessMode: filter.sourceAccessMode,
       countryCode: filter.country && getCodeFromCountry(filter.country),
     });
     if (orgId != null || orgId != undefined) {
