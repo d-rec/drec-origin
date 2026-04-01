@@ -15,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, SourceAccessMode } from '../../utils/enums';
+import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, SourceAccessMode } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -112,6 +112,14 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   @IsEnum(SourceAccessMode)
   sourceAccessMode: SourceAccessMode;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'evidence_pathway',
+  })
+  @IsEnum(EvidencePathway)
+  evidencePathway: EvidencePathway;
 
   @Column({
     type: 'varchar',

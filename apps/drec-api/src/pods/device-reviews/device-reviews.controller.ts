@@ -189,4 +189,42 @@ export class DeviceReviewsController {
   ): Promise<any> {
     return this.service.updateOwnershipStatus(deviceId, status as any);
   }
+
+  @Post(':deviceId/classify-pathway')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Classify device evidence pathway',
+    description:
+      'D-REC §3.1: Derives the formal evidence pathway from operating configuration + source-access mode, persists it, and returns combined requirements.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Evidence pathway classification and combined requirements',
+  })
+  classifyPathway(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.classifyDevicePathway(deviceId);
+  }
+
+  @Get(':deviceId/source-access-verify')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Verify source-access mode requirements for a device',
+    description:
+      'D-REC §3.3: Returns mode-specific document requirements, missing documents, and manual checks the reviewer must confirm.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Source-access mode verification results',
+  })
+  verifySourceAccessMode(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.verifySourceAccessMode(deviceId);
+  }
 }

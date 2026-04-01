@@ -1,5 +1,6 @@
 import {
   DeviceOrderBy,
+  EvidencePathway,
   OffTaker,
   FuelCode,
   DeviceTypeCode,
@@ -29,6 +30,7 @@ export interface IDevice {
   gridInterconnection: boolean;
   operatingConfiguration?: OperatingConfiguration;
   sourceAccessMode?: SourceAccessMode;
+  evidencePathway?: EvidencePathway;
   ownershipStatus?: OwnershipStatus;
   offTaker: OffTaker;
   //sector: Sector;

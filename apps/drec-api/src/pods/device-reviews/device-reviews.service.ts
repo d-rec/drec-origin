@@ -2,7 +2,17 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
-import { OwnershipStatus } from '../../utils/enums';
+import { EvidencePathway, OperatingConfiguration, OwnershipStatus, SourceAccessMode } from '../../utils/enums';
+import {
+  getSourceAccessVerification,
+  ModeVerificationRule,
+  ModeCheck,
+} from '../../utils/source-access-verification';
+import {
+  classifyEvidencePathway,
+  getPathwayRequirements,
+  PathwayRequirements,
+} from '../../utils/evidence-pathway-classifier';
 
 export interface DocMeta {
   docId: number;
@@ -27,6 +37,7 @@ export interface AssetDto {
   notes: string;
   operatingConfiguration: string | null;
   sourceAccessMode: string | null;
+  evidencePathway: string | null;
   ownershipStatus: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
@@ -70,8 +81,10 @@ export class DeviceReviewsService {
       this.logger.log(
         `Device ${deviceId} review status changed to "${status}"`,
       );
-      // D-REC §2.7: Update ownership verification status on approval
+      // D-REC §3.1: Classify evidence pathway
+      // D-REC §2.7: Verify ownership on approval
       if (status === 'approved') {
+        await this.classifyDevicePathway(deviceId);
         await this.verifyOwnership(deviceId);
       }
       return { status: rows[0].status };
@@ -183,6 +196,7 @@ export class DeviceReviewsService {
         d."countryCode",
         d."operatingConfiguration",
         d."sourceAccessMode",
+        d."evidence_pathway" AS "evidencePathway",
         d."ownership_status" AS "ownershipStatus",
         d."evident_device_id" AS "evidentDeviceId",
         d."evident_status" AS "evidentStatus",
@@ -297,6 +311,7 @@ export class DeviceReviewsService {
         notes: '',
         operatingConfiguration: r.operatingConfiguration ?? null,
         sourceAccessMode: r.sourceAccessMode ?? null,
+        evidencePathway: r.evidencePathway ?? null,
         ownershipStatus: r.ownershipStatus ?? null,
         evidentDeviceId: r.evidentDeviceId ?? null,
         evidentStatus: r.evidentStatus ?? null,
@@ -464,5 +479,116 @@ export class DeviceReviewsService {
       [deviceId, status],
     );
     return { ownershipStatus: status };
+  }
+
+  /**
+   * D-REC §3.1: Classify a device into a formal evidence pathway and persist it.
+   * The pathway is derived from operatingConfiguration + sourceAccessMode.
+   */
+  async classifyDevicePathway(deviceId: number): Promise<{
+    evidencePathway: EvidencePathway | null;
+    requirements: PathwayRequirements | null;
+  }> {
+    const rows: any[] = await this.connection.query(
+      `SELECT "operatingConfiguration", "sourceAccessMode" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const { operatingConfiguration, sourceAccessMode } = rows[0];
+    const pathway = classifyEvidencePathway(
+      operatingConfiguration as OperatingConfiguration,
+      sourceAccessMode as SourceAccessMode,
+    );
+
+    // Persist the classification
+    await this.connection.query(
+      `UPDATE device SET evidence_pathway = $2 WHERE id = $1`,
+      [deviceId, pathway],
+    );
+
+    const requirements = getPathwayRequirements(
+      operatingConfiguration as OperatingConfiguration,
+      sourceAccessMode as SourceAccessMode,
+    );
+
+    this.logger.log(
+      `Device ${deviceId} classified as: ${pathway ?? 'unclassified'} ` +
+        `(config=${operatingConfiguration}, mode=${sourceAccessMode})`,
+    );
+
+    return { evidencePathway: pathway, requirements };
+  }
+
+  /**
+   * D-REC §3.3: Verify mode-specific requirements for a device's source-access mode.
+   * Returns the rule set, which documents are present/missing, and which checks
+   * the reviewer still needs to confirm manually.
+   */
+  async verifySourceAccessMode(deviceId: number): Promise<{
+    mode: string | null;
+    rules: ModeVerificationRule | null;
+    missingRequired: string[];
+    missingRecommended: string[];
+    manualChecks: ModeCheck[];
+  }> {
+    const deviceRows: any[] = await this.connection.query(
+      `SELECT "sourceAccessMode" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (deviceRows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const mode = deviceRows[0].sourceAccessMode as SourceAccessMode | null;
+    const rules = getSourceAccessVerification(mode);
+    if (!rules) {
+      return {
+        mode: mode ?? null,
+        rules: null,
+        missingRequired: [],
+        missingRecommended: [],
+        manualChecks: [],
+      };
+    }
+
+    // Check which documents exist for this device
+    const docs: Array<{ type: string }> = await this.connection.query(
+      `SELECT DISTINCT type FROM documents
+       WHERE target_type = 'device' AND target_id = $1`,
+      [deviceId],
+    );
+    const existingTypes = new Set(docs.map((d) => d.type));
+
+    const docLabel: Record<string, string> = {
+      FORM_SF_02: 'SF-02 (Production Facility Registration)',
+      SF_02C: 'SF-02C (Owner\'s Declaration)',
+      METERING_EVIDENCE: 'Metering Evidence',
+      SINGLE_LINE_DIAGRAM: 'Single Line Diagram',
+      PROJECT_PHOTOS: 'Project Photos',
+      SCREENSHOTS: 'Screenshots',
+      COD_PROOF: 'COD Proof / Attestation',
+    };
+
+    const missingRequired = rules.requiredDocuments
+      .filter((t) => !existingTypes.has(t))
+      .map((t) => docLabel[t] || t);
+
+    const missingRecommended = rules.recommendedDocuments
+      .filter((t) => !existingTypes.has(t))
+      .map((t) => docLabel[t] || t);
+
+    this.logger.log(
+      `Device ${deviceId} source-access verification (${mode}): ` +
+        `${missingRequired.length} required missing, ${missingRecommended.length} recommended missing`,
+    );
+
+    return {
+      mode,
+      rules,
+      missingRequired,
+      missingRecommended,
+      manualChecks: rules.checks,
+    };
   }
 }
