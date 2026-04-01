@@ -43,6 +43,46 @@ user.api_user_id = device.api_user_id (UUID) and displaying the user's
 full name or email.
 
 
+API CHANGES
+===========
+
+Multipart Device Registration (POST /device, PATCH /device/:id)
+---------------------------------------------------------------
+The POST /device endpoint now accepts multipart/form-data, allowing
+document files (SF-02, SF-02C, metering evidence, single-line diagram,
+project photos, screenshots, COD proof) to be uploaded alongside the
+device JSON in a single request. Plain JSON is still accepted for
+backward compatibility (files optional).
+
+Certificate Log API (GET /certificate-log/issuer/certified/new/:id)
+-------------------------------------------------------------------
+Added a "developerId" field to each entry in perDeviceCertificateLog
+responses. This contains the developer's external reference (e.g.
+Powertrust Site ID) so API consumers can correlate certificates with
+devices in external systems without a separate device lookup.
+
+
+PREVIOUS API CHANGES (by Divine Charlotte, PRs #665, #666, #672)
+================================================================
+
+Device Registration DTO (POST /device, PATCH /device/:id)
+----------------------------------------------------------
+The following fields were added to the device registration and update
+endpoints. These are now required for new device registrations:
+
+  - serialNumber (required) -- unique device serial number, replaces the
+    former developerExternalId as the primary device identifier. Must
+    contain only letters, numbers, underscores, hyphens, or semicolons.
+  - dataSource (required) -- the data source used for meter reads
+    (e.g. "Engie", "BBOX", "Manual")
+  - dataSourceBrand (required) -- the brand/model of the data source
+    hardware
+  - otherDataSource (optional) -- free-text field when dataSource is
+    "Other"
+
+The developerExternalId field is still accepted but is now optional.
+
+
 NEW FEATURES
 ============
 
