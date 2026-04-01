@@ -4,6 +4,7 @@ import {
   FuelCode,
   DeviceTypeCode,
   OperatingConfiguration,
+  OwnershipStatus,
   SourceAccessMode,
 } from '../utils/enums';
 
@@ -28,6 +29,7 @@ export interface IDevice {
   gridInterconnection: boolean;
   operatingConfiguration?: OperatingConfiguration;
   sourceAccessMode?: SourceAccessMode;
+  ownershipStatus?: OwnershipStatus;
   offTaker: OffTaker;
   //sector: Sector;
   //standardCompliance: StandardCompliance;

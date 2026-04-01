@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
+import { OwnershipStatus } from '../../utils/enums';
 
 export interface DocMeta {
   docId: number;
@@ -26,6 +27,7 @@ export interface AssetDto {
   notes: string;
   operatingConfiguration: string | null;
   sourceAccessMode: string | null;
+  ownershipStatus: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
   codProofUrl: string | null;
@@ -68,6 +70,10 @@ export class DeviceReviewsService {
       this.logger.log(
         `Device ${deviceId} review status changed to "${status}"`,
       );
+      // D-REC §2.7: Update ownership verification status on approval
+      if (status === 'approved') {
+        await this.verifyOwnership(deviceId);
+      }
       return { status: rows[0].status };
     }
 
@@ -177,6 +183,7 @@ export class DeviceReviewsService {
         d."countryCode",
         d."operatingConfiguration",
         d."sourceAccessMode",
+        d."ownership_status" AS "ownershipStatus",
         d."evident_device_id" AS "evidentDeviceId",
         d."evident_status" AS "evidentStatus",
         s.status,
@@ -290,6 +297,7 @@ export class DeviceReviewsService {
         notes: '',
         operatingConfiguration: r.operatingConfiguration ?? null,
         sourceAccessMode: r.sourceAccessMode ?? null,
+        ownershipStatus: r.ownershipStatus ?? null,
         evidentDeviceId: r.evidentDeviceId ?? null,
         evidentStatus: r.evidentStatus ?? null,
         codProofUrl: byType('COD_PROOF'),
@@ -398,5 +406,63 @@ export class DeviceReviewsService {
     }
 
     return { duplicates };
+  }
+
+  /**
+   * D-REC §2.7: Verify device ownership by checking required documents.
+   * Sets ownershipStatus to 'verified' if SF-02C exists, otherwise 'flagged'.
+   */
+  async verifyOwnership(deviceId: number): Promise<{
+    ownershipStatus: OwnershipStatus;
+    missingDocuments: string[];
+  }> {
+    // Check which ownership-related documents exist
+    const docs: Array<{ type: string }> = await this.connection.query(
+      `SELECT DISTINCT type FROM documents
+       WHERE target_type = 'device' AND target_id = $1
+         AND type IN ('SF_02C', 'FORM_SF_02', 'INCORPORATION_CERTIFICATE')`,
+      [deviceId],
+    );
+    const existingTypes = new Set(docs.map((d) => d.type));
+
+    const missingDocuments: string[] = [];
+    // SF-02C (Owner's Declaration / Proof of Ownership) is always required
+    if (!existingTypes.has('SF_02C')) {
+      missingDocuments.push('SF-02C (Owner\'s Declaration / Proof of Ownership)');
+    }
+    // SF-02 (Production Facility Registration) is always required
+    if (!existingTypes.has('FORM_SF_02')) {
+      missingDocuments.push('SF-02 (Production Facility Registration)');
+    }
+
+    const ownershipStatus =
+      missingDocuments.length === 0
+        ? OwnershipStatus.Verified
+        : OwnershipStatus.Flagged;
+
+    await this.connection.query(
+      `UPDATE device SET ownership_status = $2 WHERE id = $1`,
+      [deviceId, ownershipStatus],
+    );
+
+    this.logger.log(
+      `Device ${deviceId} ownership: ${ownershipStatus}` +
+        (missingDocuments.length > 0
+          ? ` (missing: ${missingDocuments.join(', ')})`
+          : ''),
+    );
+
+    return { ownershipStatus, missingDocuments };
+  }
+
+  async updateOwnershipStatus(
+    deviceId: number,
+    status: OwnershipStatus,
+  ): Promise<{ ownershipStatus: OwnershipStatus }> {
+    await this.connection.query(
+      `UPDATE device SET ownership_status = $2 WHERE id = $1`,
+      [deviceId, status],
+    );
+    return { ownershipStatus: status };
   }
 }

@@ -156,4 +156,37 @@ export class DeviceReviewsController {
   ): Promise<any> {
     return this.service.screenForDuplicates(deviceId);
   }
+
+  @Get(':deviceId/ownership')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Verify device ownership documents',
+    description:
+      'D-REC §2.7: Checks SF-02C and SF-02 documents exist and returns ownership verification status.',
+  })
+  @ApiResponse({ status: 200, description: 'Ownership verification result' })
+  verifyOwnership(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.verifyOwnership(deviceId);
+  }
+
+  @Patch(':deviceId/ownership')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Manually set device ownership status',
+    description:
+      'Allows a reviewer to override ownership status (verified, flagged, unverified).',
+  })
+  @ApiResponse({ status: 200, description: 'Updated ownership status' })
+  updateOwnershipStatus(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body('ownershipStatus') status: string,
+  ): Promise<any> {
+    return this.service.updateOwnershipStatus(deviceId, status as any);
+  }
 }
