@@ -64,6 +64,7 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
         : [
             'https://app.drecs.org',
             'https://stage.drecs.org',
+            'https://stage-portal.drecs.org',
             'https://demo.drecs.org',
           ],
   });
