@@ -209,6 +209,25 @@ export class DeviceReviewsController {
     return this.service.classifyDevicePathway(deviceId);
   }
 
+  @Get(':deviceId/production-ceiling')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Check irradiance-based production ceiling for a device',
+    description:
+      'D-REC §3.6: Estimates solar yield from device location, compares with configured yield, and checks recent meter readings against the ceiling.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Production ceiling check results',
+  })
+  checkProductionCeiling(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.checkProductionCeiling(deviceId);
+  }
+
   @Get(':deviceId/source-access-verify')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

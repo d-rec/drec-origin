@@ -13,6 +13,10 @@ import {
   getPathwayRequirements,
   PathwayRequirements,
 } from '../../utils/evidence-pathway-classifier';
+import {
+  estimateIrradiance,
+  IrradianceEstimate,
+} from '../../utils/irradiance-estimate';
 
 export interface DocMeta {
   docId: number;
@@ -589,6 +593,100 @@ export class DeviceReviewsService {
       missingRequired,
       missingRecommended,
       manualChecks: rules.checks,
+    };
+  }
+
+  /**
+   * D-REC §3.6: Irradiance-based production ceiling check.
+   * Estimates expected yield from device location, compares with
+   * the configured yieldValue, and checks recent readings against the ceiling.
+   */
+  async checkProductionCeiling(deviceId: number): Promise<{
+    irradiance: IrradianceEstimate | null;
+    configuredYield: number;
+    capacityKw: number;
+    yieldMismatch: boolean;
+    recentReadings: Array<{
+      startDate: string;
+      endDate: string;
+      valueKwh: number;
+      periodHours: number;
+      ceilingKwh: number;
+      exceedsCeiling: boolean;
+    }>;
+  }> {
+    const rows: any[] = await this.connection.query(
+      `SELECT id, latitude, longitude, capacity, "yieldValue", "commissioningDate"
+       FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const device = rows[0];
+    const lat = device.latitude ? parseFloat(device.latitude) : null;
+    const lng = device.longitude ? parseFloat(device.longitude) : null;
+    const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
+    const configuredYield = device.yieldValue || 2000;
+
+    // Estimate irradiance from location
+    let irradiance: IrradianceEstimate | null = null;
+    let yieldMismatch = false;
+    if (lat !== null && !isNaN(lat) && capacityKw > 0) {
+      irradiance = estimateIrradiance(lat, capacityKw);
+      // Flag if the configured yield exceeds the location-based optimistic estimate
+      yieldMismatch = configuredYield > irradiance.yieldHigh;
+    }
+
+    // Check recent meter readings against the ceiling
+    const readRows: any[] = await this.connection.query(
+      `SELECT "startDate", "endDate", value, unit
+       FROM meter_reads
+       WHERE "externalId" = (SELECT "externalId" FROM device WHERE id = $1)
+       ORDER BY "endDate" DESC
+       LIMIT 12`,
+      [deviceId],
+    );
+
+    const ceilingYield = irradiance?.yieldHigh ?? configuredYield;
+    const recentReadings = readRows.map((r: any) => {
+      const start = new Date(r.startDate);
+      const end = new Date(r.endDate);
+      const periodHours = Math.abs(end.getTime() - start.getTime()) / 3600000;
+
+      // Convert value to kWh based on unit
+      let valueKwh = parseFloat(r.value);
+      if (r.unit === 'Wh') valueKwh /= 1000;
+      else if (r.unit === 'MWh') valueKwh *= 1000;
+      else if (r.unit === 'GWh') valueKwh *= 1000000;
+
+      // Ceiling for this period: capacity × hourly yield rate × period × 1.2 margin
+      const ceilingKwh =
+        capacityKw * (ceilingYield / 8760) * periodHours * 1.2;
+
+      return {
+        startDate: r.startDate,
+        endDate: r.endDate,
+        valueKwh: Math.round(valueKwh * 100) / 100,
+        periodHours: Math.round(periodHours * 10) / 10,
+        ceilingKwh: Math.round(ceilingKwh * 100) / 100,
+        exceedsCeiling: valueKwh > ceilingKwh,
+      };
+    });
+
+    this.logger.log(
+      `Device ${deviceId} ceiling check: configured=${configuredYield}, ` +
+        `irradiance=${irradiance?.yieldHigh ?? 'N/A'}, ` +
+        `mismatch=${yieldMismatch}, ` +
+        `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
+    );
+
+    return {
+      irradiance,
+      configuredYield,
+      capacityKw,
+      yieldMismatch,
+      recentReadings,
     };
   }
 }
