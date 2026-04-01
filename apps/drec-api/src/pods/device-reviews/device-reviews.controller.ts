@@ -209,6 +209,25 @@ export class DeviceReviewsController {
     return this.service.classifyDevicePathway(deviceId);
   }
 
+  @Get(':deviceId/historical-consistency')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Review historical consistency of production data',
+    description:
+      'D-REC §3.7: Analyses meter readings for anomalies — flat-lines, spikes, zero gaps, negative values, and excessive variance.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Historical consistency review results',
+  })
+  reviewHistoricalConsistency(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.reviewHistoricalConsistency(deviceId);
+  }
+
   @Get(':deviceId/production-ceiling')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

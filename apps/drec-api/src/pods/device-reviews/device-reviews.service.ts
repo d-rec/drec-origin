@@ -597,6 +597,210 @@ export class DeviceReviewsService {
   }
 
   /**
+   * D-REC §3.7: Historical consistency review for production data.
+   * Analyses meter readings over time and flags anomalies.
+   */
+  async reviewHistoricalConsistency(deviceId: number): Promise<{
+    totalReadings: number;
+    periodMonths: number;
+    anomalies: Array<{
+      type: string;
+      severity: 'warning' | 'critical';
+      description: string;
+      readingIds?: number[];
+    }>;
+    summary: {
+      meanKwh: number;
+      stdDevKwh: number;
+      coefficientOfVariation: number;
+      minKwh: number;
+      maxKwh: number;
+    } | null;
+  }> {
+    // Get device externalId
+    const deviceRows: any[] = await this.connection.query(
+      `SELECT "externalId" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (deviceRows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const externalId = deviceRows[0].externalId;
+
+    // Fetch all readings ordered chronologically
+    const reads: Array<{
+      id: number;
+      value: number;
+      unit: string;
+      start_date: Date;
+      end_date: Date;
+    }> = await this.connection.query(
+      `SELECT id, value, unit, start_date, end_date
+       FROM meter_reads
+       WHERE external_id = $1
+       ORDER BY end_date ASC`,
+      [externalId],
+    );
+
+    if (reads.length === 0) {
+      return {
+        totalReadings: 0,
+        periodMonths: 0,
+        anomalies: [],
+        summary: null,
+      };
+    }
+
+    // Normalize all values to kWh
+    const normalized = reads.map((r) => {
+      let kwh = r.value;
+      if (r.unit === 'Wh') kwh /= 1000;
+      else if (r.unit === 'MWh') kwh *= 1000;
+      else if (r.unit === 'GWh') kwh *= 1000000;
+      return { ...r, kwh };
+    });
+
+    const firstDate = new Date(normalized[0].start_date);
+    const lastDate = new Date(normalized[normalized.length - 1].end_date);
+    const periodMonths = Math.max(
+      1,
+      Math.round(
+        (lastDate.getTime() - firstDate.getTime()) / (30.44 * 86400000),
+      ),
+    );
+
+    const anomalies: Array<{
+      type: string;
+      severity: 'warning' | 'critical';
+      description: string;
+      readingIds?: number[];
+    }> = [];
+
+    // 1. Negative values
+    const negatives = normalized.filter((r) => r.kwh < 0);
+    if (negatives.length > 0) {
+      anomalies.push({
+        type: 'negative_value',
+        severity: 'critical',
+        description: `${negatives.length} reading(s) with negative values`,
+        readingIds: negatives.map((r) => r.id),
+      });
+    }
+
+    // 2. Flat-line detection — 3+ consecutive identical non-zero values
+    let flatRunStart = 0;
+    for (let i = 1; i < normalized.length; i++) {
+      if (
+        normalized[i].kwh === normalized[flatRunStart].kwh &&
+        normalized[i].kwh > 0
+      ) {
+        if (i - flatRunStart >= 2) {
+          const run = normalized.slice(flatRunStart, i + 1);
+          anomalies.push({
+            type: 'flat_line',
+            severity: 'warning',
+            description: `${run.length} consecutive identical readings (${run[0].kwh.toFixed(1)} kWh) — possible stuck meter`,
+            readingIds: run.map((r) => r.id),
+          });
+          flatRunStart = i + 1;
+        }
+      } else {
+        flatRunStart = i;
+      }
+    }
+
+    // 3. Zero-production gaps (consecutive zero readings)
+    const zeroRuns: number[][] = [];
+    let zeroStart = -1;
+    for (let i = 0; i < normalized.length; i++) {
+      if (normalized[i].kwh === 0) {
+        if (zeroStart === -1) zeroStart = i;
+      } else {
+        if (zeroStart !== -1 && i - zeroStart >= 3) {
+          zeroRuns.push(
+            normalized.slice(zeroStart, i).map((r) => r.id),
+          );
+        }
+        zeroStart = -1;
+      }
+    }
+    if (
+      zeroStart !== -1 &&
+      normalized.length - zeroStart >= 3
+    ) {
+      zeroRuns.push(
+        normalized.slice(zeroStart).map((r) => r.id),
+      );
+    }
+    for (const run of zeroRuns) {
+      anomalies.push({
+        type: 'zero_gap',
+        severity: 'warning',
+        description: `${run.length} consecutive zero-production readings`,
+        readingIds: run,
+      });
+    }
+
+    // 4. Spike detection — readings > 3× rolling average (window of 5)
+    const windowSize = 5;
+    if (normalized.length > windowSize) {
+      for (let i = windowSize; i < normalized.length; i++) {
+        const window = normalized.slice(i - windowSize, i);
+        const avg =
+          window.reduce((s, r) => s + r.kwh, 0) / windowSize;
+        if (avg > 0 && normalized[i].kwh > avg * 3) {
+          anomalies.push({
+            type: 'spike',
+            severity: 'critical',
+            description: `Reading ${normalized[i].kwh.toFixed(1)} kWh is ${(normalized[i].kwh / avg).toFixed(1)}× the rolling average (${avg.toFixed(1)} kWh)`,
+            readingIds: [normalized[i].id],
+          });
+        }
+      }
+    }
+
+    // 5. Summary statistics
+    const values = normalized.map((r) => r.kwh).filter((v) => v >= 0);
+    let summary = null;
+    if (values.length > 0) {
+      const mean = values.reduce((s, v) => s + v, 0) / values.length;
+      const variance =
+        values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length;
+      const stdDev = Math.sqrt(variance);
+      const cv = mean > 0 ? stdDev / mean : 0;
+
+      summary = {
+        meanKwh: Math.round(mean * 100) / 100,
+        stdDevKwh: Math.round(stdDev * 100) / 100,
+        coefficientOfVariation: Math.round(cv * 1000) / 1000,
+        minKwh: Math.round(Math.min(...values) * 100) / 100,
+        maxKwh: Math.round(Math.max(...values) * 100) / 100,
+      };
+
+      // Flag excessive variance (CV > 1.5 is unusual for solar)
+      if (cv > 1.5 && values.length >= 5) {
+        anomalies.push({
+          type: 'high_variance',
+          severity: 'warning',
+          description: `Coefficient of variation is ${cv.toFixed(2)} (typical solar < 1.0) — readings are unusually inconsistent`,
+        });
+      }
+    }
+
+    this.logger.log(
+      `Device ${deviceId} historical consistency: ${reads.length} readings, ` +
+        `${periodMonths} months, ${anomalies.length} anomalies`,
+    );
+
+    return {
+      totalReadings: reads.length,
+      periodMonths,
+      anomalies,
+      summary,
+    };
+  }
+
+  /**
    * D-REC §3.6: Irradiance-based production ceiling check.
    * Estimates expected yield from device location, compares with
    * the configured yieldValue, and checks recent readings against the ceiling.
