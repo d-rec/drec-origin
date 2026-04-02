@@ -242,6 +242,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'decimal', nullable: true, name: 'sld_capacity_kw' })
   sldCapacityKw: number | null;
 
+  @Column({ type: 'varchar', length: 10, nullable: true, name: 'last_screen_status' })
+  lastScreenStatus: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true, name: 'last_screened_at' })
+  lastScreenedAt: Date | null;
+
   @OneToMany(
     () => CheckCertificateIssueDateLogForDeviceEntity,
     (certificateLog) => certificateLog.device,

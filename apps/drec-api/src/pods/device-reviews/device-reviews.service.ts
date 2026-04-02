@@ -56,6 +56,8 @@ export interface AssetDto {
   ownershipStatus: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
+  lastScreenStatus: string | null;
+  lastScreenedAt: string | null;
   codProofUrl: string | null;
   sldUrl: string | null;
   sf02Url: string | null;
@@ -333,6 +335,8 @@ export class DeviceReviewsService {
         d."ownership_status" AS "ownershipStatus",
         d."evident_device_id" AS "evidentDeviceId",
         d."evident_status" AS "evidentStatus",
+        d."last_screen_status" AS "lastScreenStatus",
+        d."last_screened_at" AS "lastScreenedAt",
         s.status,
         s.reviewer_name,
         s.submitted_at,
@@ -448,6 +452,8 @@ export class DeviceReviewsService {
         ownershipStatus: r.ownershipStatus ?? null,
         evidentDeviceId: r.evidentDeviceId ?? null,
         evidentStatus: r.evidentStatus ?? null,
+        lastScreenStatus: r.lastScreenStatus ?? null,
+        lastScreenedAt: r.lastScreenedAt ?? null,
         codProofUrl: byType('COD_PROOF'),
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
         sf02Url: byType('FORM_SF_02'),
@@ -1716,15 +1722,23 @@ export class DeviceReviewsService {
     const hasAnyWarn = sections.some((s) => s.status === 'warn');
     const overallStatus = hasAnyFail ? 'fail' : hasAnyWarn ? 'warn' : 'pass';
 
+    const now = new Date().toISOString();
+
     await this.logAudit(deviceId, 'auto_screen_report',
       `Auto-screen: ${overallStatus} — ${sections.filter(s => s.status === 'fail').length} fail, ${sections.filter(s => s.status === 'warn').length} warn, ${sections.filter(s => s.status === 'pass').length} pass`,
       'reviewer', { overallStatus, sections: sections.map(s => ({ name: s.name, status: s.status })) });
+
+    // Persist last screen result on device
+    await this.connection.query(
+      `UPDATE device SET last_screen_status = $1, last_screened_at = $2 WHERE id = $3`,
+      [overallStatus, now, deviceId],
+    );
 
     return {
       deviceId,
       sections,
       overallStatus,
-      timestamp: new Date().toISOString(),
+      timestamp: now,
     };
   }
 
