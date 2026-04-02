@@ -555,3 +555,105 @@ INFRASTRUCTURE
 Prod Deployment Pipeline
   - Cherry-picked NormalizeDatesInterceptor to prod branch (PR #758)
   - Fixed pre-existing Prettier CI failure in .vitepress/theme/index.ts
+
+
+VERIFICATION & REVIEW TOOLS (April 2, 2026)
+=============================================
+
+NEW FEATURES
+------------
+
+Upload Logging (Backend)
+  - All device registration, meter-read submission, and bulk-upload
+    requests are now logged to the upload_log table with user, IP,
+    user-agent, file metadata, and action type
+  - Fire-and-forget pattern — logging failures do not block the
+    primary request
+  - Integrated into device controller (POST + PATCH), reads controller
+    (POST), and bulk-upload controller (POST)
+
+Device Coordinate Fingerprint Grid (~22 m)
+  - Device latitude/longitude are now snapped to the nearest 0.0002°
+    (~22 m) for stable duplicate detection fingerprints
+  - Changed from toFixed(4) (~11 m) to Math.round(val / 0.0002) * 0.0002
+
+±1.5σ Anomaly Band on Historical Consistency (§3.7)
+  - Extended the historical consistency check with sigma band outlier
+    detection
+  - Computes mean ± 1.5 standard deviations over normalized kWh values
+  - Flags individual reads that fall outside the band as anomalies
+  - Added sigma band stats (low, high, outlier count) to the
+    consistency summary response and frontend modal
+
+Photo GPS EXIF Verification (VA Layer)
+  - New endpoint: GET /device-reviews/:deviceId/photo-gps
+  - Downloads PROJECT_PHOTOS from S3, extracts GPS coordinates via the
+    exifr library, and computes haversine distance to declared device
+    location
+  - 300 m threshold: pass/fail per photo, overall verdict
+  - Frontend modal shows per-photo results with distance and status
+
+Auto-Screen Report (VA Layer)
+  - New endpoint: GET /device-reviews/:deviceId/auto-screen
+  - Runs 9 verification checks in parallel using Promise.allSettled():
+    ownership, duplicates, sourceAccess, consistency, ceiling,
+    crossSource, photoGps, controls, sldCompare
+  - Each section returns status (pass/warn/fail/skip) with flag messages
+  - Overall status = worst individual status
+  - Frontend modal with color-coded section cards, overall banner, and
+    close button
+
+SLD Capacity Compare (VA Layer)
+  - New endpoints:
+      GET  /device-reviews/:deviceId/sld-compare
+      PATCH /device-reviews/:deviceId/sld-capacity
+  - Reviewer enters the capacity (kW) read from the Single-Line Diagram
+    document; system compares to registered device capacity
+  - ±10% tolerance, returns match/mismatch with difference percentage
+  - New column: device.sld_capacity_kw (decimal, nullable)
+  - Migration: 1759600000000-AddSldCapacityToDevice
+
+SLD Compare Embedded in PDF Preview
+  - When a reviewer opens an SLD document, the PDF preview floating
+    window now shows the SLD Capacity Compare panel in the right pane,
+    alongside the OCR text and translation
+  - Uses BehaviorSubject<number | null> on AssetService to flow the
+    device ID from documents-window → pdf-window → pdf-preview component
+
+Searchable Audit Trail Dialog
+  - Added a search/filter box to the audit trail modal in both
+    device-reviews and meter-read-reviews
+  - Filters by action type, performer, detail text, and date
+  - Search resets when the modal opens
+
+Meter-Read Reviews Module
+  - New lazy-loaded frontend module at /reads/reviews
+  - Device list with reads, expandable detail, status management
+  - Integrated chat, verification tools (consistency, ceiling,
+    cross-source), and audit trail
+  - Sidebar nav link gated to Admin/Reviewer/SeniorReviewer roles
+
+UI IMPROVEMENTS
+---------------
+
+World Map Zoom Limit
+  - Increased minZoom from 2 to 3 on device-reviews and
+    meter-read-reviews satellite maps to prevent zoom-out beyond
+    planet borders
+
+Auto-Screen Modal Close Button
+  - Added × close button to top-right corner of auto-screen report modal
+
+INFRASTRUCTURE
+--------------
+
+New Dependencies (Backend)
+  - exifr: EXIF GPS extraction from image buffers
+
+New Dependencies (Frontend)
+  - tesseract.js: client-side OCR for document previews (already added
+    in earlier session)
+
+Migration
+  - 1759600000000-AddSldCapacityToDevice: adds sld_capacity_kw column
+    to device table
