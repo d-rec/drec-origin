@@ -397,6 +397,18 @@ export class DeviceController {
     );
   }
 
+  @Get('/check-name')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiQuery({ name: 'name', type: String, required: true })
+  @ApiOperation({ summary: 'Check if a site name already exists' })
+  @ApiResponse({ status: HttpStatus.OK, description: '{ exists: boolean }' })
+  async checkProjectName(
+    @Query('name') name: string,
+  ): Promise<{ exists: boolean }> {
+    const exists = await this.deviceService.checkProjectNameExists(name);
+    return { exists };
+  }
+
   /**
    * It is GET api to fetch an device by the deviceId in param
    * @param id is deviceId in type number

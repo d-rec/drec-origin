@@ -1310,4 +1310,65 @@ export class DeviceReviewsService {
     const sum = raw.reduce((a, b) => a + b, 0);
     return raw.map((v) => v / sum);
   }
+
+  // ── Meter-Read Reviews ───────────────────────────────────────────────
+
+  async findAllMeterReadReviews(): Promise<any[]> {
+    const rows = await this.connection.query(`
+      SELECT
+        d.id                          AS "deviceId",
+        d."externalId"                AS "externalId",
+        d."projectName"               AS "projectName",
+        d.serial_number               AS "serialNumber",
+        d.capacity                    AS "capacity",
+        d."countryCode"               AS "countryCode",
+        u.email                       AS "submitterEmail",
+        COALESCE(mrr.status, 'pending') AS "reviewStatus",
+        mrr.reviewer                  AS "reviewer",
+        mrr.notes                     AS "notes",
+        COUNT(mr.id)::int             AS "readCount",
+        MAX(mr.end_date)              AS "latestReadDate",
+        MIN(mr.start_date)            AS "earliestReadDate",
+        ROUND(SUM(mr.value)::numeric / 1000, 2)  AS "totalKwh"
+      FROM device d
+      INNER JOIN meter_reads mr ON mr.external_id = d."externalId"
+      LEFT JOIN meter_read_reviews mrr ON mrr.device_id = d.id
+      LEFT JOIN public.user u ON u.id = d."organizationId"
+      GROUP BY d.id, d."externalId", d."projectName", d.serial_number,
+               d.capacity, d."countryCode", u.email, mrr.status,
+               mrr.reviewer, mrr.notes
+      HAVING COUNT(mr.id) > 0
+      ORDER BY MAX(mr.end_date) DESC
+    `);
+    return rows;
+  }
+
+  async updateMeterReadReviewStatus(
+    deviceId: number,
+    status: string,
+    notes?: string,
+    reviewer?: string,
+    ip?: string,
+  ): Promise<{ status: string }> {
+    await this.connection.query(
+      `INSERT INTO meter_read_reviews (device_id, status, reviewer, notes)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (device_id) DO UPDATE
+       SET status = $2, reviewer = $3, notes = $4, updated_at = now()`,
+      [deviceId, status, reviewer || null, notes || null],
+    );
+
+    await this.connection.query(
+      `INSERT INTO audit_log (device_id, action_type, detail, performed_by, metadata)
+       VALUES ($1, 'meter_read_review_status', $2, $3, $4)`,
+      [
+        deviceId,
+        `Meter-read review status set to ${status}`,
+        reviewer || 'system',
+        JSON.stringify({ status, ip }),
+      ],
+    );
+
+    return { status };
+  }
 }

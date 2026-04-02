@@ -478,6 +478,13 @@ export class DeviceService {
     return result;
   }
 
+  async checkProjectNameExists(projectName: string): Promise<boolean> {
+    const count = await this.repository.count({
+      where: { projectName },
+    });
+    return count > 0;
+  }
+
   async findOne(
     id: number,
     options?: FindOneOptions<Device>,

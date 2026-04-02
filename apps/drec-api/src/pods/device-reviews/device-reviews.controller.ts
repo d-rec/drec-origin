@@ -57,6 +57,38 @@ export class DeviceReviewsController {
     return this.service.findAll();
   }
 
+  @Get('meter-reads')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'List devices with meter reads grouped by device for review',
+  })
+  @ApiResponse({ status: 200, description: 'Array of devices with read stats' })
+  findAllMeterReadReviews(): Promise<any[]> {
+    return this.service.findAllMeterReadReviews();
+  }
+
+  @Patch('meter-reads/:deviceId/status')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Update meter-read review status for a device' })
+  @ApiResponse({ status: 200, description: 'Updated review status' })
+  updateMeterReadReviewStatus(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body() body: { status: string; notes?: string; reviewer?: string },
+    @Req() req: Request,
+  ): Promise<{ status: string }> {
+    return this.service.updateMeterReadReviewStatus(
+      deviceId,
+      body.status,
+      body.notes,
+      body.reviewer,
+      req.ip,
+    );
+  }
+
   @Post('detect-panels')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
