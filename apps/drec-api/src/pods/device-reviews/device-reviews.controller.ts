@@ -387,4 +387,20 @@ export class DeviceReviewsController {
   ): Promise<any> {
     return this.service.verifySourceAccessMode(deviceId);
   }
+
+  @Get(':deviceId/photo-gps')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Verify GPS coordinates in project photos via EXIF',
+    description:
+      'D-REC VA layer: Downloads project photos from S3, extracts EXIF GPS data, and checks each photo is within 300m of the declared device location.',
+  })
+  @ApiResponse({ status: 200, description: 'Photo GPS verification results' })
+  verifyPhotoGps(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.verifyPhotoGps(deviceId);
+  }
 }

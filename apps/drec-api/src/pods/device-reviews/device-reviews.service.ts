@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import * as exifr from 'exifr';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
@@ -1409,4 +1410,124 @@ export class DeviceReviewsService {
 
     return { status };
   }
+
+  /**
+   * D-REC §VA: Photo/GPS EXIF verification.
+   * Downloads PROJECT_PHOTOS from S3, extracts GPS coordinates from EXIF,
+   * and checks each photo is within 300m of the device's declared location.
+   */
+  async verifyPhotoGps(deviceId: number): Promise<{
+    deviceLat: number | null;
+    deviceLng: number | null;
+    photos: Array<{
+      docId: number;
+      fileName: string;
+      hasGps: boolean;
+      lat: number | null;
+      lng: number | null;
+      distanceMeters: number | null;
+      withinThreshold: boolean | null;
+    }>;
+    thresholdMeters: number;
+    summary: { total: number; withGps: number; withinThreshold: number; flagged: number };
+  }> {
+    const THRESHOLD_M = 300;
+
+    // Get device coordinates
+    const deviceRows: any[] = await this.connection.query(
+      `SELECT latitude, longitude FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (deviceRows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const deviceLat = deviceRows[0].latitude != null ? parseFloat(deviceRows[0].latitude) : null;
+    const deviceLng = deviceRows[0].longitude != null ? parseFloat(deviceRows[0].longitude) : null;
+
+    // Get PROJECT_PHOTOS documents
+    const docs: Array<{ id: number; url: string }> = await this.connection.query(
+      `SELECT id, url FROM documents
+       WHERE target_id = $1 AND target_type = 'device' AND type = 'PROJECT_PHOTOS'`,
+      [deviceId],
+    );
+
+    const photos: Array<{
+      docId: number;
+      fileName: string;
+      hasGps: boolean;
+      lat: number | null;
+      lng: number | null;
+      distanceMeters: number | null;
+      withinThreshold: boolean | null;
+    }> = [];
+
+    for (const doc of docs) {
+      const fileName = doc.url.split('/').pop() || doc.url;
+      try {
+        const s3Result = await this.fileService.getUploadS3(doc.url);
+        const buffer: Buffer = s3Result.data?.Body;
+        if (!buffer) {
+          photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+          continue;
+        }
+
+        const gps = await exifr.gps(buffer).catch(() => null);
+        if (!gps || gps.latitude == null || gps.longitude == null) {
+          photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+          continue;
+        }
+
+        let distanceMeters: number | null = null;
+        let withinThreshold: boolean | null = null;
+        if (deviceLat != null && deviceLng != null) {
+          distanceMeters = Math.round(haversineMeters(deviceLat, deviceLng, gps.latitude, gps.longitude));
+          withinThreshold = distanceMeters <= THRESHOLD_M;
+        }
+
+        photos.push({
+          docId: doc.id,
+          fileName,
+          hasGps: true,
+          lat: Math.round(gps.latitude * 1e6) / 1e6,
+          lng: Math.round(gps.longitude * 1e6) / 1e6,
+          distanceMeters,
+          withinThreshold,
+        });
+      } catch (err) {
+        this.logger.warn(`EXIF extraction failed for doc ${doc.id}: ${err.message}`);
+        photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+      }
+    }
+
+    const withGps = photos.filter((p) => p.hasGps).length;
+    const withinCount = photos.filter((p) => p.withinThreshold === true).length;
+    const flagged = photos.filter((p) => p.withinThreshold === false).length;
+
+    await this.logAudit(deviceId, 'photo_gps_check',
+      `${photos.length} photos: ${withGps} with GPS, ${withinCount} within ${THRESHOLD_M}m, ${flagged} flagged`,
+      'reviewer', { thresholdMeters: THRESHOLD_M, total: photos.length, withGps, withinCount, flagged });
+
+    return {
+      deviceLat,
+      deviceLng,
+      photos,
+      thresholdMeters: THRESHOLD_M,
+      summary: { total: photos.length, withGps, withinThreshold: withinCount, flagged },
+    };
+  }
+}
+
+/** Haversine distance in meters between two lat/lng points. */
+function haversineMeters(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number,
+): number {
+  const R = 6_371_000; // Earth radius in meters
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
