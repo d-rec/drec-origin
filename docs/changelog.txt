@@ -1,5 +1,173 @@
 DREC Changelog
-Report date: April 1, 2026
+Report date: April 2, 2026
+
+
+PRODUCTION DEPLOYMENT HISTORY (October 2024 -- March 2026)
+============================================================
+
+v0.7.2 (2025-08-30)
+--------------------
+  - Dependency updates and linting cleanup
+
+v0.7.1 (2025-08-30)
+--------------------
+  - General code cleanup
+
+v0.7.0 (2025-08-30) -- InfluxDB Migration
+------------------------------------------
+  - Migrated all meter read storage from InfluxDB to PostgreSQL
+  - Refactored issuance process to use new meter reads table (#696)
+  - Removed all InfluxDB usage from core components (#722, #717)
+  - Added createdAt column on meter reads migration
+  - Fixed invalid id for fetching device groups
+  - Cleaned up reads controller and merged certificate log type
+  - Fixed issuance date calculation (#718)
+  - Renamed AWS environment variables
+  - Integrated demo videos in documentation (#720)
+
+v0.6.0 (2025-07-21) -- Issuance Fixes & Profiling
+---------------------------------------------------
+  - Created new Meter Reading Table (#639)
+  - Migrated reads from InfluxDB to meter reads table (#671)
+  - Migrated history reads to meter reads table (#673)
+  - Fixed ongoing reads start date calculation and ordering (#674)
+  - Hotfix: old previous read always used as latest
+  - Fixed issue preventing certificates from being generated without
+    buyer id (#684)
+  - Fixed minimum date calculation for issuance (#670, #668)
+  - Fixed converting into watts for certificate logs
+  - Fixed cycles generation inconsistencies (#653)
+  - Queued create-missing-cycles and ran in sequence
+  - Fixed invalid total read calculation per device
+  - Added code profiler with env variable toggle (#649)
+
+v0.5.0 (2025-06-16) -- Database Replication
+--------------------------------------------
+  - Added database replication routing connection for read replicas (#628)
+  - Hotfix: added missing DB host in config
+  - Suppressed verbose service logs
+
+v0.4.4 (2025-05-29)
+--------------------
+  - Created device indexes for late-ongoing certificates (#624)
+
+v0.4.3 (2025-05-26)
+--------------------
+  - Hotfix: added error handling for empty certificate logs
+
+v0.4.2 (2025-05-13)
+--------------------
+  - Fixed valid device calculation for issuance
+
+v0.4.1 (2025-05-13)
+--------------------
+  - Fixed token issuance transaction
+
+v0.4.0 (2025-05-13) -- Blockchain & Issuance
+---------------------------------------------
+  - Fixed terms-accepted-at column name
+  - Stored existing registry and issuer in the database
+  - Fixed blockchain seed (#577)
+  - Improved check-missing-cycles logic
+
+v0.3.2 (2025-04-24)
+--------------------
+  - Added root route handler (#573)
+  - Cleaned up historical reads service
+
+v0.3.1 (2025-04-23)
+--------------------
+  - Hotfix: prevented cron reentry on issuance jobs (#571)
+
+v0.3.0 (2025-04-22) -- Issuer Refactor
+---------------------------------------
+  - Refactored issuer service into dedicated files (#562)
+  - Archived outdated late-ongoing cycles (#569)
+  - Hotfix: only mark as checked cycles without certificates (#567)
+  - Improved API documentation (#568)
+
+v0.2.0 (2025-04-10) -- Late Ongoing Issuance
+---------------------------------------------
+  - Queued late-ongoing issuance processing
+  - Improved & refactored late ongoing issuance process (#525)
+  - Loaded late-ongoing queries in parallel
+  - Added phone number field (#547)
+  - Fixed naming for clarity (#527)
+
+v0.1.3 (2025-04-05)
+--------------------
+  - Added standard semver versioning
+  - Merged Sentry filter with global exception filter (#555)
+
+v0.1.2 (2025-04-01)
+--------------------
+  - Fixed Sentry activation issue
+  - Added terms and conditions (#548)
+
+v0.1.1 (2025-04-01)
+--------------------
+  - Added certificate generation requirement to documentation (#551)
+  - Fixed organizationType import (#550)
+  - Created organization type enum (#544)
+  - Improved Redocly documentation (#543)
+  - Standardized meter reads validation (#542)
+
+v0.1.0 (2025-03-20) -- First Semver Release
+---------------------------------------------
+  - Added health endpoint (#539)
+  - Improved & refactored late ongoing issuance process (#525)
+  - Fixed invalid offset error on redemption report (#541)
+  - Fixed invalid organization id during bulk upload (#540)
+  - Removed Kubernetes configuration files (#538)
+  - Deleted files related to AWS CodePipeline (#537)
+  - Fixed forgot password error message (#528)
+  - Added Redocly library for API documentation (#520)
+  - Hotfix: enabled npm command in Docker (#529)
+  - Added cron jobs for issuance (#523)
+
+Pre-semver (2025-01-14 -- 2025-03-19)
+--------------------------------------
+  - Added dependency documentation (#519)
+  - Added SDG Benefits and Off Takers to documentation (#522)
+  - Added fuel and device type codes to documentation (#517)
+  - Added ISO 8601 format support (#518)
+  - Improved device bulk upload error handling (#500)
+  - Added dummy data seeds for development (#499)
+  - Created permission seeder (#501)
+  - Fixed validation for bulk device upload (#509)
+  - Fixed reset password flow (#493)
+  - Added platform overview section (#497)
+  - Fixed API restarts on existing history reads (#503)
+  - Added certificates-by-device-external endpoint (#491)
+  - Added bulk meter reads API (#441)
+  - Built GitHub pipeline to build Docker image (#445)
+  - Updated device validations (#458)
+  - Removed hardcoded JWT secret (#480)
+  - Fixed late issuance job interval
+
+Pre-semver (2024-10-03 -- 2025-01-08)
+--------------------------------------
+  - Integrated Sentry error tracking (#470)
+  - Added bug and feature request issue forms (#475)
+  - Renamed classes/types to PascalCase (#472), functions to
+    camelCase (#473), variables to camelCase (#471)
+  - Moved DTO validations from controllers into DTOs (#459)
+  - Added custom user validation (#442)
+  - Refactored certificate log (#452)
+  - Replaced Promise.reject with thrown exceptions (#454)
+  - Added stored failed meter reads (#451)
+  - Restored unit test suite (#398)
+  - Added contribution guidelines (#439)
+  - Added custom timezone validation class (#446)
+  - Replaced Rush with npm, added multi-stage Docker builds
+  - Increased CPU limit to 500m per DevOps recommendation
+  - Fixed unhandled errors in meter reads endpoint
+  - Restored permission implementation and user validation
+
+
+====================================================================
+RECENT CHANGES (March -- April 2026)
+====================================================================
 
 
 BUG FIXES
