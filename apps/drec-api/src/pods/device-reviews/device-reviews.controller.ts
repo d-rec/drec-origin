@@ -106,6 +106,51 @@ export class DeviceReviewsController {
     );
   }
 
+  @Post('meter-reads/:deviceId/flag-read')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Flag an individual meter read as anomalous' })
+  @ApiResponse({ status: 201, description: 'Anomaly flagged and audit logged' })
+  flagMeterRead(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body() body: { readId: number; reason: string; reviewer?: string },
+    @Req() req: Request,
+  ): Promise<{ logged: boolean }> {
+    return this.service.flagMeterRead(deviceId, body.readId, body.reason, body.reviewer, req.ip);
+  }
+
+  @Post('meter-reads/:deviceId/gap-analysis')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Analyse meter read gaps for a device' })
+  @ApiResponse({ status: 200, description: 'Gap analysis results' })
+  meterReadGapAnalysis(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Req() req: Request,
+  ): Promise<any> {
+    return this.service.meterReadGapAnalysis(deviceId, req.ip);
+  }
+
+  @Patch('meter-reads/bulk/status')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Bulk update meter-read review status' })
+  @ApiResponse({ status: 200, description: 'Results per device' })
+  bulkUpdateMeterReadStatus(
+    @Body() body: { deviceIds: number[]; status: string; reviewer?: string },
+    @Req() req: Request,
+  ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
+    return this.service.bulkUpdateMeterReadReviewStatus(
+      body.deviceIds,
+      body.status,
+      body.reviewer,
+      req.ip,
+    );
+  }
+
   @Post('detect-panels')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

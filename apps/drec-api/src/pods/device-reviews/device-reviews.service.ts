@@ -1428,6 +1428,148 @@ export class DeviceReviewsService {
     return { status };
   }
 
+  async bulkUpdateMeterReadReviewStatus(
+    deviceIds: number[],
+    status: string,
+    reviewer?: string,
+    ip?: string,
+  ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
+    const results: Array<{ deviceId: number; status: string; error?: string }> = [];
+    for (const id of deviceIds) {
+      try {
+        const res = await this.updateMeterReadReviewStatus(id, status, undefined, reviewer, ip);
+        results.push({ deviceId: id, status: res.status });
+      } catch (err: any) {
+        results.push({ deviceId: id, status: 'error', error: err.message });
+      }
+    }
+    const succeeded = results.filter((r) => r.status !== 'error').map((r) => r.deviceId);
+    for (const id of succeeded) {
+      await this.logAudit(
+        id,
+        'bulk_status_change',
+        `Bulk meter-read review status change to "${status}" (${deviceIds.length} devices in batch)`,
+        reviewer || 'reviewer',
+        { batchSize: deviceIds.length, targetStatus: status, context: 'meter_reads' },
+        ip,
+      );
+    }
+    return results;
+  }
+
+  async flagMeterRead(
+    deviceId: number,
+    readId: number,
+    reason: string,
+    reviewer?: string,
+    ip?: string,
+  ): Promise<{ logged: boolean }> {
+    // Verify the read belongs to this device
+    const rows: any[] = await this.connection.query(
+      `SELECT mr.id, mr.value, mr.start_date, mr.end_date
+       FROM meter_reads mr
+       INNER JOIN device d ON d."externalId" = mr.external_id
+       WHERE d.id = $1 AND mr.id = $2`,
+      [deviceId, readId],
+    );
+    if (!rows.length) {
+      throw new Error(`Read ${readId} not found for device ${deviceId}`);
+    }
+    const read = rows[0];
+    await this.logAudit(
+      deviceId,
+      'read_anomaly_flagged',
+      `Read #${readId} flagged: ${reason}`,
+      reviewer || 'reviewer',
+      {
+        readId,
+        value: read.value,
+        startDate: read.start_date,
+        endDate: read.end_date,
+        reason,
+      },
+      ip,
+    );
+    return { logged: true };
+  }
+
+  async meterReadGapAnalysis(
+    deviceId: number,
+    ip?: string,
+  ): Promise<{
+    totalReads: number;
+    gaps: Array<{ after: string; before: string; gapDays: number }>;
+    coveragePercent: number;
+    firstRead: string | null;
+    lastRead: string | null;
+    expectedPeriodDays: number | null;
+  }> {
+    const rows: any[] = await this.connection.query(
+      `SELECT mr.start_date, mr.end_date
+       FROM meter_reads mr
+       INNER JOIN device d ON d."externalId" = mr.external_id
+       WHERE d.id = $1
+       ORDER BY mr.end_date ASC`,
+      [deviceId],
+    );
+
+    if (!rows.length) {
+      return { totalReads: 0, gaps: [], coveragePercent: 0, firstRead: null, lastRead: null, expectedPeriodDays: null };
+    }
+
+    // Estimate expected period from median gap between consecutive reads
+    const intervals: number[] = [];
+    for (let i = 1; i < rows.length; i++) {
+      const prev = new Date(rows[i - 1].end_date).getTime();
+      const curr = new Date(rows[i].start_date).getTime();
+      intervals.push((curr - prev) / (1000 * 60 * 60 * 24));
+    }
+    intervals.sort((a, b) => a - b);
+    const medianDays = intervals.length > 0 ? intervals[Math.floor(intervals.length / 2)] : null;
+    // A gap is anything > 2x the median interval (or > 45 days if < 3 reads)
+    const threshold = medianDays !== null && intervals.length >= 3 ? medianDays * 2 : 45;
+
+    const gaps: Array<{ after: string; before: string; gapDays: number }> = [];
+    for (let i = 1; i < rows.length; i++) {
+      const prevEnd = new Date(rows[i - 1].end_date);
+      const currStart = new Date(rows[i].start_date);
+      const gapDays = (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24);
+      if (gapDays > threshold) {
+        gaps.push({
+          after: rows[i - 1].end_date,
+          before: rows[i].start_date,
+          gapDays: Math.round(gapDays),
+        });
+      }
+    }
+
+    const firstDate = new Date(rows[0].start_date).getTime();
+    const lastDate = new Date(rows[rows.length - 1].end_date).getTime();
+    const totalSpanDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
+    const coveredDays = rows.reduce((sum: number, r: any) => {
+      return sum + (new Date(r.end_date).getTime() - new Date(r.start_date).getTime()) / (1000 * 60 * 60 * 24);
+    }, 0);
+    const coveragePercent = totalSpanDays > 0 ? Math.round((coveredDays / totalSpanDays) * 100) : 100;
+
+    await this.logAudit(
+      deviceId,
+      'read_gap_analysis',
+      `Gap analysis: ${rows.length} reads, ${gaps.length} gap(s), ${coveragePercent}% coverage`,
+      'system',
+      { totalReads: rows.length, gapCount: gaps.length, coveragePercent },
+      ip,
+    );
+
+    return {
+      totalReads: rows.length,
+      gaps,
+      coveragePercent,
+      firstRead: rows[0].start_date,
+      lastRead: rows[rows.length - 1].end_date,
+      expectedPeriodDays: medianDays !== null ? Math.round(medianDays) : null,
+    };
+  }
+
   /**
    * D-REC §VA: Photo/GPS EXIF verification.
    * Downloads PROJECT_PHOTOS from S3, extracts GPS coordinates from EXIF,
@@ -1850,6 +1992,18 @@ export class DeviceReviewsService {
       } catch (err: any) {
         results.push({ deviceId: id, status: 'error', error: err.message });
       }
+    }
+    // Log bulk action to audit trail for each affected device
+    const succeeded = results.filter((r) => r.status !== 'error').map((r) => r.deviceId);
+    for (const id of succeeded) {
+      await this.logAudit(
+        id,
+        'bulk_status_change',
+        `Bulk status change to "${status}" (${deviceIds.length} devices in batch)`,
+        'reviewer',
+        { batchSize: deviceIds.length, targetStatus: status },
+        ipAddress,
+      );
     }
     return results;
   }
