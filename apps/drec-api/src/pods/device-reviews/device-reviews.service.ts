@@ -1322,6 +1322,8 @@ export class DeviceReviewsService {
         d.serial_number               AS "serialNumber",
         d.capacity                    AS "capacity",
         d."countryCode"               AS "countryCode",
+        d.latitude                    AS "lat",
+        d.longitude                   AS "long",
         u.email                       AS "submitterEmail",
         COALESCE(mrr.status, 'pending') AS "reviewStatus",
         mrr.reviewer                  AS "reviewer",
@@ -1335,11 +1337,25 @@ export class DeviceReviewsService {
       LEFT JOIN meter_read_reviews mrr ON mrr.device_id = d.id
       LEFT JOIN public.user u ON u.id = d."organizationId"
       GROUP BY d.id, d."externalId", d."projectName", d.serial_number,
-               d.capacity, d."countryCode", u.email, mrr.status,
-               mrr.reviewer, mrr.notes
+               d.capacity, d."countryCode", d.latitude, d.longitude,
+               u.email, mrr.status, mrr.reviewer, mrr.notes
       HAVING COUNT(mr.id) > 0
       ORDER BY MAX(mr.end_date) DESC
     `);
+    return rows;
+  }
+
+  async findMeterReadsForDevice(deviceId: number): Promise<any[]> {
+    const rows = await this.connection.query(`
+      SELECT mr.id, mr.value, mr.unit, mr.type,
+             mr.start_date AS "startDate",
+             mr.end_date   AS "endDate",
+             mr.certified
+      FROM meter_reads mr
+      INNER JOIN device d ON d."externalId" = mr.external_id
+      WHERE d.id = $1
+      ORDER BY mr.end_date DESC
+    `, [deviceId]);
     return rows;
   }
 

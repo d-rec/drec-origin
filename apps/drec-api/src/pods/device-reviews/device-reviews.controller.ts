@@ -69,6 +69,18 @@ export class DeviceReviewsController {
     return this.service.findAllMeterReadReviews();
   }
 
+  @Get('meter-reads/:deviceId/reads')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Get individual meter reads for a device' })
+  @ApiResponse({ status: 200, description: 'Array of meter reads' })
+  findMeterReadsForDevice(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any[]> {
+    return this.service.findMeterReadsForDevice(deviceId);
+  }
+
   @Patch('meter-reads/:deviceId/status')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
