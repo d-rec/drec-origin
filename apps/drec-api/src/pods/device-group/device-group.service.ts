@@ -25,6 +25,7 @@ import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import {
   CommissioningDateRange,
   DeviceTypeCode,
+  EvidencePathway,
   FuelCode,
   GroupReviewStatus,
   OffTaker,
@@ -1461,7 +1462,7 @@ export class DeviceGroupService {
           .map((d) =>
             classifyEvidencePathway(d.operatingConfiguration as any, d.sourceAccessMode as any),
           )
-          .filter((p): p is string => p != null),
+          .filter((p): p is EvidencePathway => p != null),
       ),
     );
     if (pathways.length > 1) {

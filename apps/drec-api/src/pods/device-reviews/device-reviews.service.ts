@@ -989,15 +989,16 @@ export class DeviceReviewsService {
     if (lat !== null && !isNaN(lat) && capacityKw > 0) {
       irradiance = estimateIrradiance(lat, capacityKw);
       // Flag if the configured yield exceeds the location-based optimistic estimate
-      yieldMismatch = configuredYield > irradiance.yieldHigh;
+      // with a 10% tolerance to account for coarse irradiance bands and the default yieldValue of 2000
+      yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
     }
 
     // Check recent meter readings against the ceiling
     const readRows: any[] = await this.connection.query(
-      `SELECT "startDate", "endDate", value, unit
+      `SELECT start_date AS "startDate", end_date AS "endDate", value, unit
        FROM meter_reads
-       WHERE "externalId" = (SELECT "externalId" FROM device WHERE id = $1)
-       ORDER BY "endDate" DESC
+       WHERE external_id = (SELECT "externalId" FROM device WHERE id = $1)
+       ORDER BY end_date DESC
        LIMIT 12`,
       [deviceId],
     );
@@ -1035,10 +1036,15 @@ export class DeviceReviewsService {
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
 
-    const exceedCount = recentReadings.filter((r) => r.exceedsCeiling).length;
+    const parts: string[] = [];
+    if (yieldMismatch) {
+      parts.push(`Configured yield ${configuredYield} exceeds location estimate ${irradiance?.yieldHigh} kWh/kW/yr`);
+    } else {
+      parts.push(`Configured yield ${configuredYield} is within expected range for location`);
+    }
     await this.logAudit(deviceId, 'ceiling_check',
-      `Yield mismatch: ${yieldMismatch}, ${exceedCount}/${recentReadings.length} readings exceed ceiling`,
-      'reviewer', { configuredYield, irradianceYield: irradiance?.yieldHigh, yieldMismatch, exceedCount });
+      parts.join('. '),
+      'reviewer', { configuredYield, irradianceYield: irradiance?.yieldHigh, yieldMismatch });
 
     return {
       irradiance,
