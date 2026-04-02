@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
@@ -225,6 +225,11 @@ export class DeviceReviewsService {
   }
 
   async deleteDocument(docId: number): Promise<void> {
+    const deviceId = await this.getDeviceIdForDocument(docId);
+    if (deviceId) {
+      await this.assertNotApproved(deviceId);
+    }
+
     const rows: any[] = await this.connection.query(
       `SELECT id, url FROM documents WHERE id = $1`,
       [docId],
@@ -252,6 +257,36 @@ export class DeviceReviewsService {
       [deviceId],
     );
     return rows[0]?.projectName ?? '';
+  }
+
+  /**
+   * §3.3.3: Documents are immutable once the device review is approved.
+   * Throws ForbiddenException if the device's review status is 'approved'.
+   */
+  async assertNotApproved(deviceId: number): Promise<void> {
+    const rows: any[] = await this.connection.query(
+      `SELECT s.status
+       FROM submissions s
+       JOIN device d ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+         = regexp_replace(s.project_subfolder,
+             '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+             '', 'i')
+       WHERE d.id = $1`,
+      [deviceId],
+    );
+    if (rows.length > 0 && rows[0].status === 'approved') {
+      throw new ForbiddenException(
+        'Documents cannot be modified after the device review has been approved',
+      );
+    }
+  }
+
+  private async getDeviceIdForDocument(docId: number): Promise<number | null> {
+    const rows: any[] = await this.connection.query(
+      `SELECT target_id FROM documents WHERE id = $1 AND target_type = 'device'`,
+      [docId],
+    );
+    return rows[0]?.target_id ?? null;
   }
 
   async detectPanels(imageBase64: string): Promise<any> {

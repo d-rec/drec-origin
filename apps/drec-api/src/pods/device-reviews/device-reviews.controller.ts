@@ -130,6 +130,7 @@ export class DeviceReviewsController {
     @Body('type') type: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<any> {
+    await this.service.assertNotApproved(deviceId);
     const projectName = await this.service.getProjectName(deviceId);
     const subfolder = (projectName || 'project')
       .replace(/[^a-zA-Z0-9-_]/g, '-')

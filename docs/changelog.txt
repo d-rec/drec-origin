@@ -296,3 +296,94 @@ Migration: chat_webhooks Table
 Migration: lastReadAt Columns on Conversations
   - 1757000000016-AddLastReadAtToConversations -- nullable timestamptz
     columns for per-participant read tracking
+
+
+APRIL 2, 2026 UPDATE
+=====================
+
+DATA SECURITY (Methodology §3)
+-------------------------------
+
+RDS Security Group Lockdown (§3.2.1, §3.2.3)
+  - Both prod and staging RDS instances were on the VPC default security
+    group which allowed all TCP from 0.0.0.0/0 (internet-wide)
+  - Created dedicated security groups:
+      sg-drec-prod-db    -- inbound 5432 from EKS cluster SG only
+      sg-drec-staging-db -- inbound 5432 from EKS cluster SG only
+  - Removed the default SG from both RDS instances
+  - Databases are now unreachable from outside the VPC
+
+Least-Privilege Database User (§3.2.3, §3.2.8)
+  - The API was connecting to prod as the "postgres" superuser
+  - Created a dedicated "drec_app" user with SELECT/INSERT/UPDATE on all
+    tables but DELETE revoked on 15 evidentiary/production tables:
+      meter_reads, aggregate_meterread, history_intermediate_meteread,
+      device, device_group, certificate_read_model, issuer_certificate,
+      old_issuer_certificate, check_certificate_issue_date_log_for_device,
+      check_certificate_issue_date_log_for_device_group,
+      device_lateongoing_certificate_cycle,
+      next_issuance_date_log_for_device_group, delta_firstread,
+      history_next_issueance_log, organization
+  - Updated prod K8s secret (drec-prod-env) and rolled the deployment
+
+History Triggers for Data Immutability (§3.2.2)
+  - Created a "history" schema with a "changes" table that records
+    table_name, operation, row_id, old_data (jsonb), new_data (jsonb),
+    changed_by, and changed_at for every INSERT/UPDATE/DELETE
+  - Applied triggers (trg_history_*) to all 15 protected tables
+  - drec_app has read-only access to history.changes
+  - Provides the evidentiary "before" snapshot an auditor needs to
+    reconstruct why a certificate was issued
+
+pgAudit for Write Logging (§3.2.2)
+  - Enabled the pgaudit extension on prod RDS (Postgres 14)
+  - Created custom parameter group (drec-prod-pg14) with:
+      shared_preload_libraries = pg_stat_statements,pgaudit
+      pgaudit.log = write
+  - All INSERT/UPDATE/DELETE statements are now logged to CloudWatch Logs
+    with session context (user, IP, timestamp, full SQL)
+  - CloudWatch logs are outside the database -- inaccessible even to a
+    DB superuser, providing defense-in-depth
+
+Document Immutability After Approval (§3.3.3)
+  - Documents can be uploaded/deleted during an active review, but are
+    now locked once the device review status is "approved"
+  - Guard added to three mutation points:
+      POST /device-reviews/:deviceId/documents (upload via review panel)
+      DELETE /device-reviews/documents/:id (delete via review panel)
+      PUT /device/:id with file attachments (edit device form)
+  - Returns 403 Forbidden with message: "Documents cannot be modified
+    after the device review has been approved"
+
+Incident Response Procedure (§3.2.7)
+  - Created docs/Incident Response Procedure.docx
+  - Covers: identification, containment, investigation, notification,
+    remediation, post-incident review, roles, record keeping, testing
+  - Severity 1-4 classification with business-hours target response times
+  - Issuer (Evident) notification within 24h for Severity 1-2
+  - GDPR Art. 33/34 notification within 72h where applicable
+
+BUG FIXES
+---------
+
+Timestamp Format in devices/my Endpoint
+  - Customer reported commissioning_date returning "+00:00" instead of "Z"
+  - Root cause: NormalizeDatesInterceptor was on develop but not deployed
+    to prod (prod was 205 commits behind)
+  - Immediate fix: normalized 501 device records in prod DB and 500 in
+    staging DB (UPDATE ... REPLACE('+00:00', 'Z'))
+  - Permanent fix: cherry-picked interceptor commit onto prod branch
+    (PR #758: hotfix/normalize-timestamps-prod)
+
+Customer Reservation Blocking
+  - Customer could not create new reservations due to old groups 89256
+    (id=174) and 35968 (id=173) still having reservationActive=true
+  - Fixed in prod DB: set reservationActive=false and groupId=NULL on
+    21 affected devices
+
+INFRASTRUCTURE
+--------------
+
+Prod Deployment Pipeline
+  - Cherry-picked NormalizeDatesInterceptor to prod branch (PR #758)
+  - Fixed pre-existing Prettier CI failure in .vitepress/theme/index.ts

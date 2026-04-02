@@ -822,6 +822,9 @@ export class DeviceController {
       );
 
       if (existingDevice) {
+        // §3.3.3: block document changes after review approval
+        await this.deviceService.assertDocumentsEditable(existingDevice.id);
+
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   forwardRef,
   HttpException,
   Inject,
@@ -2086,5 +2087,26 @@ export class DeviceService {
       .andWhere('organization.id = dg.organizationId')
       .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
       .getMany();
+  }
+
+  /**
+   * §3.3.3: Documents are immutable once the device review is approved.
+   */
+  async assertDocumentsEditable(deviceId: number): Promise<void> {
+    const rows: any[] = await this.connection.query(
+      `SELECT s.status
+       FROM submissions s
+       JOIN device d ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+         = regexp_replace(s.project_subfolder,
+             '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+             '', 'i')
+       WHERE d.id = $1`,
+      [deviceId],
+    );
+    if (rows.length > 0 && rows[0].status === 'approved') {
+      throw new ForbiddenException(
+        'Documents cannot be modified after the device review has been approved',
+      );
+    }
   }
 }
