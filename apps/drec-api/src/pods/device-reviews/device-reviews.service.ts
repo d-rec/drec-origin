@@ -1670,12 +1670,13 @@ export class DeviceReviewsService {
     if (photoGps.status === 'fulfilled') {
       const r = photoGps.value;
       const flags: string[] = [];
+      if (r.summary.total === 0) flags.push('No project photos uploaded');
       const noGps = r.summary.total - r.summary.withGps;
       if (noGps > 0) flags.push(`${noGps} photo(s) without GPS`);
       if (r.summary.flagged > 0) flags.push(`${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m`);
       sections.push({
         name: 'Photo GPS',
-        status: r.summary.flagged > 0 ? 'fail' : noGps > 0 && r.summary.total > 0 ? 'warn' : 'pass',
+        status: r.summary.flagged > 0 ? 'fail' : r.summary.total === 0 || noGps > 0 ? 'warn' : 'pass',
         flags,
       });
     } else {
@@ -1823,6 +1824,57 @@ export class DeviceReviewsService {
       tolerancePercent: TOLERANCE,
       match,
     };
+  }
+
+  async bulkUpdateReviewStatus(
+    deviceIds: number[],
+    status: string,
+    ipAddress?: string,
+  ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
+    const results: Array<{ deviceId: number; status: string; error?: string }> = [];
+    for (const id of deviceIds) {
+      try {
+        const res = await this.updateReviewStatus(id, status, ipAddress);
+        results.push({ deviceId: id, status: res.status });
+      } catch (err: any) {
+        results.push({ deviceId: id, status: 'error', error: err.message });
+      }
+    }
+    return results;
+  }
+
+  async bulkAutoScreen(
+    deviceIds?: number[],
+  ): Promise<Array<{ deviceId: number; overallStatus: string; error?: string }>> {
+    // If no IDs provided, screen all unscreened pending devices
+    let ids = deviceIds;
+    if (!ids || ids.length === 0) {
+      const rows: any[] = await this.connection.query(
+        `SELECT d.id FROM device d
+         LEFT JOIN submissions s
+           ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+            = regexp_replace(s.project_subfolder,
+                '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+                '', 'i')
+         WHERE d."externalId" IS NOT NULL AND d."externalId" <> ''
+           AND d.last_screen_status IS NULL
+           AND (s.status IS NULL OR s.status = 'pending')
+         ORDER BY d."createdAt" DESC
+         LIMIT 50`,
+      );
+      ids = rows.map((r) => r.id);
+    }
+
+    const results: Array<{ deviceId: number; overallStatus: string; error?: string }> = [];
+    for (const id of ids) {
+      try {
+        const res = await this.autoScreenReport(id);
+        results.push({ deviceId: id, overallStatus: res.overallStatus });
+      } catch (err: any) {
+        results.push({ deviceId: id, overallStatus: 'error', error: err.message });
+      }
+    }
+    return results;
   }
 }
 

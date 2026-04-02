@@ -130,6 +130,32 @@ export class DeviceReviewsController {
     return this.service.updateReviewStatus(deviceId, status, req.ip);
   }
 
+  @Patch('bulk/status')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Bulk update review status for multiple devices' })
+  @ApiResponse({ status: 200, description: 'Results per device' })
+  bulkUpdateStatus(
+    @Body('deviceIds') deviceIds: number[],
+    @Body('status') status: string,
+    @Req() req: Request,
+  ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
+    return this.service.bulkUpdateReviewStatus(deviceIds, status, req.ip);
+  }
+
+  @Post('bulk/auto-screen')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Run auto-screen on multiple devices (or all unscreened)' })
+  @ApiResponse({ status: 200, description: 'Screen results per device' })
+  bulkAutoScreen(
+    @Body('deviceIds') deviceIds?: number[],
+  ): Promise<Array<{ deviceId: number; overallStatus: string; error?: string }>> {
+    return this.service.bulkAutoScreen(deviceIds);
+  }
+
   @Post('refresh-url')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
