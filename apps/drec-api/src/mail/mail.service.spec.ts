@@ -2,12 +2,11 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { MailerService, ISendMailOptions } from '@nestjs-modules/mailer';
+import { MailerService } from '@nestjs-modules/mailer';
 import { MailService } from './mail.service';
 import { Logger } from '@nestjs/common';
 
 describe('MailService', () => {
-  const logger = new Logger(MailService.name);
   let service: MailService;
   let mailerService: MailerService;
   let configService: ConfigService;

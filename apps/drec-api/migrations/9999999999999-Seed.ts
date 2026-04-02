@@ -5,16 +5,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { providers, Wallet } from 'ethers';
 import {
-  Contracts,
   Contracts as IssuerContracts,
   IContractsLookup,
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
 import {
-  IFullOrganization,
-  IDevice,
-  IUserSeed,
   IRoleConfig,
   IACLModuleConfig,
 } from '../src/models';
@@ -22,12 +18,6 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcryptjs';
 
 import { Logger } from '@nestjs/common';
-// import UsersJSON from './users.json';
-// import OrganizationsJSON from './organizations.json';
-// import DevicesJSON from './devices.json';
-const UsersJSON = [];
-const OrganizationsJSON = [];
-const DevicesJSON = [];
 
 import RoleJSON from './user_role.json';
 import AdminJSON from './admin.json';
@@ -44,7 +34,7 @@ export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
 
   public async up(queryRunner: QueryRunner): Promise<any> {
-    const { registry } = await this.seedBlockchain(queryRunner);
+    await this.seedBlockchain(queryRunner);
 
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
@@ -307,7 +297,7 @@ export class Seed9999999999999 implements MigrationInterface {
                 Update: false,
               };
             for (const key in addedPermissionList) {
-              aclModule.permissions.map((myArr, index) => {
+              aclModule.permissions.forEach((myArr) => {
                 if (myArr === key) {
                   addedPermissionList[key] = true;
                 }
@@ -315,7 +305,7 @@ export class Seed9999999999999 implements MigrationInterface {
             }
 
             const permissionValue =
-              await this.computePermissions(addedPermissionList);
+              this.computePermissions(addedPermissionList);
 
             const checkForExistingModule = await queryRunner.query(
               `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,

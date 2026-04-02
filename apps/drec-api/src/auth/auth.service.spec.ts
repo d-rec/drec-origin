@@ -21,7 +21,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let userService: UserService;
   let jwtService: JwtService;
-  let oauthClientService: OauthClientCredentialsService;
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,7 +61,7 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
     jwtService = module.get<JwtService>(JwtService);
-    oauthClientService = module.get<OauthClientCredentialsService>(
+    module.get<OauthClientCredentialsService>(
       OauthClientCredentialsService,
     );
   });
@@ -139,7 +139,6 @@ describe('AuthService', () => {
       expect(response).toBeDefined();
     });
     it('should return an access token', async () => {
-      const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
       jest.spyOn(userService, 'findByEmail').mockResolvedValue({
@@ -160,7 +159,6 @@ describe('AuthService', () => {
     });
 
     it('should create a user session', async () => {
-      const user = { email: 'test@example.com', id: '123', role: 'user' };
       const token = 'fake-jwt-token';
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
       jest.spyOn(userService, 'findByEmail').mockResolvedValue({

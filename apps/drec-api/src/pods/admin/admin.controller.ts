@@ -40,7 +40,6 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
 import { IUser, LoggedInUser, responseSuccess } from '../../models';
-// import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 import { DeviceService } from '../device/device.service';
@@ -259,7 +258,7 @@ export class AdminController {
   })
   public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
     const users: UserDTO[] = [];
-    if (!newUsers || !newUsers.length) {
+    if (!newUsers?.length) {
       return users;
     }
     await Promise.all(
@@ -302,7 +301,7 @@ export class AdminController {
     @Body() newOrgs: OrganizationDTO[],
   ): Promise<OrganizationDTO[]> {
     const orgs: OrganizationDTO[] = [];
-    if (!newOrgs || !newOrgs.length) {
+    if (!newOrgs?.length) {
       return orgs;
     }
     await Promise.all(
@@ -473,11 +472,7 @@ export class AdminController {
           'Some device are available in organization ',
         );
       }
-      // if (manyotheruserinorg) {
-      //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
-      // }
-      if (!(otherOrgUsers.length > 0)) {
-        // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+      if (otherOrgUsers.length <= 0) {
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
       }

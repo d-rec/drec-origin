@@ -1,4 +1,3 @@
-//import { IUser, UserStatus } from '@energyweb/origin-backend-core';//
 import { IUser, LoggedInUser } from '../models';
 import {
   CanActivate,
@@ -8,23 +7,21 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-// import { AccessControl } from 'role-acl';
 
 import { PermissionService } from '../pods/permission/permission.service';
 import { UserService } from '../pods/user/user.service';
-import { Role, OrganizationType } from '../utils/enums';
+import { OrganizationType } from '../utils/enums';
 @Injectable()
 export class PermissionGuard implements CanActivate {
   private readonly logger = new Logger(PermissionGuard.name);
 
   constructor(
-    private reflector: Reflector,
+    private readonly reflector: Reflector,
     @Inject(PermissionService)
     private readonly userPermission: PermissionService,
     @Inject(UserService)
     private readonly userService: UserService,
   ) {}
-  //constructor(@Inject(KeyService) private keyService: KeyService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     this.logger.verbose(`With in canActivate`);

@@ -7,16 +7,16 @@ import { Reflector, NestFactory } from '@nestjs/core';
 import { NormalizeDatesInterceptor } from './interceptors/normalize-dates.interceptor';
 import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
-import fs from 'fs';
+import fs from 'node:fs';
 import 'reflect-metadata';
-import { DRECModule } from './drec.module';
 import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
 import { customizeDocument, getDocumentBuilder } from './docs/swagger';
 import { version } from '../package.json';
 
 import './sentry';
-export { DRECModule };
+import { DRECModule } from './drec.module';
+export { DRECModule } from './drec.module';
 
 export async function startAPI(logger?: LoggerService): Promise<any> {
   const PORT = PortUtils.getPort();
@@ -56,18 +56,20 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   );
 
   app.enableShutdownHooks();
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(',')
-      : process.env.NODE_ENV === 'development'
-        ? true
-        : [
-            'https://app.drecs.org',
-            'https://stage.drecs.org',
-            'https://stage-portal.drecs.org',
-            'https://demo.drecs.org',
-          ],
-  });
+
+  const defaultOrigins = process.env.NODE_ENV === 'development'
+    ? true
+    : [
+        'https://app.drecs.org',
+        'https://stage.drecs.org',
+        'https://stage-portal.drecs.org',
+        'https://demo.drecs.org',
+      ];
+  const corsOrigin = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : defaultOrigins;
+
+  app.enableCors({ origin: corsOrigin });
   app.setGlobalPrefix('api');
 
   useContainer(app.select(DRECModule), { fallbackOnErrors: true });

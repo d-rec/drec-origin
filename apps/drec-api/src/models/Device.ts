@@ -33,8 +33,6 @@ export interface IDevice {
   evidencePathway?: EvidencePathway;
   ownershipStatus?: OwnershipStatus;
   offTaker: OffTaker;
-  //sector: Sector;
-  //standardCompliance: StandardCompliance;
   yieldValue: number;
   //generatorsIds?: number[];
   //labels?: string;

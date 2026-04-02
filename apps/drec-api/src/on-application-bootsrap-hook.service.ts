@@ -12,7 +12,7 @@ export class OnApplicationBootstrapHookService
 {
   public deploymentRepository: DeploymentPropertiesRepository = null;
   constructor(
-    private moduleRef: ModuleRef,
+    private readonly moduleRef: ModuleRef,
     public blockchainPropertiesService: BlockchainPropertiesService,
   ) {}
 

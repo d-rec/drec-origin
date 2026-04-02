@@ -187,6 +187,12 @@ export class DeviceReviewsService {
         await this.classifyDevicePathway(deviceId);
         await this.verifyOwnership(deviceId);
       }
+      // Auto-screen when entering pending — fire-and-forget
+      if (status === 'pending') {
+        this.autoScreenReport(deviceId).catch((err) =>
+          this.logger.warn(`Auto-screen on submission failed for device ${deviceId}: ${err.message}`),
+        );
+      }
       return { status: rows[0].status };
     }
 
@@ -208,6 +214,11 @@ export class DeviceReviewsService {
     this.logger.log(
       `Device ${deviceId} review status set to "${status}" (new submission created for "${projectName}")`,
     );
+    if (status === 'pending') {
+      this.autoScreenReport(deviceId).catch((err) =>
+        this.logger.warn(`Auto-screen on submission failed for device ${deviceId}: ${err.message}`),
+      );
+    }
     return { status };
   }
 
