@@ -928,6 +928,28 @@ export class DeviceReviewsService {
           description: `Coefficient of variation is ${cv.toFixed(2)} (typical solar < 1.0) — readings are unusually inconsistent`,
         });
       }
+
+      // 6. ±1.5σ anomaly band — flag readings that are atypical but not impossible
+      if (stdDev > 0 && values.length >= 10) {
+        const loBand = mean - 1.5 * stdDev;
+        const hiBand = mean + 1.5 * stdDev;
+        const outliers = normalized.filter(
+          (r) => r.kwh >= 0 && (r.kwh < loBand || r.kwh > hiBand),
+        );
+        if (outliers.length > 0) {
+          anomalies.push({
+            type: 'sigma_band',
+            severity: 'warning',
+            description: `${outliers.length} reading(s) outside ±1.5σ band [${loBand.toFixed(1)}–${hiBand.toFixed(1)} kWh] — atypical but not necessarily invalid`,
+            readingIds: outliers.map((r) => r.id),
+          });
+        }
+        summary['sigmaBand'] = {
+          low: Math.round(loBand * 100) / 100,
+          high: Math.round(hiBand * 100) / 100,
+          outliersCount: outliers.length,
+        };
+      }
     }
 
     this.logger.log(
