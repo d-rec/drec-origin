@@ -66,7 +66,7 @@ export class EvidentDeviceService {
         device.organizationId,
       );
       const response = await evidentApiInstance.post('/devices', {
-        name: device.projectName,
+        name: device.siteName,
         fuel: `/fuels/${device.fuelCode}`,
       });
       device.evidentDeviceId = response.data.code;
@@ -190,7 +190,7 @@ export class EvidentDeviceService {
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
     device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
-    device.projectName = deviceGroup.name;
+    device.siteName = deviceGroup.name;
     const organization =
       await this.organizationService.getLinkedMarketIntermediaryOrSelf(
         device.organizationId,
@@ -241,7 +241,7 @@ export class EvidentDeviceService {
       fuel: `/fuels/${device.fuelCode}`,
       device: `/devices/${device.evidentDeviceId}`,
       registrant: `/organisations/${registrantId}`,
-      name: device.projectName,
+      name: device.siteName,
       capacity: convertCapacityToMwh.toString(),
       supported: true,
       latitude: device.latitude,

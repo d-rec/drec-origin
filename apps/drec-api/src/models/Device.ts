@@ -16,7 +16,7 @@ export interface IDevice {
   developerExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;
-  projectName: string;
+  siteName: string;
   address?: string;
   latitude: string;
   longitude: string;
@@ -67,7 +67,7 @@ export type DeviceKey =
   | 'externalId'
   | 'status'
   | 'organizationId'
-  | 'projectName'
+  | 'siteName'
   | 'countryCode'
   | 'fuelCode'
   | 'deviceTypeCode'

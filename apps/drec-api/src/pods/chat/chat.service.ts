@@ -75,14 +75,14 @@ export class ChatService {
   async getConversation(
     participant1?: string,
     participant2?: string,
-    deviceProjectName?: string,
+    deviceSiteName?: string,
   ): Promise<ChatConversation | null> {
     const qb = this.conversationRepository.createQueryBuilder('conv');
-    if (deviceProjectName) {
-      qb.where('conv.deviceProjectName = :dpn', { dpn: deviceProjectName });
+    if (deviceSiteName) {
+      qb.where('conv.deviceSiteName = :dpn', { dpn: deviceSiteName });
     }
     if (participant1 && participant2) {
-      const method = deviceProjectName ? 'andWhere' : 'where';
+      const method = deviceSiteName ? 'andWhere' : 'where';
       qb[method](
         '(conv.participant1 = :p1 AND conv.participant2 = :p2) OR (conv.participant1 = :p2 AND conv.participant2 = :p1)',
         { p1: participant1, p2: participant2 },
@@ -96,7 +96,7 @@ export class ChatService {
     participant2: string,
     firstMessageUsername: string,
     firstMessageEntry: string,
-    deviceProjectName?: string,
+    deviceSiteName?: string,
   ): Promise<{ conversation: ChatConversation; message: Chat }> {
     const message = await this.appendMessage(
       firstMessageUsername,
@@ -107,14 +107,14 @@ export class ChatService {
       participant2,
       headUuid: message.uuid,
       lastEntryUuid: message.uuid,
-      deviceProjectName: deviceProjectName ?? null,
+      deviceSiteName: deviceSiteName ?? null,
     });
     const savedConversation =
       await this.conversationRepository.save(conversation);
     typedLog(
       this.logger,
       'chat',
-      `Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`,
+      `Conversation started between ${participant1} and ${participant2}${deviceSiteName ? ` on device "${deviceSiteName}"` : ''}`,
     );
 
     // Fire-and-forget webhook dispatch
@@ -123,7 +123,7 @@ export class ChatService {
         id: savedConversation.id,
         participant1: savedConversation.participant1,
         participant2: savedConversation.participant2,
-        deviceProjectName: savedConversation.deviceProjectName,
+        deviceSiteName: savedConversation.deviceSiteName,
       },
       message: {
         uuid: message.uuid,
@@ -172,7 +172,7 @@ export class ChatService {
         chatEntry,
         createdAt: message.createdAt,
       },
-      deviceProjectName: conversation.deviceProjectName,
+      deviceSiteName: conversation.deviceSiteName,
     });
 
     return message;
@@ -283,8 +283,8 @@ export class ChatService {
         'latest',
         'latest.uuid = conv."lastEntryUuid"',
       )
-      .select('conv."deviceProjectName"', 'deviceProjectName')
-      .where('conv."deviceProjectName" IS NOT NULL')
+      .select('conv."deviceSiteName"', 'deviceSiteName')
+      .where('conv."deviceSiteName" IS NOT NULL')
       .andWhere(
         '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
         '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
@@ -293,7 +293,7 @@ export class ChatService {
       .andWhere('latest.username != :email', { email })
       .getRawMany();
 
-    return rows.map((r) => r.deviceProjectName);
+    return rows.map((r) => r.deviceSiteName);
   }
 
   async getConversationPartners(): Promise<string[]> {

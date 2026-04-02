@@ -107,13 +107,13 @@ export class ChatController {
     body: {
       participant1: string;
       participant2: string;
-      deviceProjectName?: string;
+      deviceSiteName?: string;
     },
   ): Promise<ChatConversation | null> {
     return this.chatService.getConversation(
       body.participant1,
       body.participant2,
-      body.deviceProjectName,
+      body.deviceSiteName,
     );
   }
 
@@ -136,7 +136,7 @@ export class ChatController {
   }
 
   @Get('unread-devices/:email')
-  @ApiOperation({ summary: 'Get device project names with unread messages' })
+  @ApiOperation({ summary: 'Get device site names with unread messages' })
   async getUnreadDeviceNames(
     @Param('email') email: string,
   ): Promise<string[]> {
@@ -162,7 +162,7 @@ export class ChatController {
       participant2: string;
       username: string;
       chatEntry: string;
-      deviceProjectName?: string;
+      deviceSiteName?: string;
     },
   ): Promise<any> {
     return this.chatService.startConversation(
@@ -170,7 +170,7 @@ export class ChatController {
       body.participant2,
       body.username,
       body.chatEntry,
-      body.deviceProjectName,
+      body.deviceSiteName,
     );
   }
 }

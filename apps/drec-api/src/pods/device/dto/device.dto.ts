@@ -46,7 +46,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  projectName: string;
+  siteName: string;
 
   @ApiProperty()
   // @IsOptional()

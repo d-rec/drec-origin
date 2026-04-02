@@ -253,8 +253,8 @@ export class DeviceReviewsController {
     @Req() req: Request,
   ): Promise<any> {
     await this.service.assertNotApproved(deviceId);
-    const projectName = await this.service.getProjectName(deviceId);
-    const subfolder = (projectName || 'project')
+    const siteName = await this.service.getSiteName(deviceId);
+    const subfolder = (siteName || 'project')
       .replace(/[^a-zA-Z0-9-_]/g, '-')
       .toLowerCase();
     const projectSubfolder = `${subfolder}-${deviceId}`;

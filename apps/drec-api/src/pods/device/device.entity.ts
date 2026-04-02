@@ -51,7 +51,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   @IsString()
-  projectName: string;
+  siteName: string;
 
   @Column({ nullable: true })
   @IsString()

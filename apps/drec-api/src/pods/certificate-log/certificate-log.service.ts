@@ -278,11 +278,11 @@ export class CertificateLogService {
       (certificate.generationEndTime + 1) * 1000,
     ); //going back 1 second in start and going forward 1 second in end
     const logs = await this.getDeviceLogsPerCertificate(
-      metadata.deviceIds,
+      metadata.deviceIds as (string | number)[],
       parseInt(groupId),
       deviceReadStartDate,
       deviceReadEndDate,
-      certificateTransactionUID,
+      certificateTransactionUID as string | undefined,
     );
 
     perDeviceCertificateLog.push(...logs);

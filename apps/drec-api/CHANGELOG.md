@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.8.0] (2026-04-02)
+
+### ⚠ BREAKING CHANGE — `projectName` renamed to `siteName`
+
+The `projectName` field has been renamed to `siteName` across the entire API to align with D-REC Methodology terminology. This affects:
+
+- **Device entity & all DTOs** (`DeviceDTO`, `NewDeviceDTO`, `UpdateDeviceDTO`): `projectName` → `siteName`
+- **Chat conversations** (`deviceProjectName` → `deviceSiteName` in conversation payloads and the `POST /chat/conversations` body)
+- **Database columns**: `device."projectName"` → `device."siteName"`, `chat_conversations."deviceProjectName"` → `chat_conversations."deviceSiteName"`
+- **CSV bulk upload template**: `projectName` column header → `siteName`
+
+**Migration required**: Run `1759900000000-RenameProjectNameToSiteName` before deploying. All API consumers sending or reading `projectName` must update to `siteName`.
+
+### Features
+
+- Auto-release devices from expired reservations — daily cron sweeps expired-but-still-active reservations and unlocks their devices
+- Meter-read review audit log modes: `bulk_status_change`, `read_anomaly_flagged`, `read_gap_analysis`
+- Bulk status update endpoint for meter-read reviews
+- Read flagging endpoint with audit trail
+- Gap analysis endpoint with coverage percentage and gap detection
+- ACL permission fix: grant Reviewer/SeniorReviewer Read+Write on DEVICE_REVIEWS_MANAGEMENT_CRUDL and CHAT_MANAGEMENT_CRUDL
+
+### Bug Fixes
+
+- `deactivateReservation()` now releases locked devices (previously only flipped the `reservationActive` flag, leaving devices permanently locked)
+- Late-ongoing issuance cron now explicitly deactivates expired groups it encounters
+- Fixed pre-existing TS2345 type error in `certificate-log.service.ts`
+
 ### [0.7.2](https://github.com/d-rec/drec-origin/compare/v0.7.1...v0.7.2) (2025-08-30)
 
 ### Improvements

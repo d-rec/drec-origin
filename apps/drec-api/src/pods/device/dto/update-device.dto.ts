@@ -47,7 +47,7 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  projectName: string;
+  siteName: string;
 
   @ApiProperty()
   @IsOptional()

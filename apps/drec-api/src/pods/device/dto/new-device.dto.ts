@@ -58,7 +58,7 @@ export class NewDeviceDTO implements Omit<
   @ApiProperty()
   @IsString()
   @IsOptional()
-  projectName: string;
+  siteName: string;
 
   @ApiProperty()
   @IsString()

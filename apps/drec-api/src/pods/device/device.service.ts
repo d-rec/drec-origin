@@ -127,7 +127,7 @@ export class DeviceService {
     const rows: { id: number }[] = await this.connection.query(
       `SELECT d.id FROM device d
        INNER JOIN submissions s
-         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+         ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
           = regexp_replace(s.project_subfolder,
               '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
               '', 'i')
@@ -146,7 +146,7 @@ export class DeviceService {
     duplicates: Array<{
       id: number;
       externalId: string;
-      projectName: string;
+      siteName: string;
       serialNumber: string;
       organizationId: number;
       matchType: string;
@@ -160,7 +160,7 @@ export class DeviceService {
     const duplicates: Array<{
       id: number;
       externalId: string;
-      projectName: string;
+      siteName: string;
       serialNumber: string;
       organizationId: number;
       matchType: string;
@@ -171,12 +171,12 @@ export class DeviceService {
       const nearbyDevices: Array<{
         id: number;
         externalId: string;
-        projectName: string;
+        siteName: string;
         serialNumber: string;
         organizationId: number;
         distance_m: number;
       }> = await this.connection.query(
-        `SELECT id, "externalId", "projectName", "serialNumber", "organizationId",
+        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId",
                 (6371000 * acos(
                   cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
                   * cos(radians(CAST(longitude AS double precision)) - radians($2))
@@ -207,14 +207,14 @@ export class DeviceService {
           serialNumber: device.serialNumber,
           id: Not(device.id),
         },
-        select: ['id', 'externalId', 'projectName', 'serialNumber', 'organizationId'],
+        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
       });
       serialMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
           duplicates.push({
             id: d.id,
             externalId: d.externalId,
-            projectName: d.projectName,
+            siteName: d.siteName,
             serialNumber: d.serialNumber,
             organizationId: d.organizationId,
             matchType: 'serial number',
@@ -230,14 +230,14 @@ export class DeviceService {
           fingerprint: device.fingerprint,
           id: Not(device.id),
         },
-        select: ['id', 'externalId', 'projectName', 'serialNumber', 'organizationId'],
+        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
       });
       fpMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
           duplicates.push({
             id: d.id,
             externalId: d.externalId,
-            projectName: d.projectName,
+            siteName: d.siteName,
             serialNumber: d.serialNumber,
             organizationId: d.organizationId,
             matchType: 'fingerprint',
@@ -368,7 +368,7 @@ export class DeviceService {
          s.status AS review_status
        FROM device d
        LEFT JOIN submissions s
-         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+         ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
           = regexp_replace(s.project_subfolder,
               '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
               '', 'i')
@@ -478,9 +478,9 @@ export class DeviceService {
     return result;
   }
 
-  async checkProjectNameExists(projectName: string): Promise<boolean> {
+  async checkSiteNameExists(siteName: string): Promise<boolean> {
     const count = await this.repository.count({
-      where: { projectName },
+      where: { siteName },
     });
     return count > 0;
   }
@@ -689,17 +689,17 @@ export class DeviceService {
 
     const sdgBenefitList = SDGBenefits;
 
-    const checkProjectName = await this.repository.findOne({
+    const checkSiteName = await this.repository.findOne({
       where: {
-        projectName: newDevice.projectName,
+        siteName: newDevice.siteName,
         organizationId: organizationId,
       },
     });
 
-    if (checkProjectName) {
+    if (checkSiteName) {
       throw new ConflictException({
         success: false,
-        message: `A device with site name "${newDevice.projectName}" already exists in this organization`,
+        message: `A device with site name "${newDevice.siteName}" already exists in this organization`,
       });
     }
 
@@ -802,10 +802,10 @@ export class DeviceService {
         [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
       };
 
-      const projectName = (result.projectName || 'project')
+      const siteName = (result.siteName || 'project')
         .replace(/[^a-zA-Z0-9-_]/g, '-')
         .toLowerCase();
-      const projectSubfolder = `${projectName}-${uuid()}`;
+      const projectSubfolder = `${siteName}-${uuid()}`;
 
       for (const [field, documentType] of Object.entries(documentTypes)) {
         const deviceId = result.id;
@@ -858,17 +858,17 @@ export class DeviceService {
       throw new NotFoundException(`No device found with id ${serialNumber}`);
     }
 
-    if (updateDeviceDTO.projectName) {
+    if (updateDeviceDTO.siteName) {
       const duplicateName = await this.repository.findOne({
         where: {
-          projectName: updateDeviceDTO.projectName,
+          siteName: updateDeviceDTO.siteName,
           organizationId: organizationId,
         },
       });
       if (duplicateName && duplicateName.id !== currentDevice.id) {
         throw new ConflictException({
           success: false,
-          message: `A device with site name "${updateDeviceDTO.projectName}" already exists in this organization`,
+          message: `A device with site name "${updateDeviceDTO.siteName}" already exists in this organization`,
         });
       }
     }
@@ -2103,7 +2103,7 @@ export class DeviceService {
     const rows: any[] = await this.connection.query(
       `SELECT s.status
        FROM submissions s
-       JOIN device d ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+       JOIN device d ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
          = regexp_replace(s.project_subfolder,
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')

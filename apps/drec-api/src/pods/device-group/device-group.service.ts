@@ -713,7 +713,7 @@ export class DeviceGroupService {
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select(['device.id', 'device.projectName', 'device.serialNumber'])
+        .select(['device.id', 'device.siteName', 'device.serialNumber'])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -760,7 +760,7 @@ export class DeviceGroupService {
             return {
               id: device.device_id,
               serialNumber: device.device_serial_number,
-              projectName: device.device_projectName,
+              siteName: device.device_siteName,
             };
           }),
         };
@@ -1562,7 +1562,7 @@ export class DeviceGroupService {
         const dataToStore: NewDeviceDTO = {
           dataSourceBrand: '',
           externalId: '',
-          projectName: '',
+          siteName: '',
           address: '',
           latitude: '',
           longitude: '',
@@ -1806,7 +1806,7 @@ export class DeviceGroupService {
                 duplicateserialNumbers.push({
                   duplicateIndex: j,
                   duplicateWith: i,
-                  projectName: records[j].projectName,
+                  siteName: records[j].siteName,
                   serialNumber: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
@@ -2120,8 +2120,33 @@ export class DeviceGroupService {
     if (group) {
       group.reservationActive = false;
       await this.repository.save(group);
+
+      // Release locked devices so they can be added to new reservations
+      const devices = await this.deviceService.findForGroup(group.id);
+      if (devices?.length) {
+        await Promise.all(
+          devices.map((device: any) =>
+            this.deviceService.removeFromGroup(device.id, group.id),
+          ),
+        );
+        this.logger.log(
+          `Released ${devices.length} device(s) from expired group ${group.id}`,
+        );
+      }
       return;
     }
+  }
+
+  async sweepExpiredReservations(): Promise<number> {
+    const activeGroups = await this.getAllReservationActive();
+    let released = 0;
+    for (const group of activeGroups) {
+      if (group.isExpired()) {
+        await this.deactivateReservation(group);
+        released++;
+      }
+    }
+    return released;
   }
 
   public async getDeviceGrouplog(

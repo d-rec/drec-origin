@@ -39,7 +39,7 @@ export interface AssetDto {
   serial: string;
   lat: number | null;
   long: number | null;
-  projectName: string;
+  siteName: string;
   capacity: number | null;
   acCapacity: number | null;
   countryCode: string;
@@ -169,7 +169,7 @@ export class DeviceReviewsService {
        SET status = $2, updated_at = now()
        FROM device d
        WHERE d.id = $1
-         AND regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+         AND regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
            = regexp_replace(s.project_subfolder,
                '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
                '', 'i')
@@ -196,23 +196,23 @@ export class DeviceReviewsService {
       return { status: rows[0].status };
     }
 
-    // No submission row exists — create one from the device's projectName
+    // No submission row exists — create one from the device's siteName
     const deviceRows: any[] = await this.connection.query(
-      `SELECT "projectName" FROM device WHERE id = $1`,
+      `SELECT "siteName" FROM device WHERE id = $1`,
       [deviceId],
     );
     if (!deviceRows.length) {
       return { status };
     }
-    const projectName = deviceRows[0].projectName ?? '';
-    const subfolder = projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const siteName = deviceRows[0].siteName ?? '';
+    const subfolder = siteName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     await this.connection.query(
       `INSERT INTO submissions (project_subfolder, submitted_at, status, created_at, updated_at)
        VALUES ($1, now(), $2, now(), now())`,
       [subfolder, status],
     );
     this.logger.log(
-      `Device ${deviceId} review status set to "${status}" (new submission created for "${projectName}")`,
+      `Device ${deviceId} review status set to "${status}" (new submission created for "${siteName}")`,
     );
     if (status === 'pending') {
       this.autoScreenReport(deviceId).catch((err) =>
@@ -265,12 +265,12 @@ export class DeviceReviewsService {
     this.logger.log(`Document ${docId} deleted from DB and S3`);
   }
 
-  async getProjectName(deviceId: number): Promise<string> {
+  async getSiteName(deviceId: number): Promise<string> {
     const rows: any[] = await this.connection.query(
-      `SELECT "projectName" FROM device WHERE id = $1`,
+      `SELECT "siteName" FROM device WHERE id = $1`,
       [deviceId],
     );
-    return rows[0]?.projectName ?? '';
+    return rows[0]?.siteName ?? '';
   }
 
   /**
@@ -281,7 +281,7 @@ export class DeviceReviewsService {
     const rows: any[] = await this.connection.query(
       `SELECT s.status
        FROM submissions s
-       JOIN device d ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+       JOIN device d ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
          = regexp_replace(s.project_subfolder,
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')
@@ -336,7 +336,7 @@ export class DeviceReviewsService {
         d.longitude,
         d."createdAt",
         d."updatedAt",
-        d."projectName",
+        d."siteName",
         d.capacity,
         d."acCapacity",
         d."countryCode",
@@ -356,7 +356,7 @@ export class DeviceReviewsService {
         COALESCE(NULLIF(TRIM(CONCAT(u."firstName", ' ', u."lastName")), ''), u.email) AS submitter_name
       FROM device d
       LEFT JOIN submissions s
-        ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+        ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
          = regexp_replace(s.project_subfolder,
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')
@@ -445,7 +445,7 @@ export class DeviceReviewsService {
         serial: r.externalId ?? r.developerExternalId ?? '',
         lat: r.latitude ? parseFloat(r.latitude) : null,
         long: r.longitude ? parseFloat(r.longitude) : null,
-        projectName: r.projectName ?? '',
+        siteName: r.siteName ?? '',
         capacity: r.capacity != null ? parseFloat(r.capacity) : null,
         acCapacity: r.acCapacity != null ? parseFloat(r.acCapacity) : null,
         countryCode: r.countryCode ?? '',
@@ -485,7 +485,7 @@ export class DeviceReviewsService {
     duplicates: Array<{
       id: number;
       externalId: string;
-      projectName: string;
+      siteName: string;
       serialNumber: string;
       organizationId: number;
       matchType: string;
@@ -503,7 +503,7 @@ export class DeviceReviewsService {
     const duplicates: Array<{
       id: number;
       externalId: string;
-      projectName: string;
+      siteName: string;
       serialNumber: string;
       organizationId: number;
       matchType: string;
@@ -515,7 +515,7 @@ export class DeviceReviewsService {
       const lng = parseFloat(device.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         const nearby: any[] = await this.connection.query(
-          `SELECT id, "externalId", "projectName", "serialNumber", "organizationId",
+          `SELECT id, "externalId", "siteName", "serialNumber", "organizationId",
                   (6371000 * acos(LEAST(1, GREATEST(-1,
                     cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
                     * cos(radians(CAST(longitude AS double precision)) - radians($2))
@@ -543,7 +543,7 @@ export class DeviceReviewsService {
     // 2. Cross-org serial number
     if (device.serialNumber) {
       const serialMatches: any[] = await this.connection.query(
-        `SELECT id, "externalId", "projectName", "serialNumber", "organizationId"
+        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId"
          FROM device
          WHERE "serialNumber" = $1 AND id != $2`,
         [device.serialNumber, deviceId],
@@ -558,7 +558,7 @@ export class DeviceReviewsService {
     // 3. Fingerprint match
     if (device.fingerprint) {
       const fpMatches: any[] = await this.connection.query(
-        `SELECT id, "externalId", "projectName", "serialNumber", "organizationId"
+        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId"
          FROM device
          WHERE fingerprint = $1 AND id != $2`,
         [device.fingerprint, deviceId],
@@ -1358,7 +1358,7 @@ export class DeviceReviewsService {
       SELECT
         d.id                          AS "deviceId",
         d."externalId"                AS "externalId",
-        d."projectName"               AS "projectName",
+        d."siteName"               AS "siteName",
         d.serial_number               AS "serialNumber",
         d.capacity                    AS "capacity",
         d."countryCode"               AS "countryCode",
@@ -1376,7 +1376,7 @@ export class DeviceReviewsService {
       INNER JOIN meter_reads mr ON mr.external_id = d."externalId"
       LEFT JOIN meter_read_reviews mrr ON mrr.device_id = d.id
       LEFT JOIN public.user u ON u.id = d."organizationId"
-      GROUP BY d.id, d."externalId", d."projectName", d.serial_number,
+      GROUP BY d.id, d."externalId", d."siteName", d.serial_number,
                d.capacity, d."countryCode", d.latitude, d.longitude,
                u.email, mrr.status, mrr.reviewer, mrr.notes
       HAVING COUNT(mr.id) > 0
@@ -2017,7 +2017,7 @@ export class DeviceReviewsService {
       const rows: any[] = await this.connection.query(
         `SELECT d.id FROM device d
          LEFT JOIN submissions s
-           ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
+           ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
             = regexp_replace(s.project_subfolder,
                 '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
                 '', 'i')

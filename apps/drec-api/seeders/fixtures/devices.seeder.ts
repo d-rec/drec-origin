@@ -33,7 +33,7 @@ export class DevicesSeeder {
       {
         externalId: uuidv4(),
         organizationId: developerOrg.id,
-        projectName: 'Project Alpha',
+        siteName: 'Project Alpha',
         address: '123 Main St, City A',
         latitude: '12.3456',
         longitude: '65.4321',
@@ -61,7 +61,7 @@ export class DevicesSeeder {
       {
         externalId: uuidv4(),
         organizationId: developerOrg.id,
-        projectName: 'Project Beta',
+        siteName: 'Project Beta',
         address: '456 Elm St, City B',
         latitude: '34.5678',
         longitude: '78.9012',

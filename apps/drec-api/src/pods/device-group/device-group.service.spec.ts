@@ -509,12 +509,12 @@ describe('DeviceGroupService', () => {
         {
           device_id: 1,
           device_serial_number: 'ABC123',
-          device_projectName: 'Solar Farm 1',
+          device_siteName: 'Solar Farm 1',
         },
         {
           device_id: 2,
           device_serial_number: 'DEF456',
-          device_projectName: 'Solar Farm 2',
+          device_siteName: 'Solar Farm 2',
         },
       ];
       const mockCount = 1;
@@ -555,8 +555,8 @@ describe('DeviceGroupService', () => {
           deviceGroupUid: 'UID-123',
           deviceIds: [1, 2],
           devices: [
-            { id: 1, projectName: 'Solar Farm 1', serialNumber: 'ABC123' },
-            { id: 2, projectName: 'Solar Farm 2', serialNumber: 'DEF456' },
+            { id: 1, siteName: 'Solar Farm 1', serialNumber: 'ABC123' },
+            { id: 2, siteName: 'Solar Farm 2', serialNumber: 'DEF456' },
           ],
           countryCode: ['IND'],
           fuelCode: ['TS100'],

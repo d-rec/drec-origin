@@ -407,10 +407,10 @@ export class DeviceController {
   @ApiQuery({ name: 'name', type: String, required: true })
   @ApiOperation({ summary: 'Check if a site name already exists' })
   @ApiResponse({ status: HttpStatus.OK, description: '{ exists: boolean }' })
-  async checkProjectName(
+  async checkSiteName(
     @Query('name') name: string,
   ): Promise<{ exists: boolean }> {
-    const exists = await this.deviceService.checkProjectNameExists(name);
+    const exists = await this.deviceService.checkSiteNameExists(name);
     return { exists };
   }
 
@@ -463,7 +463,7 @@ export class DeviceController {
 
     // Look up review status from submissions table
     let reviewStatus: string | null = null;
-    if (deviceData?.projectName) {
+    if (deviceData?.siteName) {
       const rows: any[] = await this.deviceService.getConnection().query(
         `SELECT s.status FROM submissions s
          WHERE regexp_replace(s.project_subfolder,
@@ -471,7 +471,7 @@ export class DeviceController {
            '', 'i')
          = regexp_replace(lower($1), '[^a-z0-9]+', '-', 'g')
          LIMIT 1`,
-        [deviceData.projectName],
+        [deviceData.siteName],
       );
       reviewStatus = rows[0]?.status ?? null;
     }
@@ -874,10 +874,10 @@ export class DeviceController {
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
         };
 
-        const projectName = (existingDevice.projectName || 'project')
+        const siteName = (existingDevice.siteName || 'project')
           .replace(/[^a-zA-Z0-9-_]/g, '-')
           .toLowerCase();
-        const projectSubfolder = `${projectName}-${existingDevice.id}`;
+        const projectSubfolder = `${siteName}-${existingDevice.id}`;
 
         for (const [field, documentType] of Object.entries(documentTypes)) {
           if (files[field] && Array.isArray(files[field])) {
