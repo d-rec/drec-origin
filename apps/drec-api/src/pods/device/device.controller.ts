@@ -14,12 +14,14 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { Request } from 'express';
 
 import {
   ApiBearerAuth,
@@ -71,6 +73,8 @@ import {
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { validateOrReject } from 'class-validator';
 import { ReadsService } from '../reads/reads.service';
+import { UploadLogService } from '../upload-log/upload-log.service';
+import { UploadActionType } from '../upload-log/upload-log.entity';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -89,6 +93,7 @@ export class DeviceController {
     private readonly userService: UserService,
     private readonly readsService: ReadsService,
     private readonly documentUploadsService: DocumentUploadsService,
+    private readonly uploadLogService: UploadLogService,
   ) {}
 
   /**
@@ -626,12 +631,14 @@ export class DeviceController {
     description: 'User does not have permission to create devices.',
   })
   public async create(
-    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Body() body: DeviceRegistrationBody,
     @UploadedFiles()
     files: DeviceFiles | undefined,
+    @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
+    let { organizationId, role, api_user_id } = user;
     // Dual-path: multipart sends device data in `deviceToRegister` field;
     // plain JSON sends it directly as the body.
     const deviceToRegister = (
@@ -677,13 +684,32 @@ export class DeviceController {
       );
       api_user_id = organization.api_user_id;
     }
-    return await this.deviceService.register(
+    const result = await this.deviceService.register(
       organizationId,
       deviceToRegister,
       files || null,
       api_user_id,
       role,
     );
+    if (files) {
+      for (const [field, fileList] of Object.entries(files)) {
+        for (const file of fileList as Express.Multer.File[]) {
+          this.uploadLogService.logFileUpload({
+            deviceId: result.id,
+            userId: user.id,
+            userEmail: user.email,
+            organizationId,
+            actionType: UploadActionType.DocumentUpload,
+            fileName: file.originalname,
+            fileBuffer: file.buffer,
+            ipAddress: req.ip,
+            userAgent: req.headers['user-agent'],
+            metadata: { documentType: field },
+          });
+        }
+      }
+    }
+    return result;
   }
 
   /**
@@ -738,6 +764,7 @@ export class DeviceController {
     @Query('serialNumberChanged') serialNumberChanged: string,
     @Body() body: any,
     @UploadedFiles() files: DeviceFiles,
+    @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
     // When sent as multipart/form-data (files attached), body.deviceToUpdate is a JSON string.
@@ -869,6 +896,18 @@ export class DeviceController {
                   file,
                   projectSubfolder,
                 );
+                this.uploadLogService.logFileUpload({
+                  deviceId: existingDevice.id,
+                  userId: user.id,
+                  userEmail: user.email,
+                  organizationId: user.organizationId,
+                  actionType: UploadActionType.DocumentUpload,
+                  fileName: file.originalname,
+                  fileBuffer: file.buffer,
+                  ipAddress: req.ip,
+                  userAgent: req.headers['user-agent'],
+                  metadata: { documentType: field },
+                });
               } catch (error) {
                 this.logger.error(
                   `Failed to upload ${field}: ${error.message}`,

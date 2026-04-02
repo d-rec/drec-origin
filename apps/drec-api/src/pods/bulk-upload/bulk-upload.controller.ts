@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -40,7 +41,10 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
 import { OrganizationType } from '../../utils/enums/organization-type.enum';
+import { Request } from 'express';
 import { AuthVerifiedGuard } from '../../guards';
+import { UploadLogService } from '../upload-log/upload-log.service';
+import { UploadActionType } from '../upload-log/upload-log.entity';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -51,6 +55,7 @@ export class BulkUploadController {
     private readonly bulkUploadService: BulkUploadService,
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
+    private readonly uploadLogService: UploadLogService,
   ) {}
 
   @Post()
@@ -121,6 +126,7 @@ export class BulkUploadController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId') organizationIdParam: number | null,
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
+    @Req() req: Request,
   ): Promise<BulkUploadEntity> {
     this.logger.verbose('Handling bulk upload');
     if (!file) {
@@ -142,6 +148,18 @@ export class BulkUploadController {
     });
 
     const [fileId] = await this.fileService.store(user, [file]);
+
+    this.uploadLogService.logFileUpload({
+      userId: user.id,
+      userEmail: user.email,
+      organizationId,
+      actionType: UploadActionType.MeterReadUpload,
+      fileName: file.originalname,
+      fileBuffer: file.buffer,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      metadata: { bulkUploadType },
+    });
 
     return await this.bulkUploadService.storeBulkUploadJob(
       fileId,

@@ -24,6 +24,10 @@ import {
 } from '@nestjs/swagger';
 import { DeviceReviewsService, AssetDto } from './device-reviews.service';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
+import { UploadLogService } from '../upload-log/upload-log.service';
+import { UploadActionType } from '../upload-log/upload-log.entity';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
 import {
   DocumentType,
   DocumentTargetType,
@@ -39,6 +43,7 @@ export class DeviceReviewsController {
   constructor(
     private readonly service: DeviceReviewsService,
     private readonly documentUploadsService: DocumentUploadsService,
+    private readonly uploadLogService: UploadLogService,
   ) {}
 
   @Get()
@@ -173,6 +178,8 @@ export class DeviceReviewsController {
     @Param('deviceId', ParseIntPipe) deviceId: number,
     @Body('type') type: string,
     @UploadedFile() file: Express.Multer.File,
+    @UserDecorator() user: ILoggedInUser,
+    @Req() req: Request,
   ): Promise<any> {
     await this.service.assertNotApproved(deviceId);
     const projectName = await this.service.getProjectName(deviceId);
@@ -180,13 +187,26 @@ export class DeviceReviewsController {
       .replace(/[^a-zA-Z0-9-_]/g, '-')
       .toLowerCase();
     const projectSubfolder = `${subfolder}-${deviceId}`;
-    return this.documentUploadsService.upload(
+    const result = await this.documentUploadsService.upload(
       deviceId,
       DocumentTargetType.DEVICE,
       type as DocumentType,
       file,
       projectSubfolder,
     );
+    this.uploadLogService.logFileUpload({
+      deviceId,
+      userId: user.id,
+      userEmail: user.email,
+      organizationId: user.organizationId,
+      actionType: UploadActionType.DocumentUpload,
+      fileName: file.originalname,
+      fileBuffer: file.buffer,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      metadata: { documentType: type },
+    });
+    return result;
   }
 
   @Get(':deviceId/audit-trail')

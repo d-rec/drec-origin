@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -37,6 +38,9 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { UserService } from '../user/user.service';
 import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { ReadsService } from './reads.service';
+import { Request } from 'express';
+import { UploadLogService } from '../upload-log/upload-log.service';
+import { UploadActionType } from '../upload-log/upload-log.entity';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -49,6 +53,7 @@ export class ReadsController {
     private deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly uploadLogService: UploadLogService,
   ) {}
 
   /**
@@ -339,8 +344,9 @@ export class ReadsController {
     @Param('id') id: string,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
+    @Req() req: Request,
   ): Promise<void> {
-    return this.create(id, measurements, user);
+    return this.create(id, measurements, user, req);
   }
 
   /**
@@ -381,6 +387,7 @@ export class ReadsController {
     @Param('externalId') id: string,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
+    @Req() req: Request,
   ): Promise<void> {
     this.logger.verbose(`With in create`);
     if (measurements.organizationId) {
@@ -390,6 +397,16 @@ export class ReadsController {
       });
       user.organizationId = measurements.organizationId;
     }
+    this.uploadLogService.logPayload({
+      userId: user.id,
+      userEmail: user.email,
+      organizationId: user.organizationId,
+      actionType: UploadActionType.MeterReadApi,
+      payload: measurements,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      metadata: { deviceSerialNumber: id.trim() },
+    });
     return this.readsService.validateAndStoreReads({
       deviceSerialNumber: id.trim(),
       measurements,

@@ -83,6 +83,8 @@ import { ChatWebhook } from './pods/chat/chat-webhook.entity';
 import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module';
+import { UploadLogModule } from './pods/upload-log/upload-log.module';
+import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -140,6 +142,7 @@ export const entities = [
   Chat,
   ChatConversation,
   ChatWebhook,
+  UploadLogEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -204,6 +207,7 @@ const queueModule = () => {
     ChatModule,
     DeviceReviewsModule,
     TranslateModule,
+    UploadLogModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

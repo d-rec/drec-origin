@@ -27,9 +27,15 @@ export function generateDeviceFingerprint(
   const normalizedCapacity = removeTrailingZeroes(capacity);
   const dateOnly = new Date(commissioningDate).toISOString().split('T')[0];
 
+  // Snap coords to nearest 0.0002° (~22m grid) so minor GPS drift
+  // doesn't produce different fingerprints for the same physical site.
+  const GRID = 0.0002;
+  const snappedLat = (Math.round(parseFloat(latitude) / GRID) * GRID).toFixed(4);
+  const snappedLng = (Math.round(parseFloat(longitude) / GRID) * GRID).toFixed(4);
+
   const combinedString = [
-    latitude,
-    longitude,
+    snappedLat,
+    snappedLng,
     dateOnly,
     normalizedCapacity,
     fuelCode?.trim() || 'ES100',
