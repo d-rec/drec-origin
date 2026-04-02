@@ -1515,6 +1515,301 @@ export class DeviceReviewsService {
       summary: { total: photos.length, withGps, withinThreshold: withinCount, flagged },
     };
   }
+
+  /**
+   * D-REC VA layer: Auto-Screen Report.
+   * Runs all verification checks in parallel and aggregates results
+   * into a single screening report with pass/warn/fail flags.
+   */
+  async autoScreenReport(deviceId: number): Promise<{
+    deviceId: number;
+    sections: Array<{
+      name: string;
+      status: 'pass' | 'warn' | 'fail' | 'skip';
+      flags: string[];
+      detail?: any;
+    }>;
+    overallStatus: 'pass' | 'warn' | 'fail';
+    timestamp: string;
+  }> {
+    const sections: Array<{
+      name: string;
+      status: 'pass' | 'warn' | 'fail' | 'skip';
+      flags: string[];
+      detail?: any;
+    }> = [];
+
+    // Run all checks in parallel, catching individual failures
+    const [
+      ownership,
+      duplicates,
+      sourceAccess,
+      consistency,
+      ceiling,
+      crossSource,
+      photoGps,
+      controls,
+      sldCompare,
+    ] = await Promise.allSettled([
+      this.verifyOwnership(deviceId),
+      this.screenForDuplicates(deviceId),
+      this.verifySourceAccessMode(deviceId),
+      this.reviewHistoricalConsistency(deviceId),
+      this.checkProductionCeiling(deviceId),
+      this.crossSourceVerification(deviceId),
+      this.verifyPhotoGps(deviceId),
+      this.evaluateCompensatingControls(deviceId),
+      this.compareSldCapacity(deviceId),
+    ]);
+
+    // 1. Ownership
+    if (ownership.status === 'fulfilled') {
+      const r = ownership.value;
+      const flags: string[] = [];
+      if (r.ownershipStatus === 'flagged') flags.push('Ownership flagged');
+      if (r.missingDocuments?.length > 0)
+        flags.push(`Missing: ${r.missingDocuments.join(', ')}`);
+      sections.push({
+        name: 'Ownership Verification',
+        status: flags.length === 0 ? 'pass' : 'warn',
+        flags,
+      });
+    } else {
+      sections.push({ name: 'Ownership Verification', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 2. Duplicates
+    if (duplicates.status === 'fulfilled') {
+      const r = duplicates.value;
+      const count = r.duplicates?.length ?? 0;
+      sections.push({
+        name: 'Duplicate Screening',
+        status: count === 0 ? 'pass' : 'fail',
+        flags: count > 0 ? [`${count} potential duplicate(s) found`] : [],
+      });
+    } else {
+      sections.push({ name: 'Duplicate Screening', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 3. Source Access
+    if (sourceAccess.status === 'fulfilled') {
+      const r = sourceAccess.value;
+      const flags: string[] = [];
+      if (r.missingRequired?.length > 0)
+        flags.push(`Missing required docs: ${r.missingRequired.join(', ')}`);
+      if (r.manualChecks?.length > 0)
+        flags.push(`${r.manualChecks.length} manual check(s) needed`);
+      sections.push({
+        name: 'Source Access Mode',
+        status: r.missingRequired?.length > 0 ? 'fail' : flags.length > 0 ? 'warn' : 'pass',
+        flags,
+      });
+    } else {
+      sections.push({ name: 'Source Access Mode', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 4. Historical Consistency
+    if (consistency.status === 'fulfilled') {
+      const r = consistency.value;
+      const criticals = r.anomalies.filter((a) => a.severity === 'critical');
+      const warnings = r.anomalies.filter((a) => a.severity === 'warning');
+      const flags: string[] = [];
+      if (criticals.length > 0) flags.push(`${criticals.length} critical anomaly(s)`);
+      if (warnings.length > 0) flags.push(`${warnings.length} warning(s)`);
+      sections.push({
+        name: 'Historical Consistency',
+        status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
+        flags,
+        detail: { totalReadings: r.totalReadings, periodMonths: r.periodMonths },
+      });
+    } else {
+      sections.push({ name: 'Historical Consistency', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 5. Production Ceiling
+    if (ceiling.status === 'fulfilled') {
+      const r = ceiling.value;
+      const flags: string[] = [];
+      if (r.yieldMismatch) flags.push('Configured yield exceeds irradiance estimate');
+      const violations = r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
+      if (violations.length > 0) flags.push(`${violations.length} reading(s) exceed ceiling`);
+      sections.push({
+        name: 'Production Ceiling',
+        status: violations.length > 0 ? 'fail' : r.yieldMismatch ? 'warn' : 'pass',
+        flags,
+      });
+    } else {
+      sections.push({ name: 'Production Ceiling', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 6. Cross-Source
+    if (crossSource.status === 'fulfilled') {
+      const r = crossSource.value;
+      const criticals = r.flags?.filter((f: any) => f.severity === 'critical') || [];
+      const warnings = r.flags?.filter((f: any) => f.severity === 'warning') || [];
+      const flags: string[] = [];
+      if (criticals.length > 0) flags.push(`${criticals.length} critical flag(s)`);
+      if (warnings.length > 0) flags.push(`${warnings.length} warning(s)`);
+      sections.push({
+        name: 'Cross-Source Verification',
+        status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
+        flags,
+        detail: { performanceFactor: r.performanceFactor, rSquared: r.rSquared },
+      });
+    } else {
+      sections.push({ name: 'Cross-Source Verification', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 7. Photo GPS
+    if (photoGps.status === 'fulfilled') {
+      const r = photoGps.value;
+      const flags: string[] = [];
+      const noGps = r.summary.total - r.summary.withGps;
+      if (noGps > 0) flags.push(`${noGps} photo(s) without GPS`);
+      if (r.summary.flagged > 0) flags.push(`${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m`);
+      sections.push({
+        name: 'Photo GPS',
+        status: r.summary.flagged > 0 ? 'fail' : noGps > 0 && r.summary.total > 0 ? 'warn' : 'pass',
+        flags,
+      });
+    } else {
+      sections.push({ name: 'Photo GPS', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 8. Compensating Controls (only relevant for Mode 4)
+    if (controls.status === 'fulfilled') {
+      const r = controls.value;
+      if (r.isMode4) {
+        const unsatisfied = r.controls.filter((c: any) => !c.satisfied);
+        sections.push({
+          name: 'Compensating Controls',
+          status: unsatisfied.length > 0 ? 'fail' : 'pass',
+          flags: unsatisfied.map((c: any) => c.label),
+        });
+      }
+      // Omit section entirely if not Mode 4
+    }
+    // If controls check failed but was attempted, still skip
+    if (controls.status === 'rejected') {
+      // Only add if we can't tell whether it's Mode 4 — err on side of inclusion
+      sections.push({ name: 'Compensating Controls', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // 9. SLD Capacity Compare
+    if (sldCompare.status === 'fulfilled') {
+      const r = sldCompare.value;
+      const flags: string[] = [];
+      if (!r.hasSld) flags.push('No SLD document uploaded');
+      else if (r.sldCapacityKw == null) flags.push('SLD capacity not yet entered by reviewer');
+      else if (r.match === false) flags.push(`SLD says ${r.sldCapacityKw} kW, registered ${r.registeredCapacityKw} kW (${r.differencePercent > 0 ? '+' : ''}${r.differencePercent}%)`);
+      sections.push({
+        name: 'SLD Capacity Compare',
+        status: !r.hasSld ? 'warn' : r.match === false ? 'fail' : r.match === true ? 'pass' : 'warn',
+        flags,
+      });
+    } else {
+      sections.push({ name: 'SLD Capacity Compare', status: 'skip', flags: ['Check failed'] });
+    }
+
+    // Overall status
+    const hasAnyFail = sections.some((s) => s.status === 'fail');
+    const hasAnyWarn = sections.some((s) => s.status === 'warn');
+    const overallStatus = hasAnyFail ? 'fail' : hasAnyWarn ? 'warn' : 'pass';
+
+    await this.logAudit(deviceId, 'auto_screen_report',
+      `Auto-screen: ${overallStatus} — ${sections.filter(s => s.status === 'fail').length} fail, ${sections.filter(s => s.status === 'warn').length} warn, ${sections.filter(s => s.status === 'pass').length} pass`,
+      'reviewer', { overallStatus, sections: sections.map(s => ({ name: s.name, status: s.status })) });
+
+    return {
+      deviceId,
+      sections,
+      overallStatus,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * D-REC VA layer: Set the SLD-stated capacity (kW) for a device.
+   * Reviewer reads the value from the Single Line Diagram and enters it here.
+   */
+  async setSldCapacity(
+    deviceId: number,
+    sldCapacityKw: number,
+  ): Promise<{ sldCapacityKw: number }> {
+    const rows = await this.connection.query(
+      `SELECT id FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    await this.connection.query(
+      `UPDATE device SET sld_capacity_kw = $1 WHERE id = $2`,
+      [sldCapacityKw, deviceId],
+    );
+    await this.logAudit(deviceId, 'sld_capacity_set',
+      `SLD capacity set to ${sldCapacityKw} kW`,
+      'reviewer', { sldCapacityKw });
+    return { sldCapacityKw };
+  }
+
+  /**
+   * D-REC VA layer: Compare SLD-stated capacity against registered capacity.
+   * Flags mismatch if difference exceeds ±10%.
+   */
+  async compareSldCapacity(deviceId: number): Promise<{
+    registeredCapacityKw: number | null;
+    sldCapacityKw: number | null;
+    hasSld: boolean;
+    differencePercent: number | null;
+    tolerancePercent: number;
+    match: boolean | null;
+  }> {
+    const TOLERANCE = 10; // ±10%
+    const rows: any[] = await this.connection.query(
+      `SELECT capacity, sld_capacity_kw FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const registered = rows[0].capacity != null ? parseFloat(rows[0].capacity) : null;
+    const sld = rows[0].sld_capacity_kw != null ? parseFloat(rows[0].sld_capacity_kw) : null;
+
+    // Check if SLD document exists
+    const docs = await this.connection.query(
+      `SELECT id FROM documents
+       WHERE target_id = $1 AND target_type = 'device' AND type = 'SINGLE_LINE_DIAGRAM'
+       LIMIT 1`,
+      [deviceId],
+    );
+    const hasSld = docs.length > 0;
+
+    if (registered == null || sld == null) {
+      return {
+        registeredCapacityKw: registered,
+        sldCapacityKw: sld,
+        hasSld,
+        differencePercent: null,
+        tolerancePercent: TOLERANCE,
+        match: null,
+      };
+    }
+
+    const diff = registered > 0
+      ? ((sld - registered) / registered) * 100
+      : (sld === 0 ? 0 : 100);
+    const match = Math.abs(diff) <= TOLERANCE;
+
+    return {
+      registeredCapacityKw: Math.round(registered * 100) / 100,
+      sldCapacityKw: Math.round(sld * 100) / 100,
+      hasSld,
+      differencePercent: Math.round(diff * 10) / 10,
+      tolerancePercent: TOLERANCE,
+      match,
+    };
+  }
 }
 
 /** Haversine distance in meters between two lat/lng points. */

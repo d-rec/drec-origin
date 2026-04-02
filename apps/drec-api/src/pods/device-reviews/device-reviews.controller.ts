@@ -388,6 +388,55 @@ export class DeviceReviewsController {
     return this.service.verifySourceAccessMode(deviceId);
   }
 
+  @Get(':deviceId/auto-screen')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Run all verification checks and produce a screening report',
+    description:
+      'D-REC VA layer: Aggregates ownership, duplicates, source-access, consistency, ceiling, cross-source, photo GPS, and compensating controls into one report.',
+  })
+  @ApiResponse({ status: 200, description: 'Auto-screen report' })
+  autoScreen(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.autoScreenReport(deviceId);
+  }
+
+  @Get(':deviceId/sld-compare')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Compare SLD-stated capacity against registered capacity',
+    description:
+      'D-REC VA layer: Returns the SLD capacity entered by the reviewer vs the device registered capacity, flagging ±10% mismatches.',
+  })
+  @ApiResponse({ status: 200, description: 'SLD capacity comparison' })
+  compareSldCapacity(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.compareSldCapacity(deviceId);
+  }
+
+  @Patch(':deviceId/sld-capacity')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Set the SLD-stated capacity (kW) for a device',
+    description:
+      'Reviewer enters the kW value read from the Single Line Diagram.',
+  })
+  @ApiResponse({ status: 200, description: 'SLD capacity saved' })
+  setSldCapacity(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body('sldCapacityKw') sldCapacityKw: number,
+  ): Promise<any> {
+    return this.service.setSldCapacity(deviceId, sldCapacityKw);
+  }
+
   @Get(':deviceId/photo-gps')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')

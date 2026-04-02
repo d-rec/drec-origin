@@ -239,6 +239,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: false, name: 'serial_number' })
   serialNumber: string;
 
+  @Column({ type: 'decimal', nullable: true, name: 'sld_capacity_kw' })
+  sldCapacityKw: number | null;
+
   @OneToMany(
     () => CheckCertificateIssueDateLogForDeviceEntity,
     (certificateLog) => certificateLog.device,
