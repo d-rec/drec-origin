@@ -195,7 +195,7 @@ export class ReadsController {
       );
       orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (
-        user.role === Role.ApiUser &&
+        user.role === Role.MarketIntermediary &&
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
@@ -242,7 +242,7 @@ export class ReadsController {
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
       (filter.organizationId != undefined && orgUser.role === 'Buyer') ||
-      (user.role === 'ApiUser' && filter.organizationId == undefined)
+      (user.role === 'MarketIntermediary' && filter.organizationId == undefined)
     ) {
       if (isNaN(parseInt(meterId))) {
         this.logger.error(
@@ -332,7 +332,7 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreRead(
@@ -374,7 +374,7 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async create(
@@ -514,7 +514,7 @@ export class ReadsController {
     if (
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
-      user.role === 'ApiUser'
+      user.role === 'MarketIntermediary'
     ) {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(id));
@@ -550,7 +550,7 @@ export class ReadsController {
         this.logger.error(`Read Not found`);
         throw new HttpException('Read Not found', 400);
       }
-      if (user.role === 'Buyer' || user.role === 'ApiUser') {
+      if (user.role === 'Buyer' || user.role === 'MarketIntermediary') {
         return {
           externalId: device.serialNumber,
           timestamp: latestReadObject[0].timestamp,

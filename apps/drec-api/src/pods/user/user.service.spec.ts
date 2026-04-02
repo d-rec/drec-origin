@@ -139,7 +139,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya3@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -175,7 +175,7 @@ describe('UserService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(roleRepository, 'findOne')
-        .mockResolvedValue({ id: 6, name: 'ApiUser' } as any);
+        .mockResolvedValue({ id: 6, name: 'MarketIntermediary' } as any);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({
@@ -225,7 +225,7 @@ describe('UserService', () => {
           password: expect.any(String),
           notifications: true,
           status: UserStatus.Active,
-          role: Role.ApiUser,
+          role: Role.MarketIntermediary,
           roleId: 6,
           organization: { id: 1 },
           api_user_id: userData.api_user_id,
@@ -243,7 +243,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -319,7 +319,7 @@ describe('UserService', () => {
         firstName: 'test',
         lastName: 'ApiUser',
         email: 'testsweya5@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
         orgName: 'DIRECT_ORG_DEVELOPER1',
@@ -568,7 +568,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.MarketIntermediary,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -584,7 +584,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.MarketIntermediary,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -629,7 +629,7 @@ describe('UserService', () => {
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
     });
 
-    it('should include permission_status when the found user has a role of Role.ApiUser', async () => {
+    it('should include permission_status when the found user has a role of Role.MarketIntermediary', async () => {
       const userId = 1;
       mockUserEntity.permission_status = UserPermissionStatus.Active;
       const findOneSpy = jest
@@ -651,7 +651,7 @@ describe('UserService', () => {
       expect(user.permission_status).toBe(UserPermissionStatus.Request);
     });
 
-    it('should not include permission_status when the found user has a role other than Role.ApiUser', async () => {
+    it('should not include permission_status when the found user has a role other than Role.MarketIntermediary', async () => {
       const userId = 1;
       const organizationEntity = {
         id: 1,
@@ -717,7 +717,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.MarketIntermediary,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -733,7 +733,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.MarketIntermediary,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -785,7 +785,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.MarketIntermediary,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -801,7 +801,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.MarketIntermediary,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -864,7 +864,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.MarketIntermediary,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -880,7 +880,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.MarketIntermediary,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,

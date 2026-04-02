@@ -96,7 +96,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.MarketIntermediary)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -142,7 +142,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -168,7 +168,7 @@ export class DeviceController {
     const organization = await this.organizationService.findOne(
       filterDTO.organizationId,
     );
-    if (role === Role.ApiUser) {
+    if (role === Role.MarketIntermediary) {
       if (organization.api_user_id != api_user_id) {
         this.logger.error(
           `The requested organization is belongs to other apiuser`,
@@ -192,7 +192,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -348,7 +348,7 @@ export class DeviceController {
       }
     }
     if (filterDTO.organizationId) {
-      if (role === Role.ApiUser) {
+      if (role === Role.MarketIntermediary) {
         const organization = await this.organizationService.findOne(
           filterDTO.organizationId,
         );
@@ -508,7 +508,7 @@ export class DeviceController {
     this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
-    if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
+    if (loginUser.role === Role.MarketIntermediary || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
@@ -553,7 +553,7 @@ export class DeviceController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @UseInterceptors(
@@ -658,7 +658,7 @@ export class DeviceController {
           .join(', '),
       );
     }
-    if (role === Role.Admin || role === Role.ApiUser) {
+    if (role === Role.Admin || role === Role.MarketIntermediary) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
         organizationId = deviceToRegister.organizationId;
@@ -1095,7 +1095,7 @@ export class DeviceController {
     });
     if (
       group === null ||
-      (group.organizationId != user.organizationId && user.role != 'ApiUser') ||
+      (group.organizationId != user.organizationId && user.role != 'MarketIntermediary') ||
       group.api_user_id != user.api_user_id
     ) {
       this.logger.error(

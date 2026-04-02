@@ -238,7 +238,7 @@ export class PermissionController {
    */
   @Post('/module/apiuser/request')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.ApiUser)
+  @Roles(Role.MarketIntermediary)
   @ApiBody({ type: [NewApiUserPermissionDTO] })
   @ApiOperation({
     summary: 'Request Permission for API User',

@@ -52,7 +52,7 @@ export class ApiUserSeeder implements SeederInterface {
       this.organizationRepository.create({
         name: 'Evident demo',
         orgEmail: email,
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         address: '1 Evident St',
         zipCode: '00000',
         city: 'London',
@@ -75,7 +75,7 @@ export class ApiUserSeeder implements SeederInterface {
         password: hashedPassword,
         notifications: false,
         status: UserStatus.Active,
-        role: Role.ApiUser,
+        role: Role.MarketIntermediary,
         roleId: 6,
         organization,
         api_user_id: apiUser.api_user_id,

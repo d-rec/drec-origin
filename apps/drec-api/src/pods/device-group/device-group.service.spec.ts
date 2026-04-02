@@ -316,7 +316,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.ApiUser,
+        role: Role.MarketIntermediary,
         organizationId: 1,
       } as ILoggedInUser;
 
@@ -344,7 +344,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.ApiUser,
+        role: Role.MarketIntermediary,
         organizationId: 1,
       } as ILoggedInUser;
 

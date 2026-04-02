@@ -304,7 +304,7 @@ export class DeviceService {
       const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
-      if (role == Role.ApiUser) {
+      if (role == Role.MarketIntermediary) {
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
         } else {
@@ -771,7 +771,7 @@ export class DeviceService {
     }
     newDevice.fingerprint = fingerprint;
 
-    if (role === Role.ApiUser) {
+    if (role === Role.MarketIntermediary) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);

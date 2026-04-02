@@ -122,7 +122,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'ApiUser',
+          organizationType: 'MarketIntermediary',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -315,7 +315,7 @@ describe('InvitationService', () => {
         organizationId: 2,
         email: 'iceratan@gmail.com',
         blockchainAccountAddress: null,
-        role: Role.ApiUser, //'Admin',
+        role: Role.MarketIntermediary, //'Admin',
         permissions: ['Read', 'Write', 'Update'],
         api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
       };
@@ -336,7 +336,7 @@ describe('InvitationService', () => {
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active, //'Active',
-        role: Role.ApiUser, //'Admin',
+        role: Role.MarketIntermediary, //'Admin',
         roleId: 6,
         organization: {
           id: 2,
@@ -347,7 +347,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.ApiUser,
+          organizationType: OrganizationType.MarketIntermediary,
           orgEmail: 'iceratan@gmail.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -568,7 +568,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.ApiUser,
+          organizationType: OrganizationType.MarketIntermediary,
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -651,7 +651,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh',
@@ -721,7 +721,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Mocking this to match the user's api_user_id
@@ -731,7 +731,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser, // Change to Role.ApiUser to match the organization's api_user_id
+          role: Role.MarketIntermediary, // Change to Role.MarketIntermediary to match the organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Match the organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
@@ -772,7 +772,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Matching the user's api_user_id
@@ -782,7 +782,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.ApiUser, // Role matching organization's api_user_id
+          role: Role.MarketIntermediary, // Role matching organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Matching organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',

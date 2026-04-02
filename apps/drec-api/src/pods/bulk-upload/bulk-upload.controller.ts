@@ -59,7 +59,7 @@ export class BulkUploadController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({
@@ -159,7 +159,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
   @ApiSecurity('bearer')
   @ApiQuery({
     name: 'bulkUploadType',

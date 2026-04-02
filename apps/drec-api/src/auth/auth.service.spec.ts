@@ -210,7 +210,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.ApiUser,
+        role: Role.MarketIntermediary,
       };
       const token = 'fake-jwt-token';
 
@@ -266,7 +266,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.ApiUser,
+        role: Role.MarketIntermediary,
       };
 
       const tokenInvalidate = true;

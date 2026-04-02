@@ -316,7 +316,7 @@ export class AdminController {
 
   @Put('/users/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.MarketIntermediary)
   @Permission('Write')
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })

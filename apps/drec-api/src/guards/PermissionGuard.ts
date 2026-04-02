@@ -42,7 +42,7 @@ export class PermissionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     if (
       request.url.split('/')[3] === 'register' &&
-      request.body.organizationType === OrganizationType.ApiUser
+      request.body.organizationType === OrganizationType.MarketIntermediary
     ) {
       this.logger.verbose(`When ${request.url.split('/')[3]}`);
       return true;

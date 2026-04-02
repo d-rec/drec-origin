@@ -94,7 +94,7 @@ export class BuyerReservationController {
   )
   @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.MarketIntermediary, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -160,7 +160,7 @@ export class BuyerReservationController {
 
     if (organizationId) {
       organization = await this.organizationService.findOne(organizationId);
-      if (user.role === Role.ApiUser) {
+      if (user.role === Role.MarketIntermediary) {
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(
             `Organization requested is belongs to other apiuser`,
@@ -174,7 +174,7 @@ export class BuyerReservationController {
     }
 
     if (apiUserId) {
-      if (user.role === Role.ApiUser) {
+      if (user.role === Role.MarketIntermediary) {
         if (apiUserId != user.api_user_id) {
           this.logger.error(
             `An apiuser is unauthorized to request for other apiuser`,
@@ -337,7 +337,7 @@ export class BuyerReservationController {
     if (organizationId) {
       const organization =
         await this.organizationService.findOne(organizationId);
-      if (user.role === Role.ApiUser) {
+      if (user.role === Role.MarketIntermediary) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
             `Organization requested is belongs to other apiuser`,
@@ -375,7 +375,7 @@ export class BuyerReservationController {
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
   // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.MarketIntermediary, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -443,7 +443,7 @@ export class BuyerReservationController {
 
   @Post('pathway')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.MarketIntermediary, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,

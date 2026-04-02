@@ -284,7 +284,7 @@ export class OrganizationController {
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
-  @Roles(Role.ApiUser)
+  @Roles(Role.MarketIntermediary)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -384,7 +384,7 @@ export class OrganizationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
-    if (loggedUser.role === Role.ApiUser) {
+    if (loggedUser.role === Role.MarketIntermediary) {
       return this.organizationService.findApiUserOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
@@ -692,7 +692,7 @@ export class OrganizationController {
   ): Promise<SuccessResponseDTO> {
     const user = await this.userService.findById(userid);
     if (
-      loggedUser.role === Role.ApiUser &&
+      loggedUser.role === Role.MarketIntermediary &&
       loggedUser.api_user_id != user.api_user_id
     ) {
       throw new NotFoundException('User does not exist in this organization');

@@ -109,7 +109,7 @@ export class OrganizationService {
     this.logger.verbose(`With in getAll`);
     const query = await this.getFilteredQuery(filterDTO);
     try {
-      if (user != undefined && user?.role === 'ApiUser') {
+      if (user != undefined && user?.role === 'MarketIntermediary') {
         query
           .andWhere('organization.api_user_id = :apiuserid', {
             apiuserid: user.api_user_id,
@@ -343,7 +343,7 @@ export class OrganizationService {
 
     const linkedMarketIntermediary = await this.repository.findOne({
       where: {
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.MarketIntermediary,
         api_user_id: organization.api_user_id,
       },
     });

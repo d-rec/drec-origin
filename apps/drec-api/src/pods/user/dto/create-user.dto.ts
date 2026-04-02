@@ -107,7 +107,7 @@ export class CreateUserOrgDTO
   @IsIn(
     [
       OrganizationType.Developer,
-      OrganizationType.ApiUser,
+      OrganizationType.MarketIntermediary,
       OrganizationType.Buyer,
       OrganizationType.Operator,
       OrganizationType.Reviewer,

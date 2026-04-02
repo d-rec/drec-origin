@@ -109,7 +109,7 @@ describe('OrganizationService', () => {
       const pageNumber = 1;
       const limit = 10;
       const user = {
-        role: Role.ApiUser, //'ApiUser',
+        role: Role.MarketIntermediary, //'ApiUser',
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
       };
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {

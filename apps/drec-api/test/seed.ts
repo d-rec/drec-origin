@@ -88,7 +88,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'admin2@mailinator.com',
     phoneNumber: '+14155552671', // US number
     password: '******123',
-    organizationType: OrganizationType.ApiUser,
+    organizationType: OrganizationType.MarketIntermediary,
   },
   {
     firstName: 'Maria',

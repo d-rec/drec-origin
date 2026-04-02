@@ -430,7 +430,7 @@ export class UserController {
 
   @Get('export-accesskey/:api_user_id')
   @UseGuards(WithoutAuthGuard, RolesGuard)
-  @Roles(Role.ApiUser)
+  @Roles(Role.MarketIntermediary)
   @ApiOperation({
     summary: 'Export Access Key',
     description:

@@ -74,7 +74,7 @@ export class WithoutAuthGuard implements CanActivate {
             request.body.organizationType === OrganizationType.Buyer)
         ) {
           user = await this.userService.findOne({
-            role: Role.ApiUser,
+            role: Role.MarketIntermediary,
             api_user_id: request.body.api_user_id,
           });
 
@@ -84,7 +84,7 @@ export class WithoutAuthGuard implements CanActivate {
               message: 'Requested api user is not available',
             });
           }
-        } else if (request.body.organizationType === OrganizationType.ApiUser) {
+        } else if (request.body.organizationType === OrganizationType.MarketIntermediary) {
           const apiUser =
             await this.oauthClientCredentialsService.createAPIUser();
           request.body.api_user_id = apiUser.api_user_id;
@@ -94,7 +94,7 @@ export class WithoutAuthGuard implements CanActivate {
 
       case UrlPath.ExportAccessKey:
         user = await this.userService.findOne({
-          role: Role.ApiUser,
+          role: Role.MarketIntermediary,
           api_user_id: request.params.api_user_id,
         });
         break;
@@ -118,7 +118,7 @@ export class WithoutAuthGuard implements CanActivate {
       !skipRoleCheck &&
       request.body.organizationType === undefined &&
       user.role != Role.Admin &&
-      user.role != Role.ApiUser &&
+      user.role != Role.MarketIntermediary &&
       user.api_user_id != adminApiUserId
     ) {
       throw new UnauthorizedException({

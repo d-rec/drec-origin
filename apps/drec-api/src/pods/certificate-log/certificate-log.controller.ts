@@ -251,7 +251,7 @@ export class CertificateLogController {
       deviceGroupUid: groupId,
     });
 
-    if (user.role === Role.ApiUser) {
+    if (user.role === Role.MarketIntermediary) {
       if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({
@@ -439,7 +439,7 @@ export class CertificateLogController {
   ): Promise<CertificateLogResponse> {
     this.logger.verbose(`With in getCertificatesForDeveloper`);
 
-    if (user.role === Role.ApiUser) {
+    if (user.role === Role.MarketIntermediary) {
       // If the user is an ApiUser, organizationId is optional
 
       if (organizationId) {
@@ -538,7 +538,7 @@ export class CertificateLogController {
     const deviceGroup = await this.deviceGroupService.findOne({
       deviceGroupUid: groupId,
     });
-    if (user.role === Role.ApiUser) {
+    if (user.role === Role.MarketIntermediary) {
       if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({

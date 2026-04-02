@@ -763,7 +763,7 @@ export class CertificateLogService {
                     }
                   }
                 }
-                if (role === 'Buyer' || role === Role.ApiUser) {
+                if (role === 'Buyer' || role === Role.MarketIntermediary) {
                   deviceLog =
                     await this.getCheckCertificateIssueDateLogForDevice(
                       parseInt(group.dg_id),
@@ -936,7 +936,7 @@ export class CertificateLogService {
                       }
                     }
                   }
-                  if (role === 'Buyer' || role === Role.ApiUser) {
+                  if (role === 'Buyer' || role === Role.MarketIntermediary) {
                     deviceLog =
                       await this.getCheckCertificateIssueDateLogForDevice(
                         parseInt(group.dg_id),

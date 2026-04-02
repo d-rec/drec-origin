@@ -152,8 +152,8 @@ export class UserService {
         role = Role.Buyer;
       } else if (data.organizationType === OrganizationType.Developer) {
         role = Role.OrganizationAdmin;
-      } else if (data.organizationType === OrganizationType.ApiUser) {
-        role = Role.ApiUser;
+      } else if (data.organizationType === OrganizationType.MarketIntermediary) {
+        role = Role.MarketIntermediary;
       } else if (data.organizationType === OrganizationType.Reviewer) {
         role = Role.Reviewer;
       } else if (data.organizationType === OrganizationType.SeniorReviewer) {
@@ -341,7 +341,7 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    if (user.role === Role.ApiUser) {
+    if (user.role === Role.MarketIntermediary) {
       const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
       user['permission_status'] = apiUser.permission_status;
     }
@@ -567,7 +567,7 @@ export class UserService {
     const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
-        .andWhere(`role != :role`, { role: Role.ApiUser })
+        .andWhere(`role != :role`, { role: Role.MarketIntermediary })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
@@ -661,7 +661,7 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    if (user.role === Role.ApiUser) {
+    if (user.role === Role.MarketIntermediary) {
       const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
       user['permission_status'] = apiUser.permission_status;
     }
@@ -719,7 +719,7 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
       .where('user.api_user_id = :api_user_id', { api_user_id })
-      .andWhere(`role != :role`, { role: Role.ApiUser })
+      .andWhere(`role != :role`, { role: Role.MarketIntermediary })
       .orderBy('user.createdAt', 'DESC')
       .skip((pageNumber - 1) * limit)
       .take(limit)
@@ -796,7 +796,7 @@ export class UserService {
     const query = await this.getFilteredQuery(filterDTO);
     try {
       const [apiUsers, totalCount] = await query
-        .andWhere(`user.role = :role`, { role: Role.ApiUser })
+        .andWhere(`user.role = :role`, { role: Role.MarketIntermediary })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();

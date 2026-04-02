@@ -391,7 +391,7 @@ export class DeviceGroupService {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
     if (user) {
-      if (user.role === Role.ApiUser) {
+      if (user.role === Role.MarketIntermediary) {
         const organization = await this.organizationService.findOne(
           user.organizationId,
         );
@@ -1315,7 +1315,7 @@ export class DeviceGroupService {
               device,
               files,
               api_user_id,
-              Role.ApiUser,
+              Role.MarketIntermediary,
             );
           }
         } catch (e) {
@@ -2349,7 +2349,7 @@ export class DeviceGroupService {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
         });
-      } else if (role === 'ApiUser') {
+      } else if (role === 'MarketIntermediary') {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
         });
@@ -2568,7 +2568,7 @@ export class DeviceGroupService {
     } else if (
       role === 'Buyer' ||
       role === 'SubBuyer' ||
-      role === Role.ApiUser
+      role === Role.MarketIntermediary
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
@@ -2645,7 +2645,7 @@ export class DeviceGroupService {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
         });
-      } else if (role === 'ApiUser') {
+      } else if (role === 'MarketIntermediary') {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
         });
@@ -2860,7 +2860,7 @@ export class DeviceGroupService {
     } else if (
       role === 'Buyer' ||
       role === 'SubBuyer' ||
-      role === Role.ApiUser
+      role === Role.MarketIntermediary
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);

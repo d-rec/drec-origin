@@ -17,7 +17,7 @@ export const canManageOrganization = ({
     return true;
   }
 
-  if (user.role !== Role.ApiUser) {
+  if (user.role !== Role.MarketIntermediary) {
     return user.organizationId === organization.id;
   }
 
@@ -27,7 +27,7 @@ export const canManageOrganization = ({
 
   if (
     organizationAdmin.role !== Role.OrganizationAdmin &&
-    organizationAdmin.role !== Role.ApiUser
+    organizationAdmin.role !== Role.MarketIntermediary
   ) {
     return false;
   }

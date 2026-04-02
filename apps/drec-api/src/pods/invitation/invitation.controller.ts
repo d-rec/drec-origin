@@ -180,7 +180,7 @@ export class InvitationController {
     Role.Admin,
     Role.Buyer,
     Role.SubBuyer,
-    Role.ApiUser,
+    Role.MarketIntermediary,
   )
   @Permission('Write')
   @ACLModules('INVITATION_MANAGEMENT_CRUDL')
@@ -233,7 +233,7 @@ export class InvitationController {
     }
 
     try {
-      if (loggedUser.role === Role.Admin || loggedUser.role === Role.ApiUser) {
+      if (loggedUser.role === Role.Admin || loggedUser.role === Role.MarketIntermediary) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
             responseFailure(
