@@ -631,8 +631,6 @@ export class DeviceService {
         statusCode: 409,
       });
     }
-    newDevice.fingerprint = fingerprint;
-
     if (role === Role.ApiUser) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
@@ -650,6 +648,7 @@ export class DeviceService {
     }
     const result = await this.repository.save({
       ...newDevice,
+      fingerprint,
       organizationId: organizationId,
       api_user_id: api_user_id,
     });
@@ -787,9 +786,8 @@ export class DeviceService {
         statusCode: 409,
       });
     }
-    updateDeviceDTO.fingerprint = fingerprint;
-
     Object.assign(currentDevice, updateDeviceDTO);
+    currentDevice.fingerprint = fingerprint;
     currentDevice.updatedAt = new Date();
     return await this.repository.save(currentDevice);
   }
