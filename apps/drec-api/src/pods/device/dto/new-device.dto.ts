@@ -256,10 +256,6 @@ export class NewDeviceDTO implements Omit<
   @IsString()
   postcode?: string | null;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  fingerprint?: string | null;
 }
 export class DeviceRegistrationBody {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
