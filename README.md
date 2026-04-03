@@ -85,12 +85,19 @@ This starts PostgreSQL, Redis, MinIO (S3-compatible storage), and Mailpit (email
 
 > The `origin` database is created automatically by the Docker Compose Postgres container — you do **not** need to run `CREATE DATABASE` manually.
 
-The local Postgres instance is seeded with a default admin account:
+The local dev environment is seeded with a default D-REC admin account:
 
 | Field | Value |
 |-------|-------|
 | **Email** | `admin@drec.local` |
 | **Password** | `Admin1234!` |
+
+Local service UIs:
+
+| Service | URL |
+|---------|-----|
+| **Mailpit** (email inbox) | <http://localhost:8025> |
+| **MinIO** (file browser) | <http://localhost:9001> |
 
 ### 3. Install dependencies and run
 
