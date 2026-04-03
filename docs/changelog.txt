@@ -1,5 +1,30 @@
 DREC Changelog
-Report date: April 2, 2026
+Report date: April 3, 2026
+
+
+RECENT CHANGES (April 2026)
+============================================================
+
+v0.8.1 (2026-04-03)
+--------------------
+
+  STAGING (deployed)
+  ~~~~~~~~~~~~~~~~~~
+  - Removed fingerprint from input DTOs (NewDeviceDTO, UpdateDeviceDTO) —
+    it was always computed server-side; exposing it was misleading
+
+  DEVELOP (not yet deployed)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Fixed: partial device updates via API crashed when optional fields
+    (e.g. SDGBenefits) were omitted — TypeError on undefined.includes()
+  - Fixed: Object.assign overwrote existing device values with undefined
+    when fields were not sent in the update payload
+  - Fixed: fingerprint generation used undefined for unsent fields,
+    causing false 409 Conflict errors on partial updates
+  - New endpoint: PATCH /api/device/by-site/:siteName — update a device
+    by its site name instead of serial number
+  - Fixed: serial number validation now consistently allows semicolons
+    across all DTOs (DeviceDTO was missing the semicolon in its regex)
 
 
 PRODUCTION DEPLOYMENT HISTORY (October 2024 -- March 2026)

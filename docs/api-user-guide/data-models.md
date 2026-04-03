@@ -19,7 +19,7 @@ Authorization: Bearer <token>
 
 {
   "externalId": "DEV-001",
-  "projectName": "My Solar Project",
+  "siteName": "My Solar Site",
   "countryCode": "IN",
   "commissioningDate": "2025-01-15",
   "capacity": 50,
@@ -42,7 +42,7 @@ POST /api/device
 Content-Type: multipart/form-data
 Authorization: Bearer <token>
 
-deviceToRegister: '{"externalId":"DEV-001","projectName":"My Solar Project",...}'
+deviceToRegister: '{"externalId":"DEV-001","siteName":"My Solar Site",...}'
 FORM_SF_02: <file>         (optional)
 SF_02C: <file>             (optional)
 METERING_EVIDENCE: <file>  (optional)
@@ -72,7 +72,26 @@ The caller must have one of: `OrganizationAdmin`, `ApiUser`.
 
 The device update endpoint also accepts both `application/json` and `multipart/form-data`, following the same dual-path pattern. When using multipart, send the device data as a JSON string in the `deviceToUpdate` field.
 
+All fields are optional — only send the fields you want to change. Unsent fields are left unchanged.
+
 All document file uploads are optional on update.
+
+## Device Update by Site Name (PATCH /api/device/by-site/:siteName)
+
+Alternative to the serial-number-based update. Looks up the device by its `siteName` within the caller's organization.
+
+```http
+PATCH /api/device/by-site/My%20Solar%20Site
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "organizationId": 1,
+  "capacity": 75
+}
+```
+
+Accepts the same body and file uploads as `PATCH /api/device/:externalId`.
 
 ---
 
