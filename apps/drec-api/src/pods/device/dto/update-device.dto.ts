@@ -234,8 +234,4 @@ export class UpdateDeviceDTO
   @IsOptional()
   postcode?: string | null;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  fingerprint?: string | null;
 }
