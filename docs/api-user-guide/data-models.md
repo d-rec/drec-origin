@@ -19,7 +19,7 @@ Authorization: Bearer <token>
 
 {
   "externalId": "DEV-001",
-  "siteName": "My Solar Site",
+  "projectName": "My Solar Project",
   "countryCode": "IN",
   "commissioningDate": "2025-01-15",
   "capacity": 50,

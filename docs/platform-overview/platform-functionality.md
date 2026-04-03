@@ -64,7 +64,7 @@ Users must be logged in with a valid access token to register devices. The platf
   "developerExternalId": "string",
   "status": "string",
   "organizationId": "number",
-  "siteName": "string",
+  "projectName": "string",
   "address": "string",
   "latitude": "string",
   "longitude": "string",
