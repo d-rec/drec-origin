@@ -1,0 +1,659 @@
+DREC Changelog
+Report date: April 2, 2026
+
+
+PRODUCTION DEPLOYMENT HISTORY (October 2024 -- March 2026)
+============================================================
+
+v0.7.2 (2025-08-30)
+--------------------
+  - Dependency updates and linting cleanup
+
+v0.7.1 (2025-08-30)
+--------------------
+  - General code cleanup
+
+v0.7.0 (2025-08-30) -- InfluxDB Migration
+------------------------------------------
+  - Migrated all meter read storage from InfluxDB to PostgreSQL
+  - Refactored issuance process to use new meter reads table (#696)
+  - Removed all InfluxDB usage from core components (#722, #717)
+  - Added createdAt column on meter reads migration
+  - Fixed invalid id for fetching device groups
+  - Cleaned up reads controller and merged certificate log type
+  - Fixed issuance date calculation (#718)
+  - Renamed AWS environment variables
+  - Integrated demo videos in documentation (#720)
+
+v0.6.0 (2025-07-21) -- Issuance Fixes & Profiling
+---------------------------------------------------
+  - Created new Meter Reading Table (#639)
+  - Migrated reads from InfluxDB to meter reads table (#671)
+  - Migrated history reads to meter reads table (#673)
+  - Fixed ongoing reads start date calculation and ordering (#674)
+  - Hotfix: old previous read always used as latest
+  - Fixed issue preventing certificates from being generated without
+    buyer id (#684)
+  - Fixed minimum date calculation for issuance (#670, #668)
+  - Fixed converting into watts for certificate logs
+  - Fixed cycles generation inconsistencies (#653)
+  - Queued create-missing-cycles and ran in sequence
+  - Fixed invalid total read calculation per device
+  - Added code profiler with env variable toggle (#649)
+
+v0.5.0 (2025-06-16) -- Database Replication
+--------------------------------------------
+  - Added database replication routing connection for read replicas (#628)
+  - Hotfix: added missing DB host in config
+  - Suppressed verbose service logs
+
+v0.4.4 (2025-05-29)
+--------------------
+  - Created device indexes for late-ongoing certificates (#624)
+
+v0.4.3 (2025-05-26)
+--------------------
+  - Hotfix: added error handling for empty certificate logs
+
+v0.4.2 (2025-05-13)
+--------------------
+  - Fixed valid device calculation for issuance
+
+v0.4.1 (2025-05-13)
+--------------------
+  - Fixed token issuance transaction
+
+v0.4.0 (2025-05-13) -- Blockchain & Issuance
+---------------------------------------------
+  - Fixed terms-accepted-at column name
+  - Stored existing registry and issuer in the database
+  - Fixed blockchain seed (#577)
+  - Improved check-missing-cycles logic
+
+v0.3.2 (2025-04-24)
+--------------------
+  - Added root route handler (#573)
+  - Cleaned up historical reads service
+
+v0.3.1 (2025-04-23)
+--------------------
+  - Hotfix: prevented cron reentry on issuance jobs (#571)
+
+v0.3.0 (2025-04-22) -- Issuer Refactor
+---------------------------------------
+  - Refactored issuer service into dedicated files (#562)
+  - Archived outdated late-ongoing cycles (#569)
+  - Hotfix: only mark as checked cycles without certificates (#567)
+  - Improved API documentation (#568)
+
+v0.2.0 (2025-04-10) -- Late Ongoing Issuance
+---------------------------------------------
+  - Queued late-ongoing issuance processing
+  - Improved & refactored late ongoing issuance process (#525)
+  - Loaded late-ongoing queries in parallel
+  - Added phone number field (#547)
+  - Fixed naming for clarity (#527)
+
+v0.1.3 (2025-04-05)
+--------------------
+  - Added standard semver versioning
+  - Merged Sentry filter with global exception filter (#555)
+
+v0.1.2 (2025-04-01)
+--------------------
+  - Fixed Sentry activation issue
+  - Added terms and conditions (#548)
+
+v0.1.1 (2025-04-01)
+--------------------
+  - Added certificate generation requirement to documentation (#551)
+  - Fixed organizationType import (#550)
+  - Created organization type enum (#544)
+  - Improved Redocly documentation (#543)
+  - Standardized meter reads validation (#542)
+
+v0.1.0 (2025-03-20) -- First Semver Release
+---------------------------------------------
+  - Added health endpoint (#539)
+  - Improved & refactored late ongoing issuance process (#525)
+  - Fixed invalid offset error on redemption report (#541)
+  - Fixed invalid organization id during bulk upload (#540)
+  - Removed Kubernetes configuration files (#538)
+  - Deleted files related to AWS CodePipeline (#537)
+  - Fixed forgot password error message (#528)
+  - Added Redocly library for API documentation (#520)
+  - Hotfix: enabled npm command in Docker (#529)
+  - Added cron jobs for issuance (#523)
+
+Pre-semver (2025-01-14 -- 2025-03-19)
+--------------------------------------
+  - Added dependency documentation (#519)
+  - Added SDG Benefits and Off Takers to documentation (#522)
+  - Added fuel and device type codes to documentation (#517)
+  - Added ISO 8601 format support (#518)
+  - Improved device bulk upload error handling (#500)
+  - Added dummy data seeds for development (#499)
+  - Created permission seeder (#501)
+  - Fixed validation for bulk device upload (#509)
+  - Fixed reset password flow (#493)
+  - Added platform overview section (#497)
+  - Fixed API restarts on existing history reads (#503)
+  - Added certificates-by-device-external endpoint (#491)
+  - Added bulk meter reads API (#441)
+  - Built GitHub pipeline to build Docker image (#445)
+  - Updated device validations (#458)
+  - Removed hardcoded JWT secret (#480)
+  - Fixed late issuance job interval
+
+Pre-semver (2024-10-03 -- 2025-01-08)
+--------------------------------------
+  - Integrated Sentry error tracking (#470)
+  - Added bug and feature request issue forms (#475)
+  - Renamed classes/types to PascalCase (#472), functions to
+    camelCase (#473), variables to camelCase (#471)
+  - Moved DTO validations from controllers into DTOs (#459)
+  - Added custom user validation (#442)
+  - Refactored certificate log (#452)
+  - Replaced Promise.reject with thrown exceptions (#454)
+  - Added stored failed meter reads (#451)
+  - Restored unit test suite (#398)
+  - Added contribution guidelines (#439)
+  - Added custom timezone validation class (#446)
+  - Replaced Rush with npm, added multi-stage Docker builds
+  - Increased CPU limit to 500m per DevOps recommendation
+  - Fixed unhandled errors in meter reads endpoint
+  - Restored permission implementation and user validation
+
+
+====================================================================
+RECENT CHANGES (March -- April 2026)
+====================================================================
+
+
+BUG FIXES
+=========
+
+Timestamp Format Regression
+---------------------------
+After upgrading TypeORM to 0.3.28, all API timestamps switched from the
+standard "Z" suffix to "+00:00", breaking integrations (e.g. Powertrust
+portal validation). Root causes:
+
+  - TypeORM 0.3.28 changed internal timestamp serialization from
+    .toISOString() (which outputs Z) to a Luxon-based format that
+    outputs +00:00
+  - Outbound Evident API calls also used Luxon's ZZ format token,
+    producing +00:00 instead of Z
+
+Fixes applied:
+  - Added a global NormalizeDatesInterceptor that rewrites all +00:00
+    suffixes to Z in API responses
+  - Fixed the Evident issuance service to use a literal 'Z' in the
+    outbound timestamp format
+  - Fixed timezone.ts transformer to use .toISOString() instead of
+    .format()
+
+CORS Whitelisting
+-----------------
+Added stage-portal.drecs.org to the backend CORS origin allowlist after
+the new staging portal URL was deployed.
+
+Prettier CI Failures
+--------------------
+Fixed Prettier formatting in Postman collections and data-models.md that
+were causing the "Check Docs" CI workflow to fail.
+
+Device Registrant Display
+-------------------------
+The device reviews panel showed "--" for the Registrant field because the
+SQL query joined user on the wrong key. Fixed by joining on
+user.api_user_id = device.api_user_id (UUID) and displaying the user's
+full name or email.
+
+
+API CHANGES
+===========
+
+Multipart Device Registration (POST /device, PATCH /device/:id)
+---------------------------------------------------------------
+The POST /device endpoint now accepts multipart/form-data, allowing
+document files (SF-02, SF-02C, metering evidence, single-line diagram,
+project photos, screenshots, COD proof) to be uploaded alongside the
+device JSON in a single request. Plain JSON is still accepted for
+backward compatibility (files optional).
+
+Certificate Log API (GET /certificate-log/issuer/certified/new/:id)
+-------------------------------------------------------------------
+Added a "developerId" field to each entry in perDeviceCertificateLog
+responses. This contains the developer's external reference (e.g.
+Powertrust Site ID) so API consumers can correlate certificates with
+devices in external systems without a separate device lookup.
+
+
+PREVIOUS API CHANGES (by Divine Charlotte, PRs #665, #666, #672)
+================================================================
+
+Device Registration DTO (POST /device, PATCH /device/:id)
+----------------------------------------------------------
+The following fields were added to the device registration and update
+endpoints. These are now required for new device registrations:
+
+  - serialNumber (required) -- unique device serial number, replaces the
+    former developerExternalId as the primary device identifier. Must
+    contain only letters, numbers, underscores, hyphens, or semicolons.
+  - dataSource (required) -- the data source used for meter reads
+    (e.g. "Engie", "BBOX", "Manual")
+  - dataSourceBrand (required) -- the brand/model of the data source
+    hardware
+  - otherDataSource (optional) -- free-text field when dataSource is
+    "Other"
+
+The developerExternalId field is still accepted but is now optional.
+
+
+NEW FEATURES
+============
+
+Solar Panel Detection via Satellite Imagery (Roboflow ML)
+---------------------------------------------------------
+Added an AI-powered solar panel detection feature to the device reviews
+satellite map. Reviewers can click "Detect Panels" to verify that solar
+installations actually exist at the claimed coordinates.
+
+  - Uses Roboflow's zero-shot segmentation API with a "solar-panel"
+    text prompt
+  - Captures the visible map tiles to a canvas, crops to the center 70%,
+    converts to base64 JPEG, and sends to a backend proxy endpoint
+  - Draws polygon overlays on detected regions with confidence labels
+  - API key is kept server-side (ROBOFLOW_WORKFLOW_URL and
+    ROBOFLOW_API_KEY env vars) -- the frontend never sees it
+
+Earlier attempts using classical computer vision (color-based and
+edge/shape-based detection via OpenCV.js) produced too many false
+positives on trees and failed to detect actual panels. The ML approach
+works significantly better.
+
+Satellite Map Imagery Upgrade
+-----------------------------
+Switched the satellite tile provider from ESRI to Google Satellite
+(mt1.google.com) for higher-resolution imagery globally, especially at
+high zoom levels (up to zoom 21).
+
+Chat Message Alignment and Styling
+-----------------------------------
+  - Admin and Reviewer messages now consistently appear on the right side
+    (own messages), regardless of the sender's email, using role-based
+    alignment logic
+  - Updated chat bubble colors: own messages are teal, partner messages
+    are light blue
+
+Multipart Device Registration
+------------------------------
+The POST /device endpoint now accepts multipart/form-data, allowing
+document files (SF-02, SF-02C, metering evidence, single-line diagram,
+project photos, screenshots, COD proof) to be uploaded together with the
+device registration in a single request. The endpoint also still accepts
+plain JSON for backward compatibility (files optional). The PATCH /device
+endpoint was similarly updated to support document uploads on edit.
+
+Document Upload on Device Edit
+------------------------------
+Added document upload support to the edit-device form, allowing users to
+attach or replace documents after initial registration.
+
+Client-Side OCR for Image Previews
+-----------------------------------
+Added Tesseract.js-based OCR to image previews in the document review
+panel, allowing reviewers to extract text from uploaded device photos and
+screenshots.
+
+Reviewer Role Access
+--------------------
+  - Granted Reviewer and SeniorReviewer roles access to the device
+    reviews UI
+  - Added reviewer password-set flow via email token link
+  - Added cancel button to add-user form, improved reset-password UX
+
+
+INFRASTRUCTURE
+==============
+
+InfluxDB Removal
+----------------
+Removed all InfluxDB-related code and configuration. InfluxDB was dead
+code -- meter reads are now stored directly in PostgreSQL.
+
+  - Deleted influx-db.ts client library and influxdb.conf
+  - Removed drec-influxdb service from docker-compose.yml
+  - Removed @influxdata/influxdb-client dependency
+  - Removed INFLUXDB_* environment variables
+  - Removed InfluxDB services from CI workflow (check.yml)
+  - Stubbed the migration file to a no-op (kept for migration history)
+  - Removed InfluxDB references from architecture documentation
+
+Dependabot Vulnerability Fixes
+------------------------------
+Resolved remaining frontend Dependabot vulnerabilities via pdfjs-dist
+and picomatch upgrades, plus pnpm overrides for transitive dependencies.
+
+Dev Environment Database Deletion
+---------------------------------
+The cloud-based development RDS instance (db.t3.micro) was deleted as
+part of the dev environment decommission reported on March 30.
+Development now runs entirely locally via Docker.
+
+Staging Database
+----------------
+The staging database is a fresh clone of the production database. It is
+a separate RDS instance (drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com)
+and can be used safely for testing without risk to production data.
+
+
+COMMITS SINCE LAST REPORT
+==========================
+
+Backend (drec-origin) -- deployed to staging:
+  - fix: normalize API timestamps to Z suffix instead of +00:00
+  - fix: use Z suffix in outbound Evident API timestamps
+  - fix: add stage-portal.drecs.org to CORS whitelist
+  - style: fix Prettier formatting in docs
+  - feat: reviewer password-set flow via email token link
+  - fix: pin path-to-regexp for express 4, add SCREENSHOTS to bulk upload
+  - feat: add SCREENSHOTS document type to device endpoints
+  - feat: add document upload support to device PATCH endpoint
+  - fix: make POST /device accept plain JSON again (files optional)
+
+Backend (drec-origin) -- uncommitted on develop:
+  - InfluxDB removal (12 files changed, 415 lines removed)
+  - Roboflow proxy endpoint (POST /device-reviews/detect-panels)
+  - Device registrant query fix (submitterName)
+
+Frontend (drec-ui) -- committed:
+  - feat: add client-side OCR for image previews
+  - feat: add document upload support to edit-device form
+  - fix: resolve remaining Dependabot vulnerabilities via pnpm overrides
+  - feat: grant Reviewer/SeniorReviewer access to device reviews UI
+  - feat: add reviewer roles, delete confirmation, neutral UI theme
+  - refactor: extract shared PDF preview component with OCR and translate
+  - fix: add dev proxy, fix empty toaster, improve missing-file UX
+  - feat: add cancel button to add-user, improve reset-password UX
+  - fix: resolve Dependabot vulnerabilities via pdfjs-dist and picomatch
+
+Frontend (drec-ui) -- uncommitted:
+  - Roboflow solar panel detection in satellite window
+  - Chat message alignment and bubble color styling
+  - Device registrant display (submitterName)
+  - Backend proxy for Roboflow API (removed hardcoded key from frontend)
+
+
+APRIL 1, 2026 UPDATE
+=====================
+
+BUG FIXES
+---------
+
+Panel Detection "Request Entity Too Large"
+  - Satellite image capture was sending the full viewport as base64, which
+    exceeded the API body size limit when zoomed in at high res. Fixed by
+    cropping to center 80% and downscaling to max 1024px at 85% JPEG quality.
+
+Chat Notification Bell Not Reacting
+  - Polling only updated unread count, not device names -- fixed to call
+    fetchUnreadCount which updates both
+  - getUnreadDeviceNames and getCurrentUserEmail were private -- made public
+  - Migration defaulted lastReadAt to NOW(), marking everything as "read" --
+    changed to nullable with no default, nulled existing values
+  - Staging DB had wrong participant (admin@drec.local as both sides) --
+    fixed with SQL UPDATE
+
+Chat Reply Button Not Working (from Bell Notification)
+  - Opening a conversation from the bell notification left partnerEmail
+    empty because openForDevice$ was not emitted. Fixed header component
+    to derive partner from conversation participants and emit properly.
+
+NEW FEATURES
+------------
+
+Chat API for External Integration
+  - Full REST API for chat, usable by external platforms (e.g. Powertrust)
+  - Dual auth: JWT (browser) + OAuth2 client credentials (API users)
+  - Endpoints: list conversations, find conversation, start conversation,
+    send message, get message history, unread count, unread device names,
+    mark as read
+
+Webhook System for Chat Notifications
+  - Configurable webhooks for real-time chat event notifications
+  - Events: message.new, conversation.created
+  - HMAC-SHA256 signed payloads (X-Webhook-Signature header)
+  - Auto-generated 64-char hex secret, masked in subsequent responses
+  - Async fire-and-forget delivery with exponential backoff retry
+    (3 attempts: immediate, 1s, 4s)
+  - CRUD endpoints: create, list, get, update, delete, test ping
+  - Admin sees all webhooks; other users see only their own
+
+Webhook Admin UI
+  - Admin panel page under "Chat Webhooks" in sidebar
+  - Table with User (name + email), URL, events, secret, active toggle,
+    created date, and actions (test ping, edit, delete)
+  - Add/edit form with event checkboxes and optional secret field
+  - Secret shown in full only on creation with copy button
+  - ManyToOne eager-loaded User relation on webhook entity for user display
+
+Unread Message Bold Rendering in Chat
+  - Messages from the other participant arriving after the chat window
+    opens are rendered bold for 5 seconds, then fade back to normal
+
+Chat & Webhooks Documentation
+  - docs/api-user-guide/chat-api.md -- full endpoint reference with
+    request/response examples and typical integration flow
+  - docs/api-user-guide/webhooks.md -- event types, payload formats,
+    HMAC verification examples (Node.js + Python), retry behavior
+
+INFRASTRUCTURE
+--------------
+
+Root package.json Cleanup
+  - Removed stray ts-node dependency and root package.json/pnpm-lock.yaml
+    from accidental pnpm install at repo root
+  - Added /package.json and /pnpm-lock.yaml to .gitignore
+
+Migration: chat_webhooks Table
+  - 1757000000017-CreateChatWebhooksTable -- id, userId, organizationId,
+    url, secret, events (simple-array), active, createdAt, updatedAt
+
+Migration: lastReadAt Columns on Conversations
+  - 1757000000016-AddLastReadAtToConversations -- nullable timestamptz
+    columns for per-participant read tracking
+
+
+APRIL 2, 2026 UPDATE
+=====================
+
+DATA SECURITY (Methodology §3)
+-------------------------------
+
+RDS Security Group Lockdown (§3.2.1, §3.2.3)
+  - Both prod and staging RDS instances were on the VPC default security
+    group which allowed all TCP from 0.0.0.0/0 (internet-wide)
+  - Created dedicated security groups:
+      sg-drec-prod-db    -- inbound 5432 from EKS cluster SG only
+      sg-drec-staging-db -- inbound 5432 from EKS cluster SG only
+  - Removed the default SG from both RDS instances
+  - Databases are now unreachable from outside the VPC
+
+Least-Privilege Database User (§3.2.3, §3.2.8)
+  - The API was connecting to prod as the "postgres" superuser
+  - Created a dedicated "drec_app" user with SELECT/INSERT/UPDATE on all
+    tables but DELETE revoked on 15 evidentiary/production tables:
+      meter_reads, aggregate_meterread, history_intermediate_meteread,
+      device, device_group, certificate_read_model, issuer_certificate,
+      old_issuer_certificate, check_certificate_issue_date_log_for_device,
+      check_certificate_issue_date_log_for_device_group,
+      device_lateongoing_certificate_cycle,
+      next_issuance_date_log_for_device_group, delta_firstread,
+      history_next_issueance_log, organization
+  - Updated prod K8s secret (drec-prod-env) and rolled the deployment
+
+History Triggers for Data Immutability (§3.2.2)
+  - Created a "history" schema with a "changes" table that records
+    table_name, operation, row_id, old_data (jsonb), new_data (jsonb),
+    changed_by, and changed_at for every INSERT/UPDATE/DELETE
+  - Applied triggers (trg_history_*) to all 15 protected tables
+  - drec_app has read-only access to history.changes
+  - Provides the evidentiary "before" snapshot an auditor needs to
+    reconstruct why a certificate was issued
+
+pgAudit for Write Logging (§3.2.2)
+  - Enabled the pgaudit extension on prod RDS (Postgres 14)
+  - Created custom parameter group (drec-prod-pg14) with:
+      shared_preload_libraries = pg_stat_statements,pgaudit
+      pgaudit.log = write
+  - All INSERT/UPDATE/DELETE statements are now logged to CloudWatch Logs
+    with session context (user, IP, timestamp, full SQL)
+  - CloudWatch logs are outside the database -- inaccessible even to a
+    DB superuser, providing defense-in-depth
+
+Document Immutability After Approval (§3.3.3)
+  - Documents can be uploaded/deleted during an active review, but are
+    now locked once the device review status is "approved"
+  - Guard added to three mutation points:
+      POST /device-reviews/:deviceId/documents (upload via review panel)
+      DELETE /device-reviews/documents/:id (delete via review panel)
+      PUT /device/:id with file attachments (edit device form)
+  - Returns 403 Forbidden with message: "Documents cannot be modified
+    after the device review has been approved"
+
+Incident Response Procedure (§3.2.7)
+  - Created docs/Incident Response Procedure.docx
+  - Covers: identification, containment, investigation, notification,
+    remediation, post-incident review, roles, record keeping, testing
+  - Severity 1-4 classification with business-hours target response times
+  - Issuer (Evident) notification within 24h for Severity 1-2
+  - GDPR Art. 33/34 notification within 72h where applicable
+
+BUG FIXES
+---------
+
+Timestamp Format in devices/my Endpoint
+  - Customer reported commissioning_date returning "+00:00" instead of "Z"
+  - Root cause: NormalizeDatesInterceptor was on develop but not deployed
+    to prod (prod was 205 commits behind)
+  - Immediate fix: normalized 501 device records in prod DB and 500 in
+    staging DB (UPDATE ... REPLACE('+00:00', 'Z'))
+  - Permanent fix: cherry-picked interceptor commit onto prod branch
+    (PR #758: hotfix/normalize-timestamps-prod)
+
+Customer Reservation Blocking
+  - Customer could not create new reservations due to old groups 89256
+    (id=174) and 35968 (id=173) still having reservationActive=true
+  - Fixed in prod DB: set reservationActive=false and groupId=NULL on
+    21 affected devices
+
+INFRASTRUCTURE
+--------------
+
+Prod Deployment Pipeline
+  - Cherry-picked NormalizeDatesInterceptor to prod branch (PR #758)
+  - Fixed pre-existing Prettier CI failure in .vitepress/theme/index.ts
+
+
+VERIFICATION & REVIEW TOOLS (April 2, 2026)
+=============================================
+
+NEW FEATURES
+------------
+
+Upload Logging (Backend)
+  - All device registration, meter-read submission, and bulk-upload
+    requests are now logged to the upload_log table with user, IP,
+    user-agent, file metadata, and action type
+  - Fire-and-forget pattern — logging failures do not block the
+    primary request
+  - Integrated into device controller (POST + PATCH), reads controller
+    (POST), and bulk-upload controller (POST)
+
+Device Coordinate Fingerprint Grid (~22 m)
+  - Device latitude/longitude are now snapped to the nearest 0.0002°
+    (~22 m) for stable duplicate detection fingerprints
+  - Changed from toFixed(4) (~11 m) to Math.round(val / 0.0002) * 0.0002
+
+±1.5σ Anomaly Band on Historical Consistency (§3.7)
+  - Extended the historical consistency check with sigma band outlier
+    detection
+  - Computes mean ± 1.5 standard deviations over normalized kWh values
+  - Flags individual reads that fall outside the band as anomalies
+  - Added sigma band stats (low, high, outlier count) to the
+    consistency summary response and frontend modal
+
+Photo GPS EXIF Verification (VA Layer)
+  - New endpoint: GET /device-reviews/:deviceId/photo-gps
+  - Downloads PROJECT_PHOTOS from S3, extracts GPS coordinates via the
+    exifr library, and computes haversine distance to declared device
+    location
+  - 300 m threshold: pass/fail per photo, overall verdict
+  - Frontend modal shows per-photo results with distance and status
+
+Auto-Screen Report (VA Layer)
+  - New endpoint: GET /device-reviews/:deviceId/auto-screen
+  - Runs 9 verification checks in parallel using Promise.allSettled():
+    ownership, duplicates, sourceAccess, consistency, ceiling,
+    crossSource, photoGps, controls, sldCompare
+  - Each section returns status (pass/warn/fail/skip) with flag messages
+  - Overall status = worst individual status
+  - Frontend modal with color-coded section cards, overall banner, and
+    close button
+
+SLD Capacity Compare (VA Layer)
+  - New endpoints:
+      GET  /device-reviews/:deviceId/sld-compare
+      PATCH /device-reviews/:deviceId/sld-capacity
+  - Reviewer enters the capacity (kW) read from the Single-Line Diagram
+    document; system compares to registered device capacity
+  - ±10% tolerance, returns match/mismatch with difference percentage
+  - New column: device.sld_capacity_kw (decimal, nullable)
+  - Migration: 1759600000000-AddSldCapacityToDevice
+
+SLD Compare Embedded in PDF Preview
+  - When a reviewer opens an SLD document, the PDF preview floating
+    window now shows the SLD Capacity Compare panel in the right pane,
+    alongside the OCR text and translation
+  - Uses BehaviorSubject<number | null> on AssetService to flow the
+    device ID from documents-window → pdf-window → pdf-preview component
+
+Searchable Audit Trail Dialog
+  - Added a search/filter box to the audit trail modal in both
+    device-reviews and meter-read-reviews
+  - Filters by action type, performer, detail text, and date
+  - Search resets when the modal opens
+
+Meter-Read Reviews Module
+  - New lazy-loaded frontend module at /reads/reviews
+  - Device list with reads, expandable detail, status management
+  - Integrated chat, verification tools (consistency, ceiling,
+    cross-source), and audit trail
+  - Sidebar nav link gated to Admin/Reviewer/SeniorReviewer roles
+
+UI IMPROVEMENTS
+---------------
+
+World Map Zoom Limit
+  - Increased minZoom from 2 to 3 on device-reviews and
+    meter-read-reviews satellite maps to prevent zoom-out beyond
+    planet borders
+
+Auto-Screen Modal Close Button
+  - Added × close button to top-right corner of auto-screen report modal
+
+INFRASTRUCTURE
+--------------
+
+New Dependencies (Backend)
+  - exifr: EXIF GPS extraction from image buffers
+
+New Dependencies (Frontend)
+  - tesseract.js: client-side OCR for document previews (already added
+    in earlier session)
+
+Migration
+  - 1759600000000-AddSldCapacityToDevice: adds sld_capacity_kw column
+    to device table
