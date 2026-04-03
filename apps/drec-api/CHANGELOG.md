@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.8.1] (2026-04-03)
+
+### Staging (deployed)
+
+- Removed `fingerprint` from `NewDeviceDTO` and `UpdateDeviceDTO` — it was always computed server-side; exposing it in the API schema was misleading
+
+### Develop (not yet deployed)
+
+#### Features
+
+- New endpoint `PATCH /device/by-site/:siteName` — update a device by site name instead of serial number
+
+#### Bug Fixes
+
+- Fixed partial device updates crashing when optional fields (e.g. `SDGBenefits`) were omitted — `TypeError: Cannot read properties of undefined (reading 'includes')`
+- Fixed `Object.assign` overwriting existing device values with `undefined` when fields were not sent in the update payload
+- Fixed fingerprint generation using `undefined` for unsent fields, causing false 409 Conflict errors on partial updates
+- Fixed serial number validation: `DeviceDTO` regex now allows semicolons, matching `NewDeviceDTO` and `UpdateDeviceDTO`
+
 ## [0.8.0] (2026-04-02)
 
 ### ⚠ BREAKING CHANGE — `projectName` renamed to `siteName`

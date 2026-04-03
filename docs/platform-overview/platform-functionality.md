@@ -67,7 +67,7 @@ Users must be logged in with a valid access token to register devices. The platf
   "dataSourceBrand": "string (required)",
   "status": "string",
   "organizationId": "number",
-  "projectName": "string",
+  "siteName": "string",
   "address": "string",
   "latitude": "string",
   "longitude": "string",
