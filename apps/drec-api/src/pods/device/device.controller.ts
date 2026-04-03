@@ -798,6 +798,159 @@ export class DeviceController {
   }
 
   /**
+   * PATCH api to update a device by site name
+   */
+  @Patch('/by-site/:siteName')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Update')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: DocumentType.FORM_SF_02, maxCount: 10 },
+        { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
+        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
+        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
+        { name: DocumentType.SCREENSHOTS, maxCount: 10 },
+        { name: DocumentType.COD_PROOF, maxCount: 10 },
+      ],
+      {
+        fileFilter: fileFilter,
+      },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Update device by site name',
+    description:
+      'Update the details of an existing device using its site name.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully updated the device details.',
+    type: UpdateDeviceDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
+  })
+  public async updateBySiteName(
+    @UserDecorator() user: ILoggedInUser,
+    @Param('siteName') siteName: string,
+    @Body() body: any,
+    @UploadedFiles() files: DeviceFiles,
+    @Req() req: Request,
+  ): Promise<DeviceDTO> {
+    this.logger.verbose(`With in updateBySiteName`);
+    const deviceToUpdate = (
+      body.deviceToUpdate != null
+        ? parseMetadata(
+            body.deviceToUpdate as unknown as Record<string, unknown>,
+          )
+        : body
+    ) as UpdateDeviceDTO;
+    if (!deviceToUpdate)
+      throw new BadRequestException('Invalid device data format');
+    const deviceDtoInstance = plainToClass(UpdateDeviceDTO, deviceToUpdate);
+    try {
+      await validateOrReject(deviceDtoInstance, {
+        skipMissingProperties: true,
+      });
+    } catch (errors) {
+      throw new BadRequestException(
+        errors
+          .map((error) =>
+            error.constraints
+              ? Object.values(error.constraints).join(', ')
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      );
+    }
+
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
+
+    const result = await this.deviceService.update(
+      user.organizationId,
+      user.role,
+      siteName,
+      deviceToUpdate,
+      'siteName',
+    );
+
+    if (files) {
+      const existingDevice = await this.deviceService.findBySiteName(
+        result.siteName || siteName,
+        user.organizationId,
+      );
+
+      if (existingDevice) {
+        await this.deviceService.assertDocumentsEditable(existingDevice.id);
+
+        const documentTypes = {
+          [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+          [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+          [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+          [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+          [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
+          [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+        };
+
+        const siteSlug = (existingDevice.siteName || 'project')
+          .replace(/[^a-zA-Z0-9-_]/g, '-')
+          .toLowerCase();
+        const projectSubfolder = `${siteSlug}-${existingDevice.id}`;
+
+        for (const [field, documentType] of Object.entries(documentTypes)) {
+          if (files[field] && Array.isArray(files[field])) {
+            await this.documentUploadsService.deleteByType(
+              existingDevice.id,
+              DocumentTargetType.DEVICE,
+              documentType as DocumentType,
+            );
+            for (const file of files[field]) {
+              try {
+                await this.documentUploadsService.upload(
+                  existingDevice.id,
+                  DocumentTargetType.DEVICE,
+                  documentType as DocumentType,
+                  file,
+                  projectSubfolder,
+                );
+                this.uploadLogService.logFileUpload({
+                  organizationId: user.organizationId,
+                  actionType: UploadActionType.DocumentUpload,
+                  fileName: file.originalname,
+                  fileBuffer: file.buffer,
+                  ipAddress: req.ip,
+                  userAgent: req.headers['user-agent'],
+                  metadata: { documentType: field },
+                });
+              } catch (error) {
+                this.logger.error(
+                  `Failed to upload ${field}: ${error.message}`,
+                );
+                throw new BadRequestException(
+                  `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * It is PATCH api to update an device by externalId
    * @param user is loggedin user from user at request
    * @param externalId is unique external id in device entity
