@@ -693,11 +693,34 @@ export class DeviceService {
     return result;
   }
 
+  async findBySiteName(
+    siteName: string,
+    organizationId: number,
+  ): Promise<Device | null> {
+    this.logger.verbose(`With in findBySiteName`);
+    const device: Device = await this.repository.findOne({
+      where: {
+        siteName,
+        organizationId,
+      },
+    });
+    if (!device) {
+      this.logger.warn(`Returning null`);
+      return null;
+    }
+    device.timezone = await getLocalTimeZoneFromDevice(
+      device.createdAt,
+      device,
+    );
+    return device;
+  }
+
   async update(
     organizationId: number,
     role: Role,
     serialNumber: string,
     updateDeviceDTO: UpdateDeviceDTO,
+    lookupBy: 'serialNumber' | 'siteName' = 'serialNumber',
   ): Promise<Device> {
     this.logger.verbose(`With in update`);
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -709,14 +732,14 @@ export class DeviceService {
           }
         : undefined;
 
-    const currentDevice = await this.findBySerialNumber(
-      serialNumber.trim(),
-      organizationId,
-    );
+    const currentDevice =
+      lookupBy === 'siteName'
+        ? await this.findBySiteName(serialNumber.trim(), organizationId)
+        : await this.findBySerialNumber(serialNumber.trim(), organizationId);
 
     if (!currentDevice) {
-      this.logger.error(`No device found with id ${serialNumber}`);
-      throw new NotFoundException(`No device found with id ${serialNumber}`);
+      this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);
+      throw new NotFoundException(`No device found with ${lookupBy} "${serialNumber}"`);
     }
 
     if (updateDeviceDTO.projectName) {
@@ -737,7 +760,9 @@ export class DeviceService {
     updateDeviceDTO.externalId = currentDevice.externalId;
     const sdgBenefitList = SDGBenefits;
 
-    if (
+    if (!updateDeviceDTO.SDGBenefits) {
+      // caller didn't send SDGBenefits — leave existing value untouched
+    } else if (
       updateDeviceDTO.SDGBenefits.includes('0') ||
       updateDeviceDTO.SDGBenefits.includes('1')
     ) {
@@ -764,13 +789,13 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits = [];
     }
     const fingerprint = generateDeviceFingerprint({
-      latitude: updateDeviceDTO.latitude,
-      longitude: updateDeviceDTO.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate,
-      capacity: updateDeviceDTO.capacity,
-      fuelCode: updateDeviceDTO.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode,
-      serialNumber: updateDeviceDTO.serialNumber,
+      latitude: updateDeviceDTO.latitude ?? currentDevice.latitude,
+      longitude: updateDeviceDTO.longitude ?? currentDevice.longitude,
+      commissioningDate: updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
+      capacity: updateDeviceDTO.capacity ?? currentDevice.capacity,
+      fuelCode: updateDeviceDTO.fuelCode ?? currentDevice.fuelCode,
+      deviceTypeCode: updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
+      serialNumber: updateDeviceDTO.serialNumber ?? currentDevice.serialNumber,
     });
 
     const fingerprintExists = await this.repository.findOne({
@@ -786,7 +811,12 @@ export class DeviceService {
         statusCode: 409,
       });
     }
-    Object.assign(currentDevice, updateDeviceDTO);
+    // Only overwrite fields that were actually sent (not undefined)
+    for (const [key, value] of Object.entries(updateDeviceDTO)) {
+      if (value !== undefined) {
+        (currentDevice as any)[key] = value;
+      }
+    }
     currentDevice.fingerprint = fingerprint;
     currentDevice.updatedAt = new Date();
     return await this.repository.save(currentDevice);
