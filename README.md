@@ -31,6 +31,23 @@
 
 Repository for Origin DREC project
 
+## Tech Stack
+
+**Backend** ([drec-origin](https://github.com/d-rec/drec-origin))
+- NestJS 8 / TypeORM / TypeScript
+- PostgreSQL / Redis / MinIO (S3-compatible)
+- Energy Web / Ethers.js (blockchain certificates)
+- Jest (unit) / Supertest (integration)
+- Sentry (error monitoring)
+
+**Frontend** ([drec-ui](https://github.com/d-rec/drec-ui))
+- Angular 19 / Angular Material
+- Bootstrap 5
+- TypeScript 5.7 / SCSS
+- Ethers.js / Web3
+- Cypress (E2E) / Karma + Jasmine (unit)
+- Sentry (error monitoring)
+
 ## Environments
 
 | Environment | Purpose | Infrastructure |
@@ -85,12 +102,12 @@ This starts PostgreSQL, Redis, MinIO (S3-compatible storage), and Mailpit (email
 
 > The `origin` database is created automatically by the Docker Compose Postgres container — you do **not** need to run `CREATE DATABASE` manually.
 
-The local dev environment is seeded with a default D-REC admin account:
+The local dev environment is seeded with the following accounts:
 
-| Field | Value |
-|-------|-------|
-| **Email** | `admin@drec.local` |
-| **Password** | `Admin1234!` |
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@drec.local` | `Admin1234!` |
+| Market Intermediary | `evident.demo@drec.energy` | `D0ntc4r3` |
 
 Local service UIs:
 
