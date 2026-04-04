@@ -105,11 +105,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsBoolean()
   gridInterconnection: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   @IsEnum(OperatingConfiguration)
   operatingConfiguration: OperatingConfiguration;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   @IsEnum(SourceAccessMode)
   sourceAccessMode: SourceAccessMode;
 

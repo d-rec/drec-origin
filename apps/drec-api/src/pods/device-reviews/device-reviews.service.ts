@@ -303,9 +303,13 @@ export class DeviceReviewsService {
     return rows[0]?.target_id ?? null;
   }
 
-  async detectPanels(imageBase64: string): Promise<any> {
-    const url = process.env.ROBOFLOW_WORKFLOW_URL;
-    const key = process.env.ROBOFLOW_API_KEY;
+  async detectPanels(
+    imageBase64: string,
+    roboflowUrl?: string,
+    roboflowKey?: string,
+  ): Promise<any> {
+    const url = roboflowUrl || process.env.ROBOFLOW_WORKFLOW_URL;
+    const key = roboflowKey || process.env.ROBOFLOW_API_KEY;
     if (!url || !key) {
       throw new Error('ROBOFLOW_WORKFLOW_URL or ROBOFLOW_API_KEY not configured');
     }

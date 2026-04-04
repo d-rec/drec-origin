@@ -75,6 +75,7 @@ import { validateOrReject } from 'class-validator';
 import { ReadsService } from '../reads/reads.service';
 import { UploadLogService } from '../upload-log/upload-log.service';
 import { UploadActionType } from '../upload-log/upload-log.entity';
+import { ESignatureService } from '../e-signature/e-signature.service';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -94,6 +95,7 @@ export class DeviceController {
     private readonly readsService: ReadsService,
     private readonly documentUploadsService: DocumentUploadsService,
     private readonly uploadLogService: UploadLogService,
+    private readonly eSignatureService: ESignatureService,
   ) {}
 
   /**
@@ -709,6 +711,36 @@ export class DeviceController {
         }
       }
     }
+
+    // Log e-signature: the caller consented to the I-REC Code when submitting
+    const rawEsig = (body as any).eSignature;
+    const esigMeta =
+      typeof rawEsig === 'string' ? JSON.parse(rawEsig) : rawEsig;
+    this.eSignatureService
+      .log({
+        userId: user.id,
+        userEmail: user.email,
+        organizationId,
+        action: 'device_registration_consent',
+        consentText:
+          'I agree to be subject to the I-REC Code and warrant that the information contained in this application is truthful and exhaustive.',
+        consentVersion: '1.0',
+        payloadToHash: JSON.stringify(deviceToRegister),
+        deviceId: result.id,
+        deviceExternalId: result.externalId,
+        ipAddress: req.ip,
+        userAgent: req.headers['user-agent'],
+        browserFingerprint: esigMeta?.browserFingerprint,
+        screenResolution: esigMeta?.screenResolution,
+        timezone: esigMeta?.timezone,
+        language: esigMeta?.language,
+        metadata: esigMeta?.metadata,
+        signedAt: esigMeta?.signedAt ? new Date(esigMeta.signedAt) : new Date(),
+      })
+      .catch((err) =>
+        this.logger.error(`Failed to log e-signature: ${err.message}`),
+      );
+
     return result;
   }
 
@@ -840,6 +872,8 @@ export class DeviceController {
                   projectSubfolder,
                 );
                 this.uploadLogService.logFileUpload({
+                  userId: user.id,
+                  userEmail: user.email,
                   organizationId: user.organizationId,
                   actionType: UploadActionType.DocumentUpload,
                   fileName: file.originalname,

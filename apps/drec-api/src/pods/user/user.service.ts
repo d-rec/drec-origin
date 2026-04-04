@@ -90,6 +90,8 @@ export class UserService {
 
   public async checkIfPhoneNumberExists(phoneNumber: string): Promise<void> {
     if (!phoneNumber) return;
+    // Skip uniqueness check in dev mode
+    if (process.env.NODE_ENV !== 'production') return;
     const existingTelephone = await this.repository.findOne({
       where: { phoneNumber },
     });
@@ -158,6 +160,8 @@ export class UserService {
         role = Role.Reviewer;
       } else if (data.organizationType === OrganizationType.SeniorReviewer) {
         role = Role.SeniorReviewer;
+      } else if (data.organizationType === OrganizationType.SiteOperator) {
+        role = Role.SiteOperator;
       }
 
       const roleRecord = await this.userRoleRepository.findOne({
@@ -253,6 +257,8 @@ export class UserService {
         role = Role.Reviewer;
       } else if (data.organizationType === OrganizationType.SeniorReviewer) {
         role = Role.SeniorReviewer;
+      } else if (data.organizationType === OrganizationType.SiteOperator) {
+        role = Role.SiteOperator;
       } else {
         role = Role.OrganizationAdmin;
       }

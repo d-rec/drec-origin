@@ -84,7 +84,11 @@ import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module';
 import { UploadLogModule } from './pods/upload-log/upload-log.module';
+import { ESignatureModule } from './pods/e-signature/e-signature.module';
+import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
+import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
 import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
+import { ESignatureLog } from './pods/e-signature/e-signature-log.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -143,6 +147,8 @@ export const entities = [
   ChatConversation,
   ChatWebhook,
   UploadLogEntity,
+  ESignatureLog,
+  OrgApiLicenses,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -208,6 +214,8 @@ const queueModule = () => {
     DeviceReviewsModule,
     TranslateModule,
     UploadLogModule,
+    ESignatureModule,
+    OrgApiLicensesModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

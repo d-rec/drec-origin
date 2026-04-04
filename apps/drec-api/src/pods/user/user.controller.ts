@@ -7,6 +7,7 @@ import {
   Post,
   Body,
   Put,
+  Delete,
   Param,
   ParseIntPipe,
   HttpStatus,
@@ -459,5 +460,29 @@ export class UserController {
     @Body() body: Pick<UserDTO, 'phoneNumber'>,
   ): Promise<{ message: string }> {
     return this.userService.updatePhoneNumber(user.email, body.phoneNumber);
+  }
+
+  @Delete('me')
+  @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
+  @ApiOperation({
+    summary: 'Delete own account',
+    description: 'Permanently deletes the authenticated user account. Admin accounts cannot be deleted this way.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Account deleted successfully.',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Admin accounts cannot self-delete.',
+  })
+  public async deleteMe(
+    @UserDecorator() user: LoggedInUser,
+  ): Promise<{ success: boolean; message: string }> {
+    if (user.role === 'Admin') {
+      throw new ConflictException('Admin accounts cannot be deleted this way.');
+    }
+    await this.userService.remove(user.id);
+    return { success: true, message: 'Account deleted successfully.' };
   }
 }

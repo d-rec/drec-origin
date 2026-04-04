@@ -66,7 +66,7 @@ The caller must have one of: `OrganizationAdmin`, `ApiUser`.
 | `METERING_EVIDENCE`   | Metering/measurement evidence         |
 | `SINGLE_LINE_DIAGRAM` | Single line diagram (SLD)             |
 | `PROJECT_PHOTOS`      | Site/project photographs              |
-| `COD_PROOF`           | Certificate of completion / COD proof |
+| `COD_PROOF`           | Commercial Operation Date proof       |
 
 ## Device Update (PATCH /api/device/:externalId)
 

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -21,6 +21,7 @@ export class DeviceDTO implements IDevice {
   @IsString()
   externalId?: string;
 
+  @ApiHideProperty()
   @IsString()
   developerExternalId?: string;
 
@@ -205,17 +206,21 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   SDGBenefits?: string[];
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   meterReadtype?: string;
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   timezone: string;
 
+  @ApiHideProperty()
   @IsOptional()
   createdAt?: Date;
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   api_user_id?: string;

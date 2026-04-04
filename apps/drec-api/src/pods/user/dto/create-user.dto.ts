@@ -109,7 +109,7 @@ export class CreateUserOrgDTO
       OrganizationType.Developer,
       OrganizationType.MarketIntermediary,
       OrganizationType.Buyer,
-      OrganizationType.Operator,
+      OrganizationType.SiteOperator,
       OrganizationType.Reviewer,
       OrganizationType.SeniorReviewer,
     ],

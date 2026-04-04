@@ -35,6 +35,7 @@ import {
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 
 @ApiTags('Device Reviews')
 @ApiBearerAuth('access-token')
@@ -44,6 +45,7 @@ export class DeviceReviewsController {
     private readonly service: DeviceReviewsService,
     private readonly documentUploadsService: DocumentUploadsService,
     private readonly uploadLogService: UploadLogService,
+    private readonly apiKeyResolver: ApiKeyResolverService,
   ) {}
 
   @Get()
@@ -157,8 +159,12 @@ export class DeviceReviewsController {
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Proxy solar panel detection to Roboflow' })
   @ApiResponse({ status: 200, description: 'Roboflow detection results' })
-  detectPanels(@Body('image') image: string): Promise<any> {
-    return this.service.detectPanels(image);
+  async detectPanels(
+    @UserDecorator() user: ILoggedInUser,
+    @Body('image') image: string,
+  ): Promise<any> {
+    const { url, key } = await this.apiKeyResolver.resolveRoboflowKey(user);
+    return this.service.detectPanels(image, url, key);
   }
 
   @Patch(':deviceId/status')

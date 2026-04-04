@@ -42,6 +42,7 @@ import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
 import { FileService } from '../file/file.service';
+import { OrgApiLicensesService } from '../org-api-licenses/org-api-licenses.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
 import { Profile } from '../../lib/profile';
@@ -58,6 +59,7 @@ export class OrganizationService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly fileService: FileService,
+    private readonly orgApiLicensesService: OrgApiLicensesService,
   ) {}
 
   @Profile()
@@ -274,6 +276,8 @@ export class OrganizationService {
     });
 
     const stored = await this.repository.save(organizationToCreate);
+
+    await this.orgApiLicensesService.initializeCredits(stored.id);
 
     const updatedUser = await this.userService.findById(user.id);
 

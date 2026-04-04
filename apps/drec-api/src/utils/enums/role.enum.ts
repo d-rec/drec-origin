@@ -8,7 +8,7 @@ export enum Role {
   MarketIntermediary = 'MarketIntermediary',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
-  Operator = 'Operator',
+  SiteOperator = 'SiteOperator',
 }
 export enum RoleStatus {
   Enable = 'Enable',
