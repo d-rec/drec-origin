@@ -97,7 +97,7 @@ export class OrganizationController {
 
   @Post('/upload/verification-documents')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
-  @Roles(Role.OrganizationAdmin)
+  @Roles(Role.Registrant)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @UseInterceptors(
@@ -284,7 +284,7 @@ export class OrganizationController {
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
-  @Roles(Role.MarketIntermediary)
+  @Roles(Role.Registrant)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -384,7 +384,7 @@ export class OrganizationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
-    if (loggedUser.role === Role.MarketIntermediary) {
+    if (loggedUser.role === Role.Registrant) {
       return this.organizationService.findApiUserOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
@@ -502,7 +502,7 @@ export class OrganizationController {
    */
   @Post()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.OrganizationAdmin)
+  @Roles(Role.Registrant)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -550,7 +550,7 @@ export class OrganizationController {
    */
   @Put(':id/change-role/:userId')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.Registrant, Role.Admin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateMemberDTO })
@@ -692,7 +692,7 @@ export class OrganizationController {
   ): Promise<SuccessResponseDTO> {
     const user = await this.userService.findById(userid);
     if (
-      loggedUser.role === Role.MarketIntermediary &&
+      loggedUser.role === Role.Registrant &&
       loggedUser.api_user_id != user.api_user_id
     ) {
       throw new NotFoundException('User does not exist in this organization');

@@ -94,7 +94,7 @@ export class BuyerReservationController {
   )
   @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.MarketIntermediary, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.Registrant)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
@@ -160,7 +160,7 @@ export class BuyerReservationController {
 
     if (organizationId) {
       organization = await this.organizationService.findOne(organizationId);
-      if (user.role === Role.MarketIntermediary) {
+      if (user.role === Role.Registrant) {
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(
             `Organization requested is belongs to other apiuser`,
@@ -174,7 +174,7 @@ export class BuyerReservationController {
     }
 
     if (apiUserId) {
-      if (user.role === Role.MarketIntermediary) {
+      if (user.role === Role.Registrant) {
         if (apiUserId != user.api_user_id) {
           this.logger.error(
             `An apiuser is unauthorized to request for other apiuser`,
@@ -215,7 +215,7 @@ export class BuyerReservationController {
    */
   @Get('/my')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
+  //@Roles(Role.Registrant, Role.SiteOperator, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch my reservations',
@@ -258,7 +258,7 @@ export class BuyerReservationController {
     this.logger.verbose(`With in getMyDevices`);
     const { organizationId, role } = user;
     switch (role) {
-      case Role.DeviceOwner:
+      case Role.SiteOperator:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId,
         );
@@ -274,7 +274,7 @@ export class BuyerReservationController {
           pageNumber,
           filterDTO,
         );
-      case Role.OrganizationAdmin:
+      case Role.Registrant:
         return await this.deviceGroupService.getAll(
           user,
           organizationId,
@@ -337,7 +337,7 @@ export class BuyerReservationController {
     if (organizationId) {
       const organization =
         await this.organizationService.findOne(organizationId);
-      if (user.role === Role.MarketIntermediary) {
+      if (user.role === Role.Registrant) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
             `Organization requested is belongs to other apiuser`,
@@ -374,8 +374,8 @@ export class BuyerReservationController {
    */
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
-  @Roles(Role.MarketIntermediary, Role.OrganizationAdmin, Role.Admin)
+  // @Roles(Role.SiteOperator, Role.Admin,Role.Buyer)
+  @Roles(Role.Registrant, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -443,7 +443,7 @@ export class BuyerReservationController {
 
   @Post('pathway')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.MarketIntermediary, Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.Registrant, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
@@ -603,7 +603,7 @@ export class BuyerReservationController {
 
   @Delete('/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
-  @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)
+  @Roles(Role.SiteOperator, Role.Admin, Role.Buyer, Role.SubBuyer)
   @ApiOperation({
     summary: 'Remove buyer reservation by ID',
     description: 'Delete a buyer reservation using its ID.',

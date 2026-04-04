@@ -322,7 +322,7 @@ export class CertificateLogService {
         );
         return deviceLogs.map((deviceLog) => {
           deviceLog.externalId = device.externalId;
-          deviceLog['developerId'] = device.developerExternalId;
+          deviceLog['operatorId'] = device.operatorExternalId;
           deviceLog['timezone'] = getLocalTimeZoneFromDevice(
             device.createdAt,
             device,
@@ -572,7 +572,7 @@ export class CertificateLogService {
     });
   }
 
-  //add function to get the certified log which device of developer added in reservation for developer
+  //get the certified log for devices added in reservation by operator
 
   async getCertifiedLogOfDevices(
     user: ILoggedInUser,
@@ -615,7 +615,7 @@ export class CertificateLogService {
     if (!oldCertificateLog && reservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 580');
       const newLog =
-        await this.getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
+        await this.getOperatorCertificatesUsingGroupIDVersionUpdateOrigin247(
           reservationInfo,
           user.role,
         );
@@ -629,7 +629,7 @@ export class CertificateLogService {
 
     if (oldCertificateLog && oldReservationInfo.deviceGroups.length > 0) {
       this.logger.debug('Line No: 581');
-      const oldLog = await this.getDeveloperCertifiedReservations(
+      const oldLog = await this.getOperatorCertifiedReservations(
         oldReservationInfo,
         user.role,
       );
@@ -653,7 +653,7 @@ export class CertificateLogService {
     return value === 'true' || value === true;
   }
 
-  async getDeveloperCertifiedReservations(
+  async getOperatorCertifiedReservations(
     certifiedReservation:
       | {
           deviceGroups: any;
@@ -665,7 +665,7 @@ export class CertificateLogService {
     role: Role,
   ): Promise<CertificateLogResponse> {
     const finalCertificatesInReservationWithLogs: Array<any> = [];
-    this.logger.verbose(`With in getDeveloperCertifiedReservations`);
+    this.logger.verbose(`With in getOperatorCertifiedReservations`);
     await Promise.all(
       certifiedReservation.deviceGroups.map(async (group: any) => {
         const newQuery = await this.certificateRepository
@@ -715,11 +715,11 @@ export class CertificateLogService {
                   device = await this.deviceService.findReads(deviceId);
                 }
                 let deviceLog;
-                if (role === 'OrganizationAdmin') {
+                if (role === 'Registrant') {
                   if (
-                    group.developerdeviceIds.find((ele) => ele === deviceId)
+                    group.orgDeviceIds.find((ele) => ele === deviceId)
                   ) {
-                    this.logger.log('oldlog exist in developer');
+                    this.logger.log('oldlog exists for operator device');
                     // const deviceLog =
                     //   await this.getCheckCertificateIssueDateLogForDevice(
                     //     parseInt(group.dg_id),
@@ -729,8 +729,8 @@ export class CertificateLogService {
                     //   );
                     deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.externalId = device.externalId;
-                      singleDeviceLogEle['developerId'] =
-                        device.developerExternalId;
+                      singleDeviceLogEle['operatorId'] =
+                        device.operatorExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -739,7 +739,7 @@ export class CertificateLogService {
                       );
                     });
                   } else {
-                    this.logger.log("oldlog doesn't exist in developer");
+                    this.logger.log("oldlog doesn't exist for operator device");
                     // const deviceLog =
                     //   await this.getCheckCertificateIssueDateLogForDevice(
                     //     parseInt(group.dg_id),
@@ -763,7 +763,7 @@ export class CertificateLogService {
                     }
                   }
                 }
-                if (role === 'Buyer' || role === Role.MarketIntermediary) {
+                if (role === 'Buyer' || role === Role.Registrant) {
                   deviceLog =
                     await this.getCheckCertificateIssueDateLogForDevice(
                       parseInt(group.dg_id),
@@ -773,8 +773,8 @@ export class CertificateLogService {
                     );
                   deviceLog?.forEach((singleDeviceLogEle) => {
                     singleDeviceLogEle.serialNumber = device.serialNumber;
-                    singleDeviceLogEle['developerId'] =
-                      device.developerExternalId;
+                    singleDeviceLogEle['operatorId'] =
+                      device.operatorExternalId;
                     singleDeviceLogEle['deviceId'] = device.id;
                     singleDeviceLogEle['timezone'] = getLocalTimeZoneFromDevice(
                       device.createdAt,
@@ -801,7 +801,7 @@ export class CertificateLogService {
     };
   }
 
-  async getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247(
+  async getOperatorCertificatesUsingGroupIDVersionUpdateOrigin247(
     reservationInfo:
       | {
           deviceGroups: any;
@@ -813,7 +813,7 @@ export class CertificateLogService {
     role: Role,
   ): Promise<CertificateLogResponse> {
     this.logger.verbose(
-      `With in getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247`,
+      `With in getOperatorCertificatesUsingGroupIDVersionUpdateOrigin247`,
     );
     const finalCertificatesInReservationWithLog: Array<any> = [];
     await Promise.all(
@@ -885,9 +885,9 @@ export class CertificateLogService {
                     device = await this.deviceService.findReads(deviceId);
                   }
                   let deviceLog;
-                  if (role === 'OrganizationAdmin') {
+                  if (role === 'Registrant') {
                     if (
-                      group.developerdeviceIds.find((ele) => ele === device.id)
+                      group.orgDeviceIds.find((ele) => ele === device.id)
                     ) {
                       deviceLog =
                         await this.getCheckCertificateIssueDateLogForDevice(
@@ -899,8 +899,8 @@ export class CertificateLogService {
                         );
                       deviceLog?.forEach((singleDeviceLogEle) => {
                         singleDeviceLogEle.serialNumber = device.serialNumber;
-                        singleDeviceLogEle['developerId'] =
-                          device.developerExternalId;
+                        singleDeviceLogEle['operatorId'] =
+                          device.operatorExternalId;
                         singleDeviceLogEle['deviceId'] = device.id;
                         singleDeviceLogEle['timezone'] =
                           getLocalTimeZoneFromDevice(device.createdAt, device);
@@ -936,7 +936,7 @@ export class CertificateLogService {
                       }
                     }
                   }
-                  if (role === 'Buyer' || role === Role.MarketIntermediary) {
+                  if (role === 'Buyer' || role === Role.Registrant) {
                     deviceLog =
                       await this.getCheckCertificateIssueDateLogForDevice(
                         parseInt(group.dg_id),
@@ -947,8 +947,8 @@ export class CertificateLogService {
                       );
                     deviceLog?.forEach((singleDeviceLogEle) => {
                       singleDeviceLogEle.serialNumber = device.serialNumber;
-                      singleDeviceLogEle['developerId'] =
-                        device.developerExternalId;
+                      singleDeviceLogEle['operatorId'] =
+                        device.operatorExternalId;
                       singleDeviceLogEle['deviceId'] = device.id;
                       singleDeviceLogEle['timezone'] =
                         getLocalTimeZoneFromDevice(device.createdAt, device);

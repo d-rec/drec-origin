@@ -192,7 +192,7 @@ export class EvidentDeviceService {
     device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
     device.siteName = deviceGroup.name;
     const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+      await this.organizationService.getLinkedRegistrantOrSelf(
         device.organizationId,
       );
     const evidentDevice = await this.createDevice(device);
@@ -211,7 +211,7 @@ export class EvidentDeviceService {
   ): Promise<{ evidentDeviceId: string; status: EvidentRegistrationStatus }> {
     const evidentDevice = await this.createDevice(device, files);
     const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+      await this.organizationService.getLinkedRegistrantOrSelf(
         device.organizationId,
       );
     await this.sendEmail(organization, device, evidentDevice.status);

@@ -54,7 +54,6 @@ Repository for Origin DREC project
 |---|---|---|
 | `development` | Local development and testing | localhost / Docker |
 | `stage` | Pre-production validation | AWS EKS + RDS |
-| `demo` | Stakeholder demos | AWS EKS + RDS |
 | `prod` | Production | AWS EKS + RDS |
 
 > **Note:** The `develop` branch is intended for local development only. It runs against a local PostgreSQL database seeded with `rush start:dev`. There is no cloud infrastructure for the develop environment — do not deploy it to AWS.
@@ -107,7 +106,7 @@ The local dev environment is seeded with the following accounts:
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | `admin@drec.local` | `Admin1234!` |
-| Market Intermediary | `evident.demo@drec.energy` | `D0ntc4r3` |
+| Registrant | `evident.demo@drec.energy` | `D0ntc4r3` |
 
 Local service UIs:
 

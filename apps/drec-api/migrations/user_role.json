@@ -6,15 +6,9 @@
     "status": true
   },
   {
-    "id": 2,
-    "name": "OrganizationAdmin",
-    "description": "for Organization admin",
-    "status": true
-  },
-  {
     "id": 3,
-    "name": "DeviceOwner",
-    "description": "for Device Owner role",
+    "name": "SiteOperator",
+    "description": "Site Operator role for device management",
     "status": true
   },
   {
@@ -31,8 +25,8 @@
   },
   {
     "id": 6,
-    "name": "MarketIntermediary",
-    "description": "Market Intermediary role for API access",
+    "name": "Registrant",
+    "description": "Registrant role for device registration and meter read submission",
     "status": true
   },
   {

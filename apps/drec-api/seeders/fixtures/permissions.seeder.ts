@@ -16,7 +16,7 @@ export class PermissionsSeeder implements SeederInterface {
     const permissions = this.aclPermissionsRepository.create([
       {
         aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -24,7 +24,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -32,7 +32,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 3, // FILE_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -40,7 +40,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 4, // ACL Module ID for Device module management
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -48,7 +48,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 15,
@@ -56,7 +56,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 6, // ACL Module ID for Bulk Device management
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -64,7 +64,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 7, // READS_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -72,7 +72,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 1,
@@ -80,7 +80,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 9, // INVITATION_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -88,7 +88,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 11, //PASSWORD_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Write'],
         permissionValue: 2,
@@ -96,7 +96,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,

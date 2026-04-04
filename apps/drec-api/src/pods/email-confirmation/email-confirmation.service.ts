@@ -40,7 +40,7 @@ export class EmailConfirmationService {
         role: Role.Admin,
         api_user_id: user.api_user_id,
       })) != undefined ||
-      user.role === 'MarketIntermediary'
+      user.role === 'Registrant'
     ) {
       const exists = await this.repository.findOne({
         where: {

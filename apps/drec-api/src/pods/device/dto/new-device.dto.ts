@@ -33,7 +33,7 @@ export class NewDeviceDTO implements Omit<
 
   @IsOptional()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   @ApiProperty()
   @IsString()

@@ -203,7 +203,7 @@ export class BulkUploadService {
           limit,
         });
 
-      case Role.MarketIntermediary:
+      case Role.Registrant:
         return this.getAllBulkUploadJobsForApiUser({
           apiUserId: api_user_id,
           bulkUploadType,
@@ -267,7 +267,7 @@ export class BulkUploadService {
       });
     }
 
-    if (!organizationId && user.role === Role.MarketIntermediary) {
+    if (!organizationId && user.role === Role.Registrant) {
       this.logger.error(`Add the organizationId at query param`);
       throw new BadRequestException({
         success: false,

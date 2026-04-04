@@ -81,7 +81,7 @@ export class PermissionController {
    */
   @Get('/role/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.Registrant)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -158,7 +158,7 @@ export class PermissionController {
    */
   @Post('/module')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.Registrant)
   @ApiBody({ type: NewPermissionDTO })
   @Permission('Write')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -238,7 +238,7 @@ export class PermissionController {
    */
   @Post('/module/apiuser/request')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.MarketIntermediary)
+  @Roles(Role.Registrant)
   @ApiBody({ type: [NewApiUserPermissionDTO] })
   @ApiOperation({
     summary: 'Request Permission for API User',

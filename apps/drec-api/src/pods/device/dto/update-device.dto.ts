@@ -42,7 +42,7 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   @ApiProperty()
   @IsString()

@@ -1,11 +1,10 @@
 export enum Role {
   User = 'User',
-  DeviceOwner = 'DeviceOwner',
-  OrganizationAdmin = 'OrganizationAdmin',
+
   Buyer = 'Buyer',
   Admin = 'Admin',
   SubBuyer = 'SubBuyer',
-  MarketIntermediary = 'MarketIntermediary',
+  Registrant = 'Registrant',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
   SiteOperator = 'SiteOperator',

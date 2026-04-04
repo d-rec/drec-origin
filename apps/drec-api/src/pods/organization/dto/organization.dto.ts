@@ -8,7 +8,7 @@ export class OrganizationDTO
   extends PublicOrganizationInfoDTO
   implements IFullOrganization
 {
-  // @ApiProperty({ type: String ,description: 'organizationType value should be Developer/Buyer'})
+  // @ApiProperty({ type: String ,description: 'organizationType value should be SiteOperator/Buyer'})
   // @IsString()
   // @IsNotEmpty()
   // @Expose()

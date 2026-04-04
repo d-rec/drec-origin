@@ -114,7 +114,7 @@ describe('AuthService', () => {
       phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
       notifications: true,
       status: UserStatus.Active,
-      role: Role.OrganizationAdmin,
+      role: Role.Registrant,
       organization: {
         id: 1,
         name: 'org1',
@@ -122,7 +122,7 @@ describe('AuthService', () => {
         zipCode: '623754',
         city: 'Chennai',
         country: 'India',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
       },
     };
@@ -187,7 +187,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
       };
       const token = 'fake-jwt-token';
 
@@ -208,7 +208,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.MarketIntermediary,
+        role: Role.Registrant,
       };
       const token = 'fake-jwt-token';
 
@@ -264,7 +264,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.MarketIntermediary,
+        role: Role.Registrant,
       };
 
       const tokenInvalidate = true;
@@ -300,7 +300,7 @@ describe('AuthService', () => {
       const payload: IJWTPayload = {
         id: 1,
         email: 'test@example.com',
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
       };
 
       jest.spyOn(userService, 'hasValidUserSession').mockResolvedValue(true);
@@ -338,7 +338,7 @@ describe('AuthService', () => {
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         organization: {
           id: 1,
           name: 'org1',
@@ -346,7 +346,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: OrganizationType.Developer,
+          organizationType: OrganizationType.Registrant,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,
@@ -380,7 +380,7 @@ describe('AuthService', () => {
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         organization: {
           id: 1,
           name: 'org1',
@@ -388,7 +388,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: OrganizationType.Developer,
+          organizationType: OrganizationType.Registrant,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,
@@ -418,7 +418,7 @@ describe('AuthService', () => {
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         organization: {
           id: 1,
           name: 'org1',
@@ -426,7 +426,7 @@ describe('AuthService', () => {
           zipCode: '623754',
           city: 'Chennai',
           country: 'India',
-          organizationType: OrganizationType.Developer,
+          organizationType: OrganizationType.Registrant,
           status: OrganizationStatus.Active,
         },
         emailConfirmed: true,

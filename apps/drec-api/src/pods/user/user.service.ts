@@ -46,6 +46,10 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpService } from '../otp/otp.service';
+import { MailService } from '../../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
+import React from 'react';
+import AccountApproved from '../../mail/templates/account-approved.template';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -64,6 +68,8 @@ export class UserService {
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
     private readonly otpService: OtpService,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
 
   public async seed(
@@ -140,17 +146,13 @@ export class UserService {
       if (data.orgid) {
         orgId = data.orgid;
       }
-      let role;
-      if (data.organizationType === OrganizationType.Buyer) {
+      let role: Role;
+      if (data.role === Role.Reviewer || data.role === Role.SeniorReviewer) {
+        role = data.role as Role;
+      } else if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-      } else if (data.organizationType === OrganizationType.Developer) {
-        role = Role.OrganizationAdmin;
-      } else if (data.organizationType === OrganizationType.MarketIntermediary) {
-        role = Role.MarketIntermediary;
-      } else if (data.organizationType === OrganizationType.Reviewer) {
-        role = Role.Reviewer;
-      } else if (data.organizationType === OrganizationType.SeniorReviewer) {
-        role = Role.SeniorReviewer;
+      } else if (data.organizationType === OrganizationType.Registrant) {
+        role = Role.Registrant;
       } else if (data.organizationType === OrganizationType.SiteOperator) {
         role = Role.SiteOperator;
       }
@@ -168,7 +170,7 @@ export class UserService {
         password: this.hashPassword(data.password),
         termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
-        status: status || UserStatus.Active,
+        status: status || UserStatus.Pending,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
@@ -200,8 +202,8 @@ export class UserService {
         data.api_user_id,
       );
       const isReviewer =
-        data.organizationType === OrganizationType.Reviewer ||
-        data.organizationType === OrganizationType.SeniorReviewer;
+        data.role === Role.Reviewer ||
+        data.role === Role.SeniorReviewer;
       let orgId;
       if (isReviewer) {
         // Reviewers join the admin's organization
@@ -239,17 +241,15 @@ export class UserService {
         }
       }
 
-      let role;
-      if (data.organizationType === OrganizationType.Buyer) {
+      let role: Role;
+      if (isReviewer) {
+        role = data.role as Role;
+      } else if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-      } else if (data.organizationType === OrganizationType.Reviewer) {
-        role = Role.Reviewer;
-      } else if (data.organizationType === OrganizationType.SeniorReviewer) {
-        role = Role.SeniorReviewer;
       } else if (data.organizationType === OrganizationType.SiteOperator) {
         role = Role.SiteOperator;
       } else {
-        role = Role.OrganizationAdmin;
+        role = Role.Registrant;
       }
       const roleRecord = await this.userRoleRepository.findOne({
         where: { name: role },
@@ -336,7 +336,7 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
       user['permission_status'] = apiUser.permission_status;
     }
@@ -644,7 +644,29 @@ export class UserService {
     if (roleValue) {
       updatePayload.role = roleValue;
     }
+    const previousStatus = updateUser.status;
     await this.repository.update(id, updatePayload);
+
+    // Send approval email when status changes from Pending to Active
+    if (
+      previousStatus === UserStatus.Pending &&
+      data.status === UserStatus.Active
+    ) {
+      const loginUrl =
+        this.configService.get<string>('UI_BASE_URL') || 'https://portal.drecs.org';
+      this.mailService
+        .send({
+          to: updateUser.email,
+          subject: 'Your D-REC account has been approved',
+          template: React.createElement(AccountApproved, {
+            firstName: updateUser.firstName,
+            loginUrl: `${loginUrl}/login`,
+          }),
+        })
+        .catch((err) =>
+          this.logger.error(`Failed to send approval email to ${updateUser.email}`, err),
+        );
+    }
 
     return this.findOne({ id });
   }
@@ -658,7 +680,7 @@ export class UserService {
     const isOwnUser = loggedInUser.id === userId;
     const isOrgAdmin =
       loggedInUser.organizationId === user.organization?.id &&
-      loggedInUser.hasRole(Role.OrganizationAdmin);
+      loggedInUser.hasRole(Role.Registrant);
     const isAdmin = loggedInUser.hasRole(Role.Admin);
 
     const canViewUserData = isOwnUser || isOrgAdmin || isAdmin;
@@ -669,7 +691,7 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
       user['permission_status'] = apiUser.permission_status;
     }
@@ -727,7 +749,7 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
       .where('user.api_user_id = :api_user_id', { api_user_id })
-      .andWhere(`role != :role`, { role: Role.MarketIntermediary })
+      .andWhere(`role != :role`, { role: Role.Registrant })
       .orderBy('user.createdAt', 'DESC')
       .skip((pageNumber - 1) * limit)
       .take(limit)
@@ -804,7 +826,7 @@ export class UserService {
     const query = await this.getFilteredQuery(filterDTO);
     try {
       const [apiUsers, totalCount] = await query
-        .andWhere(`user.role = :role`, { role: Role.MarketIntermediary })
+        .andWhere(`user.role = :role`, { role: Role.Registrant })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();

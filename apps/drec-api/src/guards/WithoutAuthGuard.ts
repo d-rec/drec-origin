@@ -49,7 +49,7 @@ export class WithoutAuthGuard implements CanActivate {
         return this.resolveRegisterUser(request);
       case UrlPath.ExportAccessKey:
         return this.userService.findOne({
-          role: Role.MarketIntermediary,
+          role: Role.Registrant,
           api_user_id: request.params.api_user_id,
         });
       case UrlPath.Login:
@@ -81,21 +81,22 @@ export class WithoutAuthGuard implements CanActivate {
 
   private async resolveRegisterUser(request: any): Promise<IUser> {
     const adminUser = await this.userService.findOne({ role: Role.Admin });
-    const isDeveloperOrBuyer =
-      request.body.organizationType === OrganizationType.Developer ||
+    const isBuyer =
       request.body.organizationType === OrganizationType.Buyer;
+    const isSiteOperator =
+      request.body.organizationType === OrganizationType.SiteOperator;
 
-    if (isDeveloperOrBuyer && !request.body.api_user_id) {
+    if ((isBuyer || isSiteOperator) && !request.body.api_user_id) {
       return adminUser;
     }
 
     if (
       request.body.api_user_id &&
       request.body.api_user_id !== adminUser.api_user_id &&
-      isDeveloperOrBuyer
+      (isBuyer || isSiteOperator)
     ) {
       const user = await this.userService.findOne({
-        role: Role.MarketIntermediary,
+        role: Role.Registrant,
         api_user_id: request.body.api_user_id,
       });
       if (!user) {
@@ -107,7 +108,7 @@ export class WithoutAuthGuard implements CanActivate {
       return user;
     }
 
-    if (request.body.organizationType === OrganizationType.MarketIntermediary) {
+    if (request.body.organizationType === OrganizationType.Registrant) {
       const apiUser = await this.oauthClientCredentialsService.createAPIUser();
       request.body.api_user_id = apiUser.api_user_id;
     }
@@ -134,7 +135,7 @@ export class WithoutAuthGuard implements CanActivate {
 
     if (
       user.role != Role.Admin &&
-      user.role != Role.MarketIntermediary &&
+      user.role != Role.Registrant &&
       user.api_user_id != adminApiUserId
     ) {
       throw new UnauthorizedException({

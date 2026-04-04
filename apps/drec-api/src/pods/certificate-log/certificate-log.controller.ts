@@ -251,7 +251,7 @@ export class CertificateLogController {
       deviceGroupUid: groupId,
     });
 
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({
@@ -427,7 +427,7 @@ export class CertificateLogController {
     status: HttpStatus.FORBIDDEN,
     description: 'Forbidden. User does not have the required permissions.',
   })
-  async getCertificatesForDeveloper(
+  async getCertificatesForOperator(
     @UserDecorator() user: ILoggedInUser,
     @Query(ValidationPipe) filterDTO: FilterDTO,
     @Query('pageNumber') pageNumber: number,
@@ -437,9 +437,9 @@ export class CertificateLogController {
     )
     organizationId: number,
   ): Promise<CertificateLogResponse> {
-    this.logger.verbose(`With in getCertificatesForDeveloper`);
+    this.logger.verbose(`With in getCertificatesForOperator`);
 
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       // If the user is an ApiUser, organizationId is optional
 
       if (organizationId) {
@@ -538,7 +538,7 @@ export class CertificateLogController {
     const deviceGroup = await this.deviceGroupService.findOne({
       deviceGroupUid: groupId,
     });
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       if (deviceGroup.api_user_id != user.api_user_id) {
         this.logger.error(`Group UId  does not  belongs to this apiuser`);
         throw new BadRequestException({

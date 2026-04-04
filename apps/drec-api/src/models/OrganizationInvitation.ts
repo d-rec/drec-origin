@@ -2,8 +2,8 @@ import { OrganizationInvitationStatus, Role } from '../utils/enums';
 import { IPublicOrganization } from './Organization';
 
 export type OrganizationRole =
-  | Role.DeviceOwner
-  | Role.OrganizationAdmin
+  | Role.SiteOperator
+  | Role.Registrant
   | Role.SubBuyer
   | Role.User;
 
@@ -34,8 +34,8 @@ export type OrganizationInviteUpdateData = Pick<
 
 export const ensureOrganizationRole = (role: Role): void => {
   if (
-    role !== Role.OrganizationAdmin &&
-    role !== Role.DeviceOwner &&
+    role !== Role.Registrant &&
+    role !== Role.SiteOperator &&
     role !== Role.User &&
     role !== Role.SubBuyer
   ) {

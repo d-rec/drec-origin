@@ -81,7 +81,7 @@ export async function checkOrganizationAndUser(
         message: 'User cannot manage this organization',
       });
     }
-    if (user.role === Role.MarketIntermediary) {
+    if (user.role === Role.Registrant) {
       if (organization.api_user_id !== user.api_user_id) {
         throw new BadRequestException({
           success: false,

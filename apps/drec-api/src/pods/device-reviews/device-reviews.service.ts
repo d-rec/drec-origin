@@ -335,7 +335,7 @@ export class DeviceReviewsService {
       SELECT
         d.id,
         d."externalId",
-        d."developerExternalId",
+        d."operatorExternalId",
         d.latitude,
         d.longitude,
         d."createdAt",
@@ -446,7 +446,7 @@ export class DeviceReviewsService {
 
       return {
         id: String(r.id),
-        serial: r.externalId ?? r.developerExternalId ?? '',
+        serial: r.externalId ?? r.operatorExternalId ?? '',
         lat: r.latitude ? parseFloat(r.latitude) : null,
         long: r.longitude ? parseFloat(r.longitude) : null,
         siteName: r.siteName ?? '',

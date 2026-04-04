@@ -64,7 +64,7 @@ export class BulkUploadController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({
@@ -136,9 +136,9 @@ export class BulkUploadController {
     const organizationId = organizationIdParam || user.organizationId;
 
     const organization = await this.organizationService.findOne(organizationId);
-    if (organization.organizationType != OrganizationType.Developer) {
+    if (organization.organizationType !== OrganizationType.Registrant) {
       throw new UnauthorizedException(
-        'Only Developer organizations can upload bulk files',
+        'Only Market Intermediary organizations can upload bulk files',
       );
     }
 
@@ -177,7 +177,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiSecurity('bearer')
   @ApiQuery({
     name: 'bulkUploadType',

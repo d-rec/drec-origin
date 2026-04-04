@@ -13,7 +13,7 @@ export interface IDevice {
   id: number;
   externalId?: string;
   serialNumber: string;
-  developerExternalId?: string;
+  operatorExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;
   siteName: string;

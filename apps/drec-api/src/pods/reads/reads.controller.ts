@@ -200,7 +200,7 @@ export class ReadsController {
       );
       orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (
-        user.role === Role.MarketIntermediary &&
+        user.role === Role.Registrant &&
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
@@ -212,15 +212,15 @@ export class ReadsController {
         });
       }
       if (
-        user.role === Role.OrganizationAdmin &&
+        user.role === Role.Registrant &&
         user.organizationId != filter.organizationId
       ) {
         this.logger.error(
-          `An developer can't view the reads of other organization`,
+          `You cannot view the reads of another organization`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An developer can't view the reads of other organization`,
+          message: `You cannot view the reads of another organization`,
         });
       }
 
@@ -229,11 +229,11 @@ export class ReadsController {
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
-          `An developer cannot view the reads of other ApiUsers's`,
+          `You cannot view the reads of another API user`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An developer cannot view the reads of other ApiUsers's`,
+          message: `You cannot view the reads of another API user`,
         });
       }
       user.organizationId = filter.organizationId;
@@ -247,7 +247,7 @@ export class ReadsController {
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
       (filter.organizationId != undefined && orgUser.role === 'Buyer') ||
-      (user.role === 'MarketIntermediary' && filter.organizationId == undefined)
+      (user.role === 'Registrant' && filter.organizationId == undefined)
     ) {
       if (isNaN(parseInt(meterId))) {
         this.logger.error(
@@ -337,7 +337,7 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreRead(
@@ -380,7 +380,7 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async create(
@@ -450,7 +450,7 @@ export class ReadsController {
     description: 'This query parameter is used to for admin...',
   })
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreReadAddByAdmin(
@@ -531,7 +531,7 @@ export class ReadsController {
     if (
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
-      user.role === 'MarketIntermediary'
+      user.role === 'Registrant'
     ) {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(id));
@@ -567,7 +567,7 @@ export class ReadsController {
         this.logger.error(`Read Not found`);
         throw new HttpException('Read Not found', 400);
       }
-      if (user.role === 'Buyer' || user.role === 'MarketIntermediary') {
+      if (user.role === 'Buyer' || user.role === 'Registrant') {
         return {
           externalId: device.serialNumber,
           timestamp: latestReadObject[0].timestamp,

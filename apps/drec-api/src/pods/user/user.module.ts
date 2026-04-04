@@ -11,6 +11,7 @@ import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpModule } from '../otp/otp.module';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OtpModule } from '../otp/otp.module';
     forwardRef(() => EmailConfirmationModule),
     forwardRef(() => OrganizationModule),
     OtpModule,
+    MailModule,
   ],
   providers: [UserService, OauthClientCredentialsService],
   controllers: [UserController],

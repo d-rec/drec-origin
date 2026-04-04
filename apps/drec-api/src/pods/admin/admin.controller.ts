@@ -315,7 +315,7 @@ export class AdminController {
 
   @Put('/users/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.Registrant)
   @Permission('Write')
   @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
@@ -452,7 +452,7 @@ export class AdminController {
       user.id,
     );
 
-    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
+    if (user.role === Role.Buyer || user.role === Role.Registrant) {
       const buyerReservation = await this.deviceGroupService.findOne({
         organizationId: user.organization.id,
       });
@@ -489,7 +489,7 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  //@Roles(Role.Registrant, Role.SiteOperator)
   @ApiOperation({
     summary: 'Get device autocomplete suggestions',
     description:

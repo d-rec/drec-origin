@@ -28,7 +28,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress111',
-    organizationType: OrganizationType.Developer,
+    organizationType: OrganizationType.Registrant,
   },
   {
     id: 11,
@@ -61,7 +61,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress444',
-    organizationType: OrganizationType.Developer,
+    organizationType: OrganizationType.Registrant,
   },
 ];
 
@@ -72,7 +72,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'owner2@mailinator.com',
     phoneNumber: '+250780079691', // Rwanda number
     password: '******123',
-    organizationType: OrganizationType.Developer,
+    organizationType: OrganizationType.Registrant,
   },
   {
     firstName: 'John',
@@ -88,7 +88,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'admin2@mailinator.com',
     phoneNumber: '+14155552671', // US number
     password: '******123',
-    organizationType: OrganizationType.MarketIntermediary,
+    organizationType: OrganizationType.Registrant,
   },
   {
     firstName: 'Maria',
@@ -96,7 +96,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'owner3@mailinator.com',
     phoneNumber: '+819012345678', // Japanese number
     password: '******123',
-    organizationType: OrganizationType.Developer,
+    organizationType: OrganizationType.Registrant,
   },
 ];
 
@@ -119,7 +119,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
@@ -143,7 +143,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
@@ -167,7 +167,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
@@ -191,7 +191,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     energyStorage: true,
     energyStorageCapacity: 900,
     qualityLabels: '',
@@ -325,7 +325,7 @@ export const seed = async ({
   await userService.seed(
     user1,
     createdOrg1.id,
-    Role.DeviceOwner,
+    Role.SiteOperator,
     UserStatus.Active,
   );
   await userService.seed(user2, createdOrg2.id, Role.Buyer, UserStatus.Active);
@@ -333,7 +333,7 @@ export const seed = async ({
   await userService.seed(
     user4,
     createdOrg4.id,
-    Role.DeviceOwner,
+    Role.SiteOperator,
     UserStatus.Active,
   );
 

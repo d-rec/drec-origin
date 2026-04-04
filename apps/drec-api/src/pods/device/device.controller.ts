@@ -103,7 +103,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.MarketIntermediary)
+  @Roles(Role.Admin, Role.Registrant)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -149,7 +149,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Registrant)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -175,7 +175,7 @@ export class DeviceController {
     const organization = await this.organizationService.findOne(
       filterDTO.organizationId,
     );
-    if (role === Role.MarketIntermediary) {
+    if (role === Role.Registrant) {
       if (organization.api_user_id != api_user_id) {
         this.logger.error(
           `The requested organization is belongs to other apiuser`,
@@ -199,7 +199,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Registrant)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -355,7 +355,7 @@ export class DeviceController {
       }
     }
     if (filterDTO.organizationId) {
-      if (role === Role.MarketIntermediary) {
+      if (role === Role.Registrant) {
         const organization = await this.organizationService.findOne(
           filterDTO.organizationId,
         );
@@ -371,7 +371,7 @@ export class DeviceController {
             message: 'The organization Id in param is belongs to other apiuser',
           });
         } else {
-          if (orgUser.role != Role.OrganizationAdmin) {
+          if (orgUser.role != Role.Registrant) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -515,7 +515,7 @@ export class DeviceController {
     this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
-    if (loginUser.role === Role.MarketIntermediary || loginUser.role === Role.Admin) {
+    if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
@@ -530,7 +530,7 @@ export class DeviceController {
         loginUser.organizationId,
       );
     }
-    delete deviceData['developerExternalId'];
+    delete deviceData['operatorExternalId'];
     return deviceData;
   }
 
@@ -560,7 +560,7 @@ export class DeviceController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.OrganizationAdmin, Role.MarketIntermediary)
+  @Roles(Role.Registrant)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @UseInterceptors(
@@ -667,17 +667,17 @@ export class DeviceController {
           .join(', '),
       );
     }
-    if (role === Role.Admin || role === Role.MarketIntermediary) {
+    if (role === Role.Admin || role === Role.Registrant) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
-          `Organization id is required,please add your developer's Organization`,
+          `Organization id is required, please add the organization`,
         );
         throw new ConflictException({
           success: false,
-          message: `Organization id is required,please add your developer's Organization `,
+          message: `Organization id is required, please add the organization`,
         });
       }
     } else {
@@ -1122,7 +1122,7 @@ export class DeviceController {
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.OrganizationAdmin, Role.Admin)
+  @Roles(Role.Registrant, Role.Admin)
   @ApiOperation({
     summary: 'Delete device by ID',
     description: 'Remove a device from the system using its ID.',
@@ -1321,7 +1321,7 @@ export class DeviceController {
     });
     if (
       group === null ||
-      (group.organizationId != user.organizationId && user.role != 'MarketIntermediary') ||
+      (group.organizationId != user.organizationId && user.role != 'Registrant') ||
       group.api_user_id != user.api_user_id
     ) {
       this.logger.error(

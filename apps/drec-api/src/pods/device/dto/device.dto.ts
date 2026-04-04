@@ -23,7 +23,7 @@ export class DeviceDTO implements IDevice {
 
   @ApiHideProperty()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   @ApiProperty()
   @Trim()

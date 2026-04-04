@@ -168,7 +168,7 @@ export class DeviceGroupService {
         query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
-    if (user?.role === Role.OrganizationAdmin) {
+    if (user?.role === Role.Registrant) {
       query.andWhere(`group.organizationId = '${user.organizationId}'`);
     }
     if (organizationId) {
@@ -391,7 +391,7 @@ export class DeviceGroupService {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
     if (user) {
-      if (user.role === Role.MarketIntermediary) {
+      if (user.role === Role.Registrant) {
         const organization = await this.organizationService.findOne(
           user.organizationId,
         );
@@ -399,10 +399,10 @@ export class DeviceGroupService {
           organization.orgEmail,
         );
         if (
-          orgUser.role === Role.OrganizationAdmin ||
-          orgUser.role === Role.DeviceOwner
+          orgUser.role === Role.Registrant ||
+          orgUser.role === Role.SiteOperator
         ) {
-          const isMyDevice = await this.checkDeveloperOrganization(
+          const isMyDevice = await this.checkDeviceOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -430,11 +430,8 @@ export class DeviceGroupService {
           }
         }
       } else {
-        if (
-          user.role === Role.OrganizationAdmin ||
-          user.role === Role.DeviceOwner
-        ) {
-          const isMyDevice = await this.checkDeveloperOrganization(
+        if (user.role === Role.SiteOperator) {
+          const isMyDevice = await this.checkDeviceOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -1315,7 +1312,7 @@ export class DeviceGroupService {
               device,
               files,
               api_user_id,
-              Role.MarketIntermediary,
+              Role.Registrant,
             );
           }
         } catch (e) {
@@ -2193,7 +2190,7 @@ export class DeviceGroupService {
   }
 
   public async getNextHistoryIssuanceDeviceLogAfterReservation(
-    developerExternalId: string,
+    operatorExternalId: string,
     groupId: number,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     this.logger.verbose(
@@ -2201,7 +2198,7 @@ export class DeviceGroupService {
     );
     return await this.historyNextIssuanceDateRepository.findOne({
       where: {
-        device_externalid: developerExternalId,
+        device_externalid: operatorExternalId,
         groupId: groupId,
         status: 'Completed',
       },
@@ -2277,7 +2274,7 @@ export class DeviceGroupService {
       .createQueryBuilder('hni')
       .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
       .select([
-        'd.developerExternalId AS "externalId"',
+        'd."operatorExternalId" AS "externalId"',
         'hni.* AS historynextissuance',
       ])
       .where('hni.groupId = :groupId', { groupId: group.id })
@@ -2362,9 +2359,12 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (
-        role === 'OrganizationAdmin' ||
-        role === 'DeviceOwner' ||
+      if (role === 'Registrant') {
+        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiUserId,
+        });
+      } else if (
+        role === 'SiteOperator' ||
         role === 'User'
       ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2373,10 +2373,6 @@ export class DeviceGroupService {
       } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
-        });
-      } else if (role === 'MarketIntermediary') {
-        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
-          api_user_id: apiUserId,
         });
       } else {
         // Admin or any other role — filter by org
@@ -2564,19 +2560,19 @@ export class DeviceGroupService {
     const totalPages = Math.ceil(totalCount / pageSize);
     let deviceGroups: any;
     if (
-      role === 'OrganizationAdmin' ||
-      role === 'DeviceOwner' ||
+      role === 'Registrant' ||
+      role === 'SiteOperator' ||
       role === 'User' ||
       role === 'Admin'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
-          const existingDevice = existing.developerdeviceIds.find(
+          const existingDevice = existing.orgDeviceIds.find(
             (item) => item === curr.id,
           );
           if (!existingDevice) {
-            existing.developerdeviceIds.push(curr.id);
+            existing.orgDeviceIds.push(curr.id);
           }
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
@@ -2584,7 +2580,7 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            developerdeviceIds: [curr.id],
+            orgDeviceIds: [curr.id],
             internalCertificateId: [curr.internalCertificateId],
           });
         }
@@ -2592,8 +2588,7 @@ export class DeviceGroupService {
       }, []);
     } else if (
       role === 'Buyer' ||
-      role === 'SubBuyer' ||
-      role === Role.MarketIntermediary
+      role === 'SubBuyer'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
@@ -2658,9 +2653,12 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (
-        role === 'OrganizationAdmin' ||
-        role === 'DeviceOwner' ||
+      if (role === 'Registrant') {
+        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiUserId,
+        });
+      } else if (
+        role === 'SiteOperator' ||
         role === 'User'
       ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2669,10 +2667,6 @@ export class DeviceGroupService {
       } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
-        });
-      } else if (role === 'MarketIntermediary') {
-        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
-          api_user_id: apiUserId,
         });
       } else {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2855,8 +2849,8 @@ export class DeviceGroupService {
 
     let deviceGroups: any;
     if (
-      role === 'OrganizationAdmin' ||
-      role === 'DeviceOwner' ||
+      role === 'Registrant' ||
+      role === 'SiteOperator' ||
       role === 'User' ||
       role === 'Admin'
     ) {
@@ -2864,11 +2858,11 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          const existingDevice = existing.developerdeviceIds.find(
+          const existingDevice = existing.orgDeviceIds.find(
             (item) => item === curr.id,
           );
           if (!existingDevice) {
-            existing.developerdeviceIds.push(curr.id);
+            existing.orgDeviceIds.push(curr.id);
           }
           existing.internalCertificateId.push(curr.issuerid);
         } else {
@@ -2876,7 +2870,7 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            developerdeviceIds: [curr.id],
+            orgDeviceIds: [curr.id],
             internalCertificateId: [curr.issuerid],
           });
         }
@@ -2884,8 +2878,7 @@ export class DeviceGroupService {
       }, []);
     } else if (
       role === 'Buyer' ||
-      role === 'SubBuyer' ||
-      role === Role.MarketIntermediary
+      role === 'SubBuyer'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
@@ -2911,11 +2904,11 @@ export class DeviceGroupService {
     };
   }
 
-  public async checkDeveloperOrganization(
+  public async checkDeviceOrganization(
     deviceIds: number[],
     organizationId: number,
   ): Promise<any> {
-    this.logger.verbose(`With in checkdeveloperorganization`);
+    this.logger.verbose(`With in checkDeviceOrganization`);
     const isMyDevice = await Promise.all(
       await deviceIds.map(async (deviceId) => {
         const device = await this.deviceService.findOne(Number(deviceId));

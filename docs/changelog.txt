@@ -682,3 +682,71 @@ New Dependencies (Frontend)
 Migration
   - 1759600000000-AddSldCapacityToDevice: adds sld_capacity_kw column
     to device table
+
+
+APRIL 4, 2026 UPDATE
+=====================
+
+ROLE & ORGANIZATION CLEANUP
+----------------------------
+
+Renamed apiUser → Registrant (Organization Type & Role)
+  - The legacy "apiUser" / "MarketIntermediary" organization type and role
+    have been renamed to "Registrant" throughout the platform
+  - A registrant registers devices, manages site operators, and submits
+    meter reads for issuance
+  - Migration: 1759900500000-RenameMarketIntermediaryToRegistrant
+    -- renames org type and role in organization, user, and user_role tables
+    -- reassigns ACL permissions from the old role to Registrant
+
+Removed OrganizationAdmin Role
+  - OrganizationAdmin was a legacy role functionally identical to Registrant
+    (assigned when an admin created an org). Merged into Registrant.
+  - All users with OrganizationAdmin role reassigned to Registrant
+  - ACL permissions from OrganizationAdmin (entityId=2) merged into
+    Registrant (entityId=6)
+  - Handled in the same migration as the rename above
+
+Merged DeviceOwner into SiteOperator
+  - DeviceOwner was a role for device owners within a SiteOperator org,
+    but in practice had identical permissions and was always used alongside
+    SiteOperator in access control decorators
+  - All DeviceOwner users reassigned to SiteOperator
+  - user_role row (id=3) renamed from DeviceOwner to SiteOperator
+  - Invitation default role updated from DeviceOwner to SiteOperator
+  - Migration: 1759900600000-MergeDeviceOwnerIntoSiteOperator
+
+Removed Reviewer/SeniorReviewer from OrganizationType Enum
+  - Reviewer and SeniorReviewer are roles, not organization types — they
+    belong to the Admin organization. The enum values were vestigial and
+    have been removed.
+  - The Add User form for reviewers now uses the role dropdown directly;
+    organizationType field is optional in the DTO
+
+BUG FIXES
+---------
+
+SiteOperator Self-Registration Broken (Forbidden Resource)
+  - Self-registering as a SiteOperator returned 403 "Forbidden resource"
+  - Root cause: WithoutAuthGuard.resolveRegisterUser() only handled Buyer
+    and Registrant org types — SiteOperator fell through to undefined,
+    causing PermissionGuard to reject the request
+  - Fixed by treating SiteOperator the same as Buyer in the guard (returns
+    the admin user so the permission check passes)
+  - Discovered via new Playwright e2e registration tests
+
+UI IMPROVEMENTS
+---------------
+
+Dashboard: Account Created Timestamps
+  - Changed date display from mediumDate (e.g. "Apr 4, 2026") to medium
+    (e.g. "Apr 4, 2026, 2:30:15 PM") so account creation time is visible
+
+DOCUMENTATION
+-------------
+
+  - Updated DREC_Roles_and_OrgTypes.docx to reflect all role/org changes
+  - Renamed docs/usage-guide/feature-workthrough/developer.md to
+    site-operator.md with updated content
+  - Updated README seed accounts table (Registrant instead of
+    Market Intermediary)

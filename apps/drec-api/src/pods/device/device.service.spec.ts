@@ -199,7 +199,7 @@ describe('DeviceService', () => {
         countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
-      const role = Role.OrganizationAdmin;
+      const role = Role.Registrant;
 
       const deviceEntity = {
         dataSource: 'Inverter',
@@ -364,7 +364,7 @@ describe('DeviceService', () => {
         countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
-      const role = Role.OrganizationAdmin;
+      const role = Role.Registrant;
 
       const deviceEntity = {
         externalId: 'ExternalId1',
@@ -447,7 +447,7 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -784,7 +784,7 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
@@ -1250,8 +1250,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1520,8 +1520,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1580,8 +1580,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1660,7 +1660,7 @@ describe('DeviceService', () => {
   describe('update', () => {
     it('should successfully update a device', async () => {
       const organizationId = 1;
-      const role = Role.DeviceOwner;
+      const role = Role.SiteOperator;
       const externalId = 'external-id-1';
       const updateDeviceDTO: UpdateDeviceDTO = {
         externalId: 'ExternalId1',
@@ -1715,7 +1715,7 @@ describe('DeviceService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValue(null); // Mock fingerprint check to return null
 
-      const findDeviceByDeveloperExternalIdSpy = jest
+      const findBySerialNumberSpy = jest
         .spyOn(service, 'findBySerialNumber')
         .mockResolvedValue(currentDevice);
 
@@ -1730,7 +1730,7 @@ describe('DeviceService', () => {
         updateDeviceDTO,
       );
 
-      expect(findDeviceByDeveloperExternalIdSpy).toHaveBeenCalledWith(
+      expect(findBySerialNumberSpy).toHaveBeenCalledWith(
         externalId.trim(),
         organizationId,
       );

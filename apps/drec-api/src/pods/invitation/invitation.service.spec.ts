@@ -99,7 +99,7 @@ describe('InvitationService', () => {
       };
 
       const email = 'cccplrtzifwzerosys@cazlp.com';
-      const role = Role.User as OrganizationRole; //'DeviceOwner';
+      const role = Role.User as OrganizationRole; //'SiteOperator';
       const firstName = 'tst';
       const lastName = 'test';
       const orgId = 13;
@@ -122,7 +122,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'MarketIntermediary',
+          organizationType: 'Registrant',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -140,7 +140,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: 'Developer',
+        organizationType: 'Registrant',
         orgEmail: 'mgi36509@zslsz.com',
         status: OrganizationStatus.Active, //'Active',
         documentIds: null,
@@ -171,7 +171,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Developer',
+          organizationType: 'Registrant',
           orgEmail: 'mgi36509@zslsz.com',
           status: 'Active',
           documentIds: null,
@@ -197,7 +197,7 @@ describe('InvitationService', () => {
           '$2a$08$d8IsG9Oqw5U3TVXWtEyN6.wktWKZ1ZhxHweaQ6oWqJhEL4k2SUk.S',
         notifications: true,
         status: 'Pending',
-        role: 'OrganizationAdmin',
+        role: 'Registrant',
         roleId: 2,
         organization: { id: 13 },
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
@@ -300,7 +300,7 @@ describe('InvitationService', () => {
           "firstName": "tst",
           "lastName": "test",
           "orgName": "Dev____ORG",
-          "organizationType": "Developer",
+          "organizationType": "Registrant",
           "orgid": 13,
           "password": "Gxdushdkl",
         },
@@ -315,13 +315,13 @@ describe('InvitationService', () => {
         organizationId: 2,
         email: 'iceratan@gmail.com',
         blockchainAccountAddress: null,
-        role: Role.MarketIntermediary, //'Admin',
+        role: Role.Registrant, //'Admin',
         permissions: ['Read', 'Write', 'Update'],
         api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
       };
 
       const email = 'diuqtdpnqttfuvauha@cazlq.com';
-      const role = Role.User as OrganizationRole; //'DeviceOwner';
+      const role = Role.User as OrganizationRole; //'SiteOperator';
       const firstName = 'test';
       const lastName = 'test';
       const phoneNumber = '+919754218975';
@@ -336,7 +336,7 @@ describe('InvitationService', () => {
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active, //'Active',
-        role: Role.MarketIntermediary, //'Admin',
+        role: Role.Registrant, //'Admin',
         roleId: 6,
         organization: {
           id: 2,
@@ -347,7 +347,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.MarketIntermediary,
+          organizationType: OrganizationType.Registrant,
           orgEmail: 'iceratan@gmail.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -369,7 +369,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         orgEmail: 'eqicgglmwppkbkugh@cazlg.com',
         status: OrganizationStatus.Active, //'Active',
         documentIds: null,
@@ -385,7 +385,7 @@ describe('InvitationService', () => {
             phoneNumber: '+919754218975',
             notifications: true,
             status: 'Active',
-            role: 'OrganizationAdmin',
+            role: 'Registrant',
             roleId: 2,
             api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
           },
@@ -406,7 +406,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
+          organizationType: OrganizationType.Registrant,
           orgEmail: 'eqicgglmwppkbkugh@cazlg.com',
           status: 'Active',
           documentIds: null,
@@ -431,7 +431,7 @@ describe('InvitationService', () => {
           '$2a$08$d8IsG9Oqw5U3TVXWtEyN6.wktWKZ1ZhxHweaQ6oWqJhEL4k2SUk.S',
         notifications: true,
         status: 'Pending',
-        role: 'OrganizationAdmin',
+        role: 'Registrant',
         roleId: 2,
         organization: { id: 18 },
         api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
@@ -568,7 +568,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.MarketIntermediary,
+          organizationType: OrganizationType.Registrant,
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -651,7 +651,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.MarketIntermediary,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh',
@@ -721,7 +721,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.MarketIntermediary,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Mocking this to match the user's api_user_id
@@ -731,7 +731,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.MarketIntermediary, // Change to Role.MarketIntermediary to match the organization's api_user_id
+          role: Role.Registrant, // Change to Role.Registrant to match the organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Match the organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
@@ -772,7 +772,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.MarketIntermediary,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Matching the user's api_user_id
@@ -782,7 +782,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.MarketIntermediary, // Role matching organization's api_user_id
+          role: Role.Registrant, // Role matching organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Matching organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',

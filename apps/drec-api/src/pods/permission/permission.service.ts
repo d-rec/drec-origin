@@ -78,10 +78,10 @@ export class PermissionService {
         permissionValue: permissionValue,
       });
       if (
-        (loggedInUser.role === Role.OrganizationAdmin &&
+        (loggedInUser.role === Role.Registrant &&
           data.entityType != 'Role') ||
         loggedInUser.role === Role.Admin ||
-        loggedInUser.role === Role.MarketIntermediary
+        loggedInUser.role === Role.Registrant
       ) {
         return await this.repository.save(aclPermissionService);
       } else {
@@ -226,7 +226,7 @@ export class PermissionService {
       permissionValue,
     );
     if (hasPermission) {
-      if (loggedInUser.role === Role.MarketIntermediary) {
+      if (loggedInUser.role === Role.Registrant) {
         await this.repository.update(id, {
           permissions: data.permissions,
           permissionValue: permissionValue,

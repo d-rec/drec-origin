@@ -103,21 +103,18 @@ export class CreateUserOrgDTO
 
   @ApiProperty({ type: String })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @IsIn(
     [
-      OrganizationType.Developer,
-      OrganizationType.MarketIntermediary,
+      OrganizationType.Registrant,
       OrganizationType.Buyer,
       OrganizationType.SiteOperator,
-      OrganizationType.Reviewer,
-      OrganizationType.SeniorReviewer,
     ],
     {
       message: 'Invalid organization type',
     },
   )
-  organizationType: string;
+  organizationType?: string;
 
   @IsOptional()
   emailNotification?: boolean;

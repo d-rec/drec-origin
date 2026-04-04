@@ -304,7 +304,7 @@ export class DeviceService {
       const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
-      if (role == Role.MarketIntermediary) {
+      if (role == Role.Registrant) {
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
         } else {
@@ -328,7 +328,7 @@ export class DeviceService {
       const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
-        delete device['developerExternalId'];
+        delete device['operatorExternalId'];
 
         delete device['organization'];
 
@@ -607,7 +607,7 @@ export class DeviceService {
               : (updatedStatus as EvidentRegistrationStatus);
           await this.repository.save(device);
           const organization =
-            await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+            await this.organizationService.getLinkedRegistrantOrSelf(
               device.organizationId,
             );
           this.sendEmailBasedOnEvidentStatus(device, organization.orgEmail);
@@ -769,14 +769,14 @@ export class DeviceService {
         statusCode: 409,
       });
     }
-    if (role === Role.MarketIntermediary) {
+    if (role === Role.Registrant) {
       const org = await this.organizationService.findOne(organizationId, {
         api_user_id: api_user_id,
       } as FindOneOptions<Organization>);
 
       const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-      if (orgUser.role !== Role.OrganizationAdmin) {
+      if (orgUser.role !== Role.Registrant) {
         this.logger.error(`Unauthorized`);
         throw new UnauthorizedException({
           success: false,
@@ -862,7 +862,7 @@ export class DeviceService {
   ): Promise<Device> {
     this.logger.verbose(`With in update`);
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
-      role === Role.DeviceOwner
+      role === Role.SiteOperator
         ? {
             where: {
               organizationId,
@@ -1609,7 +1609,7 @@ export class DeviceService {
     this.logger.debug(rows);
     const newDevices = [];
     await rows.map((device: Device) => {
-      delete device['developerExternalId'];
+      delete device['operatorExternalId'];
       newDevices.push(device);
     });
     return newDevices;

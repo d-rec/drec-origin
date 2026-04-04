@@ -316,7 +316,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.MarketIntermediary,
+        role: Role.Registrant,
         organizationId: 1,
       } as ILoggedInUser;
 
@@ -326,9 +326,9 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
       jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
+        .mockResolvedValue({ role: Role.Registrant } as any);
       jest
-        .spyOn(service, 'checkDeveloperOrganization')
+        .spyOn(service, 'checkDeviceOrganization')
         .mockResolvedValue(false);
 
       await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
@@ -344,7 +344,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.MarketIntermediary,
+        role: Role.Registrant,
         organizationId: 1,
       } as ILoggedInUser;
 
@@ -354,8 +354,8 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
       jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
-      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
+        .mockResolvedValue({ role: Role.Registrant } as any);
+      jest.spyOn(service, 'checkDeviceOrganization').mockResolvedValue(true);
 
       const result = await service.findById(deviceGroupUid, mockUser);
 
@@ -375,7 +375,7 @@ describe('DeviceGroupService', () => {
       } as ILoggedInUser;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeviceOrganization').mockResolvedValue(true);
 
       await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
