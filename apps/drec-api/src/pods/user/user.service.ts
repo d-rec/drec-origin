@@ -88,21 +88,10 @@ export class UserService {
     });
   }
 
-  public async checkIfPhoneNumberExists(phoneNumber: string): Promise<void> {
-    if (!phoneNumber) return;
-    // Skip uniqueness check in dev mode
-    if (process.env.NODE_ENV !== 'production') return;
-    const existingTelephone = await this.repository.findOne({
-      where: { phoneNumber },
-    });
-
-    if (existingTelephone) {
-      throw new ConflictException({
-        success: false,
-        message:
-          'This phone number is already registered. Please use a different phone number.',
-      });
-    }
+  // Phone number uniqueness is not enforced — multiple users may share a number
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async checkIfPhoneNumberExists(_phoneNumber: string): Promise<void> {
+    return;
   }
 
   public async newCreateUser(
@@ -110,14 +99,16 @@ export class UserService {
     status?: UserStatus,
     inviteUser?: boolean,
   ): Promise<UserDTO> {
-    try {
-      await this.checkForExistingUser(data.email.toLowerCase());
-      await this.checkIfPhoneNumberExists(data.phoneNumber);
-      const apiUser =
-        await this.oauthClientCredentialsService.findOneByApiUserId(
-          data.api_user_id,
-        );
+    await this.checkForExistingUser(data.email.toLowerCase());
+    await this.checkIfPhoneNumberExists(data.phoneNumber);
+    const apiUser =
+      await this.oauthClientCredentialsService.findOneByApiUserId(
+        data.api_user_id,
+      );
 
+    // Wrap org + user in a transaction so partial registrations leave no
+    // orphan data behind.
+    const user = await this.repository.manager.transaction(async (manager) => {
       let orgId;
       if (!inviteUser) {
         const organizationData = {
@@ -135,7 +126,7 @@ export class UserService {
         ) {
           throw new ConflictException({
             success: false,
-            message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
+            message: `Organization "${data.orgName}" already exists, please use another name`,
           });
         } else {
           const org =
@@ -169,7 +160,7 @@ export class UserService {
       });
       const roleId = roleRecord?.id;
 
-      const user = await this.repository.save({
+      const user = await manager.save(User, {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email.toLowerCase(),
@@ -183,20 +174,18 @@ export class UserService {
         organization: orgId ? { id: orgId } : {},
         api_user_id: apiUser ? apiUser.api_user_id : null,
         phoneNumberVerifiedAt: null,
-      });
-      const { ...userData } = user;
+      } as any);
       this.logger.debug(
-        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
+        `Successfully registered a new user with id ${JSON.stringify(user.id)}`,
       );
-      await this.emailConfirmationService.create(user);
 
       return user;
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
-      throw error;
-    }
+    });
+
+    // Email confirmation runs after the transaction commits so the user row
+    // is visible to the email_confirmation FK constraint.
+    await this.emailConfirmationService.create(user);
+    return user;
   }
 
   public async createUserByAdmin(
@@ -443,8 +432,22 @@ export class UserService {
   }
 
   async remove(userId: number): Promise<void> {
+    const user = await this.repository.findOne({
+      where: { id: userId },
+      relations: ['organization'],
+    });
     await this.emailConfirmationService.remove(userId);
     await this.repository.delete(userId);
+
+    // Clean up orphan org if this was the last user
+    if (user?.organization) {
+      const remainingUsers = await this.repository.count({
+        where: { organization: { id: user.organization.id } },
+      });
+      if (remainingUsers === 0) {
+        await this.organizationService.remove(user.organization.id);
+      }
+    }
   }
 
   async updateProfile(
@@ -573,7 +576,6 @@ export class UserService {
     const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
-        .andWhere(`role != :role`, { role: Role.MarketIntermediary })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
