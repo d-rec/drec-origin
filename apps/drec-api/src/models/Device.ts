@@ -7,6 +7,8 @@ import {
   OperatingConfiguration,
   OwnershipStatus,
   SourceAccessMode,
+  SubsidyType,
+  YesNo,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -52,6 +54,18 @@ export interface IDevice {
   timezone?: string;
   stateProvince?: string;
   postcode?: string;
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  pvSystemOwner?: string;
+  offTakerName?: string;
+  offTakerSameCompanyAsOwner?: YesNo;
+  // Subsidies & incentives (rows 78, 79, 80)
+  hasSubsidy?: YesNo;
+  subsidyTypes?: SubsidyType[];
+  subsidyOtherDetails?: string;
+  subsidyClaimsEacs?: YesNo;
+  // Public funding (rows 50, 51)
+  hasPublicFunding?: YesNo;
+  publicFundingEndDate?: string;
 }
 
 export enum DeviceDescription {

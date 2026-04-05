@@ -15,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, SourceAccessMode } from '../../utils/enums';
+import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, SourceAccessMode, SubsidyType, YesNo } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -241,6 +241,44 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'decimal', nullable: true, name: 'sld_capacity_kw' })
   sldCapacityKw: number | null;
+
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @Column({ type: 'varchar', nullable: true, name: 'pv_system_owner' })
+  @IsString()
+  pvSystemOwner: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'off_taker_name' })
+  @IsString()
+  offTakerName: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'off_taker_same_company_as_owner' })
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner: YesNo | null;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @Column({ type: 'varchar', nullable: true, name: 'has_subsidy' })
+  @IsEnum(YesNo)
+  hasSubsidy: YesNo | null;
+
+  @Column('simple-array', { nullable: true, name: 'subsidy_types' })
+  @IsArray()
+  subsidyTypes: SubsidyType[] | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'subsidy_other_details' })
+  @IsString()
+  subsidyOtherDetails: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'subsidy_claims_eacs' })
+  @IsEnum(YesNo)
+  subsidyClaimsEacs: YesNo | null;
+
+  // Public funding (rows 50, 51)
+  @Column({ type: 'varchar', nullable: true, name: 'has_public_funding' })
+  @IsEnum(YesNo)
+  hasPublicFunding: YesNo | null;
+
+  @Column({ type: 'date', nullable: true, name: 'public_funding_end_date' })
+  publicFundingEndDate: string | null;
 
   @Column({ type: 'varchar', length: 10, nullable: true, name: 'last_screen_status' })
   lastScreenStatus: string | null;

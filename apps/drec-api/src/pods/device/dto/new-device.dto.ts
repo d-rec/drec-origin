@@ -20,7 +20,7 @@ import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode, SubsidyType, YesNo } from '../../../utils/enums';
 
 export class NewDeviceDTO implements Omit<
   IDevice,
@@ -280,6 +280,54 @@ export class NewDeviceDTO implements Omit<
   @IsString()
   postcode?: string | null;
 
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  pvSystemOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offTakerName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner?: YesNo;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasSubsidy?: YesNo;
+
+  @ApiProperty({ required: false, enum: SubsidyType, isArray: true })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(SubsidyType, { each: true })
+  subsidyTypes?: SubsidyType[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subsidyOtherDetails?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  subsidyClaimsEacs?: YesNo;
+
+  // Public funding (rows 50, 51)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasPublicFunding?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  publicFundingEndDate?: string;
 }
 export class DeviceRegistrationBody {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];

@@ -25,3 +25,5 @@ export * from './source-access-mode.enum';
 export * from './group-review-status.enum';
 export * from './ownership-status.enum';
 export * from './evidence-pathway.enum';
+export * from './yes-no.enum';
+export * from './subsidy-type.enum';

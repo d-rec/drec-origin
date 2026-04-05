@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode, SubsidyType, YesNo } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -224,4 +224,53 @@ export class DeviceDTO implements IDevice {
   @IsString()
   @IsOptional()
   api_user_id?: string;
+
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  pvSystemOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offTakerName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner?: YesNo;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasSubsidy?: YesNo;
+
+  @ApiProperty({ required: false, enum: SubsidyType, isArray: true })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(SubsidyType, { each: true })
+  subsidyTypes?: SubsidyType[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subsidyOtherDetails?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  subsidyClaimsEacs?: YesNo;
+
+  // Public funding (rows 50, 51)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasPublicFunding?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  publicFundingEndDate?: string;
 }
