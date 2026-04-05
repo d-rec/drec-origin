@@ -747,88 +747,95 @@ export class DeviceService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    const fingerprint = generateDeviceFingerprint({
-      latitude: newDevice.latitude,
-      longitude: newDevice.longitude,
-      commissioningDate: newDevice.commissioningDate,
-      capacity: newDevice.capacity,
-      fuelCode: newDevice.fuelCode,
-      deviceTypeCode: newDevice.deviceTypeCode,
-      serialNumber: newDevice.serialNumber,
-    });
-
-    const fingerprintExists = await this.repository.findOne({
-      where: {
-        fingerprint: fingerprint,
-      },
-    });
-
-    if (fingerprintExists) {
-      throw new ConflictException({
-        message: 'There is a device with matching details',
-        statusCode: 409,
+    try {
+      const fingerprint = generateDeviceFingerprint({
+        latitude: newDevice.latitude,
+        longitude: newDevice.longitude,
+        commissioningDate: newDevice.commissioningDate,
+        capacity: newDevice.capacity,
+        fuelCode: newDevice.fuelCode,
+        deviceTypeCode: newDevice.deviceTypeCode,
+        serialNumber: newDevice.serialNumber,
       });
-    }
-    if (role === Role.Registrant) {
-      const org = await this.organizationService.findOne(organizationId, {
-        api_user_id: api_user_id,
-      } as FindOneOptions<Organization>);
 
-      const orgUser = await this.userService.findByEmail(org.orgEmail);
+      const fingerprintExists = await this.repository.findOne({
+        where: {
+          fingerprint: fingerprint,
+        },
+      });
 
-      if (orgUser.role !== Role.Registrant) {
-        this.logger.error(`Unauthorized`);
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Unauthorized',
+      if (fingerprintExists) {
+        throw new ConflictException({
+          message: 'There is a device with matching details',
+          statusCode: 409,
         });
       }
-    }
-    const result = await this.repository.save({
-      ...newDevice,
-      fingerprint,
-      organizationId: organizationId,
-      api_user_id: api_user_id,
-    });
-    if (files) {
-      const documentTypes = {
-        [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
-        [DocumentType.SF_02C]: DocumentType.SF_02C,
-        [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
-        [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
-        [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
-        [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
-        [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
-      };
+      if (role === Role.Registrant) {
+        const org = await this.organizationService.findOne(organizationId, {
+          api_user_id: api_user_id,
+        } as FindOneOptions<Organization>);
 
-      const siteName = (result.siteName || 'project')
-        .replace(/[^a-zA-Z0-9-_]/g, '-')
-        .toLowerCase();
-      const projectSubfolder = `${siteName}-${uuid()}`;
+        const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-      for (const [field, documentType] of Object.entries(documentTypes)) {
-        const deviceId = result.id;
-        for (const file of files[field] || []) {
-          try {
-            await this.documentsService.upload(
-              deviceId,
-              DocumentTargetType.DEVICE,
-              documentType,
-              file,
-              projectSubfolder,
-            );
-          } catch (error) {
-            this.logger.error(`Failed to upload ${field}: ${error.message}`);
-            throw new BadRequestException(
-              `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
-            );
+        if (orgUser.role !== Role.Registrant) {
+          this.logger.error(`Unauthorized`);
+          throw new UnauthorizedException({
+            success: false,
+            message: 'Unauthorized',
+          });
+        }
+      }
+      const result = await queryRunner.manager.save(this.repository.target, {
+        ...newDevice,
+        fingerprint,
+        organizationId: organizationId,
+        api_user_id: api_user_id,
+      });
+      if (files) {
+        const documentTypes = {
+          [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+          [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+          [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+          [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+          [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
+          [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+        };
+
+        const siteName = (result.siteName || 'project')
+          .replace(/[^a-zA-Z0-9-_]/g, '-')
+          .toLowerCase();
+        const projectSubfolder = `${siteName}-${uuid()}`;
+
+        for (const [field, documentType] of Object.entries(documentTypes)) {
+          const deviceId = result.id;
+          for (const file of files[field] || []) {
+            try {
+              await this.documentsService.upload(
+                deviceId,
+                DocumentTargetType.DEVICE,
+                documentType,
+                file,
+                projectSubfolder,
+              );
+            } catch (error) {
+              this.logger.error(`Failed to upload ${field}: ${error.message}`);
+              throw new BadRequestException(
+                `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+              );
+            }
           }
         }
       }
+      await queryRunner.commitTransaction();
+      delete result['organization'];
+      return result;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
-    await queryRunner.commitTransaction();
-    delete result['organization'];
-    return result;
   }
 
   async findBySiteName(
