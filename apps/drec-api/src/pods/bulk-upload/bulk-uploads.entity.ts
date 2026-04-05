@@ -16,6 +16,8 @@ import { Organization } from '../organization/organization.entity';
 export enum BulkUploadStatus {
   Added = 'Added',
   InProgress = 'InProgress',
+  PendingConfirmation = 'PendingConfirmation',
+  Importing = 'Importing',
   Completed = 'Completed',
   Failed = 'Failed',
 }

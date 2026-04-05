@@ -99,14 +99,14 @@ export class BuyerReservationController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for Registrant',
   })
   @ApiQuery({
     name: 'apiUserId',
     type: String,
     required: false,
     description:
-      'This query parameter is used for Admin to list the reservations by ApiUser',
+      'This query parameter is used for Admin to list the reservations by Registrant',
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
@@ -163,11 +163,11 @@ export class BuyerReservationController {
       if (user.role === Role.Registrant) {
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(
-            `Organization requested is belongs to other apiuser`,
+            `Organization requested is belongs to other registrant`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'Organization requested is belongs to other apiuser',
+            message: 'Organization requested is belongs to other registrant',
           });
         }
       }
@@ -177,22 +177,22 @@ export class BuyerReservationController {
       if (user.role === Role.Registrant) {
         if (apiUserId != user.api_user_id) {
           this.logger.error(
-            `An apiuser is unauthorized to request for other apiuser`,
+            `An registrant is unauthorized to request for other registrant`,
           );
           throw new UnauthorizedException({
             success: false,
-            message: 'An apiuser is unauthorized to request for other apiuser',
+            message: 'An registrant is unauthorized to request for other registrant',
           });
         }
       }
 
       if (organizationId && apiUserId != organization.api_user_id) {
         this.logger.error(
-          `The requested organization is not belongs to the apiuser`,
+          `The requested organization is not belongs to the registrant`,
         );
         throw new UnauthorizedException({
           success: false,
-          message: 'The requested organization is not belongs to the apiuser',
+          message: 'The requested organization is not belongs to the registrant',
         });
       }
     }
@@ -306,7 +306,7 @@ export class BuyerReservationController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for Registrant',
   })
   @ApiOperation({
     summary: 'Fetch buyer reservation by ID',
@@ -340,11 +340,11 @@ export class BuyerReservationController {
       if (user.role === Role.Registrant) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
-            `Organization requested is belongs to other apiuser`,
+            `Organization requested is belongs to other registrant`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'Organization requested is belongs to other apiuser',
+            message: 'Organization requested is belongs to other registrant',
           });
         } else {
           user.organizationId = organizationId;
@@ -380,7 +380,7 @@ export class BuyerReservationController {
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for Registrant',
   })
   @ApiOperation({
     summary: 'Create a new buyer reservation',
@@ -448,7 +448,7 @@ export class BuyerReservationController {
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Apiuser',
+    description: 'This query parameter is used for Registrant',
   })
   @ApiOperation({
     summary: 'Create single device pathway',

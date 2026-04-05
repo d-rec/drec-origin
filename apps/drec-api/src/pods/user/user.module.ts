@@ -8,7 +8,7 @@ import { OrganizationModule } from '../organization/organization.module';
 import { UserRole } from './user_role.entity';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpModule } from '../otp/otp.module';
 import { MailModule } from '../../mail/mail.module';
@@ -19,7 +19,7 @@ import { MailModule } from '../../mail/mail.module';
       User,
       UserRole,
       OauthClientCredentials,
-      ApiUserEntity,
+      RegistrantEntity,
       UserLoginSessionEntity,
     ]),
     forwardRef(() => EmailConfirmationModule),

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -128,15 +129,27 @@ export class BulkUploadController {
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
     @Req() req: Request,
   ): Promise<BulkUploadEntity> {
-    this.logger.verbose('Handling bulk upload');
+    console.log('[BULK-UPLOAD] handler entered', {
+      userId: user?.id,
+      userEmail: user?.email,
+      userOrgId: user?.organizationId,
+      organizationIdParam,
+      bulkUploadType,
+      fileName: file?.originalname,
+      fileSize: file?.buffer?.length,
+    });
     if (!file) {
+      console.log('[BULK-UPLOAD] no file, throwing');
       throw new BadRequestException('No file provided');
     }
 
     const organizationId = organizationIdParam || user.organizationId;
+    console.log('[BULK-UPLOAD] resolved organizationId', organizationId);
 
     const organization = await this.organizationService.findOne(organizationId);
+    console.log('[BULK-UPLOAD] org found', organization?.id, organization?.organizationType);
     if (organization.organizationType !== OrganizationType.Registrant) {
+      console.log('[BULK-UPLOAD] org not Registrant, rejecting');
       throw new UnauthorizedException(
         'Only Market Intermediary organizations can upload bulk files',
       );
@@ -146,8 +159,10 @@ export class BulkUploadController {
       user,
       organizationId,
     });
+    console.log('[BULK-UPLOAD] checkIfCanManage passed');
 
     const [fileId] = await this.fileService.store(user, [file]);
+    console.log('[BULK-UPLOAD] file stored, id=', fileId);
 
     this.uploadLogService.logFileUpload({
       userId: user.id,
@@ -161,12 +176,14 @@ export class BulkUploadController {
       metadata: { bulkUploadType },
     });
 
-    return await this.bulkUploadService.storeBulkUploadJob(
+    const job = await this.bulkUploadService.storeBulkUploadJob(
       fileId,
       user,
       organizationId,
       bulkUploadType,
     );
+    console.log('[BULK-UPLOAD] job created, id=', job?.id, 'jobId=', (job as any)?.jobId);
+    return job;
   }
 
   @Get()
@@ -225,6 +242,40 @@ export class BulkUploadController {
     );
   }
 
+  @Delete()
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Permission('Delete')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
+  @ApiSecurity('bearer')
+  @ApiQuery({
+    name: 'bulkUploadType',
+    required: true,
+    enum: BulkUploadType,
+  })
+  @ApiOperation({
+    summary: 'Clear bulk upload history',
+    description:
+      'Deletes all Completed/Failed bulk upload job records (and their failed-row logs) visible to the current user for the given type. Jobs still in progress are left untouched.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Number of records deleted.',
+  })
+  public async clearHistory(
+    @UserDecorator() user: ILoggedInUser,
+    @Query('bulkUploadType') bulkUploadType: BulkUploadType,
+  ): Promise<{ deleted: number }> {
+    return this.bulkUploadService.clearBulkUploadHistoryByRole(
+      user,
+      bulkUploadType,
+    );
+  }
+
   @Get('/bulk-upload-log/:bulkUploadId')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
@@ -236,7 +287,7 @@ export class BulkUploadController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for ApiUser',
+    description: 'This query parameter is used for Registrant',
   })
   @ApiOperation({
     summary: 'Get bulk upload job status',

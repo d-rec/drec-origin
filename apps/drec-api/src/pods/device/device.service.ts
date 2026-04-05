@@ -301,7 +301,6 @@ export class DeviceService {
       Object.keys(filterDto).length != 0 &&
       (pageNumber != null || pageNumber != undefined)
     ) {
-      const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
       if (role == Role.Registrant) {
@@ -315,17 +314,16 @@ export class DeviceService {
       }
 
       query.where = where;
+      // My Devices view has no per-page limit — return all matching devices.
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query,
-        skip: (pageNumber - 1) * limit,
-        take: limit,
         order: {
           createdAt: 'DESC',
         },
       });
 
-      const totalPages = Math.ceil(totalCount / limit);
-      const currentPage = pageNumber;
+      const totalPages = 1;
+      const currentPage = 1;
       const newDevices = [];
       await devices.map((device: Device) => {
         delete device['operatorExternalId'];
@@ -548,11 +546,11 @@ export class DeviceService {
     return device;
   }
 
-  async findBySerialNumberAndApiUser(
+  async findBySerialNumberAndRegistrant(
     serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findBySerialNumberAndApiUser`);
+    this.logger.verbose(`With in findBySerialNumberAndRegistrant`);
     const device: Device = await this.repository.findOne({
       where: {
         serialNumber: serialNumber,
@@ -583,6 +581,21 @@ export class DeviceService {
         },
       })) ?? null
     );
+  }
+
+  async findMultipleDevicesBasedSiteName(
+    siteNames: Array<string>,
+    organizationId: number,
+  ): Promise<Array<string>> {
+    if (!siteNames.length) return [];
+    const rows = await this.repository.find({
+      where: {
+        siteName: In(siteNames),
+        organizationId: organizationId,
+      },
+      select: ['siteName'],
+    });
+    return rows.map((r) => r.siteName);
   }
 
   async syncStatusesWithEvident(): Promise<void> {

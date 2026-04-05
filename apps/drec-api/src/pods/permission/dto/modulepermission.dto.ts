@@ -89,7 +89,7 @@ export class UpdatePermissionDTO implements Omit<IAddModulePermission, 'id'> {
   status: number;
 }
 
-export class NewApiUserPermissionDTO {
+export class NewRegistrantPermissionDTO {
   @ApiProperty({ type: Number })
   @Column()
   aclmodulesId: number;
@@ -115,7 +115,7 @@ export class NewApiUserPermissionDTO {
   // status: number;
 }
 
-export class ApiUserPermissionUpdateDTO {
+export class RegistrantPermissionUpdateDTO {
   @ApiProperty({ enum: UserPermissionStatus, enumName: 'UserPermissionStatus' })
   @IsEnum(UserPermissionStatus)
   @Column({ default: UserPermissionStatus.Request })

@@ -309,7 +309,7 @@ describe('InvitationService', () => {
       jest.spyOn(global.Math, 'random').mockRestore();
     });
 */
-    it('should invite a user By ApiUser', async () => {
+    it('should invite a user By Registrant', async () => {
       const user = {
         id: 2,
         organizationId: 2,
@@ -327,10 +327,10 @@ describe('InvitationService', () => {
       const phoneNumber = '+919754218975';
       const orgId = 18;
 
-      const mockApiUserEntity: IUser = {
+      const mockRegistrantEntity: IUser = {
         id: 2,
         firstName: 'test',
-        lastName: 'apiuser',
+        lastName: 'registrant',
         email: 'iceratan@gmail.com',
         phoneNumber: '+919754218975',
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
@@ -340,7 +340,7 @@ describe('InvitationService', () => {
         roleId: 6,
         organization: {
           id: 2,
-          name: 'ORG_APIUSER1',
+          name: 'ORG_REGISTRANT1',
           address: 'Bangalore',
           zipCode: null,
           city: null,
@@ -362,7 +362,7 @@ describe('InvitationService', () => {
         createdAt: '2024-03-01T07:59:03.122Z',
         updatedAt: '2024-03-01T07:59:03.122Z',
         id: 18,
-        name: 'ORG_DEV1_APIUSER',
+        name: 'ORG_DEV1_REGISTRANT',
         address: 'BLR',
         zipCode: null,
         city: null,
@@ -399,7 +399,7 @@ describe('InvitationService', () => {
           createdAt: '2024-03-03T17:18:55.388Z',
           updatedAt: '2024-03-03T17:18:55.388Z',
           id: 18,
-          name: 'ORG_DEV1_APIUSER',
+          name: 'ORG_DEV1_REGISTRANT',
           address: 'BLR',
           zipCode: null,
           city: null,
@@ -416,7 +416,7 @@ describe('InvitationService', () => {
         },
         role: 'User',
         status: 'Pending',
-        sender: 'test apiuser',
+        sender: 'test registrant',
         permissionId: null,
         createdAt: '2024-03-03T18:13:43.629Z',
         updatedAt: '2024-03-03T18:13:43.629Z',
@@ -442,7 +442,7 @@ describe('InvitationService', () => {
 
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce(mockApiUserEntity as IUser)
+        .mockResolvedValueOnce(mockRegistrantEntity as IUser)
         .mockResolvedValueOnce(null);
       const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
@@ -502,8 +502,8 @@ describe('InvitationService', () => {
         organization: inviteeOrganization,
         role,
         status: OrganizationInvitationStatus.Pending,
-        sender: mockApiUserEntity
-          ? `${mockApiUserEntity.firstName} ${mockApiUserEntity.lastName}`
+        sender: mockRegistrantEntity
+          ? `${mockRegistrantEntity.firstName} ${mockRegistrantEntity.lastName}`
           : '',
       });
       await expect(newCreateSpy).toHaveBeenCalledWith(

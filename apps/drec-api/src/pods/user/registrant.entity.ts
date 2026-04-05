@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserPermissionStatus } from '../../utils/enums';
 import { IsEnum, IsArray } from 'class-validator';
 @Entity({ name: 'api_user' })
-export class ApiUserEntity {
+export class RegistrantEntity {
   @PrimaryGeneratedColumn('uuid')
   api_user_id: string;
 

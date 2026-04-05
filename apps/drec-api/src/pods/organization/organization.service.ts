@@ -113,8 +113,8 @@ export class OrganizationService {
     try {
       if (user != undefined && user?.role === 'Registrant') {
         query
-          .andWhere('organization.api_user_id = :apiuserid', {
-            apiuserid: user.api_user_id,
+          .andWhere('organization.api_user_id = :registrantid', {
+            registrantid: user.api_user_id,
           })
           .andWhere(
             'organization.organizationType NOT IN (:...excludedRoles)',
@@ -194,7 +194,7 @@ export class OrganizationService {
     };
   }
 
-  public async findApiUserOrganizationUsers(
+  public async findRegistrantOrganizationUsers(
     apiUserId: string,
     pageNumber: number,
     limit: number,
@@ -204,7 +204,7 @@ export class OrganizationService {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`With in findApiUserOrganizationUsers`);
+    this.logger.verbose(`With in findRegistrantOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(

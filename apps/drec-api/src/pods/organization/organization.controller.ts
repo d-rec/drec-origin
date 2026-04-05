@@ -275,11 +275,11 @@ export class OrganizationController {
     return await this.organizationService.findOne(organizationId);
   }
   /**
-   * This Api route to get all organization of apiuser
+   * This Api route to get all organization of registrant
    * @param param0
    * @returns
    */
-  @Get('/apiuser/all_organization')
+  @Get('/registrant/all_organization')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
@@ -385,7 +385,7 @@ export class OrganizationController {
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
     if (loggedUser.role === Role.Registrant) {
-      return this.organizationService.findApiUserOrganizationUsers(
+      return this.organizationService.findRegistrantOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
         limit,

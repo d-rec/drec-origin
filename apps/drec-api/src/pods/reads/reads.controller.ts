@@ -204,11 +204,11 @@ export class ReadsController {
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
-          `An apiuser cannot view the reads of other apiuser's`,
+          `An registrant cannot view the reads of other registrant's`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An apiuser cannot view the reads of other apiuser's`,
+          message: `An registrant cannot view the reads of other registrant's`,
         });
       }
       if (
@@ -265,21 +265,21 @@ export class ReadsController {
         orgUser.role === Role.Buyer
       ) {
         this.logger.error(
-          `An buyer of apiuser can't view the reads of direct organization`,
+          `An buyer of registrant can't view the reads of direct organization`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An buyer of apiuser can't view the reads of direct organization`,
+          message: `An buyer of registrant can't view the reads of direct organization`,
         });
       }
       if (user.role === Role.Buyer) {
         if (device.api_user_id != null) {
           this.logger.error(
-            `An buyer can't view the reads of apiuser's organization`,
+            `An buyer can't view the reads of registrant's organization`,
           );
           throw new BadRequestException({
             success: false,
-            message: `An buyer can't view the reads of apiuser's organization`,
+            message: `An buyer can't view the reads of registrant's organization`,
           });
         }
 

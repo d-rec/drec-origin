@@ -313,19 +313,30 @@ export class DeviceReviewsService {
     if (!url || !key) {
       throw new Error('ROBOFLOW_WORKFLOW_URL or ROBOFLOW_API_KEY not configured');
     }
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_key: key,
-        inputs: {
-          image: { type: 'base64', value: imageBase64 },
-          classes: 'solar-panel',
-        },
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: key,
+          inputs: {
+            image: { type: 'base64', value: imageBase64 },
+            classes: 'solar-panel',
+          },
+        }),
+      });
+    } catch (err: any) {
+      this.logger.error(
+        `Roboflow fetch failed: ${err?.message} | cause: ${JSON.stringify(err?.cause)} | url: ${url}`,
+      );
+      throw new Error(
+        `Roboflow fetch failed: ${err?.cause?.code || err?.cause?.message || err?.message}`,
+      );
+    }
     if (!res.ok) {
-      throw new Error(`Roboflow API returned ${res.status}`);
+      const body = await res.text().catch(() => '');
+      throw new Error(`Roboflow API returned ${res.status}: ${body.slice(0, 200)}`);
     }
     return res.json();
   }

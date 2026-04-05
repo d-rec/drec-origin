@@ -109,7 +109,7 @@ describe('OrganizationService', () => {
       const pageNumber = 1;
       const limit = 10;
       const user = {
-        role: Role.Registrant, //'ApiUser',
+        role: Role.Registrant, //'Registrant',
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
       };
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {
@@ -131,8 +131,8 @@ describe('OrganizationService', () => {
       );
 
       expect(queryMock.andWhere).toHaveBeenCalledWith(
-        `organization.api_user_id = :apiuserid`,
-        { apiuserid: user.api_user_id },
+        `organization.api_user_id = :registrantid`,
+        { registrantid: user.api_user_id },
       );
     });
 

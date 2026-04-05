@@ -109,8 +109,8 @@ export class WithoutAuthGuard implements CanActivate {
     }
 
     if (request.body.organizationType === OrganizationType.Registrant) {
-      const apiUser = await this.oauthClientCredentialsService.createAPIUser();
-      request.body.api_user_id = apiUser.api_user_id;
+      const registrant = await this.oauthClientCredentialsService.createRegistrant();
+      request.body.api_user_id = registrant.api_user_id;
     }
 
     return undefined;

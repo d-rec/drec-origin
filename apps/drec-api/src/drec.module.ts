@@ -53,7 +53,7 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
-import { ApiUserEntity } from './pods/user/api-user.entity';
+import { RegistrantEntity } from './pods/user/registrant.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
@@ -111,7 +111,7 @@ export const entities = [
   User,
   UserRole,
   OauthClientCredentials,
-  ApiUserEntity,
+  RegistrantEntity,
   Organization,
   Invitation,
   EmailConfirmation,

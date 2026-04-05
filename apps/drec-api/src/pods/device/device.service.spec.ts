@@ -1146,7 +1146,7 @@ describe('DeviceService', () => {
   describe('getOrganizationDevices', () => {
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
-      const apiUserId = 'api-user-123';
+      const apiUserId = 'registrant-123';
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
       const pageNumber = null;
@@ -1391,7 +1391,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findBySerialNumberAndApiUser', () => {
+  describe('findBySerialNumberAndRegistrant', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1401,7 +1401,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findBySerialNumberAndApiUser(
+      const result = await service.findBySerialNumberAndRegistrant(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1433,7 +1433,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findBySerialNumberAndApiUser(
+      const result = await service.findBySerialNumberAndRegistrant(
         'existing-meter-id',
         'user-id',
       );

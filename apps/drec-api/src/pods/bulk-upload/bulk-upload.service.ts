@@ -150,7 +150,7 @@ export class BulkUploadService {
     };
   }
 
-  async getAllBulkUploadJobsForApiUser({
+  async getAllBulkUploadJobsForRegistrant({
     apiUserId,
     bulkUploadType,
     pageNumber,
@@ -204,7 +204,7 @@ export class BulkUploadService {
         });
 
       case Role.Registrant:
-        return this.getAllBulkUploadJobsForApiUser({
+        return this.getAllBulkUploadJobsForRegistrant({
           apiUserId: api_user_id,
           bulkUploadType,
           pageNumber,
@@ -219,6 +219,54 @@ export class BulkUploadService {
           organizationIds: [organizationId],
         });
     }
+  }
+
+  public async clearBulkUploadHistoryByRole(
+    user: ILoggedInUser,
+    bulkUploadType: BulkUploadType,
+  ): Promise<{ deleted: number }> {
+    const { role, api_user_id, organizationId } = user;
+    let organizationIds: number[] | undefined;
+
+    if (role === Role.Registrant) {
+      const orgs = await this.organizationRepository
+        .createQueryBuilder('organization')
+        .select('organization.id')
+        .where('organization.api_user_id = :apiUserId', {
+          apiUserId: api_user_id,
+        })
+        .getMany();
+      organizationIds = orgs.map((o) => o.id);
+    } else if (role !== Role.Admin) {
+      organizationIds = [organizationId];
+    }
+
+    // Skip only InProgress so a live job's record is preserved.
+    // Added + Completed + Failed are all fair game — Added records are
+    // either stale orphans (prior crashed runs) or safely re-uploadable.
+    const where: any = {
+      type: bulkUploadType,
+      status: In([
+        BulkUploadStatus.Added,
+        BulkUploadStatus.Completed,
+        BulkUploadStatus.Failed,
+      ]),
+    };
+    if (organizationIds) {
+      if (!organizationIds.length) return { deleted: 0 };
+      where.organizationId = In(organizationIds);
+    }
+
+    const jobs = await this.bulkUploadRepository.find({
+      where,
+      select: ['id'],
+    });
+    if (!jobs.length) return { deleted: 0 };
+
+    const ids = jobs.map((j) => j.id);
+    await this.bulkUploadFailedLogRepository.delete({ bulkUploadId: In(ids) });
+    const res = await this.bulkUploadRepository.delete(ids);
+    return { deleted: res.affected ?? 0 };
   }
 
   paginate(

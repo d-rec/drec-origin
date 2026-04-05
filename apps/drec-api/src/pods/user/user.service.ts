@@ -43,7 +43,7 @@ import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpService } from '../otp/otp.service';
 import { MailService } from '../../mail/mail.service';
@@ -63,8 +63,8 @@ export class UserService {
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
     private organizationService: OrganizationService,
-    @InjectRepository(ApiUserEntity)
-    private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
+    @InjectRepository(RegistrantEntity)
+    private readonly registrantEntityRepository: Repository<RegistrantEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
     private readonly otpService: OtpService,
@@ -107,7 +107,7 @@ export class UserService {
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email.toLowerCase());
     await this.checkIfPhoneNumberExists(data.phoneNumber);
-    const apiUser =
+    const registrant =
       await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
@@ -124,7 +124,7 @@ export class UserService {
           address: data.orgAddress,
         };
 
-        organizationData['api_user_id'] = apiUser.api_user_id;
+        organizationData['api_user_id'] = registrant.api_user_id;
         if (
           await this.organizationService.isNameAlreadyTaken(
             organizationData.name,
@@ -174,7 +174,7 @@ export class UserService {
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
-        api_user_id: apiUser ? apiUser.api_user_id : null,
+        api_user_id: registrant ? registrant.api_user_id : null,
         phoneNumberVerifiedAt: null,
       } as any);
       this.logger.debug(
@@ -337,8 +337,8 @@ export class UserService {
     }
 
     if (user.role === Role.Registrant) {
-      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
-      user['permission_status'] = apiUser.permission_status;
+      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
+      user['permission_status'] = registrant.permission_status;
     }
     return user;
   }
@@ -692,8 +692,8 @@ export class UserService {
       });
     }
     if (user.role === Role.Registrant) {
-      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
-      user['permission_status'] = apiUser.permission_status;
+      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
+      user['permission_status'] = registrant.permission_status;
     }
     return user;
   }
@@ -739,7 +739,7 @@ export class UserService {
       .take(limit)
       .getManyAndCount();
   }
-  /**get all user of apiuser */
+  /**get all user of registrant */
   public async findUserByApiUserId(
     api_user_id: string,
     pageNumber: number,
@@ -755,37 +755,37 @@ export class UserService {
       .take(limit)
       .getManyAndCount();
   }
-  /** ApiUser Fuction*/
+  /** Registrant Fuction*/
 
-  async getApiUser(api_id: string): Promise<ApiUserEntity | undefined> {
-    return await this.apiUserEntityRepository.findOne({
+  async getRegistrant(api_id: string): Promise<RegistrantEntity | undefined> {
+    return await this.registrantEntityRepository.findOne({
       where: {
         api_user_id: api_id,
       },
     });
   }
   /**
-   * This Function added for request of permission to apiuser in apiuser table
+   * This Function added for request of permission to registrant in registrant table
    * @param api_id
    * @param permissionIds
    */
-  async apiUserPermissionRequest(
+  async registrantPermissionRequest(
     api_id: string,
     permissionIds: number[] | any,
   ): Promise<void> {
-    await this.apiUserEntityRepository.update(api_id, {
+    await this.registrantEntityRepository.update(api_id, {
       permissionIds: permissionIds,
       permission_status: UserPermissionStatus.Request,
     });
   }
-  async apiUserPermissionAcceptedByAdmin(
+  async registrantPermissionAcceptedByAdmin(
     api_id: string,
     status: UserPermissionStatus,
   ): Promise<any> {
-    await this.apiUserEntityRepository.update(api_id, {
+    await this.registrantEntityRepository.update(api_id, {
       permission_status: status,
     });
-    return await this.apiUserEntityRepository.findOne({
+    return await this.registrantEntityRepository.findOne({
       where: {
         api_user_id: api_id,
       },
@@ -796,8 +796,8 @@ export class UserService {
    * @param apiId
    * @returns
    */
-  async getApiUserPermissionStatus(apiId: string): Promise<any> {
-    return await this.apiUserEntityRepository.findOne({
+  async getRegistrantPermissionStatus(apiId: string): Promise<any> {
+    return await this.registrantEntityRepository.findOne({
       where: {
         api_user_id: apiId,
       },
@@ -805,13 +805,13 @@ export class UserService {
   }
 
   /**
-   * this function create for get user list of ApiUser
+   * this function create for get user list of Registrant
    * @param organizationName
    * @param pageNumber
    * @param limit
    * @returns
    */
-  public async getApiUsers(
+  public async getRegistrants(
     organizationName: string,
     pageNumber: number,
     limit: number,
@@ -825,7 +825,7 @@ export class UserService {
     filterDTO.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDTO);
     try {
-      const [apiUsers, totalCount] = await query
+      const [registrants, totalCount] = await query
         .andWhere(`user.role = :role`, { role: Role.Registrant })
         .skip((pageNumber - 1) * limit)
         .take(limit)
@@ -833,14 +833,14 @@ export class UserService {
 
       const totalPages = Math.ceil(totalCount / limit);
       return {
-        users: apiUsers,
+        users: registrants,
         currentPage: pageNumber,
         totalPages,
         totalCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to retrieve apiUsers`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve apiUsers');
+      this.logger.error(`Failed to retrieve registrants`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve registrants');
     }
   }
 

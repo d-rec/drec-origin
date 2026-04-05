@@ -3,7 +3,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { Repository, DeepPartial } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { v4 as uuid } from 'uuid';
 import {
   OrganizationStatus,
@@ -16,7 +16,7 @@ import {
 describe('OauthClientCredentialsService', () => {
   let service: OauthClientCredentialsService;
   let repository: Repository<OauthClientCredentials>;
-  let apiUserEntityRepository: Repository<ApiUserEntity>;
+  let registrantEntityRepository: Repository<RegistrantEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +27,7 @@ describe('OauthClientCredentialsService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(ApiUserEntity),
+          provide: getRepositoryToken(RegistrantEntity),
           useClass: Repository,
         },
       ],
@@ -39,8 +39,8 @@ describe('OauthClientCredentialsService', () => {
     repository = module.get<Repository<OauthClientCredentials>>(
       getRepositoryToken(OauthClientCredentials),
     );
-    apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
-      getRepositoryToken(ApiUserEntity),
+    registrantEntityRepository = module.get<Repository<RegistrantEntity>>(
+      getRepositoryToken(RegistrantEntity),
     );
   });
 
@@ -48,20 +48,20 @@ describe('OauthClientCredentialsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('createAPIUser', () => {
+  describe('createRegistrant', () => {
     it('should save an API user with a generated UUID', async () => {
-      const mockApiUserEntity: DeepPartial<ApiUserEntity> = {
+      const mockRegistrantEntity: DeepPartial<RegistrantEntity> = {
         api_user_id: uuid(),
         permission_status: UserPermissionStatus.Request,
       };
       const saveSpy = jest
-        .spyOn(apiUserEntityRepository, 'save')
-        .mockResolvedValue(mockApiUserEntity as any);
-      const result = await service.createAPIUser();
+        .spyOn(registrantEntityRepository, 'save')
+        .mockResolvedValue(mockRegistrantEntity as any);
+      const result = await service.createRegistrant();
 
       expect(saveSpy).toHaveBeenCalledWith({ api_user_id: expect.any(String) });
 
-      expect(result).toEqual(mockApiUserEntity);
+      expect(result).toEqual(mockRegistrantEntity);
     });
   });
 
@@ -83,7 +83,7 @@ describe('OauthClientCredentialsService', () => {
         roleId: 6,
         organization: {
           id: 1,
-          name: 'ORG_APIUSER',
+          name: 'ORG_REGISTRANT',
           address: 'any address',
           organizationType: OrganizationType.Registrant,
           orgEmail: 'testsweya1@gmail.com',
@@ -146,7 +146,7 @@ describe('OauthClientCredentialsService', () => {
         roleId: 6,
         organization: {
           id: 1,
-          name: 'ORG_APIUSER',
+          name: 'ORG_REGISTRANT',
           address: 'any address',
           organizationType: OrganizationType.Registrant,
           orgEmail: 'testsweya1@gmail.com',
@@ -208,39 +208,39 @@ describe('OauthClientCredentialsService', () => {
   });
 
   describe('findOneByApiUserId', () => {
-    const mockApiUserEntity: DeepPartial<ApiUserEntity> = {
+    const mockRegistrantEntity: DeepPartial<RegistrantEntity> = {
       api_user_id: uuid(),
       permission_status: UserPermissionStatus.Request,
     };
 
     it('should find an API user by its ID', async () => {
       const findOneSpy = jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity as any);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity as any);
 
       const result = await service.findOneByApiUserId(
-        mockApiUserEntity.api_user_id,
+        mockRegistrantEntity.api_user_id,
       );
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { api_user_id: mockApiUserEntity.api_user_id },
+        where: { api_user_id: mockRegistrantEntity.api_user_id },
       });
       expect(result).toBeDefined();
     });
 
     it('should return an API user with the correct api_user_id', async () => {
       const findOneSpy = jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity as any);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity as any);
 
       const result = await service.findOneByApiUserId(
-        mockApiUserEntity.api_user_id,
+        mockRegistrantEntity.api_user_id,
       );
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { api_user_id: mockApiUserEntity.api_user_id },
+        where: { api_user_id: mockRegistrantEntity.api_user_id },
       });
-      expect(result.api_user_id).toEqual(mockApiUserEntity.api_user_id);
+      expect(result.api_user_id).toEqual(mockRegistrantEntity.api_user_id);
     });
 
     it('should handle an empty api_user_id', async () => {
@@ -248,10 +248,10 @@ describe('OauthClientCredentialsService', () => {
     });
 
     it('should handle a non-existent api_user_id', async () => {
-      const mockApiUserEntity: ApiUserEntity = undefined;
+      const mockRegistrantEntity: RegistrantEntity = undefined;
       const findOneSpy = jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity as any);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity as any);
       const result = await service.findOneByApiUserId(
         'dfd2f57d-f2b8-4057-bf48-c19f1a5aa949',
       );

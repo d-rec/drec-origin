@@ -257,11 +257,11 @@ export class InvitationService {
       if (user.role === Role.Registrant) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
-            `Organization ${organization.name} is part of other apiuser`,
+            `Organization ${organization.name} is part of other registrant`,
           );
           throw new BadRequestException({
             success: false,
-            message: `Organization ${organization.name} is part of other apiuser`,
+            message: `Organization ${organization.name} is part of other registrant`,
           });
         }
       }

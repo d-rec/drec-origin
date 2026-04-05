@@ -1549,12 +1549,34 @@ export class DeviceGroupService {
     const fileData = file.data.Body.toString('utf-8');
     this.csvStringToJSON(fileData);
 
+    return new Promise<void>((resolve, reject) => {
     CSVToJsonV2()
       .fromString(fileData)
       .subscribe(async (data: any) => {
         rowsConvertedToCsvCount++;
         data.images = [];
         data.groupId = null;
+
+        // Legacy template aliasing: older Evident-style CSV templates used
+        // different column names. Map them onto the current DTO field names
+        // if the canonical column isn't present.
+        if (!data.siteName && data.projectName) {
+          data.siteName = data.projectName;
+        }
+        if (!data.serialNumber && data['Evident Device ID']) {
+          data.serialNumber = data['Evident Device ID'];
+        }
+        // Defaults for fields the legacy template doesn't include but which
+        // the DTO marks @IsNotEmpty. Registrants are always solar/OMC.
+        if (!data.dataSource) {
+          data.dataSource = 'OMC';
+        }
+        if (!data.dataSourceBrand) {
+          data.dataSourceBrand = 'OMC';
+        }
+        if (!data.deviceDescription) {
+          data.deviceDescription = DeviceDescription.GroundmountSolar;
+        }
 
         const dataToStore: NewDeviceDTO = {
           dataSourceBrand: '',
@@ -1619,8 +1641,12 @@ export class DeviceGroupService {
           isError: false,
           errorsList: [],
         });
+      }, (err: any) => {
+        this.logger.error(`CSV parse error: ${err?.message || err}`);
+        reject(err);
       })
       .on('done', async () => {
+        try {
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
           if (records[index].externalId) {
@@ -1783,6 +1809,30 @@ export class DeviceGroupService {
             }
           });
         }
+
+        // Bulk siteName pre-check so we catch all conflicts up front.
+        // register() also checks siteName per-row, but that only fires during
+        // insertion — we need the error surfaced here to honor atomicity.
+        const existingSiteNames =
+          await this.deviceService.findMultipleDevicesBasedSiteName(
+            records.map((r) => r.siteName).filter(Boolean) as string[],
+            organizationId,
+          );
+        if (existingSiteNames.length > 0) {
+          const existingSet = new Set(existingSiteNames);
+          records?.forEach((singleRecord, index) => {
+            if (singleRecord.siteName && existingSet.has(singleRecord.siteName)) {
+              recordsErrors[index].isError = true;
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.siteName,
+                property: 'siteName',
+                constraints: {
+                  siteNameExists: `A device with site name "${singleRecord.siteName}" already exists in this organization`,
+                },
+              });
+            }
+          });
+        }
         const recordsCopy = cloneDeep(records);
         recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicateserialNumbers: any = [];
@@ -1829,103 +1879,64 @@ export class DeviceGroupService {
           rowNumber: number;
           serialNumber: string;
         }> = [];
-        const recordsToRegister = records.filter((ele, index) => {
-          if (recordsErrors[index].errorsList.length > 0) {
-            //these are required fields and if one is having error we cannot try to insert the record
-            if (
-              recordsErrors[index].errorsList.find(
-                (errorRec) =>
-                  errorRec.property === 'serialNumber' ||
-                  errorRec.property === 'commissioningDate' ||
-                  errorRec.property === 'capacity' ||
-                  errorRec.property === 'countryCode',
-              )
-            ) {
-              return false;
-            } else {
-              return true;
-            }
-          } else return true;
-        });
-        const organization =
-          await this.organizationService.findOne(organizationId);
 
-        const devicesRegistered = await this.registerCSVBulkDevices(
-          organizationId,
-          recordsToRegister,
-          files,
-          organization.api_user_id,
-        );
-
-        devicesRegistered
-          .filter((ele) => (ele as any).isError === undefined)
-          ?.forEach((ele) => {
-            successfullyAddedRowsAndExternalIds.push({
-              serialNumber: (ele as any).serialNumber,
-              rowNumber: records.findIndex(
-                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
-              ),
-            });
-          });
-
-        devicesRegistered
-          .filter((device: DeviceRegistrationError) => device.isError)
-          .forEach((device: DeviceRegistrationError) => {
-            const serialNumber = device.device?.serialNumber;
-            const errorIndex = recordsErrors.findIndex(
-              (record) => record.serialNumber === serialNumber,
-            );
-
-            if (errorIndex !== -1) {
-              recordsErrors[errorIndex].isError = true;
-              recordsErrors[errorIndex].errorsList.push({
-                value: recordsErrors[errorIndex].serialNumber,
-                property: 'Device error',
+        // Atomic pre-flight: if ANY row has an error after all validation
+        // and conflict checks, abort the entire upload without inserting
+        // anything. Keeps the DB consistent with the user's CSV — partial
+        // imports leave orphan rows that block re-upload.
+        const anyError = recordsErrors.some((r) => r.errorsList.length > 0);
+        if (anyError) {
+          recordsErrors.forEach((r, idx) => {
+            if (r.errorsList.length === 0) {
+              r.isError = true;
+              r.errorsList.push({
+                value: records[idx].serialNumber,
+                property: 'batch',
                 constraints: {
-                  error: device.errorDetail?.response?.message,
+                  batchAborted:
+                    'Row skipped: other rows in this upload had errors. The whole batch was rejected to keep the upload atomic.',
                 },
               });
             }
           });
+          await this.bulkUploadRepository.update(
+            { jobId: filesAddedForProcessing.jobId },
+            { status: BulkUploadStatus.Failed },
+          );
+          this.createFailedRowDetailsForCSVJob(
+            filesAddedForProcessing.id,
+            recordsErrors,
+            successfullyAddedRowsAndExternalIds,
+          );
+          resolve();
+          return;
+        }
 
-        recordsErrors.forEach((ele, index) => {
-          if (ele.isError === false) {
-            ele['status'] = 'Success';
-          } else if (
-            ele.isError === true &&
-            successfullyAddedRowsAndExternalIds.find(
-              (successEle) =>
-                successEle.serialNumber === ele.serialNumber &&
-                successEle.rowNumber === index,
-            )
-          ) {
-            ele['status'] =
-              'Success with validation errors, please update fields';
-          } else {
-            ele['status'] = 'Failed';
-          }
-        });
-
-        this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.id,
-          recordsErrors,
-          successfullyAddedRowsAndExternalIds,
-        );
-
-        const failedRowsSize = recordsErrors.filter(
-          (row) => row.isError,
-        ).length;
-
-        this.bulkUploadRepository.update(
-          { jobId: filesAddedForProcessing.jobId },
-          {
-            status:
-              failedRowsSize === 0
-                ? BulkUploadStatus.Completed
-                : BulkUploadStatus.Failed,
+        // Validation passed for all rows. Stop here and stage the parsed
+        // records as a preview. The user reviews the list, then hits the
+        // confirm endpoint to actually insert them.
+        await this.bulkUploadFailedLogRepository.save({
+          bulkUploadId: filesAddedForProcessing.id,
+          details: {
+            preview: {
+              records,
+              organizationId,
+            },
           },
+        });
+        await this.bulkUploadRepository.update(
+          { jobId: filesAddedForProcessing.jobId },
+          { status: BulkUploadStatus.PendingConfirmation },
         );
+        resolve();
+        } catch (err) {
+          this.logger.error(
+            `processCsvFileAnotherLibrary done-handler failed: ${err?.stack || err}`,
+          );
+          reject(err);
+        }
       });
+    });
   }
 
   csvStringToJSON(csvFileContentInString: string): void {
@@ -2919,7 +2930,7 @@ export class DeviceGroupService {
     return isMyDevice.some((result) => result);
   }
 
-  async getAllCSVJobsForApiUser(
+  async getAllCSVJobsForRegistrant(
     apiUserId: string,
     organizationId?: number,
     pageNumber?: number,
@@ -2933,7 +2944,7 @@ export class DeviceGroupService {
       }
     | any
   > {
-    this.logger.verbose(`With in getAllCSVJobsForApiUser`);
+    this.logger.verbose(`With in getAllCSVJobsForRegistrant`);
     const query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> =
       await this.repositoryCSVJobProcessing
         .createQueryBuilder('csvjobs')

@@ -253,10 +253,10 @@ export class CertificateLogController {
 
     if (user.role === Role.Registrant) {
       if (deviceGroup.api_user_id != user.api_user_id) {
-        this.logger.error(`Group UId  does not  belongs to this apiuser`);
+        this.logger.error(`Group UId  does not  belongs to this registrant`);
         throw new BadRequestException({
           success: false,
-          message: 'Group UId  does not  belongs to this apiuser',
+          message: 'Group UId  does not  belongs to this registrant',
         });
       }
       return this.certificateLogService.getCertificateFromOldOrNew(
@@ -403,7 +403,7 @@ export class CertificateLogController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is for apiuser',
+    description: 'This query parameter is for registrant',
   })
   @ApiOperation({
     summary: 'Get certified logs of devices',
@@ -440,7 +440,7 @@ export class CertificateLogController {
     this.logger.verbose(`With in getCertificatesForOperator`);
 
     if (user.role === Role.Registrant) {
-      // If the user is an ApiUser, organizationId is optional
+      // If the user is an Registrant, organizationId is optional
 
       if (organizationId) {
         const organization =
@@ -450,10 +450,10 @@ export class CertificateLogController {
         );
 
         if (organization.api_user_id != user.api_user_id) {
-          this.logger.error(`Organization requested belongs to other apiuser`);
+          this.logger.error(`Organization requested belongs to other registrant`);
           throw new BadRequestException({
             success: false,
-            message: 'Organization requested belongs to other apiuser',
+            message: 'Organization requested belongs to other registrant',
           });
         } else {
           user.organizationId = organizationId;
@@ -461,7 +461,7 @@ export class CertificateLogController {
         }
       }
     } else {
-      // If the user is not an ApiUser, organizationId is optional
+      // If the user is not an Registrant, organizationId is optional
       if (organizationId && organizationId != user.organizationId) {
         this.logger.verbose(
           `Organization requested belongs to other organization`,
@@ -540,10 +540,10 @@ export class CertificateLogController {
     });
     if (user.role === Role.Registrant) {
       if (deviceGroup.api_user_id != user.api_user_id) {
-        this.logger.error(`Group UId  does not  belongs to this apiuser`);
+        this.logger.error(`Group UId  does not  belongs to this registrant`);
         throw new BadRequestException({
           success: false,
-          message: 'Group UId  does not  belongs to this apiuser',
+          message: 'Group UId  does not  belongs to this registrant',
         });
       }
       user.organizationId = deviceGroup.organizationId;

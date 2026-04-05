@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { User } from '../../src/pods/user/user.entity';
 import { Organization } from '../../src/pods/organization/organization.entity';
-import { ApiUserEntity } from '../../src/pods/user/api-user.entity';
+import { RegistrantEntity } from '../../src/pods/user/registrant.entity';
 import {
   Role,
   UserStatus,
@@ -15,10 +15,10 @@ import { OrganizationStatus } from '../../src/utils/enums/organization-status.en
 import bcrypt from 'bcryptjs';
 
 @Injectable()
-export class ApiUserSeeder implements SeederInterface {
+export class RegistrantSeeder implements SeederInterface {
   constructor(
-    @InjectRepository(ApiUserEntity)
-    private readonly apiUserRepository: Repository<ApiUserEntity>,
+    @InjectRepository(RegistrantEntity)
+    private readonly registrantRepository: Repository<RegistrantEntity>,
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(User)
@@ -26,24 +26,24 @@ export class ApiUserSeeder implements SeederInterface {
   ) {}
 
   async run(): Promise<void> {
-    const email = process.env.APIUSER_EMAIL?.toLowerCase() || '';
-    const password = process.env.APIUSER_PASSWORD;
+    const email = process.env.REGISTRANT_EMAIL?.toLowerCase() || '';
+    const password = process.env.REGISTRANT_PASSWORD;
 
     if (!email || !password) {
       console.error(
-        'APIUSER_EMAIL and APIUSER_PASSWORD must be set — skipping ApiUser seed.',
+        'REGISTRANT_EMAIL and REGISTRANT_PASSWORD must be set — skipping Registrant seed.',
       );
       return;
     }
 
     const existing = await this.userRepository.findOne({ where: { email } });
     if (existing) {
-      console.log(`ApiUser ${email} already exists — skipping.`);
+      console.log(`Registrant ${email} already exists — skipping.`);
       return;
     }
 
-    const apiUser = await this.apiUserRepository.save(
-      this.apiUserRepository.create({
+    const registrant = await this.registrantRepository.save(
+      this.registrantRepository.create({
         permission_status: UserPermissionStatus.Active,
       }),
     );
@@ -57,7 +57,7 @@ export class ApiUserSeeder implements SeederInterface {
         zipCode: '00000',
         city: 'London',
         country: 'GB',
-        api_user_id: apiUser.api_user_id,
+        api_user_id: registrant.api_user_id,
         status: OrganizationStatus.Active,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
@@ -78,15 +78,15 @@ export class ApiUserSeeder implements SeederInterface {
         role: Role.Registrant,
         roleId: 6,
         organization,
-        api_user_id: apiUser.api_user_id,
+        api_user_id: registrant.api_user_id,
       }),
     );
 
-    console.log(`ApiUser ${email} seeded successfully.`);
+    console.log(`Registrant ${email} seeded successfully.`);
   }
 
   async drop(): Promise<void> {
-    const email = process.env.APIUSER_EMAIL?.toLowerCase() || '';
+    const email = process.env.REGISTRANT_EMAIL?.toLowerCase() || '';
     if (email) {
       await this.userRepository.delete({ email });
     }

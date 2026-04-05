@@ -85,7 +85,7 @@ export async function checkOrganizationAndUser(
       if (organization.api_user_id !== user.api_user_id) {
         throw new BadRequestException({
           success: false,
-          message: 'Organization requested belongs to other apiuser',
+          message: 'Organization requested belongs to other registrant',
         });
       }
       return orgId;

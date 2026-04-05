@@ -178,11 +178,11 @@ export class DeviceController {
     if (role === Role.Registrant) {
       if (organization.api_user_id != api_user_id) {
         this.logger.error(
-          `The requested organization is belongs to other apiuser`,
+          `The requested organization is belongs to other registrant`,
         );
         throw new UnauthorizedException({
           success: false,
-          message: `The requested organization is belongs to other apiuser`,
+          message: `The requested organization is belongs to other registrant`,
         });
       }
     }
@@ -364,11 +364,11 @@ export class DeviceController {
         );
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
-            `The organization Id in param is belongs to other apiuser`,
+            `The organization Id in param is belongs to other registrant`,
           );
           throw new UnauthorizedException({
             success: false,
-            message: 'The organization Id in param is belongs to other apiuser',
+            message: 'The organization Id in param is belongs to other registrant',
           });
         } else {
           if (orgUser.role != Role.Registrant) {
@@ -520,7 +520,7 @@ export class DeviceController {
         loginUser.api_user_id = null;
       }
 
-      deviceData = await this.deviceService.findBySerialNumberAndApiUser(
+      deviceData = await this.deviceService.findBySerialNumberAndRegistrant(
         serialNumber,
         loginUser.api_user_id,
       );

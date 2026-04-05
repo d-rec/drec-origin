@@ -14,7 +14,7 @@ import { UserRole } from './user_role.entity';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { OrganizationService } from '../organization/organization.service';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
@@ -38,7 +38,7 @@ describe('UserService', () => {
   let emailConfirmationService: EmailConfirmationService;
   let oauthClientCredentialsService: OauthClientCredentialsService;
   let organizationService: OrganizationService;
-  let apiUserEntityRepository: Repository<ApiUserEntity>;
+  let registrantEntityRepository: Repository<RegistrantEntity>;
   let userLoginSessionRepository: Repository<UserLoginSessionEntity>;
 
   beforeEach(async () => {
@@ -84,7 +84,7 @@ describe('UserService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(ApiUserEntity),
+          provide: getRepositoryToken(RegistrantEntity),
           useValue: {
             findOne: jest.fn(),
             find: jest.fn(),
@@ -121,8 +121,8 @@ describe('UserService', () => {
     emailConfirmationService = module.get<EmailConfirmationService>(
       EmailConfirmationService,
     );
-    apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
-      getRepositoryToken(ApiUserEntity),
+    registrantEntityRepository = module.get<Repository<RegistrantEntity>>(
+      getRepositoryToken(RegistrantEntity),
     );
     userLoginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
       getRepositoryToken(UserLoginSessionEntity),
@@ -137,7 +137,7 @@ describe('UserService', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya3@gmail.com',
         organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
@@ -166,7 +166,7 @@ describe('UserService', () => {
         api_user_id: userData.api_user_id,
       } as Organization;
 
-      const mockApiUserEntity: ApiUserEntity = {
+      const mockRegistrantEntity: RegistrantEntity = {
         api_user_id: userData.api_user_id,
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
@@ -241,7 +241,7 @@ describe('UserService', () => {
 
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya5@gmail.com',
         organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
@@ -317,7 +317,7 @@ describe('UserService', () => {
       // Test data
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya5@gmail.com',
         organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
@@ -592,7 +592,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -605,8 +605,8 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockUserEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       const user = await service.findById(userId);
 
@@ -621,8 +621,8 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(undefined);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       await expect(service.findById(userId)).rejects.toThrow(NotFoundException);
 
@@ -636,11 +636,11 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockUserEntity);
       const permissionStatusSpy = jest
-        .spyOn(service, 'getApiUserPermissionStatus')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(service, 'getRegistrantPermissionStatus')
+        .mockResolvedValue(mockRegistrantEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       const user = await service.findById(userId);
 
@@ -687,7 +687,7 @@ describe('UserService', () => {
         updatedAt: new Date(),
       } as User;
 
-      const apiUserEntity: ApiUserEntity = {
+      const registrantEntity: RegistrantEntity = {
         api_user_id: userEntity.api_user_id,
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
@@ -696,7 +696,7 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(userEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
+        .spyOn(registrantEntityRepository, 'findOne')
         .mockResolvedValue(undefined);
 
       const user = await service.findById(userId);
@@ -741,7 +741,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -809,7 +809,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -888,7 +888,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],

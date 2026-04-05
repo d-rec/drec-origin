@@ -140,7 +140,7 @@ export class AdminController {
   }
   @Get('/organizations/user/:organizationId')
   @Permission('Read')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules('ADMIN_REGISTRANT_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiOperation({
@@ -317,7 +317,7 @@ export class AdminController {
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.Registrant)
   @Permission('Write')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules('ADMIN_REGISTRANT_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiOperation({
     summary: 'Update a user',
@@ -517,9 +517,9 @@ export class AdminController {
   }
 
   /*
-   * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+   * It is GET api to list all Registrants with pagination and filteration by Organization.
    */
-  @Get('/apiusers')
+  @Get('/registrants')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
@@ -549,7 +549,7 @@ export class AdminController {
     status: HttpStatus.NOT_FOUND,
     description: 'No API users found matching the criteria.',
   })
-  public async getApiUsers(
+  public async getRegistrants(
     @Query('organizationName', new DefaultValuePipe(null))
     organizationName: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
@@ -561,7 +561,7 @@ export class AdminController {
     totalPages: number;
     totalCount: number;
   }> {
-    // this.logger.verbose(`With in getAllApiUsers`);
-    return this.userService.getApiUsers(organizationName, pageNumber, limit);
+    // this.logger.verbose(`With in getAllRegistrants`);
+    return this.userService.getRegistrants(organizationName, pageNumber, limit);
   }
 }
