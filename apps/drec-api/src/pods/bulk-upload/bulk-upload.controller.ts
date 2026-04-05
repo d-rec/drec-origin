@@ -321,4 +321,80 @@ export class BulkUploadController {
     });
     return await this.bulkUploadService.getBulkUploadFailedLog(bulkUploadId);
   }
+
+  @Get('/:bulkUploadId/preview')
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Permission('Read')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Fetch staged bulk upload preview',
+    description:
+      'Returns the parsed CSV rows for a bulk upload that is awaiting user confirmation.',
+  })
+  async getPreview(
+    @Param('bulkUploadId') bulkUploadId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ records: any[]; organizationId: number }> {
+    const { records, organizationId } =
+      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
+    await this.bulkUploadService.canManageBulkUploadJobs({
+      user,
+      organizationId,
+    });
+    return { records, organizationId };
+  }
+
+  @Post('/:bulkUploadId/confirm')
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Permission('Write')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Confirm and import a staged bulk upload',
+    description:
+      'Triggers actual device creation for a bulk upload currently in PendingConfirmation status.',
+  })
+  async confirm(
+    @Param('bulkUploadId') bulkUploadId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ successCount: number; failedCount: number }> {
+    const { organizationId } =
+      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
+    await this.bulkUploadService.canManageBulkUploadJobs({
+      user,
+      organizationId,
+    });
+    return this.bulkUploadService.confirmBulkUpload(bulkUploadId);
+  }
+
+  @Delete('/:bulkUploadId/discard')
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Permission('Delete')
+  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Discard a staged bulk upload',
+    description:
+      'Deletes the staged preview without inserting any devices.',
+  })
+  async discard(
+    @Param('bulkUploadId') bulkUploadId: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ success: boolean }> {
+    const { organizationId } =
+      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
+    await this.bulkUploadService.canManageBulkUploadJobs({
+      user,
+      organizationId,
+    });
+    await this.bulkUploadService.discardBulkUpload(bulkUploadId);
+    return { success: true };
+  }
 }

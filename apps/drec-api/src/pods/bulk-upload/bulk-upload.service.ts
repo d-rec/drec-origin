@@ -300,6 +300,72 @@ export class BulkUploadService {
     });
   }
 
+  /**
+   * Loads a staged preview for a bulk upload and returns the parsed records
+   * so the frontend can render Import/Discard UI.
+   */
+  async getBulkUploadPreview(bulkUploadId: string): Promise<{
+    bulkUpload: BulkUploadEntity;
+    records: any[];
+    organizationId: number;
+  }> {
+    const bulkUpload = await this.bulkUploadRepository.findOne({
+      where: { id: bulkUploadId },
+    });
+    if (!bulkUpload) {
+      throw new NotFoundException(`Bulk upload ${bulkUploadId} not found`);
+    }
+    if (bulkUpload.status !== BulkUploadStatus.PendingConfirmation) {
+      throw new BadRequestException(
+        `Bulk upload is in status ${bulkUpload.status}, no preview available`,
+      );
+    }
+    const logRow = await this.bulkUploadFailedLogRepository.findOne({
+      where: { bulkUploadId },
+    });
+    const preview = (logRow?.details as any)?.preview;
+    if (!preview) {
+      throw new NotFoundException(
+        `No preview staged for bulk upload ${bulkUploadId}`,
+      );
+    }
+    return {
+      bulkUpload,
+      records: preview.records ?? [],
+      organizationId: preview.organizationId,
+    };
+  }
+
+  async confirmBulkUpload(
+    bulkUploadId: string,
+  ): Promise<{ successCount: number; failedCount: number }> {
+    const { bulkUpload, records, organizationId } =
+      await this.getBulkUploadPreview(bulkUploadId);
+    return this.deviceGroupService.performBulkDeviceRegistration(
+      bulkUpload,
+      records,
+      organizationId,
+    );
+  }
+
+  async discardBulkUpload(bulkUploadId: string): Promise<void> {
+    const bulkUpload = await this.bulkUploadRepository.findOne({
+      where: { id: bulkUploadId },
+    });
+    if (!bulkUpload) {
+      throw new NotFoundException(`Bulk upload ${bulkUploadId} not found`);
+    }
+    if (bulkUpload.status !== BulkUploadStatus.PendingConfirmation) {
+      throw new BadRequestException(
+        `Bulk upload is in status ${bulkUpload.status}, nothing to discard`,
+      );
+    }
+    await this.bulkUploadFailedLogRepository.delete({
+      bulkUploadId: bulkUpload.id,
+    });
+    await this.bulkUploadRepository.delete({ id: bulkUpload.id });
+  }
+
   async canManageBulkUploadJobs({
     user,
     organizationId,

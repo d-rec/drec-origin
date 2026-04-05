@@ -85,11 +85,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @IsEnum(Installation)
   // installationConfiguration: Installation;
 
-  @Column({ nullable: true })
+  @Column({ type: 'double precision', nullable: true })
   @IsNumber()
   capacity: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'double precision', nullable: true })
   @IsNumber()
   acCapacity: number;
 

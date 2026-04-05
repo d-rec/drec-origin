@@ -1294,6 +1294,132 @@ export class DeviceGroupService {
     return existingSerialNumbers;
   }
 
+  /**
+   * Runs the actual device insertion for a bulk upload whose preview was
+   * previously staged (status = PendingConfirmation). Called from the
+   * confirm endpoint after the user reviews the parsed records.
+   */
+  public async performBulkDeviceRegistration(
+    bulkUpload: BulkUploadEntity,
+    records: NewDeviceDTO[],
+    organizationId: number,
+  ): Promise<{ successCount: number; failedCount: number }> {
+    this.logger.verbose(`With in performBulkDeviceRegistration`);
+
+    // Empty DeviceFiles set — CSV uploads never attach documents.
+    const files: DeviceFiles = {
+      [DocumentType.FORM_SF_02]: [],
+      [DocumentType.SF_02C]: [],
+      [DocumentType.METERING_EVIDENCE]: [],
+      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+      [DocumentType.PROJECT_PHOTOS]: [],
+      [DocumentType.SCREENSHOTS]: [],
+      [DocumentType.COD_PROOF]: [],
+    };
+
+    await this.bulkUploadRepository.update(
+      { id: bulkUpload.id },
+      { status: BulkUploadStatus.Importing },
+    );
+
+    const organization =
+      await this.organizationService.findOne(organizationId);
+    const devicesRegistered = await this.registerCSVBulkDevices(
+      organizationId,
+      records,
+      files,
+      organization.api_user_id,
+    );
+
+    const successfullyAddedRowsAndExternalIds: Array<{
+      rowNumber: number;
+      serialNumber: string;
+    }> = [];
+    const errorRows: Array<{
+      serialNumber: string;
+      rowNumber: number;
+      isError: boolean;
+      errorsList: Array<any>;
+      status?: string;
+    }> = records.map((r, idx) => ({
+      serialNumber: r.serialNumber,
+      rowNumber: idx,
+      isError: false,
+      errorsList: [],
+    }));
+
+    devicesRegistered
+      .filter((ele) => (ele as any).isError === undefined)
+      .forEach((ele) => {
+        const sn = (ele as any).serialNumber;
+        const rowNumber = records.findIndex((r) => r.serialNumber === sn);
+        successfullyAddedRowsAndExternalIds.push({
+          serialNumber: sn,
+          rowNumber,
+        });
+      });
+
+    devicesRegistered
+      .filter((d: any) => d.isError)
+      .forEach((d: DeviceRegistrationError) => {
+        const sn = d.device?.serialNumber;
+        const idx = errorRows.findIndex((r) => r.serialNumber === sn);
+        if (idx !== -1) {
+          errorRows[idx].isError = true;
+          errorRows[idx].errorsList.push({
+            value: sn,
+            property: 'Device error',
+            constraints: {
+              error:
+                d.errorDetail?.response?.message ??
+                d.errorDetail?.message ??
+                'Device registration failed',
+            },
+          });
+        }
+      });
+
+    errorRows.forEach((ele, index) => {
+      if (!ele.isError) {
+        ele.status = 'Success';
+      } else if (
+        successfullyAddedRowsAndExternalIds.find(
+          (s) =>
+            s.serialNumber === ele.serialNumber && s.rowNumber === index,
+        )
+      ) {
+        ele.status = 'Success with validation errors, please update fields';
+      } else {
+        ele.status = 'Failed';
+      }
+    });
+
+    // Replace the staged preview row with the final result log
+    await this.bulkUploadFailedLogRepository.delete({
+      bulkUploadId: bulkUpload.id,
+    });
+    await this.createFailedRowDetailsForCSVJob(
+      bulkUpload.id,
+      errorRows,
+      successfullyAddedRowsAndExternalIds,
+    );
+
+    const failedCount = errorRows.filter((r) => r.isError).length;
+    const successCount = errorRows.length - failedCount;
+
+    await this.bulkUploadRepository.update(
+      { id: bulkUpload.id },
+      {
+        status:
+          failedCount === 0
+            ? BulkUploadStatus.Completed
+            : BulkUploadStatus.Failed,
+      },
+    );
+
+    return { successCount, failedCount };
+  }
+
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
