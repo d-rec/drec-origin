@@ -5,6 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { createHash } from 'crypto';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
@@ -64,10 +65,15 @@ export class BulkUploadService {
       };
       const s3Upload = await this.fileService.upload(multerFile);
 
+      const contentHash = createHash('sha256')
+        .update(file.data)
+        .digest('hex');
+
       const jobId = await this.createJob(bulkUploadType, file, s3Upload);
 
       return await this.bulkUploadRepository.save({
         fileId: file.filename,
+        contentHash,
         jobId: jobId,
         organizationId: organizationId,
         status: BulkUploadStatus.Added,
@@ -248,6 +254,7 @@ export class BulkUploadService {
       type: bulkUploadType,
       status: In([
         BulkUploadStatus.Added,
+        BulkUploadStatus.PendingConfirmation,
         BulkUploadStatus.Completed,
         BulkUploadStatus.Failed,
       ]),
@@ -308,6 +315,8 @@ export class BulkUploadService {
     bulkUpload: BulkUploadEntity;
     records: any[];
     organizationId: number;
+    totalCsvRows: number;
+    skippedRows: number;
   }> {
     const bulkUpload = await this.bulkUploadRepository.findOne({
       where: { id: bulkUploadId },
@@ -333,6 +342,8 @@ export class BulkUploadService {
       bulkUpload,
       records: preview.records ?? [],
       organizationId: preview.organizationId,
+      totalCsvRows: preview.totalCsvRows ?? 0,
+      skippedRows: preview.skippedRows ?? 0,
     };
   }
 

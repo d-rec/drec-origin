@@ -36,6 +36,10 @@ export class BulkUploadEntity extends BaseEntity {
   @IsString()
   fileId: string;
 
+  @Column({ name: 'content_hash', nullable: true })
+  @IsString()
+  contentHash: string;
+
   @Column({ name: 'job_id' })
   @IsString()
   jobId: string;

@@ -5,9 +5,11 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseFloatPipe,
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -528,5 +530,43 @@ export class DeviceReviewsController {
     @Param('deviceId', ParseIntPipe) deviceId: number,
   ): Promise<any> {
     return this.service.verifyPhotoGps(deviceId);
+  }
+
+  @Get('satellite-date')
+  @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+  @ApiOperation({
+    summary: 'Get most recent satellite image date for coordinates',
+    description:
+      'Queries the Sentinel-2 catalog for the most recent low-cloud image at the given lat/lng.',
+  })
+  async getSatelliteDate(
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+  ): Promise<{ date: string | null; cloudCover: number | null }> {
+    try {
+      const resp = await fetch(
+        'https://earth-search.aws.element84.com/v1/search',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            collections: ['sentinel-2-l2a'],
+            intersects: { type: 'Point', coordinates: [lng, lat] },
+            limit: 1,
+            sortby: [{ field: 'properties.datetime', direction: 'desc' }],
+            query: { 'eo:cloud_cover': { lte: 15 } },
+          }),
+        },
+      );
+      const data = await resp.json();
+      const feature = data?.features?.[0];
+      if (!feature) return { date: null, cloudCover: null };
+      return {
+        date: feature.properties.datetime,
+        cloudCover: feature.properties['eo:cloud_cover'],
+      };
+    } catch {
+      return { date: null, cloudCover: null };
+    }
   }
 }

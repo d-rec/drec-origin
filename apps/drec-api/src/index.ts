@@ -88,13 +88,15 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
     });
   });
 
-  const documentBuilder = getDocumentBuilder();
-  const options = documentBuilder.build();
+  if (process.env.NODE_ENV !== 'production') {
+    const documentBuilder = getDocumentBuilder();
+    const options = documentBuilder.build();
 
-  const document = SwaggerModule.createDocument(app, options);
-  const customizedDocument = customizeDocument(document);
-  SwaggerModule.setup('swagger', app, customizedDocument);
-  await setupRedoc(app, customizedDocument);
+    const document = SwaggerModule.createDocument(app, options);
+    const customizedDocument = customizeDocument(document);
+    SwaggerModule.setup('swagger', app, customizedDocument);
+    await setupRedoc(app, customizedDocument);
+  }
 
   await app.listen(PORT);
 

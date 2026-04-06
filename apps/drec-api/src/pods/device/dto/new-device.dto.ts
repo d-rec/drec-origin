@@ -74,17 +74,17 @@ export class NewDeviceDTO implements Omit<
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,2}\.\d{1,20}$/, {
+  @Matches(/^-?\d{1,3}(\.\d+)?$/, {
     message:
-      'Latitude should be a number from -90 to +90, with at least 1 decimal place.',
+      'Latitude should be a number from -90 to +90.',
   })
   latitude: string;
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,3}\.\d{1,20}$/, {
+  @Matches(/^-?\d{1,3}(\.\d+)?$/, {
     message:
-      'Longitude should be a number from -180 to +180, with at least 1 decimal place.',
+      'Longitude should be a number from -180 to +180.',
   })
   longitude: string;
 

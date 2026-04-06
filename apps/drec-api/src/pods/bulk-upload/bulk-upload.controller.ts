@@ -329,6 +329,7 @@ export class BulkUploadController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiOperation({
     summary: 'Fetch staged bulk upload preview',
     description:
@@ -337,14 +338,14 @@ export class BulkUploadController {
   async getPreview(
     @Param('bulkUploadId') bulkUploadId: string,
     @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ records: any[]; organizationId: number }> {
-    const { records, organizationId } =
+  ): Promise<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }> {
+    const { records, organizationId, totalCsvRows, skippedRows } =
       await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
     await this.bulkUploadService.canManageBulkUploadJobs({
       user,
       organizationId,
     });
-    return { records, organizationId };
+    return { records, organizationId, totalCsvRows, skippedRows };
   }
 
   @Post('/:bulkUploadId/confirm')
@@ -354,6 +355,7 @@ export class BulkUploadController {
   )
   @Permission('Write')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiOperation({
     summary: 'Confirm and import a staged bulk upload',
     description:
@@ -379,6 +381,7 @@ export class BulkUploadController {
   )
   @Permission('Delete')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiOperation({
     summary: 'Discard a staged bulk upload',
     description:

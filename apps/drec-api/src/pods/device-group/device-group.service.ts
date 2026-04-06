@@ -1672,6 +1672,7 @@ export class DeviceGroupService {
       errorsList: Array<any>;
     }> = [];
     let rowsConvertedToCsvCount = 0;
+    let skippedRowCount = 0;
     this.logger.debug('file?.data.toString()', file?.data.toString());
     const fileData = file.data.Body.toString('utf-8');
     this.csvStringToJSON(fileData);
@@ -1681,8 +1682,27 @@ export class DeviceGroupService {
       .fromString(fileData)
       .subscribe(async (data: any) => {
         rowsConvertedToCsvCount++;
+
+        // Skip the template instruction/placeholder row
+        if (data.serialNumber === 'REPLACE_WITH_DEVICE_SERIAL_NUMBER' ||
+            data.countryCode === '3-letter country code') {
+          skippedRowCount++;
+          return;
+        }
+
         data.images = [];
         data.groupId = null;
+
+        // Normalise N/A and whitespace-only values to empty string
+        // so downstream logic treats them as missing.
+        for (const k of Object.keys(data)) {
+          if (typeof data[k] === 'string') {
+            data[k] = data[k].trim();
+            if (data[k].toUpperCase() === 'N/A') {
+              data[k] = '';
+            }
+          }
+        }
 
         // Legacy template aliasing: older Evident-style CSV templates used
         // different column names. Map them onto the current DTO field names
@@ -1693,6 +1713,20 @@ export class DeviceGroupService {
         if (!data.serialNumber && data['Evident Device ID']) {
           data.serialNumber = data['Evident Device ID'];
         }
+
+        // Synthesize a serial number when the original CSV says
+        // "NOT YET REGISTERED" (or is empty).
+        if (
+          !data.serialNumber ||
+          data.serialNumber.toUpperCase() === 'NOT YET REGISTERED'
+        ) {
+          const sitePart = (data.siteName || data.projectName || 'DEVICE')
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '')
+            .substring(0, 8);
+          data.serialNumber = `${sitePart}ES${String(rowsConvertedToCsvCount).padStart(5, '0')}`;
+        }
+
         // Defaults for fields the legacy template doesn't include but which
         // the DTO marks @IsNotEmpty. Registrants are always solar/OMC.
         if (!data.dataSource) {
@@ -1736,14 +1770,16 @@ export class DeviceGroupService {
             continue;
           }
           if (typeof dataToStore[key] === 'string') {
-            dataToStore[key] = data[key];
+            dataToStore[key] = data[key] ?? dataToStore[key];
           } else if (typeof dataToStore[key] === 'boolean') {
-            dataToStore[key] =
-              data[key].toLowerCase() === 'true' ? true : false;
+            dataToStore[key] = data[key]
+              ? String(data[key]).toLowerCase() === 'true'
+              : dataToStore[key];
           } else if (typeof dataToStore[key] === 'number') {
-            dataToStore[key] = Number.isNaN(data[key])
-              ? 0
-              : parseFloat(data[key]);
+            const parsed = parseFloat(data[key]);
+            dataToStore[key] = Number.isNaN(parsed)
+              ? dataToStore[key]
+              : parsed;
             if (key == 'yieldValue' && dataToStore[key] === 0) {
               dataToStore[key] = 2000;
             }
@@ -1774,6 +1810,16 @@ export class DeviceGroupService {
       })
       .on('done', async () => {
         try {
+        // Auto-deduplicate serial numbers within the batch by appending -2, -3, etc.
+        const snCount: Record<string, number> = {};
+        for (const rec of records) {
+          const key = (rec.serialNumber || '').toLowerCase();
+          snCount[key] = (snCount[key] || 0) + 1;
+          if (snCount[key] > 1) {
+            rec.serialNumber = `${rec.serialNumber}-${snCount[key]}`;
+          }
+        }
+
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
           if (records[index].externalId) {
@@ -2048,6 +2094,8 @@ export class DeviceGroupService {
             preview: {
               records,
               organizationId,
+              totalCsvRows: rowsConvertedToCsvCount,
+              skippedRows: skippedRowCount,
             },
           },
         });
