@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode, SubsidyType, YesNo } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -225,6 +225,95 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   api_user_id?: string;
 
+  // General (rows 2, 8)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  defaultAccountCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  requestedEffectiveRegDate?: string;
+
+  // Signature & evidence pathway (rows 55-56, 58-59, 61-62)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  signatoryName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  isGridConnected?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  gridExportType?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasNetworkMeter?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  meterReadsShareable?: YesNo;
+
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasCaptiveConsumer?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasAuxiliaryEnergySources?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  auxiliaryEnergySourceDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  nonMeterImportDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  otherEacSchemeRegistration?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  meterIds?: string[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  generatingUnitCount?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  networkOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  interconnectionVoltage?: string;
+
   // Ownership & off-taker (Evident checklist rows 76, 77, 81)
   @ApiProperty({ required: false })
   @IsOptional()
@@ -273,4 +362,35 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   @IsString()
   publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  @ApiProperty({ required: false, enum: RegistrationType })
+  @IsOptional()
+  @IsEnum(RegistrationType)
+  registrationType?: RegistrationType;
+
+  @ApiProperty({ required: false, enum: VolumeEvidenceType })
+  @IsOptional()
+  @IsEnum(VolumeEvidenceType)
+  volumeEvidenceType?: VolumeEvidenceType;
+
+  @ApiProperty({ required: false, enum: PublicFundingType })
+  @IsOptional()
+  @IsEnum(PublicFundingType)
+  publicFundingType?: PublicFundingType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  labellingSchemeAccreditation?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  verificationAgentName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offGridCircumstances?: string;
 }

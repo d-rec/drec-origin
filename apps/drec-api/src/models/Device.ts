@@ -9,6 +9,9 @@ import {
   SourceAccessMode,
   SubsidyType,
   YesNo,
+  RegistrationType,
+  VolumeEvidenceType,
+  PublicFundingType,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -54,6 +57,27 @@ export interface IDevice {
   timezone?: string;
   stateProvince?: string;
   postcode?: string;
+  // General (Evident checklist rows 2, 8)
+  defaultAccountCode?: string;
+  requestedEffectiveRegDate?: string;
+  // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
+  signatoryName?: string;
+  isGridConnected?: YesNo;
+  gridExportType?: string; // 'No (zero-export)' | 'Yes (partial-export)' | 'Yes (full-export)'
+  hasNetworkMeter?: YesNo;
+  meterReadsShareable?: YesNo;
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  hasCaptiveConsumer?: YesNo;
+  hasAuxiliaryEnergySources?: YesNo;
+  auxiliaryEnergySourceDetails?: string;
+  nonMeterImportDetails?: string;
+  otherEacSchemeRegistration?: string;
+  additionalInfo?: string;
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  meterIds?: string[];
+  generatingUnitCount?: number;
+  networkOwner?: string;
+  interconnectionVoltage?: string;
   // Ownership & off-taker (Evident checklist rows 76, 77, 81)
   pvSystemOwner?: string;
   offTakerName?: string;
@@ -66,6 +90,14 @@ export interface IDevice {
   // Public funding (rows 50, 51)
   hasPublicFunding?: YesNo;
   publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  registrationType?: RegistrationType;
+  volumeEvidenceType?: VolumeEvidenceType;
+  publicFundingType?: PublicFundingType;
+  labellingSchemeAccreditation?: string;
+  verificationAgentName?: string;
+  offGridCircumstances?: string;
 }
 
 export enum DeviceDescription {

@@ -20,7 +20,7 @@ import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, SourceAccessMode, SubsidyType, YesNo } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 
 export class NewDeviceDTO implements Omit<
   IDevice,
@@ -74,17 +74,17 @@ export class NewDeviceDTO implements Omit<
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,2}(\.\d{1,20})?$/, {
+  @Matches(/^-?\d{1,2}\.\d{6,20}$/, {
     message:
-      'Latitude should be a number from -90 to +90, with up to 20 decimal places.',
+      'Latitude should be a number from -90 to +90, with at least 6 decimal places.',
   })
   latitude: string;
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,3}(\.\d{1,20})?$/, {
+  @Matches(/^-?\d{1,3}\.\d{6,20}$/, {
     message:
-      'Longitude should be a number from -180 to +180, with up to 20 decimal places.',
+      'Longitude should be a number from -180 to +180, with at least 6 decimal places.',
   })
   longitude: string;
 
@@ -280,6 +280,95 @@ export class NewDeviceDTO implements Omit<
   @IsString()
   postcode?: string | null;
 
+  // General (Evident checklist rows 2, 8)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  defaultAccountCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  requestedEffectiveRegDate?: string;
+
+  // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  signatoryName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  isGridConnected?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  gridExportType?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasNetworkMeter?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  meterReadsShareable?: YesNo;
+
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasCaptiveConsumer?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasAuxiliaryEnergySources?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  auxiliaryEnergySourceDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  nonMeterImportDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  otherEacSchemeRegistration?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  meterIds?: string[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  generatingUnitCount?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  networkOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  interconnectionVoltage?: string;
+
   // Ownership & off-taker (Evident checklist rows 76, 77, 81)
   @ApiProperty({ required: false })
   @IsOptional()
@@ -328,6 +417,37 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsString()
   publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  @ApiProperty({ required: false, enum: RegistrationType })
+  @IsOptional()
+  @IsEnum(RegistrationType)
+  registrationType?: RegistrationType;
+
+  @ApiProperty({ required: false, enum: VolumeEvidenceType })
+  @IsOptional()
+  @IsEnum(VolumeEvidenceType)
+  volumeEvidenceType?: VolumeEvidenceType;
+
+  @ApiProperty({ required: false, enum: PublicFundingType })
+  @IsOptional()
+  @IsEnum(PublicFundingType)
+  publicFundingType?: PublicFundingType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  labellingSchemeAccreditation?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  verificationAgentName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offGridCircumstances?: string;
 }
 export class DeviceRegistrationBody {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
@@ -337,6 +457,7 @@ export class DeviceRegistrationBody {
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
   [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
+  [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
   deviceToRegister: NewDeviceDTO;
 }
 
@@ -348,4 +469,5 @@ export type DeviceFiles = {
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
   [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
+  [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
 };

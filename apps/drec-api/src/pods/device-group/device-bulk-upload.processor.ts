@@ -50,6 +50,7 @@ export class DeviceBulkUploadProcessor {
       [DocumentType.PROJECT_PHOTOS]: [],
       [DocumentType.SCREENSHOTS]: [],
       [DocumentType.COD_PROOF]: [],
+      [DocumentType.OTHER_DOCUMENTS]: [],
     };
 
     if (!bulkUpload) {

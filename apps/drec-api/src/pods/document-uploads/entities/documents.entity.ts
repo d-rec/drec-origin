@@ -21,6 +21,7 @@ export enum DocumentType {
   SCREENSHOTS = 'SCREENSHOTS', //Screenshots
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
   COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
+  OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', //Other supporting documents
 }
 
 export enum DocumentTargetType {
