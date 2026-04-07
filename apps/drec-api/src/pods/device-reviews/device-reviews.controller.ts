@@ -532,6 +532,22 @@ export class DeviceReviewsController {
     return this.service.verifyPhotoGps(deviceId);
   }
 
+  @Post(':deviceId/generate-cod')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Generate a COD (Certificate of Commissioning Date) PDF',
+    description:
+      'Creates a PDF certificate from device registration data, uploads it to S3, and saves it as a COD_PROOF document.',
+  })
+  @ApiResponse({ status: 201, description: 'Generated COD URL and document ID' })
+  generateCod(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<{ url: string; docId: number }> {
+    return this.service.generateCod(deviceId);
+  }
+
   @Get('satellite-date')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({

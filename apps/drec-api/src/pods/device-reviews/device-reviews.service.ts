@@ -1,5 +1,7 @@
 import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import * as exifr from 'exifr';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const PDFDocument = require('pdfkit');
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
@@ -2055,6 +2057,228 @@ export class DeviceReviewsService {
       }
     }
     return results;
+  }
+
+  // ── COD Certificate Generation ─────────────────────────────────────
+
+  /**
+   * Generate a Certificate of Commissioning Date (COD) PDF for a device,
+   * upload it to S3, and save a documents row so it appears as COD_PROOF.
+   * Returns the signed URL to the generated PDF.
+   */
+  async generateCod(deviceId: number): Promise<{ url: string; docId: number }> {
+    // Fetch device + org info
+    const rows: any[] = await this.connection.query(
+      `SELECT
+         d.id,
+         d."externalId",
+         d."siteName",
+         d.latitude,
+         d.longitude,
+         d."countryCode",
+         d.capacity,
+         d."commissioningDate",
+         d."fuelCode",
+         d."deviceTypeCode",
+         d."gridInterconnection",
+         d."operatingConfiguration",
+         d."sourceAccessMode",
+         d.address,
+         d.serial_number AS "serialNumber",
+         o.name AS "orgName"
+       FROM device d
+       LEFT JOIN organization o ON o.id = d."organizationId"
+       WHERE d.id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const dev = rows[0];
+
+    // Build the PDF
+    const pdfBuffer = await this.buildCodPdf(dev);
+
+    // Upload to S3
+    const bucketS3 = process.env.AWS_S3_BUCKET;
+    const filename = `COD-${dev.externalId || deviceId}.pdf`;
+    const uploadResult = await this.fileService.uploadS3(
+      pdfBuffer,
+      bucketS3,
+      filename,
+      'cod-certificates',
+    );
+    const s3Key: string = uploadResult.Key;
+
+    // Delete any existing COD_PROOF documents for this device (replace with generated)
+    await this.connection.query(
+      `DELETE FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'COD_PROOF'`,
+      [deviceId],
+    );
+
+    // Insert document record
+    const insertResult = await this.connection.query(
+      `INSERT INTO documents (target_id, target_type, type, extension, url, created_at, updated_at, reviewed_flag)
+       VALUES ($1, 'device', 'COD_PROOF', 'pdf', $2, NOW(), NOW(), false)
+       RETURNING id`,
+      [deviceId, s3Key],
+    );
+    const docId = insertResult[0]?.id;
+
+    // Get signed URL
+    const signedUrl = await this.fileService.getSignedUrl(s3Key, 43200);
+
+    await this.logAudit(
+      deviceId,
+      'cod_generated',
+      `COD certificate generated and uploaded`,
+      'system',
+      { s3Key, docId },
+    );
+
+    return { url: signedUrl, docId };
+  }
+
+  private async buildCodPdf(dev: any): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument({
+        size: 'A4',
+        margins: { top: 60, bottom: 60, left: 60, right: 60 },
+      });
+
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      const pageWidth = doc.page.width - 120; // minus margins
+
+      // ── Header ──
+      doc
+        .fontSize(10)
+        .fillColor('#64748b')
+        .text('Green South B.V. — D-REC Platform', 60, 40, { align: 'right', width: pageWidth });
+
+      doc.moveDown(1.5);
+
+      // Title
+      doc
+        .fontSize(22)
+        .fillColor('#0f172a')
+        .text('Certificate of Commissioning Date', { align: 'center', width: pageWidth });
+
+      doc.moveDown(0.3);
+      doc
+        .fontSize(11)
+        .fillColor('#64748b')
+        .text('(COD Proof — Platform Generated)', { align: 'center', width: pageWidth });
+
+      // Horizontal rule
+      doc.moveDown(1);
+      const ruleY = doc.y;
+      doc
+        .strokeColor('#cbd5e1')
+        .lineWidth(1)
+        .moveTo(60, ruleY)
+        .lineTo(60 + pageWidth, ruleY)
+        .stroke();
+      doc.moveDown(1);
+
+      // ── Certificate body ──
+      const commDate = dev.commissioningDate
+        ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'Not specified';
+
+      doc
+        .fontSize(11)
+        .fillColor('#334155')
+        .text(
+          `This document certifies that the renewable energy production facility described below ` +
+          `has been commissioned and is registered on the D-REC Platform operated by Green South B.V.`,
+          { width: pageWidth, lineGap: 4 },
+        );
+
+      doc.moveDown(1.5);
+
+      // Table-style key-value rows
+      const fields: [string, string][] = [
+        ['Device ID', dev.externalId || String(dev.id)],
+        ['Site Name', dev.siteName || '—'],
+        ['Organization', dev.orgName || '—'],
+        ['Serial Number', dev.serialNumber || '—'],
+        ['Country', dev.countryCode || '—'],
+        ['Location', dev.latitude && dev.longitude
+          ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
+          : '—'],
+        ['Address', dev.address || '—'],
+        ['Capacity (kW)', dev.capacity != null ? String(dev.capacity) : '—'],
+        ['Fuel Type', dev.fuelCode || '—'],
+        ['Device Type', dev.deviceTypeCode || '—'],
+        ['Grid Interconnection', dev.gridInterconnection ? 'Yes' : 'No'],
+        ['Operating Configuration', dev.operatingConfiguration || '—'],
+        ['Source Access Mode', dev.sourceAccessMode || '—'],
+        ['Commissioning Date', commDate],
+      ];
+
+      const labelWidth = 170;
+      const valueWidth = pageWidth - labelWidth - 10;
+
+      for (const [label, value] of fields) {
+        const y = doc.y;
+        doc
+          .fontSize(10)
+          .fillColor('#64748b')
+          .text(label, 60, y, { width: labelWidth });
+        doc
+          .fontSize(10)
+          .fillColor('#0f172a')
+          .text(value, 60 + labelWidth + 10, y, { width: valueWidth });
+        doc.moveDown(0.6);
+      }
+
+      // Another rule
+      doc.moveDown(1);
+      const rule2Y = doc.y;
+      doc
+        .strokeColor('#cbd5e1')
+        .lineWidth(1)
+        .moveTo(60, rule2Y)
+        .lineTo(60 + pageWidth, rule2Y)
+        .stroke();
+      doc.moveDown(1);
+
+      // Footer text
+      const issueDate = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      });
+      doc
+        .fontSize(10)
+        .fillColor('#334155')
+        .text(`Issued: ${issueDate}`, { width: pageWidth })
+        .moveDown(0.3)
+        .text(
+          'This certificate was automatically generated by the D-REC Platform. ' +
+          'It confirms that the above facility is registered and its commissioning date is recorded in the system.',
+          { width: pageWidth, lineGap: 3 },
+        );
+
+      doc.moveDown(2);
+      doc
+        .fontSize(9)
+        .fillColor('#94a3b8')
+        .text(
+          `Document reference: COD-${dev.externalId || dev.id} | Generated ${new Date().toISOString()}`,
+          { align: 'center', width: pageWidth },
+        );
+
+      doc.end();
+    });
   }
 }
 
