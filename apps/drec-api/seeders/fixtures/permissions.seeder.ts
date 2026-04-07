@@ -222,6 +222,38 @@ export class PermissionsSeeder implements SeederInterface {
         permissionValue: 15,
         status: 1,
       },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 1, // Admin
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 13, // SUBMISSION_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
+      {
+        aclmodulesId: 14, // CHAT_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
     ]);
 
     for (const perm of permissions) {
@@ -234,6 +266,9 @@ export class PermissionsSeeder implements SeederInterface {
       });
       if (!exists) {
         await this.aclPermissionsRepository.save(perm);
+      } else if (exists.status !== 1) {
+        exists.status = 1;
+        await this.aclPermissionsRepository.save(exists);
       }
     }
   }
