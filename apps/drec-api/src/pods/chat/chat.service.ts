@@ -98,6 +98,22 @@ export class ChatService {
     firstMessageEntry: string,
     deviceSiteName?: string,
   ): Promise<{ conversation: ChatConversation; message: Chat }> {
+    // If a conversation already exists between these participants (for this
+    // device), append the message to it instead of creating a duplicate conversation.
+    const existing = await this.getConversation(
+      participant1,
+      participant2,
+      deviceSiteName,
+    );
+    if (existing) {
+      const message = await this.appendToConversation(
+        existing.id,
+        firstMessageUsername,
+        firstMessageEntry,
+      );
+      return { conversation: existing, message };
+    }
+
     const message = await this.appendMessage(
       firstMessageUsername,
       firstMessageEntry,
@@ -145,6 +161,28 @@ export class ChatService {
     });
     if (!conversation) {
       throw new NotFoundException(`Conversation ${conversationId} not found`);
+    }
+
+    // Dedup: if the last message in this conversation is from the same user
+    // with identical text and was created within the last 60 seconds, return
+    // the existing message instead of creating a duplicate.
+    if (conversation.lastEntryUuid) {
+      const lastMsg = await this.chatRepository.findOne({
+        where: { uuid: conversation.lastEntryUuid },
+      });
+      if (
+        lastMsg &&
+        lastMsg.username === username &&
+        lastMsg.chatEntry === chatEntry &&
+        Date.now() - lastMsg.createdAt.getTime() < 60_000
+      ) {
+        typedLog(
+          this.logger,
+          'chat',
+          `Duplicate message suppressed in conversation ${conversationId} by ${username}`,
+        );
+        return lastMsg;
+      }
     }
 
     const message = await this.appendMessage(
