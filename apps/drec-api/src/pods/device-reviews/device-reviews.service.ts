@@ -503,7 +503,7 @@ export class DeviceReviewsService {
           r.commissioningDate &&
           byType('FORM_SF_02') &&
           byType('SINGLE_LINE_DIAGRAM') &&
-          allOfType('PROJECT_PHOTOS').length > 0
+          allOfType('PROJECT_PHOTOS').length >= 3
         ),
         codProofUrl: byType('COD_PROOF'),
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
@@ -1061,7 +1061,7 @@ export class DeviceReviewsService {
     const lat = device.latitude ? parseFloat(device.latitude) : null;
     const lng = device.longitude ? parseFloat(device.longitude) : null;
     const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
-    const configuredYield = device.yieldValue || 2000;
+    const configuredYield = device.yieldValue ? parseFloat(device.yieldValue) : null;
 
     // Estimate irradiance from location
     let irradiance: IrradianceEstimate | null = null;
@@ -1069,8 +1069,10 @@ export class DeviceReviewsService {
     if (lat !== null && !isNaN(lat) && capacityKw > 0) {
       irradiance = estimateIrradiance(lat, capacityKw);
       // Flag if the configured yield exceeds the location-based optimistic estimate
-      // with a 10% tolerance to account for coarse irradiance bands and the default yieldValue of 2000
-      yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
+      // with a 10% tolerance
+      if (configuredYield !== null) {
+        yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
+      }
     }
 
     // Check recent meter readings against the ceiling
@@ -1083,7 +1085,7 @@ export class DeviceReviewsService {
       [deviceId],
     );
 
-    const ceilingYield = irradiance?.yieldHigh ?? configuredYield;
+    const ceilingYield = irradiance?.yieldHigh ?? configuredYield ?? 2000;
     const recentReadings = readRows.map((r: any) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
@@ -1117,7 +1119,9 @@ export class DeviceReviewsService {
     );
 
     const parts: string[] = [];
-    if (yieldMismatch) {
+    if (configuredYield === null) {
+      parts.push('No yield value configured on device');
+    } else if (yieldMismatch) {
       parts.push(`Configured yield ${configuredYield} exceeds location estimate ${irradiance?.yieldHigh} kWh/kW/yr`);
     } else {
       parts.push(`Configured yield ${configuredYield} is within expected range for location`);
@@ -1853,16 +1857,22 @@ export class DeviceReviewsService {
     if (ceiling.status === 'fulfilled') {
       const r = ceiling.value;
       const flags: string[] = [];
-      flags.push(`Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`);
+      if (r.configuredYield === null) {
+        flags.push(`Capacity: ${r.capacityKw} kW, no yield value configured`);
+      } else {
+        flags.push(`Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`);
+      }
       if (r.irradiance) {
         flags.push(`Irradiance band: ${r.irradiance.yieldLow}–${r.irradiance.yieldHigh} kWh/kWp/yr (lat ${r.irradiance.absLatitude.toFixed(1)}°), ceiling: ${r.irradiance.monthlyCeilingKwh.toFixed(0)} kWh/month`);
       }
-      if (r.yieldMismatch) flags.push('Configured yield exceeds irradiance estimate');
+      if (r.configuredYield === null) flags.push('No yield value configured — cannot compare against irradiance estimate');
+      else if (r.yieldMismatch) flags.push('Configured yield exceeds irradiance estimate');
       const violations = r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
       if (violations.length > 0) flags.push(`${violations.length} reading(s) exceed ceiling`);
+      const noYield = r.configuredYield === null;
       sections.push({
         name: 'Production Ceiling',
-        status: violations.length > 0 || r.yieldMismatch ? 'fail' : 'pass',
+        status: violations.length > 0 || r.yieldMismatch ? 'fail' : noYield ? 'warn' : 'pass',
         flags,
       });
     } else {
@@ -1900,8 +1910,11 @@ export class DeviceReviewsService {
       const r = photoGps.value;
       const flags: string[] = [];
       if (r.summary.total === 0) {
-        flags.push('No project photos uploaded');
-      } else {
+        flags.push('No project photos uploaded (minimum 3 required)');
+      } else if (r.summary.total < 3) {
+        flags.push(`Only ${r.summary.total} photo(s) uploaded (minimum 3 required)`);
+      }
+      if (r.summary.total > 0) {
         flags.push(`${r.summary.total} photo(s), ${r.summary.withGps} with GPS data`);
         const noGps = r.summary.total - r.summary.withGps;
         if (noGps > 0) flags.push(`${noGps} photo(s) without GPS metadata`);
@@ -1914,7 +1927,7 @@ export class DeviceReviewsService {
       }
       sections.push({
         name: 'Photo GPS',
-        status: r.summary.flagged > 0 || r.summary.total === 0 ? 'fail' : (r.summary.total - r.summary.withGps) > 0 ? 'warn' : 'pass',
+        status: r.summary.flagged > 0 || r.summary.total < 3 ? 'fail' : (r.summary.total - r.summary.withGps) > 0 ? 'warn' : 'pass',
         flags,
       });
     } else {
@@ -2195,23 +2208,25 @@ export class DeviceReviewsService {
       { label: 'Commissioning Date', value: commDate },
     ];
 
-    const docs: Array<{ type: string }> = await this.connection.query(
-      `SELECT DISTINCT type FROM documents WHERE target_type = 'device' AND target_id = $1`,
+    const docs: Array<{ type: string; cnt: string }> = await this.connection.query(
+      `SELECT type, COUNT(*)::text AS cnt FROM documents WHERE target_type = 'device' AND target_id = $1 GROUP BY type`,
       [deviceId],
     );
-    const existingTypes = new Set(docs.map(d => d.type));
+    const typeCounts = new Map(docs.map(d => [d.type, parseInt(d.cnt, 10)]));
     const allDocs = [
-      { type: 'FORM_SF_02', required: true },
-      { type: 'SF_02C', required: false },
-      { type: 'SINGLE_LINE_DIAGRAM', required: true },
-      { type: 'COD_PROOF', required: false },
-      { type: 'METERING_EVIDENCE', required: false },
-      { type: 'PROJECT_PHOTOS', required: true },
+      { type: 'FORM_SF_02', required: true, minCount: 1 },
+      { type: 'SF_02C', required: false, minCount: 1 },
+      { type: 'SINGLE_LINE_DIAGRAM', required: true, minCount: 1 },
+      { type: 'COD_PROOF', required: false, minCount: 1 },
+      { type: 'METERING_EVIDENCE', required: false, minCount: 1 },
+      { type: 'PROJECT_PHOTOS', required: true, minCount: 3 },
     ];
     const documents = allDocs.map(d => ({
       type: d.type,
-      present: existingTypes.has(d.type),
+      present: (typeCounts.get(d.type) ?? 0) >= d.minCount,
+      count: typeCounts.get(d.type) ?? 0,
       required: d.required,
+      minCount: d.minCount,
     }));
 
     return { fields, documents };
