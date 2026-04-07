@@ -532,35 +532,35 @@ export class DeviceReviewsController {
     return this.service.verifyPhotoGps(deviceId);
   }
 
-  @Get(':deviceId/cod-preview')
+  @Get(':deviceId/sf02-preview')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({
-    summary: 'Preview COD data before generation',
-    description: 'Returns the fields and document status that will be included in the COD certificate.',
+    summary: 'Preview SF-02 data before generation',
+    description: 'Returns the fields and document status that will be included in the SF-02 registration form.',
   })
-  @ApiResponse({ status: 200, description: 'COD preview data' })
-  previewCod(
+  @ApiResponse({ status: 200, description: 'SF-02 preview data' })
+  previewSf02(
     @Param('deviceId', ParseIntPipe) deviceId: number,
   ): Promise<any> {
-    return this.service.previewCod(deviceId);
+    return this.service.previewSf02(deviceId);
   }
 
-  @Post(':deviceId/generate-cod')
+  @Post(':deviceId/generate-sf02')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({
-    summary: 'Generate a COD (Certificate of Commissioning Date) PDF',
+    summary: 'Generate an SF-02 (Production Facility Registration) PDF',
     description:
-      'Creates a PDF certificate from device registration data, uploads it to S3, and saves it as a COD_PROOF document.',
+      'Creates a PDF registration form from device data, uploads it to S3, and saves it as a FORM_SF_02 document.',
   })
-  @ApiResponse({ status: 201, description: 'Generated COD URL and document ID' })
-  generateCod(
+  @ApiResponse({ status: 201, description: 'Generated SF-02 URL and document ID' })
+  generateSf02(
     @Param('deviceId', ParseIntPipe) deviceId: number,
   ): Promise<{ url: string; docId: number }> {
-    return this.service.generateCod(deviceId);
+    return this.service.generateSf02(deviceId);
   }
 
   @Get('satellite-date')

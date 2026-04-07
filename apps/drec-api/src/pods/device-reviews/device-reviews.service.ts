@@ -490,7 +490,7 @@ export class DeviceReviewsService {
         evidentStatus: r.evidentStatus ?? null,
         lastScreenStatus: r.lastScreenStatus ?? null,
         lastScreenedAt: r.lastScreenedAt ?? null,
-        codReady: !!(
+        sf02Ready: !!(
           (r.externalId || r.id) &&
           r.siteName &&
           (r.serialNumber || r.externalId) &&
@@ -501,7 +501,6 @@ export class DeviceReviewsService {
           r.fuelCode &&
           r.deviceTypeCode &&
           r.commissioningDate &&
-          byType('FORM_SF_02') &&
           byType('SINGLE_LINE_DIAGRAM') &&
           allOfType('PROJECT_PHOTOS').length >= 3
         ),
@@ -2140,14 +2139,14 @@ export class DeviceReviewsService {
     return results;
   }
 
-  // ── COD Certificate Generation ─────────────────────────────────────
+  // ── SF-02 Generation ───────────────────────────────────────────────
 
   /**
-   * Generate a Certificate of Commissioning Date (COD) PDF for a device,
-   * upload it to S3, and save a documents row so it appears as COD_PROOF.
+   * Generate an SF-02 (Production Facility Registration) PDF for a device,
+   * upload it to S3, and save a documents row so it appears as FORM_SF_02.
    * Returns the signed URL to the generated PDF.
    */
-  private async fetchCodDeviceData(deviceId: number): Promise<any> {
+  private async fetchSf02DeviceData(deviceId: number): Promise<any> {
     const rows: any[] = await this.connection.query(
       `SELECT
          d.id,
@@ -2177,11 +2176,11 @@ export class DeviceReviewsService {
     return rows[0];
   }
 
-  async previewCod(deviceId: number): Promise<{
+  async previewSf02(deviceId: number): Promise<{
     fields: Array<{ label: string; value: string }>;
     documents: Array<{ type: string; present: boolean; required: boolean }>;
   }> {
-    const dev = await this.fetchCodDeviceData(deviceId);
+    const dev = await this.fetchSf02DeviceData(deviceId);
 
     const commDate = dev.commissioningDate
       ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', {
@@ -2214,9 +2213,8 @@ export class DeviceReviewsService {
     );
     const typeCounts = new Map(docs.map(d => [d.type, parseInt(d.cnt, 10)]));
     const allDocs = [
-      { type: 'FORM_SF_02', required: true, minCount: 1 },
-      { type: 'SF_02C', required: false, minCount: 1 },
       { type: 'SINGLE_LINE_DIAGRAM', required: true, minCount: 1 },
+      { type: 'SF_02C', required: false, minCount: 1 },
       { type: 'COD_PROOF', required: false, minCount: 1 },
       { type: 'METERING_EVIDENCE', required: false, minCount: 1 },
       { type: 'PROJECT_PHOTOS', required: true, minCount: 3 },
@@ -2232,33 +2230,33 @@ export class DeviceReviewsService {
     return { fields, documents };
   }
 
-  async generateCod(deviceId: number): Promise<{ url: string; docId: number }> {
-    const dev = await this.fetchCodDeviceData(deviceId);
+  async generateSf02(deviceId: number): Promise<{ url: string; docId: number }> {
+    const dev = await this.fetchSf02DeviceData(deviceId);
 
     // Build the PDF
-    const pdfBuffer = await this.buildCodPdf(dev);
+    const pdfBuffer = await this.buildSf02Pdf(dev);
 
     // Upload to S3
     const bucketS3 = process.env.AWS_S3_BUCKET;
-    const filename = `COD-${dev.externalId || deviceId}.pdf`;
+    const filename = `SF02-${dev.externalId || deviceId}.pdf`;
     const uploadResult = await this.fileService.uploadS3(
       pdfBuffer,
       bucketS3,
       filename,
-      'cod-certificates',
+      'sf02-registrations',
     );
     const s3Key: string = uploadResult.Key;
 
-    // Delete any existing COD_PROOF documents for this device (replace with generated)
+    // Delete any existing FORM_SF_02 documents for this device (replace with generated)
     await this.connection.query(
-      `DELETE FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'COD_PROOF'`,
+      `DELETE FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'FORM_SF_02'`,
       [deviceId],
     );
 
     // Insert document record
     const insertResult = await this.connection.query(
       `INSERT INTO documents (target_id, target_type, type, extension, url, created_at, updated_at, reviewed_flag)
-       VALUES ($1, 'device', 'COD_PROOF', 'pdf', $2, NOW(), NOW(), false)
+       VALUES ($1, 'device', 'FORM_SF_02', 'pdf', $2, NOW(), NOW(), false)
        RETURNING id`,
       [deviceId, s3Key],
     );
@@ -2269,8 +2267,8 @@ export class DeviceReviewsService {
 
     await this.logAudit(
       deviceId,
-      'cod_generated',
-      `COD certificate generated and uploaded`,
+      'sf02_generated',
+      `SF-02 registration form generated and uploaded`,
       'system',
       { s3Key, docId },
     );
@@ -2278,7 +2276,7 @@ export class DeviceReviewsService {
     return { url: signedUrl, docId };
   }
 
-  private async buildCodPdf(dev: any): Promise<Buffer> {
+  private async buildSf02Pdf(dev: any): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
         size: 'A4',
@@ -2304,13 +2302,13 @@ export class DeviceReviewsService {
       doc
         .fontSize(22)
         .fillColor('#0f172a')
-        .text('Certificate of Commissioning Date', { align: 'center', width: pageWidth });
+        .text('SF-02 — Production Facility Registration', { align: 'center', width: pageWidth });
 
       doc.moveDown(0.3);
       doc
         .fontSize(11)
         .fillColor('#64748b')
-        .text('(COD Proof — Platform Generated)', { align: 'center', width: pageWidth });
+        .text('(Platform Generated)', { align: 'center', width: pageWidth });
 
       // Horizontal rule
       doc.moveDown(1);
@@ -2336,8 +2334,8 @@ export class DeviceReviewsService {
         .fontSize(11)
         .fillColor('#334155')
         .text(
-          `This document certifies that the renewable energy production facility described below ` +
-          `has been commissioned and is registered on the D-REC Platform operated by Green South B.V.`,
+          `This document registers the renewable energy production facility described below ` +
+          `on the D-REC Platform operated by Green South B.V.`,
           { width: pageWidth, lineGap: 4 },
         );
 
@@ -2402,8 +2400,8 @@ export class DeviceReviewsService {
         .text(`Issued: ${issueDate}`, { width: pageWidth })
         .moveDown(0.3)
         .text(
-          'This certificate was automatically generated by the D-REC Platform. ' +
-          'It confirms that the above facility is registered and its commissioning date is recorded in the system.',
+          'This registration form was automatically generated by the D-REC Platform. ' +
+          'It confirms that the above production facility is registered in the system.',
           { width: pageWidth, lineGap: 3 },
         );
 
@@ -2412,7 +2410,7 @@ export class DeviceReviewsService {
         .fontSize(9)
         .fillColor('#94a3b8')
         .text(
-          `Document reference: COD-${dev.externalId || dev.id} | Generated ${new Date().toISOString()}`,
+          `Document reference: SF02-${dev.externalId || dev.id} | Generated ${new Date().toISOString()}`,
           { align: 'center', width: pageWidth },
         );
 
