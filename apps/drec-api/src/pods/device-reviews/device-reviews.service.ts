@@ -365,6 +365,13 @@ export class DeviceReviewsService {
         d."evident_status" AS "evidentStatus",
         d."last_screen_status" AS "lastScreenStatus",
         d."last_screened_at" AS "lastScreenedAt",
+        d.address,
+        d."fuelCode",
+        d."deviceTypeCode",
+        d."gridInterconnection",
+        d."commissioningDate",
+        d.serial_number AS "serialNumber",
+        o.name AS "orgName",
         s.status,
         s.reviewer_name,
         s.submitted_at,
@@ -377,6 +384,7 @@ export class DeviceReviewsService {
          = regexp_replace(s.project_subfolder,
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')
+      LEFT JOIN public.organization o ON o.id = d."organizationId"
       LEFT JOIN public.user u ON u.api_user_id = d.api_user_id
       WHERE d."externalId" IS NOT NULL AND d."externalId" <> ''
       ORDER BY d."createdAt" DESC
@@ -482,6 +490,18 @@ export class DeviceReviewsService {
         evidentStatus: r.evidentStatus ?? null,
         lastScreenStatus: r.lastScreenStatus ?? null,
         lastScreenedAt: r.lastScreenedAt ?? null,
+        codReady: !!(
+          (r.externalId || r.id) &&
+          r.siteName &&
+          (r.serialNumber || r.externalId) &&
+          r.countryCode &&
+          r.latitude && r.longitude &&
+          r.address &&
+          r.capacity != null &&
+          r.fuelCode &&
+          r.deviceTypeCode &&
+          r.commissioningDate
+        ),
         codProofUrl: byType('COD_PROOF'),
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
         sf02Url: byType('FORM_SF_02'),

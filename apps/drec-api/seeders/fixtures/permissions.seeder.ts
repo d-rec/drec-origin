@@ -224,10 +224,18 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
-        entityId: 1, // Admin
+        entityId: 1, // Admin / Reviewer
         entityType: EntityType.Role,
-        permissions: ['Read'],
-        permissionValue: 1,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 2, // SeniorReviewer
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
         status: 1,
       },
       {
@@ -236,6 +244,22 @@ export class PermissionsSeeder implements SeederInterface {
         entityType: EntityType.Role,
         permissions: ['Read', 'Write'],
         permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 4, // DEVICE_MANAGEMENT_CRUDL
+        entityId: 1, // Reviewer
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
+      {
+        aclmodulesId: 4, // DEVICE_MANAGEMENT_CRUDL
+        entityId: 2, // SeniorReviewer
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
         status: 1,
       },
       {

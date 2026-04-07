@@ -37,7 +37,9 @@ export const ensureOrganizationRole = (role: Role): void => {
     role !== Role.Registrant &&
     role !== Role.SiteOperator &&
     role !== Role.User &&
-    role !== Role.SubBuyer
+    role !== Role.SubBuyer &&
+    role !== Role.Reviewer &&
+    role !== Role.SeniorReviewer
   ) {
     throw new Error('Not an organization role');
   }
