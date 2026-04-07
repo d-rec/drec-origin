@@ -500,7 +500,10 @@ export class DeviceReviewsService {
           r.capacity != null &&
           r.fuelCode &&
           r.deviceTypeCode &&
-          r.commissioningDate
+          r.commissioningDate &&
+          byType('FORM_SF_02') &&
+          byType('SINGLE_LINE_DIAGRAM') &&
+          allOfType('PROJECT_PHOTOS').length > 0
         ),
         codProofUrl: byType('COD_PROOF'),
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
@@ -1767,41 +1770,58 @@ export class DeviceReviewsService {
         flags.push(`Missing: ${r.missingDocuments.join(', ')}`);
       sections.push({
         name: 'Ownership Verification',
-        status: flags.length === 0 ? 'pass' : 'warn',
+        status: r.missingDocuments?.length > 0 ? 'fail' : flags.length === 0 ? 'pass' : 'warn',
         flags,
       });
     } else {
-      sections.push({ name: 'Ownership Verification', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Ownership Verification', status: 'skip', flags: [`Check failed: ${ownership.reason?.message || ownership.reason || 'unknown error'}`] });
     }
 
     // 2. Duplicates
     if (duplicates.status === 'fulfilled') {
       const r = duplicates.value;
-      const count = r.duplicates?.length ?? 0;
+      const dups = r.duplicates ?? [];
+      const flags: string[] = [];
+      if (dups.length > 0) {
+        flags.push(`${dups.length} potential duplicate(s) found`);
+        for (const d of dups.slice(0, 5)) {
+          flags.push(`  → ${d.siteName || d.externalId || `ID ${d.id}`} (${d.matchType}, org #${d.organizationId})`);
+        }
+        if (dups.length > 5) flags.push(`  … and ${dups.length - 5} more`);
+      }
       sections.push({
         name: 'Duplicate Screening',
-        status: count === 0 ? 'pass' : 'fail',
-        flags: count > 0 ? [`${count} potential duplicate(s) found`] : [],
+        status: dups.length === 0 ? 'pass' : 'fail',
+        flags,
       });
     } else {
-      sections.push({ name: 'Duplicate Screening', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Duplicate Screening', status: 'skip', flags: [`Check failed: ${duplicates.reason?.message || duplicates.reason || 'unknown error'}`] });
     }
 
     // 3. Source Access
     if (sourceAccess.status === 'fulfilled') {
       const r = sourceAccess.value;
       const flags: string[] = [];
+      if (!r.mode) {
+        flags.push('No source-access mode set');
+      } else {
+        flags.push(`Mode: ${r.mode}`);
+      }
       if (r.missingRequired?.length > 0)
         flags.push(`Missing required docs: ${r.missingRequired.join(', ')}`);
-      if (r.manualChecks?.length > 0)
+      if (r.missingRecommended?.length > 0)
+        flags.push(`Missing recommended docs: ${r.missingRecommended.join(', ')}`);
+      if (r.manualChecks?.length > 0) {
         flags.push(`${r.manualChecks.length} manual check(s) needed`);
+        for (const c of r.manualChecks) flags.push(`  → ${c}`);
+      }
       sections.push({
         name: 'Source Access Mode',
-        status: r.missingRequired?.length > 0 ? 'fail' : flags.length > 0 ? 'warn' : 'pass',
+        status: !r.mode ? 'fail' : r.missingRequired?.length > 0 ? 'fail' : flags.length > 0 ? 'warn' : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Source Access Mode', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Source Access Mode', status: 'skip', flags: [`Check failed: ${sourceAccess.reason?.message || sourceAccess.reason || 'unknown error'}`] });
     }
 
     // 4. Historical Consistency
@@ -1810,8 +1830,15 @@ export class DeviceReviewsService {
       const criticals = r.anomalies.filter((a) => a.severity === 'critical');
       const warnings = r.anomalies.filter((a) => a.severity === 'warning');
       const flags: string[] = [];
-      if (criticals.length > 0) flags.push(`${criticals.length} critical anomaly(s)`);
-      if (warnings.length > 0) flags.push(`${warnings.length} warning(s)`);
+      flags.push(`${r.totalReadings} reading(s) over ${r.periodMonths} month(s)`);
+      if (criticals.length > 0) {
+        flags.push(`${criticals.length} critical anomaly(s)`);
+        for (const a of criticals.slice(0, 3)) flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+      }
+      if (warnings.length > 0) {
+        flags.push(`${warnings.length} warning(s)`);
+        for (const a of warnings.slice(0, 3)) flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+      }
       sections.push({
         name: 'Historical Consistency',
         status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
@@ -1819,23 +1846,27 @@ export class DeviceReviewsService {
         detail: { totalReadings: r.totalReadings, periodMonths: r.periodMonths },
       });
     } else {
-      sections.push({ name: 'Historical Consistency', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Historical Consistency', status: 'skip', flags: [`Check failed: ${consistency.reason?.message || consistency.reason || 'unknown error'}`] });
     }
 
     // 5. Production Ceiling
     if (ceiling.status === 'fulfilled') {
       const r = ceiling.value;
       const flags: string[] = [];
+      flags.push(`Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`);
+      if (r.irradiance) {
+        flags.push(`Irradiance band: ${r.irradiance.yieldLow}–${r.irradiance.yieldHigh} kWh/kWp/yr (lat ${r.irradiance.absLatitude.toFixed(1)}°), ceiling: ${r.irradiance.monthlyCeilingKwh.toFixed(0)} kWh/month`);
+      }
       if (r.yieldMismatch) flags.push('Configured yield exceeds irradiance estimate');
       const violations = r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
       if (violations.length > 0) flags.push(`${violations.length} reading(s) exceed ceiling`);
       sections.push({
         name: 'Production Ceiling',
-        status: violations.length > 0 ? 'fail' : r.yieldMismatch ? 'warn' : 'pass',
+        status: violations.length > 0 || r.yieldMismatch ? 'fail' : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Production Ceiling', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Production Ceiling', status: 'skip', flags: [`Check failed: ${ceiling.reason?.message || ceiling.reason || 'unknown error'}`] });
     }
 
     // 6. Cross-Source
@@ -1844,8 +1875,16 @@ export class DeviceReviewsService {
       const criticals = r.flags?.filter((f: any) => f.severity === 'critical') || [];
       const warnings = r.flags?.filter((f: any) => f.severity === 'warning') || [];
       const flags: string[] = [];
-      if (criticals.length > 0) flags.push(`${criticals.length} critical flag(s)`);
-      if (warnings.length > 0) flags.push(`${warnings.length} warning(s)`);
+      if (r.performanceFactor != null) flags.push(`Performance factor: ${(r.performanceFactor * 100).toFixed(1)}%`);
+      if (r.rSquared != null) flags.push(`R²: ${r.rSquared.toFixed(3)}`);
+      if (criticals.length > 0) {
+        flags.push(`${criticals.length} critical flag(s)`);
+        for (const f of criticals) flags.push(`  → ${f.description || f.type}`);
+      }
+      if (warnings.length > 0) {
+        flags.push(`${warnings.length} warning(s)`);
+        for (const f of warnings) flags.push(`  → ${f.description || f.type}`);
+      }
       sections.push({
         name: 'Cross-Source Verification',
         status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
@@ -1853,24 +1892,33 @@ export class DeviceReviewsService {
         detail: { performanceFactor: r.performanceFactor, rSquared: r.rSquared },
       });
     } else {
-      sections.push({ name: 'Cross-Source Verification', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Cross-Source Verification', status: 'skip', flags: [`Check failed: ${crossSource.reason?.message || crossSource.reason || 'unknown error'}`] });
     }
 
     // 7. Photo GPS
     if (photoGps.status === 'fulfilled') {
       const r = photoGps.value;
       const flags: string[] = [];
-      if (r.summary.total === 0) flags.push('No project photos uploaded');
-      const noGps = r.summary.total - r.summary.withGps;
-      if (noGps > 0) flags.push(`${noGps} photo(s) without GPS`);
-      if (r.summary.flagged > 0) flags.push(`${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m`);
+      if (r.summary.total === 0) {
+        flags.push('No project photos uploaded');
+      } else {
+        flags.push(`${r.summary.total} photo(s), ${r.summary.withGps} with GPS data`);
+        const noGps = r.summary.total - r.summary.withGps;
+        if (noGps > 0) flags.push(`${noGps} photo(s) without GPS metadata`);
+        if (r.summary.flagged > 0) {
+          flags.push(`${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m from declared location`);
+          for (const p of (r.photos || []).filter((ph: any) => ph.flagged).slice(0, 3)) {
+            flags.push(`  → ${p.fileName || 'photo'}: ${p.distanceMeters?.toFixed(0) || '?'}m away`);
+          }
+        }
+      }
       sections.push({
         name: 'Photo GPS',
-        status: r.summary.flagged > 0 ? 'fail' : r.summary.total === 0 || noGps > 0 ? 'warn' : 'pass',
+        status: r.summary.flagged > 0 || r.summary.total === 0 ? 'fail' : (r.summary.total - r.summary.withGps) > 0 ? 'warn' : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Photo GPS', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Photo GPS', status: 'skip', flags: [`Check failed: ${photoGps.reason?.message || photoGps.reason || 'unknown error'}`] });
     }
 
     // 8. Compensating Controls (only relevant for Mode 4)
@@ -1889,7 +1937,7 @@ export class DeviceReviewsService {
     // If controls check failed but was attempted, still skip
     if (controls.status === 'rejected') {
       // Only add if we can't tell whether it's Mode 4 — err on side of inclusion
-      sections.push({ name: 'Compensating Controls', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'Compensating Controls', status: 'skip', flags: [`Check failed: ${controls.reason?.message || controls.reason || 'unknown error'}`] });
     }
 
     // 9. SLD Capacity Compare
@@ -1901,15 +1949,15 @@ export class DeviceReviewsService {
       else if (r.match === false) flags.push(`SLD says ${r.sldCapacityKw} kW, registered ${r.registeredCapacityKw} kW (${r.differencePercent > 0 ? '+' : ''}${r.differencePercent}%)`);
       sections.push({
         name: 'SLD Capacity Compare',
-        status: !r.hasSld ? 'warn' : r.match === false ? 'fail' : r.match === true ? 'pass' : 'warn',
+        status: !r.hasSld ? 'fail' : r.match === false ? 'fail' : r.match === true ? 'pass' : 'warn',
         flags,
       });
     } else {
-      sections.push({ name: 'SLD Capacity Compare', status: 'skip', flags: ['Check failed'] });
+      sections.push({ name: 'SLD Capacity Compare', status: 'skip', flags: [`Check failed: ${sldCompare.reason?.message || sldCompare.reason || 'unknown error'}`] });
     }
 
     // Overall status
-    const hasAnyFail = sections.some((s) => s.status === 'fail');
+    const hasAnyFail = sections.some((s) => s.status === 'fail' || s.status === 'skip');
     const hasAnyWarn = sections.some((s) => s.status === 'warn');
     const overallStatus = hasAnyFail ? 'fail' : hasAnyWarn ? 'warn' : 'pass';
 
@@ -2086,8 +2134,7 @@ export class DeviceReviewsService {
    * upload it to S3, and save a documents row so it appears as COD_PROOF.
    * Returns the signed URL to the generated PDF.
    */
-  async generateCod(deviceId: number): Promise<{ url: string; docId: number }> {
-    // Fetch device + org info
+  private async fetchCodDeviceData(deviceId: number): Promise<any> {
     const rows: any[] = await this.connection.query(
       `SELECT
          d.id,
@@ -2114,7 +2161,64 @@ export class DeviceReviewsService {
     if (rows.length === 0) {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
-    const dev = rows[0];
+    return rows[0];
+  }
+
+  async previewCod(deviceId: number): Promise<{
+    fields: Array<{ label: string; value: string }>;
+    documents: Array<{ type: string; present: boolean; required: boolean }>;
+  }> {
+    const dev = await this.fetchCodDeviceData(deviceId);
+
+    const commDate = dev.commissioningDate
+      ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', {
+          day: '2-digit', month: 'long', year: 'numeric',
+        })
+      : 'Not specified';
+
+    const fields = [
+      { label: 'Device ID', value: dev.externalId || String(dev.id) },
+      { label: 'Site Name', value: dev.siteName || '—' },
+      { label: 'Organization', value: dev.orgName || '—' },
+      { label: 'Serial Number', value: dev.serialNumber || '—' },
+      { label: 'Country', value: dev.countryCode || '—' },
+      { label: 'Location', value: dev.latitude && dev.longitude
+        ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
+        : '—' },
+      { label: 'Address', value: dev.address || '—' },
+      { label: 'Capacity (kW)', value: dev.capacity != null ? String(dev.capacity) : '—' },
+      { label: 'Fuel Type', value: dev.fuelCode || '—' },
+      { label: 'Device Type', value: dev.deviceTypeCode || '—' },
+      { label: 'Grid Interconnection', value: dev.gridInterconnection ? 'Yes' : 'No' },
+      { label: 'Operating Configuration', value: dev.operatingConfiguration || '—' },
+      { label: 'Source Access Mode', value: dev.sourceAccessMode || '—' },
+      { label: 'Commissioning Date', value: commDate },
+    ];
+
+    const docs: Array<{ type: string }> = await this.connection.query(
+      `SELECT DISTINCT type FROM documents WHERE target_type = 'device' AND target_id = $1`,
+      [deviceId],
+    );
+    const existingTypes = new Set(docs.map(d => d.type));
+    const allDocs = [
+      { type: 'FORM_SF_02', required: true },
+      { type: 'SF_02C', required: false },
+      { type: 'SINGLE_LINE_DIAGRAM', required: true },
+      { type: 'COD_PROOF', required: false },
+      { type: 'METERING_EVIDENCE', required: false },
+      { type: 'PROJECT_PHOTOS', required: true },
+    ];
+    const documents = allDocs.map(d => ({
+      type: d.type,
+      present: existingTypes.has(d.type),
+      required: d.required,
+    }));
+
+    return { fields, documents };
+  }
+
+  async generateCod(deviceId: number): Promise<{ url: string; docId: number }> {
+    const dev = await this.fetchCodDeviceData(deviceId);
 
     // Build the PDF
     const pdfBuffer = await this.buildCodPdf(dev);

@@ -532,6 +532,21 @@ export class DeviceReviewsController {
     return this.service.verifyPhotoGps(deviceId);
   }
 
+  @Get(':deviceId/cod-preview')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Preview COD data before generation',
+    description: 'Returns the fields and document status that will be included in the COD certificate.',
+  })
+  @ApiResponse({ status: 200, description: 'COD preview data' })
+  previewCod(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.previewCod(deviceId);
+  }
+
   @Post(':deviceId/generate-cod')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Write')
