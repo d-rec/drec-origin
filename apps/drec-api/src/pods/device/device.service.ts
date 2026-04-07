@@ -700,7 +700,7 @@ export class DeviceService {
     this.logger.verbose(`With in findBySiteName`);
     const device: Device = await this.repository.findOne({
       where: {
-        siteName,
+        projectName: siteName,
         organizationId,
       },
     });
@@ -739,7 +739,9 @@ export class DeviceService {
 
     if (!currentDevice) {
       this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);
-      throw new NotFoundException(`No device found with ${lookupBy} "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with ${lookupBy} "${serialNumber}"`,
+      );
     }
 
     if (updateDeviceDTO.projectName) {
@@ -791,10 +793,12 @@ export class DeviceService {
     const fingerprint = generateDeviceFingerprint({
       latitude: updateDeviceDTO.latitude ?? currentDevice.latitude,
       longitude: updateDeviceDTO.longitude ?? currentDevice.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
+      commissioningDate:
+        updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
       capacity: updateDeviceDTO.capacity ?? currentDevice.capacity,
       fuelCode: updateDeviceDTO.fuelCode ?? currentDevice.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
+      deviceTypeCode:
+        updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
       serialNumber: updateDeviceDTO.serialNumber ?? currentDevice.serialNumber,
     });
 

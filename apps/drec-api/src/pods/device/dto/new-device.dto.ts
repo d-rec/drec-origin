@@ -22,10 +22,13 @@ import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
 import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
 
-export class NewDeviceDTO implements Omit<
-  IDevice,
-  'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
-> {
+export class NewDeviceDTO
+  implements
+    Omit<
+      IDevice,
+      'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
+    >
+{
   @ApiProperty()
   @Trim()
   @IsOptional()
@@ -255,7 +258,6 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsString()
   postcode?: string | null;
-
 }
 export class DeviceRegistrationBody {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];

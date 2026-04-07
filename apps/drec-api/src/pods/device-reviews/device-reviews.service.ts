@@ -182,7 +182,7 @@ export class DeviceReviewsService {
       const devDocs: any[] = docsByDevice[String(r.id)] ?? [];
       const byType = (t: string) => {
         const doc = devDocs.find((d) => d.type === t);
-        return doc ? (signedUrls[doc.url] ?? null) : null;
+        return doc ? signedUrls[doc.url] ?? null : null;
       };
       const allOfType = (t: string) =>
         devDocs

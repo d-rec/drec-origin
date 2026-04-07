@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Fixed fingerprint generation using `undefined` for unsent fields, causing false 409 Conflict errors on partial updates
 - Removed `fingerprint` from `NewDeviceDTO` and `UpdateDeviceDTO` — it was always computed server-side; exposing it in the API schema was misleading
 - Fixed serial number validation: `DeviceDTO` regex now allows semicolons, matching `NewDeviceDTO` and `UpdateDeviceDTO`
+
 ### [0.7.2](https://github.com/d-rec/drec-origin/compare/v0.7.1...v0.7.2) (2025-08-30)
 
 ### Improvements

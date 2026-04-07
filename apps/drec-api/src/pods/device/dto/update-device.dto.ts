@@ -209,5 +209,4 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   postcode?: string | null;
-
 }
