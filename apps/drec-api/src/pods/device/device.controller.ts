@@ -817,11 +817,13 @@ export class DeviceController {
       );
     }
 
-    await this.organizationService.checkIfCanManage({
-      user,
-      organizationId: deviceToUpdate.organizationId,
-    });
-    user.organizationId = deviceToUpdate.organizationId;
+    if (deviceToUpdate.organizationId != null) {
+      await this.organizationService.checkIfCanManage({
+        user,
+        organizationId: deviceToUpdate.organizationId,
+      });
+      user.organizationId = deviceToUpdate.organizationId;
+    }
 
     const result = await this.deviceService.update(
       user.organizationId,
@@ -983,11 +985,13 @@ export class DeviceController {
       );
     }
 
-    await this.organizationService.checkIfCanManage({
-      user,
-      organizationId: deviceToUpdate.organizationId,
-    });
-    user.organizationId = deviceToUpdate.organizationId;
+    if (deviceToUpdate.organizationId != null) {
+      await this.organizationService.checkIfCanManage({
+        user,
+        organizationId: deviceToUpdate.organizationId,
+      });
+      user.organizationId = deviceToUpdate.organizationId;
+    }
     const isSerialNumberChanged = serialNumberChanged === 'true';
     if (isSerialNumberChanged) {
       if (deviceToUpdate.serialNumber) {
