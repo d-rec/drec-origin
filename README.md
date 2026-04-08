@@ -344,6 +344,18 @@ rm -rf apps/drec-api/dist/js/node_modules
 pnpm install
 ```
 
+### npm: EACCES permission denied when installing global packages
+
+Running `npm install -g pnpm` (or any global install) fails with `EACCES: permission denied, mkdir '/usr/local/lib/node_modules'`. Fix by configuring npm to use a user-writable directory:
+
+```sh
+mkdir -p ~/.npm-global
+npm config set prefix '~/.npm-global'
+echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+npm install -g pnpm
+```
+
 ### npm: "Your cache folder contains root-owned files" (EACCES)
 
 A previous `sudo npm install` left root-owned files in the npm cache. Fix with:
