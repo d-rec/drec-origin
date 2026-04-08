@@ -360,58 +360,46 @@ export class Seed9999999999999 implements MigrationInterface {
       return;
     }
 
-    const aclModulesExist = await queryRunner.query(
-      `SELECT * FROM ${tableName}`,
-    );
+    for (const aclModule of ACLModuleJSON as unknown as IACLModuleConfig[]) {
+      const addedPermissionList: { [key in PermissionString]: boolean } = {
+        Read: false,
+        Write: false,
+        Delete: false,
+        Update: false,
+      };
+      for (const key in addedPermissionList) {
+        aclModule.permissions.forEach((myArr) => {
+          if (myArr === key) {
+            addedPermissionList[key] = true;
+          }
+        });
+      }
 
-    if (!aclModulesExist.length) {
-      await Promise.all(
-        (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
-          async (aclModule) => {
-            const addedPermissionList: { [key in PermissionString]: boolean } =
-              {
-                Read: false,
-                Write: false,
-                Delete: false,
-                Update: false,
-              };
-            for (const key in addedPermissionList) {
-              aclModule.permissions.forEach((myArr) => {
-                if (myArr === key) {
-                  addedPermissionList[key] = true;
-                }
-              });
-            }
+      const permissionValue = this.computePermissions(addedPermissionList);
 
-            const permissionValue =
-              this.computePermissions(addedPermissionList);
+      const checkForExistingModule = await queryRunner.query(
+        `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
+      );
 
-            const checkForExistingModule = await queryRunner.query(
-              `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
-            );
-
-            if (!checkForExistingModule.length) {
-              queryRunner.query(
-                `INSERT INTO public.aclmodules (
-                "id", 
-                "name", 
-                "description", 
+      if (!checkForExistingModule.length) {
+        await queryRunner.query(
+          `INSERT INTO public.aclmodules (
+                "id",
+                "name",
+                "description",
                 "status" ,
                 "permissions",
                 "permissionsValue"
               ) VALUES (
-                '${aclModule.id}', 
-                '${aclModule.name}', 
-                '${aclModule.description}', 
+                '${aclModule.id}',
+                '${aclModule.name}',
+                '${aclModule.description}',
                 '${aclModule.status}',
                 '${aclModule.permissions}',
                 '${permissionValue}'
               )`,
-              );
-            }
-          },
-        ),
-      );
+        );
+      }
     }
   }
 
