@@ -13,7 +13,7 @@ import {
   MaxDate,
   Min,
 } from 'class-validator';
-import { IDevice } from '../../../models';
+import { DeviceDescription, IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
@@ -185,11 +185,6 @@ export class UpdateDeviceDTO
   @IsNumber()
   yieldValue: number;
 
-  // @ApiProperty()
-  // @IsArray()
-  // @IsOptional()
-  // generatorsIds: number[];
-
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -210,10 +205,57 @@ export class UpdateDeviceDTO
   @IsOptional()
   images: string[];
 
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(DeviceDescription, {
+    message:
+      'Valid Device Description are Solar Lantern, Solar Home System, Mini Grid, Rooftop Solar, Ground Mount Solar',
+  })
+  deviceDescription?: DeviceDescription;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  energyStorage?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Min(0, {
+    message:
+      'Invalid Energy Storage Capacity, it should be equal or greater than 0',
+  })
+  @Transform((value) => {
+    if (!value) return value;
+    return parseFloat(value);
+  })
+  energyStorageCapacity?: number | null;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  qualityLabels?: string;
+
   @ApiProperty({ type: () => [String] })
   @IsArray()
   @IsOptional()
   SDGBenefits?: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  dataSource?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  otherDataSource?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  dataSourceBrand?: string;
 
   @IsString()
   @IsOptional()
@@ -233,6 +275,11 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  stateProvince?: string | null;
 
   // General (rows 2, 8)
   @ApiProperty({ required: false })
