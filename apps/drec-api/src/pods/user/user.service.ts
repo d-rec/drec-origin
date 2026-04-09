@@ -545,6 +545,72 @@ export class UserService {
     });
   }
 
+  /** Canonical role → module permissions. Used by changeRole to ensure
+   *  the target role has its ACL entries when a user is assigned to it. */
+  private static readonly ROLE_PERMISSIONS: Record<
+    string,
+    { module: string; perms: string; value: number }[]
+  > = {
+    Reviewer: [
+      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
+      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
+      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+    ],
+    SeniorReviewer: [
+      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
+      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
+      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+    ],
+    Registrant: [
+      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
+      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
+      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write',               value: 3  },
+      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+    ],
+    Buyer: [
+      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
+      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read',                     value: 1  },
+      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
+      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+    ],
+    SubBuyer: [
+      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
+      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+    ],
+    SiteOperator: [
+      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
+      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
+      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write',               value: 3  },
+      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
+      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+    ],
+  };
+
   public async changeRole(
     userId: number,
     role: Role,
@@ -556,7 +622,39 @@ export class UserService {
       },
     });
     await this.repository.update(userId, { role, roleId: userRole.id });
+
+    // Ensure the role has its ACL permission entries
+    await this.ensureRolePermissions(role, userRole.id);
+
     return this.findOne({ id: userId });
+  }
+
+  /** Insert any missing role-level ACL permissions for the given role. */
+  private async ensureRolePermissions(
+    role: Role,
+    roleId: number,
+  ): Promise<void> {
+    const perms = UserService.ROLE_PERMISSIONS[role];
+    if (!perms) return; // Admin or unknown role — nothing to provision
+
+    const mgr = this.repository.manager;
+    for (const p of perms) {
+      await mgr.query(
+        `INSERT INTO "aclmodulepermissions"
+           ("aclmodulesId", "entityType", "entityId", "permissions", "permissionValue", "status")
+         SELECT a.id, 'Role', $1, $2, $3, 1
+         FROM "aclmodules" a
+         WHERE a.name = $4
+           AND NOT EXISTS (
+             SELECT 1 FROM "aclmodulepermissions" ep
+             WHERE ep."aclmodulesId" = a.id
+               AND ep."entityType" = 'Role'
+               AND ep."entityId" = $1
+               AND ep."permissions" = $2
+           )`,
+        [roleId, p.perms, p.value, p.module],
+      );
+    }
   }
 
   async getPlatformAdmin(): Promise<IUser | undefined> {

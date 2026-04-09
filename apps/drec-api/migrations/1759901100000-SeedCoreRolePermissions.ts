@@ -65,8 +65,8 @@ export class SeedCoreRolePermissions1759901100000
 
     for (const p of permissions) {
       await queryRunner.query(`
-        INSERT INTO "aclmodulepermissions" ("aclmodulesId", "entityType", "entityId", "permissions", "permissionValue")
-        SELECT a.id, 'Role', r.id, '${p.perms}', ${p.value}
+        INSERT INTO "aclmodulepermissions" ("aclmodulesId", "entityType", "entityId", "permissions", "permissionValue", "status")
+        SELECT a.id, 'Role', r.id, '${p.perms}', ${p.value}, 1
         FROM "aclmodules" a, "user_role" r
         WHERE a.name = '${p.module}'
           AND r.name = '${p.role}'
