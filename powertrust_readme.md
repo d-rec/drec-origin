@@ -48,12 +48,14 @@ the current API, we tear it down. It is not a second staging.
 
 ### K8s manifests in [`drec-infrastructure`](https://github.com/d-rec/drec-infrastructure)
 
-Committed in commit `8b29803` ("add frozen powertrust integration sandbox"):
+Originally committed in `8b29803` and extended in `1dddfb9`:
 
 - `deployments/drec-api/drec-api-powertrust.yaml` — the `drec-api` Deployment
   and its inline `redis` Deployment+Service. **Image tag is hardcoded** to
   `powertrust-b80bf934` rather than templated via `${{ inputs.environment }}`.
   Includes `enableServiceLinks: false` (see gotcha #3 below).
+- `deployments/ganache/ganache-powertrust.yaml` — in-cluster Ethereum dev
+  chain (see gotcha #2).
 - `scaling/drec-api-powertrust.yaml` — HPA, pinned to 1/1.
 - `ingress/powertrust.yaml` — ALB ingress for `powertrust-api.drecs.org`,
   shares the existing `drec-ingress` ALB group.
@@ -64,16 +66,16 @@ every push to `stage`, defeating the "frozen" principle).
 
 ### K8s resources that are NOT in git
 
-Two deployments live in the cluster but are not currently in the
-`drec-infrastructure` repo:
+One resource lives in the cluster but is not in the `drec-infrastructure`
+repo:
 
-1. **`ganache`** — an in-cluster Ethereum dev chain. Applied once from a
-   local manifest. See gotcha #2 for why it's required. If it ever gets
-   evicted and rescheduled it will come back from the existing ReplicaSet;
-   if someone nukes the namespace, re-apply from
-   [the manifest reproduced in the appendix below](#appendix-ganache-manifest).
-2. **`drec-api-migrate-initial`** Job — one-shot migration runner. Can be
+1. **`drec-api-migrate-initial`** Job — one-shot migration runner. Can be
    deleted after it completes.
+
+The `ganache` Deployment+Service used to be in this category too — it was
+applied once from a local manifest — but has since been moved into
+`drec-infrastructure` at `deployments/ganache/ganache-powertrust.yaml`
+(drec-infrastructure commit `1dddfb9`). See gotcha #2 for why it's required.
 
 ### Secret `drec-powertrust-env`
 
