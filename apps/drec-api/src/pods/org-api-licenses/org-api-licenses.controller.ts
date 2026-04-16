@@ -42,6 +42,7 @@ export class OrgApiLicensesController {
     if (!settings) {
       return {
         roboflowApiKey: null,
+        roboflowWorkflowUrl: null,
         deeplApiKey: null,
         roboflowCreditsRemaining: 3,
         deeplCreditsRemaining: 3,

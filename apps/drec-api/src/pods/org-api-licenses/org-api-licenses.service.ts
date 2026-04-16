@@ -56,6 +56,15 @@ export class OrgApiLicensesService {
             : encrypt(dto.roboflowApiKey);
     }
 
+    if (dto.roboflowWorkflowUrl !== undefined) {
+      record.roboflowWorkflowUrl =
+        dto.roboflowWorkflowUrl === null || dto.roboflowWorkflowUrl === ''
+          ? null
+          : isMasked(dto.roboflowWorkflowUrl)
+            ? record.roboflowWorkflowUrl
+            : encrypt(dto.roboflowWorkflowUrl);
+    }
+
     if (dto.deeplApiKey !== undefined) {
       record.deeplApiKey =
         dto.deeplApiKey === null || dto.deeplApiKey === ''
@@ -74,6 +83,7 @@ export class OrgApiLicensesService {
     organizationId: number,
   ): Promise<{
     roboflowApiKey: string | null;
+    roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
     roboflowCreditsRemaining: number;
     deeplCreditsRemaining: number;
@@ -84,6 +94,9 @@ export class OrgApiLicensesService {
     return {
       roboflowApiKey: record.roboflowApiKey
         ? this.safeDecryptAndMask(record.roboflowApiKey)
+        : null,
+      roboflowWorkflowUrl: record.roboflowWorkflowUrl
+        ? this.safeDecryptAndMask(record.roboflowWorkflowUrl)
         : null,
       deeplApiKey: record.deeplApiKey
         ? this.safeDecryptAndMask(record.deeplApiKey)
@@ -97,6 +110,7 @@ export class OrgApiLicensesService {
     organizationId: number,
   ): Promise<{
     roboflowApiKey: string | null;
+    roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
     roboflowCreditsRemaining: number;
     deeplCreditsRemaining: number;
@@ -107,6 +121,9 @@ export class OrgApiLicensesService {
     return {
       roboflowApiKey: record.roboflowApiKey
         ? decrypt(record.roboflowApiKey)
+        : null,
+      roboflowWorkflowUrl: record.roboflowWorkflowUrl
+        ? decrypt(record.roboflowWorkflowUrl)
         : null,
       deeplApiKey: record.deeplApiKey ? decrypt(record.deeplApiKey) : null,
       roboflowCreditsRemaining: record.roboflowCreditsRemaining,
@@ -158,6 +175,41 @@ export class OrgApiLicensesService {
 
     await this.redis.del(this.getRedisKey(organizationId));
     return true;
+  }
+
+  async findAdminOrgDecrypted(): Promise<{
+    roboflowApiKey: string | null;
+    roboflowWorkflowUrl: string | null;
+    deeplApiKey: string | null;
+  }> {
+    // Find the Admin user's org — cached in Redis for 10 min
+    const adminOrgCacheKey = 'platform:admin_org_id';
+    let adminOrgId: number | null = null;
+
+    const cached = await this.redis.get(adminOrgCacheKey);
+    if (cached) {
+      adminOrgId = parseInt(cached, 10);
+    } else {
+      const rows = await this.repository.query(
+        `SELECT "organizationId" FROM public.user WHERE "role" = 'Admin' LIMIT 1`,
+      );
+      if (rows.length > 0) {
+        adminOrgId = rows[0].organizationId;
+        await this.redis.set(adminOrgCacheKey, String(adminOrgId), 'EX', 600);
+      }
+    }
+
+    if (!adminOrgId) {
+      this.logger.warn('No Admin user found — platform API keys unavailable');
+      return { roboflowApiKey: null, roboflowWorkflowUrl: null, deeplApiKey: null };
+    }
+
+    const result = await this.findDecrypted(adminOrgId);
+    return {
+      roboflowApiKey: result?.roboflowApiKey ?? null,
+      roboflowWorkflowUrl: result?.roboflowWorkflowUrl ?? null,
+      deeplApiKey: result?.deeplApiKey ?? null,
+    };
   }
 
   private async findCached(

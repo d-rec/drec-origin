@@ -16,7 +16,7 @@ export class ApiKeyResolverService {
     role: Role;
     organizationId: number;
   }): Promise<string> {
-    // Reviewers always use the platform key, no credit check
+    // Reviewers always use the platform (Admin org) key, no credit check
     if (REVIEWER_ROLES.includes(user.role)) {
       return this.getPlatformDeeplKey();
     }
@@ -53,14 +53,9 @@ export class ApiKeyResolverService {
     role: Role;
     organizationId: number;
   }): Promise<{ url: string; key: string }> {
-    const platformResult = {
-      url: process.env.ROBOFLOW_WORKFLOW_URL!,
-      key: process.env.ROBOFLOW_API_KEY!,
-    };
-
-    // Reviewers always use the platform key
+    // Reviewers always use the platform (Admin org) key
     if (REVIEWER_ROLES.includes(user.role)) {
-      return platformResult;
+      return this.getPlatformRoboflowKey();
     }
 
     const license = await this.orgApiLicensesService.findDecrypted(
@@ -69,13 +64,14 @@ export class ApiKeyResolverService {
 
     // No license row (dev mode) — use platform key directly
     if (!license) {
-      return platformResult;
+      return this.getPlatformRoboflowKey();
     }
 
-    // Org has their own key
+    // Org has their own key (and optionally their own workflow URL)
     if (license.roboflowApiKey) {
+      const platformKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
       return {
-        url: process.env.ROBOFLOW_WORKFLOW_URL!,
+        url: license.roboflowWorkflowUrl || platformKeys.roboflowWorkflowUrl || '',
         key: license.roboflowApiKey,
       };
     }
@@ -91,7 +87,7 @@ export class ApiKeyResolverService {
       );
     }
 
-    return platformResult;
+    return this.getPlatformRoboflowKey();
   }
 
   async getCreditsInfo(
@@ -109,11 +105,26 @@ export class ApiKeyResolverService {
     };
   }
 
-  private getPlatformDeeplKey(): string {
-    const key = process.env.DEEPL_API_KEY;
-    if (!key) {
-      throw new ForbiddenException('Translation is not configured');
+  private async getPlatformDeeplKey(): Promise<string> {
+    const adminKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
+    if (!adminKeys.deeplApiKey) {
+      throw new ForbiddenException(
+        'Translation is not configured. An admin must set the DeepL API key in Organization > Licenses.',
+      );
     }
-    return key;
+    return adminKeys.deeplApiKey;
+  }
+
+  private async getPlatformRoboflowKey(): Promise<{ url: string; key: string }> {
+    const adminKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
+    if (!adminKeys.roboflowApiKey) {
+      throw new ForbiddenException(
+        'Panel detection is not configured. An admin must set the Roboflow API key in Organization > Licenses.',
+      );
+    }
+    return {
+      url: adminKeys.roboflowWorkflowUrl || '',
+      key: adminKeys.roboflowApiKey,
+    };
   }
 }

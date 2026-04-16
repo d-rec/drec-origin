@@ -310,18 +310,16 @@ export class DeviceReviewsService {
     roboflowUrl?: string,
     roboflowKey?: string,
   ): Promise<any> {
-    const url = roboflowUrl || process.env.ROBOFLOW_WORKFLOW_URL;
-    const key = roboflowKey || process.env.ROBOFLOW_API_KEY;
-    if (!url || !key) {
-      throw new Error('ROBOFLOW_WORKFLOW_URL or ROBOFLOW_API_KEY not configured');
+    if (!roboflowUrl || !roboflowKey) {
+      throw new Error('Roboflow URL and API key must be provided — configure them in Organization > Licenses');
     }
     let res: Response;
     try {
-      res = await fetch(url, {
+      res = await fetch(roboflowUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          api_key: key,
+          api_key: roboflowKey,
           inputs: {
             image: { type: 'base64', value: imageBase64 },
             classes: 'solar-panel',
@@ -330,7 +328,7 @@ export class DeviceReviewsService {
       });
     } catch (err: any) {
       this.logger.error(
-        `Roboflow fetch failed: ${err?.message} | cause: ${JSON.stringify(err?.cause)} | url: ${url}`,
+        `Roboflow fetch failed: ${err?.message} | cause: ${JSON.stringify(err?.cause)} | url: ${roboflowUrl}`,
       );
       throw new Error(
         `Roboflow fetch failed: ${err?.cause?.code || err?.cause?.message || err?.message}`,

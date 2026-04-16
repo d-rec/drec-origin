@@ -23,10 +23,7 @@ export class TranslateService {
     apiKey?: string,
   ): Promise<TranslateResult> {
     if (!apiKey) {
-      apiKey = process.env.DEEPL_API_KEY;
-    }
-    if (!apiKey) {
-      throw new BadRequestException('Translation is not configured');
+      throw new BadRequestException('Translation is not configured — set the DeepL API key in Organization > Licenses');
     }
 
     const host = apiKey.endsWith(':fx')

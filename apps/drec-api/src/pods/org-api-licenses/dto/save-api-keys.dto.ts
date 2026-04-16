@@ -10,5 +10,10 @@ export class SaveApiKeysDTO {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  roboflowWorkflowUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   deeplApiKey?: string;
 }

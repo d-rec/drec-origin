@@ -20,6 +20,9 @@ export class OrgApiLicenses {
   @Column({ type: 'text', name: 'roboflow_api_key', nullable: true })
   roboflowApiKey: string | null;
 
+  @Column({ type: 'text', name: 'roboflow_workflow_url', nullable: true })
+  roboflowWorkflowUrl: string | null;
+
   @Column({ type: 'text', name: 'deepl_api_key', nullable: true })
   deeplApiKey: string | null;
 
