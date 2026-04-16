@@ -1,3 +1,8 @@
+// Force typeorm 0.3.x to create the global MetadataArgsStorage BEFORE
+// any @energyweb packages (which depend on typeorm 0.2.x) get a chance to.
+import { getMetadataArgsStorage } from 'typeorm';
+getMetadataArgsStorage();
+
 import { NestFactory } from '@nestjs/core';
 import { SeederInterface } from './seeder-interface';
 import { SeederModule } from './seeder.module';
