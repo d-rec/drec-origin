@@ -1310,6 +1310,7 @@ export class DeviceGroupService {
     const files: DeviceFiles = {
       [DocumentType.FORM_SF_02]: [],
       [DocumentType.SF_02C]: [],
+      [DocumentType.SF_02C_OWNERS_DECLARATION]: [],
       [DocumentType.METERING_EVIDENCE]: [],
       [DocumentType.SINGLE_LINE_DIAGRAM]: [],
       [DocumentType.PROJECT_PHOTOS]: [],

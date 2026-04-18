@@ -9,6 +9,7 @@ export type RequirementLevel = 'required' | 'recommended' | 'optional';
 export interface EvidenceRequirements {
   FORM_SF_02: RequirementLevel;
   SF_02C: RequirementLevel;
+  SF_02C_OWNERS_DECLARATION: RequirementLevel;
   METERING_EVIDENCE: RequirementLevel;
   SINGLE_LINE_DIAGRAM: RequirementLevel;
   PROJECT_PHOTOS: RequirementLevel;
@@ -23,6 +24,7 @@ export interface EvidenceRequirements {
 const DEFAULT_REQUIREMENTS: EvidenceRequirements = {
   FORM_SF_02: 'required',
   SF_02C: 'required',
+  SF_02C_OWNERS_DECLARATION: 'required',
   METERING_EVIDENCE: 'required',
   SINGLE_LINE_DIAGRAM: 'required',
   PROJECT_PHOTOS: 'required',
@@ -64,6 +66,7 @@ export const EVIDENCE_REQUIREMENTS: Record<
   [OperatingConfiguration.GridNoExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
+    SF_02C_OWNERS_DECLARATION: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required', // must show no-export config
     PROJECT_PHOTOS: 'required',
@@ -73,6 +76,7 @@ export const EVIDENCE_REQUIREMENTS: Record<
   [OperatingConfiguration.GridPermittedExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required', // contractual/regulatory records permitting export
+    SF_02C_OWNERS_DECLARATION: 'required',
     METERING_EVIDENCE: 'required', // import/export meter channels
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -82,6 +86,7 @@ export const EVIDENCE_REQUIREMENTS: Record<
   [OperatingConfiguration.GridFullExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required', // utility/offtaker records, open-access docs
+    SF_02C_OWNERS_DECLARATION: 'required',
     METERING_EVIDENCE: 'required', // export meter data
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -91,6 +96,7 @@ export const EVIDENCE_REQUIREMENTS: Record<
   [OperatingConfiguration.OffGrid]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
+    SF_02C_OWNERS_DECLARATION: 'required',
     METERING_EVIDENCE: 'recommended', // monitoring setup, not always available
     SINGLE_LINE_DIAGRAM: 'required', // system architecture showing standalone
     PROJECT_PHOTOS: 'required',
@@ -100,6 +106,7 @@ export const EVIDENCE_REQUIREMENTS: Record<
   [OperatingConfiguration.DualModeHybrid]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
+    SF_02C_OWNERS_DECLARATION: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',

@@ -424,6 +424,7 @@ export class DeviceReviewsService {
       SINGLE_LINE_DIAGRAM: 'sld',
       FORM_SF_02: 'sf02',
       SF_02C: 'sf02c',
+      SF_02C_OWNERS_DECLARATION: 'sf02cOwnersDeclaration',
       COD_PROOF: 'codProof',
       METERING_EVIDENCE: 'meteringEvidence',
     };
@@ -506,9 +507,11 @@ export class DeviceReviewsService {
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
         sf02Url: byType('FORM_SF_02'),
         sf02cUrl: byType('SF_02C'),
+        sf02cOwnersDeclarationUrl: byType('SF_02C_OWNERS_DECLARATION'),
         meteringEvidenceUrls: allOfType('METERING_EVIDENCE'),
         pictureUrls: allOfType('PROJECT_PHOTOS'),
         screenshotUrls: allOfType('SCREENSHOTS'),
+        otherDocumentUrls: allOfType('OTHER_DOCUMENTS'),
         docMeta,
       };
     });
@@ -616,7 +619,9 @@ export class DeviceReviewsService {
 
   /**
    * D-REC §2.7: Verify device ownership by checking required documents.
-   * Sets ownershipStatus to 'verified' if SF-02C exists, otherwise 'flagged'.
+   * Requires SF-02 (registration), SF-02C (declaration form), and the
+   * Owner's Declaration / Proof of Ownership. Missing any of these flags
+   * the device; otherwise ownershipStatus is set to 'verified'.
    */
   async verifyOwnership(deviceId: number): Promise<{
     ownershipStatus: OwnershipStatus;
@@ -626,15 +631,19 @@ export class DeviceReviewsService {
     const docs: Array<{ type: string }> = await this.connection.query(
       `SELECT DISTINCT type FROM documents
        WHERE target_type = 'device' AND target_id = $1
-         AND type IN ('SF_02C', 'FORM_SF_02', 'INCORPORATION_CERTIFICATE')`,
+         AND type IN ('SF_02C', 'SF_02C_OWNERS_DECLARATION', 'FORM_SF_02', 'INCORPORATION_CERTIFICATE')`,
       [deviceId],
     );
     const existingTypes = new Set(docs.map((d) => d.type));
 
     const missingDocuments: string[] = [];
-    // SF-02C (Owner's Declaration / Proof of Ownership) is always required
+    // SF-02C (I-REC declaration form) is always required
     if (!existingTypes.has('SF_02C')) {
-      missingDocuments.push('SF-02C (Owner\'s Declaration / Proof of Ownership)');
+      missingDocuments.push('SF-02C (I-REC declaration form)');
+    }
+    // Owner's Declaration / Proof of Ownership is always required
+    if (!existingTypes.has('SF_02C_OWNERS_DECLARATION')) {
+      missingDocuments.push('Owner\'s Declaration / Proof of Ownership');
     }
     // SF-02 (Production Facility Registration) is always required
     if (!existingTypes.has('FORM_SF_02')) {
@@ -761,12 +770,14 @@ export class DeviceReviewsService {
 
     const docLabel: Record<string, string> = {
       FORM_SF_02: 'SF-02 (Production Facility Registration)',
-      SF_02C: 'SF-02C (Owner\'s Declaration)',
+      SF_02C: 'SF-02C (I-REC declaration form)',
+      SF_02C_OWNERS_DECLARATION: 'Owner\'s Declaration / Proof of Ownership',
       METERING_EVIDENCE: 'Metering Evidence',
       SINGLE_LINE_DIAGRAM: 'Single Line Diagram',
       PROJECT_PHOTOS: 'Project Photos',
       SCREENSHOTS: 'Screenshots',
       COD_PROOF: 'COD Proof / Attestation',
+      OTHER_DOCUMENTS: 'Other Documents',
     };
 
     const missingRequired = rules.requiredDocuments
@@ -1169,7 +1180,7 @@ export class DeviceReviewsService {
       [deviceId],
     );
     const existingTypes = new Set(docs.map((d) => d.type));
-    const mode4Required = ['METERING_EVIDENCE', 'SCREENSHOTS', 'FORM_SF_02', 'SF_02C', 'COD_PROOF'];
+    const mode4Required = ['METERING_EVIDENCE', 'SCREENSHOTS', 'FORM_SF_02', 'SF_02C', 'SF_02C_OWNERS_DECLARATION', 'COD_PROOF'];
     const missingDocs = mode4Required.filter((t) => !existingTypes.has(t));
     controls.push({
       id: 'required_documents',
@@ -2213,6 +2224,7 @@ export class DeviceReviewsService {
     const allDocs = [
       { type: 'SINGLE_LINE_DIAGRAM', required: true, minCount: 1 },
       { type: 'SF_02C', required: false, minCount: 1 },
+      { type: 'SF_02C_OWNERS_DECLARATION', required: false, minCount: 1 },
       { type: 'COD_PROOF', required: false, minCount: 1 },
       { type: 'METERING_EVIDENCE', required: false, minCount: 1 },
       { type: 'PROJECT_PHOTOS', required: true, minCount: 3 },

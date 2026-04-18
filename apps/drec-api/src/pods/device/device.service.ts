@@ -683,11 +683,13 @@ export class DeviceService {
     files: {
       [DocumentType.FORM_SF_02]?: Express.Multer.File[];
       [DocumentType.SF_02C]?: Express.Multer.File[];
+      [DocumentType.SF_02C_OWNERS_DECLARATION]?: Express.Multer.File[];
       [DocumentType.METERING_EVIDENCE]?: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]?: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]?: Express.Multer.File[];
       [DocumentType.SCREENSHOTS]?: Express.Multer.File[];
       [DocumentType.COD_PROOF]?: Express.Multer.File[];
+      [DocumentType.OTHER_DOCUMENTS]?: Express.Multer.File[];
     } | null,
     api_user_id?: string,
     role?: Role,
@@ -808,11 +810,13 @@ export class DeviceService {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
           [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
         };
 
         const siteName = (result.siteName || 'project')

@@ -568,11 +568,13 @@ export class DeviceController {
       [
         { name: DocumentType.FORM_SF_02, maxCount: 10 },
         { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
         { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
+        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
       ],
       {
         fileFilter: fileFilter,
@@ -593,6 +595,10 @@ export class DeviceController {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
+        [DocumentType.SF_02C_OWNERS_DECLARATION]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
         [DocumentType.METERING_EVIDENCE]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
@@ -610,6 +616,10 @@ export class DeviceController {
           items: { type: 'string', format: 'binary' },
         },
         [DocumentType.COD_PROOF]: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+        },
+        [DocumentType.OTHER_DOCUMENTS]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -756,11 +766,13 @@ export class DeviceController {
       [
         { name: DocumentType.FORM_SF_02, maxCount: 10 },
         { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
         { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
+        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
       ],
       {
         fileFilter: fileFilter,
@@ -845,11 +857,13 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
           [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
         };
 
         const siteSlug = (existingDevice.siteName || 'project')
@@ -917,11 +931,13 @@ export class DeviceController {
       [
         { name: DocumentType.FORM_SF_02, maxCount: 10 },
         { name: DocumentType.SF_02C, maxCount: 10 },
+        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
         { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
+        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
       ],
       {
         fileFilter: fileFilter,
@@ -1058,11 +1074,13 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
           [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
         };
 
         const siteName = (existingDevice.siteName || 'project')

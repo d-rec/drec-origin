@@ -96,6 +96,7 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
       'SCREENSHOTS',
       'FORM_SF_02',
       'SF_02C',
+      'SF_02C_OWNERS_DECLARATION',
       'COD_PROOF',
     ],
     recommendedDocuments: ['SINGLE_LINE_DIAGRAM', 'PROJECT_PHOTOS'],

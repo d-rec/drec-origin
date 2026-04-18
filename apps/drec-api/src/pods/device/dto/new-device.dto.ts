@@ -452,6 +452,7 @@ export class NewDeviceDTO implements Omit<
 export class DeviceRegistrationBody {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
   [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.SF_02C_OWNERS_DECLARATION]: Express.Multer.File[];
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
@@ -464,6 +465,7 @@ export class DeviceRegistrationBody {
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
   [DocumentType.SF_02C]: Express.Multer.File[];
+  [DocumentType.SF_02C_OWNERS_DECLARATION]: Express.Multer.File[];
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
