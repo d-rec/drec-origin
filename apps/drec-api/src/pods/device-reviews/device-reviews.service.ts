@@ -64,7 +64,7 @@ export interface AssetDto {
   sldUrl: string | null;
   sf02Url: string | null;
   sf02cUrl: string | null;
-  meteringEvidenceUrl: string | null;
+  meteringEvidenceUrls: string[];
   pictureUrls: string[];
   screenshotUrls: string[];
   docMeta: Record<string, DocMeta>;
@@ -506,7 +506,7 @@ export class DeviceReviewsService {
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
         sf02Url: byType('FORM_SF_02'),
         sf02cUrl: byType('SF_02C'),
-        meteringEvidenceUrl: byType('METERING_EVIDENCE'),
+        meteringEvidenceUrls: allOfType('METERING_EVIDENCE'),
         pictureUrls: allOfType('PROJECT_PHOTOS'),
         screenshotUrls: allOfType('SCREENSHOTS'),
         docMeta,
