@@ -121,13 +121,6 @@ export class NewDeviceDTO implements Omit<
   @Transform((value) => parseFloat(value))
   capacity: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Transform((value) => (value != null ? parseFloat(value) : undefined))
-  acCapacity?: number;
-
   @ApiProperty()
   @Transform((value) => new Date(value))
   @IsDate()

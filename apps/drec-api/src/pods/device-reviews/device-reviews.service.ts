@@ -43,7 +43,6 @@ export interface AssetDto {
   long: number | null;
   siteName: string;
   capacity: number | null;
-  acCapacity: number | null;
   countryCode: string;
   submitterEmail: string;
   reviewer: string;
@@ -353,7 +352,6 @@ export class DeviceReviewsService {
         d."updatedAt",
         d."siteName",
         d.capacity,
-        d."acCapacity",
         d."countryCode",
         d."operatingConfiguration",
         d."sourceAccessMode",
@@ -471,7 +469,6 @@ export class DeviceReviewsService {
         long: r.longitude ? parseFloat(r.longitude) : null,
         siteName: r.siteName ?? '',
         capacity: r.capacity != null ? parseFloat(r.capacity) : null,
-        acCapacity: r.acCapacity != null ? parseFloat(r.acCapacity) : null,
         countryCode: r.countryCode ?? '',
         submitterEmail: r.submitter_email ?? '',
         submitterName: r.submitter_name ?? '',
