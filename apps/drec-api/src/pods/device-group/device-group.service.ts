@@ -1757,8 +1757,6 @@ export class DeviceGroupService {
           impactStory: '',
           images: [],
           deviceDescription: DeviceDescription.GroundmountSolar,
-          energyStorage: true,
-          energyStorageCapacity: 0,
           qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
@@ -1938,17 +1936,6 @@ export class DeviceGroupService {
               property: 'capacity',
               constraints: {
                 greaterThanZero: 'Capacity should be greater than 0',
-              },
-            });
-          }
-          if (singleRecord.energyStorageCapacity < 0) {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              value: singleRecord.energyStorageCapacity,
-              property: 'energyStorageCapacity',
-              constraints: {
-                greaterThanZero:
-                  'Energy Storage Capacity should be greater than 0',
               },
             });
           }

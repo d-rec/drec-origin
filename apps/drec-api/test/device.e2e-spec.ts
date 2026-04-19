@@ -138,8 +138,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      energyStorage: true,
-      energyStorageCapacity: 900,
       qualityLabels: '',
       version: '1.0',
     };
@@ -196,8 +194,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      energyStorage: true,
-      energyStorageCapacity: 900,
       qualityLabels: '',
       version: '1.0',
     };

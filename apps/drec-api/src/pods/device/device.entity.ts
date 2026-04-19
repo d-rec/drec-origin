@@ -175,12 +175,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsEnum(DeviceDescription)
   deviceDescription?: DeviceDescription;
 
-  @Column({ type: 'boolean', nullable: true })
-  energyStorage: boolean;
-
-  @Column({ type: 'int', nullable: true })
-  energyStorageCapacity: number;
-
   @Column({ type: 'varchar', nullable: true })
   qualityLabels: string;
 

@@ -47,8 +47,6 @@ export interface IDevice {
   groupId?: number | null;
   deviceDescription?: DeviceDescription;
   //integrator?: Integrator;
-  energyStorage?: boolean;
-  energyStorageCapacity?: number;
   SDGBenefits?: string[];
   qualityLabels?: string;
   meterReadtype?: string;

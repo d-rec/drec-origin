@@ -221,24 +221,6 @@ export class NewDeviceDTO implements Omit<
   deviceDescription?: DeviceDescription;
 
   @ApiProperty()
-  @IsBoolean()
-  @IsOptional()
-  energyStorage: boolean;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  @Min(0, {
-    message:
-      'Invalid Energy Storage Capacity, it should be equal or greater than 0',
-  })
-  @Transform((value) => {
-    if (!value) return value;
-    return parseFloat(value);
-  })
-  energyStorageCapacity: number | null;
-
-  @ApiProperty()
   @IsString()
   @IsOptional()
   qualityLabels: string;

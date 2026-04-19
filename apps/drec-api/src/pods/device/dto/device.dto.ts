@@ -183,16 +183,6 @@ export class DeviceDTO implements IDevice {
   deviceDescription?: DeviceDescription;
 
   @ApiProperty()
-  @IsBoolean()
-  @IsOptional()
-  energyStorage: boolean;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  energyStorageCapacity: number;
-
-  @ApiProperty()
   @IsString()
   @IsOptional()
   qualityLabels: string;
