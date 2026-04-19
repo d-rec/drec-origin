@@ -267,11 +267,6 @@ export class NewDeviceDTO implements Omit<
   @IsString()
   signatoryName?: string;
 
-  @ApiProperty({ required: false, enum: YesNo })
-  @IsOptional()
-  @IsEnum(YesNo)
-  isGridConnected?: YesNo;
-
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

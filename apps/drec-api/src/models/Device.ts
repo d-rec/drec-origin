@@ -59,7 +59,6 @@ export interface IDevice {
   requestedEffectiveRegDate?: string;
   // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
   signatoryName?: string;
-  isGridConnected?: YesNo;
   gridExportType?: string; // 'No (zero-export)' | 'Yes (partial-export)' | 'Yes (full-export)'
   hasNetworkMeter?: YesNo;
   meterReadsShareable?: YesNo;

@@ -242,10 +242,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   signatoryName: string | null;
 
-  @Column({ type: 'varchar', nullable: true, name: 'is_grid_connected' })
-  @IsEnum(YesNo)
-  isGridConnected: YesNo | null;
-
   @Column({ type: 'varchar', nullable: true, name: 'grid_export_type' })
   @IsString()
   gridExportType: string | null;

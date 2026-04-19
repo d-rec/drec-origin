@@ -227,11 +227,6 @@ export class DeviceDTO implements IDevice {
   @IsString()
   signatoryName?: string;
 
-  @ApiProperty({ required: false, enum: YesNo })
-  @IsOptional()
-  @IsEnum(YesNo)
-  isGridConnected?: YesNo;
-
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
