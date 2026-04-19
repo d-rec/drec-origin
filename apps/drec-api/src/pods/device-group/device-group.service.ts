@@ -1757,7 +1757,6 @@ export class DeviceGroupService {
           impactStory: '',
           images: [],
           deviceDescription: DeviceDescription.GroundmountSolar,
-          qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
           dataSource: '',

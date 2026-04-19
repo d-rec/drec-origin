@@ -120,7 +120,6 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    qualityLabels: '',
     timezone: '',
   },
   {
@@ -142,7 +141,6 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    qualityLabels: '',
     timezone: '',
   },
   {
@@ -164,7 +162,6 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    qualityLabels: '',
     timezone: '',
   },
   {
@@ -186,7 +183,6 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
     operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    qualityLabels: '',
     timezone: '',
   },
 ];
@@ -212,7 +208,6 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
-    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -235,7 +230,6 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
-    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -258,7 +252,6 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
-    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -281,7 +274,6 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
-    qualityLabels: '',
     version: '1.0',
   },
 ];

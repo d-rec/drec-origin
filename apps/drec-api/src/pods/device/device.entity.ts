@@ -176,9 +176,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   deviceDescription?: DeviceDescription;
 
   @Column({ type: 'varchar', nullable: true })
-  qualityLabels: string;
-
-  @Column({ type: 'varchar', nullable: true })
   meterReadtype: string;
 
   @Column({ type: 'varchar', nullable: true })

@@ -138,7 +138,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      qualityLabels: '',
       version: '1.0',
     };
     await loginUser(loggedUser);
@@ -194,7 +193,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      qualityLabels: '',
       version: '1.0',
     };
     await loginUser(loggedUser);

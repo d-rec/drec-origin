@@ -220,11 +220,6 @@ export class NewDeviceDTO implements Omit<
   })
   deviceDescription?: DeviceDescription;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  qualityLabels: string;
-
   // @ApiProperty()
   // @IsNumber()
   // @IsOptional()

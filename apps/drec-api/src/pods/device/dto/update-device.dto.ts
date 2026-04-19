@@ -214,11 +214,6 @@ export class UpdateDeviceDTO
   })
   deviceDescription?: DeviceDescription;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  qualityLabels?: string;
-
   @ApiProperty({ type: () => [String] })
   @IsArray()
   @IsOptional()

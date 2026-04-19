@@ -48,7 +48,6 @@ export interface IDevice {
   deviceDescription?: DeviceDescription;
   //integrator?: Integrator;
   SDGBenefits?: string[];
-  qualityLabels?: string;
   meterReadtype?: string;
   createdAt?: Date;
   version?: string;

@@ -183,11 +183,6 @@ export class DeviceDTO implements IDevice {
   deviceDescription?: DeviceDescription;
 
   @ApiProperty()
-  @IsString()
-  @IsOptional()
-  qualityLabels: string;
-
-  @ApiProperty()
   @IsNumber()
   @IsOptional()
   groupId?: number | null;
