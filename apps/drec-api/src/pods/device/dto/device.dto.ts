@@ -276,11 +276,6 @@ export class DeviceDTO implements IDevice {
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsArray()
-  meterIds?: string[];
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsNumber()
   generatingUnitCount?: number;
 

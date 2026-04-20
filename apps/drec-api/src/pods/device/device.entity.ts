@@ -280,10 +280,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   additionalInfo: string | null;
 
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
-  @Column('simple-array', { nullable: true, name: 'meter_ids' })
-  @IsArray()
-  meterIds: string[] | null;
-
   @Column({ type: 'int', nullable: true, name: 'generating_unit_count' })
   @IsNumber()
   generatingUnitCount: number | null;
