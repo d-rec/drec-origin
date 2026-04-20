@@ -34,6 +34,8 @@ import {
 export interface DocMeta {
   docId: number;
   reviewed: boolean;
+  label: string | null;
+  originalFilename: string | null;
 }
 
 export interface AssetDto {
@@ -387,7 +389,7 @@ export class DeviceReviewsService {
     `);
 
     const docRows: any[] = await this.connection.query(
-      `SELECT id, target_id, type, url, reviewed_flag FROM documents WHERE target_type = 'device'`,
+      `SELECT id, target_id, type, url, reviewed_flag, label, original_filename FROM documents WHERE target_type = 'device'`,
     );
 
     // Group documents by device id
@@ -441,10 +443,16 @@ export class DeviceReviewsService {
 
       // Build docMeta keyed the same way the frontend uses: 'sld', 'sf02', 'pic:0', etc.
       const docMeta: Record<string, DocMeta> = {};
+      const metaFor = (doc: any): DocMeta => ({
+        docId: doc.id,
+        reviewed: !!doc.reviewed_flag,
+        label: doc.label ?? null,
+        originalFilename: doc.original_filename ?? null,
+      });
       for (const doc of devDocs) {
         const key = typeToKey[doc.type];
-        if (key) {
-          docMeta[key] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+        if (key && doc.type !== 'METERING_EVIDENCE') {
+          docMeta[key] = metaFor(doc);
         }
       }
       // Pictures: index-based keys
@@ -452,14 +460,21 @@ export class DeviceReviewsService {
         (d) => d.type === 'PROJECT_PHOTOS' && signedUrls[d.url],
       );
       picDocs.forEach((doc, i) => {
-        docMeta[`pic:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+        docMeta[`pic:${i}`] = metaFor(doc);
       });
       // Screenshots: index-based keys
       const ssDocs = devDocs.filter(
         (d) => d.type === 'SCREENSHOTS' && signedUrls[d.url],
       );
       ssDocs.forEach((doc, i) => {
-        docMeta[`ss:${i}`] = { docId: doc.id, reviewed: !!doc.reviewed_flag };
+        docMeta[`ss:${i}`] = metaFor(doc);
+      });
+      // Metering evidence: index-based keys (multi-file)
+      const meDocs = devDocs.filter(
+        (d) => d.type === 'METERING_EVIDENCE' && signedUrls[d.url],
+      );
+      meDocs.forEach((doc, i) => {
+        docMeta[`me:${i}`] = metaFor(doc);
       });
 
       return {

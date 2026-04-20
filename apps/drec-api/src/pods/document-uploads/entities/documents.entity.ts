@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
@@ -74,4 +75,14 @@ export class DocumentEntity {
   @Column({ name: 'reviewed_flag', type: 'boolean', default: false })
   @IsBoolean()
   reviewedFlag: boolean;
+
+  @Column({ name: 'label', nullable: true })
+  @IsString()
+  @IsOptional()
+  label: string | null;
+
+  @Column({ name: 'original_filename', nullable: true })
+  @IsString()
+  @IsOptional()
+  originalFilename: string | null;
 }
