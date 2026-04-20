@@ -30,6 +30,10 @@ import {
   CrossSourceResult,
   MonthlyComparison,
 } from '../../utils/cross-source-verification';
+import {
+  computeCountryMatchVerification,
+  CountryMatchResult,
+} from '../../utils/country-match-verification';
 
 export interface DocMeta {
   docId: number;
@@ -74,6 +78,14 @@ export interface AssetDto {
 @Injectable()
 export class DeviceReviewsService {
   private readonly logger = new Logger(DeviceReviewsService.name);
+
+  /**
+   * Cache for reverse-geocode lookups, keyed by rounded lat/lng (4 decimals
+   * ≈ 10m grid — plenty of precision for country determination, lets us
+   * share lookups across devices at the same site). Value `null` means the
+   * upstream call failed.
+   */
+  private readonly reverseGeocodeCache = new Map<string, string | null>();
 
   constructor(
     @InjectDataSource() private readonly connection: DataSource,
@@ -1635,6 +1647,87 @@ export class DeviceReviewsService {
   }
 
   /**
+   * Reverse-geocodes a lat/lng to an ISO-3166-1 alpha-2 country code via
+   * OpenStreetMap Nominatim. Returns `null` on any failure (network error,
+   * non-200, no country in response) — the caller distinguishes that from
+   * `undefined` (not attempted).
+   *
+   * Uses an in-memory cache rounded to 4 decimals so repeat calls for
+   * same-site devices don't re-hit the upstream.
+   */
+  private async reverseGeocodeCountry(
+    lat: number,
+    lng: number,
+  ): Promise<string | null> {
+    const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+    if (this.reverseGeocodeCache.has(key)) {
+      return this.reverseGeocodeCache.get(key)!;
+    }
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=3&addressdetails=1`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    try {
+      const res = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          // Nominatim TOS requires a meaningful User-Agent identifying the app.
+          'User-Agent': 'drec-api country-match verification (https://d-rec.org)',
+          Accept: 'application/json',
+        },
+      });
+      if (!res.ok) {
+        this.reverseGeocodeCache.set(key, null);
+        return null;
+      }
+      const body: any = await res.json();
+      const code: string | undefined = body?.address?.country_code;
+      const alpha2 = code ? code.toUpperCase() : null;
+      this.reverseGeocodeCache.set(key, alpha2);
+      return alpha2;
+    } catch (err: any) {
+      this.logger.warn(`Reverse-geocode failed for ${key}: ${err?.message}`);
+      this.reverseGeocodeCache.set(key, null);
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  /**
+   * Verifies the registrant's declared country against the country inferred
+   * from the device's lat/lng via reverse-geocoding. Points inside curated
+   * disputed-territory polygons (Kashmir, Kalapani, West Bank, Crimea, etc.)
+   * never auto-reject — they're surfaced to the reviewer with both the API's
+   * answer and the registrant's claim.
+   */
+  async verifyCountryMatch(deviceId: number): Promise<CountryMatchResult> {
+    const rows: any[] = await this.connection.query(
+      `SELECT latitude, longitude, "countryCode" FROM device WHERE id = $1`,
+      [deviceId],
+    );
+    if (rows.length === 0) {
+      throw new NotFoundException(`Device ${deviceId} not found`);
+    }
+    const lat = rows[0].latitude != null ? parseFloat(rows[0].latitude) : null;
+    const lng = rows[0].longitude != null ? parseFloat(rows[0].longitude) : null;
+    const declaredCountry: string | null = rows[0].countryCode ?? null;
+
+    let resolvedAlpha2: string | null | undefined;
+    if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) {
+      resolvedAlpha2 = undefined; // can't look up without coords
+    } else {
+      resolvedAlpha2 = await this.reverseGeocodeCountry(lat, lng);
+    }
+
+    return computeCountryMatchVerification({
+      lat,
+      lng,
+      declaredCountry,
+      resolvedAlpha2,
+    });
+  }
+
+  /**
    * D-REC §VA: Photo/GPS EXIF verification.
    * Downloads PROJECT_PHOTOS from S3, extracts GPS coordinates from EXIF,
    * and checks each photo is within 300m of the device's declared location.
@@ -1773,6 +1866,7 @@ export class DeviceReviewsService {
       photoGps,
       controls,
       sldCompare,
+      countryMatch,
     ] = await Promise.allSettled([
       this.verifyOwnership(deviceId),
       this.screenForDuplicates(deviceId),
@@ -1783,6 +1877,7 @@ export class DeviceReviewsService {
       this.verifyPhotoGps(deviceId),
       this.evaluateCompensatingControls(deviceId),
       this.compareSldCapacity(deviceId),
+      this.verifyCountryMatch(deviceId),
     ]);
 
     // 1. Ownership
@@ -1987,6 +2082,51 @@ export class DeviceReviewsService {
       });
     } else {
       sections.push({ name: 'SLD Capacity Compare', status: 'skip', flags: [`Check failed: ${sldCompare.reason?.message || sldCompare.reason || 'unknown error'}`] });
+    }
+
+    // 10. Country Match (lat/lng vs declared country, with disputed-territory neutrality)
+    if (countryMatch.status === 'fulfilled') {
+      const r = countryMatch.value;
+      const flags: string[] = [];
+      let status: 'pass' | 'warn' | 'fail' | 'skip' = 'skip';
+      switch (r.status) {
+        case 'match':
+          status = 'pass';
+          flags.push(`${r.declaredCountry} confirmed by reverse-geocode`);
+          break;
+        case 'disputed':
+          status = 'warn';
+          flags.push(
+            `Disputed border: ${r.disputed!.name}. Claimants: ${r.disputed!.claimants.join(', ')}. Declared ${r.declaredCountry}, API returned ${r.resolvedCountry ?? 'unknown'}. Reviewer judgment required.`,
+          );
+          break;
+        case 'mismatch':
+          status = 'fail';
+          flags.push(
+            `Declared ${r.declaredCountry}, reverse-geocode returned ${r.resolvedCountry ?? 'unknown'} — verify coordinates or country code.`,
+          );
+          break;
+        case 'skip':
+          status = 'skip';
+          flags.push(r.reason ?? 'check skipped');
+          break;
+      }
+      sections.push({
+        name: 'Country Match',
+        status,
+        flags,
+        detail: {
+          declared: r.declaredCountry,
+          resolved: r.resolvedCountry,
+          disputed: r.disputed ?? null,
+        },
+      });
+    } else {
+      sections.push({
+        name: 'Country Match',
+        status: 'skip',
+        flags: [`Check failed: ${countryMatch.reason?.message || countryMatch.reason || 'unknown error'}`],
+      });
     }
 
     // Overall status

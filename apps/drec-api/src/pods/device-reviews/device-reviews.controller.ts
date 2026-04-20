@@ -532,6 +532,22 @@ export class DeviceReviewsController {
     return this.service.verifyPhotoGps(deviceId);
   }
 
+  @Get(':deviceId/country-match')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Verify declared country against lat/lng via reverse-geocode',
+    description:
+      'Reverse-geocodes the device coordinates and compares to the declared country. Points inside curated disputed-territory polygons are never auto-rejected — they are surfaced for reviewer judgment with both claims shown.',
+  })
+  @ApiResponse({ status: 200, description: 'Country match verification result' })
+  verifyCountryMatch(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any> {
+    return this.service.verifyCountryMatch(deviceId);
+  }
+
   @Get(':deviceId/sf02-preview')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
