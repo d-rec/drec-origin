@@ -34,6 +34,7 @@ import {
   computeCountryMatchVerification,
   CountryMatchResult,
 } from '../../utils/country-match-verification';
+import { countryCodesList } from '../../models/country-code';
 
 export interface DocMeta {
   docId: number;
@@ -2088,22 +2089,28 @@ export class DeviceReviewsService {
     if (countryMatch.status === 'fulfilled') {
       const r = countryMatch.value;
       const flags: string[] = [];
+      const nameOf = (alpha3: string | null): string => {
+        if (!alpha3) return 'unknown';
+        const row = countryCodesList.find((c) => c.alpha3 === alpha3);
+        return row ? `${row.country} (${alpha3})` : alpha3;
+      };
       let status: 'pass' | 'warn' | 'fail' | 'skip' = 'skip';
       switch (r.status) {
         case 'match':
           status = 'pass';
-          flags.push(`${r.declaredCountry} confirmed by reverse-geocode`);
+          flags.push(`${nameOf(r.declaredCountry)} confirmed by reverse-geocode.`);
+          flags.push('Coordinates are not in any known disputed-border region.');
           break;
         case 'disputed':
           status = 'warn';
           flags.push(
-            `Disputed border: ${r.disputed!.name}. Claimants: ${r.disputed!.claimants.join(', ')}. Declared ${r.declaredCountry}, API returned ${r.resolvedCountry ?? 'unknown'}. Reviewer judgment required.`,
+            `Disputed border: ${r.disputed!.name}. Claimants: ${r.disputed!.claimants.map(nameOf).join(', ')}. Declared ${nameOf(r.declaredCountry)}, API returned ${nameOf(r.resolvedCountry)}. Reviewer judgment required.`,
           );
           break;
         case 'mismatch':
           status = 'fail';
           flags.push(
-            `Declared ${r.declaredCountry}, reverse-geocode returned ${r.resolvedCountry ?? 'unknown'} — verify coordinates or country code.`,
+            `Declared ${nameOf(r.declaredCountry)}, reverse-geocode returned ${nameOf(r.resolvedCountry)} — verify coordinates or country code.`,
           );
           break;
         case 'skip':
