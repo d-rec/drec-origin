@@ -26,7 +26,7 @@ export class ESignatureLog {
   action: string;
 
   /** The exact legal text the user agreed to */
-  @Column({ type: 'text' })
+  @Column({ name: 'consent_text', type: 'text' })
   consentText: string;
 
   @Column({ name: 'consent_version', length: 20, default: '1.0' })
