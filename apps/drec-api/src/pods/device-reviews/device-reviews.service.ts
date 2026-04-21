@@ -1762,8 +1762,8 @@ export class DeviceReviewsService {
     const deviceLng = deviceRows[0].longitude != null ? parseFloat(deviceRows[0].longitude) : null;
 
     // Get PROJECT_PHOTOS documents
-    const docs: Array<{ id: number; url: string }> = await this.connection.query(
-      `SELECT id, url FROM documents
+    const docs: Array<{ id: number; url: string; original_filename: string | null }> = await this.connection.query(
+      `SELECT id, url, original_filename FROM documents
        WHERE target_id = $1 AND target_type = 'device' AND type = 'PROJECT_PHOTOS'`,
       [deviceId],
     );
@@ -1779,7 +1779,14 @@ export class DeviceReviewsService {
     }> = [];
 
     for (const doc of docs) {
-      const fileName = doc.url.split('/').pop() || doc.url;
+      // Prefer the uploader's original filename; fall back to the S3 key tail
+      // with the embedded UUID suffix stripped so reviewers see human-readable
+      // names like "AC002641_001.jpg" rather than "AC002641_001-<uuid>.jpg".
+      const urlTail = (doc.url.split('/').pop() || doc.url).replace(
+        /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\.[^.]+$)/i,
+        '',
+      );
+      const fileName = doc.original_filename || urlTail;
       try {
         const s3Result = await this.fileService.getUploadS3(doc.url);
         const buffer: Buffer = s3Result.data?.Body;
