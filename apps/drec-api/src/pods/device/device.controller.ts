@@ -478,7 +478,20 @@ export class DeviceController {
       reviewStatus = rows[0]?.status ?? null;
     }
 
-    return { ...deviceData, reviewStatus };
+    // OC#42 — surface the most recent e-signature log entry as flat fields
+    // so the reviewer's device-info-window can render "Signed {date} by {email}"
+    // without a second network round-trip.
+    let eSignatureSignedAt: Date | null = null;
+    let eSignatureSignerEmail: string | null = null;
+    if (deviceData?.id) {
+      const sigs = await this.eSignatureService.findByDevice(deviceData.id);
+      if (sigs.length > 0) {
+        eSignatureSignedAt = sigs[0].signedAt;
+        eSignatureSignerEmail = sigs[0].userEmail;
+      }
+    }
+
+    return { ...deviceData, reviewStatus, eSignatureSignedAt, eSignatureSignerEmail };
   }
 
   /**

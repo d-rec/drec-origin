@@ -20,9 +20,10 @@ export enum DocumentType {
   METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
-  SCREENSHOTS = 'SCREENSHOTS', //Screenshots
+  SCREENSHOTS = 'SCREENSHOTS', //Screenshots (legacy; merged into METERING_EVIDENCE in Phase 1c)
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
   COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
+  FACILITY_BOUNDARY = 'FACILITY_BOUNDARY', //OC#44 satellite image with panel outline
   OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', //Other supporting documents
 }
 
