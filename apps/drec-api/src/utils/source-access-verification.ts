@@ -31,7 +31,7 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
 > = {
   [SourceAccessMode.Mode1_DirectAPI]: {
     label: 'Mode 1 — Direct API-based source access',
-    requiredDocuments: ['METERING_EVIDENCE', 'SCREENSHOTS'],
+    requiredDocuments: ['METERING_EVIDENCE'],
     recommendedDocuments: ['SINGLE_LINE_DIAGRAM'],
     checks: [
       {
@@ -51,7 +51,7 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
 
   [SourceAccessMode.Mode2_PortalAccess]: {
     label: 'Mode 2 — Direct portal access',
-    requiredDocuments: ['METERING_EVIDENCE', 'SCREENSHOTS'],
+    requiredDocuments: ['METERING_EVIDENCE'],
     recommendedDocuments: ['SINGLE_LINE_DIAGRAM'],
     checks: [
       {
@@ -71,7 +71,7 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
 
   [SourceAccessMode.Mode3_FileSubmission]: {
     label: 'Mode 3 — Source-linked file submission',
-    requiredDocuments: ['METERING_EVIDENCE', 'SCREENSHOTS', 'FORM_SF_02'],
+    requiredDocuments: ['METERING_EVIDENCE', 'FORM_SF_02'],
     recommendedDocuments: ['SINGLE_LINE_DIAGRAM', 'COD_PROOF'],
     checks: [
       {
@@ -93,7 +93,6 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
     label: 'Mode 4 — Submitted data with compensating controls',
     requiredDocuments: [
       'METERING_EVIDENCE',
-      'SCREENSHOTS',
       'FORM_SF_02',
       'SF_02C',
       'SF_02C_OWNERS_DECLARATION',

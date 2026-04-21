@@ -475,14 +475,8 @@ export class DeviceReviewsService {
       picDocs.forEach((doc, i) => {
         docMeta[`pic:${i}`] = metaFor(doc);
       });
-      // Screenshots: index-based keys
-      const ssDocs = devDocs.filter(
-        (d) => d.type === 'SCREENSHOTS' && signedUrls[d.url],
-      );
-      ssDocs.forEach((doc, i) => {
-        docMeta[`ss:${i}`] = metaFor(doc);
-      });
-      // Metering evidence: index-based keys (multi-file)
+      // Metering evidence: index-based keys (multi-file) — Phase 1c: SCREENSHOTS merged in
+
       const meDocs = devDocs.filter(
         (d) => d.type === 'METERING_EVIDENCE' && signedUrls[d.url],
       );
@@ -535,7 +529,7 @@ export class DeviceReviewsService {
         sf02cOwnersDeclarationUrl: byType('SF_02C_OWNERS_DECLARATION'),
         meteringEvidenceUrls: allOfType('METERING_EVIDENCE'),
         pictureUrls: allOfType('PROJECT_PHOTOS'),
-        screenshotUrls: allOfType('SCREENSHOTS'),
+        screenshotUrls: [] as string[], // legacy field — SCREENSHOTS merged into METERING_EVIDENCE
         otherDocumentUrls: allOfType('OTHER_DOCUMENTS'),
         docMeta,
       };
@@ -800,7 +794,6 @@ export class DeviceReviewsService {
       METERING_EVIDENCE: 'Metering Evidence',
       SINGLE_LINE_DIAGRAM: 'Single Line Diagram',
       PROJECT_PHOTOS: 'Project Photos',
-      SCREENSHOTS: 'Screenshots',
       COD_PROOF: 'COD Proof / Attestation',
       OTHER_DOCUMENTS: 'Other Documents',
     };
@@ -1205,7 +1198,7 @@ export class DeviceReviewsService {
       [deviceId],
     );
     const existingTypes = new Set(docs.map((d) => d.type));
-    const mode4Required = ['METERING_EVIDENCE', 'SCREENSHOTS', 'FORM_SF_02', 'SF_02C', 'SF_02C_OWNERS_DECLARATION', 'COD_PROOF'];
+    const mode4Required = ['METERING_EVIDENCE', 'FORM_SF_02', 'SF_02C', 'SF_02C_OWNERS_DECLARATION', 'COD_PROOF'];
     const missingDocs = mode4Required.filter((t) => !existingTypes.has(t));
     controls.push({
       id: 'required_documents',

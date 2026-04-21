@@ -13,7 +13,6 @@ export interface EvidenceRequirements {
   METERING_EVIDENCE: RequirementLevel;
   SINGLE_LINE_DIAGRAM: RequirementLevel;
   PROJECT_PHOTOS: RequirementLevel;
-  SCREENSHOTS: RequirementLevel;
   COD_PROOF: RequirementLevel;
 }
 
@@ -28,7 +27,6 @@ const DEFAULT_REQUIREMENTS: EvidenceRequirements = {
   METERING_EVIDENCE: 'required',
   SINGLE_LINE_DIAGRAM: 'required',
   PROJECT_PHOTOS: 'required',
-  SCREENSHOTS: 'optional',
   COD_PROOF: 'required',
 };
 
@@ -70,7 +68,6 @@ export const EVIDENCE_REQUIREMENTS: Record<
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required', // must show no-export config
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended', // inverter/EMS zero-export settings
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.GridPermittedExport]: {
@@ -80,7 +77,6 @@ export const EVIDENCE_REQUIREMENTS: Record<
     METERING_EVIDENCE: 'required', // import/export meter channels
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended', // inverter/EMS/RMS export data
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.GridFullExport]: {
@@ -90,7 +86,6 @@ export const EVIDENCE_REQUIREMENTS: Record<
     METERING_EVIDENCE: 'required', // export meter data
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended', // monitoring and commercial records
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.OffGrid]: {
@@ -100,7 +95,6 @@ export const EVIDENCE_REQUIREMENTS: Record<
     METERING_EVIDENCE: 'recommended', // monitoring setup, not always available
     SINGLE_LINE_DIAGRAM: 'required', // system architecture showing standalone
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended', // operator/project records
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.DualModeHybrid]: {
@@ -110,7 +104,6 @@ export const EVIDENCE_REQUIREMENTS: Record<
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'required', // both grid and off-grid evidence needed
     COD_PROOF: 'required',
   },
 };

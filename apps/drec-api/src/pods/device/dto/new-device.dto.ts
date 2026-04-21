@@ -421,7 +421,6 @@ export class DeviceRegistrationBody {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
-  [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
   [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
   deviceToRegister: NewDeviceDTO;
@@ -434,7 +433,6 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
-  [DocumentType.SCREENSHOTS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
   [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
 };

@@ -687,7 +687,6 @@ export class DeviceService {
       [DocumentType.METERING_EVIDENCE]?: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]?: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]?: Express.Multer.File[];
-      [DocumentType.SCREENSHOTS]?: Express.Multer.File[];
       [DocumentType.COD_PROOF]?: Express.Multer.File[];
       [DocumentType.OTHER_DOCUMENTS]?: Express.Multer.File[];
     } | null,
@@ -832,7 +831,6 @@ export class DeviceService {
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
-          [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
           [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
         };
