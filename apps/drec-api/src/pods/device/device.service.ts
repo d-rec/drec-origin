@@ -695,45 +695,49 @@ export class DeviceService {
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`Within register`);
+    // Partial-draft support: country code is no longer required at create time.
+    // Missing fields are flagged to the reviewer, not rejected at submit.
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
-    } else {
-      this.logger.error('Country code is undefined or missing');
-      throw new BadRequestException('Country code is required');
     }
 
     const sdgBenefitList = SDGBenefits;
 
-    const checkSiteName = await this.repository.findOne({
-      where: {
-        siteName: newDevice.siteName,
-        organizationId: organizationId,
-      },
-    });
-
-    if (checkSiteName) {
-      throw new ConflictException({
-        success: false,
-        message: `A device with site name "${newDevice.siteName}" already exists in this organization`,
+    // Uniqueness checks only apply when the registrant actually provided a value.
+    // Multiple in-progress drafts may have null siteName / serialNumber.
+    if (newDevice.siteName) {
+      const checkSiteName = await this.repository.findOne({
+        where: {
+          siteName: newDevice.siteName,
+          organizationId: organizationId,
+        },
       });
+
+      if (checkSiteName) {
+        throw new ConflictException({
+          success: false,
+          message: `A device with site name "${newDevice.siteName}" already exists in this organization`,
+        });
+      }
     }
 
-    const checkSerialNumber = await this.repository.findOne({
-      where: {
-        serialNumber: newDevice.serialNumber,
-        organizationId: organizationId,
-      },
-    });
-
-    if (checkSerialNumber) {
-      this.logger.debug('Line No: 236');
-      this.logger.error(
-        `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
+    if (newDevice.serialNumber) {
+      const checkSerialNumber = await this.repository.findOne({
+        where: {
+          serialNumber: newDevice.serialNumber,
+          organizationId: organizationId,
+        },
       });
+
+      if (checkSerialNumber) {
+        this.logger.error(
+          `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
+        );
+        throw new ConflictException({
+          success: false,
+          message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
+        });
+      }
     }
     newDevice.externalId = uuid();
 
@@ -763,27 +767,41 @@ export class DeviceService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const fingerprint = generateDeviceFingerprint({
-        latitude: newDevice.latitude,
-        longitude: newDevice.longitude,
-        commissioningDate: newDevice.commissioningDate,
-        capacity: newDevice.capacity,
-        fuelCode: newDevice.fuelCode,
-        deviceTypeCode: newDevice.deviceTypeCode,
-        serialNumber: newDevice.serialNumber,
-      });
+      // Fingerprint uniqueness is only meaningful when the identifying fields
+      // are actually provided. For partial drafts (lat/lng/capacity/commDate/
+      // serialNumber all blank), skip the check so multiple in-progress drafts
+      // can coexist. Fingerprint is persisted as null in that case.
+      const hasIdentifyingFields =
+        !!newDevice.latitude &&
+        !!newDevice.longitude &&
+        !!newDevice.commissioningDate &&
+        newDevice.capacity != null &&
+        !!newDevice.serialNumber;
 
-      const fingerprintExists = await this.repository.findOne({
-        where: {
-          fingerprint: fingerprint,
-        },
-      });
-
-      if (fingerprintExists) {
-        throw new ConflictException({
-          message: 'There is a device with matching details',
-          statusCode: 409,
+      let fingerprint: string | null = null;
+      if (hasIdentifyingFields) {
+        fingerprint = generateDeviceFingerprint({
+          latitude: newDevice.latitude,
+          longitude: newDevice.longitude,
+          commissioningDate: newDevice.commissioningDate,
+          capacity: newDevice.capacity,
+          fuelCode: newDevice.fuelCode,
+          deviceTypeCode: newDevice.deviceTypeCode,
+          serialNumber: newDevice.serialNumber,
         });
+
+        const fingerprintExists = await this.repository.findOne({
+          where: {
+            fingerprint: fingerprint,
+          },
+        });
+
+        if (fingerprintExists) {
+          throw new ConflictException({
+            message: 'There is a device with matching details',
+            statusCode: 409,
+          });
+        }
       }
       if (role === Role.Registrant) {
         const org = await this.organizationService.findOne(organizationId, {

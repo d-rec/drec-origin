@@ -35,9 +35,13 @@ export class NewDeviceDTO implements Omit<
   @IsString()
   operatorExternalId?: string;
 
+  // Partial-draft registration (OC checklist multi-step workflow): every
+  // registrant-entered field is optional at the API level. Reviewers can still
+  // flag missing fields during auto-screen; completeness is enforced at approval
+  // time, not submission time.
   @ApiProperty()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   dataSource: string;
 
   @ApiProperty()
@@ -46,13 +50,13 @@ export class NewDeviceDTO implements Omit<
   otherDataSource?: string;
 
   @ApiProperty()
+  @IsOptional()
   @Trim()
   @Matches(/^[a-zA-Z0-9_;-]+$/, {
     message:
       'serialNumber must contain only letters, numbers, underscores, hyphens, or semicolons — no spaces allowed',
   })
   @IsString()
-  @IsNotEmpty()
   serialNumber: string;
 
   @ApiProperty()
@@ -61,18 +65,19 @@ export class NewDeviceDTO implements Omit<
   siteName: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   dataSourceBrand: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString({
     message: 'Address must be added',
   })
   address: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d+)?$/, {
     message:
@@ -81,6 +86,7 @@ export class NewDeviceDTO implements Omit<
   latitude: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d+)?$/, {
     message:
@@ -89,8 +95,8 @@ export class NewDeviceDTO implements Omit<
   longitude: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @UpperCase()
   @IsIn(countryCodesList.map((value) => value.countryCode), {
     message:
@@ -99,14 +105,14 @@ export class NewDeviceDTO implements Omit<
   countryCode: string;
 
   @ApiProperty({ default: 'ES100' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(FuelCode, {
     message: 'FuelCode must be added Or Valid FuelCode values are ES100',
   })
   fuelCode: FuelCode;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(DeviceTypeCode, {
     message:
       'DeviceCode must be added Or Valid DeviceCode values are TC110,TC120,TC130,TC140,TC150 ',
@@ -114,6 +120,7 @@ export class NewDeviceDTO implements Omit<
   deviceTypeCode: DeviceTypeCode;
 
   @ApiProperty()
+  @IsOptional()
   @IsNumber()
   @Min(0.001, {
     message: 'Invalid Capacity, it should be greater than 0',
@@ -122,11 +129,9 @@ export class NewDeviceDTO implements Omit<
   capacity: number;
 
   @ApiProperty()
+  @IsOptional()
   @Transform((value) => new Date(value))
   @IsDate()
-  @MaxDate(new Date(), {
-    message: `Commissioning date cannot be in the future`,
-  })
   commissioningDate: string;
 
   @ApiProperty()
