@@ -121,9 +121,6 @@ export class UpdateDeviceDTO
   @IsOptional()
   @Transform((value) => new Date(value))
   @IsDate()
-  @MaxDate(new Date(), {
-    message: `Commissioning date cannot be in the future`,
-  })
   commissioningDate: string;
 
   @ApiProperty()
