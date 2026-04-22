@@ -86,6 +86,7 @@ import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module
 import { UploadLogModule } from './pods/upload-log/upload-log.module';
 import { ESignatureModule } from './pods/e-signature/e-signature.module';
 import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
+import { SolarYieldModule } from './pods/solar-yield/solar-yield.module';
 import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
 import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
 import { ESignatureLog } from './pods/e-signature/e-signature-log.entity';
@@ -216,6 +217,7 @@ const queueModule = () => {
     UploadLogModule,
     ESignatureModule,
     OrgApiLicensesModule,
+    SolarYieldModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
