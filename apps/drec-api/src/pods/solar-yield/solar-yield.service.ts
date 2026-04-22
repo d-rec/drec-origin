@@ -60,7 +60,9 @@ export class SolarYieldService implements OnModuleInit {
         `loaded solar grid: ${this.grid.nLon}×${this.grid.nLat}×${this.grid.nMonths} (${ms} ms)`,
       );
     } catch (e: any) {
-      this.logger.error(`failed to load solar grid from ${p}: ${e?.message || e}`);
+      this.logger.error(
+        `failed to load solar grid from ${p}: ${e?.message || e}`,
+      );
     }
   }
 
@@ -157,13 +159,17 @@ export class SolarYieldService implements OnModuleInit {
     const partialMonthDays = daysInCodMonth - codDate.getUTCDate() + 1;
 
     const specEnergyPartial = this.interpolate(longitude, latitude, month);
-    const partialMonthGen = PF_avg * capacity * specEnergyPartial * partialMonthDays;
+    const partialMonthGen =
+      PF_avg * capacity * specEnergyPartial * partialMonthDays;
 
     let fullMonthsVec: number[] = [];
     let fullMonthsGen = 0;
     let relevantDaysVec: number[] = [0];
     if (month < 12) {
-      const remainingMonths = Array.from({ length: 12 - month }, (_, i) => month + 1 + i);
+      const remainingMonths = Array.from(
+        { length: 12 - month },
+        (_, i) => month + 1 + i,
+      );
       const specEnergy = remainingMonths.map((m) =>
         this.interpolate(longitude, latitude, m),
       );
@@ -182,7 +188,9 @@ export class SolarYieldService implements OnModuleInit {
     // Pad zeros so the returned Monthly_kWh has 12 entries with the partial
     // month landing in its correct calendar slot.
     const codToEoyVec = [partialMonthGen, ...fullMonthsVec];
-    const padded = Array<number>(12 - codToEoyVec.length).fill(0).concat(codToEoyVec);
+    const padded = Array<number>(12 - codToEoyVec.length)
+      .fill(0)
+      .concat(codToEoyVec);
 
     // PR #1 fix (3): Model 2 Case B applies `correction` too. With year == codYear
     // the DF exponent is zero, so correction collapses to PF_avg.

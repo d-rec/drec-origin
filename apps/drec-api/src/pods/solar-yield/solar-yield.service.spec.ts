@@ -8,8 +8,13 @@ import { SOLAR_MODEL_CONFIG } from './config';
  * which lets us hand-compute every expected value.
  */
 
-const { PF_avg: PF, DF, staticAvg, solarGsaVersion, linearRegressionVersion } =
-  SOLAR_MODEL_CONFIG;
+const {
+  PF_avg: PF,
+  DF,
+  staticAvg,
+  solarGsaVersion,
+  linearRegressionVersion,
+} = SOLAR_MODEL_CONFIG;
 
 const DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -59,8 +64,11 @@ describe('SolarYieldService', () => {
       const result = svc.getSolarEnergy(0, 0, capacity, '2024-01-01', year);
 
       // With identity grid, monthly = correction * capacity * (month) * daysInMonth
-      const expectedMonthly = DAYS.map((d, i) => correction * capacity * (i + 1) * d);
-      const expectedYield = Math.round(expectedMonthly.reduce((s, v) => s + v, 0) * 100) / 100;
+      const expectedMonthly = DAYS.map(
+        (d, i) => correction * capacity * (i + 1) * d,
+      );
+      const expectedYield =
+        Math.round(expectedMonthly.reduce((s, v) => s + v, 0) * 100) / 100;
 
       expect(result.Model_1_Outputs.Monthly_kWh).toHaveLength(12);
       result.Model_1_Outputs.Monthly_kWh.forEach((v, i) => {
@@ -83,10 +91,9 @@ describe('SolarYieldService', () => {
       // Ratio equals (1 - DF)^4 because year-delta differs by 4.
       // Yield_kWh is rounded to 2 decimals, so the ratio can drift by ~1e-6
       // relative to the true DF^4 — 4-digit precision accepts that.
-      expect(y5.Model_1_Outputs.Yield_kWh / y1.Model_1_Outputs.Yield_kWh).toBeCloseTo(
-        (1 - DF) ** 4,
-        4,
-      );
+      expect(
+        y5.Model_1_Outputs.Yield_kWh / y1.Model_1_Outputs.Yield_kWh,
+      ).toBeCloseTo((1 - DF) ** 4, 4);
     });
   });
 
@@ -111,23 +118,35 @@ describe('SolarYieldService', () => {
         PF * capacity * 12 * DAYS[11]; // December
 
       const expectedTotal =
-        Math.round((partial + Math.round(fullMonthsExpected * 100) / 100) * 100) / 100;
+        Math.round(
+          (partial + Math.round(fullMonthsExpected * 100) / 100) * 100,
+        ) / 100;
 
       expect(result.Model_1_Outputs.Yield_kWh).toBeCloseTo(expectedTotal, 2);
 
       // Monthly_kWh: 12 entries, zeros for Jan..May, partial for June, then Jul..Dec.
       expect(result.Model_1_Outputs.Monthly_kWh).toHaveLength(12);
-      for (let i = 0; i < 5; i++) expect(result.Model_1_Outputs.Monthly_kWh[i]).toBe(0);
+      for (let i = 0; i < 5; i++)
+        expect(result.Model_1_Outputs.Monthly_kWh[i]).toBe(0);
       expect(result.Model_1_Outputs.Monthly_kWh[5]).toBeCloseTo(partial, 6);
-      expect(result.Model_1_Outputs.Monthly_kWh[6]).toBeCloseTo(PF * capacity * 7 * DAYS[6], 6);
-      expect(result.Model_1_Outputs.Monthly_kWh[11]).toBeCloseTo(PF * capacity * 12 * DAYS[11], 6);
+      expect(result.Model_1_Outputs.Monthly_kWh[6]).toBeCloseTo(
+        PF * capacity * 7 * DAYS[6],
+        6,
+      );
+      expect(result.Model_1_Outputs.Monthly_kWh[11]).toBeCloseTo(
+        PF * capacity * 12 * DAYS[11],
+        6,
+      );
     });
 
     it('handles partial-month day count when COD is mid-month', () => {
       // COD June 15, 2024 → partial June covers days 15..30 = 16 days.
       const result = svc.getSolarEnergy(0, 0, 1, '2024-06-15', 2024);
       const expectedPartial = PF * 1 * 6 * 16;
-      expect(result.Model_1_Outputs.Monthly_kWh[5]).toBeCloseTo(expectedPartial, 6);
+      expect(result.Model_1_Outputs.Monthly_kWh[5]).toBeCloseTo(
+        expectedPartial,
+        6,
+      );
     });
 
     it('handles December COD (no full months after)', () => {
@@ -136,8 +155,12 @@ describe('SolarYieldService', () => {
       const expectedPartial = PF * 1 * 12 * (31 - 10 + 1);
       expect(result.Model_1_Outputs.Yield_kWh).toBeCloseTo(expectedPartial, 2);
       // Only December has a non-zero slot.
-      for (let i = 0; i < 11; i++) expect(result.Model_1_Outputs.Monthly_kWh[i]).toBe(0);
-      expect(result.Model_1_Outputs.Monthly_kWh[11]).toBeCloseTo(expectedPartial, 6);
+      for (let i = 0; i < 11; i++)
+        expect(result.Model_1_Outputs.Monthly_kWh[i]).toBe(0);
+      expect(result.Model_1_Outputs.Monthly_kWh[11]).toBeCloseTo(
+        expectedPartial,
+        6,
+      );
     });
 
     it('applies correction to Model 2 Case B (PR#1 fix 3)', () => {
@@ -160,26 +183,42 @@ describe('SolarYieldService', () => {
 
   describe('pre-COD guard (PR#1 fix 2)', () => {
     it('throws RangeError when querying a year before COD', () => {
-      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2023)).toThrow(RangeError);
+      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2023)).toThrow(
+        RangeError,
+      );
     });
 
     it('allows year == COD year and year > COD year', () => {
-      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2024)).not.toThrow();
-      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2025)).not.toThrow();
+      expect(() =>
+        svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2024),
+      ).not.toThrow();
+      expect(() =>
+        svc.getSolarEnergy(0, 0, 1, '2024-06-01', 2025),
+      ).not.toThrow();
     });
   });
 
   describe('out-of-bounds', () => {
     it('throws RangeError when lat or lon falls outside the grid', () => {
       // Synthetic grid covers lat∈[0,1], lon∈[0,1]; 90 is outside both axes.
-      expect(() => svc.getSolarEnergy(90, 90, 1, '2024-01-01', 2025)).toThrow(RangeError);
-      expect(() => svc.getSolarEnergy(0.5, 999, 1, '2024-01-01', 2025)).toThrow(RangeError);
-      expect(() => svc.getSolarEnergy(-1, 0.5, 1, '2024-01-01', 2025)).toThrow(RangeError);
+      expect(() => svc.getSolarEnergy(90, 90, 1, '2024-01-01', 2025)).toThrow(
+        RangeError,
+      );
+      expect(() => svc.getSolarEnergy(0.5, 999, 1, '2024-01-01', 2025)).toThrow(
+        RangeError,
+      );
+      expect(() => svc.getSolarEnergy(-1, 0.5, 1, '2024-01-01', 2025)).toThrow(
+        RangeError,
+      );
     });
 
     it('accepts boundary coordinates', () => {
-      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-01-01', 2025)).not.toThrow();
-      expect(() => svc.getSolarEnergy(1, 1, 1, '2024-01-01', 2025)).not.toThrow();
+      expect(() =>
+        svc.getSolarEnergy(0, 0, 1, '2024-01-01', 2025),
+      ).not.toThrow();
+      expect(() =>
+        svc.getSolarEnergy(1, 1, 1, '2024-01-01', 2025),
+      ).not.toThrow();
     });
   });
 });

@@ -11,12 +11,12 @@ import { readFileSync } from 'fs';
  * coercing, since this is deployment-time config, not user input.
  */
 export interface SolarGrid {
-  pv: Float32Array;         // length Nlon * Nlat * 12, C-order (lon, lat, month)
-  lons: Float64Array;       // Nlon
-  lats: Float64Array;       // Nlat
+  pv: Float32Array; // length Nlon * Nlat * 12, C-order (lon, lat, month)
+  lons: Float64Array; // Nlon
+  lats: Float64Array; // Nlat
   nLon: number;
   nLat: number;
-  nMonths: number;          // always 12
+  nMonths: number; // always 12
 }
 
 export function readSolarGrid(npzPath: string): SolarGrid {
@@ -41,15 +41,21 @@ export function readSolarGrid(npzPath: string): SolarGrid {
   assertNoFortran(latsMeta, 'lats');
 
   if (pvMeta.shape.length !== 3 || pvMeta.shape[2] !== 12) {
-    throw new Error(`pv_data shape expected (Nlon, Nlat, 12); got ${JSON.stringify(pvMeta.shape)}`);
+    throw new Error(
+      `pv_data shape expected (Nlon, Nlat, 12); got ${JSON.stringify(pvMeta.shape)}`,
+    );
   }
   const [nLon, nLat, nMonths] = pvMeta.shape;
 
   if (lonsMeta.shape.length !== 1 || lonsMeta.shape[0] !== nLon) {
-    throw new Error(`lons shape ${JSON.stringify(lonsMeta.shape)} mismatches pv_data Nlon=${nLon}`);
+    throw new Error(
+      `lons shape ${JSON.stringify(lonsMeta.shape)} mismatches pv_data Nlon=${nLon}`,
+    );
   }
   if (latsMeta.shape.length !== 1 || latsMeta.shape[0] !== nLat) {
-    throw new Error(`lats shape ${JSON.stringify(latsMeta.shape)} mismatches pv_data Nlat=${nLat}`);
+    throw new Error(
+      `lats shape ${JSON.stringify(latsMeta.shape)} mismatches pv_data Nlat=${nLat}`,
+    );
   }
 
   const pv = toFloat32(pvBytes, pvMeta.descr, nLon * nLat * nMonths);
@@ -61,13 +67,21 @@ export function readSolarGrid(npzPath: string): SolarGrid {
   // in `lats` AND in `pv` (which indexes as [lon, lat, month] C-order).
   // In-place is ~40 M float swaps for the current grid — fast and avoids a
   // 300-MB peak allocation during load.
-  if (lons.length > 1 && lons[0] > lons[lons.length - 1]) reverseLons(pv, lons, nLon, nLat, nMonths);
-  if (lats.length > 1 && lats[0] > lats[lats.length - 1]) reverseLats(pv, lats, nLon, nLat, nMonths);
+  if (lons.length > 1 && lons[0] > lons[lons.length - 1])
+    reverseLons(pv, lons, nLon, nLat, nMonths);
+  if (lats.length > 1 && lats[0] > lats[lats.length - 1])
+    reverseLats(pv, lats, nLon, nLat, nMonths);
 
   return { pv, lons, lats, nLon, nLat, nMonths };
 }
 
-function reverseLats(pv: Float32Array, lats: Float64Array, nLon: number, nLat: number, nMonths: number): void {
+function reverseLats(
+  pv: Float32Array,
+  lats: Float64Array,
+  nLon: number,
+  nLat: number,
+  nMonths: number,
+): void {
   // Reverse lats in place.
   for (let i = 0, j = nLat - 1; i < j; i++, j--) {
     const t = lats[i];
@@ -90,7 +104,13 @@ function reverseLats(pv: Float32Array, lats: Float64Array, nLon: number, nLat: n
   }
 }
 
-function reverseLons(pv: Float32Array, lons: Float64Array, nLon: number, nLat: number, nMonths: number): void {
+function reverseLons(
+  pv: Float32Array,
+  lons: Float64Array,
+  nLon: number,
+  nLat: number,
+  nMonths: number,
+): void {
   for (let i = 0, j = nLon - 1; i < j; i++, j--) {
     const t = lons[i];
     lons[i] = lons[j];
@@ -112,7 +132,7 @@ function reverseLons(pv: Float32Array, lons: Float64Array, nLon: number, nLat: n
 // ── npy + zip internals ──────────────────────────────────────────────────────
 
 interface NpyMeta {
-  descr: string;                   // e.g. '<f4', '<f8'
+  descr: string; // e.g. '<f4', '<f8'
   fortran_order: boolean;
   shape: number[];
 }
@@ -134,7 +154,10 @@ function parseNpy(raw: Buffer): { meta: NpyMeta; data: Buffer } {
     throw new Error(`unsupported .npy version ${major}`);
   }
 
-  const headerStr = raw.slice(headerStart, headerStart + headerLen).toString('latin1').trim();
+  const headerStr = raw
+    .slice(headerStart, headerStart + headerLen)
+    .toString('latin1')
+    .trim();
   const meta = parsePythonDictLiteral(headerStr);
   return {
     meta: {
@@ -152,7 +175,11 @@ function parseNpy(raw: Buffer): { meta: NpyMeta; data: Buffer } {
  * or a tuple of ints. We hand-roll a small tokenizer rather than eval() the
  * string.
  */
-function parsePythonDictLiteral(s: string): { descr: string; fortran_order: boolean; shape: number[] } {
+function parsePythonDictLiteral(s: string): {
+  descr: string;
+  fortran_order: boolean;
+  shape: number[];
+} {
   const descr = s.match(/'descr'\s*:\s*'([^']+)'/)?.[1];
   const fortranStr = s.match(/'fortran_order'\s*:\s*(True|False)/)?.[1];
   const shapeStr = s.match(/'shape'\s*:\s*\(([^)]*)\)/)?.[1];
@@ -179,11 +206,13 @@ function assertNoFortran(meta: NpyMeta, name: string): void {
 
 function toFloat32(buf: Buffer, descr: string, n: number): Float32Array {
   if (descr === '<f4') {
-    if (buf.length < n * 4) throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
+    if (buf.length < n * 4)
+      throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
     return new Float32Array(buf.buffer, buf.byteOffset, n);
   }
   if (descr === '<f8') {
-    if (buf.length < n * 8) throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
+    if (buf.length < n * 8)
+      throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
     const src = new Float64Array(buf.buffer, buf.byteOffset, n);
     const out = new Float32Array(n);
     for (let i = 0; i < n; i++) out[i] = src[i];
@@ -194,11 +223,13 @@ function toFloat32(buf: Buffer, descr: string, n: number): Float32Array {
 
 function toFloat64(buf: Buffer, descr: string, n: number): Float64Array {
   if (descr === '<f8') {
-    if (buf.length < n * 8) throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
+    if (buf.length < n * 8)
+      throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
     return new Float64Array(buf.buffer, buf.byteOffset, n);
   }
   if (descr === '<f4') {
-    if (buf.length < n * 4) throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
+    if (buf.length < n * 4)
+      throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
     const src = new Float32Array(buf.buffer, buf.byteOffset, n);
     const out = new Float64Array(n);
     for (let i = 0; i < n; i++) out[i] = src[i];
@@ -213,7 +244,11 @@ function readZipEntries(zip: Buffer): Map<string, Buffer> {
   // Find End of Central Directory (EOCD): last 22 bytes plus optional comment.
   const EOCD_SIG = 0x06054b50;
   let eocdOffset = -1;
-  for (let i = zip.length - 22; i >= Math.max(0, zip.length - 0xffff - 22); i--) {
+  for (
+    let i = zip.length - 22;
+    i >= Math.max(0, zip.length - 0xffff - 22);
+    i--
+  ) {
     if (zip.readUInt32LE(i) === EOCD_SIG) {
       eocdOffset = i;
       break;
@@ -258,7 +293,9 @@ function readZipEntries(zip: Buffer): Map<string, Buffer> {
     } else if (compressionMethod === 8) {
       data = inflateRawSync(zip.slice(dataStart, dataEnd));
     } else {
-      throw new Error(`zip: unsupported compression method ${compressionMethod} for ${name}`);
+      throw new Error(
+        `zip: unsupported compression method ${compressionMethod} for ${name}`,
+      );
     }
     if (data.length !== uncompressedSize) {
       throw new Error(
