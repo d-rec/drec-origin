@@ -16,9 +16,16 @@ import { version } from '../package.json';
 
 import './sentry';
 import { DRECModule } from './drec.module';
+import { assertValidBlockchainEnv } from './config/validate-blockchain-env';
 export { DRECModule } from './drec.module';
 
 export async function startAPI(logger?: LoggerService): Promise<any> {
+  // Refuse to boot if any blockchain env var is still the null-address
+  // placeholder (`0x0000…0000`). See config/validate-blockchain-env.ts for
+  // history — silent burn-mints went undetected for eight days on the
+  // PowerTrust dedicated env because nothing on the boot path noticed.
+  assertValidBlockchainEnv();
+
   const PORT = PortUtils.getPort();
   const getVersion = () => {
     let info;
@@ -57,14 +64,15 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
 
   app.enableShutdownHooks();
 
-  const defaultOrigins = process.env.NODE_ENV === 'development'
-    ? true
-    : [
-        'https://app.drecs.org',
-        'https://stage.drecs.org',
-        'https://stage-portal.drecs.org',
-        'https://demo.drecs.org',
-      ];
+  const defaultOrigins =
+    process.env.NODE_ENV === 'development'
+      ? true
+      : [
+          'https://app.drecs.org',
+          'https://stage.drecs.org',
+          'https://stage-portal.drecs.org',
+          'https://demo.drecs.org',
+        ];
   const corsOrigin = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',')
     : defaultOrigins;
