@@ -20,6 +20,7 @@ import {
   estimateIrradiance,
   IrradianceEstimate,
 } from '../../utils/irradiance-estimate';
+import { SolarYieldService } from '../solar-yield/solar-yield.service';
 import {
   requiresCompensatingControls,
   CompensatingControlResult,
@@ -91,6 +92,7 @@ export class DeviceReviewsService {
   constructor(
     @InjectDataSource() private readonly connection: DataSource,
     private readonly fileService: FileService,
+    private readonly solarYield: SolarYieldService,
   ) {}
 
   /**
@@ -1061,6 +1063,14 @@ export class DeviceReviewsService {
    */
   async checkProductionCeiling(deviceId: number): Promise<{
     irradiance: IrradianceEstimate | null;
+    /** Solar GSA climatology estimate (more accurate than the lat-band
+     * fallback in `irradiance`). Null when the grid isn't provisioned
+     * (`SOLAR_GRID_NPZ_PATH` unset) or inputs are out of range. */
+    solarGsa: {
+      annualKwh: number;
+      monthlyKwh: number[];
+      version: string;
+    } | null;
     configuredYield: number;
     capacityKw: number;
     yieldMismatch: boolean;
@@ -1098,6 +1108,54 @@ export class DeviceReviewsService {
       // with a 10% tolerance
       if (configuredYield !== null) {
         yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
+      }
+    }
+
+    // Solar GSA climatology — typical-year per-month estimate. Additive to
+    // the lat-band `irradiance` above; when present, reviewers should prefer
+    // this for monthly comparisons. Unavailable if the grid file isn't
+    // provisioned or the site falls outside the grid.
+    let solarGsa: {
+      annualKwh: number;
+      monthlyKwh: number[];
+      version: string;
+    } | null = null;
+    if (
+      lat !== null &&
+      lng !== null &&
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      capacityKw > 0 &&
+      device.commissioningDate
+    ) {
+      try {
+        const currentYear = new Date().getUTCFullYear();
+        const codYear = new Date(device.commissioningDate).getUTCFullYear();
+        // Post-COD only; pre-COD would throw from the service guard and we
+        // already know the device's own history is empty there.
+        if (!isNaN(codYear) && currentYear >= codYear) {
+          const res = this.solarYield.getSolarEnergy(
+            lat,
+            lng,
+            capacityKw,
+            device.commissioningDate,
+            currentYear,
+          );
+          const monthly = res.Model_1_Outputs.Monthly_kWh;
+          // Case B (year == COD year) returns a padded vector with zeros
+          // before the COD month; that's fine to surface as-is.
+          if (monthly.length === 12) {
+            solarGsa = {
+              annualKwh: res.Model_1_Outputs.Yield_kWh,
+              monthlyKwh: monthly,
+              version: res.Model_1_Outputs.Version,
+            };
+          }
+        }
+      } catch (e: any) {
+        this.logger.debug(
+          `solarGsa unavailable for device ${deviceId}: ${e?.message || e}`,
+        );
       }
     }
 
@@ -1158,6 +1216,7 @@ export class DeviceReviewsService {
 
     return {
       irradiance,
+      solarGsa,
       configuredYield,
       capacityKw,
       yieldMismatch,
