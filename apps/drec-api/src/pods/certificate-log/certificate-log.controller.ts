@@ -33,6 +33,7 @@ import { ILoggedInUser } from '../../models';
 import { DeviceGroupService } from '../device-group/device-group.service';
 import { CertificateNewWithPerDeviceLog, CertificateLogResponse } from './dto';
 import { PowerFormatter } from '../../utils/PowerFormatter';
+import { assertUserCanAccessGroup } from '../../utils/group-access';
 import { PermissionGuard } from '../../guards/PermissionGuard';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
@@ -192,18 +193,8 @@ export class CertificateLogController {
       deviceGroupUid: groupId,
     });
 
-    if (
-      deviceGroup === null ||
-      deviceGroup.organizationId != user.organizationId
-    ) {
-      this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: 'Group UId is not of this buyer, invalid value was sent',
-      });
-    }
+    assertUserCanAccessGroup(deviceGroup, user);
+
     return await this.certificateLogService.getCertificateFromOldOrNew(
       deviceGroup.id.toString(),
     );
@@ -251,32 +242,7 @@ export class CertificateLogController {
       deviceGroupUid: groupId,
     });
 
-    if (user.role === Role.Registrant) {
-      if (deviceGroup.api_user_id != user.api_user_id) {
-        this.logger.error(`Group UId  does not  belongs to this registrant`);
-        throw new BadRequestException({
-          success: false,
-          message: 'Group UId  does not  belongs to this registrant',
-        });
-      }
-      return this.certificateLogService.getCertificateFromOldOrNew(
-        deviceGroup.id.toString(),
-        pageNumber,
-      );
-    }
-
-    if (
-      deviceGroup === null ||
-      deviceGroup.organizationId != user.organizationId
-    ) {
-      this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: 'Group UId is not of this buyer, invalid value was sent',
-      });
-    }
+    assertUserCanAccessGroup(deviceGroup, user);
 
     return this.certificateLogService.getCertificateFromOldOrNew(
       deviceGroup.id.toString(),
@@ -450,7 +416,9 @@ export class CertificateLogController {
         );
 
         if (organization.api_user_id != user.api_user_id) {
-          this.logger.error(`Organization requested belongs to other registrant`);
+          this.logger.error(
+            `Organization requested belongs to other registrant`,
+          );
           throw new BadRequestException({
             success: false,
             message: 'Organization requested belongs to other registrant',

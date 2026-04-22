@@ -76,6 +76,7 @@ import { ReadsService } from '../reads/reads.service';
 import { UploadLogService } from '../upload-log/upload-log.service';
 import { UploadActionType } from '../upload-log/upload-log.entity';
 import { ESignatureService } from '../e-signature/e-signature.service';
+import { assertUserCanAccessGroup } from '../../utils/group-access';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -368,7 +369,8 @@ export class DeviceController {
           );
           throw new UnauthorizedException({
             success: false,
-            message: 'The organization Id in param is belongs to other registrant',
+            message:
+              'The organization Id in param is belongs to other registrant',
           });
         } else {
           if (orgUser.role != Role.Registrant) {
@@ -491,7 +493,12 @@ export class DeviceController {
       }
     }
 
-    return { ...deviceData, reviewStatus, eSignatureSignedAt, eSignatureSignerEmail };
+    return {
+      ...deviceData,
+      reviewStatus,
+      eSignatureSignedAt,
+      eSignatureSignerEmail,
+    };
   }
 
   /**
@@ -864,7 +871,8 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]:
+            DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
@@ -1079,7 +1087,8 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]:
+            DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
@@ -1345,19 +1354,7 @@ export class DeviceController {
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       deviceGroupUid: groupId,
     });
-    if (
-      group === null ||
-      (group.organizationId != user.organizationId && user.role != 'Registrant') ||
-      group.api_user_id != user.api_user_id
-    ) {
-      this.logger.error(
-        `Group UId is not of this buyer, invalid value was sent`,
-      );
-      throw new ConflictException({
-        success: false,
-        message: 'Group UId is not of this buyer, invalid value was sent',
-      });
-    }
+    assertUserCanAccessGroup(group, user);
     if (externalId != null || externalId != undefined) {
       const device: DeviceDTO | null =
         await this.deviceService.findOne(externalId);
