@@ -100,6 +100,24 @@ export class SolarYieldService implements OnModuleInit {
       );
     }
 
+    // Coordinate-bounds guard. Scipy's RegularGridInterpolator(fill_value=0)
+    // silently returns 0 for OOB queries — same as the Python reference. That
+    // conflates a legitimate zero (polar winter) with a typo'd coordinate, so
+    // we raise here instead and let callers decide how to surface "not
+    // covered by the grid" vs a modelled zero.
+    const g = this.grid;
+    if (
+      latitude < g.lats[0] ||
+      latitude > g.lats[g.nLat - 1] ||
+      longitude < g.lons[0] ||
+      longitude > g.lons[g.nLon - 1]
+    ) {
+      throw new RangeError(
+        `coordinates out of grid bounds: lat=${latitude} lon=${longitude}; ` +
+          `grid covers lat [${g.lats[0]}, ${g.lats[g.nLat - 1]}] lon [${g.lons[0]}, ${g.lons[g.nLon - 1]}].`,
+      );
+    }
+
     const { PF_avg, DF, staticAvg, solarGsaVersion, linearRegressionVersion } =
       SOLAR_MODEL_CONFIG;
 
@@ -190,31 +208,18 @@ export class SolarYieldService implements OnModuleInit {
   }
 
   /**
-   * Nearest-neighbour lookup into the 3D grid at (lon, lat, month), matching
-   * scipy.interpolate.RegularGridInterpolator(method='nearest', bounds_error=False,
-   * fill_value=0). Returns 0 for out-of-bounds queries (the Python default —
-   * see `solar-yield/README.md` for why this deserves to be replaced with a
-   * hard error later).
+   * Nearest-neighbour lookup into the 3D grid at (lon, lat, month). Assumes
+   * bounds have already been validated by the caller (`getSolarEnergy` does
+   * this once up-front). NaN grid values — which the upstream dataset uses
+   * over oceans — surface as 0, matching the Python reference.
    */
   private interpolate(lon: number, lat: number, month: number): number {
     const g = this.grid!;
-    if (
-      lon < g.lons[0] ||
-      lon > g.lons[g.nLon - 1] ||
-      lat < g.lats[0] ||
-      lat > g.lats[g.nLat - 1] ||
-      month < 1 ||
-      month > g.nMonths
-    ) {
-      return 0;
-    }
     const lonIdx = nearestIndex(g.lons, lon);
     const latIdx = nearestIndex(g.lats, lat);
     const monthIdx = month - 1;
     const flat = (lonIdx * g.nLat + latIdx) * g.nMonths + monthIdx;
     const v = g.pv[flat];
-    // The grid carries NaN over oceans; surface it as 0 to match Python's
-    // interpolator behaviour for this dataset.
     return Number.isFinite(v) ? v : 0;
   }
 }

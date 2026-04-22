@@ -46,7 +46,7 @@ On startup, the service parses the `.npz` (no scipy/numpy needed — stdlib `zli
 
 ## Known caveats
 
-- **Silent out-of-bounds → 0.** Matches scipy's `fill_value=0` default in the Python reference; a typo in lat/lon produces a 0-kWh estimate rather than an error. If you integrate this into a code path where "0" means "this device generated nothing" rather than "invalid query," wrap it with a bounds check.
+- **Out-of-bounds coordinates throw `RangeError`.** The Python reference silently returns 0 (scipy's `fill_value=0` default); we diverge here so callers can distinguish a typo'd coordinate from a real zero (polar winter, etc.).
 - **Nearest-neighbour at grid resolution (1/12°, ~9 km).** Two sites within ~5 km of each other may resolve to the same grid cell and return identical estimates.
 - **Model 2 is weak.** It's a `capacity × static-annual-yield-per-kW` baseline that exists for parity with the Python output shape. It makes no use of the grid at all. Treat it as a sanity-check baseline, not an independent estimate.
 

@@ -1065,7 +1065,9 @@ export class DeviceReviewsService {
     irradiance: IrradianceEstimate | null;
     /** Solar GSA climatology estimate (more accurate than the lat-band
      * fallback in `irradiance`). Null when the grid isn't provisioned
-     * (`SOLAR_GRID_NPZ_PATH` unset) or inputs are out of range. */
+     * (`SOLAR_GRID_NPZ_PATH` unset), the device is pre-COD, the device is
+     * missing lat/lon/capacity/COD, or its coordinates are outside the
+     * grid's lat ∈ [-60, 65] / lon ∈ [-180, 180] coverage. */
     solarGsa: {
       annualKwh: number;
       monthlyKwh: number[];

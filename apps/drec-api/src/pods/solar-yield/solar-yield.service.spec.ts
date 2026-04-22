@@ -170,11 +170,16 @@ describe('SolarYieldService', () => {
   });
 
   describe('out-of-bounds', () => {
-    it('returns 0-yield when lat/lon fall outside the grid (fill_value=0 parity)', () => {
-      // Query lat=90 (grid max is 1 in our synthetic fixture) → all months yield 0.
-      const result = svc.getSolarEnergy(90, 90, 1, '2024-01-01', 2025);
-      expect(result.Model_1_Outputs.Yield_kWh).toBe(0);
-      result.Model_1_Outputs.Monthly_kWh.forEach((v) => expect(v).toBe(0));
+    it('throws RangeError when lat or lon falls outside the grid', () => {
+      // Synthetic grid covers lat∈[0,1], lon∈[0,1]; 90 is outside both axes.
+      expect(() => svc.getSolarEnergy(90, 90, 1, '2024-01-01', 2025)).toThrow(RangeError);
+      expect(() => svc.getSolarEnergy(0.5, 999, 1, '2024-01-01', 2025)).toThrow(RangeError);
+      expect(() => svc.getSolarEnergy(-1, 0.5, 1, '2024-01-01', 2025)).toThrow(RangeError);
+    });
+
+    it('accepts boundary coordinates', () => {
+      expect(() => svc.getSolarEnergy(0, 0, 1, '2024-01-01', 2025)).not.toThrow();
+      expect(() => svc.getSolarEnergy(1, 1, 1, '2024-01-01', 2025)).not.toThrow();
     });
   });
 });
