@@ -204,35 +204,45 @@ function assertNoFortran(meta: NpyMeta, name: string): void {
   }
 }
 
+// Node's `Buffer.slice` and `inflateRawSync` outputs do NOT guarantee that
+// `byteOffset` is a multiple of 4 or 8. `new Float32Array(buf.buffer,
+// buf.byteOffset, n)` throws `RangeError: start offset of Float32Array should
+// be a multiple of 4` on misaligned inputs. We read through a DataView so the
+// alignment requirement disappears.
+
 function toFloat32(buf: Buffer, descr: string, n: number): Float32Array {
+  const out = new Float32Array(n);
   if (descr === '<f4') {
     if (buf.length < n * 4)
       throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
-    return new Float32Array(buf.buffer, buf.byteOffset, n);
+    const view = new DataView(buf.buffer, buf.byteOffset, n * 4);
+    for (let i = 0; i < n; i++) out[i] = view.getFloat32(i * 4, true);
+    return out;
   }
   if (descr === '<f8') {
     if (buf.length < n * 8)
       throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
-    const src = new Float64Array(buf.buffer, buf.byteOffset, n);
-    const out = new Float32Array(n);
-    for (let i = 0; i < n; i++) out[i] = src[i];
+    const view = new DataView(buf.buffer, buf.byteOffset, n * 8);
+    for (let i = 0; i < n; i++) out[i] = view.getFloat64(i * 8, true); // downcast
     return out;
   }
   throw new Error(`unsupported dtype for float32 target: ${descr}`);
 }
 
 function toFloat64(buf: Buffer, descr: string, n: number): Float64Array {
+  const out = new Float64Array(n);
   if (descr === '<f8') {
     if (buf.length < n * 8)
       throw new Error(`float64 buffer short: ${buf.length} < ${n * 8}`);
-    return new Float64Array(buf.buffer, buf.byteOffset, n);
+    const view = new DataView(buf.buffer, buf.byteOffset, n * 8);
+    for (let i = 0; i < n; i++) out[i] = view.getFloat64(i * 8, true);
+    return out;
   }
   if (descr === '<f4') {
     if (buf.length < n * 4)
       throw new Error(`float32 buffer short: ${buf.length} < ${n * 4}`);
-    const src = new Float32Array(buf.buffer, buf.byteOffset, n);
-    const out = new Float64Array(n);
-    for (let i = 0; i < n; i++) out[i] = src[i];
+    const view = new DataView(buf.buffer, buf.byteOffset, n * 4);
+    for (let i = 0; i < n; i++) out[i] = view.getFloat32(i * 4, true);
     return out;
   }
   throw new Error(`unsupported dtype for float64 target: ${descr}`);
