@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from './enums';
 import { ILoggedInUser } from '../models/LoggedInUser';
 
@@ -21,21 +21,23 @@ import { ILoggedInUser } from '../models/LoggedInUser';
  *                       api-key-level scope match; organizationId on the
  *                       registrant's user row can differ from the group's
  *                       owning org.
- *   - `Buyer` / `SubBuyer` → `group.buyerId === user.organizationId`. The
- *                       buyer's org is the buyer-side of the reservation.
+ *   - `Buyer` / `SubBuyer` → `group.buyerId === user.organizationId`, OR
+ *                       `group.organizationId === user.organizationId` as a
+ *                       fallback (the buyer's own org directly owns the
+ *                       group, not via the buyer-reservation column).
  *   - Everyone else   → `group.organizationId === user.organizationId`.
  *                       Legacy same-org check.
  *
- * Throws `404 ConflictException` if the group is absent (caller looked up
- * a non-existent UID), or `403 ForbiddenException` with a role-specific
- * message if the group exists but the user can't access it.
+ * Throws `NotFoundException` (404) if the group is absent, or
+ * `ForbiddenException` (403) with a role-specific message if the group
+ * exists but the user can't access it.
  */
 export function assertUserCanAccessGroup(
   group: GroupForAccessCheck | null,
   user: ILoggedInUser,
 ): asserts group is GroupForAccessCheck {
   if (group === null) {
-    throw new ConflictException({
+    throw new NotFoundException({
       success: false,
       message: 'Group UID not found',
     });
@@ -54,7 +56,12 @@ export function assertUserCanAccessGroup(
 
     case Role.Buyer:
     case Role.SubBuyer:
-      if (group.buyerId === user.organizationId) return;
+      if (
+        group.buyerId === user.organizationId ||
+        group.organizationId === user.organizationId
+      ) {
+        return;
+      }
       throw new ForbiddenException({
         success: false,
         message: 'Group UID is not of this buyer',

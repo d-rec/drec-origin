@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from './enums';
 import { ILoggedInUser } from '../models/LoggedInUser';
 import { assertUserCanAccessGroup, GroupForAccessCheck } from './group-access';
@@ -23,10 +23,10 @@ const makeGroup = (
 });
 
 describe('assertUserCanAccessGroup', () => {
-  it('throws 404-shaped ConflictException when group is null', () => {
+  it('throws NotFoundException (404) when group is null', () => {
     expect(() =>
       assertUserCanAccessGroup(null, makeUser({ role: Role.Admin })),
-    ).toThrow(ConflictException);
+    ).toThrow(NotFoundException);
   });
 
   describe('Admin', () => {
@@ -81,22 +81,32 @@ describe('assertUserCanAccessGroup', () => {
   });
 
   describe('Buyer / SubBuyer', () => {
-    it.each([Role.Buyer, Role.SubBuyer])(
-      '%s passes when group.buyerId matches user.organizationId',
-      (role) => {
+    for (const role of [Role.Buyer, Role.SubBuyer]) {
+      it(`${role} passes when group.buyerId matches user.organizationId`, () => {
         expect(() =>
           assertUserCanAccessGroup(
             makeGroup({ buyerId: 42, organizationId: 99 }),
             makeUser({ role, organizationId: 42 }),
           ),
         ).not.toThrow();
-      },
-    );
+      });
+    }
 
-    it('Buyer is rejected with buyer-specific message when buyerId does not match, even if organizationId would', () => {
+    it('Buyer falls back to organizationId match if buyerId is null', () => {
+      // Buyer-role user in the same org as the group but the group has no
+      // buyerId wired — still allowed, the user's own org owns the group.
       expect(() =>
         assertUserCanAccessGroup(
           makeGroup({ buyerId: null, organizationId: 42 }),
+          makeUser({ role: Role.Buyer, organizationId: 42 }),
+        ),
+      ).not.toThrow();
+    });
+
+    it('Buyer is rejected when neither buyerId nor organizationId matches', () => {
+      expect(() =>
+        assertUserCanAccessGroup(
+          makeGroup({ buyerId: 99, organizationId: 77 }),
           makeUser({ role: Role.Buyer, organizationId: 42 }),
         ),
       ).toThrow(/buyer/i);
@@ -104,9 +114,13 @@ describe('assertUserCanAccessGroup', () => {
   });
 
   describe('Default (every other role)', () => {
-    it.each([Role.User, Role.SiteOperator, Role.Reviewer, Role.SeniorReviewer])(
-      '%s falls back to organizationId match',
-      (role) => {
+    for (const role of [
+      Role.User,
+      Role.SiteOperator,
+      Role.Reviewer,
+      Role.SeniorReviewer,
+    ]) {
+      it(`${role} falls back to organizationId match`, () => {
         expect(() =>
           assertUserCanAccessGroup(
             makeGroup({ organizationId: 7 }),
@@ -119,8 +133,8 @@ describe('assertUserCanAccessGroup', () => {
             makeUser({ role, organizationId: 8 }),
           ),
         ).toThrow(/organization/i);
-      },
-    );
+      });
+    }
   });
 
   it('narrows the group type for callers (TypeScript asserts non-null)', () => {
