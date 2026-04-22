@@ -6,6 +6,7 @@ import { FileModule } from '../file/file.module';
 import { UserModule } from '../user/user.module';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.module';
+import { SolarYieldModule } from '../solar-yield/solar-yield.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.modul
     DocumentUploadsModule,
     forwardRef(() => UserModule),
     OrgApiLicensesModule,
+    SolarYieldModule,
   ],
   controllers: [DeviceReviewsController],
   providers: [DeviceReviewsService],

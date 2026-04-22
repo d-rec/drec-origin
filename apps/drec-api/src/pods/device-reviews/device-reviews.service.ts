@@ -1,11 +1,21 @@
-import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import * as exifr from 'exifr';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const PDFDocument = require('pdfkit');
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FileService } from '../file/file.service';
-import { EvidencePathway, OperatingConfiguration, OwnershipStatus, SourceAccessMode } from '../../utils/enums';
+import {
+  EvidencePathway,
+  OperatingConfiguration,
+  OwnershipStatus,
+  SourceAccessMode,
+} from '../../utils/enums';
 import {
   getSourceAccessVerification,
   ModeVerificationRule,
@@ -20,6 +30,7 @@ import {
   estimateIrradiance,
   IrradianceEstimate,
 } from '../../utils/irradiance-estimate';
+import { SolarYieldService } from '../solar-yield/solar-yield.service';
 import {
   requiresCompensatingControls,
   CompensatingControlResult,
@@ -91,6 +102,7 @@ export class DeviceReviewsService {
   constructor(
     @InjectDataSource() private readonly connection: DataSource,
     private readonly fileService: FileService,
+    private readonly solarYield: SolarYieldService,
   ) {}
 
   /**
@@ -149,21 +161,29 @@ export class DeviceReviewsService {
     await this.connection.query(
       `INSERT INTO audit_log (device_id, action_type, detail, performed_by, metadata)
        VALUES ($1, $2, $3, $4, $5)`,
-      [deviceId, actionType, detail, performedBy, Object.keys(meta).length > 0 ? JSON.stringify(meta) : null],
+      [
+        deviceId,
+        actionType,
+        detail,
+        performedBy,
+        Object.keys(meta).length > 0 ? JSON.stringify(meta) : null,
+      ],
     );
   }
 
   /**
    * D-REC §3.8: Retrieve the full audit trail for a device.
    */
-  async getAuditTrail(deviceId: number): Promise<Array<{
-    id: number;
-    actionType: string;
-    detail: string | null;
-    performedBy: string;
-    metadata: Record<string, any> | null;
-    createdAt: Date;
-  }>> {
+  async getAuditTrail(deviceId: number): Promise<
+    Array<{
+      id: number;
+      actionType: string;
+      detail: string | null;
+      performedBy: string;
+      metadata: Record<string, any> | null;
+      createdAt: Date;
+    }>
+  > {
     return this.connection.query(
       `SELECT id, action_type AS "actionType", detail, performed_by AS "performedBy",
               metadata, created_at AS "createdAt"
@@ -196,7 +216,14 @@ export class DeviceReviewsService {
       this.logger.log(
         `Device ${deviceId} review status changed to "${status}"`,
       );
-      await this.logAudit(deviceId, 'status_change', `Status changed to "${status}"`, 'reviewer', undefined, ipAddress);
+      await this.logAudit(
+        deviceId,
+        'status_change',
+        `Status changed to "${status}"`,
+        'reviewer',
+        undefined,
+        ipAddress,
+      );
       // D-REC §3.1: Classify evidence pathway
       // D-REC §2.7: Verify ownership on approval
       if (status === 'approved') {
@@ -206,7 +233,9 @@ export class DeviceReviewsService {
       // Auto-screen when entering pending — fire-and-forget
       if (status === 'pending') {
         this.autoScreenReport(deviceId).catch((err) =>
-          this.logger.warn(`Auto-screen on submission failed for device ${deviceId}: ${err.message}`),
+          this.logger.warn(
+            `Auto-screen on submission failed for device ${deviceId}: ${err.message}`,
+          ),
         );
       }
       return { status: rows[0].status };
@@ -232,7 +261,9 @@ export class DeviceReviewsService {
     );
     if (status === 'pending') {
       this.autoScreenReport(deviceId).catch((err) =>
-        this.logger.warn(`Auto-screen on submission failed for device ${deviceId}: ${err.message}`),
+        this.logger.warn(
+          `Auto-screen on submission failed for device ${deviceId}: ${err.message}`,
+        ),
       );
     }
     return { status };
@@ -325,7 +356,9 @@ export class DeviceReviewsService {
     roboflowKey?: string,
   ): Promise<any> {
     if (!roboflowUrl || !roboflowKey) {
-      throw new Error('Roboflow URL and API key must be provided — configure them in Organization > Licenses');
+      throw new Error(
+        'Roboflow URL and API key must be provided — configure them in Organization > Licenses',
+      );
     }
     let res: Response;
     try {
@@ -350,7 +383,9 @@ export class DeviceReviewsService {
     }
     if (!res.ok) {
       const body = await res.text().catch(() => '');
-      throw new Error(`Roboflow API returned ${res.status}: ${body.slice(0, 200)}`);
+      throw new Error(
+        `Roboflow API returned ${res.status}: ${body.slice(0, 200)}`,
+      );
     }
     return res.json();
   }
@@ -446,7 +481,7 @@ export class DeviceReviewsService {
       const devDocs: any[] = docsByDevice[String(r.id)] ?? [];
       const byType = (t: string) => {
         const doc = devDocs.find((d) => d.type === t);
-        return doc ? (signedUrls[doc.url] ?? null) : null;
+        return doc ? signedUrls[doc.url] ?? null : null;
       };
       const allOfType = (t: string) =>
         devDocs
@@ -513,7 +548,8 @@ export class DeviceReviewsService {
           r.siteName &&
           (r.serialNumber || r.externalId) &&
           r.countryCode &&
-          r.latitude && r.longitude &&
+          r.latitude &&
+          r.longitude &&
           r.address &&
           r.capacity != null &&
           r.fuelCode &&
@@ -629,9 +665,13 @@ export class DeviceReviewsService {
       });
     }
 
-    await this.logAudit(deviceId, 'duplicate_screening',
+    await this.logAudit(
+      deviceId,
+      'duplicate_screening',
       `${duplicates.length} potential duplicate(s) found`,
-      'reviewer', { duplicateCount: duplicates.length });
+      'reviewer',
+      { duplicateCount: duplicates.length },
+    );
 
     return { duplicates };
   }
@@ -662,7 +702,7 @@ export class DeviceReviewsService {
     }
     // Owner's Declaration / Proof of Ownership is always required
     if (!existingTypes.has('SF_02C_OWNERS_DECLARATION')) {
-      missingDocuments.push('Owner\'s Declaration / Proof of Ownership');
+      missingDocuments.push("Owner's Declaration / Proof of Ownership");
     }
     // SF-02 (Production Facility Registration) is always required
     if (!existingTypes.has('FORM_SF_02')) {
@@ -685,9 +725,13 @@ export class DeviceReviewsService {
           ? ` (missing: ${missingDocuments.join(', ')})`
           : ''),
     );
-    await this.logAudit(deviceId, 'ownership_verification',
+    await this.logAudit(
+      deviceId,
+      'ownership_verification',
       `Ownership ${ownershipStatus}${missingDocuments.length ? ': missing ' + missingDocuments.join(', ') : ''}`,
-      'system', { ownershipStatus, missingDocuments });
+      'system',
+      { ownershipStatus, missingDocuments },
+    );
 
     return { ownershipStatus, missingDocuments };
   }
@@ -739,9 +783,13 @@ export class DeviceReviewsService {
       `Device ${deviceId} classified as: ${pathway ?? 'unclassified'} ` +
         `(config=${operatingConfiguration}, mode=${sourceAccessMode})`,
     );
-    await this.logAudit(deviceId, 'pathway_classification',
+    await this.logAudit(
+      deviceId,
+      'pathway_classification',
       `Classified as: ${pathway ?? 'unclassified'}`,
-      'system', { pathway, operatingConfiguration, sourceAccessMode });
+      'system',
+      { pathway, operatingConfiguration, sourceAccessMode },
+    );
 
     return { evidencePathway: pathway, requirements };
   }
@@ -790,7 +838,7 @@ export class DeviceReviewsService {
     const docLabel: Record<string, string> = {
       FORM_SF_02: 'SF-02 (Production Facility Registration)',
       SF_02C: 'SF-02C (I-REC declaration form)',
-      SF_02C_OWNERS_DECLARATION: 'Owner\'s Declaration / Proof of Ownership',
+      SF_02C_OWNERS_DECLARATION: "Owner's Declaration / Proof of Ownership",
       METERING_EVIDENCE: 'Metering Evidence',
       SINGLE_LINE_DIAGRAM: 'Single Line Diagram',
       PROJECT_PHOTOS: 'Project Photos',
@@ -944,20 +992,13 @@ export class DeviceReviewsService {
         if (zeroStart === -1) zeroStart = i;
       } else {
         if (zeroStart !== -1 && i - zeroStart >= 3) {
-          zeroRuns.push(
-            normalized.slice(zeroStart, i).map((r) => r.id),
-          );
+          zeroRuns.push(normalized.slice(zeroStart, i).map((r) => r.id));
         }
         zeroStart = -1;
       }
     }
-    if (
-      zeroStart !== -1 &&
-      normalized.length - zeroStart >= 3
-    ) {
-      zeroRuns.push(
-        normalized.slice(zeroStart).map((r) => r.id),
-      );
+    if (zeroStart !== -1 && normalized.length - zeroStart >= 3) {
+      zeroRuns.push(normalized.slice(zeroStart).map((r) => r.id));
     }
     for (const run of zeroRuns) {
       anomalies.push({
@@ -973,8 +1014,7 @@ export class DeviceReviewsService {
     if (normalized.length > windowSize) {
       for (let i = windowSize; i < normalized.length; i++) {
         const window = normalized.slice(i - windowSize, i);
-        const avg =
-          window.reduce((s, r) => s + r.kwh, 0) / windowSize;
+        const avg = window.reduce((s, r) => s + r.kwh, 0) / windowSize;
         if (avg > 0 && normalized[i].kwh > avg * 3) {
           anomalies.push({
             type: 'spike',
@@ -1041,9 +1081,13 @@ export class DeviceReviewsService {
         `${periodMonths} months, ${anomalies.length} anomalies`,
     );
 
-    await this.logAudit(deviceId, 'historical_consistency',
+    await this.logAudit(
+      deviceId,
+      'historical_consistency',
       `${reads.length} readings, ${anomalies.length} anomalies over ${periodMonths} months`,
-      'reviewer', { totalReadings: reads.length, anomalyCount: anomalies.length });
+      'reviewer',
+      { totalReadings: reads.length, anomalyCount: anomalies.length },
+    );
 
     return {
       totalReadings: reads.length,
@@ -1061,6 +1105,16 @@ export class DeviceReviewsService {
    */
   async checkProductionCeiling(deviceId: number): Promise<{
     irradiance: IrradianceEstimate | null;
+    /** Solar GSA climatology estimate (more accurate than the lat-band
+     * fallback in `irradiance`). Null when the grid isn't provisioned
+     * (`SOLAR_GRID_NPZ_PATH` unset), the device is pre-COD, the device is
+     * missing lat/lon/capacity/COD, or its coordinates are outside the
+     * grid's lat ∈ [-60, 65] / lon ∈ [-180, 180] coverage. */
+    solarGsa: {
+      annualKwh: number;
+      monthlyKwh: number[];
+      version: string;
+    } | null;
     configuredYield: number;
     capacityKw: number;
     yieldMismatch: boolean;
@@ -1087,7 +1141,9 @@ export class DeviceReviewsService {
     const lat = device.latitude ? parseFloat(device.latitude) : null;
     const lng = device.longitude ? parseFloat(device.longitude) : null;
     const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
-    const configuredYield = device.yieldValue ? parseFloat(device.yieldValue) : null;
+    const configuredYield = device.yieldValue
+      ? parseFloat(device.yieldValue)
+      : null;
 
     // Estimate irradiance from location
     let irradiance: IrradianceEstimate | null = null;
@@ -1098,6 +1154,54 @@ export class DeviceReviewsService {
       // with a 10% tolerance
       if (configuredYield !== null) {
         yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
+      }
+    }
+
+    // Solar GSA climatology — typical-year per-month estimate. Additive to
+    // the lat-band `irradiance` above; when present, reviewers should prefer
+    // this for monthly comparisons. Unavailable if the grid file isn't
+    // provisioned or the site falls outside the grid.
+    let solarGsa: {
+      annualKwh: number;
+      monthlyKwh: number[];
+      version: string;
+    } | null = null;
+    if (
+      lat !== null &&
+      lng !== null &&
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      capacityKw > 0 &&
+      device.commissioningDate
+    ) {
+      try {
+        const currentYear = new Date().getUTCFullYear();
+        const codYear = new Date(device.commissioningDate).getUTCFullYear();
+        // Post-COD only; pre-COD would throw from the service guard and we
+        // already know the device's own history is empty there.
+        if (!isNaN(codYear) && currentYear >= codYear) {
+          const res = this.solarYield.getSolarEnergy(
+            lat,
+            lng,
+            capacityKw,
+            device.commissioningDate,
+            currentYear,
+          );
+          const monthly = res.Model_1_Outputs.Monthly_kWh;
+          // Case B (year == COD year) returns a padded vector with zeros
+          // before the COD month; that's fine to surface as-is.
+          if (monthly.length === 12) {
+            solarGsa = {
+              annualKwh: res.Model_1_Outputs.Yield_kWh,
+              monthlyKwh: monthly,
+              version: res.Model_1_Outputs.Version,
+            };
+          }
+        }
+      } catch (e: any) {
+        this.logger.debug(
+          `solarGsa unavailable for device ${deviceId}: ${e?.message || e}`,
+        );
       }
     }
 
@@ -1124,8 +1228,7 @@ export class DeviceReviewsService {
       else if (r.unit === 'GWh') valueKwh *= 1000000;
 
       // Ceiling for this period: capacity × hourly yield rate × period × 1.2 margin
-      const ceilingKwh =
-        capacityKw * (ceilingYield / 8760) * periodHours * 1.2;
+      const ceilingKwh = capacityKw * (ceilingYield / 8760) * periodHours * 1.2;
 
       return {
         startDate: r.startDate,
@@ -1148,16 +1251,29 @@ export class DeviceReviewsService {
     if (configuredYield === null) {
       parts.push('No yield value configured on device');
     } else if (yieldMismatch) {
-      parts.push(`Configured yield ${configuredYield} exceeds location estimate ${irradiance?.yieldHigh} kWh/kW/yr`);
+      parts.push(
+        `Configured yield ${configuredYield} exceeds location estimate ${irradiance?.yieldHigh} kWh/kW/yr`,
+      );
     } else {
-      parts.push(`Configured yield ${configuredYield} is within expected range for location`);
+      parts.push(
+        `Configured yield ${configuredYield} is within expected range for location`,
+      );
     }
-    await this.logAudit(deviceId, 'ceiling_check',
+    await this.logAudit(
+      deviceId,
+      'ceiling_check',
       parts.join('. '),
-      'reviewer', { configuredYield, irradianceYield: irradiance?.yieldHigh, yieldMismatch });
+      'reviewer',
+      {
+        configuredYield,
+        irradianceYield: irradiance?.yieldHigh,
+        yieldMismatch,
+      },
+    );
 
     return {
       irradiance,
+      solarGsa,
       configuredYield,
       capacityKw,
       yieldMismatch,
@@ -1198,15 +1314,22 @@ export class DeviceReviewsService {
       [deviceId],
     );
     const existingTypes = new Set(docs.map((d) => d.type));
-    const mode4Required = ['METERING_EVIDENCE', 'FORM_SF_02', 'SF_02C', 'SF_02C_OWNERS_DECLARATION', 'COD_PROOF'];
+    const mode4Required = [
+      'METERING_EVIDENCE',
+      'FORM_SF_02',
+      'SF_02C',
+      'SF_02C_OWNERS_DECLARATION',
+      'COD_PROOF',
+    ];
     const missingDocs = mode4Required.filter((t) => !existingTypes.has(t));
     controls.push({
       id: 'required_documents',
       label: 'All required documents uploaded',
       satisfied: missingDocs.length === 0,
-      detail: missingDocs.length === 0
-        ? 'All 5 required document types are present'
-        : `Missing: ${missingDocs.join(', ')}`,
+      detail:
+        missingDocs.length === 0
+          ? 'All 5 required document types are present'
+          : `Missing: ${missingDocs.join(', ')}`,
     });
 
     // Control 2: COD / third-party attestation specifically verified
@@ -1280,18 +1403,28 @@ export class DeviceReviewsService {
       id: 'ownership_verified',
       label: 'Ownership verification complete',
       satisfied: ownershipStatus === 'verified',
-      detail: ownershipStatus === 'verified'
-        ? 'Device ownership has been verified'
-        : `Ownership status is "${ownershipStatus || 'unverified'}"`,
+      detail:
+        ownershipStatus === 'verified'
+          ? 'Device ownership has been verified'
+          : `Ownership status is "${ownershipStatus || 'unverified'}"`,
     });
 
     const allSatisfied = controls.every((c) => c.satisfied);
 
-    await this.logAudit(deviceId, 'compensating_controls',
+    await this.logAudit(
+      deviceId,
+      'compensating_controls',
       `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
-      'system', { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) });
+      'system',
+      { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) },
+    );
 
-    return { isMode4: true, allSatisfied, controls, ...(pathwayNote ? { pathwayNote } : {}) };
+    return {
+      isMode4: true,
+      allSatisfied,
+      controls,
+      ...(pathwayNote ? { pathwayNote } : {}),
+    };
   }
 
   /**
@@ -1300,7 +1433,9 @@ export class DeviceReviewsService {
    * Compares actual meter readings against irradiance-modeled monthly
    * production, computing a regression-based Performance Factor.
    */
-  async crossSourceVerification(deviceId: number): Promise<CrossSourceResult & { pathwayNote?: string }> {
+  async crossSourceVerification(
+    deviceId: number,
+  ): Promise<CrossSourceResult & { pathwayNote?: string }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Fetch device
     const rows: any[] = await this.connection.query(
@@ -1456,7 +1591,8 @@ export class DeviceReviewsService {
   }
 
   async findMeterReadsForDevice(deviceId: number): Promise<any[]> {
-    const rows = await this.connection.query(`
+    const rows = await this.connection.query(
+      `
       SELECT mr.id, mr.value, mr.unit, mr.type,
              mr.start_date AS "startDate",
              mr.end_date   AS "endDate",
@@ -1465,7 +1601,9 @@ export class DeviceReviewsService {
       INNER JOIN device d ON d."externalId" = mr.external_id
       WHERE d.id = $1
       ORDER BY mr.end_date DESC
-    `, [deviceId]);
+    `,
+      [deviceId],
+    );
     return rows;
   }
 
@@ -1504,23 +1642,36 @@ export class DeviceReviewsService {
     reviewer?: string,
     ip?: string,
   ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
-    const results: Array<{ deviceId: number; status: string; error?: string }> = [];
+    const results: Array<{ deviceId: number; status: string; error?: string }> =
+      [];
     for (const id of deviceIds) {
       try {
-        const res = await this.updateMeterReadReviewStatus(id, status, undefined, reviewer, ip);
+        const res = await this.updateMeterReadReviewStatus(
+          id,
+          status,
+          undefined,
+          reviewer,
+          ip,
+        );
         results.push({ deviceId: id, status: res.status });
       } catch (err: any) {
         results.push({ deviceId: id, status: 'error', error: err.message });
       }
     }
-    const succeeded = results.filter((r) => r.status !== 'error').map((r) => r.deviceId);
+    const succeeded = results
+      .filter((r) => r.status !== 'error')
+      .map((r) => r.deviceId);
     for (const id of succeeded) {
       await this.logAudit(
         id,
         'bulk_status_change',
         `Bulk meter-read review status change to "${status}" (${deviceIds.length} devices in batch)`,
         reviewer || 'reviewer',
-        { batchSize: deviceIds.length, targetStatus: status, context: 'meter_reads' },
+        {
+          batchSize: deviceIds.length,
+          targetStatus: status,
+          context: 'meter_reads',
+        },
         ip,
       );
     }
@@ -1584,7 +1735,14 @@ export class DeviceReviewsService {
     );
 
     if (!rows.length) {
-      return { totalReads: 0, gaps: [], coveragePercent: 0, firstRead: null, lastRead: null, expectedPeriodDays: null };
+      return {
+        totalReads: 0,
+        gaps: [],
+        coveragePercent: 0,
+        firstRead: null,
+        lastRead: null,
+        expectedPeriodDays: null,
+      };
     }
 
     // Estimate expected period from median gap between consecutive reads
@@ -1595,15 +1753,18 @@ export class DeviceReviewsService {
       intervals.push((curr - prev) / (1000 * 60 * 60 * 24));
     }
     intervals.sort((a, b) => a - b);
-    const medianDays = intervals.length > 0 ? intervals[Math.floor(intervals.length / 2)] : null;
+    const medianDays =
+      intervals.length > 0 ? intervals[Math.floor(intervals.length / 2)] : null;
     // A gap is anything > 2x the median interval (or > 45 days if < 3 reads)
-    const threshold = medianDays !== null && intervals.length >= 3 ? medianDays * 2 : 45;
+    const threshold =
+      medianDays !== null && intervals.length >= 3 ? medianDays * 2 : 45;
 
     const gaps: Array<{ after: string; before: string; gapDays: number }> = [];
     for (let i = 1; i < rows.length; i++) {
       const prevEnd = new Date(rows[i - 1].end_date);
       const currStart = new Date(rows[i].start_date);
-      const gapDays = (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24);
+      const gapDays =
+        (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24);
       if (gapDays > threshold) {
         gaps.push({
           after: rows[i - 1].end_date,
@@ -1617,9 +1778,14 @@ export class DeviceReviewsService {
     const lastDate = new Date(rows[rows.length - 1].end_date).getTime();
     const totalSpanDays = (lastDate - firstDate) / (1000 * 60 * 60 * 24);
     const coveredDays = rows.reduce((sum: number, r: any) => {
-      return sum + (new Date(r.end_date).getTime() - new Date(r.start_date).getTime()) / (1000 * 60 * 60 * 24);
+      return (
+        sum +
+        (new Date(r.end_date).getTime() - new Date(r.start_date).getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
     }, 0);
-    const coveragePercent = totalSpanDays > 0 ? Math.round((coveredDays / totalSpanDays) * 100) : 100;
+    const coveragePercent =
+      totalSpanDays > 0 ? Math.round((coveredDays / totalSpanDays) * 100) : 100;
 
     await this.logAudit(
       deviceId,
@@ -1665,7 +1831,8 @@ export class DeviceReviewsService {
         signal: controller.signal,
         headers: {
           // Nominatim TOS requires a meaningful User-Agent identifying the app.
-          'User-Agent': 'drec-api country-match verification (https://d-rec.org)',
+          'User-Agent':
+            'drec-api country-match verification (https://d-rec.org)',
           Accept: 'application/json',
         },
       });
@@ -1703,7 +1870,8 @@ export class DeviceReviewsService {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
     const lat = rows[0].latitude != null ? parseFloat(rows[0].latitude) : null;
-    const lng = rows[0].longitude != null ? parseFloat(rows[0].longitude) : null;
+    const lng =
+      rows[0].longitude != null ? parseFloat(rows[0].longitude) : null;
     const declaredCountry: string | null = rows[0].countryCode ?? null;
 
     let resolvedAlpha2: string | null | undefined;
@@ -1739,7 +1907,12 @@ export class DeviceReviewsService {
       withinThreshold: boolean | null;
     }>;
     thresholdMeters: number;
-    summary: { total: number; withGps: number; withinThreshold: number; flagged: number };
+    summary: {
+      total: number;
+      withGps: number;
+      withinThreshold: number;
+      flagged: number;
+    };
   }> {
     const THRESHOLD_M = 300;
 
@@ -1751,11 +1924,21 @@ export class DeviceReviewsService {
     if (deviceRows.length === 0) {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
-    const deviceLat = deviceRows[0].latitude != null ? parseFloat(deviceRows[0].latitude) : null;
-    const deviceLng = deviceRows[0].longitude != null ? parseFloat(deviceRows[0].longitude) : null;
+    const deviceLat =
+      deviceRows[0].latitude != null
+        ? parseFloat(deviceRows[0].latitude)
+        : null;
+    const deviceLng =
+      deviceRows[0].longitude != null
+        ? parseFloat(deviceRows[0].longitude)
+        : null;
 
     // Get PROJECT_PHOTOS documents
-    const docs: Array<{ id: number; url: string; original_filename: string | null }> = await this.connection.query(
+    const docs: Array<{
+      id: number;
+      url: string;
+      original_filename: string | null;
+    }> = await this.connection.query(
       `SELECT id, url, original_filename FROM documents
        WHERE target_id = $1 AND target_type = 'device' AND type = 'PROJECT_PHOTOS'`,
       [deviceId],
@@ -1784,20 +1967,38 @@ export class DeviceReviewsService {
         const s3Result = await this.fileService.getUploadS3(doc.url);
         const buffer: Buffer = s3Result.data?.Body;
         if (!buffer) {
-          photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+          photos.push({
+            docId: doc.id,
+            fileName,
+            hasGps: false,
+            lat: null,
+            lng: null,
+            distanceMeters: null,
+            withinThreshold: null,
+          });
           continue;
         }
 
         const gps = await exifr.gps(buffer).catch(() => null);
         if (!gps || gps.latitude == null || gps.longitude == null) {
-          photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+          photos.push({
+            docId: doc.id,
+            fileName,
+            hasGps: false,
+            lat: null,
+            lng: null,
+            distanceMeters: null,
+            withinThreshold: null,
+          });
           continue;
         }
 
         let distanceMeters: number | null = null;
         let withinThreshold: boolean | null = null;
         if (deviceLat != null && deviceLng != null) {
-          distanceMeters = Math.round(haversineMeters(deviceLat, deviceLng, gps.latitude, gps.longitude));
+          distanceMeters = Math.round(
+            haversineMeters(deviceLat, deviceLng, gps.latitude, gps.longitude),
+          );
           withinThreshold = distanceMeters <= THRESHOLD_M;
         }
 
@@ -1811,8 +2012,18 @@ export class DeviceReviewsService {
           withinThreshold,
         });
       } catch (err) {
-        this.logger.warn(`EXIF extraction failed for doc ${doc.id}: ${err.message}`);
-        photos.push({ docId: doc.id, fileName, hasGps: false, lat: null, lng: null, distanceMeters: null, withinThreshold: null });
+        this.logger.warn(
+          `EXIF extraction failed for doc ${doc.id}: ${err.message}`,
+        );
+        photos.push({
+          docId: doc.id,
+          fileName,
+          hasGps: false,
+          lat: null,
+          lng: null,
+          distanceMeters: null,
+          withinThreshold: null,
+        });
       }
     }
 
@@ -1820,16 +2031,31 @@ export class DeviceReviewsService {
     const withinCount = photos.filter((p) => p.withinThreshold === true).length;
     const flagged = photos.filter((p) => p.withinThreshold === false).length;
 
-    await this.logAudit(deviceId, 'photo_gps_check',
+    await this.logAudit(
+      deviceId,
+      'photo_gps_check',
       `${photos.length} photos: ${withGps} with GPS, ${withinCount} within ${THRESHOLD_M}m, ${flagged} flagged`,
-      'reviewer', { thresholdMeters: THRESHOLD_M, total: photos.length, withGps, withinCount, flagged });
+      'reviewer',
+      {
+        thresholdMeters: THRESHOLD_M,
+        total: photos.length,
+        withGps,
+        withinCount,
+        flagged,
+      },
+    );
 
     return {
       deviceLat,
       deviceLng,
       photos,
       thresholdMeters: THRESHOLD_M,
-      summary: { total: photos.length, withGps, withinThreshold: withinCount, flagged },
+      summary: {
+        total: photos.length,
+        withGps,
+        withinThreshold: withinCount,
+        flagged,
+      },
     };
   }
 
@@ -1890,11 +2116,22 @@ export class DeviceReviewsService {
         flags.push(`Missing: ${r.missingDocuments.join(', ')}`);
       sections.push({
         name: 'Ownership Verification',
-        status: r.missingDocuments?.length > 0 ? 'fail' : flags.length === 0 ? 'pass' : 'warn',
+        status:
+          r.missingDocuments?.length > 0
+            ? 'fail'
+            : flags.length === 0
+              ? 'pass'
+              : 'warn',
         flags,
       });
     } else {
-      sections.push({ name: 'Ownership Verification', status: 'skip', flags: [`Check failed: ${ownership.reason?.message || ownership.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Ownership Verification',
+        status: 'skip',
+        flags: [
+          `Check failed: ${ownership.reason?.message || ownership.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 2. Duplicates
@@ -1905,7 +2142,9 @@ export class DeviceReviewsService {
       if (dups.length > 0) {
         flags.push(`${dups.length} potential duplicate(s) found`);
         for (const d of dups.slice(0, 5)) {
-          flags.push(`  → ${d.siteName || d.externalId || `ID ${d.id}`} (${d.matchType}, org #${d.organizationId})`);
+          flags.push(
+            `  → ${d.siteName || d.externalId || `ID ${d.id}`} (${d.matchType}, org #${d.organizationId})`,
+          );
         }
         if (dups.length > 5) flags.push(`  … and ${dups.length - 5} more`);
       }
@@ -1915,7 +2154,13 @@ export class DeviceReviewsService {
         flags,
       });
     } else {
-      sections.push({ name: 'Duplicate Screening', status: 'skip', flags: [`Check failed: ${duplicates.reason?.message || duplicates.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Duplicate Screening',
+        status: 'skip',
+        flags: [
+          `Check failed: ${duplicates.reason?.message || duplicates.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 3. Source Access
@@ -1930,18 +2175,32 @@ export class DeviceReviewsService {
       if (r.missingRequired?.length > 0)
         flags.push(`Missing required docs: ${r.missingRequired.join(', ')}`);
       if (r.missingRecommended?.length > 0)
-        flags.push(`Missing recommended docs: ${r.missingRecommended.join(', ')}`);
+        flags.push(
+          `Missing recommended docs: ${r.missingRecommended.join(', ')}`,
+        );
       if (r.manualChecks?.length > 0) {
         flags.push(`${r.manualChecks.length} manual check(s) needed`);
         for (const c of r.manualChecks) flags.push(`  → ${c}`);
       }
       sections.push({
         name: 'Source Access Mode',
-        status: !r.mode ? 'fail' : r.missingRequired?.length > 0 ? 'fail' : flags.length > 0 ? 'warn' : 'pass',
+        status: !r.mode
+          ? 'fail'
+          : r.missingRequired?.length > 0
+            ? 'fail'
+            : flags.length > 0
+              ? 'warn'
+              : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Source Access Mode', status: 'skip', flags: [`Check failed: ${sourceAccess.reason?.message || sourceAccess.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Source Access Mode',
+        status: 'skip',
+        flags: [
+          `Check failed: ${sourceAccess.reason?.message || sourceAccess.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 4. Historical Consistency
@@ -1950,23 +2209,37 @@ export class DeviceReviewsService {
       const criticals = r.anomalies.filter((a) => a.severity === 'critical');
       const warnings = r.anomalies.filter((a) => a.severity === 'warning');
       const flags: string[] = [];
-      flags.push(`${r.totalReadings} reading(s) over ${r.periodMonths} month(s)`);
+      flags.push(
+        `${r.totalReadings} reading(s) over ${r.periodMonths} month(s)`,
+      );
       if (criticals.length > 0) {
         flags.push(`${criticals.length} critical anomaly(s)`);
-        for (const a of criticals.slice(0, 3)) flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+        for (const a of criticals.slice(0, 3))
+          flags.push(`  → ${a.description || a.type || 'anomaly'}`);
       }
       if (warnings.length > 0) {
         flags.push(`${warnings.length} warning(s)`);
-        for (const a of warnings.slice(0, 3)) flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+        for (const a of warnings.slice(0, 3))
+          flags.push(`  → ${a.description || a.type || 'anomaly'}`);
       }
       sections.push({
         name: 'Historical Consistency',
-        status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
+        status:
+          criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
         flags,
-        detail: { totalReadings: r.totalReadings, periodMonths: r.periodMonths },
+        detail: {
+          totalReadings: r.totalReadings,
+          periodMonths: r.periodMonths,
+        },
       });
     } else {
-      sections.push({ name: 'Historical Consistency', status: 'skip', flags: [`Check failed: ${consistency.reason?.message || consistency.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Historical Consistency',
+        status: 'skip',
+        flags: [
+          `Check failed: ${consistency.reason?.message || consistency.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 5. Production Ceiling
@@ -1976,32 +2249,58 @@ export class DeviceReviewsService {
       if (r.configuredYield === null) {
         flags.push(`Capacity: ${r.capacityKw} kW, no yield value configured`);
       } else {
-        flags.push(`Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`);
+        flags.push(
+          `Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`,
+        );
       }
       if (r.irradiance) {
-        flags.push(`Irradiance band: ${r.irradiance.yieldLow}–${r.irradiance.yieldHigh} kWh/kWp/yr (lat ${r.irradiance.absLatitude.toFixed(1)}°), ceiling: ${r.irradiance.monthlyCeilingKwh.toFixed(0)} kWh/month`);
+        flags.push(
+          `Irradiance band: ${r.irradiance.yieldLow}–${r.irradiance.yieldHigh} kWh/kWp/yr (lat ${r.irradiance.absLatitude.toFixed(1)}°), ceiling: ${r.irradiance.monthlyCeilingKwh.toFixed(0)} kWh/month`,
+        );
       }
-      if (r.configuredYield === null) flags.push('No yield value configured — cannot compare against irradiance estimate');
-      else if (r.yieldMismatch) flags.push('Configured yield exceeds irradiance estimate');
-      const violations = r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
-      if (violations.length > 0) flags.push(`${violations.length} reading(s) exceed ceiling`);
+      if (r.configuredYield === null)
+        flags.push(
+          'No yield value configured — cannot compare against irradiance estimate',
+        );
+      else if (r.yieldMismatch)
+        flags.push('Configured yield exceeds irradiance estimate');
+      const violations =
+        r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
+      if (violations.length > 0)
+        flags.push(`${violations.length} reading(s) exceed ceiling`);
       const noYield = r.configuredYield === null;
       sections.push({
         name: 'Production Ceiling',
-        status: violations.length > 0 || r.yieldMismatch ? 'fail' : noYield ? 'warn' : 'pass',
+        status:
+          violations.length > 0 || r.yieldMismatch
+            ? 'fail'
+            : noYield
+              ? 'warn'
+              : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Production Ceiling', status: 'skip', flags: [`Check failed: ${ceiling.reason?.message || ceiling.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Production Ceiling',
+        status: 'skip',
+        flags: [
+          `Check failed: ${ceiling.reason?.message || ceiling.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 6. Cross-Source
     if (crossSource.status === 'fulfilled') {
       const r = crossSource.value;
-      const criticals = r.flags?.filter((f: any) => f.severity === 'critical') || [];
-      const warnings = r.flags?.filter((f: any) => f.severity === 'warning') || [];
+      const criticals =
+        r.flags?.filter((f: any) => f.severity === 'critical') || [];
+      const warnings =
+        r.flags?.filter((f: any) => f.severity === 'warning') || [];
       const flags: string[] = [];
-      if (r.performanceFactor != null) flags.push(`Performance factor: ${(r.performanceFactor * 100).toFixed(1)}%`);
+      if (r.performanceFactor != null)
+        flags.push(
+          `Performance factor: ${(r.performanceFactor * 100).toFixed(1)}%`,
+        );
       if (r.rSquared != null) flags.push(`R²: ${r.rSquared.toFixed(3)}`);
       if (criticals.length > 0) {
         flags.push(`${criticals.length} critical flag(s)`);
@@ -2013,12 +2312,22 @@ export class DeviceReviewsService {
       }
       sections.push({
         name: 'Cross-Source Verification',
-        status: criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
+        status:
+          criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
         flags,
-        detail: { performanceFactor: r.performanceFactor, rSquared: r.rSquared },
+        detail: {
+          performanceFactor: r.performanceFactor,
+          rSquared: r.rSquared,
+        },
       });
     } else {
-      sections.push({ name: 'Cross-Source Verification', status: 'skip', flags: [`Check failed: ${crossSource.reason?.message || crossSource.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Cross-Source Verification',
+        status: 'skip',
+        flags: [
+          `Check failed: ${crossSource.reason?.message || crossSource.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 7. Photo GPS
@@ -2028,26 +2337,47 @@ export class DeviceReviewsService {
       if (r.summary.total === 0) {
         flags.push('No project photos uploaded (minimum 3 required)');
       } else if (r.summary.total < 3) {
-        flags.push(`Only ${r.summary.total} photo(s) uploaded (minimum 3 required)`);
+        flags.push(
+          `Only ${r.summary.total} photo(s) uploaded (minimum 3 required)`,
+        );
       }
       if (r.summary.total > 0) {
-        flags.push(`${r.summary.total} photo(s), ${r.summary.withGps} with GPS data`);
+        flags.push(
+          `${r.summary.total} photo(s), ${r.summary.withGps} with GPS data`,
+        );
         const noGps = r.summary.total - r.summary.withGps;
         if (noGps > 0) flags.push(`${noGps} photo(s) without GPS metadata`);
         if (r.summary.flagged > 0) {
-          flags.push(`${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m from declared location`);
-          for (const p of (r.photos || []).filter((ph: any) => ph.flagged).slice(0, 3)) {
-            flags.push(`  → ${p.fileName || 'photo'}: ${p.distanceMeters?.toFixed(0) || '?'}m away`);
+          flags.push(
+            `${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m from declared location`,
+          );
+          for (const p of (r.photos || [])
+            .filter((ph: any) => ph.flagged)
+            .slice(0, 3)) {
+            flags.push(
+              `  → ${p.fileName || 'photo'}: ${p.distanceMeters?.toFixed(0) || '?'}m away`,
+            );
           }
         }
       }
       sections.push({
         name: 'Photo GPS',
-        status: r.summary.flagged > 0 || r.summary.total < 3 ? 'fail' : (r.summary.total - r.summary.withGps) > 0 ? 'warn' : 'pass',
+        status:
+          r.summary.flagged > 0 || r.summary.total < 3
+            ? 'fail'
+            : r.summary.total - r.summary.withGps > 0
+              ? 'warn'
+              : 'pass',
         flags,
       });
     } else {
-      sections.push({ name: 'Photo GPS', status: 'skip', flags: [`Check failed: ${photoGps.reason?.message || photoGps.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Photo GPS',
+        status: 'skip',
+        flags: [
+          `Check failed: ${photoGps.reason?.message || photoGps.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 8. Compensating Controls (only relevant for Mode 4)
@@ -2066,7 +2396,13 @@ export class DeviceReviewsService {
     // If controls check failed but was attempted, still skip
     if (controls.status === 'rejected') {
       // Only add if we can't tell whether it's Mode 4 — err on side of inclusion
-      sections.push({ name: 'Compensating Controls', status: 'skip', flags: [`Check failed: ${controls.reason?.message || controls.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'Compensating Controls',
+        status: 'skip',
+        flags: [
+          `Check failed: ${controls.reason?.message || controls.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 9. SLD Capacity Compare
@@ -2074,15 +2410,31 @@ export class DeviceReviewsService {
       const r = sldCompare.value;
       const flags: string[] = [];
       if (!r.hasSld) flags.push('No SLD document uploaded');
-      else if (r.sldCapacityKw == null) flags.push('SLD capacity not yet entered by reviewer');
-      else if (r.match === false) flags.push(`SLD says ${r.sldCapacityKw} kW, registered ${r.registeredCapacityKw} kW (${r.differencePercent > 0 ? '+' : ''}${r.differencePercent}%)`);
+      else if (r.sldCapacityKw == null)
+        flags.push('SLD capacity not yet entered by reviewer');
+      else if (r.match === false)
+        flags.push(
+          `SLD says ${r.sldCapacityKw} kW, registered ${r.registeredCapacityKw} kW (${r.differencePercent > 0 ? '+' : ''}${r.differencePercent}%)`,
+        );
       sections.push({
         name: 'SLD Capacity Compare',
-        status: !r.hasSld ? 'fail' : r.match === false ? 'fail' : r.match === true ? 'pass' : 'warn',
+        status: !r.hasSld
+          ? 'fail'
+          : r.match === false
+            ? 'fail'
+            : r.match === true
+              ? 'pass'
+              : 'warn',
         flags,
       });
     } else {
-      sections.push({ name: 'SLD Capacity Compare', status: 'skip', flags: [`Check failed: ${sldCompare.reason?.message || sldCompare.reason || 'unknown error'}`] });
+      sections.push({
+        name: 'SLD Capacity Compare',
+        status: 'skip',
+        flags: [
+          `Check failed: ${sldCompare.reason?.message || sldCompare.reason || 'unknown error'}`,
+        ],
+      });
     }
 
     // 10. Country Match (lat/lng vs declared country, with disputed-territory neutrality)
@@ -2098,8 +2450,12 @@ export class DeviceReviewsService {
       switch (r.status) {
         case 'match':
           status = 'pass';
-          flags.push(`${nameOf(r.declaredCountry)} confirmed by reverse-geocode.`);
-          flags.push('Coordinates are not in any known disputed-border region.');
+          flags.push(
+            `${nameOf(r.declaredCountry)} confirmed by reverse-geocode.`,
+          );
+          flags.push(
+            'Coordinates are not in any known disputed-border region.',
+          );
           break;
         case 'disputed':
           status = 'warn';
@@ -2132,20 +2488,31 @@ export class DeviceReviewsService {
       sections.push({
         name: 'Country Match',
         status: 'skip',
-        flags: [`Check failed: ${countryMatch.reason?.message || countryMatch.reason || 'unknown error'}`],
+        flags: [
+          `Check failed: ${countryMatch.reason?.message || countryMatch.reason || 'unknown error'}`,
+        ],
       });
     }
 
     // Overall status
-    const hasAnyFail = sections.some((s) => s.status === 'fail' || s.status === 'skip');
+    const hasAnyFail = sections.some(
+      (s) => s.status === 'fail' || s.status === 'skip',
+    );
     const hasAnyWarn = sections.some((s) => s.status === 'warn');
     const overallStatus = hasAnyFail ? 'fail' : hasAnyWarn ? 'warn' : 'pass';
 
     const now = new Date().toISOString();
 
-    await this.logAudit(deviceId, 'auto_screen_report',
-      `Auto-screen: ${overallStatus} — ${sections.filter(s => s.status === 'fail').length} fail, ${sections.filter(s => s.status === 'warn').length} warn, ${sections.filter(s => s.status === 'pass').length} pass`,
-      'reviewer', { overallStatus, sections: sections.map(s => ({ name: s.name, status: s.status })) });
+    await this.logAudit(
+      deviceId,
+      'auto_screen_report',
+      `Auto-screen: ${overallStatus} — ${sections.filter((s) => s.status === 'fail').length} fail, ${sections.filter((s) => s.status === 'warn').length} warn, ${sections.filter((s) => s.status === 'pass').length} pass`,
+      'reviewer',
+      {
+        overallStatus,
+        sections: sections.map((s) => ({ name: s.name, status: s.status })),
+      },
+    );
 
     // Persist last screen result on device
     await this.connection.query(
@@ -2180,9 +2547,13 @@ export class DeviceReviewsService {
       `UPDATE device SET sld_capacity_kw = $1 WHERE id = $2`,
       [sldCapacityKw, deviceId],
     );
-    await this.logAudit(deviceId, 'sld_capacity_set',
+    await this.logAudit(
+      deviceId,
+      'sld_capacity_set',
       `SLD capacity set to ${sldCapacityKw} kW`,
-      'reviewer', { sldCapacityKw });
+      'reviewer',
+      { sldCapacityKw },
+    );
     return { sldCapacityKw };
   }
 
@@ -2206,8 +2577,12 @@ export class DeviceReviewsService {
     if (rows.length === 0) {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
-    const registered = rows[0].capacity != null ? parseFloat(rows[0].capacity) : null;
-    const sld = rows[0].sld_capacity_kw != null ? parseFloat(rows[0].sld_capacity_kw) : null;
+    const registered =
+      rows[0].capacity != null ? parseFloat(rows[0].capacity) : null;
+    const sld =
+      rows[0].sld_capacity_kw != null
+        ? parseFloat(rows[0].sld_capacity_kw)
+        : null;
 
     // Check if SLD document exists
     const docs = await this.connection.query(
@@ -2229,9 +2604,12 @@ export class DeviceReviewsService {
       };
     }
 
-    const diff = registered > 0
-      ? ((sld - registered) / registered) * 100
-      : (sld === 0 ? 0 : 100);
+    const diff =
+      registered > 0
+        ? ((sld - registered) / registered) * 100
+        : sld === 0
+          ? 0
+          : 100;
     const match = Math.abs(diff) <= TOLERANCE;
 
     return {
@@ -2249,7 +2627,8 @@ export class DeviceReviewsService {
     status: string,
     ipAddress?: string,
   ): Promise<Array<{ deviceId: number; status: string; error?: string }>> {
-    const results: Array<{ deviceId: number; status: string; error?: string }> = [];
+    const results: Array<{ deviceId: number; status: string; error?: string }> =
+      [];
     for (const id of deviceIds) {
       try {
         const res = await this.updateReviewStatus(id, status, ipAddress);
@@ -2259,7 +2638,9 @@ export class DeviceReviewsService {
       }
     }
     // Log bulk action to audit trail for each affected device
-    const succeeded = results.filter((r) => r.status !== 'error').map((r) => r.deviceId);
+    const succeeded = results
+      .filter((r) => r.status !== 'error')
+      .map((r) => r.deviceId);
     for (const id of succeeded) {
       await this.logAudit(
         id,
@@ -2275,7 +2656,9 @@ export class DeviceReviewsService {
 
   async bulkAutoScreen(
     deviceIds?: number[],
-  ): Promise<Array<{ deviceId: number; overallStatus: string; error?: string }>> {
+  ): Promise<
+    Array<{ deviceId: number; overallStatus: string; error?: string }>
+  > {
     // If no IDs provided, screen all unscreened pending devices
     let ids = deviceIds;
     if (!ids || ids.length === 0) {
@@ -2295,13 +2678,21 @@ export class DeviceReviewsService {
       ids = rows.map((r) => r.id);
     }
 
-    const results: Array<{ deviceId: number; overallStatus: string; error?: string }> = [];
+    const results: Array<{
+      deviceId: number;
+      overallStatus: string;
+      error?: string;
+    }> = [];
     for (const id of ids) {
       try {
         const res = await this.autoScreenReport(id);
         results.push({ deviceId: id, overallStatus: res.overallStatus });
       } catch (err: any) {
-        results.push({ deviceId: id, overallStatus: 'error', error: err.message });
+        results.push({
+          deviceId: id,
+          overallStatus: 'error',
+          error: err.message,
+        });
       }
     }
     return results;
@@ -2352,7 +2743,9 @@ export class DeviceReviewsService {
 
     const commDate = dev.commissioningDate
       ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', {
-          day: '2-digit', month: 'long', year: 'numeric',
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
         })
       : 'Not specified';
 
@@ -2362,24 +2755,38 @@ export class DeviceReviewsService {
       { label: 'Organization', value: dev.orgName || '—' },
       { label: 'Serial Number', value: dev.serialNumber || '—' },
       { label: 'Country', value: dev.countryCode || '—' },
-      { label: 'Location', value: dev.latitude && dev.longitude
-        ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
-        : '—' },
+      {
+        label: 'Location',
+        value:
+          dev.latitude && dev.longitude
+            ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
+            : '—',
+      },
       { label: 'Address', value: dev.address || '—' },
-      { label: 'Capacity (kW)', value: dev.capacity != null ? String(dev.capacity) : '—' },
+      {
+        label: 'Capacity (kW)',
+        value: dev.capacity != null ? String(dev.capacity) : '—',
+      },
       { label: 'Fuel Type', value: dev.fuelCode || '—' },
       { label: 'Device Type', value: dev.deviceTypeCode || '—' },
-      { label: 'Grid Interconnection', value: dev.gridInterconnection ? 'Yes' : 'No' },
-      { label: 'Operating Configuration', value: dev.operatingConfiguration || '—' },
+      {
+        label: 'Grid Interconnection',
+        value: dev.gridInterconnection ? 'Yes' : 'No',
+      },
+      {
+        label: 'Operating Configuration',
+        value: dev.operatingConfiguration || '—',
+      },
       { label: 'Source Access Mode', value: dev.sourceAccessMode || '—' },
       { label: 'Commissioning Date', value: commDate },
     ];
 
-    const docs: Array<{ type: string; cnt: string }> = await this.connection.query(
-      `SELECT type, COUNT(*)::text AS cnt FROM documents WHERE target_type = 'device' AND target_id = $1 GROUP BY type`,
-      [deviceId],
-    );
-    const typeCounts = new Map(docs.map(d => [d.type, parseInt(d.cnt, 10)]));
+    const docs: Array<{ type: string; cnt: string }> =
+      await this.connection.query(
+        `SELECT type, COUNT(*)::text AS cnt FROM documents WHERE target_type = 'device' AND target_id = $1 GROUP BY type`,
+        [deviceId],
+      );
+    const typeCounts = new Map(docs.map((d) => [d.type, parseInt(d.cnt, 10)]));
     const allDocs = [
       { type: 'SINGLE_LINE_DIAGRAM', required: true, minCount: 1 },
       { type: 'SF_02C', required: false, minCount: 1 },
@@ -2388,7 +2795,7 @@ export class DeviceReviewsService {
       { type: 'METERING_EVIDENCE', required: false, minCount: 1 },
       { type: 'PROJECT_PHOTOS', required: true, minCount: 3 },
     ];
-    const documents = allDocs.map(d => ({
+    const documents = allDocs.map((d) => ({
       type: d.type,
       present: (typeCounts.get(d.type) ?? 0) >= d.minCount,
       count: typeCounts.get(d.type) ?? 0,
@@ -2399,7 +2806,9 @@ export class DeviceReviewsService {
     return { fields, documents };
   }
 
-  async generateSf02(deviceId: number): Promise<{ url: string; docId: number }> {
+  async generateSf02(
+    deviceId: number,
+  ): Promise<{ url: string; docId: number }> {
     const dev = await this.fetchSf02DeviceData(deviceId);
 
     // Build the PDF
@@ -2463,7 +2872,10 @@ export class DeviceReviewsService {
       doc
         .fontSize(10)
         .fillColor('#64748b')
-        .text('Green South B.V. — D-REC Platform', 60, 40, { align: 'right', width: pageWidth });
+        .text('Green South B.V. — D-REC Platform', 60, 40, {
+          align: 'right',
+          width: pageWidth,
+        });
 
       doc.moveDown(1.5);
 
@@ -2471,7 +2883,10 @@ export class DeviceReviewsService {
       doc
         .fontSize(22)
         .fillColor('#0f172a')
-        .text('SF-02 — Production Facility Registration', { align: 'center', width: pageWidth });
+        .text('SF-02 — Production Facility Registration', {
+          align: 'center',
+          width: pageWidth,
+        });
 
       doc.moveDown(0.3);
       doc
@@ -2504,7 +2919,7 @@ export class DeviceReviewsService {
         .fillColor('#334155')
         .text(
           `This document registers the renewable energy production facility described below ` +
-          `on the D-REC Platform operated by Green South B.V.`,
+            `on the D-REC Platform operated by Green South B.V.`,
           { width: pageWidth, lineGap: 4 },
         );
 
@@ -2517,9 +2932,12 @@ export class DeviceReviewsService {
         ['Organization', dev.orgName || '—'],
         ['Serial Number', dev.serialNumber || '—'],
         ['Country', dev.countryCode || '—'],
-        ['Location', dev.latitude && dev.longitude
-          ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
-          : '—'],
+        [
+          'Location',
+          dev.latitude && dev.longitude
+            ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
+            : '—',
+        ],
         ['Address', dev.address || '—'],
         ['Capacity (kW)', dev.capacity != null ? String(dev.capacity) : '—'],
         ['Fuel Type', dev.fuelCode || '—'],
@@ -2570,7 +2988,7 @@ export class DeviceReviewsService {
         .moveDown(0.3)
         .text(
           'This registration form was automatically generated by the D-REC Platform. ' +
-          'It confirms that the above production facility is registered in the system.',
+            'It confirms that the above production facility is registered in the system.',
           { width: pageWidth, lineGap: 3 },
         );
 
@@ -2590,8 +3008,10 @@ export class DeviceReviewsService {
 
 /** Haversine distance in meters between two lat/lng points. */
 function haversineMeters(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number,
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
 ): number {
   const R = 6_371_000; // Earth radius in meters
   const toRad = (d: number) => (d * Math.PI) / 180;
