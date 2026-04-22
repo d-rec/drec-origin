@@ -34,6 +34,7 @@ Repository for Origin DREC project
 ## Tech Stack
 
 **Backend** ([drec-origin](https://github.com/d-rec/drec-origin))
+
 - NestJS 8 / TypeORM / TypeScript
 - PostgreSQL / Redis / MinIO (S3-compatible)
 - Energy Web / Ethers.js (blockchain certificates)
@@ -41,6 +42,7 @@ Repository for Origin DREC project
 - Sentry (error monitoring)
 
 **Frontend** ([drec-ui](https://github.com/d-rec/drec-ui))
+
 - Angular 19 / Angular Material
 - Bootstrap 5
 - TypeScript 5.7 / SCSS
@@ -176,6 +178,7 @@ Paste the output values into your `.env`. This is fine for local development —
 3. Fund your wallet with test tokens at <https://voltafaucet.energyweb.org/>.
 4. Export your private key: **Account details → Show private key**.
 5. Update `.env`:
+
    ```ini
    ISSUER_PRIVATE_KEY=<private-key-without-0x-prefix>
    DREC_BLOCKCHAIN_ADDRESS=<your-wallet-address>

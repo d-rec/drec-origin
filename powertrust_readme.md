@@ -177,7 +177,7 @@ new Redis({
 Kubernetes **automatically injects** environment variables for every Service
 in the same namespace. When a Service is named `redis`, the pod gets:
 
-```
+```text
 REDIS_PORT=tcp://10.100.150.81:6379
 REDIS_SERVICE_PORT=6379
 REDIS_SERVICE_HOST=10.100.150.81
@@ -195,7 +195,7 @@ named `redis` in the `stage` namespace, stage will break the same way.**
 
 `package.json` at `b80bf934` defines:
 
-```
+```text
 typeorm => ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js --config ormconfig-dev.ts
 ```
 
@@ -203,7 +203,7 @@ which points at a **TypeScript** config file (`ormconfig-dev.ts`) and uses
 ts-node. After `pnpm prune --prod`, `@types/node` is gone, and ts-node fails
 with:
 
-```
+```text
 ormconfig-dev.ts(7,10): error TS2591: Cannot find name 'process'.
 ```
 
