@@ -24,7 +24,10 @@ export class AlignSequences1756999999999 implements MigrationInterface {
         LOOP
           EXECUTE format('SELECT coalesce(max(%I),0) FROM %I', r.col, r.tbl) INTO maxid;
           IF maxid > 0 THEN
-            EXECUTE format('SELECT setval(%L, %s, true)', 'public.'||r.sequencename, maxid);
+            -- quote_ident preserves mixed-case sequence names (e.g.
+            -- device_csv_file_processing_jobs_jobId_seq); pass as the
+            -- unqualified identifier — resolves via public on the search_path.
+            EXECUTE format('SELECT setval(%L, %s, true)', quote_ident(r.sequencename), maxid);
           END IF;
         END LOOP;
       END $$;
