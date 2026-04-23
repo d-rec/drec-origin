@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   forwardRef,
   HttpException,
@@ -24,8 +25,11 @@ import { DeviceDescription, IDevice, ILoggedInUser } from '../../models';
 import {
   CommissioningDateRange,
   DeviceTypeCode,
+  EvidencePathway,
   FuelCode,
+  GroupReviewStatus,
   OffTaker,
+  OperatingConfiguration,
   Role,
 } from '../../utils/enums';
 import { Device } from '../device/device.entity';
@@ -46,6 +50,7 @@ import csv from 'csv-parser';
 import moment from 'moment';
 import { nanoid } from 'nanoid';
 import { HistoryNextIssuanceStatus } from '../../utils/enums/history_next_issuance.enum';
+import { classifyEvidencePathway } from '../../utils/evidence-pathway-classifier';
 import { getCapacityRange } from '../../utils/get-capacity-range';
 import { getDateRangeFromYear } from '../../utils/get-commissioning-date-range';
 import { OrganizationService } from '../organization/organization.service';
@@ -163,7 +168,7 @@ export class DeviceGroupService {
         query.andWhere(`group.api_user_id = '${apiUserId}'`);
       }
     }
-    if (user?.role === Role.OrganizationAdmin) {
+    if (user?.role === Role.Registrant) {
       query.andWhere(`group.organizationId = '${user.organizationId}'`);
     }
     if (organizationId) {
@@ -386,7 +391,7 @@ export class DeviceGroupService {
       throw new NotFoundException(`No device group found with id ${id}`);
     }
     if (user) {
-      if (user.role === Role.ApiUser) {
+      if (user.role === Role.Registrant) {
         const organization = await this.organizationService.findOne(
           user.organizationId,
         );
@@ -394,10 +399,10 @@ export class DeviceGroupService {
           organization.orgEmail,
         );
         if (
-          orgUser.role === Role.OrganizationAdmin ||
-          orgUser.role === Role.DeviceOwner
+          orgUser.role === Role.Registrant ||
+          orgUser.role === Role.SiteOperator
         ) {
-          const isMyDevice = await this.checkDeveloperOrganization(
+          const isMyDevice = await this.checkDeviceOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -425,11 +430,8 @@ export class DeviceGroupService {
           }
         }
       } else {
-        if (
-          user.role === Role.OrganizationAdmin ||
-          user.role === Role.DeviceOwner
-        ) {
-          const isMyDevice = await this.checkDeveloperOrganization(
+        if (user.role === Role.SiteOperator) {
+          const isMyDevice = await this.checkDeviceOrganization(
             deviceGroup.deviceIdsInt,
             user.organizationId,
           );
@@ -708,7 +710,7 @@ export class DeviceGroupService {
         .filter((id) => !isNaN(id));
       const deviceQuery = this.repository.manager
         .createQueryBuilder(Device, 'device')
-        .select(['device.id', 'device.projectName', 'device.serialNumber'])
+        .select(['device.id', 'device.siteName', 'device.serialNumber'])
         .where('device.id IN (:...ids)', { ids: numericIds });
 
       return await deviceQuery.getRawMany();
@@ -755,7 +757,7 @@ export class DeviceGroupService {
             return {
               id: device.device_id,
               serialNumber: device.device_serial_number,
-              projectName: device.device_projectName,
+              siteName: device.device_siteName,
             };
           }),
         };
@@ -861,11 +863,8 @@ export class DeviceGroupService {
         );
       }),
     );
-    if (data.type === GroupType.Single) {
-      await this.registerSingleDeviceToEvident(devices[0], group);
-    } else {
-      await this.evidentDeviceService.queueDeviceGroupRegistration(group);
-    }
+    // D-REC Methodology §2.5: Evident submission is deferred until group review is approved.
+    // When a reviewer approves the group, approveGroupReview() triggers the Evident queue.
 
     return group;
   }
@@ -965,32 +964,54 @@ export class DeviceGroupService {
     let allDevicesAvailableForBuyerReservation = true;
     const unavailableDeviceIds: Array<number> = [];
     const unavailableDeviceIdsDueToCertificateAlreadyIssued: Array<number> = [];
+
+    // D-REC §2.6: Screen for date-range overlap against historical issuance records
+    if (group.reservationStartDate && group.reservationEndDate) {
+      const deviceExternalIds = devices.map((d) => d.externalId).filter(Boolean);
+      if (deviceExternalIds.length > 0) {
+        const startDate = new Date(group.reservationStartDate);
+        const endDate = new Date(group.reservationEndDate);
+        const allHistory = await this.historyNextIssuanceDateRepository.find({
+          where: deviceExternalIds.map((eid) => ({
+            device_externalid: eid,
+          })),
+        });
+        const overlapping = allHistory.filter((h) => {
+          const hStart = new Date(h.reservationStartDate);
+          const hEnd = new Date(h.reservationEndDate);
+          return hStart < endDate && hEnd > startDate;
+        });
+        const overlappingExternalIds = new Set(
+          overlapping.map((h) => h.device_externalid),
+        );
+        overlappingExternalIds.forEach((eid) => {
+          const device = devices.find((d) => d.externalId === eid);
+          if (device) {
+            unavailableDeviceIdsDueToCertificateAlreadyIssued.push(device.id);
+          }
+        });
+      }
+    }
+
+    // Block devices that have overlapping certificate date ranges
+    if (unavailableDeviceIdsDueToCertificateAlreadyIssued.length > 0) {
+      throw new ConflictException({
+        success: false,
+        message:
+          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(', ')} ` +
+          `have already certified data in that date range. ` +
+          `Please remove them or select a different date range.`,
+      });
+    }
+
     if (devices.length === 0) {
       smallHackAsEvenAfterReturnReservationGettingCreatedWillUseBoolean = true;
       this.logger.error(
         `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       );
-      return new Promise((resolve, reject) => {
-        let message = '';
-        if (
-          unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.length > 0
-        ) {
-          message =
-            message +
-            `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`;
-        }
-        this.logger.error(
-          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`,
-        );
-        message =
-          message +
-          `Devices ${unavailableDeviceIdsDueToCertificateAlreadyIssued.join(' , ')} have already certified data in that date range and please add other devices or select different date range`;
-        reject(
-          new ConflictException({
-            success: false,
-            message: message,
-          }),
-        );
+      throw new ConflictException({
+        success: false,
+        message: `Devices ${unavailableDeviceIdsDueToAlreadyIncludedInBuyerReservation.join(' , ')} are already included in buyer reservation, please add other devices`,
       });
     }
     group.deviceIds?.forEach((ele) => {
@@ -1273,6 +1294,133 @@ export class DeviceGroupService {
     return existingSerialNumbers;
   }
 
+  /**
+   * Runs the actual device insertion for a bulk upload whose preview was
+   * previously staged (status = PendingConfirmation). Called from the
+   * confirm endpoint after the user reviews the parsed records.
+   */
+  public async performBulkDeviceRegistration(
+    bulkUpload: BulkUploadEntity,
+    records: NewDeviceDTO[],
+    organizationId: number,
+  ): Promise<{ successCount: number; failedCount: number }> {
+    this.logger.verbose(`With in performBulkDeviceRegistration`);
+
+    // Empty DeviceFiles set — CSV uploads never attach documents.
+    const files: DeviceFiles = {
+      [DocumentType.FORM_SF_02]: [],
+      [DocumentType.SF_02C]: [],
+      [DocumentType.SF_02C_OWNERS_DECLARATION]: [],
+      [DocumentType.METERING_EVIDENCE]: [],
+      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
+      [DocumentType.PROJECT_PHOTOS]: [],
+      [DocumentType.COD_PROOF]: [],
+      [DocumentType.OTHER_DOCUMENTS]: [],
+    };
+
+    await this.bulkUploadRepository.update(
+      { id: bulkUpload.id },
+      { status: BulkUploadStatus.Importing },
+    );
+
+    const organization =
+      await this.organizationService.findOne(organizationId);
+    const devicesRegistered = await this.registerCSVBulkDevices(
+      organizationId,
+      records,
+      files,
+      organization.api_user_id,
+    );
+
+    const successfullyAddedRowsAndExternalIds: Array<{
+      rowNumber: number;
+      serialNumber: string;
+    }> = [];
+    const errorRows: Array<{
+      serialNumber: string;
+      rowNumber: number;
+      isError: boolean;
+      errorsList: Array<any>;
+      status?: string;
+    }> = records.map((r, idx) => ({
+      serialNumber: r.serialNumber,
+      rowNumber: idx,
+      isError: false,
+      errorsList: [],
+    }));
+
+    devicesRegistered
+      .filter((ele) => (ele as any).isError === undefined)
+      .forEach((ele) => {
+        const sn = (ele as any).serialNumber;
+        const rowNumber = records.findIndex((r) => r.serialNumber === sn);
+        successfullyAddedRowsAndExternalIds.push({
+          serialNumber: sn,
+          rowNumber,
+        });
+      });
+
+    devicesRegistered
+      .filter((d: any) => d.isError)
+      .forEach((d: DeviceRegistrationError) => {
+        const sn = d.device?.serialNumber;
+        const idx = errorRows.findIndex((r) => r.serialNumber === sn);
+        if (idx !== -1) {
+          errorRows[idx].isError = true;
+          errorRows[idx].errorsList.push({
+            value: sn,
+            property: 'Device error',
+            constraints: {
+              error:
+                d.errorDetail?.response?.message ??
+                d.errorDetail?.message ??
+                'Device registration failed',
+            },
+          });
+        }
+      });
+
+    errorRows.forEach((ele, index) => {
+      if (!ele.isError) {
+        ele.status = 'Success';
+      } else if (
+        successfullyAddedRowsAndExternalIds.find(
+          (s) =>
+            s.serialNumber === ele.serialNumber && s.rowNumber === index,
+        )
+      ) {
+        ele.status = 'Success with validation errors, please update fields';
+      } else {
+        ele.status = 'Failed';
+      }
+    });
+
+    // Replace the staged preview row with the final result log
+    await this.bulkUploadFailedLogRepository.delete({
+      bulkUploadId: bulkUpload.id,
+    });
+    await this.createFailedRowDetailsForCSVJob(
+      bulkUpload.id,
+      errorRows,
+      successfullyAddedRowsAndExternalIds,
+    );
+
+    const failedCount = errorRows.filter((r) => r.isError).length;
+    const successCount = errorRows.length - failedCount;
+
+    await this.bulkUploadRepository.update(
+      { id: bulkUpload.id },
+      {
+        status:
+          failedCount === 0
+            ? BulkUploadStatus.Completed
+            : BulkUploadStatus.Failed,
+      },
+    );
+
+    return { successCount, failedCount };
+  }
+
   public async registerCSVBulkDevices(
     orgCode: number,
     newDevices: NewDeviceDTO[],
@@ -1291,7 +1439,7 @@ export class DeviceGroupService {
               device,
               files,
               api_user_id,
-              Role.ApiUser,
+              Role.Registrant,
             );
           }
         } catch (e) {
@@ -1391,9 +1539,64 @@ export class DeviceGroupService {
         0,
       ),
     );
+
+    // D-REC Methodology §3: aggregate capacity must not exceed 250 kW
+    if (aggregatedCapacity > 250) {
+      throw new BadRequestException({
+        success: false,
+        message: `Aggregate capacity of ${aggregatedCapacity} kW exceeds the D-REC methodology limit of 250 kW`,
+      });
+    }
+
     const gridInterconnection = devices.every(
       (device: DeviceDTO) => device.gridInterconnection === true,
     );
+
+    // Collect distinct operating configurations across all devices
+    const operatingConfigurations: OperatingConfiguration[] = Array.from(
+      new Set(
+        devices
+          .map((d) => d.operatingConfiguration)
+          .filter((c): c is OperatingConfiguration => c != null),
+      ),
+    );
+
+    // Validate that all devices with a source access mode share the same mode
+    const sourceAccessModes = Array.from(
+      new Set(
+        devices
+          .map((d) => d.sourceAccessMode)
+          .filter((m) => m != null) as string[],
+      ),
+    );
+    if (sourceAccessModes.length > 1) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'All devices in a group must share the same Source Access Mode. ' +
+          `Found: ${sourceAccessModes.join(', ')}`,
+      });
+    }
+
+    // D-REC §3.5: Evidence-pathway compatibility — all devices must resolve
+    // to the same evidence pathway so verification rules are uniform.
+    const pathways = Array.from(
+      new Set(
+        devices
+          .map((d) =>
+            classifyEvidencePathway(d.operatingConfiguration as any, d.sourceAccessMode as any),
+          )
+          .filter((p): p is EvidencePathway => p != null),
+      ),
+    );
+    if (pathways.length > 1) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'All devices in a group must have the same evidence pathway. ' +
+          `Found: ${pathways.join(', ')}`,
+      });
+    }
 
     const fuelCode = Array.from(
       new Set(
@@ -1430,6 +1633,7 @@ export class DeviceGroupService {
       deviceTypeCodes: deviceTypeCodes,
       offTakers: offTakers,
       gridInterconnection,
+      operatingConfigurations,
       aggregatedCapacity,
       capacityRange: getCapacityRange(aggregatedCapacity),
       commissioningDateRange: this.getCommissioningDateRange(devices),
@@ -1468,21 +1672,77 @@ export class DeviceGroupService {
       errorsList: Array<any>;
     }> = [];
     let rowsConvertedToCsvCount = 0;
+    let skippedRowCount = 0;
     this.logger.debug('file?.data.toString()', file?.data.toString());
     const fileData = file.data.Body.toString('utf-8');
     this.csvStringToJSON(fileData);
 
+    return new Promise<void>((resolve, reject) => {
     CSVToJsonV2()
       .fromString(fileData)
       .subscribe(async (data: any) => {
         rowsConvertedToCsvCount++;
+
+        // Skip the template instruction/placeholder row
+        if (data.serialNumber === 'REPLACE_WITH_DEVICE_SERIAL_NUMBER' ||
+            data.countryCode === '3-letter country code') {
+          skippedRowCount++;
+          return;
+        }
+
         data.images = [];
         data.groupId = null;
+
+        // Normalise N/A and whitespace-only values to empty string
+        // so downstream logic treats them as missing.
+        for (const k of Object.keys(data)) {
+          if (typeof data[k] === 'string') {
+            data[k] = data[k].trim();
+            if (data[k].toUpperCase() === 'N/A') {
+              data[k] = '';
+            }
+          }
+        }
+
+        // Legacy template aliasing: older Evident-style CSV templates used
+        // different column names. Map them onto the current DTO field names
+        // if the canonical column isn't present.
+        if (!data.siteName && data.projectName) {
+          data.siteName = data.projectName;
+        }
+        if (!data.serialNumber && data['Evident Device ID']) {
+          data.serialNumber = data['Evident Device ID'];
+        }
+
+        // Synthesize a serial number when the original CSV says
+        // "NOT YET REGISTERED" (or is empty).
+        if (
+          !data.serialNumber ||
+          data.serialNumber.toUpperCase() === 'NOT YET REGISTERED'
+        ) {
+          const sitePart = (data.siteName || data.projectName || 'DEVICE')
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, '')
+            .substring(0, 8);
+          data.serialNumber = `${sitePart}ES${String(rowsConvertedToCsvCount).padStart(5, '0')}`;
+        }
+
+        // Defaults for fields the legacy template doesn't include but which
+        // the DTO marks @IsNotEmpty. Registrants are always solar/OMC.
+        if (!data.dataSource) {
+          data.dataSource = 'OMC';
+        }
+        if (!data.dataSourceBrand) {
+          data.dataSourceBrand = 'OMC';
+        }
+        if (!data.deviceDescription) {
+          data.deviceDescription = DeviceDescription.GroundmountSolar;
+        }
 
         const dataToStore: NewDeviceDTO = {
           dataSourceBrand: '',
           externalId: '',
-          projectName: '',
+          siteName: '',
           address: '',
           latitude: '',
           longitude: '',
@@ -1496,9 +1756,6 @@ export class DeviceGroupService {
           impactStory: '',
           images: [],
           deviceDescription: DeviceDescription.GroundmountSolar,
-          energyStorage: true,
-          energyStorageCapacity: 0,
-          qualityLabels: '',
           SDGBenefits: [],
           version: '1.0',
           dataSource: '',
@@ -1510,14 +1767,16 @@ export class DeviceGroupService {
             continue;
           }
           if (typeof dataToStore[key] === 'string') {
-            dataToStore[key] = data[key];
+            dataToStore[key] = data[key] ?? dataToStore[key];
           } else if (typeof dataToStore[key] === 'boolean') {
-            dataToStore[key] =
-              data[key].toLowerCase() === 'true' ? true : false;
+            dataToStore[key] = data[key]
+              ? String(data[key]).toLowerCase() === 'true'
+              : dataToStore[key];
           } else if (typeof dataToStore[key] === 'number') {
-            dataToStore[key] = Number.isNaN(data[key])
-              ? 0
-              : parseFloat(data[key]);
+            const parsed = parseFloat(data[key]);
+            dataToStore[key] = Number.isNaN(parsed)
+              ? dataToStore[key]
+              : parsed;
             if (key == 'yieldValue' && dataToStore[key] === 0) {
               dataToStore[key] = 2000;
             }
@@ -1542,8 +1801,22 @@ export class DeviceGroupService {
           isError: false,
           errorsList: [],
         });
+      }, (err: any) => {
+        this.logger.error(`CSV parse error: ${err?.message || err}`);
+        reject(err);
       })
       .on('done', async () => {
+        try {
+        // Auto-deduplicate serial numbers within the batch by appending -2, -3, etc.
+        const snCount: Record<string, number> = {};
+        for (const rec of records) {
+          const key = (rec.serialNumber || '').toLowerCase();
+          snCount[key] = (snCount[key] || 0) + 1;
+          if (snCount[key] > 1) {
+            rec.serialNumber = `${rec.serialNumber}-${snCount[key]}`;
+          }
+        }
+
         for (let index = 0; index < records.length; index++) {
           const singleRecord = records[index];
           if (records[index].externalId) {
@@ -1664,17 +1937,6 @@ export class DeviceGroupService {
               },
             });
           }
-          if (singleRecord.energyStorageCapacity < 0) {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              value: singleRecord.energyStorageCapacity,
-              property: 'energyStorageCapacity',
-              constraints: {
-                greaterThanZero:
-                  'Energy Storage Capacity should be greater than 0',
-              },
-            });
-          }
         }
 
         records?.forEach((singleRecord, index) => {
@@ -1706,6 +1968,30 @@ export class DeviceGroupService {
             }
           });
         }
+
+        // Bulk siteName pre-check so we catch all conflicts up front.
+        // register() also checks siteName per-row, but that only fires during
+        // insertion — we need the error surfaced here to honor atomicity.
+        const existingSiteNames =
+          await this.deviceService.findMultipleDevicesBasedSiteName(
+            records.map((r) => r.siteName).filter(Boolean) as string[],
+            organizationId,
+          );
+        if (existingSiteNames.length > 0) {
+          const existingSet = new Set(existingSiteNames);
+          records?.forEach((singleRecord, index) => {
+            if (singleRecord.siteName && existingSet.has(singleRecord.siteName)) {
+              recordsErrors[index].isError = true;
+              recordsErrors[index].errorsList.push({
+                value: singleRecord.siteName,
+                property: 'siteName',
+                constraints: {
+                  siteNameExists: `A device with site name "${singleRecord.siteName}" already exists in this organization`,
+                },
+              });
+            }
+          });
+        }
         const recordsCopy = cloneDeep(records);
         recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
         const duplicateserialNumbers: any = [];
@@ -1726,7 +2012,7 @@ export class DeviceGroupService {
                 duplicateserialNumbers.push({
                   duplicateIndex: j,
                   duplicateWith: i,
-                  projectName: records[j].projectName,
+                  siteName: records[j].siteName,
                   serialNumber: records[j].serialNumber,
                 });
                 recordsErrors[j].isError = true;
@@ -1752,103 +2038,66 @@ export class DeviceGroupService {
           rowNumber: number;
           serialNumber: string;
         }> = [];
-        const recordsToRegister = records.filter((ele, index) => {
-          if (recordsErrors[index].errorsList.length > 0) {
-            //these are required fields and if one is having error we cannot try to insert the record
-            if (
-              recordsErrors[index].errorsList.find(
-                (errorRec) =>
-                  errorRec.property === 'serialNumber' ||
-                  errorRec.property === 'commissioningDate' ||
-                  errorRec.property === 'capacity' ||
-                  errorRec.property === 'countryCode',
-              )
-            ) {
-              return false;
-            } else {
-              return true;
-            }
-          } else return true;
-        });
-        const organization =
-          await this.organizationService.findOne(organizationId);
 
-        const devicesRegistered = await this.registerCSVBulkDevices(
-          organizationId,
-          recordsToRegister,
-          files,
-          organization.api_user_id,
-        );
-
-        devicesRegistered
-          .filter((ele) => (ele as any).isError === undefined)
-          ?.forEach((ele) => {
-            successfullyAddedRowsAndExternalIds.push({
-              serialNumber: (ele as any).serialNumber,
-              rowNumber: records.findIndex(
-                (recEle) => recEle.serialNumber === (ele as any).serialNumber,
-              ),
-            });
-          });
-
-        devicesRegistered
-          .filter((device: DeviceRegistrationError) => device.isError)
-          .forEach((device: DeviceRegistrationError) => {
-            const serialNumber = device.device?.serialNumber;
-            const errorIndex = recordsErrors.findIndex(
-              (record) => record.serialNumber === serialNumber,
-            );
-
-            if (errorIndex !== -1) {
-              recordsErrors[errorIndex].isError = true;
-              recordsErrors[errorIndex].errorsList.push({
-                value: recordsErrors[errorIndex].serialNumber,
-                property: 'Device error',
+        // Atomic pre-flight: if ANY row has an error after all validation
+        // and conflict checks, abort the entire upload without inserting
+        // anything. Keeps the DB consistent with the user's CSV — partial
+        // imports leave orphan rows that block re-upload.
+        const anyError = recordsErrors.some((r) => r.errorsList.length > 0);
+        if (anyError) {
+          recordsErrors.forEach((r, idx) => {
+            if (r.errorsList.length === 0) {
+              r.isError = true;
+              r.errorsList.push({
+                value: records[idx].serialNumber,
+                property: 'batch',
                 constraints: {
-                  error: device.errorDetail?.response?.message,
+                  batchAborted:
+                    'Row skipped: other rows in this upload had errors. The whole batch was rejected to keep the upload atomic.',
                 },
               });
             }
           });
+          await this.bulkUploadRepository.update(
+            { jobId: filesAddedForProcessing.jobId },
+            { status: BulkUploadStatus.Failed },
+          );
+          this.createFailedRowDetailsForCSVJob(
+            filesAddedForProcessing.id,
+            recordsErrors,
+            successfullyAddedRowsAndExternalIds,
+          );
+          resolve();
+          return;
+        }
 
-        recordsErrors.forEach((ele, index) => {
-          if (ele.isError === false) {
-            ele['status'] = 'Success';
-          } else if (
-            ele.isError === true &&
-            successfullyAddedRowsAndExternalIds.find(
-              (successEle) =>
-                successEle.serialNumber === ele.serialNumber &&
-                successEle.rowNumber === index,
-            )
-          ) {
-            ele['status'] =
-              'Success with validation errors, please update fields';
-          } else {
-            ele['status'] = 'Failed';
-          }
-        });
-
-        this.createFailedRowDetailsForCSVJob(
-          filesAddedForProcessing.id,
-          recordsErrors,
-          successfullyAddedRowsAndExternalIds,
-        );
-
-        const failedRowsSize = recordsErrors.filter(
-          (row) => row.isError,
-        ).length;
-
-        this.bulkUploadRepository.update(
-          { jobId: filesAddedForProcessing.jobId },
-          {
-            status:
-              failedRowsSize === 0
-                ? BulkUploadStatus.Completed
-                : BulkUploadStatus.Failed,
+        // Validation passed for all rows. Stop here and stage the parsed
+        // records as a preview. The user reviews the list, then hits the
+        // confirm endpoint to actually insert them.
+        await this.bulkUploadFailedLogRepository.save({
+          bulkUploadId: filesAddedForProcessing.id,
+          details: {
+            preview: {
+              records,
+              organizationId,
+              totalCsvRows: rowsConvertedToCsvCount,
+              skippedRows: skippedRowCount,
+            },
           },
+        });
+        await this.bulkUploadRepository.update(
+          { jobId: filesAddedForProcessing.jobId },
+          { status: BulkUploadStatus.PendingConfirmation },
         );
+        resolve();
+        } catch (err) {
+          this.logger.error(
+            `processCsvFileAnotherLibrary done-handler failed: ${err?.stack || err}`,
+          );
+          reject(err);
+        }
       });
+    });
   }
 
   csvStringToJSON(csvFileContentInString: string): void {
@@ -2040,8 +2289,33 @@ export class DeviceGroupService {
     if (group) {
       group.reservationActive = false;
       await this.repository.save(group);
+
+      // Release locked devices so they can be added to new reservations
+      const devices = await this.deviceService.findForGroup(group.id);
+      if (devices?.length) {
+        await Promise.all(
+          devices.map((device: any) =>
+            this.deviceService.removeFromGroup(device.id, group.id),
+          ),
+        );
+        this.logger.log(
+          `Released ${devices.length} device(s) from expired group ${group.id}`,
+        );
+      }
       return;
     }
+  }
+
+  async sweepExpiredReservations(): Promise<number> {
+    const activeGroups = await this.getAllReservationActive();
+    let released = 0;
+    for (const group of activeGroups) {
+      if (group.isExpired()) {
+        await this.deactivateReservation(group);
+        released++;
+      }
+    }
+    return released;
   }
 
   public async getDeviceGrouplog(
@@ -2088,7 +2362,7 @@ export class DeviceGroupService {
   }
 
   public async getNextHistoryIssuanceDeviceLogAfterReservation(
-    developerExternalId: string,
+    operatorExternalId: string,
     groupId: number,
   ): Promise<HistoryDeviceGroupNextIssueCertificate | undefined> {
     this.logger.verbose(
@@ -2096,7 +2370,7 @@ export class DeviceGroupService {
     );
     return await this.historyNextIssuanceDateRepository.findOne({
       where: {
-        device_externalid: developerExternalId,
+        device_externalid: operatorExternalId,
         groupId: groupId,
         status: 'Completed',
       },
@@ -2172,7 +2446,7 @@ export class DeviceGroupService {
       .createQueryBuilder('hni')
       .leftJoin('device', 'd', 'hni.device_externalid = d.externalId')
       .select([
-        'd.developerExternalId AS "externalId"',
+        'd."operatorExternalId" AS "externalId"',
         'hni.* AS historynextissuance',
       ])
       .where('hni.groupId = :groupId', { groupId: group.id })
@@ -2257,9 +2531,12 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (
-        role === 'OrganizationAdmin' ||
-        role === 'DeviceOwner' ||
+      if (role === 'Registrant') {
+        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiUserId,
+        });
+      } else if (
+        role === 'SiteOperator' ||
         role === 'User'
       ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2268,10 +2545,6 @@ export class DeviceGroupService {
       } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
-        });
-      } else if (role === 'ApiUser') {
-        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
-          api_user_id: apiUserId,
         });
       } else {
         // Admin or any other role — filter by org
@@ -2459,19 +2732,19 @@ export class DeviceGroupService {
     const totalPages = Math.ceil(totalCount / pageSize);
     let deviceGroups: any;
     if (
-      role === 'OrganizationAdmin' ||
-      role === 'DeviceOwner' ||
+      role === 'Registrant' ||
+      role === 'SiteOperator' ||
       role === 'User' ||
       role === 'Admin'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
         if (existing) {
-          const existingDevice = existing.developerdeviceIds.find(
+          const existingDevice = existing.orgDeviceIds.find(
             (item) => item === curr.id,
           );
           if (!existingDevice) {
-            existing.developerdeviceIds.push(curr.id);
+            existing.orgDeviceIds.push(curr.id);
           }
           existing.internalCertificateId.push(curr.internalCertificateId);
         } else {
@@ -2479,7 +2752,7 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupuid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            developerdeviceIds: [curr.id],
+            orgDeviceIds: [curr.id],
             internalCertificateId: [curr.internalCertificateId],
           });
         }
@@ -2487,8 +2760,7 @@ export class DeviceGroupService {
       }, []);
     } else if (
       role === 'Buyer' ||
-      role === 'SubBuyer' ||
-      role === Role.ApiUser
+      role === 'SubBuyer'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
@@ -2553,9 +2825,12 @@ export class DeviceGroupService {
 
     queryBuilder.where((qb) => {
       let whereOrganizationId: any;
-      if (
-        role === 'OrganizationAdmin' ||
-        role === 'DeviceOwner' ||
+      if (role === 'Registrant') {
+        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
+          api_user_id: apiUserId,
+        });
+      } else if (
+        role === 'SiteOperator' ||
         role === 'User'
       ) {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2564,10 +2839,6 @@ export class DeviceGroupService {
       } else if (role === 'Buyer' || role === 'SubBuyer') {
         whereOrganizationId = qb.where(`dg.organizationId = :orgId`, {
           orgId: orgId,
-        });
-      } else if (role === 'ApiUser') {
-        whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
-          api_user_id: apiUserId,
         });
       } else {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
@@ -2750,8 +3021,8 @@ export class DeviceGroupService {
 
     let deviceGroups: any;
     if (
-      role === 'OrganizationAdmin' ||
-      role === 'DeviceOwner' ||
+      role === 'Registrant' ||
+      role === 'SiteOperator' ||
       role === 'User' ||
       role === 'Admin'
     ) {
@@ -2759,11 +3030,11 @@ export class DeviceGroupService {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 
         if (existing) {
-          const existingDevice = existing.developerdeviceIds.find(
+          const existingDevice = existing.orgDeviceIds.find(
             (item) => item === curr.id,
           );
           if (!existingDevice) {
-            existing.developerdeviceIds.push(curr.id);
+            existing.orgDeviceIds.push(curr.id);
           }
           existing.internalCertificateId.push(curr.issuerid);
         } else {
@@ -2771,7 +3042,7 @@ export class DeviceGroupService {
             dg_id: curr.devicegroupid,
             name: curr.name,
             deviceIdsInt: curr.deviceIdsInt,
-            developerdeviceIds: [curr.id],
+            orgDeviceIds: [curr.id],
             internalCertificateId: [curr.issuerid],
           });
         }
@@ -2779,8 +3050,7 @@ export class DeviceGroupService {
       }, []);
     } else if (
       role === 'Buyer' ||
-      role === 'SubBuyer' ||
-      role === Role.ApiUser
+      role === 'SubBuyer'
     ) {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
@@ -2806,11 +3076,11 @@ export class DeviceGroupService {
     };
   }
 
-  public async checkDeveloperOrganization(
+  public async checkDeviceOrganization(
     deviceIds: number[],
     organizationId: number,
   ): Promise<any> {
-    this.logger.verbose(`With in checkdeveloperorganization`);
+    this.logger.verbose(`With in checkDeviceOrganization`);
     const isMyDevice = await Promise.all(
       await deviceIds.map(async (deviceId) => {
         const device = await this.deviceService.findOne(Number(deviceId));
@@ -2821,7 +3091,7 @@ export class DeviceGroupService {
     return isMyDevice.some((result) => result);
   }
 
-  async getAllCSVJobsForApiUser(
+  async getAllCSVJobsForRegistrant(
     apiUserId: string,
     organizationId?: number,
     pageNumber?: number,
@@ -2835,7 +3105,7 @@ export class DeviceGroupService {
       }
     | any
   > {
-    this.logger.verbose(`With in getAllCSVJobsForApiUser`);
+    this.logger.verbose(`With in getAllCSVJobsForRegistrant`);
     const query: SelectQueryBuilder<DeviceCsvFileProcessingJobsEntity> =
       await this.repositoryCSVJobProcessing
         .createQueryBuilder('csvjobs')
@@ -2920,6 +3190,34 @@ export class DeviceGroupService {
       { id: groupId, deviceGroupUid: deviceGroupUid }, // Use both keys for composite PK
       { evidentGroupId: evidentGroupId, evidentStatus: status },
     );
+  }
+
+  async updateGroupReviewStatus(
+    groupId: number,
+    status: GroupReviewStatus,
+  ): Promise<DeviceGroup> {
+    this.logger.verbose(`With in updateGroupReviewStatus`);
+    const group = await this.repository.findOne({ where: { id: groupId } });
+    if (!group) {
+      throw new NotFoundException(`Device group ${groupId} not found`);
+    }
+
+    group.groupReviewStatus = status;
+    const saved = await this.repository.save(group);
+
+    // When approved, trigger Evident registration (deferred from group creation)
+    if (status === GroupReviewStatus.Approved) {
+      const devices = await this.deviceService.findByIds(
+        group.deviceIdsInt || [],
+      );
+      if (group.type === GroupType.Single && devices.length > 0) {
+        await this.registerSingleDeviceToEvident(devices[0], saved);
+      } else {
+        await this.evidentDeviceService.queueDeviceGroupRegistration(saved);
+      }
+    }
+
+    return saved;
   }
 
   async getRegisteredEvident(

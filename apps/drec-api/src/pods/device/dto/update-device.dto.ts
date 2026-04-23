@@ -13,11 +13,11 @@ import {
   MaxDate,
   Min,
 } from 'class-validator';
-import { IDevice } from '../../../models';
+import { DeviceDescription, IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 export class UpdateDeviceDTO
   implements
     Omit<
@@ -42,12 +42,12 @@ export class UpdateDeviceDTO
 
   @IsOptional()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  projectName: string;
+  siteName: string;
 
   @ApiProperty()
   @IsOptional()
@@ -59,17 +59,17 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
+  @Matches(/^-?\d{1,2}(\.\d{1,20})?$/, {
     message:
-      'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
+      'Latitude should be a number from -90 to +90, with up to 20 decimal places.',
   })
   latitude: string;
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {
+  @Matches(/^-?\d{1,3}(\.\d{1,20})?$/, {
     message:
-      'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
+      'Longitude should be a number from -180 to +180, with up to 20 decimal places.',
   })
   @IsOptional()
   longitude: string;
@@ -117,26 +117,40 @@ export class UpdateDeviceDTO
   @Transform((value) => parseFloat(value))
   capacity: number;
 
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Transform((value) => (value != null ? parseFloat(value) : undefined))
-  acCapacity?: number;
-
   @ApiProperty()
   @IsOptional()
   @Transform((value) => new Date(value))
   @IsDate()
-  @MaxDate(new Date(), {
-    message: `Commissioning date cannot be in the future`,
-  })
   commissioningDate: string;
 
   @ApiProperty()
   @IsBoolean()
   @IsOptional()
   gridInterconnection: boolean;
+
+  @ApiProperty({
+    enum: OperatingConfiguration,
+    description: 'Operating configuration per D-REC methodology',
+  })
+  @IsEnum(OperatingConfiguration, {
+    message:
+      'Valid operating configurations are: ' +
+      Object.values(OperatingConfiguration).join(', '),
+  })
+  @IsOptional()
+  operatingConfiguration?: OperatingConfiguration;
+
+  @ApiProperty({
+    enum: SourceAccessMode,
+    description: 'Source-access mode per D-REC methodology (Mode 1–4)',
+  })
+  @IsEnum(SourceAccessMode, {
+    message:
+      'Valid source-access modes are: ' +
+      Object.values(SourceAccessMode).join(', '),
+  })
+  @IsOptional()
+  sourceAccessMode?: SourceAccessMode;
 
   @ApiProperty()
   @IsEnum(OffTaker, {
@@ -161,11 +175,6 @@ export class UpdateDeviceDTO
   @IsNumber()
   yieldValue: number;
 
-  // @ApiProperty()
-  // @IsArray()
-  // @IsOptional()
-  // generatorsIds: number[];
-
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -186,10 +195,34 @@ export class UpdateDeviceDTO
   @IsOptional()
   images: string[];
 
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  @IsEnum(DeviceDescription, {
+    message:
+      'Valid Device Description are Solar Lantern, Solar Home System, Mini Grid, Rooftop Solar, Ground Mount Solar',
+  })
+  deviceDescription?: DeviceDescription;
+
   @ApiProperty({ type: () => [String] })
   @IsArray()
   @IsOptional()
   SDGBenefits?: string[];
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  dataSource?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  otherDataSource?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  dataSourceBrand?: string;
 
   @IsString()
   @IsOptional()
@@ -209,4 +242,168 @@ export class UpdateDeviceDTO
   @IsString()
   @IsOptional()
   postcode?: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  stateProvince?: string | null;
+
+  // General (rows 2, 8)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  defaultAccountCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  requestedEffectiveRegDate?: string;
+
+  // Signature & evidence pathway (rows 55-56, 58-59, 61-62)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  signatoryName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  gridExportType?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasNetworkMeter?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  meterReadsShareable?: YesNo;
+
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasCaptiveConsumer?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasAuxiliaryEnergySources?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  auxiliaryEnergySourceDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  nonMeterImportDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  otherEacSchemeRegistration?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  generatingUnitCount?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  networkOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  interconnectionVoltage?: string;
+
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  pvSystemOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offTakerName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner?: YesNo;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasSubsidy?: YesNo;
+
+  @ApiProperty({ required: false, enum: SubsidyType, isArray: true })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(SubsidyType, { each: true })
+  subsidyTypes?: SubsidyType[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subsidyOtherDetails?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  subsidyClaimsEacs?: YesNo;
+
+  // Public funding (rows 50, 51)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasPublicFunding?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  @ApiProperty({ required: false, enum: RegistrationType })
+  @IsOptional()
+  @IsEnum(RegistrationType)
+  registrationType?: RegistrationType;
+
+  @ApiProperty({ required: false, enum: VolumeEvidenceType })
+  @IsOptional()
+  @IsEnum(VolumeEvidenceType)
+  volumeEvidenceType?: VolumeEvidenceType;
+
+  @ApiProperty({ required: false, enum: PublicFundingType })
+  @IsOptional()
+  @IsEnum(PublicFundingType)
+  publicFundingType?: PublicFundingType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  labellingSchemeAccreditation?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  verificationAgentName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offGridCircumstances?: string;
 }

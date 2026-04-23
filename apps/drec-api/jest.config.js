@@ -2,7 +2,7 @@
 module.exports = {
   moduleFileExtensions: ['js', 'jsx', 'json', 'ts', 'tsx'],
   rootDir: 'src',
-  testRegex: '.*\\.spec\\.(ts|tsx)$',
+  testRegex: String.raw`.*\.spec\.(ts|tsx)$`,
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'ts-jest',
   },

@@ -14,6 +14,7 @@ import { DeviceModule } from '../device/device.module';
 import { EvidentModule } from '../evident/evident.module';
 import { Device } from '../device/device.entity';
 import { EvidentSettings } from '../evident/evident-settings.entity';
+import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { EvidentSettings } from '../evident/evident-settings.entity';
     forwardRef(() => DeviceModule),
     forwardRef(() => EvidentModule),
     DocumentUploadsModule,
+    OrgApiLicensesModule,
   ],
   providers: [OrganizationService],
   controllers: [OrganizationController],

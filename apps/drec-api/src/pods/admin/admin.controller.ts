@@ -40,7 +40,6 @@ import { Roles } from '../user/decorators/roles.decorator';
 import { UserFilterDTO } from './dto/user-filter.dto';
 import { OrganizationDTO, UpdateOrganizationDTO } from '../organization/dto';
 import { IUser, LoggedInUser, responseSuccess } from '../../models';
-// import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { CreateUserOrgDTO } from '../user/dto/create-user.dto';
 import { SeedUserDTO } from './dto/seed-user.dto';
 import { DeviceService } from '../device/device.service';
@@ -141,7 +140,7 @@ export class AdminController {
   }
   @Get('/organizations/user/:organizationId')
   @Permission('Read')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules('ADMIN_REGISTRANT_ORGANIZATION_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
   @ApiOperation({
@@ -259,7 +258,7 @@ export class AdminController {
   })
   public async seedUsers(@Body() newUsers: SeedUserDTO[]): Promise<UserDTO[]> {
     const users: UserDTO[] = [];
-    if (!newUsers || !newUsers.length) {
+    if (!newUsers?.length) {
       return users;
     }
     await Promise.all(
@@ -302,7 +301,7 @@ export class AdminController {
     @Body() newOrgs: OrganizationDTO[],
   ): Promise<OrganizationDTO[]> {
     const orgs: OrganizationDTO[] = [];
-    if (!newOrgs || !newOrgs.length) {
+    if (!newOrgs?.length) {
       return orgs;
     }
     await Promise.all(
@@ -316,9 +315,9 @@ export class AdminController {
 
   @Put('/users/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.ApiUser)
+  @Roles(Role.Admin, Role.Registrant)
   @Permission('Write')
-  @ACLModules('ADMIN_APIUSER_ORGANIZATION_CRUDL')
+  @ACLModules('ADMIN_REGISTRANT_ORGANIZATION_CRUDL')
   @ApiBody({ type: UpdateUserDTO })
   @ApiOperation({
     summary: 'Update a user',
@@ -453,7 +452,7 @@ export class AdminController {
       user.id,
     );
 
-    if (user.role === Role.Buyer || user.role === Role.OrganizationAdmin) {
+    if (user.role === Role.Buyer || user.role === Role.Registrant) {
       const buyerReservation = await this.deviceGroupService.findOne({
         organizationId: user.organization.id,
       });
@@ -473,11 +472,7 @@ export class AdminController {
           'Some device are available in organization ',
         );
       }
-      // if (manyotheruserinorg) {
-      //   throw new NotFoundException('Some more users availble in organization. So user cannot remove');
-      // }
-      if (!(otherOrgUsers.length > 0)) {
-        // throw new NotFoundException('Some more users availble in organization. So user cannot remove');
+      if (otherOrgUsers.length <= 0) {
         await this.userService.remove(user.id);
         await this.organizationService.remove(user.organization.id);
       }
@@ -494,7 +489,7 @@ export class AdminController {
   @Roles(Role.Admin)
   @Permission('Read')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
-  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner)
+  //@Roles(Role.Registrant, Role.SiteOperator)
   @ApiOperation({
     summary: 'Get device autocomplete suggestions',
     description:
@@ -522,9 +517,9 @@ export class AdminController {
   }
 
   /*
-   * It is GET api to list all ApiUsers with pagination and filteration by Organization.
+   * It is GET api to list all Registrants with pagination and filteration by Organization.
    */
-  @Get('/apiusers')
+  @Get('/registrants')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin)
   @Permission('Read')
@@ -554,7 +549,7 @@ export class AdminController {
     status: HttpStatus.NOT_FOUND,
     description: 'No API users found matching the criteria.',
   })
-  public async getApiUsers(
+  public async getRegistrants(
     @Query('organizationName', new DefaultValuePipe(null))
     organizationName: string | null,
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
@@ -566,7 +561,7 @@ export class AdminController {
     totalPages: number;
     totalCount: number;
   }> {
-    // this.logger.verbose(`With in getAllApiUsers`);
-    return this.userService.getApiUsers(organizationName, pageNumber, limit);
+    // this.logger.verbose(`With in getAllRegistrants`);
+    return this.userService.getRegistrants(organizationName, pageNumber, limit);
   }
 }

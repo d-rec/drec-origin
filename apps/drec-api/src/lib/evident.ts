@@ -22,7 +22,7 @@ export function createEvidentAxiosInstance({
     retries: 1,
     retryDelay: axiosRetry.exponentialDelay,
     retryCondition: (error) => {
-      return error.response && error.response.status === 401;
+      return error.response?.status === 401;
     },
     onRetry: async (_retryCount, _error, requestConfig) => {
       if (apiKey) {

@@ -85,7 +85,7 @@ describe('Users tests', () => {
       email: 'test-1-2021@mailinator.com',
       phoneNumber: '+447911123456', // UK number
       password: 'testUser2',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
     };
     await postAdminUser('', HttpStatus.CREATED, partialUser);
   });
@@ -97,7 +97,7 @@ describe('Users tests', () => {
       email: 'test-2-2021@mailinator.com',
       phoneNumber: '+14155552671', // US number
       password: 'testUser2',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
     };
     await postUser('register', HttpStatus.CREATED, partialUser);
   });

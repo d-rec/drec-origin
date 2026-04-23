@@ -26,6 +26,7 @@ import { defaultBullJobOptions } from '../../config/bull.config';
 import { Queues } from '../../utils/enums/queues.enum';
 import { EvidentModule } from '../evident/evident.module';
 import { DocumentEntity } from '../document-uploads/entities/documents.entity';
+import { ReservationExpiryCron } from './reservation-expiry.cron';
 
 @Module({
   imports: [
@@ -56,7 +57,7 @@ import { DocumentEntity } from '../document-uploads/entities/documents.entity';
     forwardRef(() => BulkUploadModule),
     forwardRef(() => EvidentModule),
   ],
-  providers: [DeviceGroupService, DeviceBulkUploadProcessor],
+  providers: [DeviceGroupService, DeviceBulkUploadProcessor, ReservationExpiryCron],
   exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })

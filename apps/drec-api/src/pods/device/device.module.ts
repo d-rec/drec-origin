@@ -17,6 +17,7 @@ import { Organization } from '../organization/organization.entity';
 import { EvidentSettings } from '../evident/evident-settings.entity';
 import { MailModule } from '../../mail/mail.module';
 import { ReadsModule } from '../reads/reads.module';
+import { ESignatureModule } from '../e-signature/e-signature.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ReadsModule } from '../reads/reads.module';
     forwardRef(() => UserModule),
     forwardRef(() => OrganizationModule),
     DocumentUploadsModule,
+    ESignatureModule,
   ],
   providers: [DeviceService],
   exports: [DeviceService],

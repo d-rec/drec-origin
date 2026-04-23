@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -21,8 +21,9 @@ export class DeviceDTO implements IDevice {
   @IsString()
   externalId?: string;
 
+  @ApiHideProperty()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   @ApiProperty()
   @Trim()
@@ -46,7 +47,7 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   @IsOptional()
-  projectName: string;
+  siteName: string;
 
   @ApiProperty()
   // @IsOptional()
@@ -58,17 +59,17 @@ export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsString()
   // @IsOptional()
-  @Matches(/^-?\d{1,2}(\.\d{1,9})?$/, {
+  @Matches(/^-?\d{1,2}(\.\d{1,20})?$/, {
     message:
-      'Latitude should be number/The Latitude ranges from -90 to +90 degrees, with up to 9 decimal places. So, the maximum length could be 11 characters including the minus sign, digits, and decimal point ',
+      'Latitude should be a number from -90 to +90, with up to 20 decimal places.',
   })
   latitude: string;
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,3}(\.\d{1,9})?$/, {
+  @Matches(/^-?\d{1,3}(\.\d{1,20})?$/, {
     message:
-      'Longitude should be number/The Longitude ranges from -180 to +180 degrees, with up to 9 decimal places. So, the maximum length could be 12 characters including the minus sign, digits, and decimal point',
+      'Longitude should be a number from -180 to +180, with up to 20 decimal places.',
   })
   // @IsOptional()
   longitude: string;
@@ -116,6 +117,16 @@ export class DeviceDTO implements IDevice {
   @IsBoolean()
   @IsOptional()
   gridInterconnection: boolean;
+
+  @ApiProperty({ enum: OperatingConfiguration })
+  @IsEnum(OperatingConfiguration)
+  @IsOptional()
+  operatingConfiguration?: OperatingConfiguration;
+
+  @ApiProperty({ enum: SourceAccessMode })
+  @IsEnum(SourceAccessMode)
+  @IsOptional()
+  sourceAccessMode?: SourceAccessMode;
 
   @ApiProperty()
   @IsEnum(OffTaker)
@@ -172,21 +183,6 @@ export class DeviceDTO implements IDevice {
   deviceDescription?: DeviceDescription;
 
   @ApiProperty()
-  @IsBoolean()
-  @IsOptional()
-  energyStorage: boolean;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  energyStorageCapacity: number;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  qualityLabels: string;
-
-  @ApiProperty()
   @IsNumber()
   @IsOptional()
   groupId?: number | null;
@@ -195,18 +191,181 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   SDGBenefits?: string[];
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   meterReadtype?: string;
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   timezone: string;
 
+  @ApiHideProperty()
   @IsOptional()
   createdAt?: Date;
 
+  @ApiHideProperty()
   @IsString()
   @IsOptional()
   api_user_id?: string;
+
+  // General (rows 2, 8)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  defaultAccountCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  requestedEffectiveRegDate?: string;
+
+  // Signature & evidence pathway (rows 55-56, 58-59, 61-62)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  signatoryName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  gridExportType?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasNetworkMeter?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  meterReadsShareable?: YesNo;
+
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasCaptiveConsumer?: YesNo;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasAuxiliaryEnergySources?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  auxiliaryEnergySourceDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  nonMeterImportDetails?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  otherEacSchemeRegistration?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  generatingUnitCount?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  networkOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  interconnectionVoltage?: string;
+
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  pvSystemOwner?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offTakerName?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner?: YesNo;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasSubsidy?: YesNo;
+
+  @ApiProperty({ required: false, enum: SubsidyType, isArray: true })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(SubsidyType, { each: true })
+  subsidyTypes?: SubsidyType[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  subsidyOtherDetails?: string;
+
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  subsidyClaimsEacs?: YesNo;
+
+  // Public funding (rows 50, 51)
+  @ApiProperty({ required: false, enum: YesNo })
+  @IsOptional()
+  @IsEnum(YesNo)
+  hasPublicFunding?: YesNo;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  @ApiProperty({ required: false, enum: RegistrationType })
+  @IsOptional()
+  @IsEnum(RegistrationType)
+  registrationType?: RegistrationType;
+
+  @ApiProperty({ required: false, enum: VolumeEvidenceType })
+  @IsOptional()
+  @IsEnum(VolumeEvidenceType)
+  volumeEvidenceType?: VolumeEvidenceType;
+
+  @ApiProperty({ required: false, enum: PublicFundingType })
+  @IsOptional()
+  @IsEnum(PublicFundingType)
+  publicFundingType?: PublicFundingType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  labellingSchemeAccreditation?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  verificationAgentName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  offGridCircumstances?: string;
 }

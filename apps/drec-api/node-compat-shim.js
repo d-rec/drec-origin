@@ -7,7 +7,7 @@
  */
 'use strict';
 
-const util = require('util');
+const util = require('node:util');
 
 if (typeof util.isString !== 'function') {
   util.isString = function isString(arg) {
@@ -49,7 +49,7 @@ if (typeof util.isNullOrUndefined !== 'function') {
  *
  * We hook into Module._load to patch the storage as soon as typeorm is loaded.
  */
-const Module = require('module');
+const Module = require('node:module');
 const originalLoad = Module._load;
 let typeormPatched = false;
 
@@ -69,7 +69,7 @@ Module._load = function (request, parent, isMain) {
         storage.filterForeignKeys = function filterForeignKeys(target) {
           return this.foreignKeys.filter(function (fk) {
             return Array.isArray(target)
-              ? target.indexOf(fk.target) !== -1
+              ? target.includes(fk.target)
               : fk.target === target;
           });
         };
@@ -81,13 +81,13 @@ Module._load = function (request, parent, isMain) {
         proto.filterForeignKeys = function filterForeignKeys(target) {
           return this.foreignKeys.filter(function (fk) {
             return Array.isArray(target)
-              ? target.indexOf(fk.target) !== -1
+              ? target.includes(fk.target)
               : fk.target === target;
           });
         };
       }
     } catch (e) {
-      // Ignore — non-critical
+      console.warn('node-compat-shim: typeorm patch failed:', e);
     }
   }
 

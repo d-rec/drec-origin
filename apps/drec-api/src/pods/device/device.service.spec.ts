@@ -178,7 +178,7 @@ describe('DeviceService', () => {
         dataSource: 'Inverter',
         otherDataSource: '',
         serialNumber: 'SN31',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -191,21 +191,18 @@ describe('DeviceService', () => {
         impactStory: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         SDGBenefits: ['SDG1'],
         version: '1.0',
         countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
-      const role = Role.OrganizationAdmin;
+      const role = Role.Registrant;
 
       const deviceEntity = {
         dataSource: 'Inverter',
         otherDataSource: '',
         serialNumber: 'SN31',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -220,9 +217,6 @@ describe('DeviceService', () => {
         data: null,
         images: null,
         deviceDescription: 'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         SDGBenefits: ['No Poverty'],
         version: '1.0',
         countryCode: 'IND',
@@ -343,7 +337,7 @@ describe('DeviceService', () => {
         dataSource: 'Inverter',
         otherDataSource: '',
         serialNumber: 'SN31',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -356,19 +350,16 @@ describe('DeviceService', () => {
         impactStory: null,
         images: null,
         deviceDescription: DeviceDescription.SolarLantern, //'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         SDGBenefits: ['SDG1'],
         version: '1.0',
         countryCode: 'IND',
       };
       const apiUserId = 'a8b6366e-ea5f-4ed7-8e9d-c5ae71c2d909';
-      const role = Role.OrganizationAdmin;
+      const role = Role.Registrant;
 
       const deviceEntity = {
         externalId: 'ExternalId1',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -383,9 +374,6 @@ describe('DeviceService', () => {
         data: null,
         images: null,
         deviceDescription: 'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         SDGBenefits: ['No Poverty'],
         version: '1.0',
         countryCode: 'IND',
@@ -432,10 +420,10 @@ describe('DeviceService', () => {
         service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
-      // Service checks projectName first, then serialNumber
+      // Service checks siteName first, then serialNumber
       await expect(findOneSpy).toHaveBeenCalledWith({
         where: {
-          projectName: newDevice.projectName,
+          siteName: newDevice.siteName,
           organizationId: orgCode,
         },
       });
@@ -447,7 +435,7 @@ describe('DeviceService', () => {
     const organizationEntity = {
       id: 1,
       name: 'orgName',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
       orgEmail: 'testsweya@gmail.com',
       address: 'Chennai',
       zipCode: '600001',
@@ -469,7 +457,7 @@ describe('DeviceService', () => {
         id: 44,
         externalId: 'ExternalId1',
         organizationId: 3,
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -486,9 +474,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: null,
         deviceDescription: 'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         meterReadtype: null,
         timezone: null,
         version: '1.0',
@@ -503,7 +488,7 @@ describe('DeviceService', () => {
         id: 22,
         externalId: 'June4',
         organizationId: 3,
-        projectName: 'test4',
+        siteName: 'test4',
         address: 'Bangalore',
         latitude: '99.09',
         longitude: '889',
@@ -520,9 +505,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: null,
         deviceDescription: null,
-        energyStorage: true,
-        energyStorageCapacity: 9000,
-        qualityLabels: null,
         meterReadtype: null,
         timezone: null,
         version: '1.0',
@@ -537,7 +519,7 @@ describe('DeviceService', () => {
         id: 21,
         externalId: 'Ext22',
         organizationId: 3,
-        projectName: 'Test',
+        siteName: 'Test',
         address: 'Bangalore',
         latitude: '67.89',
         longitude: '89.09',
@@ -554,9 +536,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: null,
         deviceDescription: null,
-        energyStorage: true,
-        energyStorageCapacity: 9000,
-        qualityLabels: null,
         meterReadtype: null,
         timezone: null,
         version: '1.0',
@@ -571,7 +550,7 @@ describe('DeviceService', () => {
         id: 10,
         externalId: 'Ext11',
         organizationId: 3,
-        projectName: 'SampleProje11',
+        siteName: 'SampleProje11',
         address: 'BLR',
         latitude: '23.6685889',
         longitude: '24.567568',
@@ -588,9 +567,6 @@ describe('DeviceService', () => {
         images: ['string'],
         groupId: null,
         deviceDescription: 'Ground Mount Solar',
-        energyStorage: true,
-        energyStorageCapacity: 6000,
-        qualityLabels: 'string',
         meterReadtype: 'Delta',
         timezone: 'Asia/Kolkata',
         version: '1.0',
@@ -605,7 +581,7 @@ describe('DeviceService', () => {
         id: 9,
         externalId: 'Ext4',
         organizationId: 3,
-        projectName: 'SampleProj12',
+        siteName: 'SampleProj12',
         address: 'BLR',
         latitude: '23.558758',
         longitude: '24.657578',
@@ -622,9 +598,6 @@ describe('DeviceService', () => {
         images: ['string'],
         groupId: null,
         deviceDescription: 'Ground Mount Solar',
-        energyStorage: true,
-        energyStorageCapacity: 5000,
-        qualityLabels: 'string',
         meterReadtype: 'Delta',
         timezone: 'Asia/Kolkata',
         version: '1.0',
@@ -639,7 +612,7 @@ describe('DeviceService', () => {
         id: 8,
         externalId: 'Ext3',
         organizationId: 3,
-        projectName: 'SampleProj12',
+        siteName: 'SampleProj12',
         address: 'BLR',
         latitude: '23.558758',
         longitude: '24.657578',
@@ -656,9 +629,6 @@ describe('DeviceService', () => {
         images: ['string'],
         groupId: null,
         deviceDescription: 'Ground Mount Solar',
-        energyStorage: true,
-        energyStorageCapacity: 5000,
-        qualityLabels: 'string',
         meterReadtype: 'Delta',
         timezone: 'Asia/Kolkata',
         version: '1.0',
@@ -673,7 +643,7 @@ describe('DeviceService', () => {
         id: 6,
         externalId: 'Ext2',
         organizationId: 3,
-        projectName: 'Sampleproj12',
+        siteName: 'Sampleproj12',
         address: 'string',
         latitude: '23.6367447',
         longitude: '24.5634276',
@@ -690,9 +660,6 @@ describe('DeviceService', () => {
         images: ['string'],
         groupId: null,
         deviceDescription: 'Ground Mount Solar',
-        energyStorage: true,
-        energyStorageCapacity: 800,
-        qualityLabels: 'string',
         meterReadtype: 'Delta',
         timezone: 'Asia/Kolkata',
         version: '1.0',
@@ -707,7 +674,7 @@ describe('DeviceService', () => {
         id: 4,
         externalId: 'ext1',
         organizationId: 3,
-        projectName: 'sampleproj12',
+        siteName: 'sampleproj12',
         address: 'string',
         latitude: '23.343535',
         longitude: '24.5675786',
@@ -724,9 +691,6 @@ describe('DeviceService', () => {
         images: ['string'],
         groupId: null,
         deviceDescription: 'Ground Mount Solar',
-        energyStorage: true,
-        energyStorageCapacity: 600,
-        qualityLabels: 'string',
         meterReadtype: 'Delta',
         timezone: 'Asia/Kolkata',
         version: '1.0',
@@ -784,7 +748,7 @@ describe('DeviceService', () => {
       const organizationEntity = {
         id: 1,
         name: 'orgName',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         orgEmail: 'testsweya@gmail.com',
         address: 'Chennai',
         zipCode: '600001',
@@ -806,7 +770,7 @@ describe('DeviceService', () => {
           id: 44,
           externalId: 'ExternalId1',
           organizationId: 3,
-          projectName: 'sampleProject',
+          siteName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
           longitude: '25.43647',
@@ -823,9 +787,6 @@ describe('DeviceService', () => {
           images: null,
           groupId: null,
           deviceDescription: 'Solar Lantern',
-          energyStorage: true,
-          energyStorageCapacity: 900,
-          qualityLabels: null,
           meterReadtype: null,
           timezone: null,
           version: '1.0',
@@ -840,7 +801,7 @@ describe('DeviceService', () => {
           id: 22,
           externalId: 'June4',
           organizationId: 3,
-          projectName: 'test4',
+          siteName: 'test4',
           address: 'Bangalore',
           latitude: '99.09',
           longitude: '889',
@@ -857,9 +818,6 @@ describe('DeviceService', () => {
           images: null,
           groupId: null,
           deviceDescription: null,
-          energyStorage: true,
-          energyStorageCapacity: 9000,
-          qualityLabels: null,
           meterReadtype: null,
           timezone: null,
           version: '1.0',
@@ -874,7 +832,7 @@ describe('DeviceService', () => {
           id: 21,
           externalId: 'Ext22',
           organizationId: 3,
-          projectName: 'Test',
+          siteName: 'Test',
           address: 'Bangalore',
           latitude: '67.89',
           longitude: '89.09',
@@ -891,9 +849,6 @@ describe('DeviceService', () => {
           images: null,
           groupId: null,
           deviceDescription: null,
-          energyStorage: true,
-          energyStorageCapacity: 9000,
-          qualityLabels: null,
           meterReadtype: null,
           timezone: null,
           version: '1.0',
@@ -908,7 +863,7 @@ describe('DeviceService', () => {
           id: 10,
           externalId: 'Ext11',
           organizationId: 3,
-          projectName: 'SampleProje11',
+          siteName: 'SampleProje11',
           address: 'BLR',
           latitude: '23.6685889',
           longitude: '24.567568',
@@ -925,9 +880,6 @@ describe('DeviceService', () => {
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
-          energyStorage: true,
-          energyStorageCapacity: 6000,
-          qualityLabels: 'string',
           meterReadtype: 'Delta',
           timezone: 'Asia/Kolkata',
           version: '1.0',
@@ -942,7 +894,7 @@ describe('DeviceService', () => {
           id: 9,
           externalId: 'Ext4',
           organizationId: 3,
-          projectName: 'SampleProj12',
+          siteName: 'SampleProj12',
           address: 'BLR',
           latitude: '23.558758',
           longitude: '24.657578',
@@ -959,9 +911,6 @@ describe('DeviceService', () => {
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
-          energyStorage: true,
-          energyStorageCapacity: 5000,
-          qualityLabels: 'string',
           meterReadtype: 'Delta',
           timezone: 'Asia/Kolkata',
           version: '1.0',
@@ -976,7 +925,7 @@ describe('DeviceService', () => {
           id: 8,
           externalId: 'Ext3',
           organizationId: 3,
-          projectName: 'SampleProj12',
+          siteName: 'SampleProj12',
           address: 'BLR',
           latitude: '23.558758',
           longitude: '24.657578',
@@ -993,9 +942,6 @@ describe('DeviceService', () => {
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
-          energyStorage: true,
-          energyStorageCapacity: 5000,
-          qualityLabels: 'string',
           meterReadtype: 'Delta',
           timezone: 'Asia/Kolkata',
           version: '1.0',
@@ -1010,7 +956,7 @@ describe('DeviceService', () => {
           id: 6,
           externalId: 'Ext2',
           organizationId: 3,
-          projectName: 'Sampleproj12',
+          siteName: 'Sampleproj12',
           address: 'string',
           latitude: '23.6367447',
           longitude: '24.5634276',
@@ -1027,9 +973,6 @@ describe('DeviceService', () => {
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
-          energyStorage: true,
-          energyStorageCapacity: 800,
-          qualityLabels: 'string',
           meterReadtype: 'Delta',
           timezone: 'Asia/Kolkata',
           version: '1.0',
@@ -1044,7 +987,7 @@ describe('DeviceService', () => {
           id: 4,
           externalId: 'ext1',
           organizationId: 3,
-          projectName: 'sampleproj12',
+          siteName: 'sampleproj12',
           address: 'string',
           latitude: '23.343535',
           longitude: '24.5675786',
@@ -1061,9 +1004,6 @@ describe('DeviceService', () => {
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
-          energyStorage: true,
-          energyStorageCapacity: 600,
-          qualityLabels: 'string',
           meterReadtype: 'Delta',
           timezone: 'Asia/Kolkata',
           version: '1.0',
@@ -1146,7 +1086,7 @@ describe('DeviceService', () => {
   describe('getOrganizationDevices', () => {
     it('should return all devices without filters or pagination', async () => {
       const organizationId = 1;
-      const apiUserId = 'api-user-123';
+      const apiUserId = 'registrant-123';
       const role = Role.User; // Assume Role.User is another role
       const filterDto = {} as FilterDTO;
       const pageNumber = null;
@@ -1213,7 +1153,7 @@ describe('DeviceService', () => {
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
         serialNumber: 'EXCESS',
         organizationId: 94,
-        projectName: null,
+        siteName: null,
         address: 'MAA',
         latitude: '72.34',
         longitude: '75.89',
@@ -1230,9 +1170,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: 32,
         deviceDescription: null,
-        energyStorage: true,
-        energyStorageCapacity: null,
-        qualityLabels: null,
         meterReadtype: 'Delta',
         timezone: null,
         version: '1.0',
@@ -1250,8 +1187,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1268,7 +1205,7 @@ describe('DeviceService', () => {
 
       const deviceEntity = {
         externalId: 'ExternalId1',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -1283,9 +1220,6 @@ describe('DeviceService', () => {
         data: null,
         images: null,
         deviceDescription: 'Solar Lantern',
-        energyStorage: true,
-        energyStorageCapacity: 900,
-        qualityLabels: null,
         SDGBenefits: ['No Poverty'],
         version: '1.0',
         countryCode: 'IND',
@@ -1391,7 +1325,7 @@ describe('DeviceService', () => {
     });
   });
 
-  describe('findBySerialNumberAndApiUser', () => {
+  describe('findBySerialNumberAndRegistrant', () => {
     it('should return null when no device is found', async () => {
       // Mock repository to return null
       const findOneSpy = jest
@@ -1401,7 +1335,7 @@ describe('DeviceService', () => {
         .spyOn(deviceUtils, 'getLocalTimeZoneFromDevice')
         .mockResolvedValue(null);
       // Execute the function
-      const result = await service.findBySerialNumberAndApiUser(
+      const result = await service.findBySerialNumberAndRegistrant(
         'non-existent-meter-id',
         'user-id',
       );
@@ -1433,7 +1367,7 @@ describe('DeviceService', () => {
         .mockResolvedValue('Asia/Kolkata');
 
       // Execute the function
-      const result = await service.findBySerialNumberAndApiUser(
+      const result = await service.findBySerialNumberAndRegistrant(
         'existing-meter-id',
         'user-id',
       );
@@ -1483,7 +1417,7 @@ describe('DeviceService', () => {
         externalId: 'ffa54a71-9cd5-41e4-92f6-c407da1bd064',
         serialNumber: 'EXCESS',
         organizationId: 94,
-        projectName: null,
+        siteName: null,
         address: 'MAA',
         latitude: '72.34',
         longitude: '75.89',
@@ -1500,9 +1434,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: 32,
         deviceDescription: null,
-        energyStorage: true,
-        energyStorageCapacity: null,
-        qualityLabels: null,
         meterReadtype: 'Delta',
         timezone: null,
         version: '1.0',
@@ -1520,8 +1451,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1543,7 +1474,7 @@ describe('DeviceService', () => {
         externalId: 'fca54a71-9cd5-41e4-92f6-c407da1bd064',
         serialNumber: 'EXCESS',
         organizationId: 94,
-        projectName: null,
+        siteName: null,
         address: 'MAA',
         latitude: '72.34',
         longitude: '75.89',
@@ -1560,9 +1491,6 @@ describe('DeviceService', () => {
         images: null,
         groupId: 32,
         deviceDescription: null,
-        energyStorage: true,
-        energyStorageCapacity: null,
-        qualityLabels: null,
         meterReadtype: 'Delta',
         timezone: null,
         version: '1.0',
@@ -1580,8 +1508,8 @@ describe('DeviceService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Developer,
-          orgEmail: 'developer1@gmail.com',
+          organizationType: OrganizationType.Registrant,
+          orgEmail: 'operator1@gmail.com',
           status: 'Active',
           documentIds: null,
           api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
@@ -1660,11 +1588,11 @@ describe('DeviceService', () => {
   describe('update', () => {
     it('should successfully update a device', async () => {
       const organizationId = 1;
-      const role = Role.DeviceOwner;
+      const role = Role.SiteOperator;
       const externalId = 'external-id-1';
       const updateDeviceDTO: UpdateDeviceDTO = {
         externalId: 'ExternalId1',
-        projectName: 'sampleProject',
+        siteName: 'sampleProject',
         address: 'Bangalore',
         latitude: '23.65362',
         longitude: '25.43647',
@@ -1715,7 +1643,7 @@ describe('DeviceService', () => {
         .spyOn(repository, 'findOne')
         .mockResolvedValue(null); // Mock fingerprint check to return null
 
-      const findDeviceByDeveloperExternalIdSpy = jest
+      const findBySerialNumberSpy = jest
         .spyOn(service, 'findBySerialNumber')
         .mockResolvedValue(currentDevice);
 
@@ -1730,7 +1658,7 @@ describe('DeviceService', () => {
         updateDeviceDTO,
       );
 
-      expect(findDeviceByDeveloperExternalIdSpy).toHaveBeenCalledWith(
+      expect(findBySerialNumberSpy).toHaveBeenCalledWith(
         externalId.trim(),
         organizationId,
       );
@@ -1742,7 +1670,7 @@ describe('DeviceService', () => {
         expect.objectContaining({
           id: 1,
           externalId: 'external-id-1',
-          projectName: 'sampleProject',
+          siteName: 'sampleProject',
           address: 'Bangalore',
           latitude: '23.65362',
           longitude: '25.43647',

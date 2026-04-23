@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -12,11 +14,19 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { Response } from 'express';
 import { DocumentUploadsService } from './document-uploads.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
+
+class UpdateDocumentLabelDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  label?: string | null;
+}
 
 @ApiTags('Document Uploads')
 @ApiBearerAuth('access-token')
@@ -43,5 +53,21 @@ export class DocumentUploadsController {
   ): Promise<void> {
     const url = await this.documentUploadsService.getSignedUrl(id);
     res.redirect(url);
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Update a document display label' })
+  async updateLabel(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateDocumentLabelDto,
+  ) {
+    const doc = await this.documentUploadsService.updateLabel(
+      id,
+      body.label ?? null,
+    );
+    return { id: doc.id, label: doc.label };
   }
 }

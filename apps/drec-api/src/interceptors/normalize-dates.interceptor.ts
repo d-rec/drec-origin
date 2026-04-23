@@ -13,7 +13,7 @@ function normalize(value: unknown): unknown {
   if (value instanceof Date) {
     return value.toISOString();
   }
-  if (typeof value === 'string' && OFFSET_ZERO_RE.test(value)) {
+  if (typeof value === 'string' && value.endsWith('+00:00')) {
     return value.replace(OFFSET_ZERO_RE, 'Z');
   }
   if (Array.isArray(value)) {
