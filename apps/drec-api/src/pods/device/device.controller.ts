@@ -935,6 +935,76 @@ export class DeviceController {
   }
 
   /**
+   * PATCH api to update a device by site name
+   */
+  @Patch('/by-site/:siteName')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Update')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiOperation({
+    summary: 'Update device by site name',
+    description:
+      'Update the details of an existing device using its site name.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully updated the device details.',
+    type: UpdateDeviceDTO,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The specified device does not exist.',
+  })
+  public async updateBySiteName(
+    @UserDecorator() user: ILoggedInUser,
+    @Param('siteName') siteName: string,
+    @Body() body: any,
+  ): Promise<DeviceDTO> {
+    this.logger.verbose(`With in updateBySiteName`);
+    const deviceToUpdate = (
+      body.deviceToUpdate != null
+        ? parseMetadata(
+            body.deviceToUpdate as unknown as Record<string, unknown>,
+          )
+        : body
+    ) as UpdateDeviceDTO;
+    if (!deviceToUpdate)
+      throw new BadRequestException('Invalid device data format');
+    const deviceDtoInstance = plainToClass(UpdateDeviceDTO, deviceToUpdate);
+    try {
+      await validateOrReject(deviceDtoInstance, {
+        skipMissingProperties: true,
+      });
+    } catch (errors) {
+      throw new BadRequestException(
+        errors
+          .map((error) =>
+            error.constraints
+              ? Object.values(error.constraints).join(', ')
+              : '',
+          )
+          .filter(Boolean)
+          .join(', '),
+      );
+    }
+
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
+
+    return this.deviceService.update(
+      user.organizationId,
+      user.role,
+      siteName,
+      deviceToUpdate,
+      'siteName',
+    );
+  }
+
+  /**
    * It is PATCH api to update an device by externalId
    * @param user is loggedin user from user at request
    * @param externalId is unique external id in device entity
