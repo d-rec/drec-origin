@@ -3,7 +3,7 @@ import { OauthClientCredentialsService } from './oauth_client.service';
 import { Repository, DeepPartial } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { RegistrantEntity } from './registrant.entity';
+import { ApiUserEntity } from './api-user.entity';
 import { v4 as uuid } from 'uuid';
 import {
   OrganizationStatus,
@@ -16,7 +16,7 @@ import {
 describe('OauthClientCredentialsService', () => {
   let service: OauthClientCredentialsService;
   let repository: Repository<OauthClientCredentials>;
-  let registrantEntityRepository: Repository<RegistrantEntity>;
+  let apiUserEntityRepository: Repository<ApiUserEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +27,7 @@ describe('OauthClientCredentialsService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(RegistrantEntity),
+          provide: getRepositoryToken(ApiUserEntity),
           useClass: Repository,
         },
       ],
@@ -39,8 +39,8 @@ describe('OauthClientCredentialsService', () => {
     repository = module.get<Repository<OauthClientCredentials>>(
       getRepositoryToken(OauthClientCredentials),
     );
-    registrantEntityRepository = module.get<Repository<RegistrantEntity>>(
-      getRepositoryToken(RegistrantEntity),
+    apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
+      getRepositoryToken(ApiUserEntity),
     );
   });
 
@@ -48,20 +48,20 @@ describe('OauthClientCredentialsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('createRegistrant', () => {
+  describe('createAPIUser', () => {
     it('should save an API user with a generated UUID', async () => {
-      const mockRegistrantEntity: DeepPartial<RegistrantEntity> = {
+      const mockApiUserEntity: DeepPartial<ApiUserEntity> = {
         api_user_id: uuid(),
         permission_status: UserPermissionStatus.Request,
       };
       const saveSpy = jest
-        .spyOn(registrantEntityRepository, 'save')
-        .mockResolvedValue(mockRegistrantEntity as any);
-      const result = await service.createRegistrant();
+        .spyOn(apiUserEntityRepository, 'save')
+        .mockResolvedValue(mockApiUserEntity as any);
+      const result = await service.createAPIUser();
 
       expect(saveSpy).toHaveBeenCalledWith({ api_user_id: expect.any(String) });
 
-      expect(result).toEqual(mockRegistrantEntity);
+      expect(result).toEqual(mockApiUserEntity);
     });
   });
 
@@ -79,13 +79,13 @@ describe('OauthClientCredentialsService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.Registrant,
+        role: Role.ApiUser,
         roleId: 6,
         organization: {
           id: 1,
-          name: 'ORG_REGISTRANT',
+          name: 'ORG_APIUSER',
           address: 'any address',
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
           api_user_id: apiUserId,
@@ -142,13 +142,13 @@ describe('OauthClientCredentialsService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.Registrant,
+        role: Role.ApiUser,
         roleId: 6,
         organization: {
           id: 1,
-          name: 'ORG_REGISTRANT',
+          name: 'ORG_APIUSER',
           address: 'any address',
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.ApiUser,
           orgEmail: 'testsweya1@gmail.com',
           status: OrganizationStatus.Active,
           api_user_id: apiUserId,
@@ -208,39 +208,39 @@ describe('OauthClientCredentialsService', () => {
   });
 
   describe('findOneByApiUserId', () => {
-    const mockRegistrantEntity: DeepPartial<RegistrantEntity> = {
+    const mockApiUserEntity: DeepPartial<ApiUserEntity> = {
       api_user_id: uuid(),
       permission_status: UserPermissionStatus.Request,
     };
 
     it('should find an API user by its ID', async () => {
       const findOneSpy = jest
-        .spyOn(registrantEntityRepository, 'findOne')
-        .mockResolvedValue(mockRegistrantEntity as any);
+        .spyOn(apiUserEntityRepository, 'findOne')
+        .mockResolvedValue(mockApiUserEntity as any);
 
       const result = await service.findOneByApiUserId(
-        mockRegistrantEntity.api_user_id,
+        mockApiUserEntity.api_user_id,
       );
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { api_user_id: mockRegistrantEntity.api_user_id },
+        where: { api_user_id: mockApiUserEntity.api_user_id },
       });
       expect(result).toBeDefined();
     });
 
     it('should return an API user with the correct api_user_id', async () => {
       const findOneSpy = jest
-        .spyOn(registrantEntityRepository, 'findOne')
-        .mockResolvedValue(mockRegistrantEntity as any);
+        .spyOn(apiUserEntityRepository, 'findOne')
+        .mockResolvedValue(mockApiUserEntity as any);
 
       const result = await service.findOneByApiUserId(
-        mockRegistrantEntity.api_user_id,
+        mockApiUserEntity.api_user_id,
       );
 
       expect(findOneSpy).toHaveBeenCalledWith({
-        where: { api_user_id: mockRegistrantEntity.api_user_id },
+        where: { api_user_id: mockApiUserEntity.api_user_id },
       });
-      expect(result.api_user_id).toEqual(mockRegistrantEntity.api_user_id);
+      expect(result.api_user_id).toEqual(mockApiUserEntity.api_user_id);
     });
 
     it('should handle an empty api_user_id', async () => {
@@ -248,10 +248,10 @@ describe('OauthClientCredentialsService', () => {
     });
 
     it('should handle a non-existent api_user_id', async () => {
-      const mockRegistrantEntity: RegistrantEntity = undefined;
+      const mockApiUserEntity: ApiUserEntity = undefined;
       const findOneSpy = jest
-        .spyOn(registrantEntityRepository, 'findOne')
-        .mockResolvedValue(mockRegistrantEntity as any);
+        .spyOn(apiUserEntityRepository, 'findOne')
+        .mockResolvedValue(mockApiUserEntity as any);
       const result = await service.findOneByApiUserId(
         'dfd2f57d-f2b8-4057-bf48-c19f1a5aa949',
       );

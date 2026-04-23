@@ -81,11 +81,11 @@ export async function checkOrganizationAndUser(
         message: 'User cannot manage this organization',
       });
     }
-    if (user.role === Role.Registrant) {
+    if (user.role === Role.ApiUser) {
       if (organization.api_user_id !== user.api_user_id) {
         throw new BadRequestException({
           success: false,
-          message: 'Organization requested belongs to other registrant',
+          message: 'Organization requested belongs to other apiuser',
         });
       }
       return orgId;

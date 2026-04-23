@@ -207,7 +207,7 @@ export class EvidentIssuanceService {
         issuance,
       );
       const organization =
-        await this.organizationService.getLinkedRegistrantOrSelf(
+        await this.organizationService.getLinkedMarketIntermediaryOrSelf(
           device.organizationId,
         );
       await this.mailService.send({
@@ -258,7 +258,7 @@ export class EvidentIssuanceService {
         issuance,
       );
       const organization =
-        await this.organizationService.getLinkedRegistrantOrSelf(
+        await this.organizationService.getLinkedMarketIntermediaryOrSelf(
           deviceGroup.organizationId,
         );
 

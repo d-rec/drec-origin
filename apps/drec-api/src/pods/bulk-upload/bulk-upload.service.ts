@@ -5,7 +5,6 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { createHash } from 'crypto';
 import {
   BulkUploadEntity,
   BulkUploadStatus,
@@ -65,15 +64,10 @@ export class BulkUploadService {
       };
       const s3Upload = await this.fileService.upload(multerFile);
 
-      const contentHash = createHash('sha256')
-        .update(file.data)
-        .digest('hex');
-
       const jobId = await this.createJob(bulkUploadType, file, s3Upload);
 
       return await this.bulkUploadRepository.save({
         fileId: file.filename,
-        contentHash,
         jobId: jobId,
         organizationId: organizationId,
         status: BulkUploadStatus.Added,
@@ -156,7 +150,7 @@ export class BulkUploadService {
     };
   }
 
-  async getAllBulkUploadJobsForRegistrant({
+  async getAllBulkUploadJobsForApiUser({
     apiUserId,
     bulkUploadType,
     pageNumber,
@@ -209,8 +203,8 @@ export class BulkUploadService {
           limit,
         });
 
-      case Role.Registrant:
-        return this.getAllBulkUploadJobsForRegistrant({
+      case Role.ApiUser:
+        return this.getAllBulkUploadJobsForApiUser({
           apiUserId: api_user_id,
           bulkUploadType,
           pageNumber,
@@ -225,55 +219,6 @@ export class BulkUploadService {
           organizationIds: [organizationId],
         });
     }
-  }
-
-  public async clearBulkUploadHistoryByRole(
-    user: ILoggedInUser,
-    bulkUploadType: BulkUploadType,
-  ): Promise<{ deleted: number }> {
-    const { role, api_user_id, organizationId } = user;
-    let organizationIds: number[] | undefined;
-
-    if (role === Role.Registrant) {
-      const orgs = await this.organizationRepository
-        .createQueryBuilder('organization')
-        .select('organization.id')
-        .where('organization.api_user_id = :apiUserId', {
-          apiUserId: api_user_id,
-        })
-        .getMany();
-      organizationIds = orgs.map((o) => o.id);
-    } else if (role !== Role.Admin) {
-      organizationIds = [organizationId];
-    }
-
-    // Skip only InProgress so a live job's record is preserved.
-    // Added + Completed + Failed are all fair game — Added records are
-    // either stale orphans (prior crashed runs) or safely re-uploadable.
-    const where: any = {
-      type: bulkUploadType,
-      status: In([
-        BulkUploadStatus.Added,
-        BulkUploadStatus.PendingConfirmation,
-        BulkUploadStatus.Completed,
-        BulkUploadStatus.Failed,
-      ]),
-    };
-    if (organizationIds) {
-      if (!organizationIds.length) return { deleted: 0 };
-      where.organizationId = In(organizationIds);
-    }
-
-    const jobs = await this.bulkUploadRepository.find({
-      where,
-      select: ['id'],
-    });
-    if (!jobs.length) return { deleted: 0 };
-
-    const ids = jobs.map((j) => j.id);
-    await this.bulkUploadFailedLogRepository.delete({ bulkUploadId: In(ids) });
-    const res = await this.bulkUploadRepository.delete(ids);
-    return { deleted: res.affected ?? 0 };
   }
 
   paginate(
@@ -307,76 +252,6 @@ export class BulkUploadService {
     });
   }
 
-  /**
-   * Loads a staged preview for a bulk upload and returns the parsed records
-   * so the frontend can render Import/Discard UI.
-   */
-  async getBulkUploadPreview(bulkUploadId: string): Promise<{
-    bulkUpload: BulkUploadEntity;
-    records: any[];
-    organizationId: number;
-    totalCsvRows: number;
-    skippedRows: number;
-  }> {
-    const bulkUpload = await this.bulkUploadRepository.findOne({
-      where: { id: bulkUploadId },
-    });
-    if (!bulkUpload) {
-      throw new NotFoundException(`Bulk upload ${bulkUploadId} not found`);
-    }
-    if (bulkUpload.status !== BulkUploadStatus.PendingConfirmation) {
-      throw new BadRequestException(
-        `Bulk upload is in status ${bulkUpload.status}, no preview available`,
-      );
-    }
-    const logRow = await this.bulkUploadFailedLogRepository.findOne({
-      where: { bulkUploadId },
-    });
-    const preview = (logRow?.details as any)?.preview;
-    if (!preview) {
-      throw new NotFoundException(
-        `No preview staged for bulk upload ${bulkUploadId}`,
-      );
-    }
-    return {
-      bulkUpload,
-      records: preview.records ?? [],
-      organizationId: preview.organizationId,
-      totalCsvRows: preview.totalCsvRows ?? 0,
-      skippedRows: preview.skippedRows ?? 0,
-    };
-  }
-
-  async confirmBulkUpload(
-    bulkUploadId: string,
-  ): Promise<{ successCount: number; failedCount: number }> {
-    const { bulkUpload, records, organizationId } =
-      await this.getBulkUploadPreview(bulkUploadId);
-    return this.deviceGroupService.performBulkDeviceRegistration(
-      bulkUpload,
-      records,
-      organizationId,
-    );
-  }
-
-  async discardBulkUpload(bulkUploadId: string): Promise<void> {
-    const bulkUpload = await this.bulkUploadRepository.findOne({
-      where: { id: bulkUploadId },
-    });
-    if (!bulkUpload) {
-      throw new NotFoundException(`Bulk upload ${bulkUploadId} not found`);
-    }
-    if (bulkUpload.status !== BulkUploadStatus.PendingConfirmation) {
-      throw new BadRequestException(
-        `Bulk upload is in status ${bulkUpload.status}, nothing to discard`,
-      );
-    }
-    await this.bulkUploadFailedLogRepository.delete({
-      bulkUploadId: bulkUpload.id,
-    });
-    await this.bulkUploadRepository.delete({ id: bulkUpload.id });
-  }
-
   async canManageBulkUploadJobs({
     user,
     organizationId,
@@ -392,7 +267,7 @@ export class BulkUploadService {
       });
     }
 
-    if (!organizationId && user.role === Role.Registrant) {
+    if (!organizationId && user.role === Role.ApiUser) {
       this.logger.error(`Add the organizationId at query param`);
       throw new BadRequestException({
         success: false,

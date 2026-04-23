@@ -19,7 +19,7 @@ Authorization: Bearer <token>
 
 {
   "externalId": "DEV-001",
-  "siteName": "My Solar Site",
+  "projectName": "My Solar Project",
   "countryCode": "IN",
   "commissioningDate": "2025-01-15",
   "capacity": 50,
@@ -66,7 +66,7 @@ The caller must have one of: `OrganizationAdmin`, `ApiUser`.
 | `METERING_EVIDENCE`   | Metering/measurement evidence         |
 | `SINGLE_LINE_DIAGRAM` | Single line diagram (SLD)             |
 | `PROJECT_PHOTOS`      | Site/project photographs              |
-| `COD_PROOF`           | Commercial Operation Date proof       |
+| `COD_PROOF`           | Certificate of completion / COD proof |
 
 ## Device Update (PATCH /api/device/:externalId)
 

@@ -22,11 +22,9 @@ import {
   CapacityRange,
   CommissioningDateRange,
   OffTaker,
-  OperatingConfiguration,
 } from '../../utils/enums';
 //import { Device } from '../device';
 import { EvidentRegistrationStatus } from '../../types/evident';
-import { GroupReviewStatus } from '../../utils/enums';
 import { GroupType } from '../../utils/enums/group-type.enum';
 import { Device } from '../device/device.entity';
 import { Organization } from '../organization/organization.entity';
@@ -78,10 +76,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @Column()
   @IsBoolean()
   gridInterconnection: boolean;
-
-  @Column('text', { array: true, nullable: true })
-  @IsOptional()
-  operatingConfigurations: OperatingConfiguration[];
 
   @Column()
   @IsNumber()
@@ -190,17 +184,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
     precision: 3,
   })
   reservationExpiryDate: Date;
-
-  @Column({
-    type: 'enum',
-    enum: GroupReviewStatus,
-    default: GroupReviewStatus.Pending,
-    nullable: true,
-    name: 'group_review_status',
-  })
-  @IsEnum(GroupReviewStatus)
-  @IsOptional()
-  groupReviewStatus: GroupReviewStatus | null;
 
   @Column({ type: 'text', nullable: true, name: 'evident_group_id' })
   @IsString()

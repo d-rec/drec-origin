@@ -328,9 +328,9 @@ Functionality that was outlined in the beginning of the process, but has not yet
 
 - Support for other renewable energy (e.g. run-of-river hydro)
 
-With respect to the Buyer Reservation functionality, currently the platform does not support any approval process by the RE developer. Therefore, the platform does not enforce any workflow that would require the buyer to have contracted with the developer prior to the developer agreeing to allow their devices to be included in a reservation. Enabling such a “workflow” approach would ensure that developers are fully engaged and contracted with the registrant or buyer.
+With respect to the Buyer Reservation functionality, currently the platform does not support any approval process by the RE developer. Therefore, the platform does not enforce any workflow that would require the buyer to have contracted with the developer prior to the developer agreeing to allow their devices to be included in a reservation. Enabling such a “workflow” approach would ensure that developers are fully engaged and contracted with the market intermediary or buyer.
 
-Furthermore, the DREC Platform today does not allow buyers to only secure a portion of a project’s output. For example, a buyer / registrant that wishes to procure RECs from a projet that generates 100MWh per year must off-take the entire generation (or least that portion which is within the reservation window). With partial output support, there may be two or more buyers who can then secure D-RECs from a single project.
+Furthermore, the DREC Platform today does not allow buyers to only secure a portion of a project’s output. For example, a buyer / market intermediary that wishes to procure RECs from a projet that generates 100MWh per year must off-take the entire generation (or least that portion which is within the reservation window). With partial output support, there may be two or more buyers who can then secure D-RECs from a single project.
 
 Lastly, more input is needed to enhance the digital verification algorithm. Presently the DREC Platform uses a solar production formula to gauge whether the solar device is reporting generation that would be expected given its:
 

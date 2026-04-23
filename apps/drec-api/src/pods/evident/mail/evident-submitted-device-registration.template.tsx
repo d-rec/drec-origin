@@ -5,7 +5,7 @@ import { Device } from '../../device/device.entity';
 
 export const getEvidentSubmittedDeviceRegistrationSubject = (
   device: Device,
-): string => `Device Registration Submitted To Evident — ${device.siteName}`;
+): string => `Device Registration Submitted To Evident — ${device.projectName}`;
 
 export default function EvidentSubmittedDeviceRegistrationTemplate({
   device,
@@ -23,7 +23,7 @@ export default function EvidentSubmittedDeviceRegistrationTemplate({
       </Text>
       <Text>Device Details:</Text>
       <ul>
-        <li>Site Name: {device.siteName}</li>
+        <li>Project Name: {device.projectName}</li>
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>

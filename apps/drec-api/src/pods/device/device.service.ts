@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   forwardRef,
   HttpException,
   Inject,
@@ -103,7 +102,8 @@ export class DeviceService {
   private readonly logger = new Logger(DeviceService.name);
 
   constructor(
-    @InjectRepository(Device) private readonly repository: Repository<Device>,
+    @InjectRepository(Device)
+    private readonly repository: Repository<Device>,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceEntity)
     private readonly checkDeviceLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceEntity>,
     private readonly organizationService: OrganizationService,
@@ -117,137 +117,6 @@ export class DeviceService {
     @Inject(forwardRef(() => ReadsService))
     private readonly readsService: ReadsService,
   ) {}
-
-  getConnection(): DataSource {
-    return this.connection;
-  }
-
-  /** Return the set of device IDs that have an approved review submission. */
-  async getApprovedDeviceIds(): Promise<Set<number>> {
-    const rows: { id: number }[] = await this.connection.query(
-      `SELECT d.id FROM device d
-       INNER JOIN submissions s
-         ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
-          = regexp_replace(s.project_subfolder,
-              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-              '', 'i')
-       WHERE s.status = 'approved'`,
-    );
-    return new Set(rows.map((r) => r.id));
-  }
-
-  /**
-   * Screen a device for potential duplicates across all organizations.
-   * Checks: coordinate proximity (< 100m), serial number match, fingerprint match.
-   */
-  async screenForDuplicates(
-    deviceId: number,
-  ): Promise<{
-    duplicates: Array<{
-      id: number;
-      externalId: string;
-      siteName: string;
-      serialNumber: string;
-      organizationId: number;
-      matchType: string;
-    }>;
-  }> {
-    const device = await this.findOne(deviceId);
-    if (!device) {
-      throw new NotFoundException(`Device ${deviceId} not found`);
-    }
-
-    const duplicates: Array<{
-      id: number;
-      externalId: string;
-      siteName: string;
-      serialNumber: string;
-      organizationId: number;
-      matchType: string;
-    }> = [];
-
-    // 1. Coordinate proximity check (~100m using Haversine approximation)
-    if (device.latitude && device.longitude) {
-      const nearbyDevices: Array<{
-        id: number;
-        externalId: string;
-        siteName: string;
-        serialNumber: string;
-        organizationId: number;
-        distance_m: number;
-      }> = await this.connection.query(
-        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId",
-                (6371000 * acos(
-                  cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
-                  * cos(radians(CAST(longitude AS double precision)) - radians($2))
-                  + sin(radians($1)) * sin(radians(CAST(latitude AS double precision)))
-                )) AS distance_m
-         FROM device
-         WHERE id != $3
-           AND latitude IS NOT NULL
-           AND longitude IS NOT NULL
-         HAVING (6371000 * acos(
-                  cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
-                  * cos(radians(CAST(longitude AS double precision)) - radians($2))
-                  + sin(radians($1)) * sin(radians(CAST(latitude AS double precision)))
-                )) < 100
-         ORDER BY distance_m
-         LIMIT 10`,
-        [device.latitude, device.longitude, device.id],
-      );
-      nearbyDevices.forEach((d) =>
-        duplicates.push({ ...d, matchType: `coordinates (${Math.round(d.distance_m)}m)` }),
-      );
-    }
-
-    // 2. Cross-org serial number match
-    if (device.serialNumber) {
-      const serialMatches = await this.repository.find({
-        where: {
-          serialNumber: device.serialNumber,
-          id: Not(device.id),
-        },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
-      });
-      serialMatches.forEach((d) => {
-        if (!duplicates.find((dup) => dup.id === d.id)) {
-          duplicates.push({
-            id: d.id,
-            externalId: d.externalId,
-            siteName: d.siteName,
-            serialNumber: d.serialNumber,
-            organizationId: d.organizationId,
-            matchType: 'serial number',
-          });
-        }
-      });
-    }
-
-    // 3. Fingerprint match (exact duplicate)
-    if (device.fingerprint) {
-      const fpMatches = await this.repository.find({
-        where: {
-          fingerprint: device.fingerprint,
-          id: Not(device.id),
-        },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
-      });
-      fpMatches.forEach((d) => {
-        if (!duplicates.find((dup) => dup.id === d.id)) {
-          duplicates.push({
-            id: d.id,
-            externalId: d.externalId,
-            siteName: d.siteName,
-            serialNumber: d.serialNumber,
-            organizationId: d.organizationId,
-            matchType: 'fingerprint',
-          });
-        }
-      });
-    }
-
-    return { duplicates };
-  }
 
   public async find(
     filterDto: FilterDTO,
@@ -301,9 +170,10 @@ export class DeviceService {
       Object.keys(filterDto).length != 0 &&
       (pageNumber != null || pageNumber != undefined)
     ) {
+      const limit = LIMIT_PER_PAGE;
       const query = await this.getFilteredQuery(filterDto);
       let where: any = query.where;
-      if (role == Role.Registrant) {
+      if (role == Role.ApiUser) {
         if (filterDto.organizationId) {
           where = { ...where, organizationId };
         } else {
@@ -314,19 +184,20 @@ export class DeviceService {
       }
 
       query.where = where;
-      // My Devices view has no per-page limit — return all matching devices.
       const [devices, totalCount] = await this.repository.findAndCount({
         ...query,
+        skip: (pageNumber - 1) * limit,
+        take: limit,
         order: {
           createdAt: 'DESC',
         },
       });
 
-      const totalPages = 1;
-      const currentPage = 1;
+      const totalPages = Math.ceil(totalCount / limit);
+      const currentPage = pageNumber;
       const newDevices = [];
       await devices.map((device: Device) => {
-        delete device['operatorExternalId'];
+        delete device['developerExternalId'];
 
         delete device['organization'];
 
@@ -366,7 +237,7 @@ export class DeviceService {
          s.status AS review_status
        FROM device d
        LEFT JOIN submissions s
-         ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
+         ON regexp_replace(lower(d."projectName"), '[^a-z0-9]+', '-', 'g')
           = regexp_replace(s.project_subfolder,
               '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
               '', 'i')
@@ -375,10 +246,10 @@ export class DeviceService {
     );
     const statusMap: Record<number, string> = {};
     for (const r of rows) {
-      statusMap[r.device_id] = r.review_status ?? 'pending';
+      statusMap[r.device_id] = r.review_status ?? 'draft';
     }
     for (const device of devices) {
-      const fallback = device.IREC_Status === 'Legacy' ? 'legacy' : 'pending';
+      const fallback = device.IREC_Status === 'Legacy' ? 'legacy' : 'draft';
       device.reviewStatus = statusMap[device.id] ?? fallback;
     }
   }
@@ -476,13 +347,6 @@ export class DeviceService {
     return result;
   }
 
-  async checkSiteNameExists(siteName: string): Promise<boolean> {
-    const count = await this.repository.count({
-      where: { siteName },
-    });
-    return count > 0;
-  }
-
   async findOne(
     id: number,
     options?: FindOneOptions<Device>,
@@ -546,11 +410,11 @@ export class DeviceService {
     return device;
   }
 
-  async findBySerialNumberAndRegistrant(
+  async findBySerialNumberAndApiUser(
     serialNumber: string,
     api_user_id: string,
   ): Promise<Device | null> {
-    this.logger.verbose(`With in findBySerialNumberAndRegistrant`);
+    this.logger.verbose(`With in findBySerialNumberAndApiUser`);
     const device: Device = await this.repository.findOne({
       where: {
         serialNumber: serialNumber,
@@ -583,21 +447,6 @@ export class DeviceService {
     );
   }
 
-  async findMultipleDevicesBasedSiteName(
-    siteNames: Array<string>,
-    organizationId: number,
-  ): Promise<Array<string>> {
-    if (!siteNames.length) return [];
-    const rows = await this.repository.find({
-      where: {
-        siteName: In(siteNames),
-        organizationId: organizationId,
-      },
-      select: ['siteName'],
-    });
-    return rows.map((r) => r.siteName);
-  }
-
   async syncStatusesWithEvident(): Promise<void> {
     const devices = await this.repository.find({
       where: {
@@ -620,7 +469,7 @@ export class DeviceService {
               : (updatedStatus as EvidentRegistrationStatus);
           await this.repository.save(device);
           const organization =
-            await this.organizationService.getLinkedRegistrantOrSelf(
+            await this.organizationService.getLinkedMarketIntermediaryOrSelf(
               device.organizationId,
             );
           this.sendEmailBasedOnEvidentStatus(device, organization.orgEmail);
@@ -683,60 +532,55 @@ export class DeviceService {
     files: {
       [DocumentType.FORM_SF_02]?: Express.Multer.File[];
       [DocumentType.SF_02C]?: Express.Multer.File[];
-      [DocumentType.SF_02C_OWNERS_DECLARATION]?: Express.Multer.File[];
       [DocumentType.METERING_EVIDENCE]?: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]?: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]?: Express.Multer.File[];
+      [DocumentType.SCREENSHOTS]?: Express.Multer.File[];
       [DocumentType.COD_PROOF]?: Express.Multer.File[];
-      [DocumentType.OTHER_DOCUMENTS]?: Express.Multer.File[];
     } | null,
     api_user_id?: string,
     role?: Role,
   ): Promise<Device> {
     this.logger.verbose(`Within register`);
-    // Partial-draft support: country code is no longer required at create time.
-    // Missing fields are flagged to the reviewer, not rejected at submit.
     if (newDevice && newDevice.countryCode) {
       newDevice.countryCode = newDevice.countryCode.toUpperCase();
+    } else {
+      this.logger.error('Country code is undefined or missing');
+      throw new BadRequestException('Country code is required');
     }
 
     const sdgBenefitList = SDGBenefits;
 
-    // Uniqueness checks only apply when the registrant actually provided a value.
-    // Multiple in-progress drafts may have null siteName / serialNumber.
-    if (newDevice.siteName) {
-      const checkSiteName = await this.repository.findOne({
-        where: {
-          siteName: newDevice.siteName,
-          organizationId: organizationId,
-        },
-      });
+    const checkProjectName = await this.repository.findOne({
+      where: {
+        projectName: newDevice.projectName,
+        organizationId: organizationId,
+      },
+    });
 
-      if (checkSiteName) {
-        throw new ConflictException({
-          success: false,
-          message: `A device with site name "${newDevice.siteName}" already exists in this organization`,
-        });
-      }
+    if (checkProjectName) {
+      throw new ConflictException({
+        success: false,
+        message: `A device with site name "${newDevice.projectName}" already exists in this organization`,
+      });
     }
 
-    if (newDevice.serialNumber) {
-      const checkSerialNumber = await this.repository.findOne({
-        where: {
-          serialNumber: newDevice.serialNumber,
-          organizationId: organizationId,
-        },
-      });
+    const checkSerialNumber = await this.repository.findOne({
+      where: {
+        serialNumber: newDevice.serialNumber,
+        organizationId: organizationId,
+      },
+    });
 
-      if (checkSerialNumber) {
-        this.logger.error(
-          `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
-        );
-        throw new ConflictException({
-          success: false,
-          message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
-        });
-      }
+    if (checkSerialNumber) {
+      this.logger.debug('Line No: 236');
+      this.logger.error(
+        `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: `SerialNumber already exists in this organization, can't add entry with same serialNumber ${newDevice.serialNumber}`,
+      });
     }
     newDevice.externalId = uuid();
 
@@ -765,110 +609,88 @@ export class DeviceService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    try {
-      // Fingerprint uniqueness is only meaningful when the identifying fields
-      // are actually provided. For partial drafts (lat/lng/capacity/commDate/
-      // serialNumber all blank), skip the check so multiple in-progress drafts
-      // can coexist. Fingerprint is persisted as null in that case.
-      const hasIdentifyingFields =
-        !!newDevice.latitude &&
-        !!newDevice.longitude &&
-        !!newDevice.commissioningDate &&
-        newDevice.capacity != null &&
-        !!newDevice.serialNumber;
+    const fingerprint = generateDeviceFingerprint({
+      latitude: newDevice.latitude,
+      longitude: newDevice.longitude,
+      commissioningDate: newDevice.commissioningDate,
+      capacity: newDevice.capacity,
+      fuelCode: newDevice.fuelCode,
+      deviceTypeCode: newDevice.deviceTypeCode,
+      serialNumber: newDevice.serialNumber,
+    });
 
-      let fingerprint: string | null = null;
-      if (hasIdentifyingFields) {
-        fingerprint = generateDeviceFingerprint({
-          latitude: newDevice.latitude,
-          longitude: newDevice.longitude,
-          commissioningDate: newDevice.commissioningDate,
-          capacity: newDevice.capacity,
-          fuelCode: newDevice.fuelCode,
-          deviceTypeCode: newDevice.deviceTypeCode,
-          serialNumber: newDevice.serialNumber,
-        });
+    const fingerprintExists = await this.repository.findOne({
+      where: {
+        fingerprint: fingerprint,
+      },
+    });
 
-        const fingerprintExists = await this.repository.findOne({
-          where: {
-            fingerprint: fingerprint,
-          },
-        });
-
-        if (fingerprintExists) {
-          throw new ConflictException({
-            message: 'There is a device with matching details',
-            statusCode: 409,
-          });
-        }
-      }
-      if (role === Role.Registrant) {
-        const org = await this.organizationService.findOne(organizationId, {
-          api_user_id: api_user_id,
-        } as FindOneOptions<Organization>);
-
-        const orgUser = await this.userService.findByEmail(org.orgEmail);
-
-        if (orgUser.role !== Role.Registrant) {
-          this.logger.error(`Unauthorized`);
-          throw new UnauthorizedException({
-            success: false,
-            message: 'Unauthorized',
-          });
-        }
-      }
-      const result = await queryRunner.manager.save(this.repository.target, {
-        ...newDevice,
-        fingerprint,
-        organizationId: organizationId,
-        api_user_id: api_user_id,
+    if (fingerprintExists) {
+      throw new ConflictException({
+        message: 'There is a device with matching details',
+        statusCode: 409,
       });
-      if (files) {
-        const documentTypes = {
-          [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
-          [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
-          [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
-          [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
-          [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
-          [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
-          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
-        };
+    }
+    if (role === Role.ApiUser) {
+      const org = await this.organizationService.findOne(organizationId, {
+        api_user_id: api_user_id,
+      } as FindOneOptions<Organization>);
 
-        const siteName = (result.siteName || 'project')
-          .replace(/[^a-zA-Z0-9-_]/g, '-')
-          .toLowerCase();
-        const projectSubfolder = `${siteName}-${uuid()}`;
+      const orgUser = await this.userService.findByEmail(org.orgEmail);
 
-        for (const [field, documentType] of Object.entries(documentTypes)) {
-          const deviceId = result.id;
-          for (const file of files[field] || []) {
-            try {
-              await this.documentsService.upload(
-                deviceId,
-                DocumentTargetType.DEVICE,
-                documentType,
-                file,
-                projectSubfolder,
-              );
-            } catch (error) {
-              this.logger.error(`Failed to upload ${field}: ${error.message}`);
-              throw new BadRequestException(
-                `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
-              );
-            }
+      if (orgUser.role !== Role.OrganizationAdmin) {
+        this.logger.error(`Unauthorized`);
+        throw new UnauthorizedException({
+          success: false,
+          message: 'Unauthorized',
+        });
+      }
+    }
+    const result = await this.repository.save({
+      ...newDevice,
+      fingerprint,
+      organizationId: organizationId,
+      api_user_id: api_user_id,
+    });
+    if (files) {
+      const documentTypes = {
+        [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
+        [DocumentType.SF_02C]: DocumentType.SF_02C,
+        [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
+        [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
+        [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
+        [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
+        [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
+      };
+
+      const projectName = (result.projectName || 'project')
+        .replace(/[^a-zA-Z0-9-_]/g, '-')
+        .toLowerCase();
+      const projectSubfolder = `${projectName}-${uuid()}`;
+
+      for (const [field, documentType] of Object.entries(documentTypes)) {
+        const deviceId = result.id;
+        for (const file of files[field] || []) {
+          try {
+            await this.documentsService.upload(
+              deviceId,
+              DocumentTargetType.DEVICE,
+              documentType,
+              file,
+              projectSubfolder,
+            );
+          } catch (error) {
+            this.logger.error(`Failed to upload ${field}: ${error.message}`);
+            throw new BadRequestException(
+              `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+            );
           }
         }
       }
-      await queryRunner.commitTransaction();
-      delete result['organization'];
-      return result;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
     }
+    await queryRunner.commitTransaction();
+    delete result['organization'];
+    return result;
   }
 
   async findBySiteName(
@@ -878,7 +700,7 @@ export class DeviceService {
     this.logger.verbose(`With in findBySiteName`);
     const device: Device = await this.repository.findOne({
       where: {
-        siteName,
+        projectName: siteName,
         organizationId,
       },
     });
@@ -902,7 +724,7 @@ export class DeviceService {
   ): Promise<Device> {
     this.logger.verbose(`With in update`);
     const rule = // eslint-disable-line @typescript-eslint/no-unused-vars
-      role === Role.SiteOperator
+      role === Role.DeviceOwner
         ? {
             where: {
               organizationId,
@@ -917,20 +739,22 @@ export class DeviceService {
 
     if (!currentDevice) {
       this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);
-      throw new NotFoundException(`No device found with ${lookupBy} "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with ${lookupBy} "${serialNumber}"`,
+      );
     }
 
-    if (updateDeviceDTO.siteName) {
+    if (updateDeviceDTO.projectName) {
       const duplicateName = await this.repository.findOne({
         where: {
-          siteName: updateDeviceDTO.siteName,
+          projectName: updateDeviceDTO.projectName,
           organizationId: organizationId,
         },
       });
       if (duplicateName && duplicateName.id !== currentDevice.id) {
         throw new ConflictException({
           success: false,
-          message: `A device with site name "${updateDeviceDTO.siteName}" already exists in this organization`,
+          message: `A device with site name "${updateDeviceDTO.projectName}" already exists in this organization`,
         });
       }
     }
@@ -969,10 +793,12 @@ export class DeviceService {
     const fingerprint = generateDeviceFingerprint({
       latitude: updateDeviceDTO.latitude ?? currentDevice.latitude,
       longitude: updateDeviceDTO.longitude ?? currentDevice.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
+      commissioningDate:
+        updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
       capacity: updateDeviceDTO.capacity ?? currentDevice.capacity,
       fuelCode: updateDeviceDTO.fuelCode ?? currentDevice.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
+      deviceTypeCode:
+        updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
       serialNumber: updateDeviceDTO.serialNumber ?? currentDevice.serialNumber,
     });
 
@@ -1030,13 +856,7 @@ export class DeviceService {
 
     query.where = where;
 
-    // Only include devices with an approved review
-    const approvedIds = await this.getApprovedDeviceIds();
-    const [allDevices] = await this.repository.findAndCount(query);
-    const filtered = allDevices.filter((d) => approvedIds.has(d.id));
-    const totalCount = filtered.length;
-    const start = pageNumber != null ? (pageNumber - 1) * limit : 0;
-    const devices = filtered.slice(start, start + limit);
+    const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage = pageNumber ?? 1;
@@ -1151,8 +971,6 @@ export class DeviceService {
       fuelCode: filter.fuelCode,
       capacity: filter.capacity && LessThanOrEqual(filter.capacity),
       gridInterconnection: filter.gridInterconnection,
-      operatingConfiguration: filter.operatingConfiguration,
-      sourceAccessMode: filter.sourceAccessMode,
       countryCode: filter.country && getCodeFromCountry(filter.country),
     });
     if (orgId != null || orgId != undefined) {
@@ -1385,13 +1203,7 @@ export class DeviceService {
 
     query.where = where;
 
-    // Only include devices with an approved review
-    const approvedIds = await this.getApprovedDeviceIds();
-    const [allDevices] = await this.repository.findAndCount(query);
-    const filtered = allDevices.filter((d) => approvedIds.has(d.id));
-    const totalCount = filtered.length;
-    const start = pageNumber ? (pageNumber - 1) * limit : 0;
-    const devices = filtered.slice(start, start + limit);
+    const [devices, totalCount] = await this.repository.findAndCount(query);
 
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage = pageNumber;
@@ -1649,7 +1461,7 @@ export class DeviceService {
     this.logger.debug(rows);
     const newDevices = [];
     await rows.map((device: Device) => {
-      delete device['operatorExternalId'];
+      delete device['developerExternalId'];
       newDevices.push(device);
     });
     return newDevices;
@@ -2162,26 +1974,5 @@ export class DeviceService {
       .andWhere('organization.id = dg.organizationId')
       .orderBy('deviceCertificates.certificate_issuance_startdate', 'ASC')
       .getMany();
-  }
-
-  /**
-   * §3.3.3: Documents are immutable once the device review is approved.
-   */
-  async assertDocumentsEditable(deviceId: number): Promise<void> {
-    const rows: any[] = await this.connection.query(
-      `SELECT s.status
-       FROM submissions s
-       JOIN device d ON regexp_replace(lower(d."siteName"), '[^a-z0-9]+', '-', 'g')
-         = regexp_replace(s.project_subfolder,
-             '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-             '', 'i')
-       WHERE d.id = $1`,
-      [deviceId],
-    );
-    if (rows.length > 0 && rows[0].status === 'approved') {
-      throw new ForbiddenException(
-        'Documents cannot be modified after the device review has been approved',
-      );
-    }
   }
 }

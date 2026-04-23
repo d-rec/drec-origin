@@ -38,7 +38,7 @@ import {
   UnreservedDeviceGroupsFilterDTO,
 } from './dto';
 import { Roles } from '../user/decorators/roles.decorator';
-import { GroupReviewStatus, Role } from '../../utils/enums';
+import { Role } from '../../utils/enums';
 import { RolesGuard } from '../../guards/RolesGuard';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -94,19 +94,19 @@ export class BuyerReservationController {
   )
   @ACLModules('DEVICE_GROUPING_MANAGEMENT_CRUDL')
   @Permission('Read')
-  @Roles(Role.Admin, Role.Registrant)
+  @Roles(Role.Admin, Role.ApiUser, Role.OrganizationAdmin)
   @ApiQuery({
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Registrant',
+    description: 'This query parameter is used for Apiuser',
   })
   @ApiQuery({
     name: 'apiUserId',
     type: String,
     required: false,
     description:
-      'This query parameter is used for Admin to list the reservations by Registrant',
+      'This query parameter is used for Admin to list the reservations by ApiUser',
   })
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
   @ApiQuery({ name: 'limit', type: Number, required: false })
@@ -160,39 +160,39 @@ export class BuyerReservationController {
 
     if (organizationId) {
       organization = await this.organizationService.findOne(organizationId);
-      if (user.role === Role.Registrant) {
+      if (user.role === Role.ApiUser) {
         if (organization.api_user_id != user.api_user_id) {
           this.logger.error(
-            `Organization requested is belongs to other registrant`,
+            `Organization requested is belongs to other apiuser`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'Organization requested is belongs to other registrant',
+            message: 'Organization requested is belongs to other apiuser',
           });
         }
       }
     }
 
     if (apiUserId) {
-      if (user.role === Role.Registrant) {
+      if (user.role === Role.ApiUser) {
         if (apiUserId != user.api_user_id) {
           this.logger.error(
-            `An registrant is unauthorized to request for other registrant`,
+            `An apiuser is unauthorized to request for other apiuser`,
           );
           throw new UnauthorizedException({
             success: false,
-            message: 'An registrant is unauthorized to request for other registrant',
+            message: 'An apiuser is unauthorized to request for other apiuser',
           });
         }
       }
 
       if (organizationId && apiUserId != organization.api_user_id) {
         this.logger.error(
-          `The requested organization is not belongs to the registrant`,
+          `The requested organization is not belongs to the apiuser`,
         );
         throw new UnauthorizedException({
           success: false,
-          message: 'The requested organization is not belongs to the registrant',
+          message: 'The requested organization is not belongs to the apiuser',
         });
       }
     }
@@ -215,7 +215,7 @@ export class BuyerReservationController {
    */
   @Get('/my')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
-  //@Roles(Role.Registrant, Role.SiteOperator, Role.Buyer,Role.SubBuyer)
+  //@Roles(Role.OrganizationAdmin, Role.DeviceOwner, Role.Buyer,Role.SubBuyer)
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
   @ApiOperation({
     summary: 'Fetch my reservations',
@@ -258,7 +258,7 @@ export class BuyerReservationController {
     this.logger.verbose(`With in getMyDevices`);
     const { organizationId, role } = user;
     switch (role) {
-      case Role.SiteOperator:
+      case Role.DeviceOwner:
         return await this.deviceGroupService.getOrganizationDeviceGroups(
           organizationId,
         );
@@ -274,7 +274,7 @@ export class BuyerReservationController {
           pageNumber,
           filterDTO,
         );
-      case Role.Registrant:
+      case Role.OrganizationAdmin:
         return await this.deviceGroupService.getAll(
           user,
           organizationId,
@@ -306,7 +306,7 @@ export class BuyerReservationController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Registrant',
+    description: 'This query parameter is used for Apiuser',
   })
   @ApiOperation({
     summary: 'Fetch buyer reservation by ID',
@@ -337,14 +337,14 @@ export class BuyerReservationController {
     if (organizationId) {
       const organization =
         await this.organizationService.findOne(organizationId);
-      if (user.role === Role.Registrant) {
+      if (user.role === Role.ApiUser) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
-            `Organization requested is belongs to other registrant`,
+            `Organization requested is belongs to other apiuser`,
           );
           throw new BadRequestException({
             success: false,
-            message: 'Organization requested is belongs to other registrant',
+            message: 'Organization requested is belongs to other apiuser',
           });
         } else {
           user.organizationId = organizationId;
@@ -374,13 +374,13 @@ export class BuyerReservationController {
    */
   @Post()
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  // @Roles(Role.SiteOperator, Role.Admin,Role.Buyer)
-  @Roles(Role.Registrant, Role.Admin)
+  // @Roles(Role.DeviceOwner, Role.Admin,Role.Buyer)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Registrant',
+    description: 'This query parameter is used for Apiuser',
   })
   @ApiOperation({
     summary: 'Create a new buyer reservation',
@@ -443,12 +443,12 @@ export class BuyerReservationController {
 
   @Post('pathway')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.Registrant, Role.Admin)
+  @Roles(Role.ApiUser, Role.OrganizationAdmin, Role.Admin)
   @ApiQuery({
     name: 'orgId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Registrant',
+    description: 'This query parameter is used for Apiuser',
   })
   @ApiOperation({
     summary: 'Create single device pathway',
@@ -567,43 +567,9 @@ export class BuyerReservationController {
    * @param param1 is getting organizationId from loggedIn user
    * @returns {void}
    */
-  @Patch('/:id/review-status')
-  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
-  @Roles(Role.Admin)
-  @ApiOperation({
-    summary: 'Update group review status',
-    description:
-      'Approve or reject a device group. When approved, Evident registration is triggered.',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    type: DeviceGroupDTO,
-    description: 'Successfully updated the group review status.',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'No device group found with the specified ID.',
-  })
-  public async updateGroupReviewStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: GroupReviewStatus,
-  ): Promise<DeviceGroupDTO> {
-    this.logger.verbose(`With in updateGroupReviewStatus`);
-    if (
-      !status ||
-      !Object.values(GroupReviewStatus).includes(status)
-    ) {
-      throw new BadRequestException({
-        success: false,
-        message: `Invalid review status. Must be one of: ${Object.values(GroupReviewStatus).join(', ')}`,
-      });
-    }
-    return await this.deviceGroupService.updateGroupReviewStatus(id, status);
-  }
-
   @Delete('/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
-  @Roles(Role.SiteOperator, Role.Admin, Role.Buyer, Role.SubBuyer)
+  @Roles(Role.DeviceOwner, Role.Admin, Role.Buyer, Role.SubBuyer)
   @ApiOperation({
     summary: 'Remove buyer reservation by ID',
     description: 'Delete a buyer reservation using its ID.',

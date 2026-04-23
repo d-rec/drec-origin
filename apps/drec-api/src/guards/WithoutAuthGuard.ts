@@ -32,101 +32,79 @@ export class WithoutAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const pathSegment = request.url.split('/')[3];
-    const user = await this.resolveUser(request, pathSegment);
+    let user: IUser;
 
-    this.enforceRoleCheck(request, pathSegment, user);
-    request.user = user;
-    return true;
-  }
-
-  private async resolveUser(request: any, pathSegment: string): Promise<IUser> {
     switch (pathSegment) {
       case UrlPath.ForgetPassword:
-        return this.resolveForgetPasswordUser(request);
+        user = await this.userService.findByEmail(request.body.email);
+        if (!user) {
+          throw new NotFoundException(`No user found with that email address`);
+        }
+        break;
+
       case UrlPath.ResetPassword:
-        return this.resolveResetPasswordUser(request);
-      case UrlPath.Register:
-        return this.resolveRegisterUser(request);
+        if (isEmail(request.params.token)) {
+          this.logger.verbose(`Token is an email: ${request.params.token}`);
+          user = await this.userService.findByEmail(request.params.token);
+        } else {
+          user = (
+            await this.emailConfirmationService.findOne({
+              token: request.params.token,
+            })
+          ).user;
+        }
+        break;
+
+      case UrlPath.Register: {
+        const userData = await this.userService.findOne({ role: Role.Admin });
+        const userOrganizationTypes = [
+          OrganizationType.Developer,
+          OrganizationType.Buyer,
+        ];
+
+        if (
+          userOrganizationTypes.includes(request.body.organizationType) &&
+          !request.body.api_user_id
+        ) {
+          user = userData;
+        } else if (
+          request.body.api_user_id &&
+          request.body.api_user_id !== userData.api_user_id &&
+          (request.body.organizationType === OrganizationType.Developer ||
+            request.body.organizationType === OrganizationType.Buyer)
+        ) {
+          user = await this.userService.findOne({
+            role: Role.ApiUser,
+            api_user_id: request.body.api_user_id,
+          });
+
+          if (!user) {
+            throw new UnauthorizedException({
+              statusCode: 401,
+              message: 'Requested api user is not available',
+            });
+          }
+        } else if (request.body.organizationType === OrganizationType.ApiUser) {
+          const apiUser =
+            await this.oauthClientCredentialsService.createAPIUser();
+          request.body.api_user_id = apiUser.api_user_id;
+        }
+        break;
+      }
+
       case UrlPath.ExportAccessKey:
-        return this.userService.findOne({
-          role: Role.Registrant,
+        user = await this.userService.findOne({
+          role: Role.ApiUser,
           api_user_id: request.params.api_user_id,
         });
+        break;
+
       case UrlPath.Login:
-        return this.userService.findByEmail(request.body.username);
+        user = await this.userService.findByEmail(request.body.username);
+        break;
+
       default:
-        return undefined;
-    }
-  }
-
-  private async resolveForgetPasswordUser(request: any): Promise<IUser> {
-    const user = await this.userService.findByEmail(request.body.email);
-    if (!user) {
-      throw new NotFoundException(`No user found with that email address`);
-    }
-    return user;
-  }
-
-  private async resolveResetPasswordUser(request: any): Promise<IUser> {
-    if (isEmail(request.params.token)) {
-      this.logger.verbose(`Token is an email: ${request.params.token}`);
-      return this.userService.findByEmail(request.params.token);
-    }
-    return (
-      await this.emailConfirmationService.findOne({
-        token: request.params.token,
-      })
-    ).user;
-  }
-
-  private async resolveRegisterUser(request: any): Promise<IUser> {
-    const adminUser = await this.userService.findOne({ role: Role.Admin });
-    const isBuyer =
-      request.body.organizationType === OrganizationType.Buyer;
-    const isSiteOperator =
-      request.body.organizationType === OrganizationType.SiteOperator;
-
-    if ((isBuyer || isSiteOperator) && !request.body.api_user_id) {
-      return adminUser;
-    }
-
-    if (
-      request.body.api_user_id &&
-      request.body.api_user_id !== adminUser.api_user_id &&
-      (isBuyer || isSiteOperator)
-    ) {
-      const user = await this.userService.findOne({
-        role: Role.Registrant,
-        api_user_id: request.body.api_user_id,
-      });
-      if (!user) {
-        throw new UnauthorizedException({
-          statusCode: 401,
-          message: 'Requested api user is not available',
-        });
-      }
-      return user;
-    }
-
-    if (request.body.organizationType === OrganizationType.Registrant) {
-      const registrant = await this.oauthClientCredentialsService.createRegistrant();
-      request.body.api_user_id = registrant.api_user_id;
-    }
-
-    return undefined;
-  }
-
-  private async enforceRoleCheck(
-    request: any,
-    pathSegment: string,
-    user: IUser,
-  ): Promise<void> {
-    const skipRoleCheck =
-      pathSegment === UrlPath.ResetPassword ||
-      pathSegment === UrlPath.Login;
-
-    if (skipRoleCheck || request.body.organizationType !== undefined) {
-      return;
+        break;
     }
 
     const adminApiUserId = (
@@ -134,8 +112,9 @@ export class WithoutAuthGuard implements CanActivate {
     ).api_user_id;
 
     if (
+      request.body.organizationType === undefined &&
       user.role != Role.Admin &&
-      user.role != Role.Registrant &&
+      user.role != Role.ApiUser &&
       user.api_user_id != adminApiUserId
     ) {
       throw new UnauthorizedException({
@@ -143,5 +122,7 @@ export class WithoutAuthGuard implements CanActivate {
         message: 'Unauthorized',
       });
     }
+    request.user = user;
+    return true;
   }
 }

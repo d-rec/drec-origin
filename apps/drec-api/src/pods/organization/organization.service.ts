@@ -42,7 +42,6 @@ import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail';
 import { FileService } from '../file/file.service';
-import { OrgApiLicensesService } from '../org-api-licenses/org-api-licenses.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { canManageOrganization } from '../../lib/organization';
 import { Profile } from '../../lib/profile';
@@ -59,7 +58,6 @@ export class OrganizationService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly fileService: FileService,
-    private readonly orgApiLicensesService: OrgApiLicensesService,
   ) {}
 
   @Profile()
@@ -111,10 +109,10 @@ export class OrganizationService {
     this.logger.verbose(`With in getAll`);
     const query = await this.getFilteredQuery(filterDTO);
     try {
-      if (user != undefined && user?.role === 'Registrant') {
+      if (user != undefined && user?.role === 'ApiUser') {
         query
-          .andWhere('organization.api_user_id = :registrantid', {
-            registrantid: user.api_user_id,
+          .andWhere('organization.api_user_id = :apiuserid', {
+            apiuserid: user.api_user_id,
           })
           .andWhere(
             'organization.organizationType NOT IN (:...excludedRoles)',
@@ -151,7 +149,7 @@ export class OrganizationService {
     this.logger.verbose(`With in getDeviceManagers`);
     const members = await this.getMembers(id);
 
-    return members.filter((u) => isRole(u.role, Role.SiteOperator));
+    return members.filter((u) => isRole(u.role, Role.DeviceOwner));
   }
 
   async getMembers(id: number): Promise<IUser[]> {
@@ -182,8 +180,8 @@ export class OrganizationService {
     );
     const totalPages = Math.ceil(totalCount / limit);
     let newUser = users;
-    if (role != undefined && role != Role.Registrant) {
-      newUser = users.filter((user) => user.role != 'Registrant');
+    if (role != undefined && role != Role.OrganizationAdmin) {
+      newUser = users.filter((user) => user.role != 'OrganizationAdmin');
     }
 
     return {
@@ -194,7 +192,7 @@ export class OrganizationService {
     };
   }
 
-  public async findRegistrantOrganizationUsers(
+  public async findApiUserOrganizationUsers(
     apiUserId: string,
     pageNumber: number,
     limit: number,
@@ -204,7 +202,7 @@ export class OrganizationService {
     totalPages: number;
     totalCount: number;
   }> {
-    this.logger.verbose(`With in findRegistrantOrganizationUsers`);
+    this.logger.verbose(`With in findApiUserOrganizationUsers`);
     /* const organization = await this.findOne(id);
      return organization ? organization.users : []; */
     const [users, totalCount] = await this.userService.findUserByApiUserId(
@@ -277,8 +275,6 @@ export class OrganizationService {
 
     const stored = await this.repository.save(organizationToCreate);
 
-    await this.orgApiLicensesService.initializeCredits(stored.id);
-
     const updatedUser = await this.userService.findById(user.id);
 
     if (documents.length) {
@@ -336,7 +332,7 @@ export class OrganizationService {
     // }
   }
 
-  public async getLinkedRegistrantOrSelf(
+  public async getLinkedMarketIntermediaryOrSelf(
     organizationId: number,
   ): Promise<Organization | undefined> {
     this.logger.verbose(`With in getParent`);
@@ -345,14 +341,14 @@ export class OrganizationService {
       return organization;
     }
 
-    const linkedRegistrant = await this.repository.findOne({
+    const linkedMarketIntermediary = await this.repository.findOne({
       where: {
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.ApiUser,
         api_user_id: organization.api_user_id,
       },
     });
 
-    return linkedRegistrant ? linkedRegistrant : organization;
+    return linkedMarketIntermediary ? linkedMarketIntermediary : organization;
   }
 
   private async generateBlockchainAddress(index: number): Promise<string> {
@@ -410,12 +406,12 @@ export class OrganizationService {
 
     const userToBeChanged = await this.userService.findById(memberId);
     const admins = organization.users.filter((u) =>
-      isRole(u.role, Role.Registrant),
+      isRole(u.role, Role.OrganizationAdmin),
     );
 
     if (
-      newRole !== Role.Registrant &&
-      isRole(userToBeChanged.role, Role.Registrant) &&
+      newRole !== Role.OrganizationAdmin &&
+      isRole(userToBeChanged.role, Role.OrganizationAdmin) &&
       admins.length < 2
     ) {
       this.logger.error(

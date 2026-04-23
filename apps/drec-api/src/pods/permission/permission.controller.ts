@@ -24,8 +24,8 @@ import {
   NewPermissionDTO,
   PermissionDTO,
   UpdatePermissionDTO,
-  NewRegistrantPermissionDTO,
-  RegistrantPermissionUpdateDTO,
+  NewApiUserPermissionDTO,
+  ApiUserPermissionUpdateDTO,
 } from '../permission/dto/modulepermission.dto';
 import { Roles } from '../user/decorators/roles.decorator';
 import { RolesGuard } from '../../guards/RolesGuard';
@@ -81,7 +81,7 @@ export class PermissionController {
    */
   @Get('/role/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.Registrant)
+  @Roles(Role.Admin, Role.OrganizationAdmin)
   @Permission('Read')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -158,7 +158,7 @@ export class PermissionController {
    */
   @Post('/module')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.Registrant)
+  @Roles(Role.Admin, Role.OrganizationAdmin)
   @ApiBody({ type: NewPermissionDTO })
   @Permission('Write')
   @ACLModules('PERMISSION_MANAGEMENT_CRUDL')
@@ -231,15 +231,15 @@ export class PermissionController {
     return this.PermissionService.update(id, body, loggedUser);
   }
   /**
-   * This api route use for make a request of permission to use api with module select by registrant
+   * This api route use for make a request of permission to use api with module select by apiuser
    * @param moduleData
    * @param loggedUser
    * @returns {PermissionDTO}
    */
-  @Post('/module/registrant/request')
+  @Post('/module/apiuser/request')
   @UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']), RolesGuard)
-  @Roles(Role.Registrant)
-  @ApiBody({ type: [NewRegistrantPermissionDTO] })
+  @Roles(Role.ApiUser)
+  @ApiBody({ type: [NewApiUserPermissionDTO] })
   @ApiOperation({
     summary: 'Request Permission for API User',
     description:
@@ -248,7 +248,7 @@ export class PermissionController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     type: PermissionDTO,
-    description: 'Request of permission from Registrant.',
+    description: 'Request of permission from ApiUser.',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -260,26 +260,26 @@ export class PermissionController {
     description:
       'Forbidden. The user does not have permission to request permissions.',
   })
-  public async registrantModuleRequest(
+  public async apiUserModuleRequest(
     //  @Param('apiUserId') apiUserId: string,
-    @Body() moduleData: [NewRegistrantPermissionDTO],
+    @Body() moduleData: [NewApiUserPermissionDTO],
     @UserDecorator() loggedUser: ILoggedInUser,
   ): Promise<{ status: string; message: string }> {
-    this.logger.verbose(`With in registrant_modulerequest`);
+    this.logger.verbose(`With in apiuser_modulerequest`);
     return this.PermissionService.request(moduleData, loggedUser);
   }
 
   /**
-   * This api route use for aprrove the registrant permission request by admin
+   * This api route use for aprrove the apiuser permission request by admin
    * @param apiUserId:string
-   * @param moduleData {RegistrantPermissionUpdateDTO}
+   * @param moduleData {ApiUserPermissionUpdateDTO}
    * @param loggedUser
    * @returns {status:string,message:string}
    */
   @Put('/module/verify/ByAdmin/:apiUserId')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard)
   @Roles(Role.Admin)
-  @ApiBody({ type: RegistrantPermissionUpdateDTO })
+  @ApiBody({ type: ApiUserPermissionUpdateDTO })
   @ApiOperation({
     summary: 'Approve API User Permission Request',
     description:
@@ -299,11 +299,11 @@ export class PermissionController {
     description:
       'Forbidden. The user does not have permission to approve permission requests.',
   })
-  public async registrantModuleApprove(
+  public async apiUserModuleApprove(
     @Param('apiUserId') apiUserId: string,
-    @Body() moduleData: RegistrantPermissionUpdateDTO,
+    @Body() moduleData: ApiUserPermissionUpdateDTO,
   ): Promise<{ status: string; message: string }> {
-    this.logger.verbose(`With in registrant_moduleapprove`);
+    this.logger.verbose(`With in apiuser_moduleapprove`);
     return this.PermissionService.verify(apiUserId, moduleData);
   }
 }

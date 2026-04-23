@@ -260,7 +260,7 @@ describe('CertificateLogService', () => {
         organizationId: 2,
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
-        role: Role.Registrant,
+        role: Role.OrganizationAdmin,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
@@ -315,11 +315,11 @@ describe('CertificateLogService', () => {
 
       const reservationInfo = { deviceGroups: [] };
 
-      const reservationSpy = jest
+      const developerReservationSpy = jest
         .spyOn(deviceGroupService, 'getReservationInfo')
         .mockResolvedValueOnce(reservationInfo);
 
-      const oldReservationSpy = jest
+      const developerOldReservationSpy = jest
         .spyOn(
           deviceGroupService,
           'getFilteredDeviceGroupReservationHistoryByUserRole',
@@ -369,7 +369,7 @@ describe('CertificateLogService', () => {
       };
 
       jest
-        .spyOn(service, 'getOperatorCertifiedReservations')
+        .spyOn(service, 'getDeveloperCertifiedReservations')
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificateLogResponse,
         );
@@ -380,7 +380,7 @@ describe('CertificateLogService', () => {
         pageNumber,
       );
 
-      expect(reservationSpy).toHaveBeenCalledWith(
+      expect(developerReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDTO,
@@ -388,7 +388,7 @@ describe('CertificateLogService', () => {
         user.api_user_id,
       );
 
-      expect(oldReservationSpy).toHaveBeenCalledWith(
+      expect(developerOldReservationSpy).toHaveBeenCalledWith(
         user.organizationId,
         user.role,
         filterDTO,
@@ -405,7 +405,7 @@ describe('CertificateLogService', () => {
         organizationId: 2,
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
-        role: Role.Registrant,
+        role: Role.OrganizationAdmin,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');
@@ -514,7 +514,7 @@ describe('CertificateLogService', () => {
       jest
         .spyOn(
           service,
-          'getOperatorCertificatesUsingGroupIDVersionUpdateOrigin247',
+          'getDeveloperCertificatesUsingGroupIDVersionUpdateOrigin247',
         )
         .mockResolvedValueOnce(
           expectedCertificates as unknown as CertificateLogResponse,
@@ -535,7 +535,7 @@ describe('CertificateLogService', () => {
         organizationId: 2,
         email: 'testsweya@gmail.com',
         blockchainAccountAddress: undefined,
-        role: Role.Registrant,
+        role: Role.OrganizationAdmin,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hasRole: function (...role: Role[]): boolean {
           throw new Error('Function not implemented.');

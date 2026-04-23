@@ -4,7 +4,7 @@ import DefaultMailLayout from '../../../mail/layouts/default.layout';
 import { Device } from '../../device/device.entity';
 
 export const getEvidentDeviceRejectedSubject = (device: Device): string =>
-  `Device Rejected on Evident — ${device.siteName}`;
+  `Device Rejected on Evident — ${device.projectName}`;
 
 export default function EvidentDeviceRejectedTemplate({
   device,
@@ -23,7 +23,7 @@ export default function EvidentDeviceRejectedTemplate({
       </Text>
       <Text>Device Details:</Text>
       <ul>
-        <li>Site Name: {device.siteName}</li>
+        <li>Project Name: {device.projectName}</li>
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>

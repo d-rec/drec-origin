@@ -46,7 +46,7 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      this.permissionValue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
 
     await this.checkForExistingModule(data.name);
     const moduleData = new AClModules({
@@ -117,7 +117,7 @@ export class AccessControlLayerModuleServiceService {
     }
 
     const permissionValue =
-      this.permissionValue.computePermissions(addedPermissionList);
+      await this.permissionValue.computePermissions(addedPermissionList);
     await this.repository.update(id, {
       permissions: data.permissions,
       permissionsValue: permissionValue,

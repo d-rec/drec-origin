@@ -8,10 +8,10 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
-type DefaultMailLayoutProps = Readonly<{
-  language?: string;
+type DefaultMailLayoutProps = {
+  language?: string | undefined;
   children: React.ReactNode;
-}>;
+};
 
 export default function DefaultMailLayout({
   language = 'en',

@@ -6,7 +6,7 @@ import { Device } from '../../device/device.entity';
 export const getEvidentDraftDeviceRegistrationSubject = (
   device: Device,
 ): string =>
-  `Device Registration Add As a Draft On Evident — ${device.siteName}`;
+  `Device Registration Add As a Draft On Evident — ${device.projectName}`;
 
 export default function EvidentDraftDeviceRegistrationTemplate({
   device,
@@ -25,7 +25,7 @@ export default function EvidentDraftDeviceRegistrationTemplate({
       </Text>
       <Text>Device Details:</Text>
       <ul>
-        <li>Site Name: {device.siteName}</li>
+        <li>Project Name: {device.projectName}</li>
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>

@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -25,7 +24,7 @@ import { ChatConversation } from './chat-conversation.entity';
 @ApiTags('Chat')
 @ApiBearerAuth('access-token')
 @Controller('chat')
-@UseGuards(AuthVerifiedGuard(['jwt', 'oauth2-client-password']))
+@UseGuards(AuthVerifiedGuard('jwt'))
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
@@ -107,13 +106,13 @@ export class ChatController {
     body: {
       participant1: string;
       participant2: string;
-      deviceSiteName?: string;
+      deviceProjectName?: string;
     },
   ): Promise<ChatConversation | null> {
     return this.chatService.getConversation(
       body.participant1,
       body.participant2,
-      body.deviceSiteName,
+      body.deviceProjectName,
     );
   }
 
@@ -126,33 +125,6 @@ export class ChatController {
     return { success: true };
   }
 
-  @Get('unread-count/:email')
-  @ApiOperation({ summary: 'Get unread conversation count for a user' })
-  async getUnreadCount(
-    @Param('email') email: string,
-  ): Promise<{ count: number }> {
-    const count = await this.chatService.getUnreadCount(email);
-    return { count };
-  }
-
-  @Get('unread-devices/:email')
-  @ApiOperation({ summary: 'Get device site names with unread messages' })
-  async getUnreadDeviceNames(
-    @Param('email') email: string,
-  ): Promise<string[]> {
-    return this.chatService.getUnreadDeviceNames(email);
-  }
-
-  @Patch('conversations/:id/read')
-  @ApiOperation({ summary: 'Mark a conversation as read for a user' })
-  async markConversationRead(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { email: string },
-  ): Promise<{ success: boolean }> {
-    await this.chatService.markConversationRead(id, body.email);
-    return { success: true };
-  }
-
   @Post('conversations/start')
   @ApiOperation({ summary: 'Start a new conversation with a first message' })
   async startConversation(
@@ -162,7 +134,7 @@ export class ChatController {
       participant2: string;
       username: string;
       chatEntry: string;
-      deviceSiteName?: string;
+      deviceProjectName?: string;
     },
   ): Promise<any> {
     return this.chatService.startConversation(
@@ -170,7 +142,7 @@ export class ChatController {
       body.participant2,
       body.username,
       body.chatEntry,
-      body.deviceSiteName,
+      body.deviceProjectName,
     );
   }
 }

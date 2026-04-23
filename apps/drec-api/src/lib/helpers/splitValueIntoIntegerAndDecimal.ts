@@ -38,7 +38,7 @@ export const splitValueIntoIntegerAndDecimal = (
   // Extract integral part
   const integralVal = Math.trunc(num);
 
-  const decimals = Number.parseFloat((num - integralVal).toFixed(10));
+  const decimals = parseFloat((num - integralVal).toFixed(10));
 
   // Extract and round decimal part
   const decimalVal = roundDecimalToFixedPrecision(decimals);

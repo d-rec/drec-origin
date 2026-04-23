@@ -103,5 +103,7 @@ export class alterDevicesAndCreateIrecDevicesInfo1690172985738
     // Reversing the migration (rollback)
     await queryRunner.dropTable('irec_devices_information');
     await queryRunner.dropTable('irec_error_log_information');
+    // await queryRunner.dropColumn('devices', 'IREC_ID');
+    // await queryRunner.dropColumn('devices', 'IREC_Status');
   }
 }

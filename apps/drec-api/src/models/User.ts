@@ -56,9 +56,9 @@ export interface IFullUser extends IUser {
 export declare type UpdateUserResponseReturnType = IUser;
 
 export const isRole = (orgRole: Role, ...roles: Role[]): boolean =>
-  roles.includes(orgRole);
+  roles.some((role) => role === orgRole);
 
 export const isPermission = (
   userPermissions: PermissionString,
   ...permissions: PermissionString[]
-): boolean => permissions.includes(userPermissions);
+): boolean => permissions.some((permission) => permission === userPermissions);

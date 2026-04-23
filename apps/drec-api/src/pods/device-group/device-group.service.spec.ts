@@ -316,7 +316,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.Registrant,
+        role: Role.ApiUser,
         organizationId: 1,
       } as ILoggedInUser;
 
@@ -326,9 +326,9 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
       jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValue({ role: Role.Registrant } as any);
+        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
       jest
-        .spyOn(service, 'checkDeviceOrganization')
+        .spyOn(service, 'checkDeveloperOrganization')
         .mockResolvedValue(false);
 
       await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
@@ -344,7 +344,7 @@ describe('DeviceGroupService', () => {
         deviceIdsInt: [1, 2],
       } as DeviceGroup;
       const mockUser = {
-        role: Role.Registrant,
+        role: Role.ApiUser,
         organizationId: 1,
       } as ILoggedInUser;
 
@@ -354,8 +354,8 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue({ orgEmail: 'org@example.com' } as any);
       jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValue({ role: Role.Registrant } as any);
-      jest.spyOn(service, 'checkDeviceOrganization').mockResolvedValue(true);
+        .mockResolvedValue({ role: Role.OrganizationAdmin } as any);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       const result = await service.findById(deviceGroupUid, mockUser);
 
@@ -375,7 +375,7 @@ describe('DeviceGroupService', () => {
       } as ILoggedInUser;
 
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockDeviceGroup);
-      jest.spyOn(service, 'checkDeviceOrganization').mockResolvedValue(true);
+      jest.spyOn(service, 'checkDeveloperOrganization').mockResolvedValue(true);
 
       await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,
@@ -509,12 +509,12 @@ describe('DeviceGroupService', () => {
         {
           device_id: 1,
           device_serial_number: 'ABC123',
-          device_siteName: 'Solar Farm 1',
+          device_projectName: 'Solar Farm 1',
         },
         {
           device_id: 2,
           device_serial_number: 'DEF456',
-          device_siteName: 'Solar Farm 2',
+          device_projectName: 'Solar Farm 2',
         },
       ];
       const mockCount = 1;
@@ -555,8 +555,8 @@ describe('DeviceGroupService', () => {
           deviceGroupUid: 'UID-123',
           deviceIds: [1, 2],
           devices: [
-            { id: 1, siteName: 'Solar Farm 1', serialNumber: 'ABC123' },
-            { id: 2, siteName: 'Solar Farm 2', serialNumber: 'DEF456' },
+            { id: 1, projectName: 'Solar Farm 1', serialNumber: 'ABC123' },
+            { id: 2, projectName: 'Solar Farm 2', serialNumber: 'DEF456' },
           ],
           countryCode: ['IND'],
           fuelCode: ['TS100'],

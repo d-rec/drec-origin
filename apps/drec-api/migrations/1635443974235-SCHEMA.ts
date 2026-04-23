@@ -91,6 +91,9 @@ export class SCHEMA1635443974235 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "device_csv_file_processing_jobs" ADD CONSTRAINT "FK_98d9ca5d9f882ad8be530d247f1" FOREIGN KEY ("organizationId") REFERENCES "organization"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
+    // await queryRunner.query(
+    //   `ALTER TABLE "device_csv_file_processing_jobs" ADD CONSTRAINT "FK_92d9ca5d9f882ad8be530d247f1" FOREIGN KEY ("fileId") REFERENCES "file"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
+    // );
     await queryRunner.query(
       `ALTER TABLE "device_csv_file_processing_jobs" ADD CONSTRAINT "FK_94d9ca5d9f882ad8be530d247f3" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );

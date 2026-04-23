@@ -34,5 +34,5 @@ export class ConversationDto {
   lastEntryUuid: string | null;
 
   @ApiPropertyOptional()
-  deviceSiteName: string | null;
+  deviceProjectName: string | null;
 }

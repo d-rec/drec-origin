@@ -43,13 +43,9 @@ import { UpdateUserDTO } from '../admin/dto/update-user.dto';
 import { UserFilterDTO } from '../admin/dto/user-filter.dto';
 import { OrganizationService } from '../organization/organization.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
-import { RegistrantEntity } from './registrant.entity';
+import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpService } from '../otp/otp.service';
-import { MailService } from '../../mail/mail.service';
-import { ConfigService } from '@nestjs/config';
-import React from 'react';
-import AccountApproved from '../../mail/templates/account-approved.template';
 export type TUserBaseEntity = ExtendedBaseEntity & IUser;
 
 @Injectable()
@@ -63,13 +59,11 @@ export class UserService {
     private readonly oauthClientCredentialsService: OauthClientCredentialsService,
     @Inject(forwardRef(() => OrganizationService))
     private organizationService: OrganizationService,
-    @InjectRepository(RegistrantEntity)
-    private readonly registrantEntityRepository: Repository<RegistrantEntity>,
+    @InjectRepository(ApiUserEntity)
+    private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
     @InjectRepository(UserLoginSessionEntity)
     private readonly userLoginSessionRepository: Repository<UserLoginSessionEntity>,
     private readonly otpService: OtpService,
-    private readonly mailService: MailService,
-    private readonly configService: ConfigService,
   ) {}
 
   public async seed(
@@ -94,10 +88,18 @@ export class UserService {
     });
   }
 
-  // Phone number uniqueness is not enforced — multiple users may share a number
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async checkIfPhoneNumberExists(_phoneNumber: string): Promise<void> {
-    return;
+  public async checkIfPhoneNumberExists(phoneNumber: string): Promise<void> {
+    const existingTelephone = await this.repository.findOne({
+      where: { phoneNumber },
+    });
+
+    if (existingTelephone) {
+      throw new ConflictException({
+        success: false,
+        message:
+          'This phone number is already registered. Please use a different phone number.',
+      });
+    }
   }
 
   public async newCreateUser(
@@ -105,16 +107,14 @@ export class UserService {
     status?: UserStatus,
     inviteUser?: boolean,
   ): Promise<UserDTO> {
-    await this.checkForExistingUser(data.email.toLowerCase());
-    await this.checkIfPhoneNumberExists(data.phoneNumber);
-    const registrant =
-      await this.oauthClientCredentialsService.findOneByApiUserId(
-        data.api_user_id,
-      );
+    try {
+      await this.checkForExistingUser(data.email.toLowerCase());
+      await this.checkIfPhoneNumberExists(data.phoneNumber);
+      const apiUser =
+        await this.oauthClientCredentialsService.findOneByApiUserId(
+          data.api_user_id,
+        );
 
-    // Wrap org + user in a transaction so partial registrations leave no
-    // orphan data behind.
-    const user = await this.repository.manager.transaction(async (manager) => {
       let orgId;
       if (!inviteUser) {
         const organizationData = {
@@ -124,7 +124,7 @@ export class UserService {
           address: data.orgAddress,
         };
 
-        organizationData['api_user_id'] = registrant.api_user_id;
+        organizationData['api_user_id'] = apiUser.api_user_id;
         if (
           await this.organizationService.isNameAlreadyTaken(
             organizationData.name,
@@ -132,7 +132,7 @@ export class UserService {
         ) {
           throw new ConflictException({
             success: false,
-            message: `Organization "${data.orgName}" already exists, please use another name`,
+            message: `Organization "${data.orgName}"  is already existed,please use another Organization name`,
           });
         } else {
           const org =
@@ -146,23 +146,29 @@ export class UserService {
       if (data.orgid) {
         orgId = data.orgid;
       }
-      let role: Role;
-      if (data.role === Role.Reviewer || data.role === Role.SeniorReviewer) {
-        role = data.role as Role;
-      } else if (data.organizationType === OrganizationType.Buyer) {
+      let role;
+      if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-      } else if (data.organizationType === OrganizationType.Registrant) {
-        role = Role.Registrant;
-      } else if (data.organizationType === OrganizationType.SiteOperator) {
-        role = Role.SiteOperator;
+      } else if (data.organizationType === OrganizationType.Developer) {
+        role = Role.OrganizationAdmin;
+      } else if (data.organizationType === OrganizationType.ApiUser) {
+        role = Role.ApiUser;
+      } else if (data.organizationType === OrganizationType.Reviewer) {
+        role = Role.Reviewer;
+      } else if (data.organizationType === OrganizationType.SeniorReviewer) {
+        role = Role.SeniorReviewer;
       }
+
+      const isReviewer =
+        data.organizationType === OrganizationType.Reviewer ||
+        data.organizationType === OrganizationType.SeniorReviewer;
 
       const roleRecord = await this.userRoleRepository.findOne({
         where: { name: role },
       });
       const roleId = roleRecord?.id;
 
-      const user = await manager.save(User, {
+      const user = await this.repository.save({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email.toLowerCase(),
@@ -170,24 +176,37 @@ export class UserService {
         password: this.hashPassword(data.password),
         termsAcceptedAt: data.termsAndConditions ? new Date() : null,
         notifications: true,
-        status: status || UserStatus.Pending,
+        status: isReviewer ? UserStatus.Pending : status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
-        api_user_id: registrant ? registrant.api_user_id : null,
+        api_user_id: apiUser ? apiUser.api_user_id : null,
         phoneNumberVerifiedAt: null,
-      } as any);
+      });
+      const { ...userData } = user;
       this.logger.debug(
-        `Successfully registered a new user with id ${JSON.stringify(user.id)}`,
+        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
+      await this.emailConfirmationService.create(user);
+
+      if (isReviewer) {
+        const roleName =
+          data.organizationType === OrganizationType.SeniorReviewer
+            ? 'Senior Reviewer'
+            : 'Reviewer';
+        await this.emailConfirmationService.sendReviewerApprovalRequest(
+          user,
+          roleName,
+        );
+      }
 
       return user;
-    });
-
-    // Email confirmation runs after the transaction commits so the user row
-    // is visible to the email_confirmation FK constraint.
-    await this.emailConfirmationService.create(user);
-    return user;
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      throw error;
+    }
   }
 
   public async createUserByAdmin(
@@ -201,20 +220,8 @@ export class UserService {
       const admin = await this.oauthClientCredentialsService.findOneByApiUserId(
         data.api_user_id,
       );
-      const isReviewer =
-        data.role === Role.Reviewer ||
-        data.role === Role.SeniorReviewer;
       let orgId;
-      if (isReviewer) {
-        // Reviewers join the admin's organization
-        const adminUser = admin
-          ? await this.repository.findOne({
-              where: { api_user_id: admin.api_user_id },
-              relations: ['organization'],
-            })
-          : null;
-        orgId = adminUser?.organization?.id ?? null;
-      } else if (!inviteUser) {
+      if (!inviteUser) {
         const organizationData = {
           name: data.orgName !== undefined ? data.orgName : '',
           organizationType: data.organizationType as OrganizationType,
@@ -241,23 +248,16 @@ export class UserService {
         }
       }
 
-      let role: Role;
-      if (isReviewer) {
-        role = data.role as Role;
-      } else if (data.organizationType === OrganizationType.Buyer) {
+      let role;
+      if (data.organizationType === OrganizationType.Buyer) {
         role = Role.Buyer;
-      } else if (data.organizationType === OrganizationType.SiteOperator) {
-        role = Role.SiteOperator;
       } else {
-        role = Role.Registrant;
+        role = Role.OrganizationAdmin;
       }
       const roleRecord = await this.userRoleRepository.findOne({
         where: { name: role },
       });
       const roleId = roleRecord?.id;
-      const reviewerWithInvite =
-        isReviewer && data.emailNotification;
-
       const user = await this.repository.save({
         firstName: data.firstName,
         lastName: data.lastName,
@@ -265,43 +265,17 @@ export class UserService {
         phoneNumber: data.phoneNumber,
         password: this.hashPassword(data.password),
         notifications: true,
-        status: reviewerWithInvite
-          ? UserStatus.Pending
-          : status || UserStatus.Active,
+        status: status || UserStatus.Active,
         role: role,
         roleId: roleId,
         organization: orgId ? { id: orgId } : {},
         api_user_id: admin ? admin.api_user_id : null,
       });
+      const { ...userData } = user;
       this.logger.debug(
-        `Successfully registered a new user with id ${JSON.stringify(user.id)}`,
+        `Successfully registered a new user with id ${JSON.stringify(userData.id)}`,
       );
-
-      if (reviewerWithInvite) {
-        // Create email confirmation with token for password-set flow
-        const emailConfirmation =
-          await this.emailConfirmationService.createForReviewer(user);
-
-        const adminUser = admin
-          ? await this.repository.findOne({
-              where: { api_user_id: admin.api_user_id },
-            })
-          : null;
-        const adminName = adminUser
-          ? `${adminUser.firstName} ${adminUser.lastName}`
-          : 'An administrator';
-        const roleName =
-          role === Role.SeniorReviewer ? 'Senior Reviewer' : 'Reviewer';
-        await this.emailConfirmationService.sendReviewerAddedNotification(
-          user.email,
-          user.firstName,
-          roleName,
-          adminName,
-          emailConfirmation.token,
-        );
-      } else {
-        await this.emailConfirmationService.adminCreate(user, data.password);
-      }
+      await this.emailConfirmationService.adminCreate(user, data.password);
 
       return new User(user);
     } catch (error) {
@@ -336,9 +310,9 @@ export class UserService {
       throw new NotFoundException(`No user found with id ${id}`);
     }
 
-    if (user.role === Role.Registrant) {
-      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
-      user['permission_status'] = registrant.permission_status;
+    if (user.role === Role.ApiUser) {
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
@@ -432,22 +406,8 @@ export class UserService {
   }
 
   async remove(userId: number): Promise<void> {
-    const user = await this.repository.findOne({
-      where: { id: userId },
-      relations: ['organization'],
-    });
     await this.emailConfirmationService.remove(userId);
     await this.repository.delete(userId);
-
-    // Clean up orphan org if this was the last user
-    if (user?.organization) {
-      const remainingUsers = await this.repository.count({
-        where: { organization: { id: user.organization.id } },
-      });
-      if (remainingUsers === 0) {
-        await this.organizationService.remove(user.organization.id);
-      }
-    }
   }
 
   async updateProfile(
@@ -520,22 +480,22 @@ export class UserService {
     user: UserChangePasswordUpdate,
   ): Promise<UserDTO> {
     if (emailConfirmation) {
-      const hashedPassword = this.hashPassword(user.newPassword);
-
-      await this.repository.update(emailConfirmation.id, {
-        password: hashedPassword,
+      const updateEntity = new User({
+        password: this.hashPassword(user.newPassword),
       });
 
-      // Activate the user if they were pending (e.g. reviewer setting password for the first time)
-      const currentUser = await this.repository.findOne({
-        where: { id: emailConfirmation.id },
+      const validationErrors = await validate(updateEntity, {
+        skipUndefinedProperties: true,
       });
-      if (currentUser?.status === UserStatus.Pending) {
-        await this.repository.update(emailConfirmation.id, {
-          status: UserStatus.Active,
+
+      if (validationErrors.length > 0) {
+        throw new UnprocessableEntityException({
+          success: false,
+          errors: validationErrors,
         });
       }
 
+      await this.repository.update(emailConfirmation.id, updateEntity);
       return emailConfirmation;
     }
 
@@ -544,72 +504,6 @@ export class UserService {
       errors: `User Not exist .`,
     });
   }
-
-  /** Canonical role → module permissions. Used by changeRole to ensure
-   *  the target role has its ACL entries when a user is assigned to it. */
-  private static readonly ROLE_PERMISSIONS: Record<
-    string,
-    { module: string; perms: string; value: number }[]
-  > = {
-    Reviewer: [
-      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-    ],
-    SeniorReviewer: [
-      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-    ],
-    Registrant: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
-      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write',               value: 3  },
-      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
-    ],
-    Buyer: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
-    ],
-    SubBuyer: [
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
-    ],
-    SiteOperator: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write',               value: 3  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
-    ],
-  };
 
   public async changeRole(
     userId: number,
@@ -622,39 +516,7 @@ export class UserService {
       },
     });
     await this.repository.update(userId, { role, roleId: userRole.id });
-
-    // Ensure the role has its ACL permission entries
-    await this.ensureRolePermissions(role, userRole.id);
-
     return this.findOne({ id: userId });
-  }
-
-  /** Insert any missing role-level ACL permissions for the given role. */
-  private async ensureRolePermissions(
-    role: Role,
-    roleId: number,
-  ): Promise<void> {
-    const perms = UserService.ROLE_PERMISSIONS[role];
-    if (!perms) return; // Admin or unknown role — nothing to provision
-
-    const mgr = this.repository.manager;
-    for (const p of perms) {
-      await mgr.query(
-        `INSERT INTO "aclmodulepermissions"
-           ("aclmodulesId", "entityType", "entityId", "permissions", "permissionValue", "status")
-         SELECT a.id, 'Role', $1, $2, $3, 1
-         FROM "aclmodules" a
-         WHERE a.name = $4
-           AND NOT EXISTS (
-             SELECT 1 FROM "aclmodulepermissions" ep
-             WHERE ep."aclmodulesId" = a.id
-               AND ep."entityType" = 'Role'
-               AND ep."entityId" = $1
-               AND ep."permissions" = $2
-           )`,
-        [roleId, p.perms, p.value, p.module],
-      );
-    }
   }
 
   async getPlatformAdmin(): Promise<IUser | undefined> {
@@ -674,6 +536,7 @@ export class UserService {
     const query = await this.getFilteredQuery(filterDTO);
     try {
       const [users, totalCount] = await query
+        .andWhere(`role != :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
@@ -742,29 +605,7 @@ export class UserService {
     if (roleValue) {
       updatePayload.role = roleValue;
     }
-    const previousStatus = updateUser.status;
     await this.repository.update(id, updatePayload);
-
-    // Send approval email when status changes from Pending to Active
-    if (
-      previousStatus === UserStatus.Pending &&
-      data.status === UserStatus.Active
-    ) {
-      const loginUrl =
-        this.configService.get<string>('UI_BASE_URL') || 'https://portal.drecs.org';
-      this.mailService
-        .send({
-          to: updateUser.email,
-          subject: 'Your D-REC account has been approved',
-          template: React.createElement(AccountApproved, {
-            firstName: updateUser.firstName,
-            loginUrl: `${loginUrl}/login`,
-          }),
-        })
-        .catch((err) =>
-          this.logger.error(`Failed to send approval email to ${updateUser.email}`, err),
-        );
-    }
 
     return this.findOne({ id });
   }
@@ -778,7 +619,7 @@ export class UserService {
     const isOwnUser = loggedInUser.id === userId;
     const isOrgAdmin =
       loggedInUser.organizationId === user.organization?.id &&
-      loggedInUser.hasRole(Role.Registrant);
+      loggedInUser.hasRole(Role.OrganizationAdmin);
     const isAdmin = loggedInUser.hasRole(Role.Admin);
 
     const canViewUserData = isOwnUser || isOrgAdmin || isAdmin;
@@ -789,9 +630,9 @@ export class UserService {
         message: `Unable to fetch user data. Unauthorized.`,
       });
     }
-    if (user.role === Role.Registrant) {
-      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
-      user['permission_status'] = registrant.permission_status;
+    if (user.role === Role.ApiUser) {
+      const apiUser = await this.getApiUserPermissionStatus(user.api_user_id);
+      user['permission_status'] = apiUser.permission_status;
     }
     return user;
   }
@@ -837,7 +678,7 @@ export class UserService {
       .take(limit)
       .getManyAndCount();
   }
-  /**get all user of registrant */
+  /**get all user of apiuser */
   public async findUserByApiUserId(
     api_user_id: string,
     pageNumber: number,
@@ -847,43 +688,43 @@ export class UserService {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.organization', 'organization')
       .where('user.api_user_id = :api_user_id', { api_user_id })
-      .andWhere(`role != :role`, { role: Role.Registrant })
+      .andWhere(`role != :role`, { role: Role.ApiUser })
       .orderBy('user.createdAt', 'DESC')
       .skip((pageNumber - 1) * limit)
       .take(limit)
       .getManyAndCount();
   }
-  /** Registrant Fuction*/
+  /** ApiUser Fuction*/
 
-  async getRegistrant(api_id: string): Promise<RegistrantEntity | undefined> {
-    return await this.registrantEntityRepository.findOne({
+  async getApiUser(api_id: string): Promise<ApiUserEntity | undefined> {
+    return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: api_id,
       },
     });
   }
   /**
-   * This Function added for request of permission to registrant in registrant table
+   * This Function added for request of permission to apiuser in apiuser table
    * @param api_id
    * @param permissionIds
    */
-  async registrantPermissionRequest(
+  async apiUserPermissionRequest(
     api_id: string,
     permissionIds: number[] | any,
   ): Promise<void> {
-    await this.registrantEntityRepository.update(api_id, {
+    await this.apiUserEntityRepository.update(api_id, {
       permissionIds: permissionIds,
       permission_status: UserPermissionStatus.Request,
     });
   }
-  async registrantPermissionAcceptedByAdmin(
+  async apiUserPermissionAcceptedByAdmin(
     api_id: string,
     status: UserPermissionStatus,
   ): Promise<any> {
-    await this.registrantEntityRepository.update(api_id, {
+    await this.apiUserEntityRepository.update(api_id, {
       permission_status: status,
     });
-    return await this.registrantEntityRepository.findOne({
+    return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: api_id,
       },
@@ -894,8 +735,8 @@ export class UserService {
    * @param apiId
    * @returns
    */
-  async getRegistrantPermissionStatus(apiId: string): Promise<any> {
-    return await this.registrantEntityRepository.findOne({
+  async getApiUserPermissionStatus(apiId: string): Promise<any> {
+    return await this.apiUserEntityRepository.findOne({
       where: {
         api_user_id: apiId,
       },
@@ -903,13 +744,13 @@ export class UserService {
   }
 
   /**
-   * this function create for get user list of Registrant
+   * this function create for get user list of ApiUser
    * @param organizationName
    * @param pageNumber
    * @param limit
    * @returns
    */
-  public async getRegistrants(
+  public async getApiUsers(
     organizationName: string,
     pageNumber: number,
     limit: number,
@@ -923,22 +764,22 @@ export class UserService {
     filterDTO.organizationName = organizationName;
     const query = await this.getFilteredQuery(filterDTO);
     try {
-      const [registrants, totalCount] = await query
-        .andWhere(`user.role = :role`, { role: Role.Registrant })
+      const [apiUsers, totalCount] = await query
+        .andWhere(`user.role = :role`, { role: Role.ApiUser })
         .skip((pageNumber - 1) * limit)
         .take(limit)
         .getManyAndCount();
 
       const totalPages = Math.ceil(totalCount / limit);
       return {
-        users: registrants,
+        users: apiUsers,
         currentPage: pageNumber,
         totalPages,
         totalCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to retrieve registrants`, error.stack);
-      throw new InternalServerErrorException('Failed to retrieve registrants');
+      this.logger.error(`Failed to retrieve apiUsers`, error.stack);
+      throw new InternalServerErrorException('Failed to retrieve apiUsers');
     }
   }
 

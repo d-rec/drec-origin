@@ -4,7 +4,6 @@ export enum FuelCode {
 }
 
 export enum DeviceTypeCode {
-  TC100 = 'TC100',
   TC110 = 'TC110',
   TC120 = 'TC120',
   TC130 = 'TC130',

@@ -14,11 +14,11 @@ import { IUser } from '../models/User';
 import { ActiveUserGuard } from './ActiveUserGuard';
 import { Reflector } from '@nestjs/core';
 
-const SKIP_VERIFICATION_MODES = new Set(['dev', 'stage', 'test']);
+const SKIP_VERIFICATION_MODES = ['dev', 'stage', 'test'];
 
 const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
   const mode = process.env.MODE || '';
-  if (SKIP_VERIFICATION_MODES.has(mode)) {
+  if (SKIP_VERIFICATION_MODES.includes(mode)) {
     logger.verbose(`Skipping verification checks (MODE=${mode})`);
     return true;
   }
@@ -55,10 +55,10 @@ const isVerified = (context: ExecutionContext, logger: Logger): boolean => {
 function createAuthVerifiedGuard(type?: string | string[]): Type<IAuthGuard> {
   @Injectable()
   class AuthVerifiedGuard extends AuthGuard(type) implements CanActivate {
-    private readonly logger = new Logger(AuthVerifiedGuard.name);
+    private logger = new Logger(AuthVerifiedGuard.name);
 
     constructor(
-      private readonly reflector: Reflector,
+      private reflector: Reflector,
       @Optional() options?: AuthModuleOptions,
     ) {
       super(options);
@@ -70,7 +70,7 @@ function createAuthVerifiedGuard(type?: string | string[]): Type<IAuthGuard> {
       if (!isAuthenticated) return false;
 
       const activeUserGuard = new ActiveUserGuard(this.reflector);
-      const isActive = activeUserGuard.canActivate(context);
+      const isActive = await activeUserGuard.canActivate(context);
 
       if (!isActive) return false;
 
