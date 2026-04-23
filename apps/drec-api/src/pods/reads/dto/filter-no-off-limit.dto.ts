@@ -30,7 +30,7 @@ export class FilterNoOffLimit {
   @ApiProperty({
     type: Number,
     required: false,
-    description: "Mention when it's requested from Registrant",
+    description: "Mention when it's requested from Apiuser",
   })
   organizationId?: number;
 }

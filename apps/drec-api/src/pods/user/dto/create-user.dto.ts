@@ -42,14 +42,11 @@ export class CreateUserOrgDTO
     'firstName',
     'lastName',
     'email',
+    'phoneNumber',
     'termsAndConditions',
   ] as const)
   implements UserOrgRegistrationData
 {
-  @IsOptional()
-  @IsString()
-  phoneNumber?: string;
-
   @ApiProperty({ type: String })
   @MaxLength(20)
   @Matches(/^(?=.*[0-9])(?=.*[A-Za-z]).{6,}$/, {
@@ -103,23 +100,19 @@ export class CreateUserOrgDTO
 
   @ApiProperty({ type: String })
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   @IsIn(
     [
-      OrganizationType.Registrant,
+      OrganizationType.Developer,
+      OrganizationType.ApiUser,
       OrganizationType.Buyer,
-      OrganizationType.SiteOperator,
+      OrganizationType.Reviewer,
+      OrganizationType.SeniorReviewer,
     ],
     {
-      message: 'Invalid organization type',
+      message:
+        'organizationType value should be Developer/Buyer/ApiUser/Reviewer/SeniorReviewer',
     },
   )
-  organizationType?: string;
-
-  @IsOptional()
-  emailNotification?: boolean;
-
-  @IsOptional()
-  @IsString()
-  role?: string;
+  organizationType: string;
 }

@@ -97,7 +97,7 @@ export class OrganizationController {
 
   @Post('/upload/verification-documents')
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
-  @Roles(Role.Registrant)
+  @Roles(Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @UseInterceptors(
@@ -275,16 +275,16 @@ export class OrganizationController {
     return await this.organizationService.findOne(organizationId);
   }
   /**
-   * This Api route to get all organization of registrant
+   * This Api route to get all organization of apiuser
    * @param param0
    * @returns
    */
-  @Get('/registrant/all_organization')
+  @Get('/apiuser/all_organization')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
     PermissionGuard,
   )
-  @Roles(Role.Registrant)
+  @Roles(Role.ApiUser)
   @Permission('Read')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pageNumber', type: Number, required: false })
@@ -384,8 +384,8 @@ export class OrganizationController {
     totalCount: number;
   }> {
     this.logger.verbose(`With in getOrganizationUsers`);
-    if (loggedUser.role === Role.Registrant) {
-      return this.organizationService.findRegistrantOrganizationUsers(
+    if (loggedUser.role === Role.ApiUser) {
+      return this.organizationService.findApiUserOrganizationUsers(
         loggedUser.api_user_id,
         pageNumber,
         limit,
@@ -502,7 +502,7 @@ export class OrganizationController {
    */
   @Post()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Registrant)
+  @Roles(Role.OrganizationAdmin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -550,7 +550,7 @@ export class OrganizationController {
    */
   @Put(':id/change-role/:userId')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Registrant, Role.Admin)
+  @Roles(Role.OrganizationAdmin, Role.Admin)
   @Permission('Write')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ApiBody({ type: UpdateMemberDTO })
@@ -692,7 +692,7 @@ export class OrganizationController {
   ): Promise<SuccessResponseDTO> {
     const user = await this.userService.findById(userid);
     if (
-      loggedUser.role === Role.Registrant &&
+      loggedUser.role === Role.ApiUser &&
       loggedUser.api_user_id != user.api_user_id
     ) {
       throw new NotFoundException('User does not exist in this organization');

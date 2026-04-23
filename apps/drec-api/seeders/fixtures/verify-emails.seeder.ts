@@ -20,7 +20,7 @@ export class VerifyEmailsSeeder implements SeederInterface {
         `SELECT COUNT(*) as count FROM "user" WHERE "email_verified_at" IS NULL`,
       );
 
-      const unverifiedCount = Number.parseInt(count, 10);
+      const unverifiedCount = parseInt(count);
       this.logger.log(`Found ${unverifiedCount} unverified emails`);
 
       if (unverifiedCount === 0) {

@@ -9,8 +9,8 @@ import { ACLModulePermission } from './permission.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtendedBaseEntity } from '@energyweb/origin-backend-utils';
 import {
-  RegistrantPermissionUpdateDTO,
-  NewRegistrantPermissionDTO,
+  ApiUserPermissionUpdateDTO,
+  NewApiUserPermissionDTO,
   NewPermissionDTO,
   PermissionDTO,
   UpdatePermissionDTO,
@@ -78,10 +78,10 @@ export class PermissionService {
         permissionValue: permissionValue,
       });
       if (
-        (loggedInUser.role === Role.Registrant &&
+        (loggedInUser.role === Role.OrganizationAdmin &&
           data.entityType != 'Role') ||
         loggedInUser.role === Role.Admin ||
-        loggedInUser.role === Role.Registrant
+        loggedInUser.role === Role.ApiUser
       ) {
         return await this.repository.save(aclPermissionService);
       } else {
@@ -226,7 +226,7 @@ export class PermissionService {
       permissionValue,
     );
     if (hasPermission) {
-      if (loggedInUser.role === Role.Registrant) {
+      if (loggedInUser.role === Role.ApiUser) {
         await this.repository.update(id, {
           permissions: data.permissions,
           permissionValue: permissionValue,
@@ -270,7 +270,7 @@ export class PermissionService {
   }
 
   async request(
-    data: [NewRegistrantPermissionDTO],
+    data: [NewApiUserPermissionDTO],
     loggedInUser: ILoggedInUser,
   ): Promise<any> {
     this.logger.verbose(`With in permisssion_request`);
@@ -278,18 +278,18 @@ export class PermissionService {
       this.logger.error(`No module permission available in requeste`);
       throw new NotFoundException(`No module permission available in requeste`);
     }
-    const registrant = await this.userService.findById(loggedInUser.id);
+    const apiUser = await this.userService.findById(loggedInUser.id);
 
     let permissionIds: any = [];
-    const registrantPermission = await this.userService.getRegistrant(
-      registrant.api_user_id,
+    const apiUserPermission = await this.userService.getApiUser(
+      apiUser.api_user_id,
     );
 
     if (
-      registrantPermission.permissionIds != null &&
-      registrantPermission.permissionIds.length > 0
+      apiUserPermission.permissionIds != null &&
+      apiUserPermission.permissionIds.length > 0
     ) {
-      permissionIds = registrantPermission.permissionIds;
+      permissionIds = apiUserPermission.permissionIds;
     }
 
     const userPermissions = await this.repository.find({
@@ -316,8 +316,8 @@ export class PermissionService {
           permissionIds.push(perId.id);
         }),
       );
-      await this.userService.registrantPermissionRequest(
-        registrant.api_user_id,
+      await this.userService.apiUserPermissionRequest(
+        apiUser.api_user_id,
         permissionIds,
       );
 
@@ -335,15 +335,15 @@ export class PermissionService {
   }
   async verify(
     api_user_id: string,
-    data: RegistrantPermissionUpdateDTO,
+    data: ApiUserPermissionUpdateDTO,
   ): Promise<any> {
     this.logger.verbose(`With in permission_veify`);
-    const verifyRegistrant =
-      await this.userService.registrantPermissionAcceptedByAdmin(
+    const verifyApiUser =
+      await this.userService.apiUserPermissionAcceptedByAdmin(
         api_user_id,
         data.status,
       );
-    const pre = verifyRegistrant.permissionIds;
+    const pre = verifyApiUser.permissionIds;
     await Promise.all(
       pre.map(
         async (pre: number) =>

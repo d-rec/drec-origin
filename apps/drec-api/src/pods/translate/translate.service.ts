@@ -20,10 +20,10 @@ export class TranslateService {
   async translate(
     texts: string[],
     targetLang: string,
-    apiKey?: string,
   ): Promise<TranslateResult> {
+    const apiKey = process.env.DEEPL_API_KEY;
     if (!apiKey) {
-      throw new BadRequestException('Translation is not configured — set the DeepL API key in Organization > Licenses');
+      throw new BadRequestException('Translation is not configured');
     }
 
     const host = apiKey.endsWith(':fx')

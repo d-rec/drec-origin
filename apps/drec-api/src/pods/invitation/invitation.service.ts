@@ -55,7 +55,7 @@ export class InvitationService {
     await this.userService.checkIfPhoneNumberExists(phoneNumber);
     let inviteOrg: number;
     if (orgId) {
-      if (user.role === Role.Admin || user.role === Role.Registrant) {
+      if (user.role === Role.Admin || user.role === Role.ApiUser) {
         inviteOrg = orgId;
       } else {
         if (user.organizationId != orgId) {
@@ -79,14 +79,14 @@ export class InvitationService {
         message: `Organization information not found`,
       });
     }
-    if (user.role === Role.Registrant) {
+    if (user.role === Role.ApiUser) {
       if (user.api_user_id !== organization.api_user_id) {
         this.logger.error(
-          `Organization ${organization.name} is part of another API user or organization`,
+          `Organization ${organization.name} is part of other apiuser or developer`,
         );
         throw new ConflictException({
           success: false,
-          message: `Organization ${organization.name} is part of another API user or organization`,
+          message: `Organization ${organization.name} is part of other apiuser or developer`,
         });
       }
     }
@@ -162,7 +162,7 @@ export class InvitationService {
 
     inviteUser.api_user_id = organization.api_user_id;
     await this.userService.newCreateUser(inviteUser, UserStatus.Pending, true);
-    if (sender.role !== Role.Registrant) {
+    if (sender.role !== Role.ApiUser) {
       console.log('inviteUser:', inviteUser, 'lowerCaseEmail:', lowerCaseEmail);
       await this.userService.sendUserInvitation(inviteUser, lowerCaseEmail);
     }
@@ -242,7 +242,7 @@ export class InvitationService {
       const organization =
         await this.organizationService.findOne(organizationId);
       console.log('organization:', organization);
-      if (user.role != Role.Admin && user.role != Role.Registrant) {
+      if (user.role != Role.Admin && user.role != Role.ApiUser) {
         if (user.organizationId != organizationId) {
           this.logger.error(
             `${user.role} can't view the invitation list of other organizations`,
@@ -254,14 +254,14 @@ export class InvitationService {
         }
       }
 
-      if (user.role === Role.Registrant) {
+      if (user.role === Role.ApiUser) {
         if (user.api_user_id != organization.api_user_id) {
           this.logger.error(
-            `Organization ${organization.name} is part of other registrant`,
+            `Organization ${organization.name} is part of other apiuser`,
           );
           throw new BadRequestException({
             success: false,
-            message: `Organization ${organization.name} is part of other registrant`,
+            message: `Organization ${organization.name} is part of other apiuser`,
           });
         }
       }

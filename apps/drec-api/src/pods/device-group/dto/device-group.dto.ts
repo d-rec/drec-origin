@@ -12,9 +12,7 @@ import { IDeviceGroup } from '../../../models';
 import {
   CapacityRange,
   CommissioningDateRange,
-  GroupReviewStatus,
   OffTaker,
-  OperatingConfiguration,
 } from '../../../utils/enums';
 import { DeviceDTO } from '../../device/dto';
 import { OrganizationDTO } from '../../organization/dto';
@@ -78,23 +76,6 @@ export class DeviceGroupDTO implements IDeviceGroup {
   @ApiProperty()
   @IsBoolean()
   gridInterconnection: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Distinct operating configurations across grouped devices',
-    isArray: true,
-    enum: OperatingConfiguration,
-  })
-  @IsEnum(OperatingConfiguration, { each: true })
-  @IsOptional()
-  operatingConfigurations?: OperatingConfiguration[];
-
-  @ApiPropertyOptional({
-    description: 'D-REC group-level review status',
-    enum: GroupReviewStatus,
-  })
-  @IsEnum(GroupReviewStatus)
-  @IsOptional()
-  groupReviewStatus?: GroupReviewStatus | null;
 
   @ApiProperty()
   @IsNumber()

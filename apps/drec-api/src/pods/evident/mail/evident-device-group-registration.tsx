@@ -5,7 +5,7 @@ import { Device } from '../../device/device.entity';
 
 export const getEvidentDeviceGroupRegistrationSubject = (
   device: Device,
-): string => `Device Group Registration To Evident — ${device.siteName}`;
+): string => `Device Group Registration To Evident — ${device.projectName}`;
 
 export default function EvidentDeviceGroupRegistrationTemplate({
   device,
@@ -23,7 +23,7 @@ export default function EvidentDeviceGroupRegistrationTemplate({
       </Text>
       <Text>Device Group Details:</Text>
       <ul>
-        <li>Site Name: {device.siteName}</li>
+        <li>Project Name: {device.projectName}</li>
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
       </ul>

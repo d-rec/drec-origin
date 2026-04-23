@@ -7,7 +7,7 @@ import type { EvidentIssuanceRequest } from '../../../types/evident';
 export const getEvidentDraftIssuanceRegistrationSubject = (
   device: Device,
 ): string =>
-  `Issuance Request Added As a Draft On Evident — ${device.siteName}`;
+  `Issuance Request Added As a Draft On Evident — ${device.projectName}`;
 
 export default function EvidentDraftIssuanceRegistrationTemplate({
   device,
@@ -27,7 +27,7 @@ export default function EvidentDraftIssuanceRegistrationTemplate({
       </Text>
       <Text>Device Details:</Text>
       <ul>
-        <li>Site Name: {device.siteName}</li>
+        <li>Project Name: {device.projectName}</li>
         <li>Device ID: {device.serialNumber}</li>
         <li>Organization: {organizationName}</li>
         <li>Start Date: {issuance.startDate} </li>

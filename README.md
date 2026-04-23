@@ -31,112 +31,124 @@
 
 Repository for Origin DREC project
 
-## Tech Stack
-
-**Backend** ([drec-origin](https://github.com/d-rec/drec-origin))
-
-- NestJS 8 / TypeORM / TypeScript
-- PostgreSQL / Redis / MinIO (S3-compatible)
-- Energy Web / Ethers.js (blockchain certificates)
-- Jest (unit) / Supertest (integration)
-- Sentry (error monitoring)
-
-**Frontend** ([drec-ui](https://github.com/d-rec/drec-ui))
-
-- Angular 19 / Angular Material
-- Bootstrap 5
-- TypeScript 5.7 / SCSS
-- Ethers.js / Web3
-- Cypress (E2E) / Karma + Jasmine (unit)
-- Sentry (error monitoring)
-
 ## Environments
 
 | Environment | Purpose | Infrastructure |
 |---|---|---|
 | `development` | Local development and testing | localhost / Docker |
 | `stage` | Pre-production validation | AWS EKS + RDS |
+| `demo` | Stakeholder demos | AWS EKS + RDS |
 | `prod` | Production | AWS EKS + RDS |
 
 > **Note:** The `develop` branch is intended for local development only. It runs against a local PostgreSQL database seeded with `rush start:dev`. There is no cloud infrastructure for the develop environment — do not deploy it to AWS.
 
-## Prerequisites
-
-| Tool | Version | How to install |
-|------|---------|----------------|
-| **Node.js** | 20.x (tested with 20.14.0) | [nvm](https://github.com/nvm-sh/nvm#installing-and-updating): `nvm install 20.14.0` |
-| **pnpm** | 10.x | `npm i -g pnpm` |
-| **Docker Desktop** | Latest | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) |
-| **Git** | Latest | Pre-installed on macOS; `apt install git` on Linux |
-
-> **Windows users:** Install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) with Ubuntu first (`wsl --install --distribution Ubuntu-20.04`) and run all commands inside the WSL terminal.
-
 ## Local environment setup
 
-### 1. Clone and configure
+### Windows only: Install WSL and Ubuntu
+
+Install `wsl` and `ubuntu-20.04` in command prompt running as administrator:
+
+```sh
+wsl --install
+wsl --install --distribution Ubuntu-20.04
+```
+
+> **Note:** The following steps should be run inside the WSL Ubuntu terminal on Windows, or directly in your terminal on macOS/Linux.
+
+### Install Influx Client
+
+**Linux / WSL (Ubuntu/Debian):**
+
+```sh
+sudo apt update
+sudo apt install influxdb-client
+```
+
+**macOS:**
+
+```sh
+brew install influxdb-cli
+```
+
+Restart the terminal once after installation is done.
+
+Install `nvm` following the [official installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating), then install the required Node.js version:
+
+```sh
+nvm install 20.14.0
+```
+
+Install `pnpm` if you don't have it:
+
+```sh
+npm i -g pnpm
+```
+
+Clone repository:
 
 ```sh
 git clone https://github.com/d-rec/drec-origin.git
 cd drec-origin
+```
+
+Copy `.env.example` to `.env` and adjust `.env` with your environment specific parameters.
+
+```sh
 cp .env.example .env
 ```
 
-Edit `.env` and fill in the required values. The most important ones:
+Start Postgres, Redis, InfluxDB instance
 
-| Variable | What to put | Notes |
-|----------|-------------|-------|
-| `ISSUER_PRIVATE_KEY` | An Ethereum private key (hex, **without** `0x` prefix) | For local dev you can generate a throwaway key — see [Blockchain / Wallet setup](#blockchain--wallet-setup) below |
-| `DREC_BLOCKCHAIN_ADDRESS` | Your Metamask wallet address | Same section below |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Credentials for the default admin user | Any valid email/password for local dev |
-
-All other values in `.env.example` have sensible defaults for local development.
-
-### 2. Start Docker services
-
-Make sure **Docker Desktop is running** first, then:
+Please create and start your Postgres, Redis and InfluxDB by running below command in the root directory, after that anytime you can manage these images through your docker desktop installed on your system.
 
 ```sh
-docker compose up -d
+docker-compose up --build
 ```
 
-This starts PostgreSQL, Redis, MinIO (S3-compatible storage), and Mailpit (email catcher).
+Create Postgres DB table
 
-> The `origin` database is created automatically by the Docker Compose Postgres container — you do **not** need to run `CREATE DATABASE` manually.
+```sh
+psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
+```
 
-The local dev environment is seeded with the following accounts:
+Create Default Admin:
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | `admin@drec.local` | `Admin1234!` |
-| Registrant | `evident.demo@drec.energy` | `D0ntc4r3` |
+Please update below environment variables under default admin credential with the values that you wanted to create as default admin user.
 
-Local service UIs:
+```sh
+ADMIN_EMAIL
+ADMIN_PASSWORD
+```
 
-| Service | URL |
-|---------|-----|
-| **Mailpit** (email inbox) | <http://localhost:8025> |
-| **MinIO** (file browser) | <http://localhost:9001> |
-
-### 3. Install dependencies and run
+Navigate to the API project and install dependencies:
 
 ```sh
 cd apps/drec-api
 pnpm install
+pnpm build
+```
+
+Run API project in development mode:
+
+```sh
 pnpm start:dev
 ```
 
-`pnpm start:dev` automatically runs database migrations before starting the API in watch mode.
-
-### 4. Seed the database
+For the initial setup, run this command to seed the database with the basic permissions and content:
 
 ```sh
-# Basic permissions and content (required on first setup)
 pnpm seed:permissions
+```
 
-# Approve any unverified users (can be re-run anytime)
+To approve unverified users, run this command. This can be run anytime after a new user has been added to verify them:
+
+```sh
 pnpm seed:verifications
+```
 
-# Optional: populate with dummy organizations and devices
+To populate the database with organizations and devices dummy data, run this command:
+
+```sh
 pnpm seed:dummy-data
 ```
 
@@ -150,53 +162,26 @@ npm i
 npm run start
 ```
 
-## Blockchain / Wallet setup
+## Metamask Setup
 
-The seed migration and certificate issuance require an Ethereum private key. There are two ways to get one:
+1. The metamask extension required to add in default browser before generating certificate. Create login
+2. When selecting netweok option choose the add manual network, use below values to create network manually
+   a. Network Name - It's depend on user (ex., Volta, Voltatest)
+   b. New RPC URL - <https://volta-rpc.energyweb.org>
+   c. ChainID - 73799
+   d. Symbol - VT
+   e. Block Explorer URL - <https://volta-rpc.energyweb.org>
+3. Update your blockchain address and mnemonic as the variables `DREC_BLOCKCHAIN_ADDRESS` and `MNEMONIC` in our .env file
+4. Add balance to your wallet using this link <https://voltafaucet.energyweb.org/> by providing your blockchain address of your metamask
+5. To get the issuer private key, go to Account details, click on the show private key button, there you will find the your Issuer private key. Add this key in your environment file as `ISSUER_PRIVATE_KEY`
 
-### Option A: Generate a throwaway key (quickest for local dev)
+Before running the script, make sure:
 
-```sh
-node -e "const w = require('ethers').Wallet.createRandom(); console.log('ISSUER_PRIVATE_KEY=' + w.privateKey.slice(2)); console.log('DREC_BLOCKCHAIN_ADDRESS=' + w.address)"
-```
-
-Paste the output values into your `.env`. This is fine for local development — do **not** use a wallet that holds real funds.
-
-### Option B: Use Metamask (needed for certificate generation)
-
-1. Install the [Metamask](https://metamask.io/) browser extension and create a wallet.
-2. Add the **Volta** test network manually:
-
-   | Field | Value |
-   |-------|-------|
-   | Network Name | Volta |
-   | RPC URL | `https://volta-rpc.energyweb.org` |
-   | Chain ID | 73799 |
-   | Symbol | VT |
-   | Block Explorer | `https://volta-explorer.energyweb.org` |
-
-3. Fund your wallet with test tokens at <https://voltafaucet.energyweb.org/>.
-4. Export your private key: **Account details → Show private key**.
-5. Update `.env`:
-
-   ```ini
-   ISSUER_PRIVATE_KEY=<private-key-without-0x-prefix>
-   DREC_BLOCKCHAIN_ADDRESS=<your-wallet-address>
-   ```
-
-## Integrator scripts
-
-Go inside the `integrators-scripts/` folder:
-
-```sh
-cd integrators-scripts
-cp .env.example .env
-# Edit .env — set DREC_BACKEND_URL, DREC_USERNAME, DREC_PASSWORD, etc.
-npm install
-npm run start
-```
-
-> The methods in `index.js` should be run independently. After each step, comment the completed step, uncomment the next, and restart.
+1. You have updated the DREC_BACKEND_URL in .env with local - also update the username and password for each integrator
+2. Post generated devices to Server - Bulk Devices
+3. You updated DREC_USERNAME & DREC_PASSWORD with the Owner credentials based on the integrator (Okra, BBOX, Engie etc.)
+4. The methods in index.js should run independently. After each step, comment the completed step, uncomment the next step and restart the server
+5. You can also use the docker desktop installed in local system which will be used to up the docker containers manually
 
 ## Testing email locally (Mailpit)
 
@@ -293,19 +278,6 @@ Daily-rotated files: `drec-YYYY-MM-DD.log` (all levels) and `drec-error-YYYY-MM-
 | `LOKI_AUTH_PASS` | | Basic-auth password (optional) |
 | `LOKI_LABELS` | `{}` | Extra labels as JSON |
 
-## Solar panel detection (Roboflow)
-
-The device-reviews satellite map includes a "Detect Panels" button that uses [Roboflow](https://roboflow.com/) zero-shot segmentation to identify solar panels in the satellite imagery.
-
-The API key is kept server-side. Add these env vars:
-
-```ini
-ROBOFLOW_WORKFLOW_URL=https://serverless.roboflow.com/peters-workspace-dsmnf/workflows/general-segmentation-api
-ROBOFLOW_API_KEY=<your Roboflow publishable API key>
-```
-
-The frontend calls `POST /device-reviews/detect-panels` which proxies the request to Roboflow.
-
 ## Databases
 
 ```ini
@@ -315,61 +287,6 @@ DB_HOST=drec.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
 # Staging
 DB_HOST=drec-staging.ck6auzh6fp4v.eu-west-1.rds.amazonaws.com
 ```
-
-## Troubleshooting
-
-### `docker ps` → "failed to connect to the docker API"
-
-Docker Desktop is not running. Open it from your Applications folder (macOS) or Start menu (Windows) and wait for it to finish starting.
-
-### Migration error: `invalid hexlify value … value=""`
-
-The `ISSUER_PRIVATE_KEY` environment variable is missing or empty. The seed migration creates an Ethereum Wallet with this key. See [Blockchain / Wallet setup](#blockchain--wallet-setup) for how to set it.
-
-### `util_1.isString is not a function` / `util_1.isObject is not a function`
-
-Version mismatch between NestJS packages. Some `@nestjs/*` packages (e.g. `@nestjs/config@1.0.x`, `@nestjs/bull@0.4.x`) import internal utilities that were removed in `@nestjs/common@8.x`. Upgrade the offending package:
-
-```sh
-cd apps/drec-api
-pnpm add @nestjs/config@^2.3.0   # fixes isObject
-pnpm add @nestjs/bull@^10.0.0    # fixes isString
-pnpm add @nestjs/schedule@^2.2.0 # if same error appears here
-```
-
-### pnpm: "Unexpected store location"
-
-This happens when pnpm was upgraded to a new major version. The fix:
-
-```sh
-# If dist/js/node_modules exists and causes the error, remove it first:
-rm -rf apps/drec-api/dist/js/node_modules
-pnpm install
-```
-
-### npm: EACCES permission denied when installing global packages
-
-Running `npm install -g pnpm` (or any global install) fails with `EACCES: permission denied, mkdir '/usr/local/lib/node_modules'`. Fix by configuring npm to use a user-writable directory:
-
-```sh
-mkdir -p ~/.npm-global
-npm config set prefix '~/.npm-global'
-echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-npm install -g pnpm
-```
-
-### npm: "Your cache folder contains root-owned files" (EACCES)
-
-A previous `sudo npm install` left root-owned files in the npm cache. Fix with:
-
-```sh
-sudo chown -R $(whoami):staff ~/.npm
-```
-
-### npm: "Unknown project config shamefully-hoist"
-
-Harmless warning — `shamefully-hoist` is a pnpm-specific setting in `.npmrc`. It does not affect npm and can be ignored.
 
 ## Dependencies
 

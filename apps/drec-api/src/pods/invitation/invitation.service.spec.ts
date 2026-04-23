@@ -99,7 +99,7 @@ describe('InvitationService', () => {
       };
 
       const email = 'cccplrtzifwzerosys@cazlp.com';
-      const role = Role.User as OrganizationRole; //'SiteOperator';
+      const role = Role.User as OrganizationRole; //'DeviceOwner';
       const firstName = 'tst';
       const lastName = 'test';
       const orgId = 13;
@@ -122,7 +122,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Registrant',
+          organizationType: 'ApiUser',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -140,7 +140,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: 'Registrant',
+        organizationType: 'Developer',
         orgEmail: 'mgi36509@zslsz.com',
         status: OrganizationStatus.Active, //'Active',
         documentIds: null,
@@ -171,7 +171,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: 'Registrant',
+          organizationType: 'Developer',
           orgEmail: 'mgi36509@zslsz.com',
           status: 'Active',
           documentIds: null,
@@ -197,7 +197,7 @@ describe('InvitationService', () => {
           '$2a$08$d8IsG9Oqw5U3TVXWtEyN6.wktWKZ1ZhxHweaQ6oWqJhEL4k2SUk.S',
         notifications: true,
         status: 'Pending',
-        role: 'Registrant',
+        role: 'OrganizationAdmin',
         roleId: 2,
         organization: { id: 13 },
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
@@ -300,7 +300,7 @@ describe('InvitationService', () => {
           "firstName": "tst",
           "lastName": "test",
           "orgName": "Dev____ORG",
-          "organizationType": "Registrant",
+          "organizationType": "Developer",
           "orgid": 13,
           "password": "Gxdushdkl",
         },
@@ -309,45 +309,45 @@ describe('InvitationService', () => {
       jest.spyOn(global.Math, 'random').mockRestore();
     });
 */
-    it('should invite a user By Registrant', async () => {
+    it('should invite a user By ApiUser', async () => {
       const user = {
         id: 2,
         organizationId: 2,
         email: 'iceratan@gmail.com',
         blockchainAccountAddress: null,
-        role: Role.Registrant, //'Admin',
+        role: Role.ApiUser, //'Admin',
         permissions: ['Read', 'Write', 'Update'],
         api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
       };
 
       const email = 'diuqtdpnqttfuvauha@cazlq.com';
-      const role = Role.User as OrganizationRole; //'SiteOperator';
+      const role = Role.User as OrganizationRole; //'DeviceOwner';
       const firstName = 'test';
       const lastName = 'test';
       const phoneNumber = '+919754218975';
       const orgId = 18;
 
-      const mockRegistrantEntity: IUser = {
+      const mockApiUserEntity: IUser = {
         id: 2,
         firstName: 'test',
-        lastName: 'registrant',
+        lastName: 'apiuser',
         email: 'iceratan@gmail.com',
         phoneNumber: '+919754218975',
         phoneNumberVerifiedAt: new Date('0001-01-01T00:00:00Z'),
         notifications: true,
         status: UserStatus.Active, //'Active',
-        role: Role.Registrant, //'Admin',
+        role: Role.ApiUser, //'Admin',
         roleId: 6,
         organization: {
           id: 2,
-          name: 'ORG_REGISTRANT1',
+          name: 'ORG_APIUSER1',
           address: 'Bangalore',
           zipCode: null,
           city: null,
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.ApiUser,
           orgEmail: 'iceratan@gmail.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -362,14 +362,14 @@ describe('InvitationService', () => {
         createdAt: '2024-03-01T07:59:03.122Z',
         updatedAt: '2024-03-01T07:59:03.122Z',
         id: 18,
-        name: 'ORG_DEV1_REGISTRANT',
+        name: 'ORG_DEV1_APIUSER',
         address: 'BLR',
         zipCode: null,
         city: null,
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.Developer,
         orgEmail: 'eqicgglmwppkbkugh@cazlg.com',
         status: OrganizationStatus.Active, //'Active',
         documentIds: null,
@@ -385,7 +385,7 @@ describe('InvitationService', () => {
             phoneNumber: '+919754218975',
             notifications: true,
             status: 'Active',
-            role: 'Registrant',
+            role: 'OrganizationAdmin',
             roleId: 2,
             api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
           },
@@ -399,14 +399,14 @@ describe('InvitationService', () => {
           createdAt: '2024-03-03T17:18:55.388Z',
           updatedAt: '2024-03-03T17:18:55.388Z',
           id: 18,
-          name: 'ORG_DEV1_REGISTRANT',
+          name: 'ORG_DEV1_APIUSER',
           address: 'BLR',
           zipCode: null,
           city: null,
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'eqicgglmwppkbkugh@cazlg.com',
           status: 'Active',
           documentIds: null,
@@ -416,7 +416,7 @@ describe('InvitationService', () => {
         },
         role: 'User',
         status: 'Pending',
-        sender: 'test registrant',
+        sender: 'test apiuser',
         permissionId: null,
         createdAt: '2024-03-03T18:13:43.629Z',
         updatedAt: '2024-03-03T18:13:43.629Z',
@@ -431,7 +431,7 @@ describe('InvitationService', () => {
           '$2a$08$d8IsG9Oqw5U3TVXWtEyN6.wktWKZ1ZhxHweaQ6oWqJhEL4k2SUk.S',
         notifications: true,
         status: 'Pending',
-        role: 'Registrant',
+        role: 'OrganizationAdmin',
         roleId: 2,
         organization: { id: 18 },
         api_user_id: 'ebf1a4ee-ec55-4ed6-b6bd-4c836a56ad9d',
@@ -442,7 +442,7 @@ describe('InvitationService', () => {
 
       const findByEmailSpy = jest
         .spyOn(userService, 'findByEmail')
-        .mockResolvedValueOnce(mockRegistrantEntity as IUser)
+        .mockResolvedValueOnce(mockApiUserEntity as IUser)
         .mockResolvedValueOnce(null);
       const orgFindOneSpy = jest
         .spyOn(organizationService, 'findOne')
@@ -502,8 +502,8 @@ describe('InvitationService', () => {
         organization: inviteeOrganization,
         role,
         status: OrganizationInvitationStatus.Pending,
-        sender: mockRegistrantEntity
-          ? `${mockRegistrantEntity.firstName} ${mockRegistrantEntity.lastName}`
+        sender: mockApiUserEntity
+          ? `${mockApiUserEntity.firstName} ${mockApiUserEntity.lastName}`
           : '',
       });
       await expect(newCreateSpy).toHaveBeenCalledWith(
@@ -568,7 +568,7 @@ describe('InvitationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.ApiUser,
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
         } as Organization,
@@ -651,7 +651,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.ApiUser,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh',
@@ -721,7 +721,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.ApiUser,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Mocking this to match the user's api_user_id
@@ -731,7 +731,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.Registrant, // Change to Role.Registrant to match the organization's api_user_id
+          role: Role.ApiUser, // Change to Role.ApiUser to match the organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Match the organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',
@@ -772,7 +772,7 @@ describe('InvitationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.ApiUser,
         status: OrganizationStatus.Active,
         documentIds: null,
         api_user_id: 'ygjkgthhfrhjfjh', // Matching the user's api_user_id
@@ -782,7 +782,7 @@ describe('InvitationService', () => {
       const result = await service.getUsersInvitation(
         {
           id: 1,
-          role: Role.Registrant, // Role matching organization's api_user_id
+          role: Role.ApiUser, // Role matching organization's api_user_id
           api_user_id: 'ygjkgthhfrhjfjh', // Matching organization's api_user_id
           organizationId: 1, // Same organizationId as being fetched
           email: 'user@example.com',

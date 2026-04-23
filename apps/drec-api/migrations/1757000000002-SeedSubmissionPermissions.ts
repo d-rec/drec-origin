@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 // Permission bit values: Read=1, Write=2, Update=4, Delete=8
 // OrganizationAdmin (roleId=2): Read+Write+Update+Delete = 15
 // DeviceOwner       (roleId=3): Read+Write               =  3
-// MarketIntermediary (roleId=6): Read+Write+Update+Delete = 15
+// ApiUser           (roleId=6): Read+Write+Update+Delete = 15
 
 export class SeedSubmissionPermissions1757000000002
   implements MigrationInterface

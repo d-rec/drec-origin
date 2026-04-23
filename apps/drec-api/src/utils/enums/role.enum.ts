@@ -1,13 +1,13 @@
 export enum Role {
   User = 'User',
-
+  DeviceOwner = 'DeviceOwner',
+  OrganizationAdmin = 'OrganizationAdmin',
   Buyer = 'Buyer',
   Admin = 'Admin',
   SubBuyer = 'SubBuyer',
-  Registrant = 'Registrant',
+  ApiUser = 'ApiUser',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
-  SiteOperator = 'SiteOperator',
 }
 export enum RoleStatus {
   Enable = 'Enable',

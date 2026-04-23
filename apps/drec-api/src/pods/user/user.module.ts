@@ -8,10 +8,9 @@ import { OrganizationModule } from '../organization/organization.module';
 import { UserRole } from './user_role.entity';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
-import { RegistrantEntity } from './registrant.entity';
+import { ApiUserEntity } from './api-user.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { OtpModule } from '../otp/otp.module';
-import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -19,13 +18,12 @@ import { MailModule } from '../../mail/mail.module';
       User,
       UserRole,
       OauthClientCredentials,
-      RegistrantEntity,
+      ApiUserEntity,
       UserLoginSessionEntity,
     ]),
     forwardRef(() => EmailConfirmationModule),
     forwardRef(() => OrganizationModule),
     OtpModule,
-    MailModule,
   ],
   providers: [UserService, OauthClientCredentialsService],
   controllers: [UserController],

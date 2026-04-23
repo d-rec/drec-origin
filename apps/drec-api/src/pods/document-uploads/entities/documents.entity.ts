@@ -4,7 +4,6 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
 } from 'class-validator';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
@@ -15,16 +14,13 @@ export enum DocumentType {
   ADDRESS_PROOF = 'ADDRESS_PROOF',
   OWNERS_DECLARATION = 'OWNERS_DECLARATION ',
   FORM_SF_02 = 'FORM_SF_02', //Form SF-02 - Production Facility Registration
-  SF_02C = 'SF_02C', //SF-02C form itself (I-REC declaration)
-  SF_02C_OWNERS_DECLARATION = 'SF_02C_OWNERS_DECLARATION', //Owner's Declaration / Proof of Ownership (distinct from the SF-02C form)
+  SF_02C = 'SF_02C', //SF-02C Owner's Declaration or Proof of Ownership
   METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
-  SCREENSHOTS = 'SCREENSHOTS', //Screenshots (legacy; merged into METERING_EVIDENCE in Phase 1c)
+  SCREENSHOTS = 'SCREENSHOTS', //Screenshots
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
   COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
-  FACILITY_BOUNDARY = 'FACILITY_BOUNDARY', //OC#44 satellite image with panel outline
-  OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', //Other supporting documents
 }
 
 export enum DocumentTargetType {
@@ -76,14 +72,4 @@ export class DocumentEntity {
   @Column({ name: 'reviewed_flag', type: 'boolean', default: false })
   @IsBoolean()
   reviewedFlag: boolean;
-
-  @Column({ name: 'label', nullable: true })
-  @IsString()
-  @IsOptional()
-  label: string | null;
-
-  @Column({ name: 'original_filename', nullable: true })
-  @IsString()
-  @IsOptional()
-  originalFilename: string | null;
 }

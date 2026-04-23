@@ -109,7 +109,7 @@ describe('OrganizationService', () => {
       const pageNumber = 1;
       const limit = 10;
       const user = {
-        role: Role.Registrant, //'Registrant',
+        role: Role.ApiUser, //'ApiUser',
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
       };
       const queryMock: Partial<SelectQueryBuilder<Organization>> = {
@@ -131,8 +131,8 @@ describe('OrganizationService', () => {
       );
 
       expect(queryMock.andWhere).toHaveBeenCalledWith(
-        `organization.api_user_id = :registrantid`,
-        { registrantid: user.api_user_id },
+        `organization.api_user_id = :apiuserid`,
+        { apiuserid: user.api_user_id },
       );
     });
 
@@ -177,7 +177,7 @@ describe('OrganizationService', () => {
             country: null,
             blockchainAccountAddress: null,
             blockchainAccountSignedMessage: null,
-            organizationType: OrganizationType.Registrant,
+            organizationType: OrganizationType.Developer,
             orgEmail: 'mgi36509@zslsz.com',
             status: 'Active',
             documentIds: null,
@@ -192,7 +192,7 @@ describe('OrganizationService', () => {
                 email: 'mgi36509@zslsz.com',
                 notifications: true,
                 status: 'Active',
-                role: 'Registrant',
+                role: 'OrganizationAdmin',
                 roleId: 2,
                 api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
               },
@@ -205,7 +205,7 @@ describe('OrganizationService', () => {
                 email: 'uyhujjlswzfkdvoaot@cazlv.com',
                 notifications: true,
                 status: 'Pending',
-                role: 'Registrant',
+                role: 'OrganizationAdmin',
                 roleId: 2,
                 api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
               },
@@ -218,7 +218,7 @@ describe('OrganizationService', () => {
                 email: 'scjiujrqomsqcgwqkb@cazlp.com',
                 notifications: true,
                 status: 'Pending',
-                role: 'Registrant',
+                role: 'OrganizationAdmin',
                 roleId: 2,
                 api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
               },
@@ -231,7 +231,7 @@ describe('OrganizationService', () => {
                 email: 'zqiscghgjyvfusuypl@cazlv.com',
                 notifications: true,
                 status: 'Pending',
-                role: 'Registrant',
+                role: 'OrganizationAdmin',
                 roleId: 2,
                 api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
               },
@@ -244,7 +244,7 @@ describe('OrganizationService', () => {
                 email: 'test@gmail.com',
                 notifications: true,
                 status: 'Pending',
-                role: 'Registrant',
+                role: 'OrganizationAdmin',
                 roleId: 2,
                 api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
               },
@@ -309,7 +309,7 @@ describe('OrganizationService', () => {
         country: null,
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
-        organizationType: OrganizationType.Registrant,
+        organizationType: OrganizationType.Developer,
         orgEmail: 'mgi36509@zslsz.com',
         status: OrganizationStatus.Active, //"Active",
         documentIds: null,
@@ -361,7 +361,7 @@ describe('OrganizationService', () => {
         email: 'test@gmail.com',
         notifications: true,
         status: UserStatus.Pending, //'Pending',
-        role: Role.Registrant, //'Registrant',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -373,7 +373,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -392,7 +392,7 @@ describe('OrganizationService', () => {
         email: 'zqiscghgjyvfusuypl@cazlv.com',
         notifications: true,
         status: UserStatus.Pending, //'Pending',
-        role: Role.Registrant, //'Registrant',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -404,7 +404,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -421,7 +421,7 @@ describe('OrganizationService', () => {
         email: 'scjiujrqomsqcgwqkb@cazlp.com',
         notifications: true,
         status: UserStatus.Pending, //'Pending',
-        role: Role.Registrant, //'Registrant',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -433,7 +433,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -450,7 +450,7 @@ describe('OrganizationService', () => {
         email: 'uyhujjlswzfkdvoaot@cazlv.com',
         notifications: true,
         status: UserStatus.Pending, //'Pending',
-        role: Role.Registrant, //'Registrant',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -462,7 +462,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -479,7 +479,7 @@ describe('OrganizationService', () => {
         email: 'mgi36509@zslsz.com',
         notifications: true,
         status: UserStatus.Active, //'Active',
-        role: Role.Registrant, //'Registrant',
+        role: Role.OrganizationAdmin, //'OrganizationAdmin',
         roleId: 2,
         api_user_id: 'dfd2f57d-f2b8-4057-bf48-c19f1a5aa944',
         organization: {
@@ -491,7 +491,7 @@ describe('OrganizationService', () => {
           country: null,
           blockchainAccountAddress: null,
           blockchainAccountSignedMessage: null,
-          organizationType: OrganizationType.Registrant,
+          organizationType: OrganizationType.Developer,
           orgEmail: 'mgi36509@zslsz.com',
           status: OrganizationStatus.Active, //'Active',
           documentIds: null,
@@ -526,7 +526,7 @@ describe('OrganizationService', () => {
         orgId,
         pageNumber,
         limit,
-        Role.Registrant,
+        Role.OrganizationAdmin,
       );
 
       expect(result.users).toEqual(users);

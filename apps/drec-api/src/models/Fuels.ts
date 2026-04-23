@@ -10,7 +10,6 @@ export const IREC_FUEL_TYPES: CodeNameDTO[] = [
 ];
 
 export const IREC_DEVICE_TYPES: CodeNameDTO[] = [
-  { code: 'TC100', name: 'Solar photovoltaic (generic)' },
   { code: 'TC110', name: 'PV Ground mounted' },
   {
     code: 'TC120',

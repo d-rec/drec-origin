@@ -4,8 +4,8 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-  ArgumentsHost,
 } from '@nestjs/common';
+import { ArgumentsHost } from '@nestjs/common';
 import { SentryExceptionCaptured } from '@sentry/nestjs';
 
 @Catch()

@@ -2,8 +2,8 @@ import { OrganizationInvitationStatus, Role } from '../utils/enums';
 import { IPublicOrganization } from './Organization';
 
 export type OrganizationRole =
-  | Role.SiteOperator
-  | Role.Registrant
+  | Role.DeviceOwner
+  | Role.OrganizationAdmin
   | Role.SubBuyer
   | Role.User;
 
@@ -34,12 +34,10 @@ export type OrganizationInviteUpdateData = Pick<
 
 export const ensureOrganizationRole = (role: Role): void => {
   if (
-    role !== Role.Registrant &&
-    role !== Role.SiteOperator &&
+    role !== Role.OrganizationAdmin &&
+    role !== Role.DeviceOwner &&
     role !== Role.User &&
-    role !== Role.SubBuyer &&
-    role !== Role.Reviewer &&
-    role !== Role.SeniorReviewer
+    role !== Role.SubBuyer
   ) {
     throw new Error('Not an organization role');
   }

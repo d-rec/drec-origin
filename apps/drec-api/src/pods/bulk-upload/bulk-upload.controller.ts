@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Controller,
   DefaultValuePipe,
-  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -10,7 +9,6 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  Req,
   UnauthorizedException,
   UploadedFile,
   UseGuards,
@@ -42,10 +40,7 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { Role } from '../../utils/enums/role.enum';
 import { Roles } from '../user/decorators/roles.decorator';
 import { OrganizationType } from '../../utils/enums/organization-type.enum';
-import { Request } from 'express';
 import { AuthVerifiedGuard } from '../../guards';
-import { UploadLogService } from '../upload-log/upload-log.service';
-import { UploadActionType } from '../upload-log/upload-log.entity';
 
 @Controller('bulk-upload')
 @ApiBearerAuth('access-token')
@@ -56,7 +51,6 @@ export class BulkUploadController {
     private readonly bulkUploadService: BulkUploadService,
     private readonly organizationService: OrganizationService,
     private readonly fileService: FileService,
-    private readonly uploadLogService: UploadLogService,
   ) {}
 
   @Post()
@@ -65,7 +59,7 @@ export class BulkUploadController {
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @ApiSecurity('bearer')
   @ApiConsumes('multipart/form-data')
   @ApiQuery({
@@ -127,31 +121,18 @@ export class BulkUploadController {
     @UserDecorator() user: ILoggedInUser,
     @Query('organizationId') organizationIdParam: number | null,
     @Query('bulkUploadType') bulkUploadType: BulkUploadType,
-    @Req() req: Request,
   ): Promise<BulkUploadEntity> {
-    console.log('[BULK-UPLOAD] handler entered', {
-      userId: user?.id,
-      userEmail: user?.email,
-      userOrgId: user?.organizationId,
-      organizationIdParam,
-      bulkUploadType,
-      fileName: file?.originalname,
-      fileSize: file?.buffer?.length,
-    });
+    this.logger.verbose('Handling bulk upload');
     if (!file) {
-      console.log('[BULK-UPLOAD] no file, throwing');
       throw new BadRequestException('No file provided');
     }
 
     const organizationId = organizationIdParam || user.organizationId;
-    console.log('[BULK-UPLOAD] resolved organizationId', organizationId);
 
     const organization = await this.organizationService.findOne(organizationId);
-    console.log('[BULK-UPLOAD] org found', organization?.id, organization?.organizationType);
-    if (organization.organizationType !== OrganizationType.Registrant) {
-      console.log('[BULK-UPLOAD] org not Registrant, rejecting');
+    if (organization.organizationType != OrganizationType.Developer) {
       throw new UnauthorizedException(
-        'Only Market Intermediary organizations can upload bulk files',
+        'Only Developer organizations can upload bulk files',
       );
     }
 
@@ -159,31 +140,15 @@ export class BulkUploadController {
       user,
       organizationId,
     });
-    console.log('[BULK-UPLOAD] checkIfCanManage passed');
 
     const [fileId] = await this.fileService.store(user, [file]);
-    console.log('[BULK-UPLOAD] file stored, id=', fileId);
 
-    this.uploadLogService.logFileUpload({
-      userId: user.id,
-      userEmail: user.email,
-      organizationId,
-      actionType: UploadActionType.MeterReadUpload,
-      fileName: file.originalname,
-      fileBuffer: file.buffer,
-      ipAddress: req.ip,
-      userAgent: req.headers['user-agent'],
-      metadata: { bulkUploadType },
-    });
-
-    const job = await this.bulkUploadService.storeBulkUploadJob(
+    return await this.bulkUploadService.storeBulkUploadJob(
       fileId,
       user,
       organizationId,
       bulkUploadType,
     );
-    console.log('[BULK-UPLOAD] job created, id=', job?.id, 'jobId=', (job as any)?.jobId);
-    return job;
   }
 
   @Get()
@@ -194,7 +159,7 @@ export class BulkUploadController {
   @Permission('Read')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
+  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
   @ApiSecurity('bearer')
   @ApiQuery({
     name: 'bulkUploadType',
@@ -242,40 +207,6 @@ export class BulkUploadController {
     );
   }
 
-  @Delete()
-  @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    PermissionGuard,
-  )
-  @Permission('Delete')
-  @ACLModules('READS_MANAGEMENT_CRUDL')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
-  @ApiSecurity('bearer')
-  @ApiQuery({
-    name: 'bulkUploadType',
-    required: true,
-    enum: BulkUploadType,
-  })
-  @ApiOperation({
-    summary: 'Clear bulk upload history',
-    description:
-      'Deletes all Completed/Failed bulk upload job records (and their failed-row logs) visible to the current user for the given type. Jobs still in progress are left untouched.',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Number of records deleted.',
-  })
-  public async clearHistory(
-    @UserDecorator() user: ILoggedInUser,
-    @Query('bulkUploadType') bulkUploadType: BulkUploadType,
-  ): Promise<{ deleted: number }> {
-    return this.bulkUploadService.clearBulkUploadHistoryByRole(
-      user,
-      bulkUploadType,
-    );
-  }
-
   @Get('/bulk-upload-log/:bulkUploadId')
   @UseGuards(
     AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
@@ -287,7 +218,7 @@ export class BulkUploadController {
     name: 'organizationId',
     type: Number,
     required: false,
-    description: 'This query parameter is used for Registrant',
+    description: 'This query parameter is used for ApiUser',
   })
   @ApiOperation({
     summary: 'Get bulk upload job status',
@@ -320,84 +251,5 @@ export class BulkUploadController {
       organizationId: organizationId,
     });
     return await this.bulkUploadService.getBulkUploadFailedLog(bulkUploadId);
-  }
-
-  @Get('/:bulkUploadId/preview')
-  @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    PermissionGuard,
-  )
-  @Permission('Read')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
-  @ApiOperation({
-    summary: 'Fetch staged bulk upload preview',
-    description:
-      'Returns the parsed CSV rows for a bulk upload that is awaiting user confirmation.',
-  })
-  async getPreview(
-    @Param('bulkUploadId') bulkUploadId: string,
-    @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }> {
-    const { records, organizationId, totalCsvRows, skippedRows } =
-      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
-    await this.bulkUploadService.canManageBulkUploadJobs({
-      user,
-      organizationId,
-    });
-    return { records, organizationId, totalCsvRows, skippedRows };
-  }
-
-  @Post('/:bulkUploadId/confirm')
-  @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    PermissionGuard,
-  )
-  @Permission('Write')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
-  @ApiOperation({
-    summary: 'Confirm and import a staged bulk upload',
-    description:
-      'Triggers actual device creation for a bulk upload currently in PendingConfirmation status.',
-  })
-  async confirm(
-    @Param('bulkUploadId') bulkUploadId: string,
-    @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ successCount: number; failedCount: number }> {
-    const { organizationId } =
-      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
-    await this.bulkUploadService.canManageBulkUploadJobs({
-      user,
-      organizationId,
-    });
-    return this.bulkUploadService.confirmBulkUpload(bulkUploadId);
-  }
-
-  @Delete('/:bulkUploadId/discard')
-  @UseGuards(
-    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
-    PermissionGuard,
-  )
-  @Permission('Delete')
-  @ACLModules('DEVICE_BULK_MANAGEMENT_CRUDL')
-  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
-  @ApiOperation({
-    summary: 'Discard a staged bulk upload',
-    description:
-      'Deletes the staged preview without inserting any devices.',
-  })
-  async discard(
-    @Param('bulkUploadId') bulkUploadId: string,
-    @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ success: boolean }> {
-    const { organizationId } =
-      await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
-    await this.bulkUploadService.canManageBulkUploadJobs({
-      user,
-      organizationId,
-    });
-    await this.bulkUploadService.discardBulkUpload(bulkUploadId);
-    return { success: true };
   }
 }

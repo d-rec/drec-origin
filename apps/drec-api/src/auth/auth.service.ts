@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-  forwardRef,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcryptjs';
 import { UserLoginReturnData } from '@energyweb/origin-backend-core';
@@ -13,7 +7,6 @@ import { IUser } from '../models';
 import { UserService } from '../pods/user/user.service';
 import { UserDTO } from '../pods/user/dto/user.dto';
 import { Role } from '../utils/enums/role.enum';
-import { UserStatus } from '../utils/enums/user-status.enum';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
 import { DeleteResult } from 'typeorm';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
@@ -53,19 +46,6 @@ export class AuthService {
 
   async login(user: Omit<IUser, 'password'>): Promise<UserLoginReturnData> {
     this.logger.verbose('With in login');
-
-    if (user.status === UserStatus.Pending) {
-      throw new ForbiddenException(
-        'Your account is pending approval. You will receive an email once an administrator has reviewed your registration.',
-      );
-    }
-
-    if (user.status === UserStatus.Suspended) {
-      throw new ForbiddenException(
-        'Your account has been suspended. Please contact the administrator.',
-      );
-    }
-
     const payload: IJWTPayload = {
       email: user.email.toLowerCase(),
       id: user.id,
@@ -108,7 +88,7 @@ export class AuthService {
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
       secret:
-        this.configService.get<string>('JWT_REGISTRANT_SECRET') || 'my-secret',
+        this.configService.get<string>('JWT_API_USER_SECRET') || 'my-secret',
     });
     return {
       accessToken: token,

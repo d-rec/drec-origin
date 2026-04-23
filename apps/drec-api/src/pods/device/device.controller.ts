@@ -14,14 +14,12 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request } from 'express';
 
 import {
   ApiBearerAuth,
@@ -73,10 +71,6 @@ import {
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { validateOrReject } from 'class-validator';
 import { ReadsService } from '../reads/reads.service';
-import { UploadLogService } from '../upload-log/upload-log.service';
-import { UploadActionType } from '../upload-log/upload-log.entity';
-import { ESignatureService } from '../e-signature/e-signature.service';
-import { assertUserCanAccessGroup } from '../../utils/group-access';
 
 /**
  * It is Controller of device with the endpoints of device operations.
@@ -95,8 +89,6 @@ export class DeviceController {
     private readonly userService: UserService,
     private readonly readsService: ReadsService,
     private readonly documentUploadsService: DocumentUploadsService,
-    private readonly uploadLogService: UploadLogService,
-    private readonly eSignatureService: ESignatureService,
   ) {}
 
   /**
@@ -104,7 +96,7 @@ export class DeviceController {
    */
   @Get()
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.Registrant)
+  @Roles(Role.Admin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiQuery({ name: 'pagenumber', type: Number, required: false })
@@ -150,7 +142,7 @@ export class DeviceController {
   )
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.Registrant)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @ApiOperation({
     summary: 'Retrieve ungrouped devices for buyer reservation',
     description: 'Fetch all devices available for reservation by buyers.',
@@ -176,14 +168,14 @@ export class DeviceController {
     const organization = await this.organizationService.findOne(
       filterDTO.organizationId,
     );
-    if (role === Role.Registrant) {
+    if (role === Role.ApiUser) {
       if (organization.api_user_id != api_user_id) {
         this.logger.error(
-          `The requested organization is belongs to other registrant`,
+          `The requested organization is belongs to other apiuser`,
         );
         throw new UnauthorizedException({
           success: false,
-          message: `The requested organization is belongs to other registrant`,
+          message: `The requested organization is belongs to other apiuser`,
         });
       }
     }
@@ -200,7 +192,7 @@ export class DeviceController {
    */
   @Get('/ungrouped')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Registrant)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
@@ -356,7 +348,7 @@ export class DeviceController {
       }
     }
     if (filterDTO.organizationId) {
-      if (role === Role.Registrant) {
+      if (role === Role.ApiUser) {
         const organization = await this.organizationService.findOne(
           filterDTO.organizationId,
         );
@@ -365,15 +357,14 @@ export class DeviceController {
         );
         if (organization.api_user_id != api_user_id) {
           this.logger.error(
-            `The organization Id in param is belongs to other registrant`,
+            `The organization Id in param is belongs to other apiuser`,
           );
           throw new UnauthorizedException({
             success: false,
-            message:
-              'The organization Id in param is belongs to other registrant',
+            message: 'The organization Id in param is belongs to other apiuser',
           });
         } else {
-          if (orgUser.role != Role.Registrant) {
+          if (orgUser.role != Role.OrganizationAdmin) {
             this.logger.error(`Unauthorized`);
             throw new UnauthorizedException({
               success: false,
@@ -404,18 +395,6 @@ export class DeviceController {
       filterDTO,
       pageNumber,
     );
-  }
-
-  @Get('/check-name')
-  @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiQuery({ name: 'name', type: String, required: true })
-  @ApiOperation({ summary: 'Check if a site name already exists' })
-  @ApiResponse({ status: HttpStatus.OK, description: '{ exists: boolean }' })
-  async checkSiteName(
-    @Query('name') name: string,
-  ): Promise<{ exists: boolean }> {
-    const exists = await this.deviceService.checkSiteNameExists(name);
-    return { exists };
   }
 
   /**
@@ -453,7 +432,7 @@ export class DeviceController {
     @Param('id') id: number,
     @Query('apiUserId') api_user_id: string | null,
     @Query('organizationId') organizationId: number | null,
-  ): Promise<any> {
+  ): Promise<DeviceDTO | null> {
     this.logger.verbose(`With in get`);
     let deviceData: Device;
     if (api_user_id && organizationId) {
@@ -464,41 +443,7 @@ export class DeviceController {
     } else {
       deviceData = await this.deviceService.findOne(id);
     }
-
-    // Look up review status from submissions table
-    let reviewStatus: string | null = null;
-    if (deviceData?.siteName) {
-      const rows: any[] = await this.deviceService.getConnection().query(
-        `SELECT s.status FROM submissions s
-         WHERE regexp_replace(s.project_subfolder,
-           '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-           '', 'i')
-         = regexp_replace(lower($1), '[^a-z0-9]+', '-', 'g')
-         LIMIT 1`,
-        [deviceData.siteName],
-      );
-      reviewStatus = rows[0]?.status ?? null;
-    }
-
-    // OC#42 — surface the most recent e-signature log entry as flat fields
-    // so the reviewer's device-info-window can render "Signed {date} by {email}"
-    // without a second network round-trip.
-    let eSignatureSignedAt: Date | null = null;
-    let eSignatureSignerEmail: string | null = null;
-    if (deviceData?.id) {
-      const sigs = await this.eSignatureService.findByDevice(deviceData.id);
-      if (sigs.length > 0) {
-        eSignatureSignedAt = sigs[0].signedAt;
-        eSignatureSignerEmail = sigs[0].userEmail;
-      }
-    }
-
-    return {
-      ...deviceData,
-      reviewStatus,
-      eSignatureSignedAt,
-      eSignatureSignerEmail,
-    };
+    return deviceData;
   }
 
   /**
@@ -535,12 +480,12 @@ export class DeviceController {
     this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
-    if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
+    if (loginUser.role === Role.ApiUser || loginUser.role === Role.Admin) {
       if (loginUser.role === Role.Admin) {
         loginUser.api_user_id = null;
       }
 
-      deviceData = await this.deviceService.findBySerialNumberAndRegistrant(
+      deviceData = await this.deviceService.findBySerialNumberAndApiUser(
         serialNumber,
         loginUser.api_user_id,
       );
@@ -550,22 +495,8 @@ export class DeviceController {
         loginUser.organizationId,
       );
     }
-    delete deviceData['operatorExternalId'];
+    delete deviceData['developerExternalId'];
     return deviceData;
-  }
-
-  @Get('/:id/documents')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @ApiOperation({ summary: 'Get documents for a device' })
-  public async getDocuments(
-    @Param('id') id: string,
-  ): Promise<{ type: string; url: string; id: number }[]> {
-    return this.documentUploadsService.findByTarget(
-      parseInt(id, 10),
-      DocumentTargetType.DEVICE,
-    );
   }
 
   /**
@@ -580,7 +511,7 @@ export class DeviceController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Registrant)
+  @Roles(Role.OrganizationAdmin, Role.ApiUser)
   @Permission('Write')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @UseInterceptors(
@@ -588,13 +519,11 @@ export class DeviceController {
       [
         { name: DocumentType.FORM_SF_02, maxCount: 10 },
         { name: DocumentType.SF_02C, maxCount: 10 },
-        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
         { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
-        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
       ],
       {
         fileFilter: fileFilter,
@@ -612,10 +541,6 @@ export class DeviceController {
           items: { type: 'string', format: 'binary' },
         },
         [DocumentType.SF_02C]: {
-          type: 'array',
-          items: { type: 'string', format: 'binary' },
-        },
-        [DocumentType.SF_02C_OWNERS_DECLARATION]: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
@@ -639,10 +564,6 @@ export class DeviceController {
           type: 'array',
           items: { type: 'string', format: 'binary' },
         },
-        [DocumentType.OTHER_DOCUMENTS]: {
-          type: 'array',
-          items: { type: 'string', format: 'binary' },
-        },
         deviceToRegister: {
           $ref: '#/components/schemas/NewDeviceDTO',
         },
@@ -663,14 +584,12 @@ export class DeviceController {
     description: 'User does not have permission to create devices.',
   })
   public async create(
-    @UserDecorator() user: ILoggedInUser,
+    @UserDecorator() { organizationId, role, api_user_id }: ILoggedInUser,
     @Body() body: DeviceRegistrationBody,
     @UploadedFiles()
     files: DeviceFiles | undefined,
-    @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    let { organizationId, role, api_user_id } = user;
     // Dual-path: multipart sends device data in `deviceToRegister` field;
     // plain JSON sends it directly as the body.
     const deviceToRegister = (
@@ -697,17 +616,17 @@ export class DeviceController {
           .join(', '),
       );
     }
-    if (role === Role.Admin || role === Role.Registrant) {
+    if (role === Role.Admin || role === Role.ApiUser) {
       if (deviceToRegister.organizationId) {
         this.logger.debug('Line No: 314');
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
-          `Organization id is required, please add the organization`,
+          `Organization id is required,please add your developer's Organization`,
         );
         throw new ConflictException({
           success: false,
-          message: `Organization id is required, please add the organization`,
+          message: `Organization id is required,please add your developer's Organization `,
         });
       }
     } else {
@@ -716,62 +635,13 @@ export class DeviceController {
       );
       api_user_id = organization.api_user_id;
     }
-    const result = await this.deviceService.register(
+    return await this.deviceService.register(
       organizationId,
       deviceToRegister,
       files || null,
       api_user_id,
       role,
     );
-    if (files) {
-      for (const [field, fileList] of Object.entries(files)) {
-        for (const file of fileList as Express.Multer.File[]) {
-          this.uploadLogService.logFileUpload({
-            deviceId: result.id,
-            userId: user.id,
-            userEmail: user.email,
-            organizationId,
-            actionType: UploadActionType.DocumentUpload,
-            fileName: file.originalname,
-            fileBuffer: file.buffer,
-            ipAddress: req.ip,
-            userAgent: req.headers['user-agent'],
-            metadata: { documentType: field },
-          });
-        }
-      }
-    }
-
-    // Log e-signature: the caller consented to the I-REC Code when submitting
-    const rawEsig = (body as any).eSignature;
-    const esigMeta =
-      typeof rawEsig === 'string' ? JSON.parse(rawEsig) : rawEsig;
-    this.eSignatureService
-      .log({
-        userId: user.id,
-        userEmail: user.email,
-        organizationId,
-        action: 'device_registration_consent',
-        consentText:
-          'I agree to be subject to the I-REC Code and warrant that the information contained in this application is truthful and exhaustive.',
-        consentVersion: '1.0',
-        payloadToHash: JSON.stringify(deviceToRegister),
-        deviceId: result.id,
-        deviceExternalId: result.externalId,
-        ipAddress: req.ip,
-        userAgent: req.headers['user-agent'],
-        browserFingerprint: esigMeta?.browserFingerprint,
-        screenResolution: esigMeta?.screenResolution,
-        timezone: esigMeta?.timezone,
-        language: esigMeta?.language,
-        metadata: esigMeta?.metadata,
-        signedAt: esigMeta?.signedAt ? new Date(esigMeta.signedAt) : new Date(),
-      })
-      .catch((err) =>
-        this.logger.error(`Failed to log e-signature: ${err.message}`),
-      );
-
-    return result;
   }
 
   /**
@@ -781,24 +651,7 @@ export class DeviceController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Update')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: DocumentType.FORM_SF_02, maxCount: 10 },
-        { name: DocumentType.SF_02C, maxCount: 10 },
-        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
-        { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
-        { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
-        { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
-        { name: DocumentType.COD_PROOF, maxCount: 10 },
-        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
-      ],
-      {
-        fileFilter: fileFilter,
-      },
-    ),
-  )
-  @ApiConsumes('multipart/form-data')
+  @ApiConsumes('multipart/form-data', 'application/json')
   @ApiOperation({
     summary: 'Update device by site name',
     description:
@@ -817,8 +670,6 @@ export class DeviceController {
     @UserDecorator() user: ILoggedInUser,
     @Param('siteName') siteName: string,
     @Body() body: any,
-    @UploadedFiles() files: DeviceFiles,
-    @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in updateBySiteName`);
     const deviceToUpdate = (
@@ -848,90 +699,19 @@ export class DeviceController {
       );
     }
 
-    if (deviceToUpdate.organizationId != null) {
-      await this.organizationService.checkIfCanManage({
-        user,
-        organizationId: deviceToUpdate.organizationId,
-      });
-      user.organizationId = deviceToUpdate.organizationId;
-    }
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
 
-    const result = await this.deviceService.update(
+    return this.deviceService.update(
       user.organizationId,
       user.role,
       siteName,
       deviceToUpdate,
       'siteName',
     );
-
-    if (files) {
-      const existingDevice = await this.deviceService.findBySiteName(
-        result.siteName || siteName,
-        user.organizationId,
-      );
-
-      if (existingDevice) {
-        await this.deviceService.assertDocumentsEditable(existingDevice.id);
-
-        const documentTypes = {
-          [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
-          [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]:
-            DocumentType.SF_02C_OWNERS_DECLARATION,
-          [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
-          [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
-          [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
-          [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
-          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
-        };
-
-        const siteSlug = (existingDevice.siteName || 'project')
-          .replace(/[^a-zA-Z0-9-_]/g, '-')
-          .toLowerCase();
-        const projectSubfolder = `${siteSlug}-${existingDevice.id}`;
-
-        for (const [field, documentType] of Object.entries(documentTypes)) {
-          if (files[field] && Array.isArray(files[field])) {
-            await this.documentUploadsService.deleteByType(
-              existingDevice.id,
-              DocumentTargetType.DEVICE,
-              documentType as DocumentType,
-            );
-            for (const file of files[field]) {
-              try {
-                await this.documentUploadsService.upload(
-                  existingDevice.id,
-                  DocumentTargetType.DEVICE,
-                  documentType as DocumentType,
-                  file,
-                  projectSubfolder,
-                );
-                this.uploadLogService.logFileUpload({
-                  userId: user.id,
-                  userEmail: user.email,
-                  organizationId: user.organizationId,
-                  actionType: UploadActionType.DocumentUpload,
-                  fileName: file.originalname,
-                  fileBuffer: file.buffer,
-                  ipAddress: req.ip,
-                  userAgent: req.headers['user-agent'],
-                  metadata: { documentType: field },
-                });
-              } catch (error) {
-                this.logger.error(
-                  `Failed to upload ${field}: ${error.message}`,
-                );
-                throw new BadRequestException(
-                  `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
-                );
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return result;
   }
 
   /**
@@ -950,13 +730,11 @@ export class DeviceController {
       [
         { name: DocumentType.FORM_SF_02, maxCount: 10 },
         { name: DocumentType.SF_02C, maxCount: 10 },
-        { name: DocumentType.SF_02C_OWNERS_DECLARATION, maxCount: 10 },
         { name: DocumentType.METERING_EVIDENCE, maxCount: 10 },
         { name: DocumentType.SINGLE_LINE_DIAGRAM, maxCount: 10 },
         { name: DocumentType.PROJECT_PHOTOS, maxCount: 10 },
         { name: DocumentType.SCREENSHOTS, maxCount: 10 },
         { name: DocumentType.COD_PROOF, maxCount: 10 },
-        { name: DocumentType.OTHER_DOCUMENTS, maxCount: 20 },
       ],
       {
         fileFilter: fileFilter,
@@ -988,7 +766,6 @@ export class DeviceController {
     @Query('serialNumberChanged') serialNumberChanged: string,
     @Body() body: any,
     @UploadedFiles() files: DeviceFiles,
-    @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in update`);
     // When sent as multipart/form-data (files attached), body.deviceToUpdate is a JSON string.
@@ -1020,13 +797,11 @@ export class DeviceController {
       );
     }
 
-    if (deviceToUpdate.organizationId != null) {
-      await this.organizationService.checkIfCanManage({
-        user,
-        organizationId: deviceToUpdate.organizationId,
-      });
-      user.organizationId = deviceToUpdate.organizationId;
-    }
+    await this.organizationService.checkIfCanManage({
+      user,
+      organizationId: deviceToUpdate.organizationId,
+    });
+    user.organizationId = deviceToUpdate.organizationId;
     const isSerialNumberChanged = serialNumberChanged === 'true';
     if (isSerialNumberChanged) {
       if (deviceToUpdate.serialNumber) {
@@ -1087,35 +862,23 @@ export class DeviceController {
       );
 
       if (existingDevice) {
-        // §3.3.3: block document changes after review approval
-        await this.deviceService.assertDocumentsEditable(existingDevice.id);
-
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]:
-            DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
           [DocumentType.SCREENSHOTS]: DocumentType.SCREENSHOTS,
           [DocumentType.COD_PROOF]: DocumentType.COD_PROOF,
-          [DocumentType.OTHER_DOCUMENTS]: DocumentType.OTHER_DOCUMENTS,
         };
 
-        const siteName = (existingDevice.siteName || 'project')
+        const projectName = (existingDevice.projectName || 'project')
           .replace(/[^a-zA-Z0-9-_]/g, '-')
           .toLowerCase();
-        const projectSubfolder = `${siteName}-${existingDevice.id}`;
+        const projectSubfolder = `${projectName}-${existingDevice.id}`;
 
         for (const [field, documentType] of Object.entries(documentTypes)) {
           if (files[field] && Array.isArray(files[field])) {
-            // Remove old documents of this type before uploading replacements
-            await this.documentUploadsService.deleteByType(
-              existingDevice.id,
-              DocumentTargetType.DEVICE,
-              documentType as DocumentType,
-            );
             for (const file of files[field]) {
               try {
                 await this.documentUploadsService.upload(
@@ -1125,18 +888,6 @@ export class DeviceController {
                   file,
                   projectSubfolder,
                 );
-                this.uploadLogService.logFileUpload({
-                  deviceId: existingDevice.id,
-                  userId: user.id,
-                  userEmail: user.email,
-                  organizationId: user.organizationId,
-                  actionType: UploadActionType.DocumentUpload,
-                  fileName: file.originalname,
-                  fileBuffer: file.buffer,
-                  ipAddress: req.ip,
-                  userAgent: req.headers['user-agent'],
-                  metadata: { documentType: field },
-                });
               } catch (error) {
                 this.logger.error(
                   `Failed to upload ${field}: ${error.message}`,
@@ -1164,7 +915,7 @@ export class DeviceController {
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
-  @Roles(Role.Registrant, Role.Admin)
+  @Roles(Role.OrganizationAdmin, Role.Admin)
   @ApiOperation({
     summary: 'Delete device by ID',
     description: 'Remove a device from the system using its ID.',
@@ -1361,7 +1112,19 @@ export class DeviceController {
     const group: DeviceGroup | null = await this.deviceGroupService.findOne({
       deviceGroupUid: groupId,
     });
-    assertUserCanAccessGroup(group, user);
+    if (
+      group === null ||
+      (group.organizationId != user.organizationId && user.role != 'ApiUser') ||
+      group.api_user_id != user.api_user_id
+    ) {
+      this.logger.error(
+        `Group UId is not of this buyer, invalid value was sent`,
+      );
+      throw new ConflictException({
+        success: false,
+        message: 'Group UId is not of this buyer, invalid value was sent',
+      });
+    }
     if (externalId != null || externalId != undefined) {
       const device: DeviceDTO | null =
         await this.deviceService.findOne(externalId);

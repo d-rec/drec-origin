@@ -5,7 +5,6 @@ import { Chat } from './chat.entity';
 import { ChatConversation } from './chat-conversation.entity';
 import { User } from '../user/user.entity';
 import { typedLog } from '../../logger';
-import { ChatWebhookService } from './chat-webhook.service';
 
 @Injectable()
 export class ChatService {
@@ -18,7 +17,6 @@ export class ChatService {
     private readonly conversationRepository: Repository<ChatConversation>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly webhookService: ChatWebhookService,
   ) {}
 
   async appendMessage(
@@ -75,14 +73,14 @@ export class ChatService {
   async getConversation(
     participant1?: string,
     participant2?: string,
-    deviceSiteName?: string,
+    deviceProjectName?: string,
   ): Promise<ChatConversation | null> {
     const qb = this.conversationRepository.createQueryBuilder('conv');
-    if (deviceSiteName) {
-      qb.where('conv.deviceSiteName = :dpn', { dpn: deviceSiteName });
+    if (deviceProjectName) {
+      qb.where('conv.deviceProjectName = :dpn', { dpn: deviceProjectName });
     }
     if (participant1 && participant2) {
-      const method = deviceSiteName ? 'andWhere' : 'where';
+      const method = deviceProjectName ? 'andWhere' : 'where';
       qb[method](
         '(conv.participant1 = :p1 AND conv.participant2 = :p2) OR (conv.participant1 = :p2 AND conv.participant2 = :p1)',
         { p1: participant1, p2: participant2 },
@@ -96,24 +94,8 @@ export class ChatService {
     participant2: string,
     firstMessageUsername: string,
     firstMessageEntry: string,
-    deviceSiteName?: string,
+    deviceProjectName?: string,
   ): Promise<{ conversation: ChatConversation; message: Chat }> {
-    // If a conversation already exists between these participants (for this
-    // device), append the message to it instead of creating a duplicate conversation.
-    const existing = await this.getConversation(
-      participant1,
-      participant2,
-      deviceSiteName,
-    );
-    if (existing) {
-      const message = await this.appendToConversation(
-        existing.id,
-        firstMessageUsername,
-        firstMessageEntry,
-      );
-      return { conversation: existing, message };
-    }
-
     const message = await this.appendMessage(
       firstMessageUsername,
       firstMessageEntry,
@@ -123,31 +105,15 @@ export class ChatService {
       participant2,
       headUuid: message.uuid,
       lastEntryUuid: message.uuid,
-      deviceSiteName: deviceSiteName ?? null,
+      deviceProjectName: deviceProjectName ?? null,
     });
     const savedConversation =
       await this.conversationRepository.save(conversation);
     typedLog(
       this.logger,
       'chat',
-      `Conversation started between ${participant1} and ${participant2}${deviceSiteName ? ` on device "${deviceSiteName}"` : ''}`,
+      `Conversation started between ${participant1} and ${participant2}${deviceProjectName ? ` on device "${deviceProjectName}"` : ''}`,
     );
-
-    // Fire-and-forget webhook dispatch
-    this.webhookService.dispatch('conversation.created', {
-      conversation: {
-        id: savedConversation.id,
-        participant1: savedConversation.participant1,
-        participant2: savedConversation.participant2,
-        deviceSiteName: savedConversation.deviceSiteName,
-      },
-      message: {
-        uuid: message.uuid,
-        username: firstMessageUsername,
-        chatEntry: firstMessageEntry,
-      },
-    });
-
     return { conversation: savedConversation, message };
   }
 
@@ -161,28 +127,6 @@ export class ChatService {
     });
     if (!conversation) {
       throw new NotFoundException(`Conversation ${conversationId} not found`);
-    }
-
-    // Dedup: if the last message in this conversation is from the same user
-    // with identical text and was created within the last 60 seconds, return
-    // the existing message instead of creating a duplicate.
-    if (conversation.lastEntryUuid) {
-      const lastMsg = await this.chatRepository.findOne({
-        where: { uuid: conversation.lastEntryUuid },
-      });
-      if (
-        lastMsg &&
-        lastMsg.username === username &&
-        lastMsg.chatEntry === chatEntry &&
-        Date.now() - lastMsg.createdAt.getTime() < 60_000
-      ) {
-        typedLog(
-          this.logger,
-          'chat',
-          `Duplicate message suppressed in conversation ${conversationId} by ${username}`,
-        );
-        return lastMsg;
-      }
     }
 
     const message = await this.appendMessage(
@@ -200,19 +144,6 @@ export class ChatService {
       'chat',
       `Message appended to conversation ${conversationId} by ${username}`,
     );
-
-    // Fire-and-forget webhook dispatch
-    this.webhookService.dispatch('message.new', {
-      conversationId,
-      message: {
-        uuid: message.uuid,
-        username,
-        chatEntry,
-        createdAt: message.createdAt,
-      },
-      deviceSiteName: conversation.deviceSiteName,
-    });
-
     return message;
   }
 
@@ -266,72 +197,6 @@ export class ChatService {
       'chat',
       `Conversation ${conversationId} cleared (${uuids.length} messages deleted)`,
     );
-  }
-
-  async getUnreadCount(email: string): Promise<number> {
-    // Count conversations where the user has unread messages
-    // (a message exists after their lastReadAt)
-    const rows = await this.conversationRepository
-      .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
-      .where(
-        '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
-        { email },
-      )
-      // Exclude conversations where the latest message is from the user themselves
-      .andWhere('latest.username != :email', { email })
-      .getCount();
-
-    return rows;
-  }
-
-  async markConversationRead(
-    conversationId: number,
-    email: string,
-  ): Promise<void> {
-    const conversation = await this.conversationRepository.findOne({
-      where: { id: conversationId },
-    });
-    if (!conversation) {
-      throw new NotFoundException(`Conversation ${conversationId} not found`);
-    }
-
-    const now = new Date();
-    if (conversation.participant1 === email) {
-      await this.conversationRepository.update(conversationId, {
-        lastReadAt1: now,
-      });
-    } else if (conversation.participant2 === email) {
-      await this.conversationRepository.update(conversationId, {
-        lastReadAt2: now,
-      });
-    }
-  }
-
-  async getUnreadDeviceNames(email: string): Promise<string[]> {
-    const rows = await this.conversationRepository
-      .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
-      .select('conv."deviceSiteName"', 'deviceSiteName')
-      .where('conv."deviceSiteName" IS NOT NULL')
-      .andWhere(
-        '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
-        { email },
-      )
-      .andWhere('latest.username != :email', { email })
-      .getRawMany();
-
-    return rows.map((r) => r.deviceSiteName);
   }
 
   async getConversationPartners(): Promise<string[]> {

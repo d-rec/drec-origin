@@ -28,7 +28,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress111',
-    organizationType: OrganizationType.Registrant,
+    organizationType: OrganizationType.Developer,
   },
   {
     id: 11,
@@ -61,7 +61,7 @@ export const testOrgs: OrganizationDTO[] = [
     country: 'DE',
     status: OrganizationStatus.Active,
     blockchainAccountAddress: 'blockchainAccountAddress444',
-    organizationType: OrganizationType.Registrant,
+    organizationType: OrganizationType.Developer,
   },
 ];
 
@@ -72,7 +72,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'owner2@mailinator.com',
     phoneNumber: '+250780079691', // Rwanda number
     password: '******123',
-    organizationType: OrganizationType.Registrant,
+    organizationType: OrganizationType.Developer,
   },
   {
     firstName: 'John',
@@ -88,7 +88,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'admin2@mailinator.com',
     phoneNumber: '+14155552671', // US number
     password: '******123',
-    organizationType: OrganizationType.Registrant,
+    organizationType: OrganizationType.ApiUser,
   },
   {
     firstName: 'Maria',
@@ -96,7 +96,7 @@ export const testUsers: Omit<CreateUserOrgDTO, 'organizationId'>[] = [
     email: 'owner3@mailinator.com',
     phoneNumber: '+819012345678', // Japanese number
     password: '******123',
-    organizationType: OrganizationType.Registrant,
+    organizationType: OrganizationType.Developer,
   },
 ];
 
@@ -104,7 +104,7 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
   {
     serialNumber: 'SN01',
     externalId: 'DREC02',
-    siteName: 'Device 1',
+    projectName: 'Device 1',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -119,13 +119,16 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     timezone: '',
   },
   {
     serialNumber: 'SN02',
     externalId: 'DREC03',
-    siteName: 'Device 2',
+    projectName: 'Device 2',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -140,13 +143,16 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     timezone: '',
   },
   {
     serialNumber: 'SN03',
     externalId: 'DREC04',
-    siteName: 'Device 3',
+    projectName: 'Device 3',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -161,13 +167,16 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     timezone: '',
   },
   {
     serialNumber: 'SN04',
     externalId: 'DREC05',
-    siteName: 'Device 5',
+    projectName: 'Device 5',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -182,7 +191,10 @@ const testDevices: Omit<DeviceDTO, 'id' | 'status' | 'organizationId'>[] = [
     impactStory: '',
     images: [],
     api_user_id: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
-    operatorExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    developerExternalId: 'b8047b28-13f5-485e-963c-7c7fdc43300d',
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     timezone: '',
   },
 ];
@@ -194,7 +206,7 @@ export const batchDevices: NewDeviceDTO[] = [
     dataSource: 'Inverter',
     otherDataSource: '',
     serialNumber: 'SN32',
-    siteName: 'Device 31',
+    projectName: 'Device 31',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -208,6 +220,9 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -216,7 +231,7 @@ export const batchDevices: NewDeviceDTO[] = [
     dataSource: 'Inverter',
     otherDataSource: '',
     serialNumber: 'SN33',
-    siteName: 'Device 32',
+    projectName: 'Device 32',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -230,6 +245,9 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -238,7 +256,7 @@ export const batchDevices: NewDeviceDTO[] = [
     serialNumber: 'SN31',
     dataSource: 'Inverter',
     otherDataSource: '',
-    siteName: 'Device 33',
+    projectName: 'Device 33',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -252,6 +270,9 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     version: '1.0',
   },
   {
@@ -260,7 +281,7 @@ export const batchDevices: NewDeviceDTO[] = [
     serialNumber: 'SN51',
     otherDataSource: '',
     dataSource: 'Inverter',
-    siteName: 'Device 34',
+    projectName: 'Device 34',
     address: 'Somewhere far away',
     latitude: '34.921213',
     longitude: '135.717309',
@@ -274,6 +295,9 @@ export const batchDevices: NewDeviceDTO[] = [
     yieldValue: 1000,
     impactStory: '',
     images: [],
+    energyStorage: true,
+    energyStorageCapacity: 900,
+    qualityLabels: '',
     version: '1.0',
   },
 ];
@@ -301,7 +325,7 @@ export const seed = async ({
   await userService.seed(
     user1,
     createdOrg1.id,
-    Role.SiteOperator,
+    Role.DeviceOwner,
     UserStatus.Active,
   );
   await userService.seed(user2, createdOrg2.id, Role.Buyer, UserStatus.Active);
@@ -309,7 +333,7 @@ export const seed = async ({
   await userService.seed(
     user4,
     createdOrg4.id,
-    Role.SiteOperator,
+    Role.DeviceOwner,
     UserStatus.Active,
   );
 

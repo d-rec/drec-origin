@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash } from 'crypto';
 
 interface DeviceFingerprintInput {
   latitude: string;
@@ -27,15 +27,9 @@ export function generateDeviceFingerprint(
   const normalizedCapacity = removeTrailingZeroes(capacity);
   const dateOnly = new Date(commissioningDate).toISOString().split('T')[0];
 
-  // Snap coords to nearest 0.0002° (~22m grid) so minor GPS drift
-  // doesn't produce different fingerprints for the same physical site.
-  const GRID = 0.0002;
-  const snappedLat = (Math.round(Number.parseFloat(latitude) / GRID) * GRID).toFixed(4);
-  const snappedLng = (Math.round(Number.parseFloat(longitude) / GRID) * GRID).toFixed(4);
-
   const combinedString = [
-    snappedLat,
-    snappedLng,
+    latitude,
+    longitude,
     dateOnly,
     normalizedCapacity,
     fuelCode?.trim() || 'ES100',
@@ -47,5 +41,5 @@ export function generateDeviceFingerprint(
 
 // Helper to normalize decimal values (e.g., 10.0 → 10, 10.50 → 10.5)
 function removeTrailingZeroes(value: number): string {
-  return Number.parseFloat(value.toString()).toString();
+  return parseFloat(value.toString()).toString();
 }
