@@ -5,16 +5,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { providers, Wallet } from 'ethers';
 import {
-  Contracts,
   Contracts as IssuerContracts,
   IContractsLookup,
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
 import {
-  IFullOrganization,
-  IDevice,
-  IUserSeed,
   IRoleConfig,
   IACLModuleConfig,
 } from '../src/models';
@@ -22,12 +18,6 @@ import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcryptjs';
 
 import { Logger } from '@nestjs/common';
-// import UsersJSON from './users.json';
-// import OrganizationsJSON from './organizations.json';
-// import DevicesJSON from './devices.json';
-const UsersJSON = [];
-const OrganizationsJSON = [];
-const DevicesJSON = [];
 
 import RoleJSON from './user_role.json';
 import AdminJSON from './admin.json';
@@ -44,10 +34,11 @@ export class Seed9999999999999 implements MigrationInterface {
   private readonly logger = new Logger(Seed9999999999999.name);
 
   public async up(queryRunner: QueryRunner): Promise<any> {
-    const { registry } = await this.seedBlockchain(queryRunner);
+    await this.seedBlockchain(queryRunner);
 
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
+    await this.seedRegistrant(queryRunner);
     await this.seedACLModules(queryRunner);
     await this.seedCertificateSetting(queryRunner); //set default no_of_days for generate certificate last day
     await queryRunner.query(
@@ -254,6 +245,84 @@ export class Seed9999999999999 implements MigrationInterface {
         )`);
     }
   }
+  private async seedRegistrant(queryRunner: QueryRunner) {
+    const email = process.env.APIUSER_EMAIL;
+    const pass = process.env.APIUSER_PASSWORD;
+    if (!email || !pass) {
+      this.logger.verbose('APIUSER_EMAIL / APIUSER_PASSWORD not set — skipping registrant seed.');
+      return;
+    }
+
+    const existing = await queryRunner.query(
+      `SELECT id FROM public.user WHERE "email" = '${email.toLowerCase()}'`,
+    );
+    if (existing.length) {
+      this.logger.verbose(`Registrant ${email} already exists — skipping.`);
+      return;
+    }
+
+    const apiUser = await queryRunner.query(`INSERT INTO public.api_user (
+      "api_user_id",
+      "permission_status"
+    ) VALUES (
+      '${uuid()}',
+      'Request'
+    ) RETURNING "api_user_id"`);
+
+    const apiUserId = apiUser[0].api_user_id;
+
+    const organization = await queryRunner.query(`INSERT INTO public.organization (
+      "name",
+      "address",
+      "organizationType",
+      "orgEmail",
+      "status",
+      "api_user_id",
+      "verified_at"
+    ) VALUES (
+      'Evident Demo',
+      'Demo Address',
+      'Registrant',
+      '${email.toLowerCase()}',
+      'Active',
+      '${apiUserId}',
+      '${new Date().toISOString()}'
+    ) RETURNING "id"`);
+
+    const organizationId = organization[0].id;
+    const password = bcrypt.hashSync(pass, 8);
+
+    await queryRunner.query(`INSERT INTO public.user (
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "status",
+      "role",
+      "organizationId",
+      "roleId",
+      "api_user_id",
+      "phone_number_verified_at",
+      "email_verified_at",
+      "terms_accepted_at"
+    ) VALUES (
+      'Evident',
+      'Demo',
+      '${email.toLowerCase()}',
+      '${password}',
+      'Active',
+      'Registrant',
+      '${organizationId}',
+      6,
+      '${apiUserId}',
+      '0001-01-01T00:00:00Z',
+      '${new Date().toISOString()}',
+      '${new Date().toISOString()}'
+    )`);
+
+    this.logger.verbose(`Seeded registrant: ${email}`);
+  }
+
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
     permissionString: PermissionString;
     bitPosition: number;
@@ -291,58 +360,46 @@ export class Seed9999999999999 implements MigrationInterface {
       return;
     }
 
-    const aclModulesExist = await queryRunner.query(
-      `SELECT * FROM ${tableName}`,
-    );
+    for (const aclModule of ACLModuleJSON as unknown as IACLModuleConfig[]) {
+      const addedPermissionList: { [key in PermissionString]: boolean } = {
+        Read: false,
+        Write: false,
+        Delete: false,
+        Update: false,
+      };
+      for (const key in addedPermissionList) {
+        aclModule.permissions.forEach((myArr) => {
+          if (myArr === key) {
+            addedPermissionList[key] = true;
+          }
+        });
+      }
 
-    if (!aclModulesExist.length) {
-      await Promise.all(
-        (ACLModuleJSON as unknown as IACLModuleConfig[]).map(
-          async (aclModule) => {
-            const addedPermissionList: { [key in PermissionString]: boolean } =
-              {
-                Read: false,
-                Write: false,
-                Delete: false,
-                Update: false,
-              };
-            for (const key in addedPermissionList) {
-              aclModule.permissions.map((myArr, index) => {
-                if (myArr === key) {
-                  addedPermissionList[key] = true;
-                }
-              });
-            }
+      const permissionValue = this.computePermissions(addedPermissionList);
 
-            const permissionValue =
-              await this.computePermissions(addedPermissionList);
+      const checkForExistingModule = await queryRunner.query(
+        `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
+      );
 
-            const checkForExistingModule = await queryRunner.query(
-              `SELECT * FROM ${tableName} WHERE "name" = '${aclModule.name}'`,
-            );
-
-            if (!checkForExistingModule.length) {
-              queryRunner.query(
-                `INSERT INTO public.aclmodules (
-                "id", 
-                "name", 
-                "description", 
+      if (!checkForExistingModule.length) {
+        await queryRunner.query(
+          `INSERT INTO public.aclmodules (
+                "id",
+                "name",
+                "description",
                 "status" ,
                 "permissions",
                 "permissionsValue"
               ) VALUES (
-                '${aclModule.id}', 
-                '${aclModule.name}', 
-                '${aclModule.description}', 
+                '${aclModule.id}',
+                '${aclModule.name}',
+                '${aclModule.description}',
                 '${aclModule.status}',
                 '${aclModule.permissions}',
                 '${permissionValue}'
               )`,
-              );
-            }
-          },
-        ),
-      );
+        );
+      }
     }
   }
 

@@ -18,5 +18,11 @@ export class ChatConversation {
   lastEntryUuid: string | null;
 
   @Column({ type: 'varchar', nullable: true, default: null })
-  deviceProjectName: string | null;
+  deviceSiteName: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastReadAt1: Date | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastReadAt2: Date | null;
 }

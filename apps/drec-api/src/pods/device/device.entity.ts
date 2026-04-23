@@ -15,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, FuelCode, OffTaker } from '../../utils/enums';
+import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -35,7 +35,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column()
   @IsString()
-  developerExternalId?: string;
+  operatorExternalId?: string;
 
   // @Column({ nullable: true, default: DeviceStatus.Active })
   // @IsNotEmpty()
@@ -51,7 +51,7 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ nullable: true })
   @IsString()
-  projectName: string;
+  siteName: string;
 
   @Column({ nullable: true })
   @IsString()
@@ -85,13 +85,9 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @IsEnum(Installation)
   // installationConfiguration: Installation;
 
-  @Column({ nullable: true })
+  @Column({ type: 'double precision', nullable: true })
   @IsNumber()
   capacity: number;
-
-  @Column({ nullable: true })
-  @IsNumber()
-  acCapacity: number;
 
   @Column('simple-array', { nullable: true })
   @IsArray()
@@ -104,6 +100,31 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   @IsBoolean()
   gridInterconnection: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  @IsEnum(OperatingConfiguration)
+  operatingConfiguration: OperatingConfiguration;
+
+  @Column({ type: 'varchar', nullable: true })
+  @IsEnum(SourceAccessMode)
+  sourceAccessMode: SourceAccessMode;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'evidence_pathway',
+  })
+  @IsEnum(EvidencePathway)
+  evidencePathway: EvidencePathway;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    default: OwnershipStatus.Unverified,
+    name: 'ownership_status',
+  })
+  @IsEnum(OwnershipStatus)
+  ownershipStatus: OwnershipStatus;
 
   @Column({ nullable: true })
   @IsEnum(OffTaker)
@@ -149,15 +170,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ nullable: true })
   @IsEnum(DeviceDescription)
   deviceDescription?: DeviceDescription;
-
-  @Column({ type: 'boolean', nullable: true })
-  energyStorage: boolean;
-
-  @Column({ type: 'int', nullable: true })
-  energyStorageCapacity: number;
-
-  @Column({ type: 'varchar', nullable: true })
-  qualityLabels: string;
 
   @Column({ type: 'varchar', nullable: true })
   meterReadtype: string;
@@ -213,6 +225,141 @@ export class Device extends ExtendedBaseEntity implements IDevice {
 
   @Column({ type: 'varchar', nullable: false, name: 'serial_number' })
   serialNumber: string;
+
+  @Column({ type: 'decimal', nullable: true, name: 'sld_capacity_kw' })
+  sldCapacityKw: number | null;
+
+  // General (Evident checklist rows 2, 8)
+  @Column({ type: 'varchar', nullable: true, name: 'default_account_code' })
+  @IsString()
+  defaultAccountCode: string | null;
+
+  @Column({ type: 'date', nullable: true, name: 'requested_effective_reg_date' })
+  requestedEffectiveRegDate: string | null;
+
+  // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
+  @Column({ type: 'varchar', nullable: true, name: 'signatory_name' })
+  @IsString()
+  signatoryName: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'grid_export_type' })
+  @IsString()
+  gridExportType: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'has_network_meter' })
+  @IsEnum(YesNo)
+  hasNetworkMeter: YesNo | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'meter_reads_shareable' })
+  @IsEnum(YesNo)
+  meterReadsShareable: YesNo | null;
+
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  @Column({ type: 'varchar', nullable: true, name: 'has_captive_consumer' })
+  @IsEnum(YesNo)
+  hasCaptiveConsumer: YesNo | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'has_auxiliary_energy_sources' })
+  @IsEnum(YesNo)
+  hasAuxiliaryEnergySources: YesNo | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'auxiliary_energy_source_details' })
+  @IsString()
+  auxiliaryEnergySourceDetails: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'non_meter_import_details' })
+  @IsString()
+  nonMeterImportDetails: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'other_eac_scheme_registration' })
+  @IsString()
+  otherEacSchemeRegistration: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'additional_info' })
+  @IsString()
+  additionalInfo: string | null;
+
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  @Column({ type: 'int', nullable: true, name: 'generating_unit_count' })
+  @IsNumber()
+  generatingUnitCount: number | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'network_owner' })
+  @IsString()
+  networkOwner: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'interconnection_voltage' })
+  @IsString()
+  interconnectionVoltage: string | null;
+
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  @Column({ type: 'varchar', nullable: true, name: 'pv_system_owner' })
+  @IsString()
+  pvSystemOwner: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'off_taker_name' })
+  @IsString()
+  offTakerName: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'off_taker_same_company_as_owner' })
+  @IsEnum(YesNo)
+  offTakerSameCompanyAsOwner: YesNo | null;
+
+  // Subsidies & incentives (rows 78, 79, 80)
+  @Column({ type: 'varchar', nullable: true, name: 'has_subsidy' })
+  @IsEnum(YesNo)
+  hasSubsidy: YesNo | null;
+
+  @Column('simple-array', { nullable: true, name: 'subsidy_types' })
+  @IsArray()
+  subsidyTypes: SubsidyType[] | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'subsidy_other_details' })
+  @IsString()
+  subsidyOtherDetails: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'subsidy_claims_eacs' })
+  @IsEnum(YesNo)
+  subsidyClaimsEacs: YesNo | null;
+
+  // Public funding (rows 50, 51)
+  @Column({ type: 'varchar', nullable: true, name: 'has_public_funding' })
+  @IsEnum(YesNo)
+  hasPublicFunding: YesNo | null;
+
+  @Column({ type: 'date', nullable: true, name: 'public_funding_end_date' })
+  publicFundingEndDate: string | null;
+
+  // SF-02 gaps
+  @Column({ type: 'varchar', nullable: true, name: 'registration_type' })
+  @IsEnum(RegistrationType)
+  registrationType: RegistrationType | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'volume_evidence_type' })
+  @IsEnum(VolumeEvidenceType)
+  volumeEvidenceType: VolumeEvidenceType | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'public_funding_type' })
+  @IsEnum(PublicFundingType)
+  publicFundingType: PublicFundingType | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'labelling_scheme_accreditation' })
+  @IsString()
+  labellingSchemeAccreditation: string | null;
+
+  @Column({ type: 'varchar', nullable: true, name: 'verification_agent_name' })
+  @IsString()
+  verificationAgentName: string | null;
+
+  @Column({ type: 'text', nullable: true, name: 'off_grid_circumstances' })
+  @IsString()
+  offGridCircumstances: string | null;
+
+  @Column({ type: 'varchar', length: 10, nullable: true, name: 'last_screen_status' })
+  lastScreenStatus: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true, name: 'last_screened_at' })
+  lastScreenedAt: Date | null;
 
   @OneToMany(
     () => CheckCertificateIssueDateLogForDeviceEntity,

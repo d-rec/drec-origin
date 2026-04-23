@@ -22,7 +22,7 @@ export class Invitation
   email: string;
 
   @ApiProperty({ enum: Role, enumName: 'Role' })
-  @Column({ default: Role.DeviceOwner })
+  @Column({ default: Role.SiteOperator })
   @IsEnum(Role)
   role: OrganizationRole;
 

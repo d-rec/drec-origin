@@ -13,20 +13,12 @@ RUN npm i -g pnpm@9
 # Copy source code
 COPY . .
 
-# Enable auto-install-peers
-RUN pnpm config set auto-install-peers true
-
-# Install dependencies
-RUN pnpm install
-
-# Build the application
-RUN pnpm run build
-
-# Send sourcemaps to Sentry
-RUN pnpm run sentry:sourcemaps
-
-# Remove development dependencies
-RUN pnpm prune --prod
+# Install dependencies, build, upload sourcemaps, and prune
+RUN pnpm config set auto-install-peers true && \
+    pnpm install && \
+    pnpm run build && \
+    pnpm run sentry:sourcemaps && \
+    pnpm prune --prod
 
 # Create non-root user
 RUN addgroup -S app && adduser -S app -G app

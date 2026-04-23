@@ -1,7 +1,9 @@
 import {
   CapacityRange,
   CommissioningDateRange,
+  GroupReviewStatus,
   OffTaker,
+  OperatingConfiguration,
 } from '../utils/enums';
 import { DeviceDTO } from '../pods/device/dto';
 import { OrganizationDTO } from '../pods/organization/dto';
@@ -19,6 +21,8 @@ export interface IDeviceGroup {
   //installationConfigurations: Installation[];
   //sectors: Sector[];
   gridInterconnection: boolean; // True - all devices have gridInterconnection true, if one has false, then this value is false
+  operatingConfigurations?: OperatingConfiguration[]; // Distinct operating configs across grouped devices
+  groupReviewStatus?: GroupReviewStatus | null; // D-REC review gate: pending → approved/rejected
   aggregatedCapacity: number; // total capacity of all devices beloning to this group
 
   capacityRange: CapacityRange;

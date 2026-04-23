@@ -14,7 +14,7 @@ export const getDocumentBuilder = (): DocumentBuilder => {
       'access-token',
     );
 
-  Tags.sort((a, b) => a.name.localeCompare(b.name)).forEach((tag) =>
+  [...Tags].sort((a, b) => a.name.localeCompare(b.name)).forEach((tag) =>
     options.addTag(tag.name, tag.description),
   );
 

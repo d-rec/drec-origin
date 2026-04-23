@@ -16,6 +16,8 @@ import { Organization } from '../organization/organization.entity';
 export enum BulkUploadStatus {
   Added = 'Added',
   InProgress = 'InProgress',
+  PendingConfirmation = 'PendingConfirmation',
+  Importing = 'Importing',
   Completed = 'Completed',
   Failed = 'Failed',
 }
@@ -33,6 +35,10 @@ export class BulkUploadEntity extends BaseEntity {
   @Column({ name: 'file_id' })
   @IsString()
   fileId: string;
+
+  @Column({ name: 'content_hash', nullable: true })
+  @IsString()
+  contentHash: string;
 
   @Column({ name: 'job_id' })
   @IsString()

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OauthClientCredentials } from './oauth_client_credentials.entity';
 import { randomBytes } from 'crypto';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { v4 as uuid } from 'uuid';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -16,12 +16,12 @@ export class OauthClientCredentialsService {
   constructor(
     @InjectRepository(OauthClientCredentials)
     private readonly clientCredentialsRepository: Repository<OauthClientCredentials>,
-    @InjectRepository(ApiUserEntity)
-    private readonly apiUserEntityRepository: Repository<ApiUserEntity>,
+    @InjectRepository(RegistrantEntity)
+    private readonly registrantEntityRepository: Repository<RegistrantEntity>,
   ) {}
 
-  async createAPIUser(): Promise<ApiUserEntity> {
-    return await this.apiUserEntityRepository.save({ api_user_id: uuid() });
+  async createRegistrant(): Promise<RegistrantEntity> {
+    return await this.registrantEntityRepository.save({ api_user_id: uuid() });
   }
 
   async store(
@@ -103,8 +103,8 @@ export class OauthClientCredentialsService {
 
   async findOneByApiUserId(
     api_user_id: string,
-  ): Promise<ApiUserEntity | undefined> {
-    return await this.apiUserEntityRepository.findOne({
+  ): Promise<RegistrantEntity | undefined> {
+    return await this.registrantEntityRepository.findOne({
       where: { api_user_id },
     });
   }

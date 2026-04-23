@@ -3,8 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
-import fs from 'fs';
-import * as path from 'path';
+import fs from 'node:fs';
+import * as path from 'node:path';
 import {
   BlockchainPropertiesModule,
   entities as IssuerEntities,
@@ -53,7 +53,7 @@ import { CertificateLogModule } from './pods/certificate-log/certificate-log.mod
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
-import { ApiUserEntity } from './pods/user/api-user.entity';
+import { RegistrantEntity } from './pods/user/registrant.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
 import { DeviceLateOngoingIssueCertificateEntity } from './pods/device/device_lateongoing_certificate.entity';
 import { CertificateSettingEntity } from './pods/device-group/certificate_setting.entity';
@@ -79,9 +79,17 @@ import { MeterRead } from './pods/reads/reads.entity';
 import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 import { Chat } from './pods/chat/chat.entity';
 import { ChatConversation } from './pods/chat/chat-conversation.entity';
+import { ChatWebhook } from './pods/chat/chat-webhook.entity';
 import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module';
+import { UploadLogModule } from './pods/upload-log/upload-log.module';
+import { ESignatureModule } from './pods/e-signature/e-signature.module';
+import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
+import { SolarYieldModule } from './pods/solar-yield/solar-yield.module';
+import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
+import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
+import { ESignatureLog } from './pods/e-signature/e-signature-log.entity';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -104,7 +112,7 @@ export const entities = [
   User,
   UserRole,
   OauthClientCredentials,
-  ApiUserEntity,
+  RegistrantEntity,
   Organization,
   Invitation,
   EmailConfirmation,
@@ -138,6 +146,10 @@ export const entities = [
   EvidentIssuersEntity,
   Chat,
   ChatConversation,
+  ChatWebhook,
+  UploadLogEntity,
+  ESignatureLog,
+  OrgApiLicenses,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -202,6 +214,10 @@ const queueModule = () => {
     ChatModule,
     DeviceReviewsModule,
     TranslateModule,
+    UploadLogModule,
+    ESignatureModule,
+    OrgApiLicensesModule,
+    SolarYieldModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

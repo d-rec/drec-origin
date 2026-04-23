@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 function getFileData(file: Express.Multer.File): Buffer | fs.ReadStream {
   if (file.buffer) {

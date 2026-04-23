@@ -1,18 +1,27 @@
 import {
   DeviceOrderBy,
+  EvidencePathway,
   OffTaker,
   FuelCode,
   DeviceTypeCode,
+  OperatingConfiguration,
+  OwnershipStatus,
+  SourceAccessMode,
+  SubsidyType,
+  YesNo,
+  RegistrationType,
+  VolumeEvidenceType,
+  PublicFundingType,
 } from '../utils/enums';
 
 export interface IDevice {
   id: number;
   externalId?: string;
   serialNumber: string;
-  developerExternalId?: string;
+  operatorExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;
-  projectName: string;
+  siteName: string;
   address?: string;
   latitude: string;
   longitude: string;
@@ -24,9 +33,11 @@ export interface IDevice {
   capacity: number;
   commissioningDate: string;
   gridInterconnection: boolean;
+  operatingConfiguration?: OperatingConfiguration;
+  sourceAccessMode?: SourceAccessMode;
+  evidencePathway?: EvidencePathway;
+  ownershipStatus?: OwnershipStatus;
   offTaker: OffTaker;
-  //sector: Sector;
-  //standardCompliance: StandardCompliance;
   yieldValue: number;
   //generatorsIds?: number[];
   //labels?: string;
@@ -36,16 +47,52 @@ export interface IDevice {
   groupId?: number | null;
   deviceDescription?: DeviceDescription;
   //integrator?: Integrator;
-  energyStorage?: boolean;
-  energyStorageCapacity?: number;
   SDGBenefits?: string[];
-  qualityLabels?: string;
   meterReadtype?: string;
   createdAt?: Date;
   version?: string;
   timezone?: string;
   stateProvince?: string;
   postcode?: string;
+  // General (Evident checklist rows 2, 8)
+  defaultAccountCode?: string;
+  requestedEffectiveRegDate?: string;
+  // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
+  signatoryName?: string;
+  gridExportType?: string; // 'No (zero-export)' | 'Yes (partial-export)' | 'Yes (full-export)'
+  hasNetworkMeter?: YesNo;
+  meterReadsShareable?: YesNo;
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  hasCaptiveConsumer?: YesNo;
+  hasAuxiliaryEnergySources?: YesNo;
+  auxiliaryEnergySourceDetails?: string;
+  nonMeterImportDetails?: string;
+  otherEacSchemeRegistration?: string;
+  additionalInfo?: string;
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  generatingUnitCount?: number;
+  networkOwner?: string;
+  interconnectionVoltage?: string;
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  pvSystemOwner?: string;
+  offTakerName?: string;
+  offTakerSameCompanyAsOwner?: YesNo;
+  // Subsidies & incentives (rows 78, 79, 80)
+  hasSubsidy?: YesNo;
+  subsidyTypes?: SubsidyType[];
+  subsidyOtherDetails?: string;
+  subsidyClaimsEacs?: YesNo;
+  // Public funding (rows 50, 51)
+  hasPublicFunding?: YesNo;
+  publicFundingEndDate?: string;
+
+  // SF-02 gaps
+  registrationType?: RegistrationType;
+  volumeEvidenceType?: VolumeEvidenceType;
+  publicFundingType?: PublicFundingType;
+  labellingSchemeAccreditation?: string;
+  verificationAgentName?: string;
+  offGridCircumstances?: string;
 }
 
 export enum DeviceDescription {
@@ -61,7 +108,7 @@ export type DeviceKey =
   | 'externalId'
   | 'status'
   | 'organizationId'
-  | 'projectName'
+  | 'siteName'
   | 'countryCode'
   | 'fuelCode'
   | 'deviceTypeCode'

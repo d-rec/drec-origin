@@ -15,6 +15,7 @@ import {
   CapacityRange,
   CommissioningDateRange,
   OffTaker,
+  OperatingConfiguration,
 } from '../../../utils/enums';
 export class NewDeviceGroupDTO
   implements Omit<IDeviceGroup, 'id' | 'organizationId'>
@@ -74,6 +75,15 @@ export class NewDeviceGroupDTO
   @ApiProperty()
   @IsBoolean()
   gridInterconnection: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Distinct operating configurations across grouped devices',
+    isArray: true,
+    enum: OperatingConfiguration,
+  })
+  @IsEnum(OperatingConfiguration, { each: true })
+  @IsOptional()
+  operatingConfigurations?: OperatingConfiguration[];
 
   @ApiProperty()
   @IsNumber()

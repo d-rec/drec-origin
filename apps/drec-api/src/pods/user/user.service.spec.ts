@@ -14,7 +14,7 @@ import { UserRole } from './user_role.entity';
 import { EmailConfirmationService } from '../email-confirmation/email-confirmation.service';
 import { OauthClientCredentialsService } from './oauth_client.service';
 import { OrganizationService } from '../organization/organization.service';
-import { ApiUserEntity } from './api-user.entity';
+import { RegistrantEntity } from './registrant.entity';
 import { UserLoginSessionEntity } from './user_login_session.entity';
 import { CreateUserOrgDTO } from './dto/create-user.dto';
 import { Organization } from '../organization/organization.entity';
@@ -38,7 +38,7 @@ describe('UserService', () => {
   let emailConfirmationService: EmailConfirmationService;
   let oauthClientCredentialsService: OauthClientCredentialsService;
   let organizationService: OrganizationService;
-  let apiUserEntityRepository: Repository<ApiUserEntity>;
+  let registrantEntityRepository: Repository<RegistrantEntity>;
   let userLoginSessionRepository: Repository<UserLoginSessionEntity>;
 
   beforeEach(async () => {
@@ -84,7 +84,7 @@ describe('UserService', () => {
           } as any,
         },
         {
-          provide: getRepositoryToken(ApiUserEntity),
+          provide: getRepositoryToken(RegistrantEntity),
           useValue: {
             findOne: jest.fn(),
             find: jest.fn(),
@@ -121,8 +121,8 @@ describe('UserService', () => {
     emailConfirmationService = module.get<EmailConfirmationService>(
       EmailConfirmationService,
     );
-    apiUserEntityRepository = module.get<Repository<ApiUserEntity>>(
-      getRepositoryToken(ApiUserEntity),
+    registrantEntityRepository = module.get<Repository<RegistrantEntity>>(
+      getRepositoryToken(RegistrantEntity),
     );
     userLoginSessionRepository = module.get<Repository<UserLoginSessionEntity>>(
       getRepositoryToken(UserLoginSessionEntity),
@@ -137,12 +137,12 @@ describe('UserService', () => {
     it('should create a new user with valid input data when it is not invite', async () => {
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya3@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
-        orgName: 'DIRECT_ORG_DEVELOPER1',
+        orgName: 'DIRECT_ORG_OPERATOR1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
         phoneNumber: '+1234567890',
@@ -166,7 +166,7 @@ describe('UserService', () => {
         api_user_id: userData.api_user_id,
       } as Organization;
 
-      const mockApiUserEntity: ApiUserEntity = {
+      const mockRegistrantEntity: RegistrantEntity = {
         api_user_id: userData.api_user_id,
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
@@ -175,7 +175,7 @@ describe('UserService', () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       jest
         .spyOn(roleRepository, 'findOne')
-        .mockResolvedValue({ id: 6, name: 'ApiUser' } as any);
+        .mockResolvedValue({ id: 6, name: 'Registrant' } as any);
       jest
         .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
         .mockResolvedValue({
@@ -225,7 +225,7 @@ describe('UserService', () => {
           password: expect.any(String),
           notifications: true,
           status: UserStatus.Active,
-          role: Role.ApiUser,
+          role: Role.Registrant,
           roleId: 6,
           organization: { id: 1 },
           api_user_id: userData.api_user_id,
@@ -241,19 +241,19 @@ describe('UserService', () => {
 
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya5@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
-        orgName: 'DIRECT_ORG_DEVELOPER1',
+        orgName: 'DIRECT_ORG_OPERATOR1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
       } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
-        name: 'DIRECT_ORG_DEVELOPER1',
+        name: 'DIRECT_ORG_OPERATOR1',
         address: 'Bangalore',
         zipCode: null,
         city: null,
@@ -261,7 +261,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -277,7 +277,7 @@ describe('UserService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         roleId: 2,
         api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
@@ -317,19 +317,19 @@ describe('UserService', () => {
       // Test data
       const userData: CreateUserOrgDTO = {
         firstName: 'test',
-        lastName: 'ApiUser',
+        lastName: 'Registrant',
         email: 'testsweya5@gmail.com',
-        organizationType: OrganizationType.ApiUser,
+        organizationType: OrganizationType.Registrant,
         password: 'Drec@1234',
         confirmPassword: 'Drec@1234',
-        orgName: 'DIRECT_ORG_DEVELOPER1',
+        orgName: 'DIRECT_ORG_OPERATOR1',
         orgAddress: 'Chennai',
         api_user_id: uuid(),
       } as CreateUserOrgDTO;
 
       const mockOrganizationEntity = {
         id: 1,
-        name: 'DIRECT_ORG_DEVELOPER1',
+        name: 'DIRECT_ORG_OPERATOR1',
         address: 'Bangalore',
         zipCode: null,
         city: null,
@@ -337,7 +337,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -353,7 +353,7 @@ describe('UserService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         roleId: 2,
         api_user_id: 'apiUserId',
         organization: mockOrganizationEntity,
@@ -388,7 +388,7 @@ describe('UserService', () => {
   describe('getAll', () => {
     const mockOrganizationEntity1 = {
       id: 1,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -396,7 +396,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -406,7 +406,7 @@ describe('UserService', () => {
 
     const mockOrganizationEntity2 = {
       id: 2,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -414,7 +414,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya6@gmail.com',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -431,7 +431,7 @@ describe('UserService', () => {
         phoneNumber: '+447911123456', // UK number
         notifications: null,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         roleId: 2,
         organization: mockOrganizationEntity1,
         moduleName: null,
@@ -459,7 +459,7 @@ describe('UserService', () => {
         phoneNumber: '+819012345678', // Japanese number
         notifications: null,
         status: UserStatus.Active,
-        role: Role.DeviceOwner,
+        role: Role.SiteOperator,
         roleId: 3,
         organization: mockOrganizationEntity1,
         moduleName: null,
@@ -473,7 +473,7 @@ describe('UserService', () => {
         phoneNumber: '+4915123456789', // German number
         notifications: null,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         roleId: 2,
         organization: mockOrganizationEntity2,
         moduleName: null,
@@ -516,7 +516,7 @@ describe('UserService', () => {
           email: 'testsweya@gmail.com',
           notifications: null,
           status: UserStatus.Active,
-          role: Role.OrganizationAdmin,
+          role: Role.Registrant,
           roleId: 2,
           organization: mockOrganizationEntity1,
           moduleName: null,
@@ -528,7 +528,7 @@ describe('UserService', () => {
           email: 'testsweya6@gmail.com',
           notifications: null,
           status: UserStatus.Active,
-          role: Role.OrganizationAdmin,
+          role: Role.Registrant,
           roleId: 2,
           organization: mockOrganizationEntity2,
           moduleName: null,
@@ -537,7 +537,7 @@ describe('UserService', () => {
 
       const options: FindManyOptions<User> = {
         where: {
-          role: Role.OrganizationAdmin,
+          role: Role.Registrant,
         },
       };
 
@@ -560,7 +560,7 @@ describe('UserService', () => {
   describe('findById', () => {
     const mockOrganizationEntity = {
       id: 1,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -568,7 +568,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -584,7 +584,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.Registrant,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -592,7 +592,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -605,8 +605,8 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockUserEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       const user = await service.findById(userId);
 
@@ -621,26 +621,26 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(undefined);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       await expect(service.findById(userId)).rejects.toThrow(NotFoundException);
 
       expect(findOneSpy).toHaveBeenCalledWith({ id: userId });
     });
 
-    it('should include permission_status when the found user has a role of Role.ApiUser', async () => {
+    it('should include permission_status when the found user has a role of Role.Registrant', async () => {
       const userId = 1;
       mockUserEntity.permission_status = UserPermissionStatus.Active;
       const findOneSpy = jest
         .spyOn(service, 'findOne')
         .mockResolvedValue(mockUserEntity);
       const permissionStatusSpy = jest
-        .spyOn(service, 'getApiUserPermissionStatus')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(service, 'getRegistrantPermissionStatus')
+        .mockResolvedValue(mockRegistrantEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
-        .mockResolvedValue(mockApiUserEntity);
+        .spyOn(registrantEntityRepository, 'findOne')
+        .mockResolvedValue(mockRegistrantEntity);
 
       const user = await service.findById(userId);
 
@@ -651,11 +651,11 @@ describe('UserService', () => {
       expect(user.permission_status).toBe(UserPermissionStatus.Request);
     });
 
-    it('should not include permission_status when the found user has a role other than Role.ApiUser', async () => {
+    it('should not include permission_status when the found user has a role other than Role.Registrant', async () => {
       const userId = 1;
       const organizationEntity = {
         id: 1,
-        name: 'DIRECT_ORG_DEVELOPER1',
+        name: 'DIRECT_ORG_OPERATOR1',
         address: 'Bangalore',
         zipCode: null,
         city: null,
@@ -663,7 +663,7 @@ describe('UserService', () => {
         blockchainAccountAddress: null,
         blockchainAccountSignedMessage: null,
         orgEmail: 'testsweya@gmail.com',
-        organizationType: OrganizationType.Developer,
+        organizationType: OrganizationType.Registrant,
         status: OrganizationStatus.Active,
         users: [],
         invitations: [],
@@ -679,7 +679,7 @@ describe('UserService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.OrganizationAdmin,
+        role: Role.Registrant,
         roleId: 2,
         api_user_id: 'apiUserId',
         organization: organizationEntity,
@@ -687,7 +687,7 @@ describe('UserService', () => {
         updatedAt: new Date(),
       } as User;
 
-      const apiUserEntity: ApiUserEntity = {
+      const registrantEntity: RegistrantEntity = {
         api_user_id: userEntity.api_user_id,
         permission_status: UserPermissionStatus.Request,
         permissionIds: [],
@@ -696,7 +696,7 @@ describe('UserService', () => {
         .spyOn(service, 'findOne')
         .mockResolvedValue(userEntity);
       jest
-        .spyOn(apiUserEntityRepository, 'findOne')
+        .spyOn(registrantEntityRepository, 'findOne')
         .mockResolvedValue(undefined);
 
       const user = await service.findById(userId);
@@ -709,7 +709,7 @@ describe('UserService', () => {
   describe('findByEmail', () => {
     const mockOrganizationEntity = {
       id: 1,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -717,7 +717,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -733,7 +733,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.Registrant,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -741,7 +741,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -777,7 +777,7 @@ describe('UserService', () => {
   describe('getUserAndPasswordByEmail', () => {
     const mockOrganizationEntity = {
       id: 1,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -785,7 +785,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -801,7 +801,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.Registrant,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -809,7 +809,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
@@ -856,7 +856,7 @@ describe('UserService', () => {
   describe('findOne', () => {
     const mockOrganizationEntity = {
       id: 1,
-      name: 'DIRECT_ORG_DEVELOPER1',
+      name: 'DIRECT_ORG_OPERATOR1',
       address: 'Bangalore',
       zipCode: null,
       city: null,
@@ -864,7 +864,7 @@ describe('UserService', () => {
       blockchainAccountAddress: null,
       blockchainAccountSignedMessage: null,
       orgEmail: 'testsweya@gmail.com',
-      organizationType: OrganizationType.ApiUser,
+      organizationType: OrganizationType.Registrant,
       status: OrganizationStatus.Active,
       users: [],
       invitations: [],
@@ -880,7 +880,7 @@ describe('UserService', () => {
       password: 'Drec@1234',
       notifications: null,
       status: UserStatus.Active,
-      role: Role.ApiUser,
+      role: Role.Registrant,
       roleId: 2,
       api_user_id: 'apiUserId',
       organization: mockOrganizationEntity,
@@ -888,7 +888,7 @@ describe('UserService', () => {
       updatedAt: new Date(),
     } as User;
 
-    const mockApiUserEntity: ApiUserEntity = {
+    const mockRegistrantEntity: RegistrantEntity = {
       api_user_id: mockUserEntity.api_user_id,
       permission_status: UserPermissionStatus.Request,
       permissionIds: [],
