@@ -156,7 +156,7 @@ describe('Organization tests', () => {
       zipCode: 'Zip code',
       city: 'City',
       country: 'DE',
-      organizationType: OrganizationType.Developer,
+      organizationType: OrganizationType.Registrant,
     };
     await loginUser(loggedUser);
     await postOrganization('', HttpStatus.FORBIDDEN, partialOrg);

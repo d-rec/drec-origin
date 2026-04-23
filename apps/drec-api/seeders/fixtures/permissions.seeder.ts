@@ -16,7 +16,7 @@ export class PermissionsSeeder implements SeederInterface {
     const permissions = this.aclPermissionsRepository.create([
       {
         aclmodulesId: 1, // USER_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -24,7 +24,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 2, // ORGANIZATION_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -32,7 +32,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 3, // FILE_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -40,7 +40,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 4, // ACL Module ID for Device module management
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -48,7 +48,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 15,
@@ -56,7 +56,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 6, // ACL Module ID for Bulk Device management
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -64,7 +64,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 7, // READS_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -72,7 +72,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 8, // CERTIFICATE_LOG_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read'],
         permissionValue: 1,
@@ -80,7 +80,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 9, // INVITATION_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -88,7 +88,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 11, //PASSWORD_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Write'],
         permissionValue: 2,
@@ -96,7 +96,7 @@ export class PermissionsSeeder implements SeederInterface {
       },
       {
         aclmodulesId: 5, // DEVICE_GROUPING_MANAGEMENT_CRUDL
-        entityId: 2, // OrganizationAdmin
+        entityId: 6, // Registrant
         entityType: EntityType.Role,
         permissions: ['Read', 'Write', 'Update', 'Delete'],
         permissionValue: 15,
@@ -222,6 +222,62 @@ export class PermissionsSeeder implements SeederInterface {
         permissionValue: 15,
         status: 1,
       },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 1, // Admin / Reviewer
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 2, // SeniorReviewer
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 15, // DEVICE_REVIEWS_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write'],
+        permissionValue: 3,
+        status: 1,
+      },
+      {
+        aclmodulesId: 4, // DEVICE_MANAGEMENT_CRUDL
+        entityId: 1, // Reviewer
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
+      {
+        aclmodulesId: 4, // DEVICE_MANAGEMENT_CRUDL
+        entityId: 2, // SeniorReviewer
+        entityType: EntityType.Role,
+        permissions: ['Read'],
+        permissionValue: 1,
+        status: 1,
+      },
+      {
+        aclmodulesId: 13, // SUBMISSION_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
+      {
+        aclmodulesId: 14, // CHAT_MANAGEMENT_CRUDL
+        entityId: 6, // Registrant
+        entityType: EntityType.Role,
+        permissions: ['Read', 'Write', 'Update', 'Delete'],
+        permissionValue: 15,
+        status: 1,
+      },
     ]);
 
     for (const perm of permissions) {
@@ -234,6 +290,9 @@ export class PermissionsSeeder implements SeederInterface {
       });
       if (!exists) {
         await this.aclPermissionsRepository.save(perm);
+      } else if (exists.status !== 1) {
+        exists.status = 1;
+        await this.aclPermissionsRepository.save(exists);
       }
     }
   }

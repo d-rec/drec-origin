@@ -158,6 +158,9 @@ export class LateOngoingIssuanceService {
       await this.deviceService.archiveLateOngoingIfReservationInactive(
         group.id,
       );
+      if (group.isExpired() && group.reservationActive) {
+        await this.groupService.deactivateReservation(group);
+      }
       return;
     }
 

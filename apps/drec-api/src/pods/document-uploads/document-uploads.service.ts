@@ -27,12 +27,76 @@ export class DocumentUploadsService {
     return this.fileService.getSignedUrl(doc.url);
   }
 
+  async findByTarget(
+    targetId: number,
+    targetType: DocumentTargetType,
+  ): Promise<
+    {
+      type: string;
+      url: string;
+      id: number;
+      label: string | null;
+      originalFilename: string | null;
+    }[]
+  > {
+    const docs = await this.documentUploadsRepository.find({
+      where: { targetId, targetType },
+    });
+    const results: {
+      type: string;
+      url: string;
+      id: number;
+      label: string | null;
+      originalFilename: string | null;
+    }[] = [];
+    for (const doc of docs) {
+      let signedUrl = '';
+      try {
+        signedUrl = await this.fileService.getSignedUrl(doc.url);
+      } catch {
+        signedUrl = '';
+      }
+      results.push({
+        type: doc.type,
+        url: signedUrl,
+        id: doc.id,
+        label: doc.label,
+        originalFilename: doc.originalFilename,
+      });
+    }
+    return results;
+  }
+
+  async updateLabel(id: number, label: string | null): Promise<DocumentEntity> {
+    const doc = await this.documentUploadsRepository.findOne({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException(`Document ${id} not found`);
+    }
+    doc.label = label && label.trim() !== '' ? label.trim() : null;
+    return this.documentUploadsRepository.save(doc);
+  }
+
+  async deleteByType(
+    targetId: number,
+    targetType: DocumentTargetType,
+    documentType: DocumentType,
+  ): Promise<void> {
+    const docs = await this.documentUploadsRepository.find({
+      where: { targetId, targetType, type: documentType },
+    });
+    for (const doc of docs) {
+      await this.fileService.deleteFileFromS3(doc.url).catch(() => {});
+    }
+    await this.documentUploadsRepository.remove(docs);
+  }
+
   async upload(
     targetId: number,
     targetType: DocumentTargetType,
     documentType: DocumentType,
     file: Express.Multer.File,
     subfolder?: string,
+    label?: string | null,
   ): Promise<any> {
     const extension = file.originalname.split('.').pop()?.toLowerCase();
     this.logger.log(`Uploading document for target ID: ${targetId}`);
@@ -60,6 +124,8 @@ export class DocumentUploadsService {
         type: documentType,
         extension: extension,
         url: uploadResult.Key,
+        originalFilename: file.originalname,
+        label: label && label.trim() !== '' ? label.trim() : null,
       });
 
       const savedDocumentUpload =

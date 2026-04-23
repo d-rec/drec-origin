@@ -24,7 +24,14 @@ export class DeviceBulkUploadProcessor {
 
   @Process({ concurrency: 1 })
   async process(job: Job<{ s3Key: string }>): Promise<any> {
+    const tStart = Date.now();
+    const queueWaitMs =
+      job.processedOn && job.timestamp ? job.processedOn - job.timestamp : -1;
+    this.logger.log(
+      `[BULK-TIMING] jobId=${job.id} picked up (queue wait=${queueWaitMs}ms)`,
+    );
     const { s3Key } = job.data;
+    const tLookup = Date.now();
     const bulkUpload =
       await this.bulkUploadService.bulkUploadRepository.findOne({
         where: {
@@ -32,14 +39,19 @@ export class DeviceBulkUploadProcessor {
           type: BulkUploadType.Devices,
         },
       });
+    this.logger.log(
+      `[BULK-TIMING] jobId=${job.id} bulkUpload lookup=${Date.now() - tLookup}ms`,
+    );
     const files: DeviceFiles = {
       [DocumentType.FORM_SF_02]: [],
       [DocumentType.SF_02C]: [],
+      [DocumentType.SF_02C_OWNERS_DECLARATION]: [],
       [DocumentType.METERING_EVIDENCE]: [],
       [DocumentType.SINGLE_LINE_DIAGRAM]: [],
       [DocumentType.PROJECT_PHOTOS]: [],
       [DocumentType.SCREENSHOTS]: [],
       [DocumentType.COD_PROOF]: [],
+      [DocumentType.OTHER_DOCUMENTS]: [],
     };
 
     if (!bulkUpload) {
@@ -47,13 +59,22 @@ export class DeviceBulkUploadProcessor {
       return;
     }
     try {
+      const tS3 = Date.now();
       const fileContent = await this.fileService.getUploadS3(s3Key);
-      return await this.deviceGroupService.processCsvFileAnotherLibrary(
+      this.logger.log(
+        `[BULK-TIMING] jobId=${job.id} S3 fetch=${Date.now() - tS3}ms`,
+      );
+      const tCsv = Date.now();
+      const result = await this.deviceGroupService.processCsvFileAnotherLibrary(
         fileContent,
         bulkUpload.organizationId,
         bulkUpload,
         files,
       );
+      this.logger.log(
+        `[BULK-TIMING] jobId=${job.id} CSV processing=${Date.now() - tCsv}ms, total=${Date.now() - tStart}ms`,
+      );
+      return result;
     } catch (error) {
       this.logger.error(`Failed to process file: ${error}`);
       await Promise.all([

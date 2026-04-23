@@ -66,7 +66,7 @@ export class EvidentDeviceService {
         device.organizationId,
       );
       const response = await evidentApiInstance.post('/devices', {
-        name: device.projectName,
+        name: device.siteName,
         fuel: `/fuels/${device.fuelCode}`,
       });
       device.evidentDeviceId = response.data.code;
@@ -153,9 +153,11 @@ export class EvidentDeviceService {
     files: {
       [DocumentType.FORM_SF_02]: Express.Multer.File[];
       [DocumentType.SF_02C]: Express.Multer.File[];
+      [DocumentType.SF_02C_OWNERS_DECLARATION]?: Express.Multer.File[];
       [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+      [DocumentType.OTHER_DOCUMENTS]?: Express.Multer.File[];
     },
     group: DeviceGroup,
   ): Promise<void> {
@@ -190,9 +192,9 @@ export class EvidentDeviceService {
     device.commissioningDate = commissioningDate;
     device.createdAt = new Date(commissioningDate);
     device['deviceGroupUid'] = deviceGroup.deviceGroupUid;
-    device.projectName = deviceGroup.name;
+    device.siteName = deviceGroup.name;
     const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+      await this.organizationService.getLinkedRegistrantOrSelf(
         device.organizationId,
       );
     const evidentDevice = await this.createDevice(device);
@@ -211,7 +213,7 @@ export class EvidentDeviceService {
   ): Promise<{ evidentDeviceId: string; status: EvidentRegistrationStatus }> {
     const evidentDevice = await this.createDevice(device, files);
     const organization =
-      await this.organizationService.getLinkedMarketIntermediaryOrSelf(
+      await this.organizationService.getLinkedRegistrantOrSelf(
         device.organizationId,
       );
     await this.sendEmail(organization, device, evidentDevice.status);
@@ -241,7 +243,7 @@ export class EvidentDeviceService {
       fuel: `/fuels/${device.fuelCode}`,
       device: `/devices/${device.evidentDeviceId}`,
       registrant: `/organisations/${registrantId}`,
-      name: device.projectName,
+      name: device.siteName,
       capacity: convertCapacityToMwh.toString(),
       supported: true,
       latitude: device.latitude,

@@ -4,4 +4,4 @@ order: 2
 
 # Endpoints Reference
 
-[Redocly Documentation](https://dev-api.drecs.org/docs)
+[Redocly Documentation](https://stage-api.drecs.org/docs)

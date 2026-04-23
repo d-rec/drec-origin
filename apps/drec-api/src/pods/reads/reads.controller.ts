@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -37,6 +38,9 @@ import { UserDecorator } from '../user/decorators/user.decorator';
 import { UserService } from '../user/user.service';
 import { FilterNoOffLimit } from './dto/filter-no-off-limit.dto';
 import { ReadsService } from './reads.service';
+import { Request } from 'express';
+import { UploadLogService } from '../upload-log/upload-log.service';
+import { UploadActionType } from '../upload-log/upload-log.entity';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -49,6 +53,7 @@ export class ReadsController {
     private deviceService: DeviceService,
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
+    private readonly uploadLogService: UploadLogService,
   ) {}
 
   /**
@@ -195,27 +200,27 @@ export class ReadsController {
       );
       orgUser = await this.userService.findByEmail(organization.orgEmail);
       if (
-        user.role === Role.ApiUser &&
+        user.role === Role.Registrant &&
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
-          `An apiuser cannot view the reads of other apiuser's`,
+          `An registrant cannot view the reads of other registrant's`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An apiuser cannot view the reads of other apiuser's`,
+          message: `An registrant cannot view the reads of other registrant's`,
         });
       }
       if (
-        user.role === Role.OrganizationAdmin &&
+        user.role === Role.Registrant &&
         user.organizationId != filter.organizationId
       ) {
         this.logger.error(
-          `An developer can't view the reads of other organization`,
+          `You cannot view the reads of another organization`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An developer can't view the reads of other organization`,
+          message: `You cannot view the reads of another organization`,
         });
       }
 
@@ -224,11 +229,11 @@ export class ReadsController {
         user.api_user_id != organization.api_user_id
       ) {
         this.logger.error(
-          `An developer cannot view the reads of other ApiUsers's`,
+          `You cannot view the reads of another API user`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An developer cannot view the reads of other ApiUsers's`,
+          message: `You cannot view the reads of another API user`,
         });
       }
       user.organizationId = filter.organizationId;
@@ -242,7 +247,7 @@ export class ReadsController {
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
       (filter.organizationId != undefined && orgUser.role === 'Buyer') ||
-      (user.role === 'ApiUser' && filter.organizationId == undefined)
+      (user.role === 'Registrant' && filter.organizationId == undefined)
     ) {
       if (isNaN(parseInt(meterId))) {
         this.logger.error(
@@ -260,21 +265,21 @@ export class ReadsController {
         orgUser.role === Role.Buyer
       ) {
         this.logger.error(
-          `An buyer of apiuser can't view the reads of direct organization`,
+          `An buyer of registrant can't view the reads of direct organization`,
         );
         throw new BadRequestException({
           success: false,
-          message: `An buyer of apiuser can't view the reads of direct organization`,
+          message: `An buyer of registrant can't view the reads of direct organization`,
         });
       }
       if (user.role === Role.Buyer) {
         if (device.api_user_id != null) {
           this.logger.error(
-            `An buyer can't view the reads of apiuser's organization`,
+            `An buyer can't view the reads of registrant's organization`,
           );
           throw new BadRequestException({
             success: false,
-            message: `An buyer can't view the reads of apiuser's organization`,
+            message: `An buyer can't view the reads of registrant's organization`,
           });
         }
 
@@ -332,15 +337,16 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreRead(
     @Param('id') id: string,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
+    @Req() req: Request,
   ): Promise<void> {
-    return this.create(id, measurements, user);
+    return this.create(id, measurements, user, req);
   }
 
   /**
@@ -374,13 +380,14 @@ export class ReadsController {
     RolesGuard,
     PermissionGuard,
   )
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin, Role.ApiUser)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async create(
     @Param('externalId') id: string,
     @Body() measurements: NewIntermediateMeterReadDTO,
     @UserDecorator() user: ILoggedInUser,
+    @Req() req: Request,
   ): Promise<void> {
     this.logger.verbose(`With in create`);
     if (measurements.organizationId) {
@@ -390,6 +397,16 @@ export class ReadsController {
       });
       user.organizationId = measurements.organizationId;
     }
+    this.uploadLogService.logPayload({
+      userId: user.id,
+      userEmail: user.email,
+      organizationId: user.organizationId,
+      actionType: UploadActionType.MeterReadApi,
+      payload: measurements,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+      metadata: { deviceSerialNumber: id.trim() },
+    });
     return this.readsService.validateAndStoreReads({
       deviceSerialNumber: id.trim(),
       measurements,
@@ -433,7 +450,7 @@ export class ReadsController {
     description: 'This query parameter is used to for admin...',
   })
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
-  @Roles(Role.Admin, Role.DeviceOwner, Role.OrganizationAdmin)
+  @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @Permission('Write')
   @ACLModules('READS_MANAGEMENT_CRUDL')
   public async newStoreReadAddByAdmin(
@@ -514,7 +531,7 @@ export class ReadsController {
     if (
       user.role === 'Buyer' ||
       user.role === 'Admin' ||
-      user.role === 'ApiUser'
+      user.role === 'Registrant'
     ) {
       // in buyer case externalid means insert id
       device = await this.deviceService.findOne(parseInt(id));
@@ -550,7 +567,7 @@ export class ReadsController {
         this.logger.error(`Read Not found`);
         throw new HttpException('Read Not found', 400);
       }
-      if (user.role === 'Buyer' || user.role === 'ApiUser') {
+      if (user.role === 'Buyer' || user.role === 'Registrant') {
         return {
           externalId: device.serialNumber,
           timestamp: latestReadObject[0].timestamp,

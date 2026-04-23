@@ -101,7 +101,7 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice = {
-      projectName: 'Device 2 - Update',
+      siteName: 'Device 2 - Update',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
@@ -124,7 +124,7 @@ describe('Device tests', () => {
       dataSource: 'Inverter',
       otherDataSource: '',
       serialNumber: 'SN31',
-      projectName: 'Device New',
+      siteName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
@@ -138,9 +138,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      energyStorage: true,
-      energyStorageCapacity: 900,
-      qualityLabels: '',
       version: '1.0',
     };
     await loginUser(loggedUser);
@@ -149,7 +146,7 @@ describe('Device tests', () => {
       HttpStatus.CREATED,
       partialDevice,
     );
-    expect(updatedDevice.projectName).to.equal('Device New');
+    expect(updatedDevice.siteName).to.equal('Device New');
     expect(updatedDevice.status).to.equal(DeviceStatus.Active);
   });
 
@@ -159,7 +156,7 @@ describe('Device tests', () => {
       password: '******123',
     };
     const partialDevice = {
-      projectName: 'Device 2 - Update',
+      siteName: 'Device 2 - Update',
     };
     await loginUser(loggedUser);
     const { body: devices } = await requestDevice('', HttpStatus.OK, {});
@@ -182,7 +179,7 @@ describe('Device tests', () => {
       dataSource: 'Inverter',
       otherDataSource: '',
       serialNumber: 'SN31',
-      projectName: 'Device New',
+      siteName: 'Device New',
       address: 'Somewhere far away',
       latitude: '34.921213',
       longitude: '135.717309',
@@ -196,9 +193,6 @@ describe('Device tests', () => {
       yieldValue: 1000,
       impactStory: '',
       images: [],
-      energyStorage: true,
-      energyStorageCapacity: 900,
-      qualityLabels: '',
       version: '1.0',
     };
     await loginUser(loggedUser);

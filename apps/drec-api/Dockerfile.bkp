@@ -1,8 +1,7 @@
 FROM node:20-alpine
 
-RUN apk --no-cache add bash
-
-RUN mkdir /var/deployment
+RUN apk --no-cache add bash && \
+    mkdir /var/deployment
 COPY ./ /var/deployment
 
 WORKDIR /var/deployment/apps/drec-api

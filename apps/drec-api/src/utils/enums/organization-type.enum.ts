@@ -1,8 +1,6 @@
 export enum OrganizationType {
   Buyer = 'Buyer',
-  Developer = 'Developer',
-  ApiUser = 'ApiUser',
+  Registrant = 'Registrant',
   Admin = 'Admin',
-  Reviewer = 'Reviewer',
-  SeniorReviewer = 'SeniorReviewer',
+  SiteOperator = 'SiteOperator',
 }

@@ -18,7 +18,6 @@ order: 3
 - Serves as the central hub for managing and processing requests.
 - Interacts with:
   - **PostgreSQL**: Stores relational data such as user accounts, configurations, and logs.
-  - **InfluxDB**: Handles time-series data like meter readings and telemetry.
   - **Redis**: Used for:
     - **Caching**: Frequently accessed data (e.g., session tokens, configuration values).
     - **Queues**: Background job processing and real-time event handling (e.g., WebSocket message distribution).
@@ -28,24 +27,18 @@ order: 3
 - Manages structured, relational data.
 - Stores business-critical data with long-term persistence.
 
-### **InfluxDB**
-
-- Optimized for time-series data.
-- Enables rapid ingestion and querying of time-stamped data.
-
 ### **Redis**
 
 - Functions as an **in-memory data store** for high-speed operations.
 - Used for:
   - Session storage for authentication tokens.
-  - Caching expensive query results from PostgreSQL or InfluxDB.
+  - Caching expensive query results from PostgreSQL.
   - Pub/Sub messaging and job queues for background tasks.
 
 ## Deployment Overview
 
 - **AWS EKS** – Manages containerized frontend and backend services.
 - **AWS RDS** – Provides managed PostgreSQL database services.
-- **AWS EC2** – Hosts InfluxDB for time-series data storage.
 - **AWS ElastiCache** – Manages Redis for caching and high-speed data access.
 - **AWS VPC** – Defines secure network infrastructure.
 - **AWS ALB** – Handles load balancing for application traffic.
@@ -63,7 +56,7 @@ order: 3
 - **Platform**: Deployed on **AWS EKS** as a Docker container.
 - **Configuration**:
   - Exposed via Kubernetes **Ingress**, secured with AWS **ALB**.
-  - Communicates with PostgreSQL (AWS RDS) and InfluxDB (AWS EC2).
+  - Communicates with PostgreSQL (AWS RDS).
 - **Security**:
   - Manages secrets using Kubernetes **Secrets**.
 
@@ -73,13 +66,6 @@ order: 3
 - **Configuration**:
   - Secured with **private VPC access**.
   - Optimized with **read replicas** for heavy read workloads.
-
-### **InfluxDB Deployment**
-
-- **Platform**: Hosted on **AWS EC2**.
-- **Configuration**:
-  - Uses high-performance instance optimization.
-  - Secured via **VPC firewall rules** for backend-only access.
 
 ### **Redis Deployment**
 
