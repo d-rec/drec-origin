@@ -26,7 +26,7 @@
     "lint:fix": "eslint \"**/*{.ts,.tsx}\" --fix",
     "migrate": "pnpm typeorm:run:issuer && pnpm typeorm:run && pnpm typeorm:run:certificate",
     "migration:create": "typeorm migration:create -d ./migrations",
-    "migrate:docker": "pnpm typeorm:run:issuer && node_modules/typeorm/cli.js --config dist/js/ormconfig.js migration:run",
+    "migrate:docker": "pnpm typeorm:run:issuer && ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js migration:run -d datasource.ts",
     "typeorm": "ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js -d ormconfig-dev.ts",
     "typeorm:migrate": "pnpm typeorm migration:generate -- -n",
     "typeorm:run": "pnpm typeorm migration:run || { echo \"Migration failed\"; exit 1; } && echo \"Migration Successfull\"",
