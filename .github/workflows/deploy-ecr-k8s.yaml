@@ -34,6 +34,57 @@ jobs:
         run: |
           aws eks update-kubeconfig --region "$AWS_REGION" --name drec
 
+      - name: Run DB migrations (stage only)
+        if: inputs.environment == 'stage'
+        env:
+          ECR_REGISTRY: ${{ secrets.ecr-registry }}
+          ECR_REPOSITORY: drec-api
+          IMAGE_TAG: ${{ inputs.environment }}-${{ github.sha }}
+          K8S_NAMESPACE: ${{ inputs.environment }}
+          JOB_NAME: drec-api-migrate-${{ github.sha }}
+        run: |
+          # Apply a one-shot Job that runs `migrate:docker` against the stage DB
+          # using the same image the Deployment will roll out to. Wait for it to
+          # complete before updating the Deployment so a broken migration fails
+          # the deploy instead of crash-looping pods.
+          cat <<EOF | kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            namespace: ${K8S_NAMESPACE}
+            name: ${JOB_NAME}
+          spec:
+            backoffLimit: 0
+            ttlSecondsAfterFinished: 300
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                  - name: migrate
+                    image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+                    command: ["npm", "run", "migrate:docker"]
+                    envFrom:
+                      - secretRef:
+                          name: drec-${K8S_NAMESPACE}-env
+          EOF
+          END=$((SECONDS + 600))
+          while [ $SECONDS -lt $END ]; do
+            STATUS=$(kubectl -n "$K8S_NAMESPACE" get "job/${JOB_NAME}" \
+              -o jsonpath='{.status.succeeded}/{.status.failed}' 2>/dev/null || echo "/")
+            case "$STATUS" in
+              "1/"*)  echo "Migration Job completed"; break ;;
+              */"1")  echo "Migration Job failed — dumping logs:"
+                      kubectl -n "$K8S_NAMESPACE" logs "job/${JOB_NAME}" --tail=500 || true
+                      exit 1 ;;
+            esac
+            sleep 5
+          done
+          if [ "${STATUS%/*}" != "1" ]; then
+            echo "Migration Job timed out after 10 minutes"
+            kubectl -n "$K8S_NAMESPACE" logs "job/${JOB_NAME}" --tail=500 || true
+            exit 1
+          fi
+
       - name: Deploy to Kubernetes
         env:
           ECR_REGISTRY: ${{ secrets.ecr-registry }}
