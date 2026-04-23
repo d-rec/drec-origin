@@ -63,6 +63,12 @@ jobs:
                   - name: migrate
                     image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
                     command: ["npm", "run", "migrate:docker"]
+                    env:
+                      # ts-node otherwise type-checks datasource*.ts and needs
+                      # @types/node + @types/mocha, which pnpm prune --prod
+                      # strips. Migrations were type-checked at build time.
+                      - name: TS_NODE_TRANSPILE_ONLY
+                        value: "true"
                     envFrom:
                       - secretRef:
                           name: drec-${K8S_NAMESPACE}-env
