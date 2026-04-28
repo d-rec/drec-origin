@@ -4,8 +4,15 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // 96 bits recommended for GCM
 
 const checkEncryptionSecret = () => {
-  if (!process.env.ENCRYPTION_SECRET) {
+  const secret = process.env.ENCRYPTION_SECRET;
+  if (!secret) {
     throw new Error('ENCRYPTION_SECRET environment variable is not set');
+  }
+  const keyBytes = Buffer.from(secret, 'hex').length;
+  if (keyBytes !== 32) {
+    throw new Error(
+      `ENCRYPTION_SECRET must be exactly 64 hex characters (32 bytes for AES-256), but got ${secret.length} hex characters (${keyBytes} bytes)`,
+    );
   }
 };
 
