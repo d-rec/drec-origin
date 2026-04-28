@@ -25,13 +25,19 @@ export function generateDeviceFingerprint(
 
   // Normalize and sanitize inputs
   const normalizedCapacity = removeTrailingZeroes(capacity);
-  const dateOnly = new Date(commissioningDate).toISOString().split('T')[0];
+  const dateOnly = commissioningDate
+    ? new Date(commissioningDate).toISOString().split('T')[0]
+    : '';
 
   // Snap coords to nearest 0.0002° (~22m grid) so minor GPS drift
   // doesn't produce different fingerprints for the same physical site.
   const GRID = 0.0002;
-  const snappedLat = (Math.round(Number.parseFloat(latitude) / GRID) * GRID).toFixed(4);
-  const snappedLng = (Math.round(Number.parseFloat(longitude) / GRID) * GRID).toFixed(4);
+  const snappedLat = latitude
+    ? (Math.round(Number.parseFloat(latitude) / GRID) * GRID).toFixed(4)
+    : '0';
+  const snappedLng = longitude
+    ? (Math.round(Number.parseFloat(longitude) / GRID) * GRID).toFixed(4)
+    : '0';
 
   const combinedString = [
     snappedLat,
@@ -47,5 +53,6 @@ export function generateDeviceFingerprint(
 
 // Helper to normalize decimal values (e.g., 10.0 → 10, 10.50 → 10.5)
 function removeTrailingZeroes(value: number): string {
+  if (value == null) return '0';
   return Number.parseFloat(value.toString()).toString();
 }

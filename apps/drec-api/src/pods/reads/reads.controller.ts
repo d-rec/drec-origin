@@ -298,10 +298,15 @@ export class ReadsController {
       }
     } else {
       const serialNumber = meterId;
-      device = await this.deviceService.findBySerialNumber(
-        serialNumber,
-        user.organizationId,
-      );
+      // Primary: try externalId first (globally unique)
+      device = await this.deviceService.findByExternalId(serialNumber);
+      // Fallback: try serialNumber (scoped to org)
+      if (!device) {
+        device = await this.deviceService.findBySerialNumber(
+          serialNumber,
+          user.organizationId,
+        );
+      }
     }
 
     if (device === null) {
@@ -537,10 +542,15 @@ export class ReadsController {
       device = await this.deviceService.findOne(parseInt(id));
     } else {
       const serialNumber = id;
-      device = await this.deviceService.findBySerialNumber(
-        serialNumber,
-        user.organizationId,
-      );
+      // Primary: try externalId first (globally unique)
+      device = await this.deviceService.findByExternalId(serialNumber);
+      // Fallback: try serialNumber (scoped to org)
+      if (!device) {
+        device = await this.deviceService.findBySerialNumber(
+          serialNumber,
+          user.organizationId,
+        );
+      }
     }
 
     if (device === null) {

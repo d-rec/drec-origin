@@ -917,10 +917,16 @@ export class DeviceService {
           }
         : undefined;
 
-    const currentDevice =
-      lookupBy === 'siteName'
-        ? await this.findBySiteName(serialNumber.trim(), organizationId)
-        : await this.findBySerialNumber(serialNumber.trim(), organizationId);
+    // Primary: try externalId first (globally unique)
+    let currentDevice = await this.findByExternalId(serialNumber.trim());
+
+    // Fallback: try serialNumber or siteName (scoped to org)
+    if (!currentDevice) {
+      currentDevice =
+        lookupBy === 'siteName'
+          ? await this.findBySiteName(serialNumber.trim(), organizationId)
+          : await this.findBySerialNumber(serialNumber.trim(), organizationId);
+    }
 
     if (!currentDevice) {
       this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);

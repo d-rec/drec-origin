@@ -587,7 +587,7 @@ export class DeviceReviewsService {
     }>;
   }> {
     const deviceRows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, "serialNumber", fingerprint
+      `SELECT id, latitude, longitude, serial_number AS "serialNumber", fingerprint
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -610,7 +610,7 @@ export class DeviceReviewsService {
       const lng = parseFloat(device.longitude);
       if (!isNaN(lat) && !isNaN(lng)) {
         const nearby: any[] = await this.connection.query(
-          `SELECT id, "externalId", "siteName", "serialNumber", "organizationId",
+          `SELECT id, "externalId", "siteName", serial_number AS "serialNumber", "organizationId",
                   (6371000 * acos(LEAST(1, GREATEST(-1,
                     cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
                     * cos(radians(CAST(longitude AS double precision)) - radians($2))
@@ -638,9 +638,9 @@ export class DeviceReviewsService {
     // 2. Cross-org serial number
     if (device.serialNumber) {
       const serialMatches: any[] = await this.connection.query(
-        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId"
+        `SELECT id, "externalId", "siteName", serial_number AS "serialNumber", "organizationId"
          FROM device
-         WHERE "serialNumber" = $1 AND id != $2`,
+         WHERE serial_number = $1 AND id != $2`,
         [device.serialNumber, deviceId],
       );
       serialMatches.forEach((d) => {
@@ -653,7 +653,7 @@ export class DeviceReviewsService {
     // 3. Fingerprint match
     if (device.fingerprint) {
       const fpMatches: any[] = await this.connection.query(
-        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId"
+        `SELECT id, "externalId", "siteName", serial_number AS "serialNumber", "organizationId"
          FROM device
          WHERE fingerprint = $1 AND id != $2`,
         [device.fingerprint, deviceId],
@@ -1215,7 +1215,12 @@ export class DeviceReviewsService {
       [deviceId],
     );
 
-    const ceilingYield = irradiance?.yieldHigh ?? configuredYield ?? 2000;
+    const gsaYieldPerKw =
+      solarGsa && capacityKw > 0
+        ? solarGsa.annualKwh / capacityKw
+        : undefined;
+    const ceilingYield =
+      irradiance?.yieldHigh ?? gsaYieldPerKw ?? configuredYield ?? 1500;
     const recentReadings = readRows.map((r: any) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
@@ -1243,6 +1248,8 @@ export class DeviceReviewsService {
     this.logger.log(
       `Device ${deviceId} ceiling check: configured=${configuredYield}, ` +
         `irradiance=${irradiance?.yieldHigh ?? 'N/A'}, ` +
+        `gsaYieldPerKw=${gsaYieldPerKw?.toFixed(0) ?? 'N/A'}, ` +
+        `effective=${ceilingYield.toFixed(0)}, ` +
         `mismatch=${yieldMismatch}, ` +
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
@@ -1274,7 +1281,9 @@ export class DeviceReviewsService {
     return {
       irradiance,
       solarGsa,
+      gsaYieldPerKw: gsaYieldPerKw != null ? Math.round(gsaYieldPerKw) : null,
       configuredYield,
+      effectiveCeiling: Math.round(ceilingYield),
       capacityKw,
       yieldMismatch,
       recentReadings,

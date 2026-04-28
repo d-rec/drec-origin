@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  NotFoundException,
   Logger,
   Param,
   ParseIntPipe,
@@ -537,24 +538,25 @@ export class DeviceController {
     this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
-    if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
-      if (loginUser.role === Role.Admin) {
-        loginUser.api_user_id = null;
-      }
+    // Primary: try externalId first (globally unique)
+    deviceData = await this.deviceService.findByExternalId(serialNumber);
 
-      deviceData = await this.deviceService.findBySerialNumberAndRegistrant(
-        serialNumber,
-        loginUser.api_user_id,
-      );
-    } else {
-      deviceData = await this.deviceService.findBySerialNumber(
-        serialNumber,
-        loginUser.organizationId,
-      );
-    }
+    // Fallback: try serialNumber (scoped to org/registrant)
     if (!deviceData) {
-      // Fallback: try as externalId (devices without a serial number)
-      deviceData = await this.deviceService.findByExternalId(serialNumber);
+      if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
+        if (loginUser.role === Role.Admin) {
+          loginUser.api_user_id = null;
+        }
+        deviceData = await this.deviceService.findBySerialNumberAndRegistrant(
+          serialNumber,
+          loginUser.api_user_id,
+        );
+      } else {
+        deviceData = await this.deviceService.findBySerialNumber(
+          serialNumber,
+          loginUser.organizationId,
+        );
+      }
     }
     if (!deviceData) return null;
     delete deviceData['operatorExternalId'];
@@ -1059,46 +1061,76 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      const checkSerialNumber = await this.deviceService.findBySerialNumber(
-        serialNumber,
-        user.organizationId,
-      );
-      const noOfHistRead: number =
-        await this.deviceService.getNumberOfHistoryReads(
-          checkSerialNumber.serialNumber,
+      // Primary: try externalId first (globally unique)
+      let checkDevice = await this.deviceService.findByExternalId(serialNumber);
+      // Fallback: try serialNumber (scoped to org)
+      if (!checkDevice) {
+        checkDevice = await this.deviceService.findBySerialNumber(
+          serialNumber,
+          user.organizationId,
         );
-      const noOfOnGoingRead: number =
-        await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
-          checkSerialNumber.serialNumber,
-          checkSerialNumber.createdAt,
-        );
-
-      if (
-        deviceToUpdate.commissioningDate != checkSerialNumber.commissioningDate
-      ) {
-        if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
-          this.logger.error(
-            `Commissioning date cannot be changed due to existing meter reads available for ${checkSerialNumber.serialNumber}`,
+      }
+      if (checkDevice) {
+        const noOfHistRead: number =
+          await this.deviceService.getNumberOfHistoryReads(
+            checkDevice.serialNumber,
           );
-          throw new ConflictException({
-            success: false,
-            message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkSerialNumber.serialNumber}`,
-          });
+        const noOfOnGoingRead: number =
+          await this.readsService.countOngoingReadsSinceDeviceOnboardingDate(
+            checkDevice.serialNumber,
+            checkDevice.createdAt,
+          );
+
+        if (
+          deviceToUpdate.commissioningDate != checkDevice.commissioningDate
+        ) {
+          if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
+            this.logger.error(
+              `Commissioning date cannot be changed due to existing meter reads available for ${checkDevice.serialNumber}`,
+            );
+            throw new ConflictException({
+              success: false,
+              message: ` Commissioning date cannot be changed due to existing meter reads available for ${checkDevice.serialNumber}`,
+            });
+          }
         }
       }
     }
+
+    // Primary: try externalId first (globally unique)
+    let lookupBy: 'serialNumber' | 'externalId' = 'externalId';
+    let deviceForUpdate = await this.deviceService.findByExternalId(serialNumber);
+    // Fallback: try serialNumber (scoped to org)
+    if (!deviceForUpdate) {
+      deviceForUpdate = await this.deviceService.findBySerialNumber(
+        serialNumber,
+        user.organizationId,
+      );
+      lookupBy = 'serialNumber';
+    }
+    if (!deviceForUpdate) {
+      throw new NotFoundException(`No device found with identifier "${serialNumber}"`);
+    }
+
     const result = await this.deviceService.update(
       user.organizationId,
       user.role,
-      serialNumber,
+      lookupBy === 'externalId' ? deviceForUpdate.serialNumber || serialNumber : serialNumber,
       deviceToUpdate,
     );
 
     if (files) {
-      const existingDevice = await this.deviceService.findBySerialNumber(
-        result.serialNumber || serialNumber,
-        user.organizationId,
+      // Primary: try externalId first (globally unique)
+      let existingDevice = await this.deviceService.findByExternalId(
+        result.externalId || serialNumber,
       );
+      // Fallback: try serialNumber (scoped to org)
+      if (!existingDevice) {
+        existingDevice = await this.deviceService.findBySerialNumber(
+          result.serialNumber || serialNumber,
+          user.organizationId,
+        );
+      }
 
       if (existingDevice) {
         // §3.3.3: block document changes after review approval
@@ -1285,15 +1317,20 @@ export class DeviceController {
       this.logger.error(`Currently not in dev environment`);
       throw new HttpException('Currently not in dev environment', 400);
     }
-    const device: DeviceDTO | null =
-      await this.deviceService.findBySerialNumber(serialNumber, organizationId);
+    // Primary: try externalId first (globally unique)
+    let device: DeviceDTO | null =
+      await this.deviceService.findByExternalId(serialNumber);
+    // Fallback: try serialNumber (scoped to org)
+    if (!device) {
+      device = await this.deviceService.findBySerialNumber(serialNumber, organizationId);
+    }
+    if (!device) {
+      this.logger.error(`Device doesn't exist`);
+      throw new HttpException("Device doesn't exist", 400);
+    }
     this.logger.debug(
       'THE DEVICE FROM ExTERNALID IS::::::::::::' + device.externalId,
     );
-    if (!device) {
-      this.logger.error(`Device dosen't exist`);
-      throw new HttpException("Device dosen't exist", 400);
-    }
     const deviceExternalId = device.externalId;
     const deviceOnboardedDate = device.createdAt;
     return this.deviceService.changeDeviceCreatedAt(
