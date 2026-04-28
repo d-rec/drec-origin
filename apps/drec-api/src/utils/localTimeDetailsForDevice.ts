@@ -32,5 +32,5 @@ export const getLocalTimeZoneFromDevice = (
     (entry) => entry.countryCode === device.countryCode,
   );
 
-  return countryCodeFound.timezones[0].name;
+  return countryCodeFound?.timezones?.[0]?.name ?? 'UTC';
 };
