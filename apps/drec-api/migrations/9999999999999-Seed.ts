@@ -375,7 +375,7 @@ export class Seed9999999999999 implements MigrationInterface {
       "email_verified_at",
       "terms_accepted_at"
     ) VALUES (
-      'John',
+      'Joe',
       'Reviewer',
       '${email.toLowerCase()}',
       '${password}',
