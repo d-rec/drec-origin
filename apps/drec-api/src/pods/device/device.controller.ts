@@ -5,10 +5,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Logger,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -550,6 +552,11 @@ export class DeviceController {
         loginUser.organizationId,
       );
     }
+    if (!deviceData) {
+      // Fallback: try as externalId (devices without a serial number)
+      deviceData = await this.deviceService.findByExternalId(serialNumber);
+    }
+    if (!deviceData) return null;
     delete deviceData['operatorExternalId'];
     return deviceData;
   }
@@ -566,6 +573,19 @@ export class DeviceController {
       parseInt(id, 10),
       DocumentTargetType.DEVICE,
     );
+  }
+
+  @Delete('/:id/documents/:docId')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a single document from a device' })
+  public async deleteDocument(
+    @Param('id') id: string,
+    @Param('docId', ParseIntPipe) docId: number,
+  ): Promise<void> {
+    await this.documentUploadsService.deleteById(docId, parseInt(id, 10));
   }
 
   /**

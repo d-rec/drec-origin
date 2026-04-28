@@ -524,6 +524,13 @@ export class DeviceService {
     return result ?? null;
   }
 
+  async findByExternalId(externalId: string): Promise<Device | null> {
+    const device = await this.repository.findOne({
+      where: { externalId },
+    });
+    return device ?? null;
+  }
+
   async findBySerialNumber(
     serialNumber: string,
     organizationId: number,

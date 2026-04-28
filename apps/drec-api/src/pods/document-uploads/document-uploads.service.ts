@@ -76,6 +76,21 @@ export class DocumentUploadsService {
     return this.documentUploadsRepository.save(doc);
   }
 
+  async deleteById(id: number, targetId: number): Promise<void> {
+    const doc = await this.documentUploadsRepository.findOne({
+      where: { id, targetId },
+    });
+    if (!doc) {
+      throw new NotFoundException(`Document ${id} not found`);
+    }
+    if (doc.url) {
+      await this.fileService
+        .deleteFileFromS3(decodeURIComponent(doc.url))
+        .catch(() => {});
+    }
+    await this.documentUploadsRepository.remove([doc]);
+  }
+
   async deleteByType(
     targetId: number,
     targetType: DocumentTargetType,

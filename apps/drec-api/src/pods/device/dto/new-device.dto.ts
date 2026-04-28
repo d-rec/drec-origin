@@ -125,7 +125,7 @@ export class NewDeviceDTO implements Omit<
   @Min(0.001, {
     message: 'Invalid Capacity, it should be greater than 0',
   })
-  @Transform((value) => parseFloat(value))
+  @Transform((value) => (value == null ? undefined : parseFloat(value)))
   capacity: number;
 
   @ApiProperty()
