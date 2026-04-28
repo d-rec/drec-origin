@@ -1115,7 +1115,9 @@ export class DeviceReviewsService {
       monthlyKwh: number[];
       version: string;
     } | null;
+    gsaYieldPerKw: number | null;
     configuredYield: number;
+    effectiveCeiling: number;
     capacityKw: number;
     yieldMismatch: boolean;
     recentReadings: Array<{
