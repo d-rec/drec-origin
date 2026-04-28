@@ -39,6 +39,8 @@ export class Seed9999999999999 implements MigrationInterface {
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
     await this.seedRegistrant(queryRunner);
+    await this.seedReviewer(queryRunner);
+    await this.seedBuyer(queryRunner);
     await this.seedACLModules(queryRunner);
     await this.seedCertificateSetting(queryRunner); //set default no_of_days for generate certificate last day
     await queryRunner.query(
@@ -321,6 +323,151 @@ export class Seed9999999999999 implements MigrationInterface {
     )`);
 
     this.logger.verbose(`Seeded registrant: ${email}`);
+  }
+
+  private async seedReviewer(queryRunner: QueryRunner) {
+    const email = process.env.REVIEWER_EMAIL;
+    const pass = process.env.REVIEWER_PASSWORD;
+    if (!email || !pass) {
+      this.logger.verbose('REVIEWER_EMAIL / REVIEWER_PASSWORD not set — skipping reviewer seed.');
+      return;
+    }
+
+    const existing = await queryRunner.query(
+      `SELECT id FROM public.user WHERE "email" = '${email.toLowerCase()}'`,
+    );
+    if (existing.length) {
+      this.logger.verbose(`Reviewer ${email} already exists — skipping.`);
+      return;
+    }
+
+    // Reviewer belongs to the admin org (SuperOrg, id=1)
+    const adminOrg = await queryRunner.query(
+      `SELECT id FROM public.organization WHERE id = 1`,
+    );
+    if (!adminOrg.length) {
+      this.logger.warn('Admin org (id=1) not found — cannot seed reviewer.');
+      return;
+    }
+
+    const apiUser = await queryRunner.query(`INSERT INTO public.api_user (
+      "api_user_id",
+      "permission_status"
+    ) VALUES (
+      '${uuid()}',
+      'Request'
+    ) RETURNING "api_user_id"`);
+
+    const apiUserId = apiUser[0].api_user_id;
+    const password = bcrypt.hashSync(pass, 8);
+
+    await queryRunner.query(`INSERT INTO public.user (
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "status",
+      "role",
+      "organizationId",
+      "roleId",
+      "api_user_id",
+      "phone_number_verified_at",
+      "email_verified_at",
+      "terms_accepted_at"
+    ) VALUES (
+      'John',
+      'Reviewer',
+      '${email.toLowerCase()}',
+      '${password}',
+      'Active',
+      'Reviewer',
+      1,
+      1,
+      '${apiUserId}',
+      '0001-01-01T00:00:00Z',
+      '${new Date().toISOString()}',
+      '${new Date().toISOString()}'
+    )`);
+
+    this.logger.verbose(`Seeded reviewer: ${email}`);
+  }
+
+  private async seedBuyer(queryRunner: QueryRunner) {
+    const email = process.env.BUYER_EMAIL;
+    const pass = process.env.BUYER_PASSWORD;
+    if (!email || !pass) {
+      this.logger.verbose('BUYER_EMAIL / BUYER_PASSWORD not set — skipping buyer seed.');
+      return;
+    }
+
+    const existing = await queryRunner.query(
+      `SELECT id FROM public.user WHERE "email" = '${email.toLowerCase()}'`,
+    );
+    if (existing.length) {
+      this.logger.verbose(`Buyer ${email} already exists — skipping.`);
+      return;
+    }
+
+    const apiUser = await queryRunner.query(`INSERT INTO public.api_user (
+      "api_user_id",
+      "permission_status"
+    ) VALUES (
+      '${uuid()}',
+      'Request'
+    ) RETURNING "api_user_id"`);
+
+    const apiUserId = apiUser[0].api_user_id;
+
+    const organization = await queryRunner.query(`INSERT INTO public.organization (
+      "name",
+      "address",
+      "organizationType",
+      "orgEmail",
+      "status",
+      "api_user_id",
+      "verified_at"
+    ) VALUES (
+      'Buyer Demo Corp',
+      'Demo Address',
+      'Buyer',
+      '${email.toLowerCase()}',
+      'Active',
+      '${apiUserId}',
+      '${new Date().toISOString()}'
+    ) RETURNING "id"`);
+
+    const organizationId = organization[0].id;
+    const password = bcrypt.hashSync(pass, 8);
+
+    await queryRunner.query(`INSERT INTO public.user (
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "status",
+      "role",
+      "organizationId",
+      "roleId",
+      "api_user_id",
+      "phone_number_verified_at",
+      "email_verified_at",
+      "terms_accepted_at"
+    ) VALUES (
+      'Jane',
+      'Buyer',
+      '${email.toLowerCase()}',
+      '${password}',
+      'Active',
+      'Buyer',
+      '${organizationId}',
+      4,
+      '${apiUserId}',
+      '0001-01-01T00:00:00Z',
+      '${new Date().toISOString()}',
+      '${new Date().toISOString()}'
+    )`);
+
+    this.logger.verbose(`Seeded buyer: ${email}`);
   }
 
   permissionListMAPToBItPOSITIONSAtAPI: Array<{
