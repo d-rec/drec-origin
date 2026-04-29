@@ -313,17 +313,8 @@ export class UserService {
   }
 
   public async checkForExistingUser(email: string): Promise<void> {
-    const isExistingUser = await this.hasUser({ email });
-
-    if (isExistingUser) {
-      const message = `User with email ${email} already exists`;
-
-      this.logger.error(message);
-      throw new ConflictException({
-        success: false,
-        message,
-      });
-    }
+    // Duplicate emails are permitted — different orgs/roles may share an email
+    return;
   }
 
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
