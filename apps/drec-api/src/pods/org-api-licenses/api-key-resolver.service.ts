@@ -21,17 +21,20 @@ export class ApiKeyResolverService {
       return this.getPlatformDeeplKey();
     }
 
-    const license = await this.orgApiLicensesService.findDecrypted(
+    let license = await this.orgApiLicensesService.findDecrypted(
       user.organizationId,
     );
 
-    // No license row (dev mode) — use platform key directly
+    // Lazy-create the license row so the freebie cap applies
     if (!license) {
-      return this.getPlatformDeeplKey();
+      await this.orgApiLicensesService.initializeCredits(user.organizationId);
+      license = await this.orgApiLicensesService.findDecrypted(
+        user.organizationId,
+      );
     }
 
     // Org has their own key — use it, no credit check
-    if (license.deeplApiKey) {
+    if (license?.deeplApiKey) {
       return license.deeplApiKey;
     }
 
@@ -58,17 +61,20 @@ export class ApiKeyResolverService {
       return this.getPlatformRoboflowKey();
     }
 
-    const license = await this.orgApiLicensesService.findDecrypted(
+    let license = await this.orgApiLicensesService.findDecrypted(
       user.organizationId,
     );
 
-    // No license row (dev mode) — use platform key directly
+    // Lazy-create the license row so the freebie cap applies
     if (!license) {
-      return this.getPlatformRoboflowKey();
+      await this.orgApiLicensesService.initializeCredits(user.organizationId);
+      license = await this.orgApiLicensesService.findDecrypted(
+        user.organizationId,
+      );
     }
 
     // Org has their own key (and optionally their own workflow URL)
-    if (license.roboflowApiKey) {
+    if (license?.roboflowApiKey) {
       const platformKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
       return {
         url: license.roboflowWorkflowUrl || platformKeys.roboflowWorkflowUrl || '',
