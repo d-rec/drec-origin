@@ -10,11 +10,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Device } from './device.entity';
 
 interface FeaturedSite {
   lat: number;
   lon: number;
   name: string;
+  /**
+   * If true, the login-globe shows a dot + leader + label for this site, but
+   * never fires a satellite cutaway on it. Use for sites that lack the
+   * rooftop precision needed to land the cutaway on actual panels —
+   * geographic visibility without misleading the viewer.
+   */
+  labelOnly?: boolean;
 }
 
 @Injectable()
@@ -116,29 +126,97 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Trilokpur, IN', lat: 28.364827, lon: 80.6704293 },
   { name: 'Machrehata, IN', lat: 27.420177, lon: 80.643582 },
   { name: 'Markamou, IN', lat: 27.028801, lon: 81.445924 },
-  // PowerTrust rooftop installations in Haiti (Léogâne / Port-au-Prince area).
-  // 8-decimal precision from prod DB; satellite imagery shows residential
-  // rooftops with small panel arrays.
-  { name: 'PowerTrust Haiti site, HT', lat: 19.20520641, lon: -72.49656819 },
-  { name: 'PowerTrust Haiti site, HT', lat: 19.21009143, lon: -72.51078575 },
-  { name: 'PowerTrust Haiti site, HT', lat: 19.2260702, lon: -72.5219985 },
+  // Okra Solar / PowerTrust rooftop installations in Haiti (Léogâne).
+  // 7–8 decimal precision from prod DB; cutaway lands on the residential
+  // rooftop arrays.
+  { name: 'Okra Solar, HT', lat: 19.20520641, lon: -72.49656819 },
+  { name: 'Okra Solar, HT', lat: 19.21009143, lon: -72.51078575 },
+  { name: 'Okra Solar, HT', lat: 19.2260702, lon: -72.5219985 },
+  { name: 'Okra Solar, HT', lat: 19.2207567, lon: -72.5163421 },
+  { name: 'Okra Solar, HT', lat: 19.2200273, lon: -72.5162294 },
+  { name: 'Okra Solar, HT', lat: 19.2190693, lon: -72.5157231 },
+  { name: 'Okra Solar, HT', lat: 19.2183035, lon: -72.5154164 },
+  { name: 'Okra Solar, HT', lat: 19.2179321, lon: -72.5148441 },
 ];
 
 @ApiTags('Featured Sites')
 @Controller('featured-sites')
 export class FeaturedSitesController {
+  // Cache the merged hardcoded + DB result so we hit the DB at most once
+  // per cache window. The cutaway-eligible list never changes (hardcoded);
+  // only the labelOnly tail refreshes from the live DB.
+  private cache: { fetchedAt: number; payload: FeaturedSite[] } | null = null;
+  private readonly cacheTtlMs = 5 * 60 * 1000;
+
+  constructor(
+    @InjectRepository(Device)
+    private readonly deviceRepo: Repository<Device>,
+  ) {}
+
   @Get()
   @UseGuards(FeaturedSitesIpRateLimitGuard)
   @ApiOperation({
     summary:
-      'Curated list of solar installations with verified panel-visible satellite imagery, used by the login-page globe cutaway.',
+      'Curated panel-precision sites (cutaway) + live DB-pulled named sites for global label coverage.',
   })
   @ApiOkResponse({ type: Object, isArray: true })
   @Header(
     'Cache-Control',
-    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+    'public, max-age=300, s-maxage=300, stale-while-revalidate=3600',
   )
-  list(): FeaturedSite[] {
-    return FEATURED;
+  async list(): Promise<FeaturedSite[]> {
+    const now = Date.now();
+    if (this.cache && now - this.cache.fetchedAt < this.cacheTtlMs) {
+      return this.cache.payload;
+    }
+    const rows: {
+      countryCode: string;
+      siteName: string;
+      latitude: string;
+      longitude: string;
+    }[] = await this.deviceRepo.query(`
+      WITH dedup AS (
+        SELECT DISTINCT ON ("countryCode", "siteName")
+               "countryCode", "siteName", latitude, longitude, id
+        FROM device
+        WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+          AND latitude <> '' AND longitude <> ''
+          AND "siteName" IS NOT NULL
+          AND "siteName" NOT IN ('unassigned', 'N/A')
+          AND "countryCode" NOT IN ('IND', 'HTI', 'DZA', '')
+      ), ranked AS (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY "countryCode" ORDER BY id) AS rn
+        FROM dedup
+      )
+      SELECT "countryCode", "siteName", latitude, longitude
+      FROM ranked
+      WHERE rn <= 12
+      ORDER BY "countryCode", rn
+    `);
+    const cc2 = (cc: string): string =>
+      ({
+        BRA: 'BR', GHA: 'GH', GTM: 'GT', IDN: 'ID', KHM: 'KH', MYS: 'MY',
+        NGA: 'NG', NPL: 'NP', PHL: 'PH', THA: 'TH', UGA: 'UG', VNM: 'VN',
+        ZAF: 'ZA',
+      })[cc] || cc;
+    const live: FeaturedSite[] = rows
+      .map((r) => {
+        const lat = parseFloat(r.latitude);
+        const lon = parseFloat(r.longitude);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+        if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+        const name = r.siteName.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/[,\s]+$/, '');
+        if (!name) return null;
+        return {
+          name: `${name}, ${cc2(r.countryCode)}`,
+          lat,
+          lon,
+          labelOnly: true,
+        } as FeaturedSite;
+      })
+      .filter((x): x is FeaturedSite => x !== null);
+    const payload = [...FEATURED, ...live];
+    this.cache = { fetchedAt: now, payload };
+    return payload;
   }
 }
