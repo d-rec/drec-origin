@@ -538,25 +538,25 @@ export class DeviceController {
     this.logger.verbose(`With in getBySerialNumber`);
     let deviceData: Device;
 
-    // Primary: try externalId first (globally unique)
-    deviceData = await this.deviceService.findByExternalId(serialNumber);
-
-    // Fallback: try serialNumber (scoped to org/registrant)
-    if (!deviceData) {
-      if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
-        if (loginUser.role === Role.Admin) {
-          loginUser.api_user_id = null;
-        }
+    if (loginUser.role === Role.Registrant || loginUser.role === Role.Admin) {
+      // Registrant/Admin lookups stay scoped by api_user_id (their own devices),
+      // not by org. externalId → api_user_id-scoped serialNumber.
+      if (loginUser.role === Role.Admin) {
+        loginUser.api_user_id = null;
+      }
+      deviceData = await this.deviceService.findByExternalId(serialNumber);
+      if (!deviceData) {
         deviceData = await this.deviceService.findBySerialNumberAndRegistrant(
           serialNumber,
           loginUser.api_user_id,
         );
-      } else {
-        deviceData = await this.deviceService.findBySerialNumber(
-          serialNumber,
-          loginUser.organizationId,
-        );
       }
+    } else {
+      // External API surface — externalId → siteName (if unique-in-org) → serialNumber (deprecated)
+      deviceData = await this.deviceService.resolveDeviceKey(
+        serialNumber,
+        loginUser.organizationId,
+      );
     }
     if (!deviceData) return null;
     delete deviceData['operatorExternalId'];
@@ -1061,15 +1061,11 @@ export class DeviceController {
     }
 
     if (deviceToUpdate.commissioningDate) {
-      // Primary: try externalId first (globally unique)
-      let checkDevice = await this.deviceService.findByExternalId(serialNumber);
-      // Fallback: try serialNumber (scoped to org)
-      if (!checkDevice) {
-        checkDevice = await this.deviceService.findBySerialNumber(
-          serialNumber,
-          user.organizationId,
-        );
-      }
+      // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
+      const checkDevice = await this.deviceService.resolveDeviceKey(
+        serialNumber,
+        user.organizationId,
+      );
       if (checkDevice) {
         const noOfHistRead: number =
           await this.deviceService.getNumberOfHistoryReads(
@@ -1097,40 +1093,29 @@ export class DeviceController {
       }
     }
 
-    // Primary: try externalId first (globally unique)
-    let lookupBy: 'serialNumber' | 'externalId' = 'externalId';
-    let deviceForUpdate = await this.deviceService.findByExternalId(serialNumber);
-    // Fallback: try serialNumber (scoped to org)
-    if (!deviceForUpdate) {
-      deviceForUpdate = await this.deviceService.findBySerialNumber(
-        serialNumber,
-        user.organizationId,
-      );
-      lookupBy = 'serialNumber';
-    }
+    // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
+    const deviceForUpdate = await this.deviceService.resolveDeviceKey(
+      serialNumber,
+      user.organizationId,
+    );
     if (!deviceForUpdate) {
       throw new NotFoundException(`No device found with identifier "${serialNumber}"`);
     }
 
+    // Pass the resolved externalId so update()'s inner lookup hits on the first try.
     const result = await this.deviceService.update(
       user.organizationId,
       user.role,
-      lookupBy === 'externalId' ? deviceForUpdate.serialNumber || serialNumber : serialNumber,
+      deviceForUpdate.externalId,
       deviceToUpdate,
     );
 
     if (files) {
-      // Primary: try externalId first (globally unique)
-      let existingDevice = await this.deviceService.findByExternalId(
+      // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
+      const existingDevice = await this.deviceService.resolveDeviceKey(
         result.externalId || serialNumber,
+        user.organizationId,
       );
-      // Fallback: try serialNumber (scoped to org)
-      if (!existingDevice) {
-        existingDevice = await this.deviceService.findBySerialNumber(
-          result.serialNumber || serialNumber,
-          user.organizationId,
-        );
-      }
 
       if (existingDevice) {
         // §3.3.3: block document changes after review approval
@@ -1317,13 +1302,11 @@ export class DeviceController {
       this.logger.error(`Currently not in dev environment`);
       throw new HttpException('Currently not in dev environment', 400);
     }
-    // Primary: try externalId first (globally unique)
-    let device: DeviceDTO | null =
-      await this.deviceService.findByExternalId(serialNumber);
-    // Fallback: try serialNumber (scoped to org)
-    if (!device) {
-      device = await this.deviceService.findBySerialNumber(serialNumber, organizationId);
-    }
+    // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
+    const device: DeviceDTO | null = await this.deviceService.resolveDeviceKey(
+      serialNumber,
+      organizationId,
+    );
     if (!device) {
       this.logger.error(`Device doesn't exist`);
       throw new HttpException("Device doesn't exist", 400);

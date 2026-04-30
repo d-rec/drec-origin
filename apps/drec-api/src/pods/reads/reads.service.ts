@@ -888,16 +888,12 @@ export class ReadsService {
       });
     }
 
-    // Primary: try externalId first (globally unique)
-    let device: DeviceDTO | null =
-      await this.deviceService.findByExternalId(deviceSerialNumber);
-    // Fallback: try serialNumber (scoped to org)
-    if (!device) {
-      device = await this.deviceService.findBySerialNumber(
+    // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
+    const device: DeviceDTO | null =
+      await this.deviceService.resolveDeviceKey(
         deviceSerialNumber,
         organizationId,
       );
-    }
     if (device === null) {
       this.logger.error(`Invalid device id`);
       throw new ConflictException({

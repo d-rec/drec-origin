@@ -575,6 +575,47 @@ export class DeviceService {
     return device;
   }
 
+  /**
+   * Like findBySiteName but only returns a match when the (siteName, org) pair
+   * is unique — otherwise null. Used by resolveDeviceKey for ambiguous external
+   * keys where returning any-matching-row would be unsafe.
+   */
+  async findUniqueBySiteName(
+    siteName: string,
+    organizationId: number,
+  ): Promise<Device | null> {
+    const matches = await this.repository.find({
+      where: { siteName, organizationId },
+      take: 2,
+    });
+    return matches.length === 1 ? matches[0] : null;
+  }
+
+  /**
+   * Resolve an external device key into a Device. Order:
+   *   1. externalId (globally unique UUID)
+   *   2. siteName (org-scoped) — only if it uniquely identifies one device
+   *   3. serialNumber (deprecated; logs warning so we can plan removal)
+   */
+  async resolveDeviceKey(
+    key: string,
+    organizationId: number,
+  ): Promise<Device | null> {
+    const byExternal = await this.findByExternalId(key);
+    if (byExternal) return byExternal;
+
+    const bySite = await this.findUniqueBySiteName(key, organizationId);
+    if (bySite) return bySite;
+
+    const bySerial = await this.findBySerialNumber(key, organizationId);
+    if (bySerial) {
+      this.logger.warn(
+        `resolveDeviceKey: deprecated serial-number lookup hit (key="${key}", org=${organizationId})`,
+      );
+    }
+    return bySerial;
+  }
+
   async findMultipleDevicesBasedExternalId(
     meterIdList: Array<string>,
     organizationId: number,
