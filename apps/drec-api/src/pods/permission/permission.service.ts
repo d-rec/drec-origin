@@ -78,8 +78,7 @@ export class PermissionService {
         permissionValue: permissionValue,
       });
       if (
-        (loggedInUser.role === Role.Registrant &&
-          data.entityType != 'Role') ||
+        (loggedInUser.role === Role.Registrant && data.entityType != 'Role') ||
         loggedInUser.role === Role.Admin ||
         loggedInUser.role === Role.Registrant
       ) {

@@ -137,9 +137,7 @@ export class ChatController {
 
   @Get('unread-devices/:email')
   @ApiOperation({ summary: 'Get device site names with unread messages' })
-  async getUnreadDeviceNames(
-    @Param('email') email: string,
-  ): Promise<string[]> {
+  async getUnreadDeviceNames(@Param('email') email: string): Promise<string[]> {
     return this.chatService.getUnreadDeviceNames(email);
   }
 

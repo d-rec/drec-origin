@@ -9,8 +9,6 @@ import {
 } from '../bulk-upload/bulk-uploads.entity';
 import { DeviceGroupService } from './device-group.service';
 import { Queues } from '../../utils/enums/queues.enum';
-import { DeviceFiles } from '../device/dto';
-import { DocumentType } from '../document-uploads/entities/documents.entity';
 
 @Processor(Queues.DeviceBulkUpload)
 export class DeviceBulkUploadProcessor {
@@ -42,17 +40,6 @@ export class DeviceBulkUploadProcessor {
     this.logger.log(
       `[BULK-TIMING] jobId=${job.id} bulkUpload lookup=${Date.now() - tLookup}ms`,
     );
-    const files: DeviceFiles = {
-      [DocumentType.FORM_SF_02]: [],
-      [DocumentType.SF_02C]: [],
-      [DocumentType.SF_02C_OWNERS_DECLARATION]: [],
-      [DocumentType.METERING_EVIDENCE]: [],
-      [DocumentType.SINGLE_LINE_DIAGRAM]: [],
-      [DocumentType.PROJECT_PHOTOS]: [],
-      [DocumentType.COD_PROOF]: [],
-      [DocumentType.OTHER_DOCUMENTS]: [],
-    };
-
     if (!bulkUpload) {
       this.logger.error(`Bulk upload not found for jobId: ${job.id}`);
       return;
@@ -68,7 +55,6 @@ export class DeviceBulkUploadProcessor {
         fileContent,
         bulkUpload.organizationId,
         bulkUpload,
-        files,
       );
       this.logger.log(
         `[BULK-TIMING] jobId=${job.id} CSV processing=${Date.now() - tCsv}ms, total=${Date.now() - tStart}ms`,

@@ -51,14 +51,42 @@ export class SeedMissingRolePermissions1759900300000
     // --- 4. Fix DeviceOwner: grant same permissions as OrgAdmin ---
     const modules = [
       { name: 'USER_MANAGEMENT_CRUDL', perms: 'Read,Write,Update', value: 7 },
-      { name: 'ORGANIZATION_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { name: 'FILE_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { name: 'DEVICE_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { name: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { name: 'DEVICE_BULK_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { name: 'READS_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
+      {
+        name: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        name: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        name: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        name: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        name: 'DEVICE_BULK_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        name: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
       { name: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
-      { name: 'INVITATION_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
+      {
+        name: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
       { name: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
     ];
 
@@ -104,6 +132,8 @@ export class SeedMissingRolePermissions1759900300000
         AND "entityId" = (SELECT id FROM "user_role" WHERE name = 'MarketIntermediary')
         AND "aclmodulesId" IN (SELECT id FROM "aclmodules" WHERE name IN ('ORGANIZATION_MANAGEMENT_CRUDL', 'USER_MANAGEMENT_CRUDL'))
     `);
-    await queryRunner.query(`DELETE FROM "user_role" WHERE "name" = 'SiteOperator'`);
+    await queryRunner.query(
+      `DELETE FROM "user_role" WHERE "name" = 'SiteOperator'`,
+    );
   }
 }

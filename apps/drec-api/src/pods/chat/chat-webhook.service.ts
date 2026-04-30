@@ -24,8 +24,7 @@ export class ChatWebhookService {
     organizationId: number | null,
     dto: CreateWebhookDto,
   ): Promise<ChatWebhook> {
-    const secret =
-      dto.secret || crypto.randomBytes(32).toString('hex');
+    const secret = dto.secret || crypto.randomBytes(32).toString('hex');
 
     const webhook = this.webhookRepository.create({
       userId,
@@ -70,11 +69,7 @@ export class ChatWebhookService {
   async remove(id: number): Promise<void> {
     const webhook = await this.findOne(id);
     await this.webhookRepository.remove(webhook);
-    typedLog(
-      this.logger,
-      'chat',
-      `Webhook ${id} deleted`,
-    );
+    typedLog(this.logger, 'chat', `Webhook ${id} deleted`);
   }
 
   async dispatch(event: string, payload: Record<string, any>): Promise<void> {

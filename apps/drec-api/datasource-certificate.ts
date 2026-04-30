@@ -22,9 +22,7 @@ const migrationClasses = fs
   .filter((f) => f.endsWith('.js') && !f.endsWith('.d.js'))
   .flatMap((f) => {
     const exports = require(path.join(migrationsDir, f));
-    return Object.values(exports).filter(
-      (v) => typeof v === 'function',
-    );
+    return Object.values(exports).filter((v) => typeof v === 'function');
   });
 
 export default new DataSource({ ...config, migrations: migrationClasses });

@@ -27,14 +27,16 @@ class FeaturedSitesIpRateLimitGuard implements CanActivate {
 
   canActivate(ctx: ExecutionContext): boolean {
     const req: any = ctx.switchToHttp().getRequest();
-    const ip: string =
-      req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip: string = req.ip || req.connection?.remoteAddress || 'unknown';
     const now = Date.now();
     const recent = (this.hits.get(ip) || []).filter(
       (t: number) => now - t < this.windowMs,
     );
     if (recent.length >= this.max) {
-      throw new HttpException('Too many requests', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'Too many requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
     recent.push(now);
     this.hits.set(ip, recent);

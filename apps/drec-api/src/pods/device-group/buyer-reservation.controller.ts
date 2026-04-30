@@ -181,7 +181,8 @@ export class BuyerReservationController {
           );
           throw new UnauthorizedException({
             success: false,
-            message: 'An registrant is unauthorized to request for other registrant',
+            message:
+              'An registrant is unauthorized to request for other registrant',
           });
         }
       }
@@ -192,7 +193,8 @@ export class BuyerReservationController {
         );
         throw new UnauthorizedException({
           success: false,
-          message: 'The requested organization is not belongs to the registrant',
+          message:
+            'The requested organization is not belongs to the registrant',
         });
       }
     }
@@ -589,10 +591,7 @@ export class BuyerReservationController {
     @Body('status') status: GroupReviewStatus,
   ): Promise<DeviceGroupDTO> {
     this.logger.verbose(`With in updateGroupReviewStatus`);
-    if (
-      !status ||
-      !Object.values(GroupReviewStatus).includes(status)
-    ) {
+    if (!status || !Object.values(GroupReviewStatus).includes(status)) {
       throw new BadRequestException({
         success: false,
         message: `Invalid review status. Must be one of: ${Object.values(GroupReviewStatus).join(', ')}`,

@@ -15,7 +15,7 @@ export class MergeScreenshotsIntoMeteringEvidence1761600000000
     `);
   }
 
-  public async down(_queryRunner: QueryRunner): Promise<void> {
+  public async down(): Promise<void> {
     // Merge is intentionally one-way — no reliable way to re-split rows by
     // original source once they've been reclassified.
   }

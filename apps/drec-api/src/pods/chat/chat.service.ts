@@ -273,14 +273,10 @@ export class ChatService {
     // (a message exists after their lastReadAt)
     const rows = await this.conversationRepository
       .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
+      .innerJoin(Chat, 'latest', 'latest.uuid = conv."lastEntryUuid"')
       .where(
         '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+          '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
         { email },
       )
       // Exclude conversations where the latest message is from the user themselves
@@ -316,16 +312,12 @@ export class ChatService {
   async getUnreadDeviceNames(email: string): Promise<string[]> {
     const rows = await this.conversationRepository
       .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
+      .innerJoin(Chat, 'latest', 'latest.uuid = conv."lastEntryUuid"')
       .select('conv."deviceSiteName"', 'deviceSiteName')
       .where('conv."deviceSiteName" IS NOT NULL')
       .andWhere(
         '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+          '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
         { email },
       )
       .andWhere('latest.username != :email', { email })

@@ -215,9 +215,7 @@ export class ReadsController {
         user.role === Role.Registrant &&
         user.organizationId != filter.organizationId
       ) {
-        this.logger.error(
-          `You cannot view the reads of another organization`,
-        );
+        this.logger.error(`You cannot view the reads of another organization`);
         throw new BadRequestException({
           success: false,
           message: `You cannot view the reads of another organization`,
@@ -228,9 +226,7 @@ export class ReadsController {
         user.role != Role.Admin &&
         user.api_user_id != organization.api_user_id
       ) {
-        this.logger.error(
-          `You cannot view the reads of another API user`,
-        );
+        this.logger.error(`You cannot view the reads of another API user`);
         throw new BadRequestException({
           success: false,
           message: `You cannot view the reads of another API user`,

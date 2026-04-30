@@ -5,7 +5,10 @@ export const parseMetadata = (
     if (typeof metadata !== 'string') return metadata;
     return JSON.parse(metadata);
   } catch (e) {
-    console.error(e, `certificate doesnt contains valid metadata ${JSON.stringify(metadata)}`);
+    console.error(
+      e,
+      `certificate doesnt contains valid metadata ${JSON.stringify(metadata)}`,
+    );
     return null;
   }
 };

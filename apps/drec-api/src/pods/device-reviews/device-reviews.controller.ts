@@ -121,7 +121,13 @@ export class DeviceReviewsController {
     @Body() body: { readId: number; reason: string; reviewer?: string },
     @Req() req: Request,
   ): Promise<{ logged: boolean }> {
-    return this.service.flagMeterRead(deviceId, body.readId, body.reason, body.reviewer, req.ip);
+    return this.service.flagMeterRead(
+      deviceId,
+      body.readId,
+      body.reason,
+      body.reviewer,
+      req.ip,
+    );
   }
 
   @Post('meter-reads/:deviceId/gap-analysis')
@@ -201,11 +207,15 @@ export class DeviceReviewsController {
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
-  @ApiOperation({ summary: 'Run auto-screen on multiple devices (or all unscreened)' })
+  @ApiOperation({
+    summary: 'Run auto-screen on multiple devices (or all unscreened)',
+  })
   @ApiResponse({ status: 200, description: 'Screen results per device' })
   bulkAutoScreen(
     @Body('deviceIds') deviceIds?: number[],
-  ): Promise<Array<{ deviceId: number; overallStatus: string; error?: string }>> {
+  ): Promise<
+    Array<{ deviceId: number; overallStatus: string; error?: string }>
+  > {
     return this.service.bulkAutoScreen(deviceIds);
   }
 
@@ -227,9 +237,7 @@ export class DeviceReviewsController {
   @ApiOperation({ summary: 'Delete a document from DB and S3' })
   @ApiResponse({ status: 204, description: 'Document deleted' })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async deleteDocument(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
+  async deleteDocument(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.service.deleteDocument(id);
   }
 
@@ -477,9 +485,7 @@ export class DeviceReviewsController {
       'D-REC VA layer: Aggregates ownership, duplicates, source-access, consistency, ceiling, cross-source, photo GPS, and compensating controls into one report.',
   })
   @ApiResponse({ status: 200, description: 'Auto-screen report' })
-  autoScreen(
-    @Param('deviceId', ParseIntPipe) deviceId: number,
-  ): Promise<any> {
+  autoScreen(@Param('deviceId', ParseIntPipe) deviceId: number): Promise<any> {
     return this.service.autoScreenReport(deviceId);
   }
 
@@ -541,7 +547,10 @@ export class DeviceReviewsController {
     description:
       'Reverse-geocodes the device coordinates and compares to the declared country. Points inside curated disputed-territory polygons are never auto-rejected — they are surfaced for reviewer judgment with both claims shown.',
   })
-  @ApiResponse({ status: 200, description: 'Country match verification result' })
+  @ApiResponse({
+    status: 200,
+    description: 'Country match verification result',
+  })
   verifyCountryMatch(
     @Param('deviceId', ParseIntPipe) deviceId: number,
   ): Promise<any> {
@@ -554,12 +563,11 @@ export class DeviceReviewsController {
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Preview SF-02 data before generation',
-    description: 'Returns the fields and document status that will be included in the SF-02 registration form.',
+    description:
+      'Returns the fields and document status that will be included in the SF-02 registration form.',
   })
   @ApiResponse({ status: 200, description: 'SF-02 preview data' })
-  previewSf02(
-    @Param('deviceId', ParseIntPipe) deviceId: number,
-  ): Promise<any> {
+  previewSf02(@Param('deviceId', ParseIntPipe) deviceId: number): Promise<any> {
     return this.service.previewSf02(deviceId);
   }
 
@@ -572,7 +580,10 @@ export class DeviceReviewsController {
     description:
       'Creates a PDF registration form from device data, uploads it to S3, and saves it as a FORM_SF_02 document.',
   })
-  @ApiResponse({ status: 201, description: 'Generated SF-02 URL and document ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'Generated SF-02 URL and document ID',
+  })
   generateSf02(
     @Param('deviceId', ParseIntPipe) deviceId: number,
   ): Promise<{ url: string; docId: number }> {

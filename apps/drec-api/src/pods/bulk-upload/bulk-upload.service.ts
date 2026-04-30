@@ -65,9 +65,7 @@ export class BulkUploadService {
       };
       const s3Upload = await this.fileService.upload(multerFile);
 
-      const contentHash = createHash('sha256')
-        .update(file.data)
-        .digest('hex');
+      const contentHash = createHash('sha256').update(file.data).digest('hex');
 
       const jobId = await this.createJob(bulkUploadType, file, s3Upload);
 

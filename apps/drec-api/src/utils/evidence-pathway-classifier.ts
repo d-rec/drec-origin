@@ -1,5 +1,12 @@
-import { OperatingConfiguration, SourceAccessMode, EvidencePathway } from './enums';
-import { EvidenceRequirements, getEvidenceRequirements } from './evidence-requirements';
+import {
+  OperatingConfiguration,
+  SourceAccessMode,
+  EvidencePathway,
+} from './enums';
+import {
+  EvidenceRequirements,
+  getEvidenceRequirements,
+} from './evidence-requirements';
 import {
   ModeVerificationRule,
   getSourceAccessVerification,

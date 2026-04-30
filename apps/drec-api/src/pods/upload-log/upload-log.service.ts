@@ -90,9 +90,7 @@ export class UploadLogService {
         fileName: null,
         fileSizeBytes: null,
         fileHashSha256: null,
-        payloadHashSha256: createHash('sha256')
-          .update(canonical)
-          .digest('hex'),
+        payloadHashSha256: createHash('sha256').update(canonical).digest('hex'),
         ipAddress: params.ipAddress ?? null,
         userAgent: params.userAgent ?? null,
         metadata: params.metadata ?? null,

@@ -81,8 +81,7 @@ export class WithoutAuthGuard implements CanActivate {
 
   private async resolveRegisterUser(request: any): Promise<IUser> {
     const adminUser = await this.userService.findOne({ role: Role.Admin });
-    const isBuyer =
-      request.body.organizationType === OrganizationType.Buyer;
+    const isBuyer = request.body.organizationType === OrganizationType.Buyer;
     const isSiteOperator =
       request.body.organizationType === OrganizationType.SiteOperator;
 
@@ -109,7 +108,8 @@ export class WithoutAuthGuard implements CanActivate {
     }
 
     if (request.body.organizationType === OrganizationType.Registrant) {
-      const registrant = await this.oauthClientCredentialsService.createRegistrant();
+      const registrant =
+        await this.oauthClientCredentialsService.createRegistrant();
       request.body.api_user_id = registrant.api_user_id;
     }
 
@@ -122,8 +122,7 @@ export class WithoutAuthGuard implements CanActivate {
     user: IUser,
   ): Promise<void> {
     const skipRoleCheck =
-      pathSegment === UrlPath.ResetPassword ||
-      pathSegment === UrlPath.Login;
+      pathSegment === UrlPath.ResetPassword || pathSegment === UrlPath.Login;
 
     if (skipRoleCheck || request.body.organizationType !== undefined) {
       return;

@@ -466,7 +466,8 @@ export class UserController {
   @UseGuards(AuthGuard(['jwt', 'oauth2-client-password']))
   @ApiOperation({
     summary: 'Delete own account',
-    description: 'Permanently deletes the authenticated user account. Admin accounts cannot be deleted this way.',
+    description:
+      'Permanently deletes the authenticated user account. Admin accounts cannot be deleted this way.',
   })
   @ApiResponse({
     status: HttpStatus.OK,

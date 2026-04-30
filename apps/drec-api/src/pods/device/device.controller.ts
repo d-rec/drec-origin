@@ -687,7 +687,8 @@ export class DeviceController {
     @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    let { organizationId, role, api_user_id } = user;
+    let { organizationId, api_user_id } = user;
+    const { role } = user;
     // Dual-path: multipart sends device data in `deviceToRegister` field;
     // plain JSON sends it directly as the body.
     const deviceToRegister = (
@@ -1077,9 +1078,7 @@ export class DeviceController {
             checkDevice.createdAt,
           );
 
-        if (
-          deviceToUpdate.commissioningDate != checkDevice.commissioningDate
-        ) {
+        if (deviceToUpdate.commissioningDate != checkDevice.commissioningDate) {
           if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
             this.logger.error(
               `Commissioning date cannot be changed due to existing meter reads available for ${checkDevice.serialNumber}`,
@@ -1099,7 +1098,9 @@ export class DeviceController {
       user.organizationId,
     );
     if (!deviceForUpdate) {
-      throw new NotFoundException(`No device found with identifier "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with identifier "${serialNumber}"`,
+      );
     }
 
     // Pass the resolved externalId so update()'s inner lookup hits on the first try.

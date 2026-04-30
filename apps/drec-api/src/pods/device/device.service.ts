@@ -140,9 +140,7 @@ export class DeviceService {
    * Screen a device for potential duplicates across all organizations.
    * Checks: coordinate proximity (< 100m), serial number match, fingerprint match.
    */
-  async screenForDuplicates(
-    deviceId: number,
-  ): Promise<{
+  async screenForDuplicates(deviceId: number): Promise<{
     duplicates: Array<{
       id: number;
       externalId: string;
@@ -196,7 +194,10 @@ export class DeviceService {
         [device.latitude, device.longitude, device.id],
       );
       nearbyDevices.forEach((d) =>
-        duplicates.push({ ...d, matchType: `coordinates (${Math.round(d.distance_m)}m)` }),
+        duplicates.push({
+          ...d,
+          matchType: `coordinates (${Math.round(d.distance_m)}m)`,
+        }),
       );
     }
 
@@ -207,7 +208,13 @@ export class DeviceService {
           serialNumber: device.serialNumber,
           id: Not(device.id),
         },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
+        select: [
+          'id',
+          'externalId',
+          'siteName',
+          'serialNumber',
+          'organizationId',
+        ],
       });
       serialMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
@@ -230,7 +237,13 @@ export class DeviceService {
           fingerprint: device.fingerprint,
           id: Not(device.id),
         },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
+        select: [
+          'id',
+          'externalId',
+          'siteName',
+          'serialNumber',
+          'organizationId',
+        ],
       });
       fpMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
@@ -875,7 +888,8 @@ export class DeviceService {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
+          [DocumentType.SF_02C_OWNERS_DECLARATION]:
+            DocumentType.SF_02C_OWNERS_DECLARATION,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
@@ -971,7 +985,9 @@ export class DeviceService {
 
     if (!currentDevice) {
       this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);
-      throw new NotFoundException(`No device found with ${lookupBy} "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with ${lookupBy} "${serialNumber}"`,
+      );
     }
 
     if (updateDeviceDTO.siteName) {
@@ -1023,10 +1039,12 @@ export class DeviceService {
     const fingerprint = generateDeviceFingerprint({
       latitude: updateDeviceDTO.latitude ?? currentDevice.latitude,
       longitude: updateDeviceDTO.longitude ?? currentDevice.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
+      commissioningDate:
+        updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
       capacity: updateDeviceDTO.capacity ?? currentDevice.capacity,
       fuelCode: updateDeviceDTO.fuelCode ?? currentDevice.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
+      deviceTypeCode:
+        updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
       serialNumber: updateDeviceDTO.serialNumber ?? currentDevice.serialNumber,
     });
 

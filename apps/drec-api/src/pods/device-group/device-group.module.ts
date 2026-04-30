@@ -57,7 +57,11 @@ import { ReservationExpiryCron } from './reservation-expiry.cron';
     forwardRef(() => BulkUploadModule),
     forwardRef(() => EvidentModule),
   ],
-  providers: [DeviceGroupService, DeviceBulkUploadProcessor, ReservationExpiryCron],
+  providers: [
+    DeviceGroupService,
+    DeviceBulkUploadProcessor,
+    ReservationExpiryCron,
+  ],
   exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })

@@ -30,8 +30,6 @@ export class AddFacilityTechnicalFieldsToDevice1759960000000
     await queryRunner.query(
       `ALTER TABLE "device" DROP COLUMN "generating_unit_count";`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "device" DROP COLUMN "meter_ids";`,
-    );
+    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "meter_ids";`);
   }
 }

@@ -716,9 +716,7 @@ export class CertificateLogService {
                 }
                 let deviceLog;
                 if (role === 'Registrant') {
-                  if (
-                    group.orgDeviceIds.find((ele) => ele === deviceId)
-                  ) {
+                  if (group.orgDeviceIds.find((ele) => ele === deviceId)) {
                     this.logger.log('oldlog exists for operator device');
                     // const deviceLog =
                     //   await this.getCheckCertificateIssueDateLogForDevice(
@@ -886,9 +884,7 @@ export class CertificateLogService {
                   }
                   let deviceLog;
                   if (role === 'Registrant') {
-                    if (
-                      group.orgDeviceIds.find((ele) => ele === device.id)
-                    ) {
+                    if (group.orgDeviceIds.find((ele) => ele === device.id)) {
                       deviceLog =
                         await this.getCheckCertificateIssueDateLogForDevice(
                           parseInt(group.dg_id),
