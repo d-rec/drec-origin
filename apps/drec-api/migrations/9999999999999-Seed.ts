@@ -38,11 +38,18 @@ export class Seed9999999999999 implements MigrationInterface {
 
     await this.seedUsersRole(queryRunner);
     await this.seedAdmin(queryRunner);
+    // seedAdmin inserts user.id=1 and organization.id=1 with hard-coded ids,
+    // so the sequences are not advanced. Bump them now, before the seeders
+    // below insert without an explicit id and would otherwise collide on id=1.
+    await this.bumpUserAndOrgSequences(queryRunner);
     await this.seedRegistrant(queryRunner);
     await this.seedReviewer(queryRunner);
     await this.seedBuyer(queryRunner);
     await this.seedACLModules(queryRunner);
     await this.seedCertificateSetting(queryRunner); //set default no_of_days for generate certificate last day
+  }
+
+  private async bumpUserAndOrgSequences(queryRunner: QueryRunner) {
     await queryRunner.query(
       `SELECT setval(
         pg_get_serial_sequence('public.organization', 'id'),
@@ -248,10 +255,10 @@ export class Seed9999999999999 implements MigrationInterface {
     }
   }
   private async seedRegistrant(queryRunner: QueryRunner) {
-    const email = process.env.APIUSER_EMAIL;
-    const pass = process.env.APIUSER_PASSWORD;
+    const email = process.env.REGISTRANT_EMAIL;
+    const pass = process.env.REGISTRANT_PASSWORD;
     if (!email || !pass) {
-      this.logger.verbose('APIUSER_EMAIL / APIUSER_PASSWORD not set — skipping registrant seed.');
+      this.logger.verbose('REGISTRANT_EMAIL / REGISTRANT_PASSWORD not set — skipping registrant seed.');
       return;
     }
 

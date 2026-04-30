@@ -112,7 +112,7 @@ The local dev environment is seeded with the following accounts:
 | Reviewer | `joe.reviewer@mail.local` | `D0ntc4r3` | Reviews device submissions, approves/rejects documents |
 | Buyer | `jane.buyer@mail.local` | `D0ntc4r3` | Purchases D-RECs, views certificate marketplace |
 
-> Credentials are set via `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `APIUSER_EMAIL`/`APIUSER_PASSWORD`, `REVIEWER_EMAIL`/`REVIEWER_PASSWORD`, and `BUYER_EMAIL`/`BUYER_PASSWORD` in `.env`.
+> Credentials are set via `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `REGISTRANT_EMAIL`/`REGISTRANT_PASSWORD`, `REVIEWER_EMAIL`/`REVIEWER_PASSWORD`, and `BUYER_EMAIL`/`BUYER_PASSWORD` in `.env`.
 
 Local service UIs:
 
