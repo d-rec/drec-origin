@@ -114,16 +114,17 @@ export class Seed9999999999999 implements MigrationInterface {
       (RoleJSON as unknown as IRoleConfig[]).map(async (role) => {
         queryRunner.query(
           `INSERT INTO public.user_role (
-            "id", 
-            "name", 
-            "description", 
-            "status" 
+            "id",
+            "name",
+            "description",
+            "status"
             ) VALUES (
-              '${role.id}', 
-              '${role.name}', 
-              '${role.description}', 
+              '${role.id}',
+              '${role.name}',
+              '${role.description}',
               '${role.status}'
-            )`,
+            )
+            ON CONFLICT DO NOTHING`,
         );
       }),
     );
@@ -389,7 +390,7 @@ export class Seed9999999999999 implements MigrationInterface {
       'Active',
       'Reviewer',
       1,
-      1,
+      8,
       '${apiUserId}',
       '0001-01-01T00:00:00Z',
       '${new Date().toISOString()}',
