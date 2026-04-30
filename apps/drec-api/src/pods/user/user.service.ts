@@ -202,8 +202,7 @@ export class UserService {
         data.api_user_id,
       );
       const isReviewer =
-        data.role === Role.Reviewer ||
-        data.role === Role.SeniorReviewer;
+        data.role === Role.Reviewer || data.role === Role.SeniorReviewer;
       let orgId;
       if (isReviewer) {
         // Reviewers join the admin's organization
@@ -255,8 +254,7 @@ export class UserService {
         where: { name: role },
       });
       const roleId = roleRecord?.id;
-      const reviewerWithInvite =
-        isReviewer && data.emailNotification;
+      const reviewerWithInvite = isReviewer && data.emailNotification;
 
       const user = await this.repository.save({
         firstName: data.firstName,
@@ -313,8 +311,10 @@ export class UserService {
   }
 
   public async checkForExistingUser(email: string): Promise<void> {
-    // Duplicate emails are permitted — different orgs/roles may share an email
-    return;
+    // Duplicate emails are permitted — different orgs/roles may share an email.
+    // Param retained because callers + tests pass it; this stub is a back-compat
+    // seam in case uniqueness rules return.
+    void email;
   }
 
   public async getAll(options?: FindManyOptions<User>): Promise<IUser[]> {
@@ -328,7 +328,9 @@ export class UserService {
     }
 
     if (user.role === Role.Registrant) {
-      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
+      const registrant = await this.getRegistrantPermissionStatus(
+        user.api_user_id,
+      );
       user['permission_status'] = registrant.permission_status;
     }
     return user;
@@ -543,62 +545,162 @@ export class UserService {
     { module: string; perms: string; value: number }[]
   > = {
     Reviewer: [
-      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update',
+        value: 7,
+      },
+      { module: 'USER_MANAGEMENT_CRUDL', perms: 'Read,Write,Update', value: 7 },
+      {
+        module: 'CHAT_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
     ],
     SeniorReviewer: [
-      { module: 'DEVICE_MANAGEMENT_CRUDL',         perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
+      { module: 'DEVICE_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update',
+        value: 7,
+      },
+      { module: 'USER_MANAGEMENT_CRUDL', perms: 'Read,Write,Update', value: 7 },
+      {
+        module: 'CHAT_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
     ],
     Registrant: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
-      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write',               value: 3  },
-      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+      {
+        module: 'USER_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      {
+        module: 'DEVICE_BULK_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
+      {
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      {
+        module: 'SUBMISSION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'CHAT_MANAGEMENT_CRUDL', perms: 'Read,Write', value: 3 },
     ],
     Buyer: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read',                     value: 1  },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+      { module: 'USER_MANAGEMENT_CRUDL', perms: 'Read,Write,Update', value: 7 },
+      { module: 'ORGANIZATION_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
+      { module: 'CHAT_MANAGEMENT_CRUDL', perms: 'Read,Write', value: 3 },
     ],
     SubBuyer: [
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+      {
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
+      { module: 'CHAT_MANAGEMENT_CRUDL', perms: 'Read,Write', value: 3 },
     ],
     SiteOperator: [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update',        value: 7  },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write',               value: 3  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write,Update',        value: 7  },
-      { module: 'CHAT_MANAGEMENT_CRUDL',            perms: 'Read,Write',               value: 3  },
+      { module: 'USER_MANAGEMENT_CRUDL', perms: 'Read,Write,Update', value: 7 },
+      {
+        module: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_BULK_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
+      { module: 'SUBMISSION_MANAGEMENT_CRUDL', perms: 'Read,Write', value: 3 },
+      {
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update',
+        value: 7,
+      },
+      { module: 'CHAT_MANAGEMENT_CRUDL', perms: 'Read,Write', value: 3 },
     ],
   };
 
@@ -742,7 +844,8 @@ export class UserService {
       data.status === UserStatus.Active
     ) {
       const loginUrl =
-        this.configService.get<string>('UI_BASE_URL') || 'https://portal.drecs.org';
+        this.configService.get<string>('UI_BASE_URL') ||
+        'https://portal.drecs.org';
       this.mailService
         .send({
           to: updateUser.email,
@@ -753,7 +856,10 @@ export class UserService {
           }),
         })
         .catch((err) =>
-          this.logger.error(`Failed to send approval email to ${updateUser.email}`, err),
+          this.logger.error(
+            `Failed to send approval email to ${updateUser.email}`,
+            err,
+          ),
         );
     }
 
@@ -781,7 +887,9 @@ export class UserService {
       });
     }
     if (user.role === Role.Registrant) {
-      const registrant = await this.getRegistrantPermissionStatus(user.api_user_id);
+      const registrant = await this.getRegistrantPermissionStatus(
+        user.api_user_id,
+      );
       user['permission_status'] = registrant.permission_status;
     }
     return user;

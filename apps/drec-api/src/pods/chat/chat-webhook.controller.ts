@@ -34,7 +34,9 @@ function sanitizeWebhook(webhook: ChatWebhook): any {
   return {
     ...rest,
     secret: maskSecret(webhook.secret),
-    userName: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || null : null,
+    userName: user
+      ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || null
+      : null,
     userEmail: user?.email ?? null,
   };
 }

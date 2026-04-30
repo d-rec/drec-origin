@@ -22,8 +22,6 @@ export class AddGroupReviewStatusToDeviceGroup1757000000021
     await queryRunner.query(
       `ALTER TABLE "device_group" DROP COLUMN IF EXISTS "group_review_status"`,
     );
-    await queryRunner.query(
-      `DROP TYPE IF EXISTS "group_review_status_enum"`,
-    );
+    await queryRunner.query(`DROP TYPE IF EXISTS "group_review_status_enum"`);
   }
 }

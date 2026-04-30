@@ -79,9 +79,7 @@ export class OrgApiLicensesService {
     return this.repository.save(record);
   }
 
-  async findMasked(
-    organizationId: number,
-  ): Promise<{
+  async findMasked(organizationId: number): Promise<{
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
@@ -106,9 +104,7 @@ export class OrgApiLicensesService {
     };
   }
 
-  async findDecrypted(
-    organizationId: number,
-  ): Promise<{
+  async findDecrypted(organizationId: number): Promise<{
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
@@ -201,7 +197,11 @@ export class OrgApiLicensesService {
 
     if (!adminOrgId) {
       this.logger.warn('No Admin user found — platform API keys unavailable');
-      return { roboflowApiKey: null, roboflowWorkflowUrl: null, deeplApiKey: null };
+      return {
+        roboflowApiKey: null,
+        roboflowWorkflowUrl: null,
+        deeplApiKey: null,
+      };
     }
 
     const result = await this.findDecrypted(adminOrgId);

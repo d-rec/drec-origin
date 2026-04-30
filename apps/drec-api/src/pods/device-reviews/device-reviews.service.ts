@@ -1218,9 +1218,7 @@ export class DeviceReviewsService {
     );
 
     const gsaYieldPerKw =
-      solarGsa && capacityKw > 0
-        ? solarGsa.annualKwh / capacityKw
-        : undefined;
+      solarGsa && capacityKw > 0 ? solarGsa.annualKwh / capacityKw : undefined;
     const ceilingYield =
       irradiance?.yieldHigh ?? gsaYieldPerKw ?? configuredYield ?? 1500;
     const recentReadings = readRows.map((r: any) => {

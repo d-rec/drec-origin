@@ -23,7 +23,9 @@ export class TranslateService {
     apiKey?: string,
   ): Promise<TranslateResult> {
     if (!apiKey) {
-      throw new BadRequestException('Translation is not configured — set the DeepL API key in Organization > Licenses');
+      throw new BadRequestException(
+        'Translation is not configured — set the DeepL API key in Organization > Licenses',
+      );
     }
 
     const host = apiKey.endsWith(':fx')

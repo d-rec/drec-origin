@@ -147,7 +147,11 @@ export class BulkUploadController {
     console.log('[BULK-UPLOAD] resolved organizationId', organizationId);
 
     const organization = await this.organizationService.findOne(organizationId);
-    console.log('[BULK-UPLOAD] org found', organization?.id, organization?.organizationType);
+    console.log(
+      '[BULK-UPLOAD] org found',
+      organization?.id,
+      organization?.organizationType,
+    );
     if (organization.organizationType !== OrganizationType.Registrant) {
       console.log('[BULK-UPLOAD] org not Registrant, rejecting');
       throw new UnauthorizedException(
@@ -182,7 +186,12 @@ export class BulkUploadController {
       organizationId,
       bulkUploadType,
     );
-    console.log('[BULK-UPLOAD] job created, id=', job?.id, 'jobId=', (job as any)?.jobId);
+    console.log(
+      '[BULK-UPLOAD] job created, id=',
+      job?.id,
+      'jobId=',
+      (job as any)?.jobId,
+    );
     return job;
   }
 
@@ -338,7 +347,12 @@ export class BulkUploadController {
   async getPreview(
     @Param('bulkUploadId') bulkUploadId: string,
     @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }> {
+  ): Promise<{
+    records: any[];
+    organizationId: number;
+    totalCsvRows: number;
+    skippedRows: number;
+  }> {
     const { records, organizationId, totalCsvRows, skippedRows } =
       await this.bulkUploadService.getBulkUploadPreview(bulkUploadId);
     await this.bulkUploadService.canManageBulkUploadJobs({
@@ -384,8 +398,7 @@ export class BulkUploadController {
   @Roles(Role.Admin, Role.SiteOperator, Role.Registrant)
   @ApiOperation({
     summary: 'Discard a staged bulk upload',
-    description:
-      'Deletes the staged preview without inserting any devices.',
+    description: 'Deletes the staged preview without inserting any devices.',
   })
   async discard(
     @Param('bulkUploadId') bulkUploadId: string,

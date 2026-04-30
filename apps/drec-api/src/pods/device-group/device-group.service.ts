@@ -967,7 +967,9 @@ export class DeviceGroupService {
 
     // D-REC §2.6: Screen for date-range overlap against historical issuance records
     if (group.reservationStartDate && group.reservationEndDate) {
-      const deviceExternalIds = devices.map((d) => d.externalId).filter(Boolean);
+      const deviceExternalIds = devices
+        .map((d) => d.externalId)
+        .filter(Boolean);
       if (deviceExternalIds.length > 0) {
         const startDate = new Date(group.reservationStartDate);
         const endDate = new Date(group.reservationEndDate);
@@ -1323,8 +1325,7 @@ export class DeviceGroupService {
       { status: BulkUploadStatus.Importing },
     );
 
-    const organization =
-      await this.organizationService.findOne(organizationId);
+    const organization = await this.organizationService.findOne(organizationId);
     const devicesRegistered = await this.registerCSVBulkDevices(
       organizationId,
       records,
@@ -1385,8 +1386,7 @@ export class DeviceGroupService {
         ele.status = 'Success';
       } else if (
         successfullyAddedRowsAndExternalIds.find(
-          (s) =>
-            s.serialNumber === ele.serialNumber && s.rowNumber === index,
+          (s) => s.serialNumber === ele.serialNumber && s.rowNumber === index,
         )
       ) {
         ele.status = 'Success with validation errors, please update fields';
@@ -1584,7 +1584,10 @@ export class DeviceGroupService {
       new Set(
         devices
           .map((d) =>
-            classifyEvidencePathway(d.operatingConfiguration as any, d.sourceAccessMode as any),
+            classifyEvidencePathway(
+              d.operatingConfiguration as any,
+              d.sourceAccessMode as any,
+            ),
           )
           .filter((p): p is EvidencePathway => p != null),
       ),
@@ -1660,7 +1663,6 @@ export class DeviceGroupService {
     file: Record<string, unknown> | any,
     organizationId: number,
     filesAddedForProcessing: BulkUploadEntity,
-    files: DeviceFiles,
   ): Promise<void | any> {
     this.logger.verbose(`With in processCsvFileAnotherLibrary`);
     this.logger.debug(file.data.Body.toString('utf-8'));
@@ -1678,182 +1680,208 @@ export class DeviceGroupService {
     this.csvStringToJSON(fileData);
 
     return new Promise<void>((resolve, reject) => {
-    CSVToJsonV2()
-      .fromString(fileData)
-      .subscribe(async (data: any) => {
-        rowsConvertedToCsvCount++;
+      CSVToJsonV2()
+        .fromString(fileData)
+        .subscribe(
+          async (data: any) => {
+            rowsConvertedToCsvCount++;
 
-        // Skip the template instruction/placeholder row
-        if (data.serialNumber === 'REPLACE_WITH_DEVICE_SERIAL_NUMBER' ||
-            data.countryCode === '3-letter country code') {
-          skippedRowCount++;
-          return;
-        }
-
-        data.images = [];
-        data.groupId = null;
-
-        // Normalise N/A and whitespace-only values to empty string
-        // so downstream logic treats them as missing.
-        for (const k of Object.keys(data)) {
-          if (typeof data[k] === 'string') {
-            data[k] = data[k].trim();
-            if (data[k].toUpperCase() === 'N/A') {
-              data[k] = '';
-            }
-          }
-        }
-
-        // Legacy template aliasing: older Evident-style CSV templates used
-        // different column names. Map them onto the current DTO field names
-        // if the canonical column isn't present.
-        if (!data.siteName && data.projectName) {
-          data.siteName = data.projectName;
-        }
-        if (!data.serialNumber && data['Evident Device ID']) {
-          data.serialNumber = data['Evident Device ID'];
-        }
-
-        // Synthesize a serial number when the original CSV says
-        // "NOT YET REGISTERED" (or is empty).
-        if (
-          !data.serialNumber ||
-          data.serialNumber.toUpperCase() === 'NOT YET REGISTERED'
-        ) {
-          const sitePart = (data.siteName || data.projectName || 'DEVICE')
-            .toUpperCase()
-            .replace(/[^A-Z0-9]/g, '')
-            .substring(0, 8);
-          data.serialNumber = `${sitePart}ES${String(rowsConvertedToCsvCount).padStart(5, '0')}`;
-        }
-
-        // Defaults for fields the legacy template doesn't include but which
-        // the DTO marks @IsNotEmpty. Registrants are always solar/OMC.
-        if (!data.dataSource) {
-          data.dataSource = 'OMC';
-        }
-        if (!data.dataSourceBrand) {
-          data.dataSourceBrand = 'OMC';
-        }
-        if (!data.deviceDescription) {
-          data.deviceDescription = DeviceDescription.GroundmountSolar;
-        }
-
-        const dataToStore: NewDeviceDTO = {
-          dataSourceBrand: '',
-          externalId: '',
-          siteName: '',
-          address: '',
-          latitude: '',
-          longitude: '',
-          countryCode: '',
-          fuelCode: FuelCode.ES100,
-          deviceTypeCode: DeviceTypeCode.TC150,
-          capacity: 0,
-          commissioningDate: '',
-          gridInterconnection: false,
-          offTaker: OffTaker.Commercial,
-          impactStory: '',
-          images: [],
-          deviceDescription: DeviceDescription.GroundmountSolar,
-          SDGBenefits: [],
-          version: '1.0',
-          dataSource: '',
-          otherDataSource: '',
-          serialNumber: '',
-        };
-        for (const key in dataToStore) {
-          if (key === 'SDGBenefits' || key === 'version') {
-            continue;
-          }
-          if (typeof dataToStore[key] === 'string') {
-            dataToStore[key] = data[key] ?? dataToStore[key];
-          } else if (typeof dataToStore[key] === 'boolean') {
-            dataToStore[key] = data[key]
-              ? String(data[key]).toLowerCase() === 'true'
-              : dataToStore[key];
-          } else if (typeof dataToStore[key] === 'number') {
-            const parsed = parseFloat(data[key]);
-            dataToStore[key] = Number.isNaN(parsed)
-              ? dataToStore[key]
-              : parsed;
-            if (key == 'yieldValue' && dataToStore[key] === 0) {
-              dataToStore[key] = 2000;
-            }
-          }
-          if (key == 'yieldValue' && data.countryCode) {
-            const yieldByCountryCode =
-              await this.yieldConfigService.findByCountryCode(data.countryCode);
-            if (yieldByCountryCode) {
-              dataToStore.yieldValue = yieldByCountryCode.yieldValue;
-            }
-          }
-        }
-        for (const key in dataToStore) {
-          if (dataToStore[key] === '') {
-            dataToStore[key] = null;
-          }
-        }
-        records.push(plainToClass(NewDeviceDTO, dataToStore));
-        recordsErrors.push({
-          serialNumber: '',
-          rowNumber: rowsConvertedToCsvCount,
-          isError: false,
-          errorsList: [],
-        });
-      }, (err: any) => {
-        this.logger.error(`CSV parse error: ${err?.message || err}`);
-        reject(err);
-      })
-      .on('done', async () => {
-        try {
-        // Auto-deduplicate serial numbers within the batch by appending -2, -3, etc.
-        const snCount: Record<string, number> = {};
-        for (const rec of records) {
-          const key = (rec.serialNumber || '').toLowerCase();
-          snCount[key] = (snCount[key] || 0) + 1;
-          if (snCount[key] > 1) {
-            rec.serialNumber = `${rec.serialNumber}-${snCount[key]}`;
-          }
-        }
-
-        for (let index = 0; index < records.length; index++) {
-          const singleRecord = records[index];
-          if (records[index].externalId) {
-            records[index].externalId = records[index].externalId.trim();
-          }
-          const errors = await validate(singleRecord);
-          if (errors.length > 0) {
-            errors?.forEach((ele) => {
-              delete ele.target;
-              delete ele.children;
-            });
-            recordsErrors[index] = {
-              serialNumber: records[index].serialNumber,
-              rowNumber: index,
-              isError: true,
-              errorsList: errors,
-            };
-          } else {
-            recordsErrors[index] = {
-              serialNumber: records[index].serialNumber,
-              rowNumber: index,
-              isError: false,
-              errorsList: errors,
-            };
-          }
-          if (singleRecord.countryCode != undefined) {
-            singleRecord.countryCode = singleRecord.countryCode.toUpperCase();
+            // Skip the template instruction/placeholder row
             if (
-              singleRecord.countryCode &&
-              typeof singleRecord.countryCode === 'string' &&
-              singleRecord.countryCode.length === 3
+              data.serialNumber === 'REPLACE_WITH_DEVICE_SERIAL_NUMBER' ||
+              data.countryCode === '3-letter country code'
             ) {
-              if (
-                countryCodesList.find(
-                  (ele) => ele.countryCode === singleRecord.countryCode,
-                ) === undefined
-              ) {
+              skippedRowCount++;
+              return;
+            }
+
+            data.images = [];
+            data.groupId = null;
+
+            // Normalise N/A and whitespace-only values to empty string
+            // so downstream logic treats them as missing.
+            for (const k of Object.keys(data)) {
+              if (typeof data[k] === 'string') {
+                data[k] = data[k].trim();
+                if (data[k].toUpperCase() === 'N/A') {
+                  data[k] = '';
+                }
+              }
+            }
+
+            // Legacy template aliasing: older Evident-style CSV templates used
+            // different column names. Map them onto the current DTO field names
+            // if the canonical column isn't present.
+            if (!data.siteName && data.projectName) {
+              data.siteName = data.projectName;
+            }
+            if (!data.serialNumber && data['Evident Device ID']) {
+              data.serialNumber = data['Evident Device ID'];
+            }
+
+            // Synthesize a serial number when the original CSV says
+            // "NOT YET REGISTERED" (or is empty).
+            if (
+              !data.serialNumber ||
+              data.serialNumber.toUpperCase() === 'NOT YET REGISTERED'
+            ) {
+              const sitePart = (data.siteName || data.projectName || 'DEVICE')
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, '')
+                .substring(0, 8);
+              data.serialNumber = `${sitePart}ES${String(rowsConvertedToCsvCount).padStart(5, '0')}`;
+            }
+
+            // Defaults for fields the legacy template doesn't include but which
+            // the DTO marks @IsNotEmpty. Registrants are always solar/OMC.
+            if (!data.dataSource) {
+              data.dataSource = 'OMC';
+            }
+            if (!data.dataSourceBrand) {
+              data.dataSourceBrand = 'OMC';
+            }
+            if (!data.deviceDescription) {
+              data.deviceDescription = DeviceDescription.GroundmountSolar;
+            }
+
+            const dataToStore: NewDeviceDTO = {
+              dataSourceBrand: '',
+              externalId: '',
+              siteName: '',
+              address: '',
+              latitude: '',
+              longitude: '',
+              countryCode: '',
+              fuelCode: FuelCode.ES100,
+              deviceTypeCode: DeviceTypeCode.TC150,
+              capacity: 0,
+              commissioningDate: '',
+              gridInterconnection: false,
+              offTaker: OffTaker.Commercial,
+              impactStory: '',
+              images: [],
+              deviceDescription: DeviceDescription.GroundmountSolar,
+              SDGBenefits: [],
+              version: '1.0',
+              dataSource: '',
+              otherDataSource: '',
+              serialNumber: '',
+            };
+            for (const key in dataToStore) {
+              if (key === 'SDGBenefits' || key === 'version') {
+                continue;
+              }
+              if (typeof dataToStore[key] === 'string') {
+                dataToStore[key] = data[key] ?? dataToStore[key];
+              } else if (typeof dataToStore[key] === 'boolean') {
+                dataToStore[key] = data[key]
+                  ? String(data[key]).toLowerCase() === 'true'
+                  : dataToStore[key];
+              } else if (typeof dataToStore[key] === 'number') {
+                const parsed = parseFloat(data[key]);
+                dataToStore[key] = Number.isNaN(parsed)
+                  ? dataToStore[key]
+                  : parsed;
+                if (key == 'yieldValue' && dataToStore[key] === 0) {
+                  dataToStore[key] = 2000;
+                }
+              }
+              if (key == 'yieldValue' && data.countryCode) {
+                const yieldByCountryCode =
+                  await this.yieldConfigService.findByCountryCode(
+                    data.countryCode,
+                  );
+                if (yieldByCountryCode) {
+                  dataToStore.yieldValue = yieldByCountryCode.yieldValue;
+                }
+              }
+            }
+            for (const key in dataToStore) {
+              if (dataToStore[key] === '') {
+                dataToStore[key] = null;
+              }
+            }
+            records.push(plainToClass(NewDeviceDTO, dataToStore));
+            recordsErrors.push({
+              serialNumber: '',
+              rowNumber: rowsConvertedToCsvCount,
+              isError: false,
+              errorsList: [],
+            });
+          },
+          (err: any) => {
+            this.logger.error(`CSV parse error: ${err?.message || err}`);
+            reject(err);
+          },
+        )
+        .on('done', async () => {
+          try {
+            // Auto-deduplicate serial numbers within the batch by appending -2, -3, etc.
+            const snCount: Record<string, number> = {};
+            for (const rec of records) {
+              const key = (rec.serialNumber || '').toLowerCase();
+              snCount[key] = (snCount[key] || 0) + 1;
+              if (snCount[key] > 1) {
+                rec.serialNumber = `${rec.serialNumber}-${snCount[key]}`;
+              }
+            }
+
+            for (let index = 0; index < records.length; index++) {
+              const singleRecord = records[index];
+              if (records[index].externalId) {
+                records[index].externalId = records[index].externalId.trim();
+              }
+              const errors = await validate(singleRecord);
+              if (errors.length > 0) {
+                errors?.forEach((ele) => {
+                  delete ele.target;
+                  delete ele.children;
+                });
+                recordsErrors[index] = {
+                  serialNumber: records[index].serialNumber,
+                  rowNumber: index,
+                  isError: true,
+                  errorsList: errors,
+                };
+              } else {
+                recordsErrors[index] = {
+                  serialNumber: records[index].serialNumber,
+                  rowNumber: index,
+                  isError: false,
+                  errorsList: errors,
+                };
+              }
+              if (singleRecord.countryCode != undefined) {
+                singleRecord.countryCode =
+                  singleRecord.countryCode.toUpperCase();
+                if (
+                  singleRecord.countryCode &&
+                  typeof singleRecord.countryCode === 'string' &&
+                  singleRecord.countryCode.length === 3
+                ) {
+                  if (
+                    countryCodesList.find(
+                      (ele) => ele.countryCode === singleRecord.countryCode,
+                    ) === undefined
+                  ) {
+                    recordsErrors[index].isError = true;
+                    recordsErrors[index].errorsList.push({
+                      value: singleRecord.countryCode,
+                      property: 'countryCode',
+                      constraints: {
+                        invalidCountryCode: 'Invalid countryCode',
+                      },
+                    });
+                  }
+                } else {
+                  recordsErrors[index].isError = true;
+                  recordsErrors[index].errorsList.push({
+                    value: singleRecord.countryCode,
+                    property: 'countryCode',
+                    constraints: { invalidCountryCode: 'Invalid countryCode' },
+                  });
+                }
+              } else {
                 recordsErrors[index].isError = true;
                 recordsErrors[index].errorsList.push({
                   value: singleRecord.countryCode,
@@ -1861,242 +1889,229 @@ export class DeviceGroupService {
                   constraints: { invalidCountryCode: 'Invalid countryCode' },
                 });
               }
-            } else {
-              recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({
-                value: singleRecord.countryCode,
-                property: 'countryCode',
-                constraints: { invalidCountryCode: 'Invalid countryCode' },
-              });
-            }
-          } else {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              value: singleRecord.countryCode,
-              property: 'countryCode',
-              constraints: { invalidCountryCode: 'Invalid countryCode' },
-            });
-          }
-          if (
-            singleRecord.commissioningDate &&
-            typeof singleRecord.commissioningDate === 'string'
-          ) {
-            this.logger.debug(
-              !isValidUTCDateFormat(singleRecord.commissioningDate),
-            );
-            if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
-              const hasValidSeconds =
-                moment(singleRecord.commissioningDate).seconds() < 60;
-              const hasValidMinutes =
-                moment(singleRecord.commissioningDate).minutes() < 60;
-              recordsErrors[index].isError = true;
-              if (!hasValidMinutes) {
-                recordsErrors[index].errorsList.push({
-                  value: singleRecord.commissioningDate,
-                  property: 'commissioningDate',
-                  constraints: { invalidDate: 'Invalid minutes value.' },
-                });
-              } else if (!hasValidSeconds) {
-                recordsErrors[index].errorsList.push({
-                  value: singleRecord.commissioningDate,
-                  property: 'commissioningDate',
-                  constraints: { invalidDate: 'Invalid seconds value.' },
-                });
-              }
-              recordsErrors[index].errorsList.push({
-                value: singleRecord.commissioningDate,
-                property: 'commissioningDate',
-                constraints: {
-                  invalidDate:
-                    'Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
-                },
-              });
-            }
-            if (
-              new Date(singleRecord.commissioningDate).getTime() >
-              new Date().getTime()
-            ) {
-              recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({
-                value: singleRecord.commissioningDate,
-                property: 'commissioningDate',
-                constraints: {
-                  invalidDate:
-                    'Invalid commissioning date, commissioning is greater than current date',
-                },
-              });
-            }
-          }
-          if (singleRecord.capacity <= 0) {
-            recordsErrors[index].isError = true;
-            recordsErrors[index].errorsList.push({
-              value: singleRecord.capacity,
-              property: 'capacity',
-              constraints: {
-                greaterThanZero: 'Capacity should be greater than 0',
-              },
-            });
-          }
-        }
-
-        records?.forEach((singleRecord, index) => {
-          recordsErrors[index].errorsList?.forEach((error) => {
-            singleRecord[error.property] = null; //making null field if it has any validation issue
-          });
-        });
-        const listOfExistingDevices = await this.checkIfDeviceExisting(
-          records,
-          organizationId,
-        );
-
-        if (listOfExistingDevices.length > 0) {
-          records?.forEach((singleRecord, index) => {
-            if (
-              listOfExistingDevices.find(
-                (ele) => ele === singleRecord.externalId,
-              )
-            ) {
-              recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({
-                value: singleRecord.serialNumber,
-                property: 'serialNumber',
-                constraints: {
-                  serialNumberExists:
-                    'serialNumber already exist, cant add entry with same serial number',
-                },
-              });
-            }
-          });
-        }
-
-        // Bulk siteName pre-check so we catch all conflicts up front.
-        // register() also checks siteName per-row, but that only fires during
-        // insertion — we need the error surfaced here to honor atomicity.
-        const existingSiteNames =
-          await this.deviceService.findMultipleDevicesBasedSiteName(
-            records.map((r) => r.siteName).filter(Boolean) as string[],
-            organizationId,
-          );
-        if (existingSiteNames.length > 0) {
-          const existingSet = new Set(existingSiteNames);
-          records?.forEach((singleRecord, index) => {
-            if (singleRecord.siteName && existingSet.has(singleRecord.siteName)) {
-              recordsErrors[index].isError = true;
-              recordsErrors[index].errorsList.push({
-                value: singleRecord.siteName,
-                property: 'siteName',
-                constraints: {
-                  siteNameExists: `A device with site name "${singleRecord.siteName}" already exists in this organization`,
-                },
-              });
-            }
-          });
-        }
-        const recordsCopy = cloneDeep(records);
-        recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
-        const duplicateserialNumbers: any = [];
-        for (let i = 0; i < recordsCopy.length - 1; i++) {
-          this.logger.debug(recordsCopy[i].serialNumber);
-          for (let j = i + 1; j < recordsCopy.length; j++) {
-            this.logger.debug(recordsCopy[j].serialNumber);
-            if (
-              recordsCopy[i].serialNumber != null &&
-              recordsCopy[j].serialNumber != null
-            ) {
               if (
-                recordsCopy[i].serialNumber.toLowerCase() ===
-                  recordsCopy[j].serialNumber.toLowerCase() &&
-                recordsCopy[j]['statusDuplicate'] === false
+                singleRecord.commissioningDate &&
+                typeof singleRecord.commissioningDate === 'string'
               ) {
-                recordsCopy[j]['statusDuplicate'] = true;
-                duplicateserialNumbers.push({
-                  duplicateIndex: j,
-                  duplicateWith: i,
-                  siteName: records[j].siteName,
-                  serialNumber: records[j].serialNumber,
-                });
-                recordsErrors[j].isError = true;
-                recordsErrors[j].errorsList.push({
-                  value: recordsCopy[j].serialNumber,
-                  property: 'serialNumber',
+                this.logger.debug(
+                  !isValidUTCDateFormat(singleRecord.commissioningDate),
+                );
+                if (!isValidUTCDateFormat(singleRecord.commissioningDate)) {
+                  const hasValidSeconds =
+                    moment(singleRecord.commissioningDate).seconds() < 60;
+                  const hasValidMinutes =
+                    moment(singleRecord.commissioningDate).minutes() < 60;
+                  recordsErrors[index].isError = true;
+                  if (!hasValidMinutes) {
+                    recordsErrors[index].errorsList.push({
+                      value: singleRecord.commissioningDate,
+                      property: 'commissioningDate',
+                      constraints: { invalidDate: 'Invalid minutes value.' },
+                    });
+                  } else if (!hasValidSeconds) {
+                    recordsErrors[index].errorsList.push({
+                      value: singleRecord.commissioningDate,
+                      property: 'commissioningDate',
+                      constraints: { invalidDate: 'Invalid seconds value.' },
+                    });
+                  }
+                  recordsErrors[index].errorsList.push({
+                    value: singleRecord.commissioningDate,
+                    property: 'commissioningDate',
+                    constraints: {
+                      invalidDate:
+                        'Invalid commission date sent.Format is YYYY-MM-DDThh:mm:ss.millisecondsZ example 2022-10-18T11:35:27.640Z',
+                    },
+                  });
+                }
+                if (
+                  new Date(singleRecord.commissioningDate).getTime() >
+                  new Date().getTime()
+                ) {
+                  recordsErrors[index].isError = true;
+                  recordsErrors[index].errorsList.push({
+                    value: singleRecord.commissioningDate,
+                    property: 'commissioningDate',
+                    constraints: {
+                      invalidDate:
+                        'Invalid commissioning date, commissioning is greater than current date',
+                    },
+                  });
+                }
+              }
+              if (singleRecord.capacity <= 0) {
+                recordsErrors[index].isError = true;
+                recordsErrors[index].errorsList.push({
+                  value: singleRecord.capacity,
+                  property: 'capacity',
                   constraints: {
-                    externalIdExists:
-                      'Row ' +
-                      (j + 1) +
-                      ' Duplicate with row ' +
-                      (i + 1) +
-                      ' Exists with serialNumber ' +
-                      records[j].serialNumber,
+                    greaterThanZero: 'Capacity should be greater than 0',
                   },
                 });
               }
             }
-          }
-        }
 
-        const successfullyAddedRowsAndExternalIds: Array<{
-          rowNumber: number;
-          serialNumber: string;
-        }> = [];
-
-        // Atomic pre-flight: if ANY row has an error after all validation
-        // and conflict checks, abort the entire upload without inserting
-        // anything. Keeps the DB consistent with the user's CSV — partial
-        // imports leave orphan rows that block re-upload.
-        const anyError = recordsErrors.some((r) => r.errorsList.length > 0);
-        if (anyError) {
-          recordsErrors.forEach((r, idx) => {
-            if (r.errorsList.length === 0) {
-              r.isError = true;
-              r.errorsList.push({
-                value: records[idx].serialNumber,
-                property: 'batch',
-                constraints: {
-                  batchAborted:
-                    'Row skipped: other rows in this upload had errors. The whole batch was rejected to keep the upload atomic.',
-                },
+            records?.forEach((singleRecord, index) => {
+              recordsErrors[index].errorsList?.forEach((error) => {
+                singleRecord[error.property] = null; //making null field if it has any validation issue
               });
-            }
-          });
-          await this.bulkUploadRepository.update(
-            { jobId: filesAddedForProcessing.jobId },
-            { status: BulkUploadStatus.Failed },
-          );
-          this.createFailedRowDetailsForCSVJob(
-            filesAddedForProcessing.id,
-            recordsErrors,
-            successfullyAddedRowsAndExternalIds,
-          );
-          resolve();
-          return;
-        }
-
-        // Validation passed for all rows. Stop here and stage the parsed
-        // records as a preview. The user reviews the list, then hits the
-        // confirm endpoint to actually insert them.
-        await this.bulkUploadFailedLogRepository.save({
-          bulkUploadId: filesAddedForProcessing.id,
-          details: {
-            preview: {
+            });
+            const listOfExistingDevices = await this.checkIfDeviceExisting(
               records,
               organizationId,
-              totalCsvRows: rowsConvertedToCsvCount,
-              skippedRows: skippedRowCount,
-            },
-          },
+            );
+
+            if (listOfExistingDevices.length > 0) {
+              records?.forEach((singleRecord, index) => {
+                if (
+                  listOfExistingDevices.find(
+                    (ele) => ele === singleRecord.externalId,
+                  )
+                ) {
+                  recordsErrors[index].isError = true;
+                  recordsErrors[index].errorsList.push({
+                    value: singleRecord.serialNumber,
+                    property: 'serialNumber',
+                    constraints: {
+                      serialNumberExists:
+                        'serialNumber already exist, cant add entry with same serial number',
+                    },
+                  });
+                }
+              });
+            }
+
+            // Bulk siteName pre-check so we catch all conflicts up front.
+            // register() also checks siteName per-row, but that only fires during
+            // insertion — we need the error surfaced here to honor atomicity.
+            const existingSiteNames =
+              await this.deviceService.findMultipleDevicesBasedSiteName(
+                records.map((r) => r.siteName).filter(Boolean) as string[],
+                organizationId,
+              );
+            if (existingSiteNames.length > 0) {
+              const existingSet = new Set(existingSiteNames);
+              records?.forEach((singleRecord, index) => {
+                if (
+                  singleRecord.siteName &&
+                  existingSet.has(singleRecord.siteName)
+                ) {
+                  recordsErrors[index].isError = true;
+                  recordsErrors[index].errorsList.push({
+                    value: singleRecord.siteName,
+                    property: 'siteName',
+                    constraints: {
+                      siteNameExists: `A device with site name "${singleRecord.siteName}" already exists in this organization`,
+                    },
+                  });
+                }
+              });
+            }
+            const recordsCopy = cloneDeep(records);
+            recordsCopy.forEach((ele) => (ele['statusDuplicate'] = false));
+            const duplicateserialNumbers: any = [];
+            for (let i = 0; i < recordsCopy.length - 1; i++) {
+              this.logger.debug(recordsCopy[i].serialNumber);
+              for (let j = i + 1; j < recordsCopy.length; j++) {
+                this.logger.debug(recordsCopy[j].serialNumber);
+                if (
+                  recordsCopy[i].serialNumber != null &&
+                  recordsCopy[j].serialNumber != null
+                ) {
+                  if (
+                    recordsCopy[i].serialNumber.toLowerCase() ===
+                      recordsCopy[j].serialNumber.toLowerCase() &&
+                    recordsCopy[j]['statusDuplicate'] === false
+                  ) {
+                    recordsCopy[j]['statusDuplicate'] = true;
+                    duplicateserialNumbers.push({
+                      duplicateIndex: j,
+                      duplicateWith: i,
+                      siteName: records[j].siteName,
+                      serialNumber: records[j].serialNumber,
+                    });
+                    recordsErrors[j].isError = true;
+                    recordsErrors[j].errorsList.push({
+                      value: recordsCopy[j].serialNumber,
+                      property: 'serialNumber',
+                      constraints: {
+                        externalIdExists:
+                          'Row ' +
+                          (j + 1) +
+                          ' Duplicate with row ' +
+                          (i + 1) +
+                          ' Exists with serialNumber ' +
+                          records[j].serialNumber,
+                      },
+                    });
+                  }
+                }
+              }
+            }
+
+            const successfullyAddedRowsAndExternalIds: Array<{
+              rowNumber: number;
+              serialNumber: string;
+            }> = [];
+
+            // Atomic pre-flight: if ANY row has an error after all validation
+            // and conflict checks, abort the entire upload without inserting
+            // anything. Keeps the DB consistent with the user's CSV — partial
+            // imports leave orphan rows that block re-upload.
+            const anyError = recordsErrors.some((r) => r.errorsList.length > 0);
+            if (anyError) {
+              recordsErrors.forEach((r, idx) => {
+                if (r.errorsList.length === 0) {
+                  r.isError = true;
+                  r.errorsList.push({
+                    value: records[idx].serialNumber,
+                    property: 'batch',
+                    constraints: {
+                      batchAborted:
+                        'Row skipped: other rows in this upload had errors. The whole batch was rejected to keep the upload atomic.',
+                    },
+                  });
+                }
+              });
+              await this.bulkUploadRepository.update(
+                { jobId: filesAddedForProcessing.jobId },
+                { status: BulkUploadStatus.Failed },
+              );
+              this.createFailedRowDetailsForCSVJob(
+                filesAddedForProcessing.id,
+                recordsErrors,
+                successfullyAddedRowsAndExternalIds,
+              );
+              resolve();
+              return;
+            }
+
+            // Validation passed for all rows. Stop here and stage the parsed
+            // records as a preview. The user reviews the list, then hits the
+            // confirm endpoint to actually insert them.
+            await this.bulkUploadFailedLogRepository.save({
+              bulkUploadId: filesAddedForProcessing.id,
+              details: {
+                preview: {
+                  records,
+                  organizationId,
+                  totalCsvRows: rowsConvertedToCsvCount,
+                  skippedRows: skippedRowCount,
+                },
+              },
+            });
+            await this.bulkUploadRepository.update(
+              { jobId: filesAddedForProcessing.jobId },
+              { status: BulkUploadStatus.PendingConfirmation },
+            );
+            resolve();
+          } catch (err) {
+            this.logger.error(
+              `processCsvFileAnotherLibrary done-handler failed: ${err?.stack || err}`,
+            );
+            reject(err);
+          }
         });
-        await this.bulkUploadRepository.update(
-          { jobId: filesAddedForProcessing.jobId },
-          { status: BulkUploadStatus.PendingConfirmation },
-        );
-        resolve();
-        } catch (err) {
-          this.logger.error(
-            `processCsvFileAnotherLibrary done-handler failed: ${err?.stack || err}`,
-          );
-          reject(err);
-        }
-      });
     });
   }
 
@@ -2535,10 +2550,7 @@ export class DeviceGroupService {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
         });
-      } else if (
-        role === 'SiteOperator' ||
-        role === 'User'
-      ) {
+      } else if (role === 'SiteOperator' || role === 'User') {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
@@ -2758,10 +2770,7 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    } else if (
-      role === 'Buyer' ||
-      role === 'SubBuyer'
-    ) {
+    } else if (role === 'Buyer' || role === 'SubBuyer') {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupuid);
 
@@ -2829,10 +2838,7 @@ export class DeviceGroupService {
         whereOrganizationId = qb.where(`dg.api_user_id = :api_user_id`, {
           api_user_id: apiUserId,
         });
-      } else if (
-        role === 'SiteOperator' ||
-        role === 'User'
-      ) {
+      } else if (role === 'SiteOperator' || role === 'User') {
         whereOrganizationId = qb.where(`d.organizationId = :orgId`, {
           orgId: orgId,
         });
@@ -3048,10 +3054,7 @@ export class DeviceGroupService {
         }
         return acc;
       }, []);
-    } else if (
-      role === 'Buyer' ||
-      role === 'SubBuyer'
-    ) {
+    } else if (role === 'Buyer' || role === 'SubBuyer') {
       deviceGroups = groupedData.reduce((acc, curr) => {
         const existing = acc.find((item) => item.dg_id === curr.devicegroupid);
 

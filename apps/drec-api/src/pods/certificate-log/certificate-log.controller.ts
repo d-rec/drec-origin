@@ -6,7 +6,6 @@ import {
   UseGuards,
   ValidationPipe,
   Query,
-  ConflictException,
   BadRequestException,
   Logger,
   Res,

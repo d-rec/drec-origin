@@ -12,7 +12,7 @@
 interface IrradianceBand {
   maxAbsLat: number;
   yieldHigh: number; // optimistic (clear-sky, good tilt)
-  yieldLow: number;  // conservative (flat/suboptimal)
+  yieldLow: number; // conservative (flat/suboptimal)
 }
 
 /**

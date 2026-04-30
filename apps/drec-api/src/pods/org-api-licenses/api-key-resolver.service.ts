@@ -8,9 +8,7 @@ const REVIEWER_ROLES: Role[] = [Role.Admin, Role.Reviewer, Role.SeniorReviewer];
 export class ApiKeyResolverService {
   private readonly logger = new Logger(ApiKeyResolverService.name);
 
-  constructor(
-    private readonly orgApiLicensesService: OrgApiLicensesService,
-  ) {}
+  constructor(private readonly orgApiLicensesService: OrgApiLicensesService) {}
 
   async resolveDeeplKey(user: {
     role: Role;
@@ -75,9 +73,11 @@ export class ApiKeyResolverService {
 
     // Org has their own key (and optionally their own workflow URL)
     if (license?.roboflowApiKey) {
-      const platformKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
+      const platformKeys =
+        await this.orgApiLicensesService.findAdminOrgDecrypted();
       return {
-        url: license.roboflowWorkflowUrl || platformKeys.roboflowWorkflowUrl || '',
+        url:
+          license.roboflowWorkflowUrl || platformKeys.roboflowWorkflowUrl || '',
         key: license.roboflowApiKey,
       };
     }
@@ -121,7 +121,10 @@ export class ApiKeyResolverService {
     return adminKeys.deeplApiKey;
   }
 
-  private async getPlatformRoboflowKey(): Promise<{ url: string; key: string }> {
+  private async getPlatformRoboflowKey(): Promise<{
+    url: string;
+    key: string;
+  }> {
     const adminKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
     if (!adminKeys.roboflowApiKey) {
       throw new ForbiddenException(

@@ -889,11 +889,10 @@ export class ReadsService {
     }
 
     // externalId → siteName (if uniquely scoped to org) → serialNumber (deprecated)
-    const device: DeviceDTO | null =
-      await this.deviceService.resolveDeviceKey(
-        deviceSerialNumber,
-        organizationId,
-      );
+    const device: DeviceDTO | null = await this.deviceService.resolveDeviceKey(
+      deviceSerialNumber,
+      organizationId,
+    );
     if (device === null) {
       this.logger.error(`Invalid device id`);
       throw new ConflictException({
