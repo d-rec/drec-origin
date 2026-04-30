@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { DeviceController } from './device.controller';
+import { FeaturedSitesController } from './featured-sites.controller';
 import { Device } from './device.entity';
 import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
@@ -42,6 +43,6 @@ import { ESignatureModule } from '../e-signature/e-signature.module';
   ],
   providers: [DeviceService],
   exports: [DeviceService],
-  controllers: [DeviceController],
+  controllers: [DeviceController, FeaturedSitesController],
 })
 export class DeviceModule {}
