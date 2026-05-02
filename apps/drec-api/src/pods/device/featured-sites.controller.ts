@@ -60,15 +60,16 @@ class FeaturedSitesIpRateLimitGuard implements CanActivate {
 }
 
 // OMC mini-grid sites in Uttar Pradesh (D-REC's "Third OMC Purchase" device
-// registration batch). Coords are 5–8 decimal precision (rooftop-precise),
-// which matches the cutaway zoom (z=19, ~41m visible radius) — high enough
-// to show individual panel rows on the village rooftop installations.
+// registration batch). Cutaway zoom is z=18 (~82m visible radius). Entries
+// with <6 decimal places on either lat or lon are marked labelOnly — at
+// that precision the cutaway can land off-roof, so we show a label without
+// the satellite zoom.
 const FEATURED: FeaturedSite[] = [
-  { name: 'Bilgram, IN', lat: 27.17963, lon: 80.03654 },
+  { name: 'Bilgram, IN', lat: 27.17963, lon: 80.03654, labelOnly: true },
   { name: 'Gausganj, IN', lat: 27.082623, lon: 80.288072 },
   { name: 'Harpalpur, IN', lat: 27.324103, lon: 79.835716 },
   { name: 'Bhagauli, IN', lat: 27.2308369, lon: 80.2976086 },
-  { name: 'Bawan, IN', lat: 27.39706, lon: 80.022158 },
+  { name: 'Bawan, IN', lat: 27.39706, lon: 80.022158, labelOnly: true },
   { name: 'Kalauli, IN', lat: 27.122526, lon: 80.314862 },
   { name: 'Ganj Muradabad, IN', lat: 26.9587116, lon: 80.1836987 },
   { name: 'Banda, IN', lat: 28.2411253, lon: 80.11016313 },
@@ -82,7 +83,7 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Rahi, IN', lat: 26.236317, lon: 81.301596 },
   { name: 'Abhayapur, IN', lat: 28.1068824, lon: 81.06224521 },
   { name: 'Paliya Paschim, IN', lat: 27.305465, lon: 79.804412 },
-  { name: 'Sahrawan, IN', lat: 26.614259, lon: 80.77748 },
+  { name: 'Sahrawan, IN', lat: 26.614259, lon: 80.77748, labelOnly: true },
   { name: 'Bhauli, IN', lat: 26.674539, lon: 80.5934196 },
   { name: 'Dhanwar, IN', lat: 27.606983, lon: 80.0421184 },
   { name: 'Kamaee, IN', lat: 26.402531, lon: 81.4149045 },
@@ -105,9 +106,9 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Shahbaz Nagar, IN', lat: 27.92563333, lon: 79.88403056 },
   { name: 'Som, IN', lat: 27.07791389, lon: 80.45518889 },
   { name: 'Gangsara, IN', lat: 28.12624444, lon: 80.16950278 },
-  { name: 'Bangarmou / Naunihalganj, IN', lat: 26.90336667, lon: 80.2151 },
+  { name: 'Bangarmou / Naunihalganj, IN', lat: 26.90336667, lon: 80.2151, labelOnly: true },
   { name: 'Bejham, IN', lat: 27.882025, lon: 80.63476667 },
-  { name: 'Belagusisi, IN', lat: 26.112, lon: 81.21024444 },
+  { name: 'Belagusisi, IN', lat: 26.112, lon: 81.21024444, labelOnly: true },
   { name: 'Maholi, IN', lat: 27.65593333, lon: 80.47470556 },
   { name: 'Veruwa (Berwa), IN', lat: 27.18086111, lon: 80.44775833 },
   { name: 'Atipur, IN', lat: 27.55395556, lon: 79.37296944 },
@@ -117,9 +118,9 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Attrauli, IN', lat: 27.172073, lon: 80.661793 },
   { name: 'Baheria, IN', lat: 27.188463, lon: 80.610785 },
   { name: 'Bharail, IN', lat: 27.388954, lon: 80.290301 },
-  { name: 'Kalyanmal, IN', lat: 27.233485, lon: 80.5371 },
+  { name: 'Kalyanmal, IN', lat: 27.233485, lon: 80.5371, labelOnly: true },
   { name: 'Koro Kuinyan, IN', lat: 28.023203, lon: 80.028358 },
-  { name: 'Lonahara, IN', lat: 27.152927, lon: 80.38882 },
+  { name: 'Lonahara, IN', lat: 27.152927, lon: 80.38882, labelOnly: true },
   { name: 'Meer Nagar, IN', lat: 27.099656, lon: 80.549492 },
   { name: 'Mohiddinpur, IN', lat: 28.299257, lon: 80.113606 },
   { name: 'Samodha, IN', lat: 27.120076, lon: 80.421807 },
