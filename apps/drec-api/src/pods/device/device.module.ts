@@ -3,10 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { DeviceController } from './device.controller';
 import { FeaturedSitesController } from './featured-sites.controller';
-
-// FeaturedSitesController doesn't need DB access; if other device controllers
-// were also pure, we'd split into a separate module. For now, registering it
-// here keeps the routing in one place.
+import { StatsController } from './stats.controller';
 import { Device } from './device.entity';
 import { ACLModulePermission } from '../permission/permission.entity';
 import { DeviceService } from './device.service';
@@ -47,6 +44,6 @@ import { ESignatureModule } from '../e-signature/e-signature.module';
   ],
   providers: [DeviceService],
   exports: [DeviceService],
-  controllers: [DeviceController, FeaturedSitesController],
+  controllers: [DeviceController, FeaturedSitesController, StatsController],
 })
 export class DeviceModule {}
