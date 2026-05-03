@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0] (2026-05-03)
+
+### ⚠ BREAKING CHANGES — OC# checklist alignment (Phases 1b–2e)
+
+The Device Registration / Update form has been aligned to the I-REC Registration Checklist (OC#1–50). Several non-checklist-aligned fields have been dropped or merged into their checklist-canonical counterparts. **Each phase has its own migration; deploy in order.**
+
+- **Phase 1b** — dropped `energyStorage` + `energyStorageCapacity`. OC#24 `hasAuxiliaryEnergySources` (Yes/No) covers presence; OC#25 `auxiliaryEnergySourceDetails` covers description.
+- **Phase 2a** — merged `qualityLabels` → `labellingSchemeAccreditation` (OC#37). Concatenates with `; ` if both set.
+- **Phase 2b** — dropped `acCapacity`; `capacity` is the canonical (OC#9) AC capacity. Backfills `capacity` from `acCapacity` where null/0.
+- **Phase 2c** — dropped `isGridConnected`; `gridInterconnection` (bool) is the canonical (OC#15). Backfills from `is_grid_connected = 'Yes'`.
+- **Phase 2d** — dropped `meterIds`; `serialNumber` is the canonical (OC#14) field. Migration appends meter IDs to `serial_number` (semicolon-separated). Label collapsed to "(14) Meter or Measurement ID(s)".
+- **Phase 1c** — merged document type `SCREENSHOTS` → `METERING_EVIDENCE` (OC#49). Existing rows reclassified one-way. `DocumentType.SCREENSHOTS` enum value retained for historical audit queries.
+- **Phase 2e** — dropped `publicFundingType`; subsidies are covered by OC#34 `hasSubsidy` + OC#35 `subsidyTypes` + OC#36 `subsidyClaimsEacs`.
+
+Migrations: `1761000000000` (1b) through `1761700000000` (2e), in order.
+
+### Features
+
+- **Login-page globe API** — two new public endpoints powering the redesigned sign-in page. Both cached 5 min (in-memory, with `Cache-Control: public, max-age=300, stale-while-revalidate=3600`) and IP-rate-limited 60/min.
+  - `GET /api/featured-sites` — curated panel-precision installations + DB-pulled label-only sites for global label coverage. Hand-audited from live satellite imagery; supports the satellite-cutaway feature on the login globe.
+  - `GET /api/stats` — platform aggregates: GWh committed for purchase, distinct countries, total devices, distinct site names. Fed by raw SQL; no auth required.
+
+- **Solar yield prediction model (GSA-derived)** — TS port of Kartik Naik's `solar-monthly-predictionModel` integrated. Wired into `GET /device-reviews/:deviceId/production-ceiling` as an additive `solarGsa` field alongside the existing lat-band heuristic. Loads a 73 MB GSA `.npz` grid via init-container (path from `SOLAR_GRID_NPZ_PATH`); fail-lazily — unset env → warn-on-boot, inert service. Returns `gsaYieldPerKw` + `effectiveCeiling` in the response.
+
+- **Country-vs-coordinate verification** — auto-screen now compares the declared `countryCode` against the lat/lng location, with disputed-border neutrality (mismatches in disputed zones stay `warn`, never `fail`). Country codes expanded to full names in the auto-screen report.
+
+- **Reviewer OC# gap closures** — `device GET` + `DocumentType` improvements covering OC#26 (submitter status), OC#42 (signature), OC#44 (facility boundary upload). Document `label` + `original_filename` exposed via PATCH and `docMeta`.
+
+- **TC100 device type** — added "Solar photovoltaic (generic)" to the `DeviceTypeCode` enum, ordered before TC110 (ground-mounted).
+
+- **Multi-step device registration** — `update-device` accepts partial-draft registrations; `commissioningDate` no longer pinned via `@MaxDate(new Date())` decorator.
+
+- **Device-key resolver** — `resolveDeviceKey` refactor across reads/device APIs for consistent externalId-first lookups. Stage-deploy fixes for sequence drift + Registrant ACL backfill + migrate:docker boot.
+
+### Bug Fixes
+
+- **API licenses** — closed freebie-cap bypass when the license row is missing.
+- **user_role** — deduped rows, added primary key, fixed reviewer role binding; reviewer email corrected to `joe.reviewer` to match the original seeded account.
+- **Seed** — backfill Registrant ACL permissions on fresh DBs; ensure all four README accounts (admin / registrant / reviewer / buyer) survive DB resets.
+- **Registration** — allow duplicate email addresses across organizations (email is org-scoped, not globally unique).
+- **Env validation** — refuse to boot when blockchain addresses are the null placeholder; explicit error when `ENCRYPTION_SECRET` length is wrong.
+- **Timezone lookup** — guard for unknown country codes.
+- **e-signature-log** — fixed `consentText` → `consent_text` column mapping.
+- **certificate-log** — role-aware group access check; dropped misleading "Group UId is not of this buyer" error message.
+- **Photo GPS extraction** — uses `original_filename` and strips upload-suffix UUIDs so EXIF tooling matches.
+
 ## [0.8.1] (2026-04-03)
 
 ### Staging (deployed)
