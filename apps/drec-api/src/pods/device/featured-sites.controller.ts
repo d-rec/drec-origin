@@ -138,6 +138,14 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Okra Solar, HT', lat: 19.2190693, lon: -72.5157231, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2183035, lon: -72.5154164, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2179321, lon: -72.5148441, labelOnly: true },
+  // Visually-confirmed cutaway-eligible sites added 2026-05-03 from a stage-DB
+  // candidate sweep (≥6 decimal precision, non-IND/HTI). Each verified at z=19
+  // satellite imagery; one Uganda entry recentered onto the panel array.
+  // Uganda label shortened from the verbose DB siteName ("SUSTAINABLE
+  // ELECTRIFICATION OF HEALTH FACILITIES: UGANDA") for a readable callout.
+  { name: 'HMG, NP', lat: 27.437593, lon: 83.644509 },
+  { name: 'HMG, NP', lat: 27.199937, lon: 83.640469 },
+  { name: 'Health Facility, UG', lat: 0.3411642, lon: 30.7958552 },
   // Kenya placeholders — PT has 3 sites in Kenya pending registration; real
   // coords unknown. The three are spread (central / west / east) so label
   // thinning doesn't collapse them, and named generically ("Kenya, KE")
