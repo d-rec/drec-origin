@@ -154,6 +154,11 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Casa Phillipa, GT', lat: 14.550604, lon: -90.7429075 },
   { name: 'Grupo Freeze, GT', lat: 14.4203206, lon: -90.6602311 },
   { name: 'Remar hogar, GT', lat: 14.586906, lon: -90.5394459 },
+  // Vietnam additions: 16-candidate sweep (cluster-rep coords were 2-decimal,
+  // ~1km error). Visually recentered onto panel arrays via Google satellite.
+  // Adds ~106°E to the cutaway rotation between India and the dateline.
+  { name: 'Yusung, VN', lat: 11.0717874, lon: 106.7103499 },
+  { name: 'Kiet Nhi workshop, VN', lat: 10.7869421, lon: 106.4802271 },
   // Kenya placeholders — PT has 3 sites in Kenya pending registration; real
   // coords unknown. Clustered within ~25 km of Nairobi (central / NE / SW)
   // since PT's stated plan is around Nairobi. Labels will thin to one visible
