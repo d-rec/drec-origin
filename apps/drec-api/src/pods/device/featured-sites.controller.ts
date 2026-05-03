@@ -155,13 +155,13 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Grupo Freeze, GT', lat: 14.4203206, lon: -90.6602311 },
   { name: 'Remar hogar, GT', lat: 14.586906, lon: -90.5394459 },
   // Kenya placeholders — PT has 3 sites in Kenya pending registration; real
-  // coords unknown. The three are spread (central / west / east) so label
-  // thinning doesn't collapse them, and named generically ("Kenya, KE")
-  // rather than fabricating town names. Replace each lat/lon as PT registers
-  // each device.
+  // coords unknown. Clustered within ~25 km of Nairobi (central / NE / SW)
+  // since PT's stated plan is around Nairobi. Labels will thin to one visible
+  // "Kenya, KE" callout but the three dots remain distinct on the globe.
+  // Replace each lat/lon as PT registers each device.
   { name: 'Kenya, KE', lat: -1.2921, lon: 36.8219, labelOnly: true },
-  { name: 'Kenya, KE', lat: -0.0917, lon: 34.7680, labelOnly: true },
-  { name: 'Kenya, KE', lat: -0.4569, lon: 39.6583, labelOnly: true },
+  { name: 'Kenya, KE', lat: -1.20, lon: 36.95, labelOnly: true },
+  { name: 'Kenya, KE', lat: -1.40, lon: 36.70, labelOnly: true },
 ];
 
 @ApiTags('Featured Sites')
