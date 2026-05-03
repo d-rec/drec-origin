@@ -15,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../utils/enums';
+import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -338,10 +338,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'varchar', nullable: true, name: 'volume_evidence_type' })
   @IsEnum(VolumeEvidenceType)
   volumeEvidenceType: VolumeEvidenceType | null;
-
-  @Column({ type: 'varchar', nullable: true, name: 'public_funding_type' })
-  @IsEnum(PublicFundingType)
-  publicFundingType: PublicFundingType | null;
 
   @Column({ type: 'varchar', nullable: true, name: 'labelling_scheme_accreditation' })
   @IsString()

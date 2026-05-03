@@ -20,7 +20,7 @@ import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 
 export class NewDeviceDTO implements Omit<
   IDevice,
@@ -393,11 +393,6 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsEnum(VolumeEvidenceType)
   volumeEvidenceType?: VolumeEvidenceType;
-
-  @ApiProperty({ required: false, enum: PublicFundingType })
-  @IsOptional()
-  @IsEnum(PublicFundingType)
-  publicFundingType?: PublicFundingType;
 
   @ApiProperty({ required: false })
   @IsOptional()

@@ -11,7 +11,6 @@ import {
   YesNo,
   RegistrationType,
   VolumeEvidenceType,
-  PublicFundingType,
 } from '../utils/enums';
 
 export interface IDevice {
@@ -89,7 +88,6 @@ export interface IDevice {
   // SF-02 gaps
   registrationType?: RegistrationType;
   volumeEvidenceType?: VolumeEvidenceType;
-  publicFundingType?: PublicFundingType;
   labellingSchemeAccreditation?: string;
   verificationAgentName?: string;
   offGridCircumstances?: string;

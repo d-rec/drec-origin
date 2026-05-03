@@ -29,4 +29,3 @@ export * from './yes-no.enum';
 export * from './subsidy-type.enum';
 export * from './registration-type.enum';
 export * from './volume-evidence-type.enum';
-export * from './public-funding-type.enum';

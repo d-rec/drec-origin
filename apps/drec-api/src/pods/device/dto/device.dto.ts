@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
+import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()
@@ -348,11 +348,6 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   @IsEnum(VolumeEvidenceType)
   volumeEvidenceType?: VolumeEvidenceType;
-
-  @ApiProperty({ required: false, enum: PublicFundingType })
-  @IsOptional()
-  @IsEnum(PublicFundingType)
-  publicFundingType?: PublicFundingType;
 
   @ApiProperty({ required: false })
   @IsOptional()
