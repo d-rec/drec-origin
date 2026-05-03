@@ -146,6 +146,14 @@ const FEATURED: FeaturedSite[] = [
   { name: 'HMG, NP', lat: 27.437593, lon: 83.644509 },
   { name: 'HMG, NP', lat: 27.199937, lon: 83.640469 },
   { name: 'Health Facility, UG', lat: 0.3411642, lon: 30.7958552 },
+  // Latin America additions: DB coords were 2-decimal (~1km error), so each
+  // was visually recentered onto the actual panel array via Google satellite
+  // imagery. Adds Americas to the cutaway rotation.
+  { name: 'Abaetetuba, BR', lat: -1.7467486, lon: -48.8541198 },
+  { name: 'CAPSA-2, GT', lat: 14.3306609, lon: -90.7965946 },
+  { name: 'Casa Phillipa, GT', lat: 14.550604, lon: -90.7429075 },
+  { name: 'Grupo Freeze, GT', lat: 14.4203206, lon: -90.6602311 },
+  { name: 'Remar hogar, GT', lat: 14.586906, lon: -90.5394459 },
   // Kenya placeholders — PT has 3 sites in Kenya pending registration; real
   // coords unknown. The three are spread (central / west / east) so label
   // thinning doesn't collapse them, and named generically ("Kenya, KE")
