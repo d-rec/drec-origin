@@ -128,15 +128,18 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Machrehata, IN', lat: 27.4202048, lon: 80.6435698 },
   { name: 'Markamou, IN', lat: 27.0286693, lon: 81.4458722, labelOnly: true },
   // Okra Solar / PowerTrust rooftop installations in Haiti (Léogâne).
-  // 7–8 decimal precision from prod DB; cutaway lands on the residential
-  // rooftop arrays.
+  // 7–8 decimal precision from prod DB. Originally all cutaway-eligible,
+  // demoted in 2026-05-03 audit when most appeared to lack panels at the
+  // crosshair, then 2 re-confirmed via the haiti2 re-audit (the prior audit
+  // ring was too small relative to the cutaway disc — panels visible in the
+  // wider disc had been missed).
   { name: 'Okra Solar, HT', lat: 19.20520641, lon: -72.49656819, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.21009143, lon: -72.51078575, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2260702, lon: -72.5219985, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2207567, lon: -72.5163421, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2200273, lon: -72.5162294, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.2190693, lon: -72.5157231, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.2183035, lon: -72.5154164, labelOnly: true },
+  { name: 'Okra Solar, HT', lat: 19.2194404, lon: -72.516219 },
+  { name: 'Okra Solar, HT', lat: 19.2190465, lon: -72.5164148 },
   { name: 'Okra Solar, HT', lat: 19.2179321, lon: -72.5148441, labelOnly: true },
   // Visually-confirmed cutaway-eligible sites added 2026-05-03 from a stage-DB
   // candidate sweep (≥6 decimal precision, non-IND/HTI). Each verified at z=19
