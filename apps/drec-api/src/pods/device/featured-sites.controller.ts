@@ -138,10 +138,14 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Okra Solar, HT', lat: 19.2190693, lon: -72.5157231, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2183035, lon: -72.5154164, labelOnly: true },
   { name: 'Okra Solar, HT', lat: 19.2179321, lon: -72.5148441, labelOnly: true },
-  // Nairobi placeholder — no Kenya devices in DB yet, so this gets a label
-  // for geographic coverage without claiming a specific installation site.
-  // Update lat/lon to a real Kenyan project once one is onboarded.
-  { name: 'Nairobi, KE', lat: -1.2921, lon: 36.8219, labelOnly: true },
+  // Kenya placeholders — PT has 3 sites in Kenya pending registration; real
+  // coords unknown. The three are spread (central / west / east) so label
+  // thinning doesn't collapse them, and named generically ("Kenya, KE")
+  // rather than fabricating town names. Replace each lat/lon as PT registers
+  // each device.
+  { name: 'Kenya, KE', lat: -1.2921, lon: 36.8219, labelOnly: true },
+  { name: 'Kenya, KE', lat: -0.0917, lon: 34.7680, labelOnly: true },
+  { name: 'Kenya, KE', lat: -0.4569, lon: 39.6583, labelOnly: true },
 ];
 
 @ApiTags('Featured Sites')
