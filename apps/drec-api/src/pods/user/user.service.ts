@@ -670,6 +670,24 @@ export class UserService {
         .getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
 
+      const userIds = users.map((u) => u.id);
+      if (userIds.length) {
+        const lastUsedRows = await this.userLoginSessionRepository
+          .createQueryBuilder('s')
+          .select('s.userId', 'userId')
+          .addSelect('MAX(s.updatedAt)', 'lastUsed')
+          .where('s.userId IN (:...userIds)', { userIds })
+          .groupBy('s.userId')
+          .getRawMany<{ userId: number; lastUsed: Date }>();
+        const lastUsedMap = new Map(
+          lastUsedRows.map((r) => [Number(r.userId), r.lastUsed]),
+        );
+        for (const u of users) {
+          (u as unknown as { lastUsed: Date | null }).lastUsed =
+            lastUsedMap.get(u.id) ?? null;
+        }
+      }
+
       return {
         users: users,
         currentPage: pageNumber,
