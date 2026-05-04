@@ -48,13 +48,26 @@ function alpha2ToAlpha3(alpha2: string): string | null {
   return match?.alpha3 ?? null;
 }
 
-/** Normalize whatever-case to uppercase alpha-3, best-effort. */
+/**
+ * Normalize whatever-case input to uppercase alpha-3, best-effort.
+ * Accepts alpha-3 ('IND'), alpha-2 ('IN'), and full country names
+ * ('India', 'india', 'INDIA'). Anything else returns null. This way
+ * a doc that spells out the country name and a registrant who entered
+ * 'IND' compare equal silently — no spurious country-mismatch flag.
+ */
 function normalizeCountry(code: string | null | undefined): string | null {
   if (!code) return null;
-  const trimmed = code.trim().toUpperCase();
-  if (trimmed.length === 3) return trimmed;
-  if (trimmed.length === 2) return alpha2ToAlpha3(trimmed);
-  return null;
+  const trimmed = code.trim();
+  if (!trimmed) return null;
+  const upper = trimmed.toUpperCase();
+  if (upper.length === 3 && /^[A-Z]+$/.test(upper)) return upper;
+  if (upper.length === 2 && /^[A-Z]+$/.test(upper)) return alpha2ToAlpha3(upper);
+  // Full-name match — case-insensitive, exact name match against the
+  // canonical country list.
+  const byName = countryCodesList.find(
+    (c) => c.country.toUpperCase() === upper,
+  );
+  return byName?.alpha3 ?? null;
 }
 
 export interface CountryMatchInput {
