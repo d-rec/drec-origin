@@ -431,7 +431,13 @@ export class DeviceReviewsService {
              '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
              '', 'i')
       LEFT JOIN public.organization o ON o.id = d."organizationId"
-      LEFT JOIN public.user u ON u.api_user_id = d.api_user_id
+      LEFT JOIN LATERAL (
+        SELECT email, "firstName", "lastName"
+        FROM public.user
+        WHERE api_user_id = d.api_user_id
+        ORDER BY id
+        LIMIT 1
+      ) u ON true
       WHERE d."externalId" IS NOT NULL AND d."externalId" <> ''
       ORDER BY d."createdAt" DESC
     `);
