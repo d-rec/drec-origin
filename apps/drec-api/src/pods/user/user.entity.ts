@@ -108,5 +108,8 @@ export class User extends ExtendedBaseEntity implements IUser {
 
   @Column({ name: 'email_verified_at', nullable: true })
   emailVerifiedAt: Date;
+
+  @Column({ name: 'last_login_at', nullable: true })
+  lastLoginAt: Date;
 }
 export { Role };

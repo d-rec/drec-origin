@@ -670,8 +670,6 @@ export class UserService {
         .getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
 
-      await this.attachLastUsed(users);
-
       return {
         users: users,
         currentPage: pageNumber,
@@ -685,24 +683,11 @@ export class UserService {
   }
 
   /**
-   * Attach lastUsed = MAX(user_login_session.updatedAt) to each user in place.
-   * Single GROUP BY query; skipped when input is empty.
+   * Bump user.lastLoginAt to now(). Called from auth.service on every
+   * successful login. Survives logout (unlike user_login_session rows).
    */
-  public async attachLastUsed(users: { id: number }[]): Promise<void> {
-    if (!users.length) return;
-    const userIds = users.map((u) => u.id);
-    const rows = await this.userLoginSessionRepository
-      .createQueryBuilder('s')
-      .select('s.userId', 'userId')
-      .addSelect('MAX(s.updatedAt)', 'lastUsed')
-      .where('s.userId IN (:...userIds)', { userIds })
-      .groupBy('s.userId')
-      .getRawMany<{ userId: number; lastUsed: Date }>();
-    const map = new Map(rows.map((r) => [Number(r.userId), r.lastUsed]));
-    for (const u of users) {
-      (u as unknown as { lastUsed: Date | null }).lastUsed =
-        map.get(u.id) ?? null;
-    }
+  public async recordLogin(userId: number): Promise<void> {
+    await this.repository.update(userId, { lastLoginAt: new Date() });
   }
 
   private getFilteredQuery(filterDTO: UserFilterDTO): SelectQueryBuilder<User> {

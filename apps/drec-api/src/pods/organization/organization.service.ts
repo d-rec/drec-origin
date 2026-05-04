@@ -186,8 +186,6 @@ export class OrganizationService {
       newUser = users.filter((user) => user.role != 'Registrant');
     }
 
-    await this.userService.attachLastUsed(newUser);
-
     return {
       users: newUser,
       currentPage: pageNumber,
@@ -215,7 +213,6 @@ export class OrganizationService {
       limit,
     );
     const totalPages = Math.ceil(totalCount / limit);
-    await this.userService.attachLastUsed(users);
     return {
       users: users,
       currentPage: pageNumber,

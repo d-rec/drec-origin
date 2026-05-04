@@ -73,6 +73,7 @@ export class AuthService {
     };
     const token = this.jwtService.sign(payload);
     await this.userService.createUserSession(user, token);
+    await this.userService.recordLogin(user.id);
     return {
       accessToken: token,
     };
