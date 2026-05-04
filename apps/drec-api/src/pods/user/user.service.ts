@@ -670,23 +670,7 @@ export class UserService {
         .getManyAndCount();
       const totalPages = Math.ceil(totalCount / limit);
 
-      const userIds = users.map((u) => u.id);
-      if (userIds.length) {
-        const lastUsedRows = await this.userLoginSessionRepository
-          .createQueryBuilder('s')
-          .select('s.userId', 'userId')
-          .addSelect('MAX(s.updatedAt)', 'lastUsed')
-          .where('s.userId IN (:...userIds)', { userIds })
-          .groupBy('s.userId')
-          .getRawMany<{ userId: number; lastUsed: Date }>();
-        const lastUsedMap = new Map(
-          lastUsedRows.map((r) => [Number(r.userId), r.lastUsed]),
-        );
-        for (const u of users) {
-          (u as unknown as { lastUsed: Date | null }).lastUsed =
-            lastUsedMap.get(u.id) ?? null;
-        }
-      }
+      await this.attachLastUsed(users);
 
       return {
         users: users,
@@ -697,6 +681,27 @@ export class UserService {
     } catch (error) {
       this.logger.error(`Failed to retrieve users`, error.stack);
       throw new InternalServerErrorException('Failed to retrieve users');
+    }
+  }
+
+  /**
+   * Attach lastUsed = MAX(user_login_session.updatedAt) to each user in place.
+   * Single GROUP BY query; skipped when input is empty.
+   */
+  public async attachLastUsed(users: { id: number }[]): Promise<void> {
+    if (!users.length) return;
+    const userIds = users.map((u) => u.id);
+    const rows = await this.userLoginSessionRepository
+      .createQueryBuilder('s')
+      .select('s.userId', 'userId')
+      .addSelect('MAX(s.updatedAt)', 'lastUsed')
+      .where('s.userId IN (:...userIds)', { userIds })
+      .groupBy('s.userId')
+      .getRawMany<{ userId: number; lastUsed: Date }>();
+    const map = new Map(rows.map((r) => [Number(r.userId), r.lastUsed]));
+    for (const u of users) {
+      (u as unknown as { lastUsed: Date | null }).lastUsed =
+        map.get(u.id) ?? null;
     }
   }
 
