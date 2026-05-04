@@ -285,10 +285,15 @@ export class FileService {
     expiresInSeconds = 3600,
   ): Promise<string> {
     const s3 = this.getS3();
+    // Override the bucket-level Content-Disposition so PDFs and images
+    // render inline in <iframe>/<img> instead of triggering a download.
+    // Reviewer-workbench depends on inline rendering; the per-doc
+    // Download button still works via window.open().
     return s3.getSignedUrlPromise('getObject', {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
       Expires: expiresInSeconds,
+      ResponseContentDisposition: 'inline',
     });
   }
 
