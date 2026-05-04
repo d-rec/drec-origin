@@ -90,6 +90,16 @@ export class ChatController {
     return this.chatService.getAllConversations();
   }
 
+  @Get('conversations/admin/all')
+  @ApiOperation({
+    summary:
+      'Admin/SeniorReviewer chat-review list — every conversation, with each row enriched with the latest message preview and timestamp',
+  })
+  @ApiResponse({ status: 200 })
+  async getAllConversationsEnriched(): Promise<unknown[]> {
+    return this.chatService.getAllConversationsEnriched();
+  }
+
   @Get('conversations/user/:email')
   @ApiOperation({ summary: 'Get all conversations for a user by email' })
   @ApiResponse({ status: 200, type: [ConversationDto] })

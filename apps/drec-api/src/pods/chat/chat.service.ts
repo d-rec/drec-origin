@@ -224,6 +224,38 @@ export class ChatService {
     return this.conversationRepository.find();
   }
 
+  /**
+   * Enriched conversation list for the admin chat-review panel:
+   * each row carries the latest message's text snippet + timestamp +
+   * author so the list pane can render last-activity sort order without
+   * an N+1 round-trip.
+   */
+  async getAllConversationsEnriched(): Promise<
+    Array<
+      ChatConversation & {
+        lastMessageAt: Date | null;
+        lastMessageBy: string | null;
+        lastMessagePreview: string | null;
+      }
+    >
+  > {
+    const rows = await this.conversationRepository
+      .createQueryBuilder('conv')
+      .leftJoin(Chat, 'last', 'last.uuid = conv."lastEntryUuid"')
+      .addSelect('last."createdAt"', 'lastMessageAt')
+      .addSelect('last.username', 'lastMessageBy')
+      .addSelect('LEFT(last."chatEntry", 160)', 'lastMessagePreview')
+      .orderBy('last."createdAt"', 'DESC', 'NULLS LAST')
+      .getRawAndEntities();
+
+    return rows.entities.map((conv, i) => ({
+      ...conv,
+      lastMessageAt: rows.raw[i].lastMessageAt ?? null,
+      lastMessageBy: rows.raw[i].lastMessageBy ?? null,
+      lastMessagePreview: rows.raw[i].lastMessagePreview ?? null,
+    }));
+  }
+
   async getConversationsForUser(email: string): Promise<ChatConversation[]> {
     return this.conversationRepository
       .createQueryBuilder('conv')
