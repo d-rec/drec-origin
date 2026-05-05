@@ -21,6 +21,42 @@ export type FileUpload = {
   mimetype: string;
 };
 
+/**
+ * Infer a sensible Content-Type for a stored S3 key based on its
+ * extension. Used to override application/octet-stream at sign time
+ * so iframes/img tags render inline instead of triggering Firefox's
+ * "unknown binary, save?" dialog.
+ */
+function mimeFromKey(key: string): string {
+  const ext = (key.split('.').pop() || '').toLowerCase().split(/[?#]/)[0];
+  switch (ext) {
+    case 'pdf':
+      return 'application/pdf';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'xlsx':
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    case 'xls':
+      return 'application/vnd.ms-excel';
+    case 'csv':
+      return 'text/csv';
+    case 'txt':
+      return 'text/plain';
+    default:
+      // Don't lie — let the browser handle truly unknown content as octet-stream.
+      return 'application/octet-stream';
+  }
+}
+
 export class FileService {
   private readonly logger = new Logger(FileService.name);
 
@@ -245,6 +281,10 @@ export class FileService {
     const options: S3.ClientConfiguration = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      // Use SigV4 so MinIO accepts ResponseContentType in signed URLs.
+      // Default SigV2 signature does not cover this query param, so
+      // adding it makes MinIO reject with SignatureDoesNotMatch.
+      signatureVersion: 'v4',
     };
     if (process.env.AWS_S3_ENDPOINT) {
       options.endpoint = process.env.AWS_S3_ENDPOINT;
@@ -287,14 +327,23 @@ export class FileService {
     const s3 = this.getS3();
     // Override the bucket-level Content-Disposition so PDFs and images
     // render inline in <iframe>/<img> instead of triggering a download.
-    // Reviewer-workbench depends on inline rendering; the per-doc
-    // Download button still works via window.open().
-    return s3.getSignedUrlPromise('getObject', {
+    // ALSO override Content-Type because uploaded objects in MinIO/S3
+    // are stored with application/octet-stream (no MIME sniff) — and
+    // Firefox treats octet-stream as "unknown binary, ask to save"
+    // regardless of Content-Disposition. Inferring the correct MIME
+    // from the file extension at sign time fixes inline rendering for
+    // PDFs and images without a re-upload.
+    const params: any = {
       Bucket: process.env.AWS_S3_BUCKET,
       Key: key,
       Expires: expiresInSeconds,
       ResponseContentDisposition: 'inline',
-    });
+    };
+    const mime = mimeFromKey(key);
+    if (mime !== 'application/octet-stream') {
+      params.ResponseContentType = mime;
+    }
+    return s3.getSignedUrlPromise('getObject', params);
   }
 
   public async deleteFileFromS3(key: string): Promise<void> {
