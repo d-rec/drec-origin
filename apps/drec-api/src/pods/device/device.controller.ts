@@ -1138,14 +1138,24 @@ export class DeviceController {
           .toLowerCase();
         const projectSubfolder = `${siteName}-${existingDevice.id}`;
 
+        // Multi-file slots: new uploads append to the existing set instead of
+        // replacing it. Single-file slots (SF-02, SLD, COD proof, etc.) still
+        // replace, because the registrant can only have one of each.
+        const multiFileTypes = new Set<string>([
+          DocumentType.PROJECT_PHOTOS,
+          DocumentType.METERING_EVIDENCE,
+          DocumentType.OTHER_DOCUMENTS,
+        ]);
         for (const [field, documentType] of Object.entries(documentTypes)) {
           if (files[field] && Array.isArray(files[field])) {
-            // Remove old documents of this type before uploading replacements
-            await this.documentUploadsService.deleteByType(
-              existingDevice.id,
-              DocumentTargetType.DEVICE,
-              documentType as DocumentType,
-            );
+            if (!multiFileTypes.has(documentType)) {
+              // Remove old documents of this type before uploading replacements
+              await this.documentUploadsService.deleteByType(
+                existingDevice.id,
+                DocumentTargetType.DEVICE,
+                documentType as DocumentType,
+              );
+            }
             for (const file of files[field]) {
               try {
                 await this.documentUploadsService.upload(

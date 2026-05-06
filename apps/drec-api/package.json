@@ -129,6 +129,7 @@
     "passport-strategy": "1.x.x",
     "pdfkit": "^0.18.0",
     "pg": "8.7.1",
+    "piexifjs": "^1.0.6",
     "pkcs7-padding": "0.1.1",
     "qs": "^6.10.3",
     "react": "^19.1.0",

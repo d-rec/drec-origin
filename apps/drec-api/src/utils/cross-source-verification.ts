@@ -28,6 +28,8 @@ export interface CrossSourceResult {
   monthsCompared: number;
   /** R² goodness of fit (0–1, higher = more consistent) */
   rSquared: number;
+  /** True when there are no nonzero actual readings — PF/R² are degenerate. */
+  noActualData: boolean;
   /** Per-month breakdown */
   months: MonthlyComparison[];
   /** Flags */
@@ -136,6 +138,7 @@ export function computeCrossSourceVerification(
     simpleRatio: Math.round(simpleRatio * 1000) / 1000,
     monthsCompared: n,
     rSquared: Math.round(rSquared * 1000) / 1000,
+    noActualData: sumActual === 0,
     months,
     flags,
   };

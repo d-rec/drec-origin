@@ -2228,7 +2228,8 @@ export class DeviceReviewsService {
         );
       if (r.manualChecks?.length > 0) {
         flags.push(`${r.manualChecks.length} manual check(s) needed`);
-        for (const c of r.manualChecks) flags.push(`  → ${c}`);
+        for (const c of r.manualChecks)
+          flags.push(`  → ${c.label}${c.description ? ` — ${c.description}` : ''}`);
       }
       sections.push({
         name: 'Source Access Mode',
@@ -2254,32 +2255,44 @@ export class DeviceReviewsService {
     // 4. Historical Consistency
     if (consistency.status === 'fulfilled') {
       const r = consistency.value;
-      const criticals = r.anomalies.filter((a) => a.severity === 'critical');
-      const warnings = r.anomalies.filter((a) => a.severity === 'warning');
-      const flags: string[] = [];
-      flags.push(
-        `${r.totalReadings} reading(s) over ${r.periodMonths} month(s)`,
-      );
-      if (criticals.length > 0) {
-        flags.push(`${criticals.length} critical anomaly(s)`);
-        for (const a of criticals.slice(0, 3))
-          flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+      if (!r.totalReadings) {
+        sections.push({
+          name: 'Historical Consistency',
+          status: 'skip',
+          flags: ['No meter readings yet — check skipped'],
+        });
+      } else {
+        const criticals = r.anomalies.filter((a) => a.severity === 'critical');
+        const warnings = r.anomalies.filter((a) => a.severity === 'warning');
+        const flags: string[] = [];
+        flags.push(
+          `${r.totalReadings} reading(s) over ${r.periodMonths} month(s)`,
+        );
+        if (criticals.length > 0) {
+          flags.push(`${criticals.length} critical anomaly(s)`);
+          for (const a of criticals.slice(0, 3))
+            flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+        }
+        if (warnings.length > 0) {
+          flags.push(`${warnings.length} warning(s)`);
+          for (const a of warnings.slice(0, 3))
+            flags.push(`  → ${a.description || a.type || 'anomaly'}`);
+        }
+        sections.push({
+          name: 'Historical Consistency',
+          status:
+            criticals.length > 0
+              ? 'fail'
+              : warnings.length > 0
+                ? 'warn'
+                : 'pass',
+          flags,
+          detail: {
+            totalReadings: r.totalReadings,
+            periodMonths: r.periodMonths,
+          },
+        });
       }
-      if (warnings.length > 0) {
-        flags.push(`${warnings.length} warning(s)`);
-        for (const a of warnings.slice(0, 3))
-          flags.push(`  → ${a.description || a.type || 'anomaly'}`);
-      }
-      sections.push({
-        name: 'Historical Consistency',
-        status:
-          criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
-        flags,
-        detail: {
-          totalReadings: r.totalReadings,
-          periodMonths: r.periodMonths,
-        },
-      });
     } else {
       sections.push({
         name: 'Historical Consistency',
@@ -2340,34 +2353,48 @@ export class DeviceReviewsService {
     // 6. Cross-Source
     if (crossSource.status === 'fulfilled') {
       const r = crossSource.value;
-      const criticals =
-        r.flags?.filter((f: any) => f.severity === 'critical') || [];
-      const warnings =
-        r.flags?.filter((f: any) => f.severity === 'warning') || [];
-      const flags: string[] = [];
-      if (r.performanceFactor != null)
-        flags.push(
-          `Performance factor: ${(r.performanceFactor * 100).toFixed(1)}%`,
-        );
-      if (r.rSquared != null) flags.push(`R²: ${r.rSquared.toFixed(3)}`);
-      if (criticals.length > 0) {
-        flags.push(`${criticals.length} critical flag(s)`);
-        for (const f of criticals) flags.push(`  → ${f.description || f.type}`);
+      if (r.noActualData) {
+        sections.push({
+          name: 'Cross-Source Verification',
+          status: 'skip',
+          flags: ['No meter readings yet — check skipped'],
+        });
+      } else {
+        const criticals =
+          r.flags?.filter((f: any) => f.severity === 'critical') || [];
+        const warnings =
+          r.flags?.filter((f: any) => f.severity === 'warning') || [];
+        const flags: string[] = [];
+        if (r.performanceFactor != null)
+          flags.push(
+            `Performance factor: ${(r.performanceFactor * 100).toFixed(1)}%`,
+          );
+        if (r.rSquared != null) flags.push(`R²: ${r.rSquared.toFixed(3)}`);
+        if (criticals.length > 0) {
+          flags.push(`${criticals.length} critical flag(s)`);
+          for (const f of criticals)
+            flags.push(`  → ${f.description || f.type}`);
+        }
+        if (warnings.length > 0) {
+          flags.push(`${warnings.length} warning(s)`);
+          for (const f of warnings)
+            flags.push(`  → ${f.description || f.type}`);
+        }
+        sections.push({
+          name: 'Cross-Source Verification',
+          status:
+            criticals.length > 0
+              ? 'fail'
+              : warnings.length > 0
+                ? 'warn'
+                : 'pass',
+          flags,
+          detail: {
+            performanceFactor: r.performanceFactor,
+            rSquared: r.rSquared,
+          },
+        });
       }
-      if (warnings.length > 0) {
-        flags.push(`${warnings.length} warning(s)`);
-        for (const f of warnings) flags.push(`  → ${f.description || f.type}`);
-      }
-      sections.push({
-        name: 'Cross-Source Verification',
-        status:
-          criticals.length > 0 ? 'fail' : warnings.length > 0 ? 'warn' : 'pass',
-        flags,
-        detail: {
-          performanceFactor: r.performanceFactor,
-          rSquared: r.rSquared,
-        },
-      });
     } else {
       sections.push({
         name: 'Cross-Source Verification',
@@ -2797,11 +2824,24 @@ export class DeviceReviewsService {
         })
       : 'Not specified';
 
+    const serialList = (dev.serialNumber || '')
+      .split(/[;,]/)
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
+
     const fields = [
       { label: 'Device ID', value: dev.externalId || String(dev.id) },
       { label: 'Site Name', value: dev.siteName || '—' },
       { label: 'Organization', value: dev.orgName || '—' },
-      { label: 'Serial Number', value: dev.serialNumber || '—' },
+      {
+        label: serialList.length > 1 ? 'Serial Numbers' : 'Serial Number',
+        value:
+          serialList.length === 0
+            ? '—'
+            : serialList.length === 1
+              ? serialList[0]
+              : serialList.join(', '),
+      },
       { label: 'Country', value: dev.countryCode || '—' },
       {
         label: 'Location',
@@ -2873,6 +2913,17 @@ export class DeviceReviewsService {
     );
     const s3Key: string = uploadResult.Key;
 
+    // Human-readable display name for the docs list — ISO timestamp + site name
+    // (slugified). The S3 key still carries a uuid for uniqueness; this is
+    // just for display.
+    const slug = (dev.siteName || `device-${deviceId}`)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40) || `device-${deviceId}`;
+    const isoStamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    const displayFilename = `SF02-${slug}-${isoStamp}.pdf`;
+
     // Delete any existing FORM_SF_02 documents for this device (replace with generated)
     await this.connection.query(
       `DELETE FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'FORM_SF_02'`,
@@ -2881,10 +2932,10 @@ export class DeviceReviewsService {
 
     // Insert document record
     const insertResult = await this.connection.query(
-      `INSERT INTO documents (target_id, target_type, type, extension, url, created_at, updated_at, reviewed_flag)
-       VALUES ($1, 'device', 'FORM_SF_02', 'pdf', $2, NOW(), NOW(), false)
+      `INSERT INTO documents (target_id, target_type, type, extension, url, original_filename, created_at, updated_at, reviewed_flag)
+       VALUES ($1, 'device', 'FORM_SF_02', 'pdf', $2, $3, NOW(), NOW(), false)
        RETURNING id`,
-      [deviceId, s3Key],
+      [deviceId, s3Key, displayFilename],
     );
     const docId = insertResult[0]?.id;
 
@@ -2973,12 +3024,28 @@ export class DeviceReviewsService {
 
       doc.moveDown(1.5);
 
+      // Serials are stored as a ';'-joined string. Render multiple as a
+      // bulleted list so the PDF reads naturally.
+      const serials = (dev.serialNumber || '')
+        .split(/[;,]/)
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 0);
+      const serialDisplay =
+        serials.length === 0
+          ? '—'
+          : serials.length === 1
+            ? serials[0]
+            : serials.map((s: string) => `• ${s}`).join('\n');
+
       // Table-style key-value rows
       const fields: [string, string][] = [
         ['Device ID', dev.externalId || String(dev.id)],
         ['Site Name', dev.siteName || '—'],
         ['Organization', dev.orgName || '—'],
-        ['Serial Number', dev.serialNumber || '—'],
+        [
+          serials.length > 1 ? 'Serial Numbers' : 'Serial Number',
+          serialDisplay,
+        ],
         ['Country', dev.countryCode || '—'],
         [
           'Location',

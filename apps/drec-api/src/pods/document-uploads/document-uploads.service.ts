@@ -37,6 +37,7 @@ export class DocumentUploadsService {
       id: number;
       label: string | null;
       originalFilename: string | null;
+      createdAt: Date;
     }[]
   > {
     const docs = await this.documentUploadsRepository.find({
@@ -48,6 +49,7 @@ export class DocumentUploadsService {
       id: number;
       label: string | null;
       originalFilename: string | null;
+      createdAt: Date;
     }[] = [];
     for (const doc of docs) {
       let signedUrl = '';
@@ -62,6 +64,7 @@ export class DocumentUploadsService {
         id: doc.id,
         label: doc.label,
         originalFilename: doc.originalFilename,
+        createdAt: doc.createdAt,
       });
     }
     return results;
