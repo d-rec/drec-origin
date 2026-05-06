@@ -19,6 +19,7 @@ import {
   Query,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -66,7 +67,10 @@ import {
   UpdateDeviceDTO,
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { fileFilter } from '../../validations/file';
 import { parseMetadata } from '../../lib/helpers/parseMetadata';
 import {
@@ -588,6 +592,71 @@ export class DeviceController {
     @Param('docId', ParseIntPipe) docId: number,
   ): Promise<void> {
     await this.documentUploadsService.deleteById(docId, parseInt(id, 10));
+  }
+
+  /**
+   * Upload one document to a device immediately, without going through the
+   * full update flow. Used for instant uploads (camera screenshot, on-the-fly
+   * doc-replacement) so the user doesn't have to remember to press Save.
+   * Multi-file slots append; single-file slots replace.
+   */
+  @Post('/:id/documents/:type')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(FileInterceptor('file', { fileFilter }))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload a single document to a device' })
+  public async uploadSingleDocument(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('type') type: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ id: number; url: string; type: string; createdAt: Date }> {
+    if (!file) {
+      throw new BadRequestException('file is required');
+    }
+    const docType = type as DocumentType;
+    if (!Object.values(DocumentType).includes(docType)) {
+      throw new BadRequestException(`unknown document type: ${type}`);
+    }
+
+    await this.deviceService.assertDocumentsEditable(id);
+
+    const device = await this.deviceService.findOne(id);
+    if (!device) {
+      throw new NotFoundException(`device ${id} not found`);
+    }
+    const slug = (device.siteName || 'project')
+      .replace(/[^a-zA-Z0-9-_]/g, '-')
+      .toLowerCase();
+    const subfolder = `${slug}-${id}`;
+
+    const multiFileTypes = new Set<string>([
+      DocumentType.PROJECT_PHOTOS,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.OTHER_DOCUMENTS,
+    ]);
+    if (!multiFileTypes.has(docType)) {
+      await this.documentUploadsService.deleteByType(
+        id,
+        DocumentTargetType.DEVICE,
+        docType,
+      );
+    }
+
+    const saved = await this.documentUploadsService.upload(
+      id,
+      DocumentTargetType.DEVICE,
+      docType,
+      file,
+      subfolder,
+    );
+    return {
+      id: saved.id,
+      url: saved.url,
+      type: saved.type,
+      createdAt: saved.createdAt,
+    };
   }
 
   /**

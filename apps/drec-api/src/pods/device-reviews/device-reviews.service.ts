@@ -2924,7 +2924,23 @@ export class DeviceReviewsService {
     const isoStamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
     const displayFilename = `SF02-${slug}-${isoStamp}.pdf`;
 
-    // Delete any existing FORM_SF_02 documents for this device (replace with generated)
+    // Delete any existing FORM_SF_02 documents for this device (replace with generated).
+    // Remove the S3 objects first so we don't orphan them when the row is gone.
+    const stale: { url: string }[] = await this.connection.query(
+      `SELECT url FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'FORM_SF_02'`,
+      [deviceId],
+    );
+    for (const row of stale) {
+      if (row.url && row.url !== s3Key) {
+        await this.fileService
+          .deleteFileFromS3(row.url)
+          .catch((e: any) =>
+            this.logger.warn(
+              `failed to delete stale SF-02 ${row.url}: ${e?.message || e}`,
+            ),
+          );
+      }
+    }
     await this.connection.query(
       `DELETE FROM documents WHERE target_id = $1 AND target_type = 'device' AND type = 'FORM_SF_02'`,
       [deviceId],
