@@ -21,6 +21,8 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { ChatDto, ConversationDto } from './dto/chat.dto';
 import { Chat } from './chat.entity';
 import { ChatConversation } from './chat-conversation.entity';
+import { UserDecorator } from '../user/decorators/user.decorator';
+import { ILoggedInUser } from '../../models';
 
 @ApiTags('Chat')
 @ApiBearerAuth('access-token')
@@ -133,6 +135,19 @@ export class ChatController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<{ success: boolean }> {
     await this.chatService.clearConversation(id);
+    return { success: true };
+  }
+
+  @Delete('messages/:uuid')
+  @ApiOperation({
+    summary: 'Delete a single chat message (author only). Rewires the chain.',
+  })
+  async deleteMessage(
+    @Param('uuid') uuid: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ success: boolean }> {
+    const username = (user.email || '').split('@')[0];
+    await this.chatService.deleteMessage(uuid, username, user.email);
     return { success: true };
   }
 

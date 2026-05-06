@@ -650,8 +650,11 @@ export class DeviceReviewsController {
   }
 
   @Get('reports/:reportId')
-  @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiOperation({ summary: 'Fetch a Verify Device report by id (read-only)' })
+  @ApiOperation({
+    summary: 'Fetch a Verify Device report by id (public, read-only)',
+    description:
+      'Public so registrants can open the URL the reviewer shares via chat without needing to authenticate.',
+  })
   async getVerificationReport(
     @Param('reportId', ParseIntPipe) reportId: number,
   ): Promise<any> {

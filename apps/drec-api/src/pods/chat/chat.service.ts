@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Chat } from './chat.entity';
@@ -54,6 +59,50 @@ export class ChatService {
       throw new NotFoundException(`Chat node ${uuid} not found`);
     }
     return node;
+  }
+
+  /** Delete a single chat message and rewire the linked-list so the chain
+   *  stays continuous. Author-only delete: caller must pass the requesting
+   *  user's username and we 403 if it doesn't match the message author. */
+  async deleteMessage(
+    uuid: string,
+    requesterUsername: string,
+    requesterEmail?: string,
+  ): Promise<void> {
+    const node = await this.chatRepository.findOne({ where: { uuid } });
+    if (!node) throw new NotFoundException(`Chat node ${uuid} not found`);
+
+    // Allow either the username on the message (legacy) or the email
+    // localpart (newer messages may store the email username).
+    const localpart = (requesterEmail || '').split('@')[0];
+    const allowed =
+      node.username === requesterUsername ||
+      node.username === requesterEmail ||
+      node.username === localpart;
+    if (!allowed) {
+      throw new ForbiddenException(
+        'You can only delete your own chat messages',
+      );
+    }
+
+    // Rewire prev → next so the chain stays continuous.
+    const prev = await this.chatRepository.findOne({
+      where: { nextEntryUuid: uuid },
+    });
+    if (prev) {
+      prev.nextEntryUuid = node.nextEntryUuid;
+      await this.chatRepository.save(prev);
+    }
+    // If this was the head of a conversation, update the conversation's
+    // head pointer to the next node (or null if there is none).
+    const conv = await this.conversationRepository.findOne({
+      where: { headUuid: uuid },
+    });
+    if (conv) {
+      conv.headUuid = node.nextEntryUuid as any;
+      await this.conversationRepository.save(conv);
+    }
+    await this.chatRepository.delete(uuid);
   }
 
   async traverseChain(headUuid: string): Promise<Chat[]> {
