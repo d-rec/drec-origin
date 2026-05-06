@@ -16,6 +16,10 @@ export class VerificationReport {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'uuid', generated: 'uuid', unique: true })
+  @Index({ unique: true })
+  uuid: string;
+
   @Column({ name: 'device_id' })
   @Index()
   deviceId: number;

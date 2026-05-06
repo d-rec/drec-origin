@@ -37,6 +37,21 @@ export class VerificationReportsService {
     return row;
   }
 
+  /** Accept either the integer id or the uuid; uuid is what we share. */
+  async findByRef(ref: string): Promise<VerificationReport> {
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        ref,
+      );
+    const row = isUuid
+      ? await this.repo.findOne({ where: { uuid: ref } })
+      : await this.repo.findOne({ where: { id: Number(ref) } });
+    if (!row) {
+      throw new NotFoundException(`Verification report ${ref} not found`);
+    }
+    return row;
+  }
+
   async listForDevice(deviceId: number): Promise<VerificationReport[]> {
     return this.repo.find({
       where: { deviceId },

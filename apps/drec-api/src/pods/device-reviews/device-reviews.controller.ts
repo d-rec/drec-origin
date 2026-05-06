@@ -637,7 +637,7 @@ export class DeviceReviewsController {
       overallStatus?: string;
       payload: any;
     },
-  ): Promise<{ id: number }> {
+  ): Promise<{ id: number; uuid: string }> {
     const saved = await this.verificationReportsService.create(
       deviceId,
       user.email,
@@ -646,19 +646,17 @@ export class DeviceReviewsController {
       body.overallStatus ?? null,
       body.payload || {},
     );
-    return { id: saved.id };
+    return { id: saved.id, uuid: saved.uuid };
   }
 
-  @Get('reports/:reportId')
+  @Get('reports/:ref')
   @ApiOperation({
-    summary: 'Fetch a Verify Device report by id (public, read-only)',
+    summary: 'Fetch a Verify Device report by uuid (or legacy integer id)',
     description:
-      'Public so registrants can open the URL the reviewer shares via chat without needing to authenticate.',
+      'Public so registrants can open the URL the reviewer shares via chat without needing to authenticate. Accepts either the uuid (preferred, used in shared links) or the integer id (legacy).',
   })
-  async getVerificationReport(
-    @Param('reportId', ParseIntPipe) reportId: number,
-  ): Promise<any> {
-    return this.verificationReportsService.findById(reportId);
+  async getVerificationReport(@Param('ref') ref: string): Promise<any> {
+    return this.verificationReportsService.findByRef(ref);
   }
 
   @Get(':deviceId/reports')

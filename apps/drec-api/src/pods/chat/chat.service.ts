@@ -1,5 +1,4 @@
 import {
-  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -62,28 +61,14 @@ export class ChatService {
   }
 
   /** Delete a single chat message and rewire the linked-list so the chain
-   *  stays continuous. Author-only delete: caller must pass the requesting
-   *  user's username and we 403 if it doesn't match the message author. */
+   *  stays continuous. Any participant can delete any message. */
   async deleteMessage(
     uuid: string,
-    requesterUsername: string,
-    requesterEmail?: string,
+    _requesterUsername: string,
+    _requesterEmail?: string,
   ): Promise<void> {
     const node = await this.chatRepository.findOne({ where: { uuid } });
     if (!node) throw new NotFoundException(`Chat node ${uuid} not found`);
-
-    // Allow either the username on the message (legacy) or the email
-    // localpart (newer messages may store the email username).
-    const localpart = (requesterEmail || '').split('@')[0];
-    const allowed =
-      node.username === requesterUsername ||
-      node.username === requesterEmail ||
-      node.username === localpart;
-    if (!allowed) {
-      throw new ForbiddenException(
-        'You can only delete your own chat messages',
-      );
-    }
 
     // Rewire prev → next so the chain stays continuous.
     const prev = await this.chatRepository.findOne({
@@ -93,14 +78,19 @@ export class ChatService {
       prev.nextEntryUuid = node.nextEntryUuid;
       await this.chatRepository.save(prev);
     }
-    // If this was the head of a conversation, update the conversation's
-    // head pointer to the next node (or null if there is none).
+    // If this was the head of a conversation, advance head pointer.
+    // If there's no next node, drop the whole conversation row to satisfy
+    // the NOT NULL constraint on headUuid.
     const conv = await this.conversationRepository.findOne({
       where: { headUuid: uuid },
     });
     if (conv) {
-      conv.headUuid = node.nextEntryUuid as any;
-      await this.conversationRepository.save(conv);
+      if (node.nextEntryUuid) {
+        conv.headUuid = node.nextEntryUuid;
+        await this.conversationRepository.save(conv);
+      } else {
+        await this.conversationRepository.delete(conv.id);
+      }
     }
     await this.chatRepository.delete(uuid);
   }
