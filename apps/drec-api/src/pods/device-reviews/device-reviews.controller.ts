@@ -38,6 +38,7 @@ import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
+import { VerificationReportsService } from './verification-reports.service';
 
 @ApiTags('Device Reviews')
 @ApiBearerAuth('access-token')
@@ -48,6 +49,7 @@ export class DeviceReviewsController {
     private readonly documentUploadsService: DocumentUploadsService,
     private readonly uploadLogService: UploadLogService,
     private readonly apiKeyResolver: ApiKeyResolverService,
+    private readonly verificationReportsService: VerificationReportsService,
   ) {}
 
   @Get()
@@ -615,5 +617,55 @@ export class DeviceReviewsController {
     } catch {
       return { date: null, cloudCover: null };
     }
+  }
+
+  // ── Verification Reports ─────────────────────────────────────────────
+  // Persist a Verify Device run so a reviewer can share a stable URL with
+  // the registrant. Registrants can fetch by id (read-only).
+
+  @Post(':deviceId/reports')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'Save a Verify Device report' })
+  async saveVerificationReport(
+    @UserDecorator() user: ILoggedInUser,
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body()
+    body: {
+      elapsedMs?: number;
+      overallStatus?: string;
+      payload: any;
+    },
+  ): Promise<{ id: number }> {
+    const saved = await this.verificationReportsService.create(
+      deviceId,
+      user.email,
+      null,
+      body.elapsedMs ?? 0,
+      body.overallStatus ?? null,
+      body.payload || {},
+    );
+    return { id: saved.id };
+  }
+
+  @Get('reports/:reportId')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({ summary: 'Fetch a Verify Device report by id (read-only)' })
+  async getVerificationReport(
+    @Param('reportId', ParseIntPipe) reportId: number,
+  ): Promise<any> {
+    return this.verificationReportsService.findById(reportId);
+  }
+
+  @Get(':deviceId/reports')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Read')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({ summary: 'List recent Verify Device reports for a device' })
+  async listVerificationReports(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+  ): Promise<any[]> {
+    return this.verificationReportsService.listForDevice(deviceId);
   }
 }

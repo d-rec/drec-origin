@@ -7,10 +7,12 @@ import { UserModule } from '../user/user.module';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.module';
 import { SolarYieldModule } from '../solar-yield/solar-yield.module';
+import { VerificationReport } from './verification-report.entity';
+import { VerificationReportsService } from './verification-reports.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([]),
+    TypeOrmModule.forFeature([VerificationReport]),
     FileModule,
     DocumentUploadsModule,
     forwardRef(() => UserModule),
@@ -18,6 +20,7 @@ import { SolarYieldModule } from '../solar-yield/solar-yield.module';
     SolarYieldModule,
   ],
   controllers: [DeviceReviewsController],
-  providers: [DeviceReviewsService],
+  providers: [DeviceReviewsService, VerificationReportsService],
+  exports: [VerificationReportsService],
 })
 export class DeviceReviewsModule {}
