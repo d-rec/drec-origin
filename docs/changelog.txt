@@ -1,8 +1,75 @@
 DREC Changelog
-Report date: April 7, 2026
+Report date: May 6, 2026
 
 
-RECENT CHANGES (April 2026)
+RECENT CHANGES (April -- May 2026)
+============================================================
+
+v0.9.1 (2026-05-06)
+--------------------
+
+  STAGING (deployed)
+  ~~~~~~~~~~~~~~~~~~
+  - device-reviews SF-02 generation: explicit "Generate" action,
+    instant per-document upload, multi-file append, scan-result
+    polish with specific reasons, S3 cleanup after upload
+  - Solar yield grid: SOLAR_GRID_NPZ_PATH now accepts s3:// and
+    https:// URLs; stage fetches directly from public S3 (no
+    init-container)
+  - Chat: enriched conversations endpoint for admin / SeniorReviewer
+  - Real lastLoginAt column on user (replaces session-table proxy);
+    lastUsed surfaced in admin/users responses
+  - Country-match: normalizeCountry accepts full country names
+  - Files (MinIO/S3): SigV4 signing + ResponseContentType=
+    application/pdf; ResponseContentDisposition=inline so PDFs
+    render in Firefox instead of triggering a save flood
+  - Chat webhook: don't echo a user's own message to their own
+    webhook
+  - Device reviews: dedupe via LATERAL (no user-join multiplication);
+    widen checkProductionCeiling return type
+  - ACL: Reviewer / SeniorReviewer get Read on ORGANIZATION_MANAGEMENT;
+    activate Reviewer grants and backfill PASSWORD_MANAGEMENT
+
+v0.9.0 (2026-05-03) -- OC# Checklist Alignment & Login Globe
+--------------------
+
+  STAGING (deployed)
+  ~~~~~~~~~~~~~~~~~~
+  - BREAKING: OC# checklist alignment, phases 1b through 2e:
+    dropped energyStorage / acCapacity / isGridConnected / meterIds /
+    publicFundingType; merged qualityLabels into
+    labellingSchemeAccreditation, SCREENSHOTS into METERING_EVIDENCE.
+    Each phase has its own migration (1761000000000 - 1761700000000),
+    deploy in order
+  - New: solar yield prediction model (TS port of Kartik's GSA model);
+    wired into GET /device-reviews/:deviceId/production-ceiling as
+    solarGsa with gsaYieldPerKw and effectiveCeiling
+  - New public endpoints (login-page globe):
+      GET /api/featured-sites -- curated cutaway sites + DB
+      label-only sites for global coverage
+      GET /api/stats -- platform aggregates (GWh, countries, devices,
+      sites). Both cached 5 min, IP-rate-limited 60/min, no auth
+  - Country-vs-coordinate verification (auto-screen): mismatches in
+    disputed-border zones stay 'warn', never 'fail'
+  - Reviewer OC# gap closures: device GET + DocumentType improvements
+    for OC#26, #42, #44; document label + original_filename exposed
+    via PATCH and docMeta
+  - New device type TC100 (Solar photovoltaic, generic)
+  - Multi-step device registration: update-device accepts partial
+    drafts; commissioningDate no longer pinned via @MaxDate(now)
+  - Device-key resolver refactor (resolveDeviceKey) -- consistent
+    externalId-first lookups across reads/device APIs
+  - Stage-deploy fixes: sequence drift, Registrant ACL backfill,
+    migrate:docker boot
+  - Various fixes: api-licenses freebie-cap bypass, user_role dedupe
+    + primary key, seed Registrant ACL + four README accounts,
+    duplicate-email allowance (org-scoped), env validation
+    (blockchain placeholders, ENCRYPTION_SECRET length), timezone
+    guard for unknown country codes, e-signature-log column mapping,
+    cert-log role-aware group access, photo GPS uses original_filename
+
+
+PRIOR RELEASES
 ============================================================
 
 v0.8.2 (2026-04-07)
