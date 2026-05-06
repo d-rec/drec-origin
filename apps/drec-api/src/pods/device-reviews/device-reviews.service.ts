@@ -1111,6 +1111,7 @@ export class DeviceReviewsService {
    */
   async checkProductionCeiling(deviceId: number): Promise<{
     irradiance: IrradianceEstimate | null;
+    irradianceUnavailableReason: string | null;
     /** Solar GSA climatology estimate (more accurate than the lat-band
      * fallback in `irradiance`). Null when the grid isn't provisioned
      * (`SOLAR_GRID_NPZ_PATH` unset), the device is pre-COD, the device is
@@ -1121,10 +1122,14 @@ export class DeviceReviewsService {
       monthlyKwh: number[];
       version: string;
     } | null;
+    solarGsaUnavailableReason: string | null;
     gsaYieldPerKw: number | null;
     configuredYield: number;
     effectiveCeiling: number;
     capacityKw: number;
+    lat: number | null;
+    lng: number | null;
+    commissioningDate: string | Date | null;
     yieldMismatch: boolean;
     recentReadings: Array<{
       startDate: string;
