@@ -1,6 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { readSolarGrid, SolarGrid } from './npz-reader';
 import { SOLAR_MODEL_CONFIG } from './config';
+import { S3 } from 'aws-sdk';
+import { writeFileSync, existsSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, basename } from 'path';
+import { get as httpsGet } from 'https';
+import { createHash } from 'crypto';
 
 /**
  * TypeScript port of Kartik Naik's `solar-monthly-predictionModel`
@@ -41,7 +47,7 @@ export class SolarYieldService implements OnModuleInit {
   private readonly logger = new Logger(SolarYieldService.name);
   private grid: SolarGrid | null = null;
 
-  onModuleInit(): void {
+  async onModuleInit(): Promise<void> {
     // Fail lazily: if the grid file isn't provisioned we want the rest of
     // drec-api to boot normally; only callers that hit getSolarEnergy() see
     // the error. See README for how to provision the .npz.
@@ -54,16 +60,96 @@ export class SolarYieldService implements OnModuleInit {
     }
     const t0 = Date.now();
     try {
-      this.grid = readSolarGrid(p);
+      const localPath = await this.resolveToLocalPath(p);
+      this.grid = readSolarGrid(localPath);
       const ms = Date.now() - t0;
       this.logger.log(
-        `loaded solar grid: ${this.grid.nLon}×${this.grid.nLat}×${this.grid.nMonths} (${ms} ms)`,
+        `loaded solar grid: ${this.grid.nLon}×${this.grid.nLat}×${this.grid.nMonths} (${ms} ms) from ${p}`,
       );
     } catch (e: any) {
       this.logger.error(
         `failed to load solar grid from ${p}: ${e?.message || e}`,
       );
     }
+  }
+
+  /**
+   * Accepts a local filesystem path, an `s3://bucket/key` URI, or an
+   * `https://` URL. Remote sources are downloaded to a stable cache file
+   * under os.tmpdir() and reused on subsequent restarts.
+   */
+  private async resolveToLocalPath(spec: string): Promise<string> {
+    if (spec.startsWith('s3://')) {
+      const m = spec.match(/^s3:\/\/([^/]+)\/(.+)$/);
+      if (!m) throw new Error(`malformed s3 uri: ${spec}`);
+      const [, bucket, key] = m;
+      const cachePath = join(
+        tmpdir(),
+        `solar-grid-${bucket}-${basename(key)}`,
+      );
+      if (existsSync(cachePath)) {
+        this.logger.log(`using cached solar grid at ${cachePath}`);
+        return cachePath;
+      }
+      const s3 = new S3({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: process.env.AWS_REGION || 'us-east-1',
+        ...(process.env.AWS_S3_ENDPOINT
+          ? { endpoint: process.env.AWS_S3_ENDPOINT, s3ForcePathStyle: true }
+          : {}),
+      });
+      this.logger.log(`downloading solar grid from s3://${bucket}/${key}`);
+      const obj = await s3.getObject({ Bucket: bucket, Key: key }).promise();
+      if (!obj.Body) throw new Error(`empty body for s3://${bucket}/${key}`);
+      writeFileSync(cachePath, obj.Body as Buffer);
+      return cachePath;
+    }
+    if (spec.startsWith('https://') || spec.startsWith('http://')) {
+      const tag = createHash('sha1').update(spec).digest('hex').slice(0, 10);
+      const cachePath = join(tmpdir(), `solar-grid-${tag}-${basename(spec)}`);
+      if (existsSync(cachePath)) {
+        this.logger.log(`using cached solar grid at ${cachePath}`);
+        return cachePath;
+      }
+      this.logger.log(`downloading solar grid from ${spec}`);
+      const buf = await this.httpsDownload(spec);
+      writeFileSync(cachePath, buf);
+      return cachePath;
+    }
+    return spec;
+  }
+
+  private httpsDownload(
+    url: string,
+    redirectsLeft = 5,
+  ): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      httpsGet(url, (res) => {
+        const status = res.statusCode || 0;
+        if (status >= 300 && status < 400 && res.headers.location) {
+          if (redirectsLeft <= 0) {
+            reject(new Error(`too many redirects fetching ${url}`));
+            return;
+          }
+          res.resume();
+          this.httpsDownload(res.headers.location, redirectsLeft - 1).then(
+            resolve,
+            reject,
+          );
+          return;
+        }
+        if (status !== 200) {
+          reject(new Error(`HTTP ${status} fetching ${url}`));
+          res.resume();
+          return;
+        }
+        const chunks: Buffer[] = [];
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () => resolve(Buffer.concat(chunks)));
+        res.on('error', reject);
+      }).on('error', reject);
+    });
   }
 
   /**

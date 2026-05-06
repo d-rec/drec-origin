@@ -1153,16 +1153,27 @@ export class DeviceReviewsService {
       ? parseFloat(device.yieldValue)
       : null;
 
+    const hasLat = lat !== null && !isNaN(lat);
+    const hasLng = lng !== null && !isNaN(lng);
+    const hasCapacity = capacityKw > 0;
+    const hasCod = !!device.commissioningDate;
+
     // Estimate irradiance from location
     let irradiance: IrradianceEstimate | null = null;
+    let irradianceUnavailableReason: string | null = null;
     let yieldMismatch = false;
-    if (lat !== null && !isNaN(lat) && capacityKw > 0) {
-      irradiance = estimateIrradiance(lat, capacityKw);
+    if (hasLat && hasCapacity) {
+      irradiance = estimateIrradiance(lat as number, capacityKw);
       // Flag if the configured yield exceeds the location-based optimistic estimate
       // with a 10% tolerance
       if (configuredYield !== null) {
         yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
       }
+    } else {
+      const missing: string[] = [];
+      if (!hasLat) missing.push('latitude');
+      if (!hasCapacity) missing.push('capacity');
+      irradianceUnavailableReason = `Missing ${missing.join(', ')}`;
     }
 
     // Solar GSA climatology — typical-year per-month estimate. Additive to
@@ -1174,14 +1185,8 @@ export class DeviceReviewsService {
       monthlyKwh: number[];
       version: string;
     } | null = null;
-    if (
-      lat !== null &&
-      lng !== null &&
-      !isNaN(lat) &&
-      !isNaN(lng) &&
-      capacityKw > 0 &&
-      device.commissioningDate
-    ) {
+    let solarGsaUnavailableReason: string | null = null;
+    if (hasLat && hasLng && hasCapacity && hasCod) {
       try {
         const currentYear = new Date().getUTCFullYear();
         const codYear = new Date(device.commissioningDate).getUTCFullYear();
@@ -1189,8 +1194,8 @@ export class DeviceReviewsService {
         // already know the device's own history is empty there.
         if (!isNaN(codYear) && currentYear >= codYear) {
           const res = this.solarYield.getSolarEnergy(
-            lat,
-            lng,
+            lat as number,
+            lng as number,
             capacityKw,
             device.commissioningDate,
             currentYear,
@@ -1204,13 +1209,29 @@ export class DeviceReviewsService {
               monthlyKwh: monthly,
               version: res.Model_1_Outputs.Version,
             };
+          } else {
+            solarGsaUnavailableReason =
+              'Solar yield model returned partial data';
           }
+        } else if (isNaN(codYear)) {
+          solarGsaUnavailableReason = 'Invalid commissioning date';
+        } else {
+          solarGsaUnavailableReason = `Pre-COD (commissions ${codYear})`;
         }
       } catch (e: any) {
+        const msg = e?.message || String(e);
         this.logger.debug(
-          `solarGsa unavailable for device ${deviceId}: ${e?.message || e}`,
+          `solarGsa unavailable for device ${deviceId}: ${msg}`,
         );
+        solarGsaUnavailableReason = `Lookup failed: ${msg}`;
       }
+    } else {
+      const missing: string[] = [];
+      if (!hasLat) missing.push('latitude');
+      if (!hasLng) missing.push('longitude');
+      if (!hasCapacity) missing.push('capacity');
+      if (!hasCod) missing.push('commissioning date');
+      solarGsaUnavailableReason = `Missing ${missing.join(', ')}`;
     }
 
     // Check recent meter readings against the ceiling
@@ -1288,11 +1309,16 @@ export class DeviceReviewsService {
 
     return {
       irradiance,
+      irradianceUnavailableReason,
       solarGsa,
+      solarGsaUnavailableReason,
       gsaYieldPerKw: gsaYieldPerKw != null ? Math.round(gsaYieldPerKw) : null,
       configuredYield,
       effectiveCeiling: Math.round(ceilingYield),
       capacityKw,
+      lat,
+      lng,
+      commissioningDate: device.commissioningDate ?? null,
       yieldMismatch,
       recentReadings,
       ...(pathwayNote ? { pathwayNote } : {}),
