@@ -82,11 +82,16 @@ export class ChatWebhookService {
       where: { active: true },
     });
 
+    // Don't echo a user's own message back to webhooks they own — receiving
+    // your own send as a "new message" notification is noise, not signal.
+    const senderEmail: string | undefined = payload?.message?.username;
+
     const matching = webhooks.filter(
       (wh) =>
-        wh.events.length === 0 ||
-        wh.events.includes('*') ||
-        wh.events.includes(event),
+        (wh.events.length === 0 ||
+          wh.events.includes('*') ||
+          wh.events.includes(event)) &&
+        !(senderEmail && wh.user?.email === senderEmail),
     );
 
     for (const wh of matching) {
