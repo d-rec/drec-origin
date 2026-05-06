@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.1] (2026-05-06)
+
+### Features
+
+- **Device-review SF-02 generation** — explicit "Generate" action for the auto-screen ledger; multi-file append; instant per-document upload (no batch wait); scan-result polish with specific reasons. S3 cleanup after upload.
+- **Solar yield grid via URL** — `SOLAR_GRID_NPZ_PATH` accepts `s3://` and `https://` in addition to local paths. Stage now fetches the grid directly from public S3 instead of via init-container.
+- **Chat — enriched conversations endpoint** — admin / SeniorReviewer can list past conversations with submitter + device context attached.
+- **Real `lastLoginAt` on user** — replaces the session-table-derived proxy with a dedicated column. `lastUsed` (max `user_login_session.updatedAt`) added to admin/users responses; `UserService.attachLastUsed` wired across org-user paths.
+- **Country-match — full-name normalization** — `normalizeCountry` accepts full country names alongside ISO codes.
+
+### Bug Fixes
+
+- **Files (MinIO/S3)** — sign URLs with `ResponseContentDisposition=inline`; switch to SigV4 with `ResponseContentType=application/pdf` so PDFs render inline in Firefox instead of triggering a save flood.
+- **Chat webhook** — don't echo a user's own message back to their own webhook.
+- **Device reviews** — dedupe via `LATERAL` so user-join multiplication can't inflate counts; widen `checkProductionCeiling` return type.
+- **ACL** — grant Reviewer / SeniorReviewer `Read` on `ORGANIZATION_MANAGEMENT`; activate Reviewer grants and backfill `PASSWORD_MANAGEMENT`.
+
 ## [0.9.0] (2026-05-03)
 
 ### ⚠ BREAKING CHANGES — OC# checklist alignment (Phases 1b–2e)
