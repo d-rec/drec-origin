@@ -21,6 +21,11 @@ export class ApiKeyResolverService {
       return this.getPlatformDeeplKey();
     }
 
+    // Dev mode: bypass the credit limit. Set MODE=dev in .env.
+    if ((process.env.MODE || '').toLowerCase() === 'dev') {
+      return this.getPlatformDeeplKey();
+    }
+
     let license = await this.orgApiLicensesService.findDecrypted(
       user.organizationId,
     );
@@ -58,6 +63,12 @@ export class ApiKeyResolverService {
   }): Promise<{ url: string; key: string }> {
     // Reviewers always use the platform (Admin org) key
     if (REVIEWER_ROLES.includes(user.role)) {
+      return this.getPlatformRoboflowKey();
+    }
+
+    // Dev mode bypasses the credit limit so testing doesn't hit the freebie
+    // cap. Set MODE=dev in .env to enable.
+    if ((process.env.MODE || '').toLowerCase() === 'dev') {
       return this.getPlatformRoboflowKey();
     }
 
