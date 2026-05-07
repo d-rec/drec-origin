@@ -60,13 +60,19 @@ export class ChatService {
     return node;
   }
 
-  /** Delete a single chat message and rewire the linked-list so the chain
-   *  stays continuous. Any participant can delete any message. */
+  /**
+   * Delete a single chat message and rewire the linked-list so the chain
+   * stays continuous. Any participant can delete any message. Returns
+   * the new conversation head (or null if the conversation was emptied)
+   * so the caller can rebuild the chain from the right place — clients
+   * cache headUuid at open time, and deleting the head used to leave
+   * them pointing at a no-longer-existing node.
+   */
   async deleteMessage(
     uuid: string,
     _requesterUsername: string,
     _requesterEmail?: string,
-  ): Promise<void> {
+  ): Promise<{ conversationId: number | null; headUuid: string | null }> {
     const node = await this.chatRepository.findOne({ where: { uuid } });
     if (!node) throw new NotFoundException(`Chat node ${uuid} not found`);
 
@@ -78,21 +84,45 @@ export class ChatService {
       prev.nextEntryUuid = node.nextEntryUuid;
       await this.chatRepository.save(prev);
     }
-    // If this was the head of a conversation, advance head pointer.
-    // If there's no next node, drop the whole conversation row to satisfy
-    // the NOT NULL constraint on headUuid.
-    const conv = await this.conversationRepository.findOne({
+    // Find the conversation this message belongs to (by traversing back
+    // to the head if needed) so we can return its current headUuid.
+    let conv = await this.conversationRepository.findOne({
       where: { headUuid: uuid },
     });
+    let result: { conversationId: number | null; headUuid: string | null } = {
+      conversationId: null,
+      headUuid: null,
+    };
     if (conv) {
+      // This message WAS the head; advance or delete the conversation.
       if (node.nextEntryUuid) {
         conv.headUuid = node.nextEntryUuid;
         await this.conversationRepository.save(conv);
+        result = { conversationId: conv.id, headUuid: node.nextEntryUuid };
       } else {
+        const id = conv.id;
         await this.conversationRepository.delete(conv.id);
+        result = { conversationId: id, headUuid: null };
+      }
+    } else if (prev) {
+      // Walk back to the head from prev to identify the conversation.
+      let walker = prev;
+      while (true) {
+        const upstream = await this.chatRepository.findOne({
+          where: { nextEntryUuid: walker.uuid },
+        });
+        if (!upstream) break;
+        walker = upstream;
+      }
+      const headConv = await this.conversationRepository.findOne({
+        where: { headUuid: walker.uuid },
+      });
+      if (headConv) {
+        result = { conversationId: headConv.id, headUuid: walker.uuid };
       }
     }
     await this.chatRepository.delete(uuid);
+    return result;
   }
 
   async traverseChain(headUuid: string): Promise<Chat[]> {

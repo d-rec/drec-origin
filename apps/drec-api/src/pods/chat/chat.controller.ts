@@ -145,10 +145,18 @@ export class ChatController {
   async deleteMessage(
     @Param('uuid') uuid: string,
     @UserDecorator() user: ILoggedInUser,
-  ): Promise<{ success: boolean }> {
+  ): Promise<{
+    success: boolean;
+    conversationId: number | null;
+    headUuid: string | null;
+  }> {
     const username = (user.email || '').split('@')[0];
-    await this.chatService.deleteMessage(uuid, username, user.email);
-    return { success: true };
+    const { conversationId, headUuid } = await this.chatService.deleteMessage(
+      uuid,
+      username,
+      user.email,
+    );
+    return { success: true, conversationId, headUuid };
   }
 
   @Get('unread-count/:email')
