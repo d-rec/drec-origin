@@ -17,19 +17,21 @@ import { DeviceDescription, IDevice } from '../../../models';
 import { countryCodesList } from '../../../models/country-code';
 import { Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
-export class UpdateDeviceDTO
-  implements
-    Omit<
-      IDevice,
-      | 'id'
-      | 'externalId'
-      | 'status'
-      | 'organizationId'
-      | 'yieldValue'
-      | 'labels'
-    >
-{
+import {
+  DeviceTypeCode,
+  FuelCode,
+  OffTaker,
+  OperatingConfiguration,
+  RegistrationType,
+  SourceAccessMode,
+  SubsidyType,
+  VolumeEvidenceType,
+  YesNo,
+} from '../../../utils/enums';
+export class UpdateDeviceDTO implements Omit<
+  IDevice,
+  'id' | 'externalId' | 'status' | 'organizationId' | 'yieldValue' | 'labels'
+> {
   @ApiProperty()
   @IsOptional()
   @Trim()
@@ -59,17 +61,17 @@ export class UpdateDeviceDTO
   @ApiProperty()
   @IsString()
   @IsOptional()
-  @Matches(/^-?\d{1,2}(\.\d{1,20})?$/, {
+  @Matches(/^-?\d{1,2}\.\d{4,20}$/, {
     message:
-      'Latitude should be a number from -90 to +90, with up to 20 decimal places.',
+      'Latitude must be a number from -90 to +90 with at least 4 decimal places — registered location must be precise to ~10m so satellite imagery / panel verification works.',
   })
   latitude: string;
 
   @ApiProperty()
   @IsString()
-  @Matches(/^-?\d{1,3}(\.\d{1,20})?$/, {
+  @Matches(/^-?\d{1,3}\.\d{4,20}$/, {
     message:
-      'Longitude should be a number from -180 to +180, with up to 20 decimal places.',
+      'Longitude must be a number from -180 to +180 with at least 4 decimal places — registered location must be precise to ~10m so satellite imagery / panel verification works.',
   })
   @IsOptional()
   longitude: string;
