@@ -23,9 +23,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { DEFAULT_YIELD_VALUE, DEVICE_DEGRADATION } from '../../constants';
 import { GenerationReadingStoredEvent } from '../../events/GenerationReadingStored.event';
-import { computeMaxEnergyCapacity } from '../../lib/meter-read';
 import { Profile } from '../../lib/profile';
 import {
   toTimezoneDate,
@@ -585,116 +583,59 @@ export class ReadsService {
   }
 
   private validateEnergy(
-    read: ReadDTO,
-    device: DeviceDTO,
+    _read: ReadDTO,
+    _device: DeviceDTO,
   ): { success: boolean; message: string } {
-    const yieldValue = device.yieldValue || DEFAULT_YIELD_VALUE; // [kWh/kW]
-    const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
-    const commissioningDate = DateTime.fromISO(device.commissioningDate);
-    const currentDate = DateTime.now();
-    let deviceAge =
-      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
-    if (deviceAge <= 0) {
-      deviceAge = 1;
-    }
-    const startDate = DateTime.fromISO(read.startDate.toISOString());
-    const endDate = DateTime.fromISO(read.endDate.toISOString());
-
-    const meteredTimePeriod = Math.abs(
-      endDate.diff(startDate, ['hours']).toObject()?.hours || 0,
-    ); // hours
-    const maxEnergy = computeMaxEnergyCapacity(
-      capacity,
-      meteredTimePeriod,
-      deviceAge,
-      yieldValue,
-    );
-    this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
-    );
-    this.logger.debug(
-      `${read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
-    );
-    if (read.value < maxEnergy) {
-      return {
-        success: true,
-        message: 'Validation successful',
-      };
-    } else {
-      return {
-        success: false,
-        message: `Failed, MaxEnergy: ${maxEnergy}`,
-      };
-    }
+    // Legacy yieldValue-based ceiling. Replaced by the location-aware
+    // Solar GSA / irradiance ceiling check in device-reviews
+    // (production-ceiling endpoint), which uses real climatology rather
+    // than a global 2000 kWh/kW/yr default. Always pass here so reads
+    // aren't blocked by a stale heuristic.
+    return { success: true, message: 'Validation successful' };
   }
 
   async historyValidateEnergy(
     read: ReadDTO,
     device: DeviceDTO,
-    requestedMeteredTimePeriod: number,
-    measurement: NewIntermediateMeterReadDTO,
+    _requestedMeteredTimePeriod: number,
+    _measurement: NewIntermediateMeterReadDTO,
     startDate: Date,
     endDate: Date,
   ): Promise<boolean> {
     this.logger.debug(JSON.stringify(read));
-    const yieldValue = device.yieldValue || DEFAULT_YIELD_VALUE; // [kWh/kW]
-    const capacity = device.capacity * 1000; // capacity in KilloWatt and read in Wh so coverting in Watt
-    const commissioningDate = DateTime.fromISO(device.commissioningDate);
-    const currentDate = DateTime.now();
-    let deviceAge =
-      currentDate.diff(commissioningDate, ['years']).toObject().years || 0; // years
-    if (deviceAge <= 0) {
-      deviceAge = 1;
-    }
-    const meteredTimePeriod = requestedMeteredTimePeriod;
-    const maxEnergy = computeMaxEnergyCapacity(
-      capacity,
-      meteredTimePeriod,
-      deviceAge,
-      yieldValue,
-    );
-    this.logger.debug(
-      `capacity: ${capacity}, meteredTimePeriod: ${meteredTimePeriod}, deviceAge: ${deviceAge}, degradation: ${DEVICE_DEGRADATION}, yieldValue: ${yieldValue}`,
-    );
-    this.logger.debug(
-      `${read.value < maxEnergy ? 'Passed' : 'Failed'}, MaxEnergy: ${maxEnergy}`,
-    );
-
-    if (read.value < maxEnergy) {
-      this.logger.verbose('1267');
-      if (device.groupId != null) {
-        const historyNextIssue =
-          await this.deviceGroupService.getNextHistoryIssuanceDeviceLogAfterReservation(
-            device.externalId,
-            device.groupId,
+    // Legacy yieldValue-based ceiling removed (was using a 2000 kWh/kW/yr
+    // global default). Reads now always pass this stage; the
+    // location-aware Solar GSA / irradiance ceiling in device-reviews
+    // does the real check.
+    if (device.groupId != null) {
+      const historyNextIssue =
+        await this.deviceGroupService.getNextHistoryIssuanceDeviceLogAfterReservation(
+          device.externalId,
+          device.groupId,
+        );
+      if (historyNextIssue != undefined) {
+        const startTimestamp = new Date(startDate).getTime();
+        const endTimestamp = new Date(endDate).getTime();
+        const reservedStartDate = new Date(
+          historyNextIssue.reservationStartDate,
+        ).getTime();
+        const reservedEndDate = new Date(
+          historyNextIssue.reservationEndDate,
+        ).getTime();
+        if (
+          startTimestamp >= reservedStartDate &&
+          startTimestamp < reservedEndDate &&
+          endTimestamp <= reservedEndDate &&
+          endTimestamp > reservedStartDate
+        ) {
+          this.deviceGroupService.updateHistoryCertificateIssueStatus(
+            historyNextIssue.id,
+            HistoryNextIssuanceStatus.Pending,
           );
-        this.logger.verbose('historynextissue');
-        if (historyNextIssue != undefined) {
-          const startTimestamp = new Date(startDate).getTime();
-          const endTimestamp = new Date(endDate).getTime();
-          const reservedStartDate = new Date(
-            historyNextIssue.reservationStartDate,
-          ).getTime();
-          const reservedEndDate = new Date(
-            historyNextIssue.reservationEndDate,
-          ).getTime();
-          if (
-            startTimestamp >= reservedStartDate &&
-            startTimestamp < reservedEndDate &&
-            endTimestamp <= reservedEndDate &&
-            endTimestamp > reservedStartDate
-          ) {
-            this.deviceGroupService.updateHistoryCertificateIssueStatus(
-              historyNextIssue.id,
-              HistoryNextIssuanceStatus.Pending,
-            );
-          }
         }
       }
-      return read.value < maxEnergy;
-    } else {
-      return false;
     }
+    return true;
   }
 
   private async storeGenerationReading(

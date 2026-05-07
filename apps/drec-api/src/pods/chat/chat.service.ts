@@ -157,12 +157,22 @@ export class ChatService {
       firstMessageUsername,
       firstMessageEntry,
     );
+    // Pre-mark the sender's side as read so they don't see their own
+    // first message as unread.
+    const senderLocal = (firstMessageUsername || '').toLowerCase().split('@')[0];
+    const p1 = (participant1 || '').toLowerCase();
+    const p2 = (participant2 || '').toLowerCase();
+    const isSender = (email: string): boolean =>
+      email === firstMessageUsername.toLowerCase() ||
+      email.split('@')[0] === senderLocal;
     const conversation = this.conversationRepository.create({
       participant1,
       participant2,
       headUuid: message.uuid,
       lastEntryUuid: message.uuid,
       deviceSiteName: deviceSiteName ?? null,
+      lastReadAt1: isSender(p1) ? new Date() : null,
+      lastReadAt2: isSender(p2) ? new Date() : null,
     });
     const savedConversation =
       await this.conversationRepository.save(conversation);
@@ -230,9 +240,20 @@ export class ChatService {
       conversation.lastEntryUuid ?? undefined,
     );
 
-    await this.conversationRepository.update(conversationId, {
+    // Mark the sender's side of the conversation as read so the author
+    // doesn't see a "new message" badge for their own message.
+    const senderLocal = (username || '').toLowerCase().split('@')[0];
+    const p1 = (conversation.participant1 || '').toLowerCase();
+    const p2 = (conversation.participant2 || '').toLowerCase();
+    const update: Partial<typeof conversation> = {
       lastEntryUuid: message.uuid,
-    });
+    };
+    const matchSlot = (email: string): boolean =>
+      email === username.toLowerCase() ||
+      email.split('@')[0] === senderLocal;
+    if (matchSlot(p1)) update.lastReadAt1 = new Date();
+    if (matchSlot(p2)) update.lastReadAt2 = new Date();
+    await this.conversationRepository.update(conversationId, update);
 
     typedLog(
       this.logger,
