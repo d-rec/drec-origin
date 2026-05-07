@@ -21,6 +21,6 @@ import { VerificationReportsService } from './verification-reports.service';
   ],
   controllers: [DeviceReviewsController],
   providers: [DeviceReviewsService, VerificationReportsService],
-  exports: [VerificationReportsService],
+  exports: [DeviceReviewsService, VerificationReportsService],
 })
 export class DeviceReviewsModule {}

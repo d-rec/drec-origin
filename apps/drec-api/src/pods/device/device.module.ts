@@ -20,6 +20,7 @@ import { EvidentSettings } from '../evident/evident-settings.entity';
 import { MailModule } from '../../mail/mail.module';
 import { ReadsModule } from '../reads/reads.module';
 import { ESignatureModule } from '../e-signature/e-signature.module';
+import { DeviceReviewsModule } from '../device-reviews/device-reviews.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ESignatureModule } from '../e-signature/e-signature.module';
     forwardRef(() => OrganizationModule),
     DocumentUploadsModule,
     ESignatureModule,
+    forwardRef(() => DeviceReviewsModule),
   ],
   providers: [DeviceService],
   exports: [DeviceService],

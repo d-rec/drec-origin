@@ -24,7 +24,10 @@ import {
   UseGuards,
   UseInterceptors,
   ValidationPipe,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
+import { DeviceReviewsService } from '../device-reviews/device-reviews.service';
 import { Request } from 'express';
 
 import {
@@ -104,6 +107,8 @@ export class DeviceController {
     private readonly documentUploadsService: DocumentUploadsService,
     private readonly uploadLogService: UploadLogService,
     private readonly eSignatureService: ESignatureService,
+    @Inject(forwardRef(() => DeviceReviewsService))
+    private readonly deviceReviewsService: DeviceReviewsService,
   ) {}
 
   /**
@@ -1015,6 +1020,16 @@ export class DeviceController {
           }
         }
       }
+    }
+
+    // Auto-regen the canonical SF-02 if device data changed and the
+    // existing SF-02 is auto-generated. Silent no-op otherwise.
+    const updatedBySite = await this.deviceService.findBySiteName(
+      result.siteName || siteName,
+      user.organizationId,
+    );
+    if (updatedBySite?.id) {
+      await this.deviceReviewsService.maybeRegenerateAutoSf02(updatedBySite.id);
     }
 
     return result;

@@ -2848,6 +2848,38 @@ export class DeviceReviewsService {
     return { fields, documents };
   }
 
+  /**
+   * Regenerate the SF-02 if the device currently has an auto-generated
+   * one on file. Skips silently if there's no SF-02 yet, or if the SF-02
+   * was uploaded by the registrant (preserves user-uploaded content).
+   *
+   * Auto-generated SF-02s land in the `sf02-registrations/` S3 prefix;
+   * user-uploaded ones land under `<site-name>-<device-id>/`. The prefix
+   * is the canonical signal — don't rely on filename heuristics.
+   *
+   * Errors are logged but not thrown — a regen failure must not roll
+   * back the device PATCH that triggered it.
+   */
+  async maybeRegenerateAutoSf02(deviceId: number): Promise<void> {
+    try {
+      const existing: { url: string }[] = await this.connection.query(
+        `SELECT url FROM documents
+         WHERE target_id = $1 AND target_type = 'device' AND type = 'FORM_SF_02'`,
+        [deviceId],
+      );
+      if (!existing.length) return;
+      const allAuto = existing.every((d) =>
+        (d.url || '').startsWith('sf02-registrations/'),
+      );
+      if (!allAuto) return;
+      await this.generateSf02(deviceId);
+    } catch (e: any) {
+      this.logger.warn(
+        `auto-regen SF-02 failed for device ${deviceId}: ${e?.message || e}`,
+      );
+    }
+  }
+
   async generateSf02(
     deviceId: number,
   ): Promise<{ url: string; docId: number }> {
