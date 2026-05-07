@@ -80,7 +80,6 @@ import {
 } from '../bulk-upload/bulk-uploads.entity';
 import { FilterDTO } from '../certificate-log/dto';
 import { UserService } from '../user/user.service';
-import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { HistoryDeviceGroupNextIssueCertificate } from './history_next_issuance_date_log.entity';
@@ -120,7 +119,6 @@ export class DeviceGroupService {
     private organizationService: OrganizationService,
     @Inject(forwardRef(() => DeviceService))
     private deviceService: DeviceService,
-    private yieldConfigService: YieldConfigService,
     private readonly fileService: FileService,
     @InjectRepository(CheckCertificateIssueDateLogForDeviceGroupEntity)
     private readonly checkDeviceGroupLogCertificateRepository: Repository<CheckCertificateIssueDateLogForDeviceGroupEntity>,
@@ -731,7 +729,6 @@ export class DeviceGroupService {
           commissioningDateRange: deviceGroup.dg_commissioningDateRange,
           gridInterconnection: deviceGroup.dg_gridInterconnection,
           aggregatedCapacity: deviceGroup.dg_aggregatedCapacity,
-          yieldValue: deviceGroup.dg_yieldValue,
           buyerId: deviceGroup.dg_buyerId,
           buyerAddress: deviceGroup.dg_buyerAddress,
           leftoverReads: deviceGroup.dg_leftoverReads,

@@ -91,10 +91,6 @@ export class DeviceGroup extends ExtendedBaseEntity implements IDeviceGroup {
   @IsEnum(CapacityRange)
   capacityRange: CapacityRange;
 
-  @Column({ default: 1000 })
-  @IsNumber()
-  yieldValue: number;
-
   // @Column('simple-array', { nullable: true })
   // @IsOptional()
   // labels: string[];

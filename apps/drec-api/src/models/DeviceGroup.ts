@@ -28,8 +28,6 @@ export interface IDeviceGroup {
   capacityRange: CapacityRange;
   commissioningDateRange: CommissioningDateRange[];
 
-  // yieldValue?: number; // ideally all underlying devices should have the same, otherwise take average?
-
   // labels?: string[];
 
   leftoverReads?: number; // in KW

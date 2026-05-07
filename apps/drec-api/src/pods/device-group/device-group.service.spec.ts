@@ -19,7 +19,6 @@ import { DeviceService } from '../device/device.service';
 import { FileService } from '../file';
 import { OrganizationService } from '../organization/organization.service';
 import { UserService } from '../user/user.service';
-import { YieldConfigService } from '../yield-config/yieldconfig.service';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { CheckCertificateIssueDateLogForDeviceGroupEntity } from './check_certificate_issue_date_log_for_device_group.entity';
 import { DeviceGroup } from './device-group.entity';
@@ -50,10 +49,6 @@ describe('DeviceGroupService', () => {
         .mockResolvedValue([]),
       findMultipleDevicesBasedExternalId: jest.fn().mockResolvedValue([]),
       register: jest.fn().mockResolvedValue({}),
-    };
-
-    const mockYieldConfigService = {
-      getYieldConfig: jest.fn().mockResolvedValue({}),
     };
 
     const mockUserService = {
@@ -96,12 +91,7 @@ describe('DeviceGroupService', () => {
           provide: DeviceService,
           useValue: mockDeviceService,
         },
-        // 6. YieldConfigService
-        {
-          provide: YieldConfigService,
-          useValue: mockYieldConfigService,
-        },
-        // 7. CheckCertificateIssueDateLogForDeviceGroupEntity repository
+        // 6. CheckCertificateIssueDateLogForDeviceGroupEntity repository
         {
           provide: getRepositoryToken(
             CheckCertificateIssueDateLogForDeviceGroupEntity,
@@ -394,7 +384,6 @@ describe('DeviceGroupService', () => {
           createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
           deviceGroupUid: 'uid-1',
-          yieldValue: 100,
           deviceIdsInt: [1, 2],
           api_user_id: 'user123',
           countryCode: ['IND'],
@@ -417,7 +406,6 @@ describe('DeviceGroupService', () => {
           createdAt: new Date(),
           // Add all other required fields for DeviceGroup entity
           deviceGroupUid: 'uid-2',
-          yieldValue: 200,
           deviceIdsInt: [3, 4],
           api_user_id: 'user456',
           countryCode: ['IND'],

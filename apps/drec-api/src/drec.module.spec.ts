@@ -10,7 +10,6 @@ import { Organization } from './pods/organization/organization.entity';
 import { UserRole } from './pods/user/user_role.entity';
 import { Invitation } from './pods/invitation/invitation.entity';
 import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.entity';
-import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
 import { ACLModulePermission } from './pods/permission/permission.entity';
 import { DeviceCsvFileProcessingJobsEntity } from './pods/device-group/device_csv_processing_jobs.entity';
@@ -26,7 +25,6 @@ import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { CountryCodeModule } from './pods/countrycode/countrycode.module';
 import { PermissionModule } from './pods/permission/permission.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
-import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
 import { IntegratorsModule } from './pods/integrators/integrators.module';
 import { AdminModule } from './pods/admin/admin.module';
 import { EmailConfirmationModule } from './pods/email-confirmation/email-confirmation.module';
@@ -114,13 +112,6 @@ describe.skip('DRECModule', () => {
       Repository<EmailConfirmation>
     >(getRepositoryToken(EmailConfirmation));
     expect(emailConfirmationRepository).toBeDefined();
-  });
-
-  it('should provide YieldConfig repository', () => {
-    const yieldConfigRepository = module.get<Repository<YieldConfig>>(
-      getRepositoryToken(YieldConfig),
-    );
-    expect(yieldConfigRepository).toBeDefined();
   });
 
   it('should provide AClModules repository', () => {
@@ -274,11 +265,6 @@ describe.skip('DRECModule', () => {
   it('should import IntegratorsModule', () => {
     const integratorsModule = module.get(IntegratorsModule);
     expect(integratorsModule).toBeDefined();
-  });
-
-  it('should import YieldConfigModule', () => {
-    const yieldConfigModule = module.get(YieldConfigModule);
-    expect(yieldConfigModule).toBeDefined();
   });
 
   it('should import AccessControlLayerModuleServiceModule', () => {

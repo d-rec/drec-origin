@@ -35,8 +35,6 @@ import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';
 import { IntegratorsModule } from './pods/integrators/integrators.module';
-import { YieldConfig } from './pods/yield-config/yieldconfig.entity';
-import { YieldConfigModule } from './pods/yield-config/yieldconfig.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
 import { ACLModulePermission } from './pods/permission/permission.entity';
@@ -120,7 +118,6 @@ export const entities = [
   Device,
   DeviceGroup,
   File,
-  YieldConfig,
   AClModules,
   ACLModulePermission,
   DeviceCsvFileProcessingJobsEntity,
@@ -200,7 +197,6 @@ const queueModule = () => {
     EmailConfirmationModule,
     AdminModule,
     IntegratorsModule,
-    YieldConfigModule,
     AccessControlLayerModuleServiceModule,
     PermissionModule,
     CountryCodeModule,

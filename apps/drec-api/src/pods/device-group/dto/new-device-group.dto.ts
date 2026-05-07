@@ -102,11 +102,6 @@ export class NewDeviceGroupDTO
   @IsNotEmpty()
   commissioningDateRange: CommissioningDateRange[];
 
-  // @ApiProperty({ default: 1000 })
-  // @IsNumber()
-  // @IsOptional()
-  // yieldValue: number;
-
   // @ApiProperty({ type: [String] })
   // @IsArray()
   // @IsOptional()
