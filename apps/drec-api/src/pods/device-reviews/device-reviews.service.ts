@@ -2130,7 +2130,6 @@ export class DeviceReviewsService {
       consistency,
       ceiling,
       crossSource,
-      photoGps,
       controls,
       sldCompare,
       countryMatch,
@@ -2141,7 +2140,6 @@ export class DeviceReviewsService {
       this.reviewHistoricalConsistency(deviceId),
       this.checkProductionCeiling(deviceId),
       this.crossSourceVerification(deviceId),
-      this.verifyPhotoGps(deviceId),
       this.evaluateCompensatingControls(deviceId),
       this.compareSldCapacity(deviceId),
       this.verifyCountryMatch(deviceId),
@@ -2383,55 +2381,10 @@ export class DeviceReviewsService {
       });
     }
 
-    // 7. Photo GPS
-    if (photoGps.status === 'fulfilled') {
-      const r = photoGps.value;
-      const flags: string[] = [];
-      if (r.summary.total === 0) {
-        flags.push('No project photos uploaded (minimum 3 required)');
-      } else if (r.summary.total < 3) {
-        flags.push(
-          `Only ${r.summary.total} photo(s) uploaded (minimum 3 required)`,
-        );
-      }
-      if (r.summary.total > 0) {
-        flags.push(
-          `${r.summary.total} photo(s), ${r.summary.withGps} with GPS data`,
-        );
-        const noGps = r.summary.total - r.summary.withGps;
-        if (noGps > 0) flags.push(`${noGps} photo(s) without GPS metadata`);
-        if (r.summary.flagged > 0) {
-          flags.push(
-            `${r.summary.flagged} photo(s) exceed ${r.thresholdMeters}m from declared location`,
-          );
-          for (const p of (r.photos || [])
-            .filter((ph: any) => ph.flagged)
-            .slice(0, 3)) {
-            flags.push(
-              `  → ${p.fileName || 'photo'}: ${p.distanceMeters?.toFixed(0) || '?'}m away`,
-            );
-          }
-        }
-      }
-      sections.push({
-        name: 'Photo GPS',
-        status:
-          r.summary.flagged > 0 || r.summary.total < 3
-            ? 'fail'
-            : r.summary.total - r.summary.withGps > 0
-              ? 'warn'
-              : 'pass',
-        flags,
-      });
-    } else {
-      sections.push({
-        name: 'Photo GPS',
-        status: 'skip',
-        flags: [
-          `Check failed: ${photoGps.reason?.message || photoGps.reason || 'unknown error'}`,
-        ],
-      });
-    }
+    // Photo GPS section removed from auto-screen — it's covered by the
+    // standalone 'Photo GPS Location' check in the verify dialog with
+    // per-photo distance detail. Keeping both was duplicate noise.
+
 
     // 8. Compensating Controls (only relevant for Mode 4)
     if (controls.status === 'fulfilled') {
