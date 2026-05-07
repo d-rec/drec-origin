@@ -2501,10 +2501,10 @@ export class DeviceReviewsService {
       });
     }
 
-    // Overall status
-    const hasAnyFail = sections.some(
-      (s) => s.status === 'fail' || s.status === 'skip',
-    );
+    // Overall status. 'skip' means "no data to run the check yet" — it
+    // is not a failure; treating it as fail made any device with a
+    // pre-meter-reading state look like an automation failure.
+    const hasAnyFail = sections.some((s) => s.status === 'fail');
     const hasAnyWarn = sections.some((s) => s.status === 'warn');
     const overallStatus = hasAnyFail ? 'fail' : hasAnyWarn ? 'warn' : 'pass';
 
