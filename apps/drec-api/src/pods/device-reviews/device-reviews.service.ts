@@ -369,7 +369,10 @@ export class DeviceReviewsService {
           api_key: roboflowKey,
           inputs: {
             image: { type: 'base64', value: imageBase64 },
-            classes: 'solar-panel',
+            // SAM 3 takes natural-language prompts. The hyphenated
+            // "solar-panel" matched zero across our test set; "solar
+            // panels" returned 7 segmentations on the same image.
+            classes: 'solar panels',
           },
         }),
       });
