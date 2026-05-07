@@ -553,21 +553,6 @@ export class DeviceReviewsController {
     return this.service.verifyCountryMatch(deviceId);
   }
 
-  @Get(':deviceId/sf02-preview')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
-  @Permission('Read')
-  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
-  @ApiOperation({
-    summary: 'Preview SF-02 data before generation',
-    description: 'Returns the fields and document status that will be included in the SF-02 registration form.',
-  })
-  @ApiResponse({ status: 200, description: 'SF-02 preview data' })
-  previewSf02(
-    @Param('deviceId', ParseIntPipe) deviceId: number,
-  ): Promise<any> {
-    return this.service.previewSf02(deviceId);
-  }
-
   @Post(':deviceId/generate-sf02')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.Registrant)
