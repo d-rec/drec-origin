@@ -16,7 +16,6 @@
     "offTaker": "School",
     "sector": "Education",
     "standardCompliance": "REC",
-    "yieldValue": 1000,
     "labels": "Example label",
     "impactStory": "Wind: Onshore"
   },
@@ -37,7 +36,6 @@
     "offTaker": "School",
     "sector": "null",
     "standardCompliance": "REC",
-    "yieldValue": 2000,
     "labels": "Example label",
     "impactStory": "PV Ground mounted"
   },
@@ -58,7 +56,6 @@
     "offTaker": "School",
     "sector": "Education",
     "standardCompliance": "REC",
-    "yieldValue": 0,
     "labels": "Enull",
     "impactStory": "null)"
   },
@@ -79,7 +76,6 @@
     "offTaker": "School",
     "sector": "Education",
     "standardCompliance": "REC",
-    "yieldValue": 1100,
     "labels": "Example label",
     "impactStory": "null"
   },
@@ -100,7 +96,6 @@
     "offTaker": "Commercial",
     "sector": "Manufacturing",
     "standardCompliance": "C",
-    "yieldValue": 1100,
     "labels": "Example label",
     "impactStory": "nullr"
   },
@@ -121,7 +116,6 @@
     "offTaker": "Commercial",
     "sector": "Manufacturing",
     "standardCompliance": "null",
-    "yieldValue": 120,
     "labels": "Example label",
     "impactStory": "Run of river"
   },
@@ -142,7 +136,6 @@
     "offTaker": "null",
     "sector": "Textiles",
     "standardCompliance": "null",
-    "yieldValue": 1100,
     "labels": "Example label",
     "impactStory": "null"
   }

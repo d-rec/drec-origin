@@ -24,7 +24,7 @@ import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, Registratio
 
 export class NewDeviceDTO implements Omit<
   IDevice,
-  'id' | 'status' | 'organizationId' | 'yieldValue' | 'labels' | 'groupId'
+  'id' | 'status' | 'organizationId' | 'labels' | 'groupId'
 > {
   @ApiProperty()
   @Trim()
@@ -180,11 +180,6 @@ export class NewDeviceDTO implements Omit<
   // standardCompliance: StandardCompliance;
 
   // @ApiProperty()
-  // @IsOptional()
-  // @IsNumber()
-  // yieldValue: number;
-
-  // @ApiProperty()
   // @IsArray()
   // @IsOptional()
   // generatorsIds: number[];
@@ -239,11 +234,6 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsNumber()
   organizationId?: number | null;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  yieldValue?: number | null;
 
   @ApiProperty()
   @IsOptional()

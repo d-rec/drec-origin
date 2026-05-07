@@ -37,7 +37,6 @@ export interface IDevice {
   evidencePathway?: EvidencePathway;
   ownershipStatus?: OwnershipStatus;
   offTaker: OffTaker;
-  yieldValue: number;
   //generatorsIds?: number[];
   //labels?: string;
   impactStory?: string;
@@ -117,7 +116,6 @@ export type DeviceKey =
   | 'offTaker'
   | 'sector'
   | 'standardCompliance'
-  | 'yieldValue'
   | 'deviceDescription'
   | 'stateProvince'
   | 'postcode';

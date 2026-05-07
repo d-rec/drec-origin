@@ -1107,7 +1107,7 @@ export class DeviceReviewsService {
   /**
    * D-REC §3.6: Irradiance-based production ceiling check.
    * Estimates expected yield from device location, compares with
-   * the configured yieldValue, and checks recent readings against the ceiling.
+   * the location-aware ceiling, and checks recent readings against it.
    */
   async checkProductionCeiling(deviceId: number): Promise<{
     irradiance: IrradianceEstimate | null;
@@ -1124,13 +1124,11 @@ export class DeviceReviewsService {
     } | null;
     solarGsaUnavailableReason: string | null;
     gsaYieldPerKw: number | null;
-    configuredYield: number;
     effectiveCeiling: number;
     capacityKw: number;
     lat: number | null;
     lng: number | null;
     commissioningDate: string | Date | null;
-    yieldMismatch: boolean;
     recentReadings: Array<{
       startDate: string;
       endDate: string;
@@ -1143,7 +1141,7 @@ export class DeviceReviewsService {
   }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     const rows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, capacity, "yieldValue", "commissioningDate"
+      `SELECT id, latitude, longitude, capacity, "commissioningDate"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -1154,9 +1152,6 @@ export class DeviceReviewsService {
     const lat = device.latitude ? parseFloat(device.latitude) : null;
     const lng = device.longitude ? parseFloat(device.longitude) : null;
     const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
-    const configuredYield = device.yieldValue
-      ? parseFloat(device.yieldValue)
-      : null;
 
     const hasLat = lat !== null && !isNaN(lat);
     const hasLng = lng !== null && !isNaN(lng);
@@ -1166,14 +1161,8 @@ export class DeviceReviewsService {
     // Estimate irradiance from location
     let irradiance: IrradianceEstimate | null = null;
     let irradianceUnavailableReason: string | null = null;
-    let yieldMismatch = false;
     if (hasLat && hasCapacity) {
       irradiance = estimateIrradiance(lat as number, capacityKw);
-      // Flag if the configured yield exceeds the location-based optimistic estimate
-      // with a 10% tolerance
-      if (configuredYield !== null) {
-        yieldMismatch = configuredYield > irradiance.yieldHigh * 1.1;
-      }
     } else {
       const missing: string[] = [];
       if (!hasLat) missing.push('latitude');
@@ -1253,8 +1242,7 @@ export class DeviceReviewsService {
       solarGsa && capacityKw > 0
         ? solarGsa.annualKwh / capacityKw
         : undefined;
-    const ceilingYield =
-      irradiance?.yieldHigh ?? gsaYieldPerKw ?? configuredYield ?? 1500;
+    const ceilingYield = irradiance?.yieldHigh ?? gsaYieldPerKw ?? 1500;
     const recentReadings = readRows.map((r: any) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
@@ -1280,35 +1268,21 @@ export class DeviceReviewsService {
     });
 
     this.logger.log(
-      `Device ${deviceId} ceiling check: configured=${configuredYield}, ` +
+      `Device ${deviceId} ceiling check: ` +
         `irradiance=${irradiance?.yieldHigh ?? 'N/A'}, ` +
         `gsaYieldPerKw=${gsaYieldPerKw?.toFixed(0) ?? 'N/A'}, ` +
         `effective=${ceilingYield.toFixed(0)}, ` +
-        `mismatch=${yieldMismatch}, ` +
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
 
-    const parts: string[] = [];
-    if (configuredYield === null) {
-      parts.push('No yield value configured on device');
-    } else if (yieldMismatch) {
-      parts.push(
-        `Configured yield ${configuredYield} exceeds location estimate ${irradiance?.yieldHigh} kWh/kW/yr`,
-      );
-    } else {
-      parts.push(
-        `Configured yield ${configuredYield} is within expected range for location`,
-      );
-    }
     await this.logAudit(
       deviceId,
       'ceiling_check',
-      parts.join('. '),
+      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (irradiance high or Solar GSA)`,
       'reviewer',
       {
-        configuredYield,
         irradianceYield: irradiance?.yieldHigh,
-        yieldMismatch,
+        gsaYieldPerKw,
       },
     );
 
@@ -1318,13 +1292,11 @@ export class DeviceReviewsService {
       solarGsa,
       solarGsaUnavailableReason,
       gsaYieldPerKw: gsaYieldPerKw != null ? Math.round(gsaYieldPerKw) : null,
-      configuredYield,
       effectiveCeiling: Math.round(ceilingYield),
       capacityKw,
       lat,
       lng,
       commissioningDate: device.commissioningDate ?? null,
-      yieldMismatch,
       recentReadings,
       ...(pathwayNote ? { pathwayNote } : {}),
     };
@@ -1400,10 +1372,10 @@ export class DeviceReviewsService {
         (r: any) => r.exceedsCeiling,
       ).length;
       if (ceilingResult.recentReadings.length > 0) {
-        ceilingOk = exceedCount === 0 && !ceilingResult.yieldMismatch;
+        ceilingOk = exceedCount === 0;
         ceilingDetail = ceilingOk
           ? `${ceilingResult.recentReadings.length} readings all within ceiling`
-          : `${exceedCount} reading(s) exceed ceiling${ceilingResult.yieldMismatch ? ', yield mismatch detected' : ''}`;
+          : `${exceedCount} reading(s) exceed ceiling`;
       }
     } catch {
       ceilingDetail = 'Could not run ceiling check';
@@ -1487,7 +1459,7 @@ export class DeviceReviewsService {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Fetch device
     const rows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, capacity, "yieldValue", "externalId"
+      `SELECT id, latitude, longitude, capacity, "externalId"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -2307,37 +2279,19 @@ export class DeviceReviewsService {
     if (ceiling.status === 'fulfilled') {
       const r = ceiling.value;
       const flags: string[] = [];
-      if (r.configuredYield === null) {
-        flags.push(`Capacity: ${r.capacityKw} kW, no yield value configured`);
-      } else {
-        flags.push(
-          `Capacity: ${r.capacityKw} kW, configured yield: ${r.configuredYield} kWh/kWp`,
-        );
-      }
+      flags.push(`Capacity: ${r.capacityKw} kW`);
       if (r.irradiance) {
         flags.push(
           `Irradiance band: ${r.irradiance.yieldLow}–${r.irradiance.yieldHigh} kWh/kWp/yr (lat ${r.irradiance.absLatitude.toFixed(1)}°), ceiling: ${r.irradiance.monthlyCeilingKwh.toFixed(0)} kWh/month`,
         );
       }
-      if (r.configuredYield === null)
-        flags.push(
-          'No yield value configured — cannot compare against irradiance estimate',
-        );
-      else if (r.yieldMismatch)
-        flags.push('Configured yield exceeds irradiance estimate');
       const violations =
         r.recentReadings?.filter((rd: any) => rd.exceedsCeiling) || [];
       if (violations.length > 0)
         flags.push(`${violations.length} reading(s) exceed ceiling`);
-      const noYield = r.configuredYield === null;
       sections.push({
         name: 'Production Ceiling',
-        status:
-          violations.length > 0 || r.yieldMismatch
-            ? 'fail'
-            : noYield
-              ? 'warn'
-              : 'pass',
+        status: violations.length > 0 ? 'fail' : 'pass',
         flags,
       });
     } else {

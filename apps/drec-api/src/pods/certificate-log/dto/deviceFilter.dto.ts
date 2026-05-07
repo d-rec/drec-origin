@@ -20,10 +20,6 @@ export class DeviceFilterDTO {
   aggregatedCapacity: number;
 
   @IsOptional()
-  @IsNumber()
-  yieldValue: number;
-
-  @IsOptional()
   @IsString()
   countryCode: string;
 

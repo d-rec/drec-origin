@@ -1777,17 +1777,11 @@ export class DeviceGroupService {
             dataToStore[key] = Number.isNaN(parsed)
               ? dataToStore[key]
               : parsed;
-            if (key == 'yieldValue' && dataToStore[key] === 0) {
-              dataToStore[key] = 2000;
-            }
           }
-          if (key == 'yieldValue' && data.countryCode) {
-            const yieldByCountryCode =
-              await this.yieldConfigService.findByCountryCode(data.countryCode);
-            if (yieldByCountryCode) {
-              dataToStore.yieldValue = yieldByCountryCode.yieldValue;
-            }
-          }
+          // Legacy yieldValue defaulting (2000 const + per-country fallback)
+          // removed. The verify-device irradiance ceiling is now the
+          // location-aware estimate; per-device yieldValue is no longer
+          // populated automatically.
         }
         for (const key in dataToStore) {
           if (dataToStore[key] === '') {

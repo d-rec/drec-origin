@@ -26,7 +26,6 @@ export class UpdateDeviceDTO
       | 'externalId'
       | 'status'
       | 'organizationId'
-      | 'yieldValue'
       | 'labels'
     >
 {
@@ -169,11 +168,6 @@ export class UpdateDeviceDTO
   // @IsEnum(StandardCompliance)
   // @IsOptional()
   // standardCompliance: StandardCompliance;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsNumber()
-  yieldValue: number;
 
   @ApiProperty()
   @IsString()

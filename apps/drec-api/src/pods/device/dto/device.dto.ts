@@ -141,11 +141,6 @@ export class DeviceDTO implements IDevice {
   // @IsEnum(StandardCompliance)
   // standardCompliance: StandardCompliance;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsOptional()
-  yieldValue: number;
-
   // @ApiProperty()
   // @IsArray()
   // @IsOptional()
