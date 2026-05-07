@@ -553,6 +553,29 @@ export class DeviceReviewsController {
     return this.service.verifyCountryMatch(deviceId);
   }
 
+  @Post(':deviceId/coords-confirmed')
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
+  @Roles(Role.Admin, Role.Registrant)
+  @Permission('Write')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Record a successful Roboflow panel detection at the device coords',
+    description:
+      'Persists the lat/lng + panel count + timestamp on the device row so the auto-screen ≥6-decimal precision check can pass when visual confirmation succeeded. Registrant-only — reviewers never write device state.',
+  })
+  @ApiResponse({ status: 200, description: 'Confirmation recorded' })
+  confirmCoords(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @Body() body: { lat: number; lng: number; panelCount: number },
+  ): Promise<void> {
+    return this.service.confirmCoords(
+      deviceId,
+      body.lat,
+      body.lng,
+      body.panelCount,
+    );
+  }
+
   @Post(':deviceId/generate-sf02')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Roles(Role.Admin, Role.Registrant)
