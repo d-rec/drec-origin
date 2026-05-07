@@ -9,6 +9,7 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 import fs from 'node:fs';
 import 'reflect-metadata';
+import { json, urlencoded } from 'express';
 import * as PortUtils from './port';
 import { setupRedoc } from './docs/redoc';
 import { customizeDocument, getDocumentBuilder } from './docs/swagger';
@@ -55,6 +56,13 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
               : ['error', 'warn', 'log'],
         }),
   });
+
+  // Default body-parser cap is 100KB. Panel-detection sends a base64-
+  // encoded 1024×1024 JPEG (~150–400KB after base64), so we need
+  // headroom. 10MB matches what file-upload routes already accept via
+  // multer; JSON requests now match.
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ limit: '10mb', extended: true }));
 
   app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
   app.useGlobalInterceptors(
