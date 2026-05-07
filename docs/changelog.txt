@@ -1,9 +1,44 @@
 DREC Changelog
-Report date: May 6, 2026
+Report date: May 7, 2026
 
 
 RECENT CHANGES (April -- May 2026)
 ============================================================
+
+v0.9.2 (2026-05-07) -- Reviewer Polish, Auto-Classifier
+--------------------
+
+  STAGING (deployed)
+  ~~~~~~~~~~~~~~~~~~
+  - Document auto-classifier: prefer the embedded PDF text layer
+    over Tesseract OCR for generated PDFs (lossless, preserves
+    apostrophes / kerning the OCR mangled). Recognise "OD" as the
+    Owner's Declaration filename abbreviation. Separate Proof of
+    Ownership from the OD letter -- routes to OTHER_DOCUMENTS until
+    a dedicated slot exists.
+  - Verify-report parity: in-app and external HTML report now use
+    the same VS Code "step over" SVG for skipped checks; counts
+    summary includes skip alongside pass / warn / fail.
+  - Device-reviews list: vertical scrollbar reachable past the OC#
+    checklist panel (panel publishes --ocp-reserve so .ds-page
+    inset matches the panel width); rows no longer reflow on hover,
+    keeping the scrollbar thumb steady; closed the leftover 32px
+    footer-reserve gap. Dropped SCREEN / DOCS / SF-02 columns.
+  - Verify dialog: × close button; "Photo GPS" deduped to a single
+    Photo EXIF GPS section; currently-classifying filename shown in
+    the scan-log; per-entry milliseconds removed; Coordinate Precision
+    check dropped (irrelevant once coords are manually adjusted).
+  - Chat: deleting a single message no longer cascades -- backend
+    returns the new headUuid and the polling tick reads it live.
+    "Share Verification Report" now refreshes the open chat
+    immediately instead of waiting for the 4 s poll.
+  - Auto-screen back-end: Photo GPS is no longer duplicated as both
+    a section and a standalone check; Source Access Mode stays pass
+    when only manual-only checks remain.
+  - Verify report logged to device audit_log on each generation.
+  - Sidemenu: expanded indicator points down (was up).
+  - Satellite window: pin always renders red, matching the registrant
+    centre pin.
 
 v0.9.1 (2026-05-06)
 --------------------
