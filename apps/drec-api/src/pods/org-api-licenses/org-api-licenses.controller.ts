@@ -56,11 +56,14 @@ export class OrgApiLicensesController {
   @ApiOperation({ summary: 'Save API keys for Roboflow and/or DeepL' })
   @ApiResponse({ status: 201, description: 'Keys saved successfully' })
   async saveSettings(
-    @UserDecorator() { organizationId }: ILoggedInUser,
+    @UserDecorator() user: ILoggedInUser,
     @Body() dto: SaveApiKeysDTO,
   ): Promise<{ message: string }> {
-    this.logger.verbose(`Saving API keys for org ${organizationId}`);
-    await this.orgApiLicensesService.save(organizationId, dto);
+    await this.orgApiLicensesService.save(user.organizationId, dto, {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
     return { message: 'API keys saved successfully' };
   }
 

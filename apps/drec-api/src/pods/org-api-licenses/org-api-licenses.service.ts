@@ -38,40 +38,89 @@ export class OrgApiLicensesService {
   async save(
     organizationId: number,
     dto: SaveApiKeysDTO,
+    actor?: { userId?: number; email?: string; role?: string },
   ): Promise<OrgApiLicenses> {
     let record = await this.repository.findOne({
       where: { organizationId },
     });
-
+    const lazyCreated = !record;
     if (!record) {
       record = await this.initializeCredits(organizationId);
     }
 
-    if (dto.roboflowApiKey !== undefined) {
-      record.roboflowApiKey =
-        dto.roboflowApiKey === null || dto.roboflowApiKey === ''
-          ? null
-          : isMasked(dto.roboflowApiKey)
-            ? record.roboflowApiKey
-            : encrypt(dto.roboflowApiKey);
-    }
+    const audit: string[] = [];
+    const actorTag = `org=${organizationId} actor=${actor?.email || actor?.userId || 'unknown'} (${actor?.role || '?'})`;
 
-    if (dto.roboflowWorkflowUrl !== undefined) {
-      record.roboflowWorkflowUrl =
-        dto.roboflowWorkflowUrl === null || dto.roboflowWorkflowUrl === ''
-          ? null
-          : isMasked(dto.roboflowWorkflowUrl)
-            ? record.roboflowWorkflowUrl
-            : encrypt(dto.roboflowWorkflowUrl);
-    }
+    const apply = (
+      field: 'roboflowApiKey' | 'roboflowWorkflowUrl' | 'deeplApiKey',
+      label: string,
+      newValue: string | undefined,
+      clearFlag: boolean | undefined,
+    ): void => {
+      const had = record![field] != null;
+      // undefined → not present in the request, no change.
+      if (newValue === undefined) return;
 
-    if (dto.deeplApiKey !== undefined) {
-      record.deeplApiKey =
-        dto.deeplApiKey === null || dto.deeplApiKey === ''
-          ? null
-          : isMasked(dto.deeplApiKey)
-            ? record.deeplApiKey
-            : encrypt(dto.deeplApiKey);
+      // Empty/null without an explicit clear flag is treated as "no change"
+      // when there's an existing value. This is the guard against the
+      // accidental-wipe pattern.
+      if (newValue === null || newValue === '') {
+        if (had && !clearFlag) {
+          audit.push(
+            `${label}: BLANK SUBMITTED but no clear flag — preserving existing (use clear${field[0].toUpperCase()}${field.slice(1)}: true to wipe).`,
+          );
+          this.logger.warn(
+            `[org-api-licenses] ${actorTag}: blank ${label} without clear flag — preserved existing key`,
+          );
+          return;
+        }
+        if (had && clearFlag) {
+          record![field] = null as any;
+          audit.push(`${label}: CLEARED (was set)`);
+          this.logger.warn(
+            `[org-api-licenses] ${actorTag}: explicitly cleared ${label}`,
+          );
+        }
+        // else: empty + no existing → still null, nothing to log.
+        return;
+      }
+
+      // Non-empty: masked → preserve, otherwise encrypt + replace.
+      if (isMasked(newValue)) {
+        audit.push(`${label}: masked sentinel — preserving existing`);
+        return;
+      }
+      record![field] = encrypt(newValue) as any;
+      audit.push(had ? `${label}: REPLACED` : `${label}: SET (was empty)`);
+    };
+
+    apply(
+      'roboflowApiKey',
+      'roboflowApiKey',
+      dto.roboflowApiKey,
+      dto.clearRoboflowApiKey,
+    );
+    apply(
+      'roboflowWorkflowUrl',
+      'roboflowWorkflowUrl',
+      dto.roboflowWorkflowUrl,
+      dto.clearRoboflowWorkflowUrl,
+    );
+    apply(
+      'deeplApiKey',
+      'deeplApiKey',
+      dto.deeplApiKey,
+      dto.clearDeeplApiKey,
+    );
+
+    if (audit.length === 0) {
+      this.logger.log(
+        `[org-api-licenses] ${actorTag}: save() called with no changes`,
+      );
+    } else {
+      this.logger.log(
+        `[org-api-licenses] ${actorTag}${lazyCreated ? ' (lazy-created row)' : ''}: ${audit.join('; ')}`,
+      );
     }
 
     record.updatedAt = new Date();

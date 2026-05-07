@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class SaveApiKeysDTO {
   @ApiPropertyOptional()
@@ -16,4 +16,24 @@ export class SaveApiKeysDTO {
   @IsOptional()
   @IsString()
   deeplApiKey?: string;
+
+  // Explicit destructive flags. An empty/null value alone NEVER clears a
+  // previously-set key — that turned out to be too easy to trigger by
+  // accident (a registrant opens the page, the form renders blank for any
+  // reason, they click Save, and three keys go to NULL with no record of
+  // who or why). To clear, the client must send the matching clear* flag.
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  clearRoboflowApiKey?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  clearRoboflowWorkflowUrl?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  clearDeeplApiKey?: boolean;
 }
