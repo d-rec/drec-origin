@@ -153,7 +153,7 @@ export class EvidentDeviceService {
     files: {
       [DocumentType.FORM_SF_02]: Express.Multer.File[];
       [DocumentType.SF_02C]: Express.Multer.File[];
-      [DocumentType.SF_02C_OWNERS_DECLARATION]?: Express.Multer.File[];
+      [DocumentType.PROOF_OF_OWNERSHIP]?: Express.Multer.File[];
       [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];

@@ -731,7 +731,7 @@ export class DeviceService {
     files: {
       [DocumentType.FORM_SF_02]?: Express.Multer.File[];
       [DocumentType.SF_02C]?: Express.Multer.File[];
-      [DocumentType.SF_02C_OWNERS_DECLARATION]?: Express.Multer.File[];
+      [DocumentType.PROOF_OF_OWNERSHIP]?: Express.Multer.File[];
       [DocumentType.METERING_EVIDENCE]?: Express.Multer.File[];
       [DocumentType.SINGLE_LINE_DIAGRAM]?: Express.Multer.File[];
       [DocumentType.PROJECT_PHOTOS]?: Express.Multer.File[];
@@ -875,7 +875,7 @@ export class DeviceService {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.SF_02C_OWNERS_DECLARATION]: DocumentType.SF_02C_OWNERS_DECLARATION,
+          [DocumentType.PROOF_OF_OWNERSHIP]: DocumentType.PROOF_OF_OWNERSHIP,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,

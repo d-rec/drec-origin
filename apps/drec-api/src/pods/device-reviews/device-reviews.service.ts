@@ -81,6 +81,7 @@ export interface AssetDto {
   sldUrl: string | null;
   sf02Url: string | null;
   sf02cUrl: string | null;
+  proofOfOwnershipUrl: string | null;
   meteringEvidenceUrls: string[];
   pictureUrls: string[];
   screenshotUrls: string[];
@@ -492,7 +493,7 @@ export class DeviceReviewsService {
       SINGLE_LINE_DIAGRAM: 'sld',
       FORM_SF_02: 'sf02',
       SF_02C: 'sf02c',
-      SF_02C_OWNERS_DECLARATION: 'sf02cOwnersDeclaration',
+      PROOF_OF_OWNERSHIP: 'proofOfOwnership',
       COD_PROOF: 'codProof',
       METERING_EVIDENCE: 'meteringEvidence',
     };
@@ -582,7 +583,7 @@ export class DeviceReviewsService {
         sldUrl: byType('SINGLE_LINE_DIAGRAM'),
         sf02Url: byType('FORM_SF_02'),
         sf02cUrl: byType('SF_02C'),
-        sf02cOwnersDeclarationUrl: byType('SF_02C_OWNERS_DECLARATION'),
+        proofOfOwnershipUrl: byType('PROOF_OF_OWNERSHIP'),
         meteringEvidenceUrls: allOfType('METERING_EVIDENCE'),
         pictureUrls: allOfType('PROJECT_PHOTOS'),
         screenshotUrls: [] as string[], // legacy field — SCREENSHOTS merged into METERING_EVIDENCE
@@ -716,7 +717,7 @@ export class DeviceReviewsService {
     const docs: Array<{ type: string }> = await this.connection.query(
       `SELECT DISTINCT type FROM documents
        WHERE target_type = 'device' AND target_id = $1
-         AND type IN ('SF_02C', 'SF_02C_OWNERS_DECLARATION', 'FORM_SF_02', 'INCORPORATION_CERTIFICATE')`,
+         AND type IN ('SF_02C', 'PROOF_OF_OWNERSHIP', 'FORM_SF_02', 'INCORPORATION_CERTIFICATE')`,
       [deviceId],
     );
     const existingTypes = new Set(docs.map((d) => d.type));
@@ -727,7 +728,7 @@ export class DeviceReviewsService {
       missingDocuments.push('SF-02C (I-REC declaration form)');
     }
     // Owner's Declaration / Proof of Ownership is always required
-    if (!existingTypes.has('SF_02C_OWNERS_DECLARATION')) {
+    if (!existingTypes.has('PROOF_OF_OWNERSHIP')) {
       missingDocuments.push("Owner's Declaration / Proof of Ownership");
     }
     // SF-02 (Production Facility Registration) is always required
@@ -864,7 +865,7 @@ export class DeviceReviewsService {
     const docLabel: Record<string, string> = {
       FORM_SF_02: 'SF-02 (Production Facility Registration)',
       SF_02C: 'SF-02C (I-REC declaration form)',
-      SF_02C_OWNERS_DECLARATION: "Owner's Declaration / Proof of Ownership",
+      PROOF_OF_OWNERSHIP: "Owner's Declaration / Proof of Ownership",
       METERING_EVIDENCE: 'Metering Evidence',
       SINGLE_LINE_DIAGRAM: 'Single Line Diagram',
       PROJECT_PHOTOS: 'Project Photos',
@@ -1358,7 +1359,7 @@ export class DeviceReviewsService {
       'METERING_EVIDENCE',
       'FORM_SF_02',
       'SF_02C',
-      'SF_02C_OWNERS_DECLARATION',
+      'PROOF_OF_OWNERSHIP',
       'COD_PROOF',
     ];
     const missingDocs = mode4Required.filter((t) => !existingTypes.has(t));

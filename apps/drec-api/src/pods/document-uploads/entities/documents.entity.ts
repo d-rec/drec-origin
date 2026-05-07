@@ -16,7 +16,7 @@ export enum DocumentType {
   OWNERS_DECLARATION = 'OWNERS_DECLARATION ',
   FORM_SF_02 = 'FORM_SF_02', //Form SF-02 - Production Facility Registration
   SF_02C = 'SF_02C', //SF-02C form itself (I-REC declaration)
-  SF_02C_OWNERS_DECLARATION = 'SF_02C_OWNERS_DECLARATION', //Owner's Declaration / Proof of Ownership (distinct from the SF-02C form)
+  PROOF_OF_OWNERSHIP = 'PROOF_OF_OWNERSHIP', //Owner's Declaration / Proof of Ownership (distinct from the SF-02C form)
   METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos

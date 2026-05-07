@@ -95,7 +95,7 @@ export const SOURCE_ACCESS_VERIFICATION: Record<
       'METERING_EVIDENCE',
       'FORM_SF_02',
       'SF_02C',
-      'SF_02C_OWNERS_DECLARATION',
+      'PROOF_OF_OWNERSHIP',
       'COD_PROOF',
     ],
     recommendedDocuments: ['SINGLE_LINE_DIAGRAM', 'PROJECT_PHOTOS'],
