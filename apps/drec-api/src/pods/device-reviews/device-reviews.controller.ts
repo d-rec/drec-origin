@@ -658,6 +658,33 @@ export class DeviceReviewsController {
       body.overallStatus ?? null,
       body.payload || {},
     );
+    // Mirror the report into the device's audit_log so it shows up in
+    // the §3.8 audit-trail UI alongside other review actions. The full
+    // payload (scanLog + autoScreenResult + counts) lands in metadata
+    // so the audit-trail viewer can render it inline; the URL points to
+    // the dedicated /r/<uuid> view for external sharing with 3rd parties.
+    const counts = body.payload?.counts || {};
+    const summaryParts: string[] = [];
+    if (body.overallStatus) summaryParts.push(body.overallStatus.toUpperCase());
+    if (counts.pass != null) summaryParts.push(`${counts.pass} pass`);
+    if (counts.warn != null) summaryParts.push(`${counts.warn} warn`);
+    if (counts.fail != null) summaryParts.push(`${counts.fail} fail`);
+    const summary = summaryParts.length
+      ? summaryParts.join(' · ')
+      : 'verification run';
+    await this.service.logAudit(
+      deviceId,
+      'verify_device_report',
+      `Verify Device report — ${summary}`,
+      user.email || 'reviewer',
+      {
+        reportId: saved.id,
+        reportUuid: saved.uuid,
+        elapsedMs: body.elapsedMs ?? 0,
+        overallStatus: body.overallStatus ?? null,
+        ...body.payload,
+      },
+    );
     return { id: saved.id, uuid: saved.uuid };
   }
 
