@@ -35,6 +35,9 @@ import {
   DocumentTargetType,
 } from '../document-uploads/entities/documents.entity';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
+import { RolesGuard } from '../../guards/RolesGuard';
+import { Roles } from '../user/decorators/roles.decorator';
+import { Role } from '../../utils/enums/role.enum';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
@@ -566,13 +569,14 @@ export class DeviceReviewsController {
   }
 
   @Post(':deviceId/generate-sf02')
-  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
+  @Roles(Role.Admin, Role.Registrant)
   @Permission('Write')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Generate an SF-02 (Production Facility Registration) PDF',
     description:
-      'Creates a PDF registration form from device data, uploads it to S3, and saves it as a FORM_SF_02 document.',
+      'Creates a PDF registration form from device data, uploads it to S3, and saves it as a FORM_SF_02 document. Reviewer roles are excluded — the canonical SF-02 is owned by the registrant; reviewers read it but never create it. Auto-regen on device PATCH keeps it in sync.',
   })
   @ApiResponse({ status: 201, description: 'Generated SF-02 URL and document ID' })
   generateSf02(
