@@ -2225,11 +2225,15 @@ export class DeviceReviewsService {
       }
       sections.push({
         name: 'Source Access Mode',
+        // 'fail' if no mode or required docs missing; 'warn' only when
+        // recommended docs are missing. Manual-check items + the
+        // boilerplate "Mode: X" line are informational — they don't
+        // demote a clean configuration to warn.
         status: !r.mode
           ? 'fail'
           : r.missingRequired?.length > 0
             ? 'fail'
-            : flags.length > 0
+            : r.missingRecommended?.length > 0
               ? 'warn'
               : 'pass',
         flags,
