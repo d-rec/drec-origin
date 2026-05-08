@@ -86,13 +86,6 @@ export interface AssetDto {
   pictureUrls: string[];
   screenshotUrls: string[];
   docMeta: Record<string, DocMeta>;
-  // Set when the registrant ran panel detection at these coords and the
-  // model found ≥1 panels — auto-screen's ≥6-decimal precision check
-  // passes when this exists and matches the device's current lat/lng.
-  coordsConfirmedAt: string | null;
-  coordsConfirmedLat: number | null;
-  coordsConfirmedLng: number | null;
-  coordsConfirmedPanelCount: number | null;
 }
 
 @Injectable()
@@ -428,10 +421,6 @@ export class DeviceReviewsService {
         d."gridInterconnection",
         d."commissioningDate",
         d.serial_number AS "serialNumber",
-        d.coords_confirmed_at AS "coordsConfirmedAt",
-        d.coords_confirmed_lat AS "coordsConfirmedLat",
-        d.coords_confirmed_lng AS "coordsConfirmedLng",
-        d.coords_confirmed_panel_count AS "coordsConfirmedPanelCount",
         o.name AS "orgName",
         s.status,
         s.reviewer_name,
@@ -589,12 +578,6 @@ export class DeviceReviewsService {
         screenshotUrls: [] as string[], // legacy field — SCREENSHOTS merged into METERING_EVIDENCE
         otherDocumentUrls: allOfType('OTHER_DOCUMENTS'),
         docMeta,
-        coordsConfirmedAt: r.coordsConfirmedAt ?? null,
-        coordsConfirmedLat:
-          r.coordsConfirmedLat != null ? Number(r.coordsConfirmedLat) : null,
-        coordsConfirmedLng:
-          r.coordsConfirmedLng != null ? Number(r.coordsConfirmedLng) : null,
-        coordsConfirmedPanelCount: r.coordsConfirmedPanelCount ?? null,
       };
     });
   }
@@ -2740,47 +2723,6 @@ export class DeviceReviewsService {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
     return rows[0];
-  }
-
-  /**
-   * Record a successful panel-detection confirmation on the device row.
-   * The auto-screen precision check (≥6 decimals on lat/lng) passes
-   * when these fields exist and match the device's current coords —
-   * real visual validation overrides the formal decimal-count rule.
-   */
-  async confirmCoords(
-    deviceId: number,
-    lat: number,
-    lng: number,
-    panelCount: number,
-  ): Promise<void> {
-    if (
-      typeof lat !== 'number' ||
-      typeof lng !== 'number' ||
-      typeof panelCount !== 'number' ||
-      panelCount < 1
-    ) {
-      this.logger.warn(
-        `coords-confirmed: ignoring invalid payload deviceId=${deviceId} lat=${lat} lng=${lng} count=${panelCount}`,
-      );
-      return;
-    }
-    await this.connection.query(
-      `UPDATE device
-         SET coords_confirmed_at = NOW(),
-             coords_confirmed_lat = $1,
-             coords_confirmed_lng = $2,
-             coords_confirmed_panel_count = $3
-       WHERE id = $4`,
-      [lat, lng, panelCount, deviceId],
-    );
-    await this.logAudit(
-      deviceId,
-      'coords_confirmed',
-      `Panel detection confirmed coords: ${panelCount} panel(s) at ${lat}, ${lng}`,
-      'system',
-      { lat, lng, panelCount },
-    );
   }
 
   /**

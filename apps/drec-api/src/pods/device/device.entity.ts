@@ -224,34 +224,6 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @Column({ type: 'decimal', nullable: true, name: 'sld_capacity_kw' })
   sldCapacityKw: number | null;
 
-  // Set when the registrant runs panel detection and the workflow finds
-  // ≥1 panels at the device's lat/lng. Auto-screen treats this as a
-  // visual confirmation of the coords, overriding the formal ≥6-decimal
-  // precision check.
-  @Column({ type: 'timestamp', nullable: true, name: 'coords_confirmed_at' })
-  coordsConfirmedAt: Date | null;
-
-  @Column({
-    type: 'double precision',
-    nullable: true,
-    name: 'coords_confirmed_lat',
-  })
-  coordsConfirmedLat: number | null;
-
-  @Column({
-    type: 'double precision',
-    nullable: true,
-    name: 'coords_confirmed_lng',
-  })
-  coordsConfirmedLng: number | null;
-
-  @Column({
-    type: 'integer',
-    nullable: true,
-    name: 'coords_confirmed_panel_count',
-  })
-  coordsConfirmedPanelCount: number | null;
-
   // General (Evident checklist rows 2, 8)
   @Column({ type: 'varchar', nullable: true, name: 'default_account_code' })
   @IsString()
