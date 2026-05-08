@@ -476,7 +476,9 @@ export class AiService {
       if (!parsed || typeof parsed !== 'object') {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
-      const result = this.normalizeSldResult(parsed);
+      const result = this.deriveAcCapacityIfMissing(
+        this.normalizeSldResult(parsed),
+      );
       success = true;
       return result;
     } catch (err: any) {
@@ -939,6 +941,26 @@ export class AiService {
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
+  }
+
+  private deriveAcCapacityIfMissing(
+    result: ExtractSldFieldsResult,
+  ): ExtractSldFieldsResult {
+    if (result.acCapacityKw) return result;
+    const cnt = result.inverterCount?.value;
+    const each = result.inverterCapacityKw?.value;
+    if (typeof cnt === 'number' && typeof each === 'number' && cnt > 0 && each > 0) {
+      const cConf = result.inverterCount?.confidence ?? 0.5;
+      const eConf = result.inverterCapacityKw?.confidence ?? 0.5;
+      // Derived value: take the lower of the two source confidences,
+      // shaded down by 10% so the conflict resolver still favours an
+      // explicitly-labelled nameplate when one is present.
+      result.acCapacityKw = {
+        value: Math.round(cnt * each * 100) / 100,
+        confidence: Math.max(0, Math.min(cConf, eConf) * 0.9),
+      };
+    }
+    return result;
   }
 
   private normalizeSldResult(parsed: any): ExtractSldFieldsResult {
