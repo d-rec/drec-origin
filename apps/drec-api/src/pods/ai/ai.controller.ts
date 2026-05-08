@@ -162,6 +162,11 @@ class ExtractSldFieldsDto {
   images: SldImageDto[];
 
   @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  text?: string;
+
+  @IsOptional()
   @IsInt()
   deviceId?: number;
 }
@@ -298,6 +303,7 @@ export class AiController {
       {
         filename: dto.filename,
         images: dto.images,
+        text: dto.text,
       },
       apiKey,
       {

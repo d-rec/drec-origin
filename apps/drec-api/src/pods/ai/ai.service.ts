@@ -133,6 +133,11 @@ export interface ExtractSldFieldsInput {
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
+  /** Optional embedded PDF text layer. CAD-exported SLDs encode every
+   *  label as real text; passing it alongside the images dramatically
+   *  improves recall on small / dense schematics that vision alone
+   *  reads poorly (e.g. "HUAWEI SUN2000-30KTL-M3"). */
+  text?: string;
 }
 
 export interface ExtractedField<T> {
@@ -452,6 +457,9 @@ export class AiService {
           data: img.base64,
         },
       }));
+      const textBlock = input.text && input.text.trim().length
+        ? `\n\nPDF text layer (use to confirm labels the vision pass misses):\n"""\n${input.text.slice(0, MAX_INPUT_CHARS)}\n"""\n`
+        : '';
       const res = await client.messages.create({
         model: HAIKU_MODEL,
         max_tokens: 1024,
@@ -461,7 +469,7 @@ export class AiService {
             role: 'user',
             content: [
               ...imageBlocks,
-              { type: 'text', text: prompt },
+              { type: 'text', text: prompt + textBlock },
             ],
           },
         ],
