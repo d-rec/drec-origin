@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
+  Get,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -193,6 +195,18 @@ export class AiController {
         deviceId: dto.deviceId,
       },
     );
+  }
+
+  @Get('usage')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({ summary: 'Aggregated AI usage / cost stats (admin / reviewer)' })
+  async getUsage(@UserDecorator() user: ILoggedInUser) {
+    if (!['Admin', 'Reviewer', 'SeniorReviewer'].includes(user.role)) {
+      throw new ForbiddenException(
+        'AI usage stats are admin / reviewer only',
+      );
+    }
+    return this.service.getUsageSummary();
   }
 
   @Post('extract-meter-ids-fields')

@@ -5,6 +5,18 @@ Report date: May 8, 2026
 RECENT CHANGES (April -- May 2026)
 ============================================================
 
+v0.9.5 (2026-05-08) -- AI Usage Dashboard
+--------------------
+
+  - New admin page /admin/ai-usage (Admin / Reviewer / SeniorReviewer)
+    surfacing month-to-date Haiku spend against the $200 workspace cap.
+    Shows total calls, success rate, input/output tokens, per-endpoint
+    breakdown, last-30-days daily spend, and top organisations by cost.
+  - Backend: GET /ai/usage endpoint aggregating ai_audit_log directly
+    (token counts authoritative from Anthropic responses; cost computed
+    at query time using current Haiku 4.5 pricing -- $1/Mtok input,
+    $5/Mtok output).
+
 v0.9.4 (2026-05-08) -- Haiku Form Pre-Fill + Registrant ACL Backfill
 --------------------
 

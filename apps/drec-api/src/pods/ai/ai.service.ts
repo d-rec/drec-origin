@@ -155,6 +155,11 @@ export interface ExtractSldFieldsResult {
   reasoning: string;
 }
 
+// Anthropic Haiku 4.5 pricing as of 2026-05. Use for budget tracking.
+// Input: $1/Mtok, Output: $5/Mtok.
+const PRICE_INPUT_PER_MTOK = 1.0;
+const PRICE_OUTPUT_PER_MTOK = 5.0;
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -163,6 +168,133 @@ export class AiService {
     @InjectRepository(AiAuditLog)
     private readonly audit: Repository<AiAuditLog>,
   ) {}
+
+  /**
+   * Aggregated AI usage / cost stats. Used by the /admin/ai-usage page.
+   * All numbers come from ai_audit_log (authoritative — token counts are
+   * straight from Anthropic's response). Cost is computed at query time
+   * using current Haiku pricing.
+   */
+  async getUsageSummary(): Promise<{
+    monthToDate: {
+      calls: number;
+      inputTokens: number;
+      outputTokens: number;
+      estimatedUsd: number;
+      successRate: number;
+    };
+    byEndpoint: Array<{
+      endpoint: string;
+      calls: number;
+      inputTokens: number;
+      outputTokens: number;
+      estimatedUsd: number;
+    }>;
+    daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
+    topOrgs: Array<{
+      organizationId: number | null;
+      calls: number;
+      estimatedUsd: number;
+    }>;
+  }> {
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const monthIso = monthStart.toISOString();
+
+    const totals = await this.audit
+      .createQueryBuilder('a')
+      .select('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN a.success THEN 1 ELSE 0 END), 0)',
+        'successes',
+      )
+      .where('a.created_at >= :since', { since: monthIso })
+      .getRawOne();
+
+    const calls = Number(totals?.calls ?? 0);
+    const inputTokens = Number(totals?.inputTokens ?? 0);
+    const outputTokens = Number(totals?.outputTokens ?? 0);
+    const successes = Number(totals?.successes ?? 0);
+
+    const byEndpointRows = await this.audit
+      .createQueryBuilder('a')
+      .select('a.endpoint', 'endpoint')
+      .addSelect('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .where('a.created_at >= :since', { since: monthIso })
+      .groupBy('a.endpoint')
+      .orderBy('"calls"', 'DESC')
+      .getRawMany();
+
+    const dailyRows = await this.audit
+      .createQueryBuilder('a')
+      .select("to_char(a.created_at, 'YYYY-MM-DD')", 'day')
+      .addSelect('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .where("a.created_at >= now() - INTERVAL '30 days'")
+      .groupBy("to_char(a.created_at, 'YYYY-MM-DD')")
+      .orderBy('"day"', 'ASC')
+      .getRawMany();
+
+    const topOrgRows = await this.audit
+      .createQueryBuilder('a')
+      .select('a.organization_id', 'organizationId')
+      .addSelect('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .where('a.created_at >= :since', { since: monthIso })
+      .groupBy('a.organization_id')
+      .orderBy(
+        'SUM(a.input_tokens * ' +
+          PRICE_INPUT_PER_MTOK +
+          ' + a.output_tokens * ' +
+          PRICE_OUTPUT_PER_MTOK +
+          ')',
+        'DESC',
+      )
+      .limit(10)
+      .getRawMany();
+
+    const dollars = (inT: number, outT: number) =>
+      Number(
+        (
+          (inT * PRICE_INPUT_PER_MTOK + outT * PRICE_OUTPUT_PER_MTOK) /
+          1_000_000
+        ).toFixed(4),
+      );
+
+    return {
+      monthToDate: {
+        calls,
+        inputTokens,
+        outputTokens,
+        estimatedUsd: dollars(inputTokens, outputTokens),
+        successRate: calls ? Number((successes / calls).toFixed(3)) : 1,
+      },
+      byEndpoint: byEndpointRows.map((r) => ({
+        endpoint: r.endpoint,
+        calls: Number(r.calls),
+        inputTokens: Number(r.inputTokens),
+        outputTokens: Number(r.outputTokens),
+        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+      })),
+      daily: dailyRows.map((r) => ({
+        day: r.day,
+        calls: Number(r.calls),
+        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+      })),
+      topOrgs: topOrgRows.map((r) => ({
+        organizationId: r.organizationId == null ? null : Number(r.organizationId),
+        calls: Number(r.calls),
+        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+      })),
+    };
+  }
 
   /**
    * Classify a document by content. Returns the best-matching slot
