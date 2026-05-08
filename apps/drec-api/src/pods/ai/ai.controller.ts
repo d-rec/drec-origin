@@ -22,6 +22,8 @@ import { ILoggedInUser } from '../../models';
 import {
   AiService,
   ClassifyDocumentResult,
+  ExtractCodFieldsResult,
+  ExtractSf02FieldsResult,
   ExtractSf02cFieldsResult,
   ExtractSldFieldsResult,
 } from './ai.service';
@@ -52,6 +54,50 @@ class SldImageDto {
 
   @IsString()
   mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+}
+
+class ExtractCodFieldsDto {
+  @IsString()
+  @MaxLength(512)
+  filename: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  text?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images?: SldImageDto[];
+
+  @IsOptional()
+  @IsInt()
+  deviceId?: number;
+}
+
+class ExtractSf02FieldsDto {
+  @IsString()
+  @MaxLength(512)
+  filename: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  text?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images?: SldImageDto[];
+
+  @IsOptional()
+  @IsInt()
+  deviceId?: number;
 }
 
 class ExtractSf02cFieldsDto {
@@ -123,6 +169,36 @@ export class AiController {
         organizationId: user.organizationId,
         deviceId: dto.deviceId,
       },
+    );
+  }
+
+  @Post('extract-cod-fields')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({ summary: 'Extract commissioning date / capacity from a COD proof' })
+  async extractCodFields(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ExtractCodFieldsDto,
+  ): Promise<ExtractCodFieldsResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.extractCodFields(
+      { filename: dto.filename, text: dto.text, images: dto.images },
+      apiKey,
+      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
+    );
+  }
+
+  @Post('extract-sf02-fields')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({ summary: 'Extract registration form fields from an SF-02 form' })
+  async extractSf02Fields(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ExtractSf02FieldsDto,
+  ): Promise<ExtractSf02FieldsResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.extractSf02Fields(
+      { filename: dto.filename, text: dto.text, images: dto.images },
+      apiKey,
+      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
   }
 

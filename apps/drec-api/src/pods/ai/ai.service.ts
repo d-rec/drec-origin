@@ -49,6 +49,48 @@ export interface ClassifyDocumentResult {
   reasoning: string;
 }
 
+export interface ExtractCodFieldsInput {
+  filename: string;
+  text?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+}
+
+export interface ExtractCodFieldsResult {
+  commissioningDate?: ExtractedField<string>;
+  facilityName?: ExtractedField<string>;
+  acCapacityKw?: ExtractedField<number>;
+  ownerName?: ExtractedField<string>;
+  utilityOrIssuer?: ExtractedField<string>;
+  reasoning: string;
+}
+
+export interface ExtractSf02FieldsInput {
+  filename: string;
+  text?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+}
+
+export interface ExtractSf02FieldsResult {
+  facilityName?: ExtractedField<string>;
+  acCapacityKw?: ExtractedField<number>;
+  commissioningDate?: ExtractedField<string>;
+  deviceTypeCode?: ExtractedField<string>;
+  ownerLegalName?: ExtractedField<string>;
+  ownerAddress?: ExtractedField<string>;
+  ownerCountry?: ExtractedField<string>;
+  latitude?: ExtractedField<number>;
+  longitude?: ExtractedField<number>;
+  inverterCount?: ExtractedField<number>;
+  moduleCount?: ExtractedField<number>;
+  reasoning: string;
+}
+
 export interface ExtractSf02cFieldsInput {
   filename: string;
   text?: string;
@@ -423,6 +465,216 @@ export class AiService {
         `extract-sf02c-fields: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
+  }
+
+  async extractCodFields(
+    input: ExtractCodFieldsInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ExtractCodFieldsResult> {
+    const promptInstructions = [
+      `You are reading a "Commercial Operation Date" (COD) proof — a certificate or letter from a utility / regulator / EPC stating the date the solar facility began commercial operation.`,
+      ``,
+      `Extract these fields. Use null where unknown.`,
+      `  - commissioningDate: ISO-8601 (YYYY-MM-DD)`,
+      `  - facilityName: site / plant name as written`,
+      `  - acCapacityKw: AC capacity in kW (convert from kVA / MW if needed)`,
+      `  - ownerName: facility owner organization`,
+      `  - utilityOrIssuer: who issued / signed the COD letter`,
+      ``,
+      `Strict JSON, no markdown, no prose:`,
+      `{`,
+      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "facilityName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "reasoning": "<one short sentence>"`,
+      `}`,
+    ].join('\n');
+    const parsed = await this.runDocExtraction(
+      'extract-cod-fields',
+      input,
+      apiKey,
+      ctx,
+      promptInstructions,
+    );
+    return {
+      commissioningDate: this.strField(parsed.commissioningDate),
+      facilityName: this.strField(parsed.facilityName),
+      acCapacityKw: this.numField(parsed.acCapacityKw),
+      ownerName: this.strField(parsed.ownerName),
+      utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
+      reasoning:
+        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+    };
+  }
+
+  async extractSf02Fields(
+    input: ExtractSf02FieldsInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ExtractSf02FieldsResult> {
+    const promptInstructions = [
+      `You are reading an "SF-02 Production Facility Registration" form — the I-REC standard registration form for a renewable generation facility. Most fields are filled-in form values.`,
+      ``,
+      `Extract:`,
+      `  - facilityName: site/plant name`,
+      `  - acCapacityKw: nameplate AC capacity in kW`,
+      `  - commissioningDate: ISO-8601 YYYY-MM-DD`,
+      `  - deviceTypeCode: I-REC fuel/technology code as written (e.g. "TC100", "Solar PV")`,
+      `  - ownerLegalName: facility owner / participant legal name`,
+      `  - ownerAddress: address (single line)`,
+      `  - ownerCountry: country name OR ISO-2 code`,
+      `  - latitude: decimal degrees (positive N, negative S)`,
+      `  - longitude: decimal degrees (positive E, negative W)`,
+      `  - inverterCount: number of inverters`,
+      `  - moduleCount: total module count`,
+      ``,
+      `Strict JSON only:`,
+      `{`,
+      `  "facilityName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "deviceTypeCode": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "latitude": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "longitude": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "reasoning": "<one short sentence>"`,
+      `}`,
+    ].join('\n');
+    const parsed = await this.runDocExtraction(
+      'extract-sf02-fields',
+      input,
+      apiKey,
+      ctx,
+      promptInstructions,
+    );
+    return {
+      facilityName: this.strField(parsed.facilityName),
+      acCapacityKw: this.numField(parsed.acCapacityKw),
+      commissioningDate: this.strField(parsed.commissioningDate),
+      deviceTypeCode: this.strField(parsed.deviceTypeCode),
+      ownerLegalName: this.strField(parsed.ownerLegalName),
+      ownerAddress: this.strField(parsed.ownerAddress),
+      ownerCountry: this.strField(parsed.ownerCountry),
+      latitude: this.numField(parsed.latitude),
+      longitude: this.numField(parsed.longitude),
+      inverterCount: this.numField(parsed.inverterCount),
+      moduleCount: this.numField(parsed.moduleCount),
+      reasoning:
+        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+    };
+  }
+
+  /**
+   * Shared text-or-vision Haiku call used by extract-cod-fields and
+   * extract-sf02-fields. Returns the parsed JSON object — caller is
+   * responsible for shaping it into its typed result.
+   */
+  private async runDocExtraction(
+    endpoint: string,
+    input: {
+      filename: string;
+      text?: string;
+      images?: Array<{
+        base64: string;
+        mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+      }>;
+    },
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+    promptInstructions: string,
+  ): Promise<any> {
+    const client = new Anthropic({ apiKey });
+    const startedAt = Date.now();
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    try {
+      const content: any[] = [];
+      if (input.images && input.images.length) {
+        for (const img of input.images) {
+          content.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: img.mimeType,
+              data: img.base64,
+            },
+          });
+        }
+      }
+      if (input.text && input.text.trim().length) {
+        const text = input.text.slice(0, MAX_INPUT_CHARS);
+        content.push({
+          type: 'text',
+          text: `Document text:\n"""\n${text}\n"""\n\n${promptInstructions}`,
+        });
+      } else {
+        content.push({ type: 'text', text: promptInstructions });
+      }
+      const res = await client.messages.create({
+        model: HAIKU_MODEL,
+        max_tokens: 1024,
+        temperature: 0,
+        messages: [{ role: 'user', content }],
+      });
+      inputTokens = res.usage?.input_tokens ?? 0;
+      outputTokens = res.usage?.output_tokens ?? 0;
+      const block = res.content.find((c) => c.type === 'text') as
+        | { type: 'text'; text: string }
+        | undefined;
+      const raw = block?.text?.trim() ?? '';
+      const parsed = this.parseJson(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error(`Model returned unparseable response: ${raw}`);
+      }
+      success = true;
+      return parsed;
+    } catch (err: any) {
+      errorMessage = err?.message ?? String(err);
+      throw err;
+    } finally {
+      void this.audit
+        .insert({
+          endpoint,
+          model: HAIKU_MODEL,
+          inputTokens,
+          outputTokens,
+          userId: ctx.userId ?? null,
+          organizationId: ctx.organizationId ?? null,
+          deviceId: ctx.deviceId ?? null,
+          success,
+          errorMessage,
+        })
+        .catch((auditErr) =>
+          this.logger.warn(`audit insert failed: ${auditErr?.message}`),
+        );
+      this.logger.log(
+        `${endpoint}: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
+      );
+    }
+  }
+
+  private strField(raw: any): ExtractedField<string> | undefined {
+    if (!raw || !raw.value) return undefined;
+    return {
+      value: String(raw.value).trim(),
+      confidence: this.clampConfidence(raw.confidence),
+    };
+  }
+
+  private numField(raw: any): ExtractedField<number> | undefined {
+    if (!raw || raw.value === null || raw.value === undefined) return undefined;
+    const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
+    if (!isFinite(v)) return undefined;
+    return { value: v, confidence: this.clampConfidence(raw.confidence) };
   }
 
   private normalizeSf02cResult(parsed: any): ExtractSf02cFieldsResult {
