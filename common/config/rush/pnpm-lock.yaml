@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@anthropic-ai/sdk': ^0.39.0
   '@compodoc/compodoc': ^1.1.22
   '@energyweb/issuer': 6.0.2-alpha.1646058469.0
   '@energyweb/issuer-api': 0.7.1
@@ -111,6 +112,7 @@ specifiers:
   passport-strategy: 1.x.x
   pdfkit: ^0.18.0
   pg: 8.7.1
+  piexifjs: ^1.0.6
   pkcs7-padding: 0.1.1
   prettier: ~3.2.5
   qs: '>=6.9.7'
@@ -144,6 +146,7 @@ specifiers:
   winston-s3-transport: ^2.1.2
 
 dependencies:
+  '@anthropic-ai/sdk': 0.39.0
   '@compodoc/compodoc': 1.2.1_typescript@5.1.3
   '@energyweb/issuer': 6.0.2-alpha.1646058469.0
   '@energyweb/issuer-api': 0.7.1_vjudvsykygwojyewatkkacpfx4
@@ -254,6 +257,7 @@ dependencies:
   passport-strategy: 1.0.0
   pdfkit: 0.18.0
   pg: 8.7.1
+  piexifjs: 1.0.6
   pkcs7-padding: 0.1.1
   prettier: 3.2.5
   qs: 6.15.0
@@ -398,6 +402,20 @@ packages:
       rxjs: 7.8.2
     transitivePeerDependencies:
       - chokidar
+    dev: false
+
+  /@anthropic-ai/sdk/0.39.0:
+    resolution: {integrity: sha512-eMyDIPRZbt1CCLErRCi3exlAvNkBtRe+kW5vvJyef93PmNr/clstYgHhtvmkxN82nlKgzyGPCyGxrm0JQ1ZIdg==}
+    dependencies:
+      '@types/node': 18.19.130
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /@arr/every/1.0.1:
@@ -6479,8 +6497,21 @@ packages:
       '@types/node': 14.18.63
     dev: false
 
+  /@types/node-fetch/2.6.13:
+    resolution: {integrity: sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==}
+    dependencies:
+      '@types/node': 14.18.63
+      form-data: 4.0.5
+    dev: false
+
   /@types/node/14.18.63:
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
+    dev: false
+
+  /@types/node/18.19.130:
+    resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
+    dependencies:
+      undici-types: 5.26.5
     dev: false
 
   /@types/nodemailer/6.4.23:
@@ -6927,6 +6958,13 @@ packages:
     dev: false
     optional: true
 
+  /abort-controller/3.0.0:
+    resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
+    engines: {node: '>=6.5'}
+    dependencies:
+      event-target-shim: 5.0.1
+    dev: false
+
   /accepts/1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
@@ -6987,6 +7025,13 @@ packages:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /agentkeepalive/4.6.0:
+    resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
+    engines: {node: '>= 8.0.0'}
+    dependencies:
+      humanize-ms: 1.2.1
     dev: false
 
   /ajv-formats/2.1.1:
@@ -9983,6 +10028,11 @@ packages:
       through: 2.3.8
     dev: false
 
+  /event-target-shim/5.0.1:
+    resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
+    engines: {node: '>=6'}
+    dev: false
+
   /events/1.1.1:
     resolution: {integrity: sha512-kEcvvCBByWXGnZy6JUlgAp2gBIUjfCAV6P6TgT1/aaQKcmuAEC4OZTV1I4EWQLz2gxZw76atuVyvHhTxvi0Flw==}
     engines: {node: '>=0.4.x'}
@@ -10513,6 +10563,10 @@ packages:
       webpack: 5.90.1_uglify-js@3.19.3
     dev: false
 
+  /form-data-encoder/1.7.2:
+    resolution: {integrity: sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A==}
+    dev: false
+
   /form-data/4.0.5:
     resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
@@ -10522,6 +10576,14 @@ packages:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.2
       mime-types: 2.1.35
+    dev: false
+
+  /formdata-node/4.4.1:
+    resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}
+    engines: {node: '>= 12.20'}
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 4.0.0-beta.3
     dev: false
 
   /formidable/1.2.6:
@@ -11156,6 +11218,12 @@ packages:
   /human-signals/2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+    dev: false
+
+  /humanize-ms/1.2.1:
+    resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
+    dependencies:
+      ms: 2.1.3
     dev: false
 
   /i18next/25.7.4_typescript@5.1.3:
@@ -13693,6 +13761,12 @@ packages:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
     dev: false
 
+  /node-domexception/1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+    dev: false
+
   /node-emoji/1.11.0:
     resolution: {integrity: sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==}
     dependencies:
@@ -14470,6 +14544,10 @@ packages:
   /picomatch/4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
+    dev: false
+
+  /piexifjs/1.0.6:
+    resolution: {integrity: sha512-0wVyH0cKohzBQ5Gi2V1BuxYpxWfxF3cSqfFXfPIpl5tl9XLS5z4ogqhUCD20AbHi0h9aJkqXNJnkVev6gwh2ag==}
     dev: false
 
   /pify/2.3.0:
@@ -16870,6 +16948,10 @@ packages:
     resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
     dev: false
 
+  /undici-types/5.26.5:
+    resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+    dev: false
+
   /undici/7.24.6:
     resolution: {integrity: sha512-Xi4agocCbRzt0yYMZGMA6ApD7gvtUFaxm4ZmeacWI4cZxaF6C+8I8QfofC20NAePiB/IcvZmzkJ7XPa471AEtA==}
     engines: {node: '>=20.18.1'}
@@ -17119,6 +17201,11 @@ packages:
       - encoding
     dev: false
     optional: true
+
+  /web-streams-polyfill/4.0.0-beta.3:
+    resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
+    engines: {node: '>= 14'}
+    dev: false
 
   /web3-utils/1.2.6:
     resolution: {integrity: sha512-8/HnqG/l7dGmKMgEL9JeKPTtjScxOePTzopv5aaKFExPfaBrYRkgoMqhoowCiAl/s16QaTn4DoIF1QC4YsT7Mg==}
@@ -17597,10 +17684,11 @@ packages:
     dev: false
 
   file:projects/origin-drec-api.tgz:
-    resolution: {integrity: sha512-VDXZ/U+Efk7v54otZopmJ/cyNTdnCWlf6N1m0z+hQEwiuinHVlcRjYPzOwuRS5Nx+HbaToTMJAeN7ZkAadvmmA==, tarball: file:projects/origin-drec-api.tgz}
+    resolution: {integrity: sha512-Wwyv4PLReN18D/l/0wC6weT2vvy7qjIMMXgOrmxyAiZ+HkY9KGsrI3HUAHOyeEQpTecJkFSNAgiJ9HXHP11pDQ==, tarball: file:projects/origin-drec-api.tgz}
     name: '@rush-temp/origin-drec-api'
     version: 0.0.0
     dependencies:
+      '@anthropic-ai/sdk': 0.39.0
       '@compodoc/compodoc': 1.2.1_typescript@5.1.3
       '@energyweb/issuer': 6.0.2-alpha.1646058469.0
       '@energyweb/issuer-api': 0.7.1_vjudvsykygwojyewatkkacpfx4
@@ -17705,6 +17793,7 @@ packages:
       passport-strategy: 1.0.0
       pdfkit: 0.18.0
       pg: 8.7.1
+      piexifjs: 1.0.6
       pkcs7-padding: 0.1.1
       prettier: 3.2.5
       qs: 6.15.0
