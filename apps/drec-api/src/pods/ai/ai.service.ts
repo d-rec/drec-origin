@@ -7,6 +7,36 @@ import { AiAuditLog } from './ai-audit-log.entity';
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const MAX_INPUT_CHARS = 8000;
 
+/**
+ * Disambiguating descriptions for each DocumentType slot. The bare
+ * enum names ("SF_02C" vs "PROOF_OF_OWNERSHIP") aren't enough for the
+ * model to make the right call — both look ownership-y in plain
+ * English. These descriptions encode D-REC's domain meaning.
+ */
+const TYPE_DESCRIPTIONS: Record<string, string> = {
+  FORM_SF_02:
+    'SF-02 Production Facility Registration form (the I-REC standard registration form for the production facility itself; usually filled-in form fields with facility name, capacity, commissioning date)',
+  SF_02C:
+    "I-REC SF-02c Owner's Declaration LETTER — formal letter on the owner's letterhead declaring exclusive rights to the environmental/renewable attributes (the I-REC declaration), referencing I-REC code, attribute generation, hereby-declare phrasing",
+  PROOF_OF_OWNERSHIP:
+    'Proof of Ownership of the physical site/equipment — title deed, land lease, rooftop lease, PPA (Power Purchase Agreement), purchase contract, bill of sale. NOT the SF-02c declaration letter',
+  METERING_EVIDENCE:
+    'Meter readings, energy generation data, kWh/MWh production reports, monthly generation logs, screenshots of inverter/logger portals',
+  SINGLE_LINE_DIAGRAM:
+    'Electrical single-line diagram (SLD) — schematic showing inverter, transformer, breakers, busbars, AC/DC disconnects, grid connection',
+  PROJECT_PHOTOS:
+    'Photographs of the physical site, panels on roof or ground, installation evidence',
+  COD_PROOF:
+    'Commercial Operation Date proof — certificate or letter confirming the date the facility began commercial operation',
+  FACILITY_BOUNDARY:
+    'Map or diagram of the facility boundary / site layout footprint',
+  OTHER_DOCUMENTS: 'Any other supporting document not matching the above types',
+  INCORPORATION_CERTIFICATE:
+    'Certificate of incorporation of the legal entity owning the facility',
+  LEGAL_REPRESENTATIVE_PASSPORT:
+    'Identity document (passport / ID) of the legal representative',
+};
+
 export interface ClassifyDocumentInput {
   filename: string;
   text: string;
@@ -52,9 +82,19 @@ export class AiService {
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<ClassifyDocumentResult> {
     const text = (input.text || '').slice(0, MAX_INPUT_CHARS);
+    const typeLines = input.validTypes
+      .map((t) => `  - ${t}: ${TYPE_DESCRIPTIONS[t] ?? '(no description)'}`)
+      .join('\n');
     const prompt = [
-      `Classify this document into exactly one of the following types:`,
-      input.validTypes.map((t) => `  - ${t}`).join('\n'),
+      `You are classifying a document for the D-REC platform (renewable-energy certificate registration).`,
+      ``,
+      `CRITICAL DISAMBIGUATION between two slots that BOTH mention ownership:`,
+      `  • SF_02C is the I-REC "Owner's Declaration" letter — a declaration of ATTRIBUTE rights (renewable / environmental / carbon ATTRIBUTES). It is signed by the owner and references I-REC. If the document declares rights over RENEWABLE/ENVIRONMENTAL/CARBON ATTRIBUTES or generation, it is SF_02C — even though the word "ownership" appears.`,
+      `  • PROOF_OF_OWNERSHIP is evidence of ownership of the PHYSICAL ASSET (the site / land / panels / equipment): a title deed, land lease, rooftop lease, PPA, purchase contract, bill of sale.`,
+      `Rule of thumb: "owns the attributes / I-REC / declaration" → SF_02C. "owns the land / equipment / physical site" → PROOF_OF_OWNERSHIP.`,
+      ``,
+      `Pick exactly one of:`,
+      typeLines,
       ``,
       `Filename: ${input.filename}`,
       `First-page text:`,
@@ -62,7 +102,7 @@ export class AiService {
       text,
       `"""`,
       ``,
-      `Respond with strict JSON, no prose:`,
+      `Respond with strict JSON, no prose, no markdown fences:`,
       `{"suggestedType": "<one of the listed types>", "confidence": <0..1>, "reasoning": "<one short sentence>"}`,
     ].join('\n');
 

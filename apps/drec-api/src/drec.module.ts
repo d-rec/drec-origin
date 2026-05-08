@@ -78,6 +78,7 @@ import { FailedMeterRead } from './pods/reads/failed-reads.entity';
 import { Chat } from './pods/chat/chat.entity';
 import { ChatConversation } from './pods/chat/chat-conversation.entity';
 import { ChatWebhook } from './pods/chat/chat-webhook.entity';
+import { AiAuditLog } from './pods/ai/ai-audit-log.entity';
 import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { AiModule } from './pods/ai/ai.module';
@@ -146,6 +147,7 @@ export const entities = [
   Chat,
   ChatConversation,
   ChatWebhook,
+  AiAuditLog,
   UploadLogEntity,
   ESignatureLog,
   OrgApiLicenses,
