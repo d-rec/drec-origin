@@ -1,4 +1,4 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Anthropic from '@anthropic-ai/sdk';
@@ -52,24 +52,11 @@ export interface ClassifyDocumentResult {
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
-  private client: Anthropic | null = null;
 
   constructor(
     @InjectRepository(AiAuditLog)
     private readonly audit: Repository<AiAuditLog>,
   ) {}
-
-  private getClient(): Anthropic {
-    if (this.client) return this.client;
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new ServiceUnavailableException(
-        'AI not configured: ANTHROPIC_API_KEY missing',
-      );
-    }
-    this.client = new Anthropic({ apiKey });
-    return this.client;
-  }
 
   /**
    * Classify a document by content. Returns the best-matching slot
@@ -79,8 +66,10 @@ export class AiService {
    */
   async classifyDocument(
     input: ClassifyDocumentInput,
+    apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<ClassifyDocumentResult> {
+    const client = new Anthropic({ apiKey });
     const text = (input.text || '').slice(0, MAX_INPUT_CHARS);
     const typeLines = input.validTypes
       .map((t) => `  - ${t}: ${TYPE_DESCRIPTIONS[t] ?? '(no description)'}`)
@@ -112,7 +101,7 @@ export class AiService {
     let success = false;
     let errorMessage: string | null = null;
     try {
-      const res = await this.getClient().messages.create({
+      const res = await client.messages.create({
         model: HAIKU_MODEL,
         max_tokens: 256,
         temperature: 0,

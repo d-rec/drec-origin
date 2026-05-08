@@ -8,7 +8,7 @@ import { decrypt, encrypt } from '../../utils/crypto';
 import { getRedisClient } from '../../lib/redis';
 import { RedisKeys } from '../../utils/enums/redis-keys.enum';
 
-export type ServiceType = 'roboflow' | 'deepl';
+export type ServiceType = 'roboflow' | 'deepl' | 'anthropic';
 
 @Injectable()
 export class OrgApiLicensesService {
@@ -32,6 +32,7 @@ export class OrgApiLicensesService {
       organizationId,
       roboflowCreditsRemaining: 3,
       deeplCreditsRemaining: 3,
+      anthropicCreditsRemaining: 50,
     });
   }
 
@@ -52,7 +53,11 @@ export class OrgApiLicensesService {
     const actorTag = `org=${organizationId} actor=${actor?.email || actor?.userId || 'unknown'} (${actor?.role || '?'})`;
 
     const apply = (
-      field: 'roboflowApiKey' | 'roboflowWorkflowUrl' | 'deeplApiKey',
+      field:
+        | 'roboflowApiKey'
+        | 'roboflowWorkflowUrl'
+        | 'deeplApiKey'
+        | 'anthropicApiKey',
       label: string,
       newValue: string | undefined,
       clearFlag: boolean | undefined,
@@ -112,6 +117,12 @@ export class OrgApiLicensesService {
       dto.deeplApiKey,
       dto.clearDeeplApiKey,
     );
+    apply(
+      'anthropicApiKey',
+      'anthropicApiKey',
+      dto.anthropicApiKey,
+      dto.clearAnthropicApiKey,
+    );
 
     if (audit.length === 0) {
       this.logger.log(
@@ -134,8 +145,10 @@ export class OrgApiLicensesService {
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
+    anthropicApiKey: string | null;
     roboflowCreditsRemaining: number;
     deeplCreditsRemaining: number;
+    anthropicCreditsRemaining: number;
   } | null> {
     const record = await this.findCached(organizationId);
     if (!record) return null;
@@ -150,8 +163,12 @@ export class OrgApiLicensesService {
       deeplApiKey: record.deeplApiKey
         ? this.safeDecryptAndMask(record.deeplApiKey)
         : null,
+      anthropicApiKey: record.anthropicApiKey
+        ? this.safeDecryptAndMask(record.anthropicApiKey)
+        : null,
       roboflowCreditsRemaining: record.roboflowCreditsRemaining,
       deeplCreditsRemaining: record.deeplCreditsRemaining,
+      anthropicCreditsRemaining: record.anthropicCreditsRemaining,
     };
   }
 
@@ -161,8 +178,10 @@ export class OrgApiLicensesService {
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
+    anthropicApiKey: string | null;
     roboflowCreditsRemaining: number;
     deeplCreditsRemaining: number;
+    anthropicCreditsRemaining: number;
   } | null> {
     const record = await this.findCached(organizationId);
     if (!record) return null;
@@ -175,18 +194,23 @@ export class OrgApiLicensesService {
         ? decrypt(record.roboflowWorkflowUrl)
         : null,
       deeplApiKey: record.deeplApiKey ? decrypt(record.deeplApiKey) : null,
+      anthropicApiKey: record.anthropicApiKey
+        ? decrypt(record.anthropicApiKey)
+        : null,
       roboflowCreditsRemaining: record.roboflowCreditsRemaining,
       deeplCreditsRemaining: record.deeplCreditsRemaining,
+      anthropicCreditsRemaining: record.anthropicCreditsRemaining,
     };
   }
 
   async getCredits(
     organizationId: number,
-  ): Promise<{ roboflow: number; deepl: number }> {
+  ): Promise<{ roboflow: number; deepl: number; anthropic: number }> {
     const record = await this.findCached(organizationId);
     return {
       roboflow: record?.roboflowCreditsRemaining ?? 0,
       deepl: record?.deeplCreditsRemaining ?? 0,
+      anthropic: record?.anthropicCreditsRemaining ?? 0,
     };
   }
 
@@ -196,9 +220,9 @@ export class OrgApiLicensesService {
   ): Promise<boolean> {
     const record = await this.findCached(organizationId);
     if (!record) return false;
-    return service === 'roboflow'
-      ? record.roboflowApiKey !== null
-      : record.deeplApiKey !== null;
+    if (service === 'roboflow') return record.roboflowApiKey !== null;
+    if (service === 'deepl') return record.deeplApiKey !== null;
+    return record.anthropicApiKey !== null;
   }
 
   async deductCredit(
@@ -208,7 +232,9 @@ export class OrgApiLicensesService {
     const column =
       service === 'roboflow'
         ? 'roboflow_credits_remaining'
-        : 'deepl_credits_remaining';
+        : service === 'deepl'
+          ? 'deepl_credits_remaining'
+          : 'anthropic_credits_remaining';
 
     const result = await this.repository.query(
       `UPDATE "org_api_licenses"
@@ -230,6 +256,7 @@ export class OrgApiLicensesService {
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
+    anthropicApiKey: string | null;
   }> {
     // Find the Admin user's org — cached in Redis for 10 min
     const adminOrgCacheKey = 'platform:admin_org_id';
@@ -250,7 +277,12 @@ export class OrgApiLicensesService {
 
     if (!adminOrgId) {
       this.logger.warn('No Admin user found — platform API keys unavailable');
-      return { roboflowApiKey: null, roboflowWorkflowUrl: null, deeplApiKey: null };
+      return {
+        roboflowApiKey: null,
+        roboflowWorkflowUrl: null,
+        deeplApiKey: null,
+        anthropicApiKey: null,
+      };
     }
 
     const result = await this.findDecrypted(adminOrgId);
@@ -258,6 +290,7 @@ export class OrgApiLicensesService {
       roboflowApiKey: result?.roboflowApiKey ?? null,
       roboflowWorkflowUrl: result?.roboflowWorkflowUrl ?? null,
       deeplApiKey: result?.deeplApiKey ?? null,
+      anthropicApiKey: result?.anthropicApiKey ?? null,
     };
   }
 

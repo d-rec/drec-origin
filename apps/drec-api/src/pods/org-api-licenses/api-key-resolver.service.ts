@@ -107,6 +107,43 @@ export class ApiKeyResolverService {
     return this.getPlatformRoboflowKey();
   }
 
+  async resolveAnthropicKey(user: {
+    role: Role;
+    organizationId: number;
+  }): Promise<string> {
+    if (REVIEWER_ROLES.includes(user.role)) {
+      return this.getPlatformAnthropicKey();
+    }
+    if ((process.env.MODE || '').toLowerCase() === 'dev') {
+      return this.getPlatformAnthropicKey();
+    }
+
+    let license = await this.orgApiLicensesService.findDecrypted(
+      user.organizationId,
+    );
+    if (!license) {
+      await this.orgApiLicensesService.initializeCredits(user.organizationId);
+      license = await this.orgApiLicensesService.findDecrypted(
+        user.organizationId,
+      );
+    }
+
+    if (license?.anthropicApiKey) {
+      return license.anthropicApiKey;
+    }
+
+    const ok = await this.orgApiLicensesService.deductCredit(
+      user.organizationId,
+      'anthropic',
+    );
+    if (!ok) {
+      throw new ForbiddenException(
+        'Claude credits exhausted. Please add your own Anthropic API key in Organization > Licenses.',
+      );
+    }
+    return this.getPlatformAnthropicKey();
+  }
+
   async getCreditsInfo(
     organizationId: number,
     service: ServiceType,
@@ -116,10 +153,26 @@ export class ApiKeyResolverService {
       organizationId,
       service,
     );
-    return {
-      credits: service === 'roboflow' ? credits.roboflow : credits.deepl,
-      hasOwnKey,
-    };
+    const credit =
+      service === 'roboflow'
+        ? credits.roboflow
+        : service === 'deepl'
+          ? credits.deepl
+          : credits.anthropic;
+    return { credits: credit, hasOwnKey };
+  }
+
+  private async getPlatformAnthropicKey(): Promise<string> {
+    const adminKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
+    // Fall back to env so the platform key works even before an Admin
+    // has saved it via the licenses page (e.g. dev / fresh install).
+    const key = adminKeys.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY;
+    if (!key) {
+      throw new ForbiddenException(
+        'Claude classification is not configured. An admin must set the Anthropic API key in Organization > Licenses.',
+      );
+    }
+    return key;
   }
 
   private async getPlatformDeeplKey(): Promise<string> {

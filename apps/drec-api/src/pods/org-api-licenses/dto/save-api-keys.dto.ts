@@ -17,6 +17,11 @@ export class SaveApiKeysDTO {
   @IsString()
   deeplApiKey?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  anthropicApiKey?: string;
+
   // Explicit destructive flags. An empty/null value alone NEVER clears a
   // previously-set key — that turned out to be too easy to trigger by
   // accident (a registrant opens the page, the form renders blank for any
@@ -36,4 +41,9 @@ export class SaveApiKeysDTO {
   @IsOptional()
   @IsBoolean()
   clearDeeplApiKey?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  clearAnthropicApiKey?: boolean;
 }

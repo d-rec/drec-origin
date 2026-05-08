@@ -13,6 +13,7 @@ import {
   AiService,
   ClassifyDocumentResult,
 } from './ai.service';
+import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 
 class ClassifyDocumentDto {
   @IsString()
@@ -36,7 +37,10 @@ class ClassifyDocumentDto {
 @ApiBearerAuth('access-token')
 @Controller('ai')
 export class AiController {
-  constructor(private readonly service: AiService) {}
+  constructor(
+    private readonly service: AiService,
+    private readonly apiKeyResolver: ApiKeyResolverService,
+  ) {}
 
   @Post('classify-document')
   @UseGuards(AuthVerifiedGuard('jwt'))
@@ -48,8 +52,10 @@ export class AiController {
     @UserDecorator() user: ILoggedInUser,
     @Body() dto: ClassifyDocumentDto,
   ): Promise<ClassifyDocumentResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.classifyDocument(
       { filename: dto.filename, text: dto.text, validTypes: dto.validTypes },
+      apiKey,
       {
         userId: user.id,
         organizationId: user.organizationId,

@@ -44,8 +44,10 @@ export class OrgApiLicensesController {
         roboflowApiKey: null,
         roboflowWorkflowUrl: null,
         deeplApiKey: null,
+        anthropicApiKey: null,
         roboflowCreditsRemaining: 3,
         deeplCreditsRemaining: 3,
+        anthropicCreditsRemaining: 50,
       };
     }
     return settings;
@@ -76,11 +78,13 @@ export class OrgApiLicensesController {
   ): Promise<{
     roboflow: { credits: number; hasOwnKey: boolean };
     deepl: { credits: number; hasOwnKey: boolean };
+    anthropic: { credits: number; hasOwnKey: boolean };
   }> {
-    const [roboflow, deepl] = await Promise.all([
+    const [roboflow, deepl, anthropic] = await Promise.all([
       this.apiKeyResolverService.getCreditsInfo(organizationId, 'roboflow'),
       this.apiKeyResolverService.getCreditsInfo(organizationId, 'deepl'),
+      this.apiKeyResolverService.getCreditsInfo(organizationId, 'anthropic'),
     ]);
-    return { roboflow, deepl };
+    return { roboflow, deepl, anthropic };
   }
 }
