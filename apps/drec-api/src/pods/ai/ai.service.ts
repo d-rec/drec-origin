@@ -49,6 +49,21 @@ export interface ClassifyDocumentResult {
   reasoning: string;
 }
 
+export interface ExtractMeterIdsInput {
+  filename: string;
+  text?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+}
+
+export interface ExtractMeterIdsResult {
+  measurementIds?: ExtractedField<string[]>;
+  inverterMakeModel?: ExtractedField<string>;
+  reasoning: string;
+}
+
 export interface ExtractCodFieldsInput {
   filename: string;
   text?: string;
@@ -64,6 +79,7 @@ export interface ExtractCodFieldsResult {
   acCapacityKw?: ExtractedField<number>;
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
+  measurementIds?: ExtractedField<string[]>;
   reasoning: string;
 }
 
@@ -467,6 +483,64 @@ export class AiService {
     }
   }
 
+  /**
+   * Extract inverter / meter measurement IDs from a metering-portal
+   * screenshot or photo. Recall depends entirely on whether the
+   * portal/photo actually shows the SN somewhere visible — partial
+   * matches are fine since the user can click Apply on multiple
+   * screenshots in succession.
+   */
+  async extractMeterIds(
+    input: ExtractMeterIdsInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ExtractMeterIdsResult> {
+    const promptInstructions = [
+      `You are reading a screenshot or photo from an inverter / meter monitoring portal (e.g. Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar) OR a close-up photo of an inverter nameplate sticker.`,
+      ``,
+      `Goal: extract the inverter / meter / measurement ID(s) — also called serial numbers (SN), measurement IDs, device IDs. Common formats: alphanumeric strings of 10-20 chars, often shown next to the inverter make/model.`,
+      ``,
+      `Extract:`,
+      `  - measurementIds: array of identifier strings you can read clearly. Order doesn't matter. Empty array if none visible.`,
+      `  - inverterMakeModel: manufacturer + model when visible (e.g. "Goodwe GW50K-MT")`,
+      ``,
+      `Be conservative — only include IDs you're reasonably certain about (no guessing characters).`,
+      ``,
+      `Strict JSON only:`,
+      `{`,
+      `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
+      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "reasoning": "<one short sentence>"`,
+      `}`,
+    ].join('\n');
+    const parsed = await this.runDocExtraction(
+      'extract-meter-ids-fields',
+      input,
+      apiKey,
+      ctx,
+      promptInstructions,
+    );
+    const idsRaw = parsed?.measurementIds;
+    let idsField: ExtractedField<string[]> | undefined;
+    if (idsRaw && Array.isArray(idsRaw.value) && idsRaw.value.length) {
+      const cleaned = idsRaw.value
+        .map((v: any) => (typeof v === 'string' ? v.trim() : ''))
+        .filter((v: string) => v.length > 0);
+      if (cleaned.length) {
+        idsField = {
+          value: cleaned,
+          confidence: this.clampConfidence(idsRaw.confidence),
+        };
+      }
+    }
+    return {
+      measurementIds: idsField,
+      inverterMakeModel: this.strField(parsed.inverterMakeModel),
+      reasoning:
+        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+    };
+  }
+
   async extractCodFields(
     input: ExtractCodFieldsInput,
     apiKey: string,
@@ -481,6 +555,7 @@ export class AiService {
       `  - acCapacityKw: AC capacity in kW (convert from kVA / MW if needed)`,
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
+      `  - measurementIds: opportunistic — if the COD proof includes an equipment list with inverter / meter serial numbers, extract them as a string[]. Empty/null if no SN list is present.`,
       ``,
       `Strict JSON, no markdown, no prose:`,
       `{`,
@@ -489,6 +564,7 @@ export class AiService {
       `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
       `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
@@ -499,12 +575,26 @@ export class AiService {
       ctx,
       promptInstructions,
     );
+    let measurementIds: ExtractedField<string[]> | undefined;
+    const idsRaw = parsed?.measurementIds;
+    if (idsRaw && Array.isArray(idsRaw.value) && idsRaw.value.length) {
+      const cleaned = idsRaw.value
+        .map((v: any) => (typeof v === 'string' ? v.trim() : ''))
+        .filter((v: string) => v.length > 0);
+      if (cleaned.length) {
+        measurementIds = {
+          value: cleaned,
+          confidence: this.clampConfidence(idsRaw.confidence),
+        };
+      }
+    }
     return {
       commissioningDate: this.strField(parsed.commissioningDate),
       facilityName: this.strField(parsed.facilityName),
       acCapacityKw: this.numField(parsed.acCapacityKw),
       ownerName: this.strField(parsed.ownerName),
       utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
+      measurementIds,
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };

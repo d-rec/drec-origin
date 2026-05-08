@@ -23,6 +23,7 @@ import {
   AiService,
   ClassifyDocumentResult,
   ExtractCodFieldsResult,
+  ExtractMeterIdsResult,
   ExtractSf02FieldsResult,
   ExtractSf02cFieldsResult,
   ExtractSldFieldsResult,
@@ -54,6 +55,28 @@ class SldImageDto {
 
   @IsString()
   mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+}
+
+class ExtractMeterIdsDto {
+  @IsString()
+  @MaxLength(512)
+  filename: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  text?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images?: SldImageDto[];
+
+  @IsOptional()
+  @IsInt()
+  deviceId?: number;
 }
 
 class ExtractCodFieldsDto {
@@ -169,6 +192,24 @@ export class AiController {
         organizationId: user.organizationId,
         deviceId: dto.deviceId,
       },
+    );
+  }
+
+  @Post('extract-meter-ids-fields')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({
+    summary:
+      'Extract inverter / meter measurement IDs from a metering screenshot or nameplate photo',
+  })
+  async extractMeterIds(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ExtractMeterIdsDto,
+  ): Promise<ExtractMeterIdsResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.extractMeterIds(
+      { filename: dto.filename, text: dto.text, images: dto.images },
+      apiKey,
+      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
   }
 
