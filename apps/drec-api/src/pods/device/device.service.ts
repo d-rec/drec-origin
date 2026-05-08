@@ -753,17 +753,17 @@ export class DeviceService {
     // Uniqueness checks only apply when the registrant actually provided a value.
     // Multiple in-progress drafts may have null siteName / serialNumber.
     if (newDevice.siteName) {
+      // siteName is unique platform-wide (matches the /check-name
+      // pre-flight semantics). Org-scoping is intentionally not used
+      // here.
       const checkSiteName = await this.repository.findOne({
-        where: {
-          siteName: newDevice.siteName,
-          organizationId: organizationId,
-        },
+        where: { siteName: newDevice.siteName },
       });
 
       if (checkSiteName) {
         throw new ConflictException({
           success: false,
-          message: `A device with site name "${newDevice.siteName}" already exists in this organization`,
+          message: `A device with site name "${newDevice.siteName}" already exists`,
         });
       }
     }
@@ -975,16 +975,14 @@ export class DeviceService {
     }
 
     if (updateDeviceDTO.siteName) {
+      // Global uniqueness — see create-time check above.
       const duplicateName = await this.repository.findOne({
-        where: {
-          siteName: updateDeviceDTO.siteName,
-          organizationId: organizationId,
-        },
+        where: { siteName: updateDeviceDTO.siteName },
       });
       if (duplicateName && duplicateName.id !== currentDevice.id) {
         throw new ConflictException({
           success: false,
-          message: `A device with site name "${updateDeviceDTO.siteName}" already exists in this organization`,
+          message: `A device with site name "${updateDeviceDTO.siteName}" already exists`,
         });
       }
     }
