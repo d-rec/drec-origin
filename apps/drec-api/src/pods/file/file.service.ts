@@ -27,7 +27,7 @@ export type FileUpload = {
  * so iframes/img tags render inline instead of triggering Firefox's
  * "unknown binary, save?" dialog.
  */
-function mimeFromKey(key: string): string {
+export function mimeFromKey(key: string): string {
   const ext = (key.split('.').pop() || '').toLowerCase().split(/[?#]/)[0];
   switch (ext) {
     case 'pdf':

@@ -17,6 +17,8 @@ import {
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 import { Response } from 'express';
 import { DocumentUploadsService } from './document-uploads.service';
+import { FileService } from '../file/file.service';
+import { mimeFromKey } from '../file/file.service';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
 import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
@@ -34,6 +36,7 @@ class UpdateDocumentLabelDto {
 export class DocumentUploadsController {
   constructor(
     private readonly documentUploadsService: DocumentUploadsService,
+    private readonly fileService: FileService,
   ) {}
 
   @Get(':id/url')
@@ -41,18 +44,37 @@ export class DocumentUploadsController {
   @Permission('Read')
   @ACLModules('SUBMISSION_MANAGEMENT_CRUDL')
   @ApiOperation({
-    summary: 'Get a pre-signed download URL for a document',
+    summary: 'Stream a document inline',
     description:
-      'Returns a temporary pre-signed S3 URL (valid 1 hour) for the requested document.',
+      'Streams the document bytes through the API. Avoids exposing the ' +
+      'browser to an S3/MinIO host that may not have CORS configured for ' +
+      'the portal origin.',
   })
-  @ApiResponse({ status: 200, type: String })
+  @ApiResponse({ status: 200 })
   @ApiResponse({ status: 404, description: 'Document not found' })
-  async getSignedUrl(
+  async streamDocument(
     @Param('id', ParseIntPipe) id: number,
     @Res() res: Response,
   ): Promise<void> {
-    const url = await this.documentUploadsService.getSignedUrl(id);
-    res.redirect(url);
+    const { key, filename } =
+      await this.documentUploadsService.getDocumentMeta(id);
+    const s3 = this.fileService.getS3();
+    res.setHeader('Content-Type', mimeFromKey(key));
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${filename.replace(/"/g, '')}"`,
+    );
+    const stream = s3
+      .getObject({ Bucket: process.env.AWS_S3_BUCKET, Key: key })
+      .createReadStream();
+    stream.on('error', (err: Error) => {
+      if (!res.headersSent) {
+        res.status(404).json({ message: err.message });
+      } else {
+        res.end();
+      }
+    });
+    stream.pipe(res);
   }
 
   @Patch(':id')

@@ -27,6 +27,19 @@ export class DocumentUploadsService {
     return this.fileService.getSignedUrl(doc.url);
   }
 
+  async getDocumentMeta(
+    id: number,
+  ): Promise<{ key: string; filename: string }> {
+    const doc = await this.documentUploadsRepository.findOne({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException(`Document ${id} not found`);
+    }
+    return {
+      key: doc.url,
+      filename: doc.originalFilename || doc.url.split('/').pop() || `doc-${id}`,
+    };
+  }
+
   async findByTarget(
     targetId: number,
     targetType: DocumentTargetType,
