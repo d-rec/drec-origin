@@ -51,8 +51,10 @@ export interface ClassifyDocumentResult {
 
 export interface ExtractSldFieldsInput {
   filename: string;
-  imageBase64: string;
-  mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  images: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
 }
 
 export interface ExtractedField<T> {
@@ -232,6 +234,14 @@ export class AiService {
     let success = false;
     let errorMessage: string | null = null;
     try {
+      const imageBlocks = input.images.map((img) => ({
+        type: 'image' as const,
+        source: {
+          type: 'base64' as const,
+          media_type: img.mimeType,
+          data: img.base64,
+        },
+      }));
       const res = await client.messages.create({
         model: HAIKU_MODEL,
         max_tokens: 1024,
@@ -240,14 +250,7 @@ export class AiService {
           {
             role: 'user',
             content: [
-              {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  media_type: input.mimeType,
-                  data: input.imageBase64,
-                },
-              },
+              ...imageBlocks,
               { type: 'text', text: prompt },
             ],
           },

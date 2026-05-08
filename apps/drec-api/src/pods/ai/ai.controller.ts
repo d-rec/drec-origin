@@ -5,7 +5,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { AuthVerifiedGuard } from '../../guards';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
@@ -34,21 +44,28 @@ class ClassifyDocumentDto {
   deviceId?: number;
 }
 
+class SldImageDto {
+  @IsString()
+  @MaxLength(7_500_000)
+  base64: string;
+
+  @IsString()
+  mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+}
+
 class ExtractSldFieldsDto {
   @IsString()
   @MaxLength(512)
   filename: string;
 
-  // Base64-encoded image (PNG/JPEG/WEBP/GIF). Capped at ~7 MB encoded
-  // (~5 MB raw) — Anthropic's per-image limit is 5 MB so anything
-  // larger gets rejected anyway. The frontend should downsample to
-  // ~1600px on the long edge before sending.
-  @IsString()
-  @MaxLength(7_500_000)
-  imageBase64: string;
-
-  @IsString()
-  mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  // 1..4 base64-encoded page images (PNG/JPEG/WEBP/GIF). Capped at
+  // ~7 MB per encoded image — Anthropic's per-image limit is 5 MB.
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images: SldImageDto[];
 
   @IsOptional()
   @IsInt()
@@ -100,8 +117,7 @@ export class AiController {
     return this.service.extractSldFields(
       {
         filename: dto.filename,
-        imageBase64: dto.imageBase64,
-        mimeType: dto.mimeType,
+        images: dto.images,
       },
       apiKey,
       {
