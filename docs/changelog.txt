@@ -5,6 +5,54 @@ Report date: May 8, 2026
 RECENT CHANGES (April -- May 2026)
 ============================================================
 
+v0.9.4 (2026-05-08) -- Haiku Form Pre-Fill + Registrant ACL Backfill
+--------------------
+
+  STAGING (deployed)
+  ~~~~~~~~~~~~~~~~~~
+  - New: vision-based Haiku extraction of structured fields from
+    uploaded documents, with banners next to each upload slot and
+    "Apply to form" buttons that pre-fill matching form controls
+    (only when confidence ≥ 0.7 and the field is empty -- never
+    overwrites manual input). Five extractors:
+      • SLD (vision): AC/DC capacity, inverter count + size + make,
+        modules, grid voltage, grid-tied, zero-export, transformer
+      • SF-02c letter (text-first, vision fallback): project name,
+        owner legal name + address + country, signing date,
+        signatory + email
+      • COD proof (text-first): commissioning date, facility name,
+        capacity, owner, utility/issuer; opportunistic measurement
+        IDs when the proof includes an equipment list
+      • SF-02 registration form (text-first): facility name,
+        capacity, COD, device type, owner, address, country,
+        latitude / longitude, inverter count, module count
+      • Metering screenshot / nameplate (vision): inverter /
+        measurement serial numbers
+  - SLD multi-page: render up to 2 pages at 2048px long-edge so
+    template-style SLDs that put the schematic on page 2+ extract
+    correctly.
+  - Auto-classifier: new "OK + Extract" button that accepts the
+    sort and runs every matching extractor against the classified
+    files in one gesture.
+  - Meter-IDs banner aggregates IDs from any number of metering
+    screenshots / nameplate photos / COD proofs into a single
+    deduped list. Apply merges with whatever's already in the (14)
+    Meter or Measurement IDs field rather than skipping on
+    non-empty input. Server-side regex filter rejects anything
+    that doesn't look like a real SN (must be 8-24 contiguous
+    alphanumeric, no dashes, no kW/kWp/kVA/Hz/V suffix) regardless
+    of what the model returns.
+  - Each extractor goes through the existing per-org Anthropic
+    credit model (50-call free grant, registrants can drop in their
+    own sk-ant-... key for unlimited use) and writes a row to
+    ai_audit_log per call so per-doc-type token cost is trackable.
+  - Migration 1763500000000: re-backfill Registrant role ACL
+    permissions. Stage + prod had zero aclmodulepermissions rows
+    for Registrant despite earlier seed migrations being recorded
+    as applied -- result was a 403 on every guarded endpoint
+    (visible as "Error 403: Forbidden resource" on the registrant
+    dashboard). Idempotent re-run; a no-op on already-correct envs.
+
 v0.9.3 (2026-05-08) -- Document Type Cleanup + Haiku Tier-3
 --------------------
 
