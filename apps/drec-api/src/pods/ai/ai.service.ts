@@ -49,6 +49,32 @@ export interface ClassifyDocumentResult {
   reasoning: string;
 }
 
+export interface ExtractSldFieldsInput {
+  filename: string;
+  imageBase64: string;
+  mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+}
+
+export interface ExtractedField<T> {
+  value: T;
+  confidence: number;
+}
+
+export interface ExtractSldFieldsResult {
+  acCapacityKw?: ExtractedField<number>;
+  dcCapacityKwp?: ExtractedField<number>;
+  inverterCount?: ExtractedField<number>;
+  inverterCapacityKw?: ExtractedField<number>;
+  inverterMakeModel?: ExtractedField<string>;
+  moduleCount?: ExtractedField<number>;
+  moduleWattage?: ExtractedField<number>;
+  gridVoltage?: ExtractedField<string>;
+  gridTied?: ExtractedField<boolean>;
+  zeroExport?: ExtractedField<boolean>;
+  transformerKva?: ExtractedField<number>;
+  reasoning: string;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -151,6 +177,162 @@ export class AiService {
         `classify-document: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
+  }
+
+  /**
+   * Extract structured fields from an SLD image. The frontend renders
+   * page 1 of the SLD PDF to a canvas and sends the base64 PNG; we
+   * call Haiku 4.5 vision with a prompt that asks for each field
+   * individually with its own confidence so the UI can decide which
+   * to auto-fill (>=0.8) vs. surface as a suggestion only.
+   */
+  async extractSldFields(
+    input: ExtractSldFieldsInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ExtractSldFieldsResult> {
+    const client = new Anthropic({ apiKey });
+    const prompt = [
+      `You are reading a Single Line Diagram (SLD) from a solar PV installation.`,
+      ``,
+      `Extract these fields from the diagram. Use null for any field you cannot read with reasonable certainty. Each field has its own 0..1 confidence.`,
+      ``,
+      `  - acCapacityKw: total AC-side capacity in kW (e.g. inverter total, plant nameplate)`,
+      `  - dcCapacityKwp: total DC-side capacity in kWp (module-side, sum of module wattages)`,
+      `  - inverterCount: number of inverters`,
+      `  - inverterCapacityKw: capacity of EACH inverter in kW (if mixed sizes, the most common one)`,
+      `  - inverterMakeModel: manufacturer + model string (e.g. "Goodwe GW50K-MT")`,
+      `  - moduleCount: total number of PV modules`,
+      `  - moduleWattage: per-module wattage in W (e.g. 545)`,
+      `  - gridVoltage: grid connection voltage as written (e.g. "400V", "11kV", "33kV")`,
+      `  - gridTied: true if connected to utility grid, false if off-grid only`,
+      `  - zeroExport: true if a zero-export controller / no-export-to-grid is shown`,
+      `  - transformerKva: transformer rating in kVA when shown`,
+      ``,
+      `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
+      `{`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "dcCapacityKwp": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "inverterCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "moduleWattage": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "gridVoltage": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>},`,
+      `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>},`,
+      `  "transformerKva": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "reasoning": "<one short sentence summarising what you read>"`,
+      `}`,
+    ].join('\n');
+
+    const startedAt = Date.now();
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    try {
+      const res = await client.messages.create({
+        model: HAIKU_MODEL,
+        max_tokens: 1024,
+        temperature: 0,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: input.mimeType,
+                  data: input.imageBase64,
+                },
+              },
+              { type: 'text', text: prompt },
+            ],
+          },
+        ],
+      });
+      inputTokens = res.usage?.input_tokens ?? 0;
+      outputTokens = res.usage?.output_tokens ?? 0;
+      const block = res.content.find((c) => c.type === 'text') as
+        | { type: 'text'; text: string }
+        | undefined;
+      const raw = block?.text?.trim() ?? '';
+      const parsed = this.parseJson(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error(`Model returned unparseable response: ${raw}`);
+      }
+      const result = this.normalizeSldResult(parsed);
+      success = true;
+      return result;
+    } catch (err: any) {
+      errorMessage = err?.message ?? String(err);
+      throw err;
+    } finally {
+      void this.audit
+        .insert({
+          endpoint: 'extract-sld-fields',
+          model: HAIKU_MODEL,
+          inputTokens,
+          outputTokens,
+          userId: ctx.userId ?? null,
+          organizationId: ctx.organizationId ?? null,
+          deviceId: ctx.deviceId ?? null,
+          success,
+          errorMessage,
+        })
+        .catch((auditErr) =>
+          this.logger.warn(`audit insert failed: ${auditErr?.message}`),
+        );
+      this.logger.log(
+        `extract-sld-fields: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
+      );
+    }
+  }
+
+  private normalizeSldResult(parsed: any): ExtractSldFieldsResult {
+    const numField = (
+      raw: any,
+    ): ExtractedField<number> | undefined => {
+      if (!raw || raw.value === null || raw.value === undefined) return undefined;
+      const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
+      if (!isFinite(v)) return undefined;
+      return { value: v, confidence: this.clampConfidence(raw.confidence) };
+    };
+    const strField = (
+      raw: any,
+    ): ExtractedField<string> | undefined => {
+      if (!raw || !raw.value) return undefined;
+      return {
+        value: String(raw.value),
+        confidence: this.clampConfidence(raw.confidence),
+      };
+    };
+    const boolField = (
+      raw: any,
+    ): ExtractedField<boolean> | undefined => {
+      if (!raw || raw.value === null || raw.value === undefined) return undefined;
+      return {
+        value: Boolean(raw.value),
+        confidence: this.clampConfidence(raw.confidence),
+      };
+    };
+    return {
+      acCapacityKw: numField(parsed.acCapacityKw),
+      dcCapacityKwp: numField(parsed.dcCapacityKwp),
+      inverterCount: numField(parsed.inverterCount),
+      inverterCapacityKw: numField(parsed.inverterCapacityKw),
+      inverterMakeModel: strField(parsed.inverterMakeModel),
+      moduleCount: numField(parsed.moduleCount),
+      moduleWattage: numField(parsed.moduleWattage),
+      gridVoltage: strField(parsed.gridVoltage),
+      gridTied: boolField(parsed.gridTied),
+      zeroExport: boolField(parsed.zeroExport),
+      transformerKva: numField(parsed.transformerKva),
+      reasoning:
+        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+    };
   }
 
   private parseJson(raw: string): any {

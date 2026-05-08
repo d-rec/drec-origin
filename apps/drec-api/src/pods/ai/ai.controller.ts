@@ -12,6 +12,7 @@ import { ILoggedInUser } from '../../models';
 import {
   AiService,
   ClassifyDocumentResult,
+  ExtractSldFieldsResult,
 } from './ai.service';
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 
@@ -27,6 +28,27 @@ class ClassifyDocumentDto {
   @IsArray()
   @IsString({ each: true })
   validTypes: string[];
+
+  @IsOptional()
+  @IsInt()
+  deviceId?: number;
+}
+
+class ExtractSldFieldsDto {
+  @IsString()
+  @MaxLength(512)
+  filename: string;
+
+  // Base64-encoded image (PNG/JPEG/WEBP/GIF). Capped at ~7 MB encoded
+  // (~5 MB raw) — Anthropic's per-image limit is 5 MB so anything
+  // larger gets rejected anyway. The frontend should downsample to
+  // ~1600px on the long edge before sending.
+  @IsString()
+  @MaxLength(7_500_000)
+  imageBase64: string;
+
+  @IsString()
+  mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
 
   @IsOptional()
   @IsInt()
@@ -55,6 +77,32 @@ export class AiController {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.classifyDocument(
       { filename: dto.filename, text: dto.text, validTypes: dto.validTypes },
+      apiKey,
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
+    );
+  }
+
+  @Post('extract-sld-fields')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({
+    summary:
+      'Extract structured fields (capacity, inverter count, modules, etc.) from an SLD image via Claude Haiku vision',
+  })
+  async extractSldFields(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ExtractSldFieldsDto,
+  ): Promise<ExtractSldFieldsResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.extractSldFields(
+      {
+        filename: dto.filename,
+        imageBase64: dto.imageBase64,
+        mimeType: dto.mimeType,
+      },
       apiKey,
       {
         userId: user.id,
