@@ -49,6 +49,26 @@ export interface ClassifyDocumentResult {
   reasoning: string;
 }
 
+export interface ExtractSf02cFieldsInput {
+  filename: string;
+  text?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+}
+
+export interface ExtractSf02cFieldsResult {
+  projectName?: ExtractedField<string>;
+  ownerLegalName?: ExtractedField<string>;
+  ownerAddress?: ExtractedField<string>;
+  ownerCountry?: ExtractedField<string>;
+  signingDate?: ExtractedField<string>;
+  signatoryName?: ExtractedField<string>;
+  signatoryEmail?: ExtractedField<string>;
+  reasoning: string;
+}
+
 export interface ExtractSldFieldsInput {
   filename: string;
   images: Array<{
@@ -292,6 +312,138 @@ export class AiService {
         `extract-sld-fields: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
+  }
+
+  /**
+   * Extract owner / project / signing fields from an SF-02c letter.
+   * Most SF-02c documents are text-layer PDFs (generated from a Word
+   * template), so the cheap path is to send the extracted text to a
+   * normal (non-vision) Haiku call. We accept an optional images[]
+   * fallback for the rare scanned case.
+   */
+  async extractSf02cFields(
+    input: ExtractSf02cFieldsInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ExtractSf02cFieldsResult> {
+    const client = new Anthropic({ apiKey });
+    const promptInstructions = [
+      `You are reading an "SF-02c Owner's Declaration" letter — a formal letter on the asset owner's letterhead declaring exclusive rights to renewable / environmental / carbon attributes per the I-REC code.`,
+      ``,
+      `Extract these fields. Use null for any field you cannot read with reasonable certainty. Each field has its own 0..1 confidence.`,
+      ``,
+      `  - projectName: site / project / facility name as written (e.g. "Adupi-Emiriko", "Atsawa Solar Project")`,
+      `  - ownerLegalName: full legal name of the organization that owns the facility (typically the entity signing the letter)`,
+      `  - ownerAddress: owner's mailing address (single line)`,
+      `  - ownerCountry: country name OR ISO-2 code (e.g. "Nigeria" or "NG"). Pick whichever you can read most clearly.`,
+      `  - signingDate: ISO-8601 date (YYYY-MM-DD). Convert from any format on the letter.`,
+      `  - signatoryName: name of the person who signed`,
+      `  - signatoryEmail: email of the signatory if present`,
+      ``,
+      `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
+      `{`,
+      `  "projectName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "signingDate": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "signatoryName": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "signatoryEmail": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "reasoning": "<one short sentence summarising what you read>"`,
+      `}`,
+    ].join('\n');
+
+    const startedAt = Date.now();
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    try {
+      const content: any[] = [];
+      if (input.images && input.images.length) {
+        for (const img of input.images) {
+          content.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: img.mimeType,
+              data: img.base64,
+            },
+          });
+        }
+      }
+      if (input.text && input.text.trim().length) {
+        const text = input.text.slice(0, MAX_INPUT_CHARS);
+        content.push({
+          type: 'text',
+          text: `Letter text:\n"""\n${text}\n"""\n\n${promptInstructions}`,
+        });
+      } else {
+        content.push({ type: 'text', text: promptInstructions });
+      }
+      const res = await client.messages.create({
+        model: HAIKU_MODEL,
+        max_tokens: 1024,
+        temperature: 0,
+        messages: [{ role: 'user', content }],
+      });
+      inputTokens = res.usage?.input_tokens ?? 0;
+      outputTokens = res.usage?.output_tokens ?? 0;
+      const block = res.content.find((c) => c.type === 'text') as
+        | { type: 'text'; text: string }
+        | undefined;
+      const raw = block?.text?.trim() ?? '';
+      const parsed = this.parseJson(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error(`Model returned unparseable response: ${raw}`);
+      }
+      const result = this.normalizeSf02cResult(parsed);
+      success = true;
+      return result;
+    } catch (err: any) {
+      errorMessage = err?.message ?? String(err);
+      throw err;
+    } finally {
+      void this.audit
+        .insert({
+          endpoint: 'extract-sf02c-fields',
+          model: HAIKU_MODEL,
+          inputTokens,
+          outputTokens,
+          userId: ctx.userId ?? null,
+          organizationId: ctx.organizationId ?? null,
+          deviceId: ctx.deviceId ?? null,
+          success,
+          errorMessage,
+        })
+        .catch((auditErr) =>
+          this.logger.warn(`audit insert failed: ${auditErr?.message}`),
+        );
+      this.logger.log(
+        `extract-sf02c-fields: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
+      );
+    }
+  }
+
+  private normalizeSf02cResult(parsed: any): ExtractSf02cFieldsResult {
+    const strField = (raw: any): ExtractedField<string> | undefined => {
+      if (!raw || !raw.value) return undefined;
+      return {
+        value: String(raw.value).trim(),
+        confidence: this.clampConfidence(raw.confidence),
+      };
+    };
+    return {
+      projectName: strField(parsed.projectName),
+      ownerLegalName: strField(parsed.ownerLegalName),
+      ownerAddress: strField(parsed.ownerAddress),
+      ownerCountry: strField(parsed.ownerCountry),
+      signingDate: strField(parsed.signingDate),
+      signatoryName: strField(parsed.signatoryName),
+      signatoryEmail: strField(parsed.signatoryEmail),
+      reasoning:
+        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+    };
   }
 
   private normalizeSldResult(parsed: any): ExtractSldFieldsResult {
