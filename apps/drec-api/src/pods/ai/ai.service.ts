@@ -412,8 +412,8 @@ export class AiService {
       `  - acCapacityKw: total AC-side capacity in kW (e.g. inverter total, plant nameplate)`,
       `  - dcCapacityKwp: total DC-side capacity in kWp (module-side, sum of module wattages)`,
       `  - inverterCount: number of inverters`,
-      `  - inverterCapacityKw: capacity of EACH inverter in kW (if mixed sizes, the most common one)`,
-      `  - inverterMakeModel: manufacturer + model string (e.g. "Goodwe GW50K-MT")`,
+      `  - inverterCapacityKw: capacity of EACH inverter in kW (if mixed sizes, the most common one). Read the kW from a labelled "AC capacity" if shown, OR derive it from the model number when the manufacturer encodes it: Huawei SUN2000-30KTL-M3 = 30 kW, SUN2000-100KTL = 100 kW; Goodwe GW50K-MT = 50 kW, GW100K-HT = 100 kW; SolarEdge SE10K = 10 kW; Sungrow SG110CX = 110 kW.`,
+      `  - inverterMakeModel: full manufacturer + model string as written on the diagram (e.g. "HUAWEI SUN2000-30KTL-M3", "Goodwe GW50K-MT"). Read inverter labels even when they sit alongside the inverter symbol rather than inside it.`,
       `  - moduleCount: total number of PV modules`,
       `  - moduleWattage: per-module wattage in W (e.g. 545)`,
       `  - gridVoltage: grid connection voltage as written (e.g. "400V", "11kV", "33kV")`,
@@ -477,7 +477,7 @@ export class AiService {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
       const result = this.deriveAcCapacityIfMissing(
-        this.normalizeSldResult(parsed),
+        this.deriveInverterCapacityFromModel(this.normalizeSldResult(parsed)),
       );
       success = true;
       return result;
@@ -941,6 +941,34 @@ export class AiService {
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
+  }
+
+  /** When the model returned a make/model string but no per-unit
+   *  capacity, try to parse the kW out of the model number itself.
+   *  Covers the major inverter vendors. Confidence is conservative
+   *  (0.7 cap) since model-number decoding can be ambiguous. */
+  private deriveInverterCapacityFromModel(
+    result: ExtractSldFieldsResult,
+  ): ExtractSldFieldsResult {
+    if (result.inverterCapacityKw) return result;
+    const model = result.inverterMakeModel?.value;
+    if (!model) return result;
+    // Patterns: SUN2000-30KTL, GW50K-MT, SE10K, SG110CX, etc.
+    // Look for a number followed by K/KTL/CX (case-insensitive).
+    const m = model.match(/(\d{1,4})\s*(?:K(?:TL|CX|HT|MT|HV|XB|SG)?|kW)\b/i);
+    if (m) {
+      const kw = parseInt(m[1], 10);
+      if (kw >= 1 && kw <= 5000) {
+        result.inverterCapacityKw = {
+          value: kw,
+          confidence: Math.min(
+            (result.inverterMakeModel?.confidence ?? 0.7) * 0.9,
+            0.7,
+          ),
+        };
+      }
+    }
+    return result;
   }
 
   private deriveAcCapacityIfMissing(
