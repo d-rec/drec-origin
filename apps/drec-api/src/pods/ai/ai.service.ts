@@ -496,15 +496,28 @@ export class AiService {
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<ExtractMeterIdsResult> {
     const promptInstructions = [
-      `You are reading a screenshot or photo from an inverter / meter monitoring portal (e.g. Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar) OR a close-up photo of an inverter nameplate sticker.`,
+      `You are reading a screenshot or photo from an inverter / meter monitoring portal (Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar, PowerTrust portal, etc.) OR a close-up photo of an inverter nameplate sticker.`,
       ``,
-      `Goal: extract the inverter / meter / measurement ID(s) — also called serial numbers (SN), measurement IDs, device IDs. Common formats: alphanumeric strings of 10-20 chars, often shown next to the inverter make/model.`,
+      `Extract the inverter / meter / measurement serial numbers (SN). These are HARDWARE identifiers stamped on the device by its manufacturer.`,
+      ``,
+      `WHAT A VALID SN LOOKS LIKE:`,
+      `  - Contiguous alphanumeric, typically 10-20 characters`,
+      `  - No dashes, no spaces, no unit suffixes`,
+      `  - Often starts with a vendor / country prefix (e.g. ES2340051281, 50000HSU012345, 7E12345678ABCD)`,
+      `  - Usually appears under a label like "SN", "Serial", "Inverter ID", "Device SN", "Measurement ID"`,
+      ``,
+      `WHAT TO IGNORE (these are NOT serial numbers, even if they look ID-like):`,
+      `  - Site / project / facility names (e.g. "IEA-NG-Site-01-Atsawa", "Plant-XYZ")`,
+      `  - Plate-capacity tags (e.g. "Atsawa-100kWp", "Site-A-50kW")`,
+      `  - Any string containing dashes (-) followed by descriptive text`,
+      `  - Account / customer numbers, not device-specific`,
+      `  - Unit values (kW, kWp, kVA, V, Hz)`,
+      ``,
+      `If you can't find a clear SN in the image, return an empty array — DO NOT substitute a site label or capacity tag.`,
       ``,
       `Extract:`,
-      `  - measurementIds: array of identifier strings you can read clearly. Order doesn't matter. Empty array if none visible.`,
+      `  - measurementIds: array of contiguous-alphanumeric SN strings. Empty array [] if none clearly visible.`,
       `  - inverterMakeModel: manufacturer + model when visible (e.g. "Goodwe GW50K-MT")`,
-      ``,
-      `Be conservative — only include IDs you're reasonably certain about (no guessing characters).`,
       ``,
       `Strict JSON only:`,
       `{`,
@@ -523,9 +536,17 @@ export class AiService {
     const idsRaw = parsed?.measurementIds;
     let idsField: ExtractedField<string[]> | undefined;
     if (idsRaw && Array.isArray(idsRaw.value) && idsRaw.value.length) {
+      // Server-side belt-and-suspenders filter: regardless of what
+      // the prompt instructs, drop strings that don't look like a real
+      // SN (must be 8-24 contiguous alphanumeric chars, no dashes/
+      // spaces, can't end in a unit suffix). Keeps site labels and
+      // capacity tags out of the result if the model slips up.
+      const SN_RE = /^[A-Za-z0-9]{8,24}$/;
+      const UNIT_TAIL_RE = /(kw|kwp|kva|hz|v)$/i;
       const cleaned = idsRaw.value
         .map((v: any) => (typeof v === 'string' ? v.trim() : ''))
-        .filter((v: string) => v.length > 0);
+        .filter((v: string) => v.length > 0)
+        .filter((v: string) => SN_RE.test(v) && !UNIT_TAIL_RE.test(v));
       if (cleaned.length) {
         idsField = {
           value: cleaned,
