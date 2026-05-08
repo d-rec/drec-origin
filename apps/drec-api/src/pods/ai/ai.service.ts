@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Anthropic from '@anthropic-ai/sdk';
 import { AiAuditLog } from './ai-audit-log.entity';
+import { AiResponseCache } from './ai-response-cache.entity';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const MAX_INPUT_CHARS = 8000;
@@ -41,6 +42,7 @@ export interface ClassifyDocumentInput {
   filename: string;
   text: string;
   validTypes: string[];
+  contentHash?: string;
 }
 
 export interface ClassifyDocumentResult {
@@ -56,6 +58,7 @@ export interface ExtractMeterIdsInput {
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
+  contentHash?: string;
 }
 
 export interface ExtractMeterIdsResult {
@@ -71,6 +74,7 @@ export interface ExtractCodFieldsInput {
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
+  contentHash?: string;
 }
 
 export interface ExtractCodFieldsResult {
@@ -90,6 +94,7 @@ export interface ExtractSf02FieldsInput {
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
+  contentHash?: string;
 }
 
 export interface ExtractSf02FieldsResult {
@@ -114,6 +119,7 @@ export interface ExtractSf02cFieldsInput {
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
+  contentHash?: string;
 }
 
 export interface ExtractSf02cFieldsResult {
@@ -138,6 +144,7 @@ export interface ExtractSldFieldsInput {
    *  improves recall on small / dense schematics that vision alone
    *  reads poorly (e.g. "HUAWEI SUN2000-30KTL-M3"). */
   text?: string;
+  contentHash?: string;
 }
 
 export interface ExtractedField<T> {
@@ -172,7 +179,69 @@ export class AiService {
   constructor(
     @InjectRepository(AiAuditLog)
     private readonly audit: Repository<AiAuditLog>,
+    @InjectRepository(AiResponseCache)
+    private readonly cache: Repository<AiResponseCache>,
   ) {}
+
+  /** Cache TTL in days. */
+  private static readonly CACHE_TTL_DAYS = 7;
+
+  /** Look up a previously-stored response by content hash + endpoint.
+   *  Returns null on miss or if the row is older than CACHE_TTL_DAYS. */
+  private async cacheLookup(
+    contentHash: string | undefined,
+    endpoint: string,
+  ): Promise<any | null> {
+    if (!contentHash) return null;
+    const row = await this.cache.findOne({
+      where: { contentHash, endpoint },
+    });
+    if (!row) return null;
+    const ageMs = Date.now() - new Date(row.createdAt).getTime();
+    if (ageMs > AiService.CACHE_TTL_DAYS * 86400 * 1000) return null;
+    return row.response;
+  }
+
+  /** Store an extraction response keyed on (hash, endpoint). Upserts
+   *  so a re-extraction overwrites stale data within the TTL window. */
+  private async cacheStore(
+    contentHash: string | undefined,
+    endpoint: string,
+    response: any,
+  ): Promise<void> {
+    if (!contentHash) return;
+    try {
+      await this.cache.query(
+        `INSERT INTO "ai_response_cache" ("content_hash", "endpoint", "response", "created_at")
+         VALUES ($1, $2, $3::jsonb, now())
+         ON CONFLICT ("content_hash", "endpoint")
+         DO UPDATE SET "response" = EXCLUDED."response", "created_at" = now()`,
+        [contentHash, endpoint, JSON.stringify(response)],
+      );
+    } catch (err: any) {
+      this.logger.warn(`cache store failed: ${err?.message}`);
+    }
+  }
+
+  /** Audit a cache hit (0 tokens, success=true, marker on errorMessage). */
+  private async auditCacheHit(
+    endpoint: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<void> {
+    void this.audit
+      .insert({
+        endpoint,
+        model: HAIKU_MODEL,
+        inputTokens: 0,
+        outputTokens: 0,
+        userId: ctx.userId ?? null,
+        organizationId: ctx.organizationId ?? null,
+        deviceId: ctx.deviceId ?? null,
+        success: true,
+        errorMessage: 'cache hit',
+      })
+      .catch((err) => this.logger.warn(`audit insert failed: ${err?.message}`));
+  }
 
   /**
    * Aggregated AI usage / cost stats. Used by the /admin/ai-usage page.
@@ -370,6 +439,7 @@ export class AiService {
         reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
       };
       success = true;
+      void this.cacheStore(input.contentHash, 'classify-document', result);
       return result;
     } catch (err: any) {
       errorMessage = err?.message ?? String(err);
@@ -408,6 +478,15 @@ export class AiService {
     apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<ExtractSldFieldsResult> {
+    const cached = await this.cacheLookup(
+      input.contentHash,
+      'extract-sld-fields',
+    );
+    if (cached) {
+      void this.auditCacheHit('extract-sld-fields', ctx);
+      this.logger.log('extract-sld-fields: cache hit');
+      return cached as ExtractSldFieldsResult;
+    }
     const client = new Anthropic({ apiKey });
     const prompt = [
       `You are reading a Single Line Diagram (SLD) from a solar PV installation.`,
@@ -488,6 +567,7 @@ export class AiService {
         this.deriveInverterCapacityFromModel(this.normalizeSldResult(parsed)),
       );
       success = true;
+      void this.cacheStore(input.contentHash, 'extract-sld-fields', result);
       return result;
     } catch (err: any) {
       errorMessage = err?.message ?? String(err);
@@ -838,11 +918,18 @@ export class AiService {
         base64: string;
         mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
       }>;
+      contentHash?: string;
     },
     apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
     promptInstructions: string,
   ): Promise<any> {
+    const cached = await this.cacheLookup(input.contentHash, endpoint);
+    if (cached) {
+      void this.auditCacheHit(endpoint, ctx);
+      this.logger.log(`${endpoint}: cache hit`);
+      return cached;
+    }
     const client = new Anthropic({ apiKey });
     const startedAt = Date.now();
     let inputTokens = 0;
@@ -889,6 +976,7 @@ export class AiService {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
       success = true;
+      void this.cacheStore(input.contentHash, endpoint, parsed);
       return parsed;
     } catch (err: any) {
       errorMessage = err?.message ?? String(err);

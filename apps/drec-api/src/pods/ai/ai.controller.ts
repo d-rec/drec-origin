@@ -48,6 +48,11 @@ class ClassifyDocumentDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 class SldImageDto {
@@ -79,6 +84,11 @@ class ExtractMeterIdsDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 class ExtractCodFieldsDto {
@@ -101,6 +111,11 @@ class ExtractCodFieldsDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 class ExtractSf02FieldsDto {
@@ -123,6 +138,11 @@ class ExtractSf02FieldsDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 class ExtractSf02cFieldsDto {
@@ -145,6 +165,11 @@ class ExtractSf02cFieldsDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 class ExtractSldFieldsDto {
@@ -169,6 +194,11 @@ class ExtractSldFieldsDto {
   @IsOptional()
   @IsInt()
   deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
 }
 
 @ApiTags('AI')
@@ -192,7 +222,7 @@ export class AiController {
   ): Promise<ClassifyDocumentResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.classifyDocument(
-      { filename: dto.filename, text: dto.text, validTypes: dto.validTypes },
+      { filename: dto.filename, text: dto.text, validTypes: dto.validTypes, contentHash: dto.contentHash },
       apiKey,
       {
         userId: user.id,
@@ -226,7 +256,7 @@ export class AiController {
   ): Promise<ExtractMeterIdsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractMeterIds(
-      { filename: dto.filename, text: dto.text, images: dto.images },
+      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
       apiKey,
       { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
@@ -241,7 +271,7 @@ export class AiController {
   ): Promise<ExtractCodFieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractCodFields(
-      { filename: dto.filename, text: dto.text, images: dto.images },
+      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
       apiKey,
       { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
@@ -256,7 +286,7 @@ export class AiController {
   ): Promise<ExtractSf02FieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractSf02Fields(
-      { filename: dto.filename, text: dto.text, images: dto.images },
+      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
       apiKey,
       { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
@@ -278,6 +308,7 @@ export class AiController {
         filename: dto.filename,
         text: dto.text,
         images: dto.images,
+        contentHash: dto.contentHash,
       },
       apiKey,
       {
@@ -304,6 +335,7 @@ export class AiController {
         filename: dto.filename,
         images: dto.images,
         text: dto.text,
+        contentHash: dto.contentHash,
       },
       apiKey,
       {

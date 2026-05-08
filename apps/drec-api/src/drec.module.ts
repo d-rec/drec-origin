@@ -79,6 +79,7 @@ import { Chat } from './pods/chat/chat.entity';
 import { ChatConversation } from './pods/chat/chat-conversation.entity';
 import { ChatWebhook } from './pods/chat/chat-webhook.entity';
 import { AiAuditLog } from './pods/ai/ai-audit-log.entity';
+import { AiResponseCache } from './pods/ai/ai-response-cache.entity';
 import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { AiModule } from './pods/ai/ai.module';
@@ -148,6 +149,7 @@ export const entities = [
   ChatConversation,
   ChatWebhook,
   AiAuditLog,
+  AiResponseCache,
   UploadLogEntity,
   ESignatureLog,
   OrgApiLicenses,
