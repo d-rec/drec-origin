@@ -166,6 +166,7 @@ export interface ExtractSldFieldsResult {
   zeroExport?: ExtractedField<boolean>;
   transformerKva?: ExtractedField<number>;
   networkOwner?: ExtractedField<string>;
+  hasNetworkMeter?: ExtractedField<boolean>;
   reasoning: string;
 }
 
@@ -507,6 +508,7 @@ export class AiService {
       `  - zeroExport: true if a zero-export controller / no-export-to-grid is shown`,
       `  - transformerKva: transformer rating in kVA when shown`,
       `  - networkOwner: the DSO / electricity DISTRIBUTION COMPANY that owns the grid the facility connects to. Look at the GRID-SIDE of the diagram (utility connection point, MV/HV bus, transformer primary). The label is usually next to the grid-side bus or written as "Grid: <utility>", "Utility: <name>", "To: <DSO>", or as the utility logo. Examples: "Eko Disco", "AEDC", "Eskom", "ECG", "KPLC", "Tata Power Mumbai". This is NOT the project owner / EPC / off-taker. Return null if no DSO is shown.`,
+      `  - hasNetworkMeter: true if a meter is shown AT the utility connection point / point of common coupling (PCC). It will appear as a meter symbol (circle with "M", "kWh", or "Wh") on the GRID-SIDE of the main breaker, or labelled "Revenue Meter", "Utility Meter", "Export Meter", "Settlement Meter", "Network Meter", "PCC Meter", "Bidirectional Meter". Inverter-side meters (between PV array and inverter) and submeters DON'T count. Return false only if you can clearly see the grid connection point with no meter; null if you can't tell.`,
       ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
@@ -522,6 +524,7 @@ export class AiService {
       `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "transformerKva": {"value": <number|null>, "confidence": <0..1>},`,
       `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1134,6 +1137,7 @@ export class AiService {
       zeroExport: boolField(parsed.zeroExport),
       transformerKva: numField(parsed.transformerKva),
       networkOwner: strField(parsed.networkOwner),
+      hasNetworkMeter: boolField(parsed.hasNetworkMeter),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
