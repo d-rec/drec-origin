@@ -84,6 +84,7 @@ export interface ExtractCodFieldsResult {
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
   country?: ExtractedField<string>;
+  offTakerName?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
 }
@@ -820,6 +821,7 @@ export class AiService {
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
       `  - country: country where the facility is located. Look at the address, the regulator name (NERC=Nigeria, EPRA=Kenya, NERSA=South Africa, ERC=Philippines), the utility (Eko Disco / AEDC=Nigeria, KPLC=Kenya, Eskom=South Africa), or place names. Return the full English country name (e.g. "Nigeria", "Kenya", "South Africa") or null.`,
+      `  - offTakerName: legal name of the electricity OFF-TAKER — the entity buying / consuming the power (e.g. a factory, a mini-grid customer association, a hospital, a captive industrial user). NOT the project owner / EPC / utility / financier. Off-takers are usually named in the recital ("...for the supply of electricity to <off-taker>") or in a dedicated "Off-taker" / "Customer" / "Buyer" field. Return null if no distinct off-taker is named.`,
       `  - measurementIds: opportunistic — if the COD proof includes an equipment list with inverter / meter serial numbers, extract them as a string[]. Empty/null if no SN list is present.`,
       ``,
       `Strict JSON, no markdown, no prose:`,
@@ -830,6 +832,7 @@ export class AiService {
       `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
       `  "country": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "offTakerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
@@ -861,6 +864,7 @@ export class AiService {
       ownerName: this.strField(parsed.ownerName),
       utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
       country: this.strField(parsed.country),
+      offTakerName: this.strField(parsed.offTakerName),
       measurementIds,
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
