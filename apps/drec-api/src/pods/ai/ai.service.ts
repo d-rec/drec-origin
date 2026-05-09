@@ -167,6 +167,7 @@ export interface ExtractSldFieldsResult {
   transformerKva?: ExtractedField<number>;
   networkOwner?: ExtractedField<string>;
   hasNetworkMeter?: ExtractedField<boolean>;
+  gridExportType?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -509,6 +510,11 @@ export class AiService {
       `  - transformerKva: transformer rating in kVA when shown`,
       `  - networkOwner: the DSO / electricity DISTRIBUTION COMPANY that owns the grid the facility connects to. Look at the GRID-SIDE of the diagram (utility connection point, MV/HV bus, transformer primary). The label is usually next to the grid-side bus or written as "Grid: <utility>", "Utility: <name>", "To: <DSO>", or as the utility logo. Examples: "Eko Disco", "AEDC", "Eskom", "ECG", "KPLC", "Tata Power Mumbai". This is NOT the project owner / EPC / off-taker. Return null if no DSO is shown.`,
       `  - hasNetworkMeter: true if a meter is shown AT the utility connection point / point of common coupling (PCC). It will appear as a meter symbol (circle with "M", "kWh", or "Wh") on the GRID-SIDE of the main breaker, or labelled "Revenue Meter", "Utility Meter", "Export Meter", "Settlement Meter", "Network Meter", "PCC Meter", "Bidirectional Meter". Inverter-side meters (between PV array and inverter) and submeters DON'T count. Return false only if you can clearly see the grid connection point with no meter; null if you can't tell.`,
+      `  - gridExportType: how PV power flows back to the utility grid. Pick EXACTLY one of these strings:`,
+      `      "No (zero-export)"      — a zero-export controller / no-export-to-grid relay / reverse-power relay / "anti-islanding only" is shown, OR the SLD shows the inverter feeding only a local load with no path to the grid bus. Same signal as zeroExport=true.`,
+      `      "Yes (partial-export)"  — a bidirectional / net-metering / "import + export" meter is shown, OR the SLD labels the export path as "surplus only", "net metering", "behind-the-meter with export". The site self-consumes first and exports the surplus.`,
+      `      "Yes (full-export)"     — the SLD shows ALL inverter output going through an export meter to the grid with no local-load tap (utility-scale farm, dedicated export PPA, "export only" label).`,
+      `    Return null if you can't tell.`,
       ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
@@ -525,6 +531,7 @@ export class AiService {
       `  "transformerKva": {"value": <number|null>, "confidence": <0..1>},`,
       `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
       `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>},`,
+      `  "gridExportType": {"value": <string|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1138,6 +1145,7 @@ export class AiService {
       transformerKva: numField(parsed.transformerKva),
       networkOwner: strField(parsed.networkOwner),
       hasNetworkMeter: boolField(parsed.hasNetworkMeter),
+      gridExportType: strField(parsed.gridExportType),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
