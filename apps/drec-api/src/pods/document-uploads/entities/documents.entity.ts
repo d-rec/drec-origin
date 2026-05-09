@@ -24,6 +24,7 @@ export enum DocumentType {
   DEVICE_GROUP_CERTIFICATES = 'DEVICE_GROUP_CERTIFICATES',
   COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
   FACILITY_BOUNDARY = 'FACILITY_BOUNDARY', //OC#44 satellite image with panel outline
+  EVIDENCE_PROVENANCE = 'EVIDENCE_PROVENANCE', //Per-field auto-fill provenance report (HTML), generated from the auto-sort/extraction trail
   OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', //Other supporting documents
 }
 
