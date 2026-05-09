@@ -501,7 +501,7 @@ export class AiService {
       ``,
       `Extract these fields from the diagram. Use null for any field you cannot read with reasonable certainty. Each field has its own 0..1 confidence.`,
       ``,
-      `  - acCapacityKw: total AC-side capacity in kW (e.g. inverter total, plant nameplate)`,
+      `  - acCapacityKw: total PV-INVERTER AC-side capacity in kW (sum of the grid-tied solar inverter ratings only). DO NOT include battery / hybrid inverters that are NOT producing PV (e.g. a Victron Quattro / MultiPlus battery inverter — even when present in a hybrid system, its AC output represents stored energy, not PV generation). DO NOT include diesel / fuel generators (Mikano, Cummins, FG Wilson — even when shown in the SLD as backup). Example: an SLD with 2× HUAWEI SUN2000-30KTL-M3 PV inverters + 1× Victron Quattro 10 kVA battery inverter + 80 kVA Mikano gen-set → acCapacityKw = 60 (only the two PV inverters).`,
       `  - dcCapacityKwp: total DC-side capacity in kWp (module-side, sum of module wattages)`,
       `  - inverterCount: number of inverters`,
       `  - inverterCapacityKw: capacity of EACH inverter in kW (if mixed sizes, the most common one). Read the kW from a labelled "AC capacity" if shown, OR derive it from the model number when the manufacturer encodes it: Huawei SUN2000-30KTL-M3 = 30 kW, SUN2000-100KTL = 100 kW; Goodwe GW50K-MT = 50 kW, GW100K-HT = 100 kW; SolarEdge SE10K = 10 kW; Sungrow SG110CX = 110 kW.`,
