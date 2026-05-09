@@ -83,6 +83,7 @@ export interface ExtractCodFieldsResult {
   acCapacityKw?: ExtractedField<number>;
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
+  country?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
 }
@@ -818,6 +819,7 @@ export class AiService {
       `  - acCapacityKw: AC capacity in kW (convert from kVA / MW if needed)`,
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
+      `  - country: country where the facility is located. Look at the address, the regulator name (NERC=Nigeria, EPRA=Kenya, NERSA=South Africa, ERC=Philippines), the utility (Eko Disco / AEDC=Nigeria, KPLC=Kenya, Eskom=South Africa), or place names. Return the full English country name (e.g. "Nigeria", "Kenya", "South Africa") or null.`,
       `  - measurementIds: opportunistic — if the COD proof includes an equipment list with inverter / meter serial numbers, extract them as a string[]. Empty/null if no SN list is present.`,
       ``,
       `Strict JSON, no markdown, no prose:`,
@@ -827,6 +829,7 @@ export class AiService {
       `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
       `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "country": {"value": <string|null>, "confidence": <0..1>},`,
       `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
@@ -857,6 +860,7 @@ export class AiService {
       acCapacityKw: this.numField(parsed.acCapacityKw),
       ownerName: this.strField(parsed.ownerName),
       utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
+      country: this.strField(parsed.country),
       measurementIds,
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
