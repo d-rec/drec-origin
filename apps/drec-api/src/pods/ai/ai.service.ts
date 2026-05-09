@@ -109,6 +109,7 @@ export interface ExtractSf02FieldsResult {
   longitude?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;
   moduleCount?: ExtractedField<number>;
+  networkOwner?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -863,6 +864,7 @@ export class AiService {
       `  - longitude: decimal degrees (positive E, negative W)`,
       `  - inverterCount: number of inverters`,
       `  - moduleCount: total module count`,
+      `  - networkOwner: the DSO / electricity DISTRIBUTION COMPANY that owns the grid the facility connects to. This is the utility (e.g. "Eko Disco", "AEDC", "Eskom", "ECG"), NOT the project sponsor / EPC / developer / off-taker. Look in the "Grid Connection" or "Network Operator" section. Return null if no DSO is named.`,
       ``,
       `Strict JSON only:`,
       `{`,
@@ -877,6 +879,7 @@ export class AiService {
       `  "longitude": {"value": <number|null>, "confidence": <0..1>},`,
       `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
       `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>},`,
+      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
@@ -899,6 +902,7 @@ export class AiService {
       longitude: this.numField(parsed.longitude),
       inverterCount: this.numField(parsed.inverterCount),
       moduleCount: this.numField(parsed.moduleCount),
+      networkOwner: this.strField(parsed.networkOwner),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
