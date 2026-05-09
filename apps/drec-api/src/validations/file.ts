@@ -29,6 +29,8 @@ export const fileFilter = (
     'gdoc',
     'txt',
     'csv',
+    'html', // EVIDENCE_PROVENANCE reports (registrant-generated audit trail)
+    'htm',
   ];
   const extension = file.originalname.split('.').pop()?.toLowerCase();
   const sizeInMB = file.size / (1024 * 1024);
