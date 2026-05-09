@@ -165,6 +165,7 @@ export interface ExtractSldFieldsResult {
   gridTied?: ExtractedField<boolean>;
   zeroExport?: ExtractedField<boolean>;
   transformerKva?: ExtractedField<number>;
+  networkOwner?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -505,6 +506,7 @@ export class AiService {
       `  - gridTied: true if connected to utility grid, false if off-grid only`,
       `  - zeroExport: true if a zero-export controller / no-export-to-grid is shown`,
       `  - transformerKva: transformer rating in kVA when shown`,
+      `  - networkOwner: the DSO / electricity DISTRIBUTION COMPANY that owns the grid the facility connects to. Look at the GRID-SIDE of the diagram (utility connection point, MV/HV bus, transformer primary). The label is usually next to the grid-side bus or written as "Grid: <utility>", "Utility: <name>", "To: <DSO>", or as the utility logo. Examples: "Eko Disco", "AEDC", "Eskom", "ECG", "KPLC", "Tata Power Mumbai". This is NOT the project owner / EPC / off-taker. Return null if no DSO is shown.`,
       ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
@@ -519,6 +521,7 @@ export class AiService {
       `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "transformerKva": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1130,6 +1133,7 @@ export class AiService {
       gridTied: boolField(parsed.gridTied),
       zeroExport: boolField(parsed.zeroExport),
       transformerKva: numField(parsed.transformerKva),
+      networkOwner: strField(parsed.networkOwner),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
