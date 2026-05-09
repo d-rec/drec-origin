@@ -168,6 +168,8 @@ export interface ExtractSldFieldsResult {
   networkOwner?: ExtractedField<string>;
   hasNetworkMeter?: ExtractedField<boolean>;
   gridExportType?: ExtractedField<string>;
+  hasAuxiliaryEnergySources?: ExtractedField<boolean>;
+  auxiliaryEnergySourceDetails?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -515,6 +517,8 @@ export class AiService {
       `      "Yes (partial-export)"  — a bidirectional / net-metering / "import + export" meter is shown, OR the SLD labels the export path as "surplus only", "net metering", "behind-the-meter with export". The site self-consumes first and exports the surplus.`,
       `      "Yes (full-export)"     — the SLD shows ALL inverter output going through an export meter to the grid with no local-load tap (utility-scale farm, dedicated export PPA, "export only" label).`,
       `    Return null if you can't tell.`,
+      `  - hasAuxiliaryEnergySources: true if the SLD shows ANY non-PV power source — diesel generator (gen-set / DG / "Mikano", "Cummins", "Caterpillar", "FG Wilson"), battery storage (BESS / lithium / "SOLARMD", "BYD", "Tesla Powerwall"), wind, hydro, fuel cell. Just the inverter + grid is NOT auxiliary. Return false only when the diagram clearly shows PV-only with no storage; null if uncertain.`,
+      `  - auxiliaryEnergySourceDetails: short human-readable list of what you found (e.g. "Mikano 80kVA diesel + 128.7 kWh SOLARMD lithium battery"). Null if hasAuxiliaryEnergySources is false/null.`,
       ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
@@ -532,6 +536,8 @@ export class AiService {
       `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
       `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "gridExportType": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>},`,
+      `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1146,6 +1152,8 @@ export class AiService {
       networkOwner: strField(parsed.networkOwner),
       hasNetworkMeter: boolField(parsed.hasNetworkMeter),
       gridExportType: strField(parsed.gridExportType),
+      hasAuxiliaryEnergySources: boolField(parsed.hasAuxiliaryEnergySources),
+      auxiliaryEnergySourceDetails: strField(parsed.auxiliaryEnergySourceDetails),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
