@@ -42,7 +42,10 @@ export class DocumentUploadsController {
   @Get(':id/url')
   @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
   @Permission('Read')
-  @ACLModules('SUBMISSION_MANAGEMENT_CRUDL')
+  // Match the device-level /device/:id/documents ACL so reviewers
+  // who can list a device's docs can also stream them. Previously
+  // SUBMISSION_MANAGEMENT_CRUDL — reviewers got 403 on EVIDENCE_PROVENANCE.
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Stream a document inline',
     description:
