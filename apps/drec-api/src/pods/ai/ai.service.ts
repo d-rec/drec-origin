@@ -1101,19 +1101,50 @@ export class AiService {
   private deriveAcCapacityIfMissing(
     result: ExtractSldFieldsResult,
   ): ExtractSldFieldsResult {
-    if (result.acCapacityKw) return result;
     const cnt = result.inverterCount?.value;
     const each = result.inverterCapacityKw?.value;
-    if (typeof cnt === 'number' && typeof each === 'number' && cnt > 0 && each > 0) {
-      const cConf = result.inverterCount?.confidence ?? 0.5;
-      const eConf = result.inverterCapacityKw?.confidence ?? 0.5;
-      // Derived value: take the lower of the two source confidences,
-      // shaded down by 10% so the conflict resolver still favours an
-      // explicitly-labelled nameplate when one is present.
-      result.acCapacityKw = {
-        value: Math.round(cnt * each * 100) / 100,
-        confidence: Math.max(0, Math.min(cConf, eConf) * 0.9),
-      };
+    const haveProduct =
+      typeof cnt === 'number' &&
+      typeof each === 'number' &&
+      cnt > 0 &&
+      each > 0;
+
+    if (!result.acCapacityKw) {
+      if (haveProduct) {
+        const cConf = result.inverterCount?.confidence ?? 0.5;
+        const eConf = result.inverterCapacityKw?.confidence ?? 0.5;
+        // Derived value: take the lower of the two source confidences,
+        // shaded down by 10% so the conflict resolver still favours an
+        // explicitly-labelled nameplate when one is present.
+        result.acCapacityKw = {
+          value: Math.round(cnt * each * 100) / 100,
+          confidence: Math.max(0, Math.min(cConf, eConf) * 0.9),
+        };
+      }
+      return result;
+    }
+
+    // Sanity check: if Haiku returned both an explicit acCapacityKw
+    // and the multiplier (count × per-inverter) disagrees by >10%,
+    // prefer the multiplication. Catches the "Haiku added the
+    // battery / gen-set to the inverter total" class of error
+    // without needing a prompt tweak per new hardware vendor.
+    if (haveProduct) {
+      const product = Math.round(cnt * each * 100) / 100;
+      const claimed = result.acCapacityKw.value;
+      const drift = Math.abs(claimed - product) / Math.max(product, 1);
+      if (drift > 0.10) {
+        const cConf = result.inverterCount?.confidence ?? 0.5;
+        const eConf = result.inverterCapacityKw?.confidence ?? 0.5;
+        result.acCapacityKw = {
+          value: product,
+          // Lower confidence to flag the override — the conflict
+          // resolver / overwrite-prompt UI surfaces this so the
+          // registrant can reject if the multiplication is the wrong
+          // one (mixed-size inverters).
+          confidence: Math.max(0, Math.min(cConf, eConf) * 0.85),
+        };
+      }
     }
     return result;
   }
