@@ -589,7 +589,7 @@ export class DeviceReviewsService {
    * D-REC §2.6: Screen a device for potential duplicates across all organizations.
    * Checks coordinate proximity (< 100m), cross-org serial number, and fingerprint.
    */
-  async screenForDuplicates(deviceId: number): Promise<{
+  async screenForDuplicates(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     duplicates: Array<{
       id: number;
       externalId: string;
@@ -678,7 +678,7 @@ export class DeviceReviewsService {
       });
     }
 
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'duplicate_screening',
       `${duplicates.length} potential duplicate(s) found`,
@@ -695,7 +695,7 @@ export class DeviceReviewsService {
    * Owner's Declaration / Proof of Ownership. Missing any of these flags
    * the device; otherwise ownershipStatus is set to 'verified'.
    */
-  async verifyOwnership(deviceId: number): Promise<{
+  async verifyOwnership(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     ownershipStatus: OwnershipStatus;
     missingDocuments: string[];
   }> {
@@ -738,7 +738,7 @@ export class DeviceReviewsService {
           ? ` (missing: ${missingDocuments.join(', ')})`
           : ''),
     );
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'ownership_verification',
       `Ownership ${ownershipStatus}${missingDocuments.length ? ': missing ' + missingDocuments.join(', ') : ''}`,
@@ -812,7 +812,7 @@ export class DeviceReviewsService {
    * Returns the rule set, which documents are present/missing, and which checks
    * the reviewer still needs to confirm manually.
    */
-  async verifySourceAccessMode(deviceId: number): Promise<{
+  async verifySourceAccessMode(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     mode: string | null;
     rules: ModeVerificationRule | null;
     missingRequired: string[];
@@ -886,7 +886,7 @@ export class DeviceReviewsService {
    * D-REC §3.7: Historical consistency review for production data.
    * Analyses meter readings over time and flags anomalies.
    */
-  async reviewHistoricalConsistency(deviceId: number): Promise<{
+  async reviewHistoricalConsistency(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     totalReadings: number;
     periodMonths: number;
     anomalies: Array<{
@@ -1094,7 +1094,7 @@ export class DeviceReviewsService {
         `${periodMonths} months, ${anomalies.length} anomalies`,
     );
 
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'historical_consistency',
       `${reads.length} readings, ${anomalies.length} anomalies over ${periodMonths} months`,
@@ -1116,7 +1116,7 @@ export class DeviceReviewsService {
    * Estimates expected yield from device location, compares with
    * the location-aware ceiling, and checks recent readings against it.
    */
-  async checkProductionCeiling(deviceId: number): Promise<{
+  async checkProductionCeiling(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     irradiance: IrradianceEstimate | null;
     irradianceUnavailableReason: string | null;
     /** Solar GSA climatology estimate (more accurate than the lat-band
@@ -1282,7 +1282,7 @@ export class DeviceReviewsService {
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
 
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'ceiling_check',
       `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (irradiance high or Solar GSA)`,
@@ -1315,6 +1315,7 @@ export class DeviceReviewsService {
    */
   async evaluateCompensatingControls(
     deviceId: number,
+    opts: { silent?: boolean } = {},
   ): Promise<CompensatingControlsEvaluation & { pathwayNote?: string }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Get device info
@@ -1438,7 +1439,7 @@ export class DeviceReviewsService {
 
     const allSatisfied = controls.every((c) => c.satisfied);
 
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'compensating_controls',
       `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
@@ -1462,6 +1463,7 @@ export class DeviceReviewsService {
    */
   async crossSourceVerification(
     deviceId: number,
+    opts: { silent?: boolean } = {},
   ): Promise<CrossSourceResult & { pathwayNote?: string }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Fetch device
@@ -1539,7 +1541,7 @@ export class DeviceReviewsService {
 
     const result = computeCrossSourceVerification(months);
 
-    await this.logAudit(
+    if (!opts.silent) await this.logAudit(
       deviceId,
       'cross_source_verification',
       `PF=${result.performanceFactor}, R²=${result.rSquared}, ${result.monthsCompared} months, ${result.flags.length} flag(s)`,
@@ -1888,7 +1890,7 @@ export class DeviceReviewsService {
    * never auto-reject — they're surfaced to the reviewer with both the API's
    * answer and the registrant's claim.
    */
-  async verifyCountryMatch(deviceId: number): Promise<CountryMatchResult> {
+  async verifyCountryMatch(deviceId: number, opts: { silent?: boolean } = {}): Promise<CountryMatchResult> {
     const rows: any[] = await this.connection.query(
       `SELECT latitude, longitude, "countryCode" FROM device WHERE id = $1`,
       [deviceId],
@@ -2121,15 +2123,18 @@ export class DeviceReviewsService {
       sldCompare,
       countryMatch,
     ] = await Promise.allSettled([
-      this.verifyOwnership(deviceId),
-      this.screenForDuplicates(deviceId),
-      this.verifySourceAccessMode(deviceId),
-      this.reviewHistoricalConsistency(deviceId),
-      this.checkProductionCeiling(deviceId),
-      this.crossSourceVerification(deviceId),
-      this.evaluateCompensatingControls(deviceId),
-      this.compareSldCapacity(deviceId),
-      this.verifyCountryMatch(deviceId),
+      // Pass {silent:true} so each sub-check skips its own audit
+      // row — autoScreenReport is the umbrella, and the per-check
+      // rows would just double-fill the audit trail.
+      this.verifyOwnership(deviceId, { silent: true }),
+      this.screenForDuplicates(deviceId, { silent: true }),
+      this.verifySourceAccessMode(deviceId, { silent: true }),
+      this.reviewHistoricalConsistency(deviceId, { silent: true }),
+      this.checkProductionCeiling(deviceId, { silent: true }),
+      this.crossSourceVerification(deviceId, { silent: true }),
+      this.evaluateCompensatingControls(deviceId, { silent: true }),
+      this.compareSldCapacity(deviceId, { silent: true }),
+      this.verifyCountryMatch(deviceId, { silent: true }),
     ]);
 
     // 1. Ownership
@@ -2550,7 +2555,7 @@ export class DeviceReviewsService {
    * D-REC VA layer: Compare SLD-stated capacity against registered capacity.
    * Flags mismatch if difference exceeds ±10%.
    */
-  async compareSldCapacity(deviceId: number): Promise<{
+  async compareSldCapacity(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
     registeredCapacityKw: number | null;
     sldCapacityKw: number | null;
     hasSld: boolean;
