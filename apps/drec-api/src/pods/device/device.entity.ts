@@ -274,6 +274,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   additionalInfo: string | null;
 
+  @Column({ type: 'jsonb', nullable: true, name: 'field_provenance' })
+  fieldProvenance: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null;
+
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
   @Column({ type: 'int', nullable: true, name: 'generating_unit_count' })
   @IsNumber()

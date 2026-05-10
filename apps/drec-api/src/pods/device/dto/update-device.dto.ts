@@ -305,6 +305,13 @@ export class UpdateDeviceDTO
   @IsString()
   additionalInfo?: string;
 
+  @ApiProperty({ required: false, type: 'object' })
+  @IsOptional()
+  fieldProvenance?: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null;
+
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
   @ApiProperty({ required: false })
   @IsOptional()
