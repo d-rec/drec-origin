@@ -2496,16 +2496,12 @@ export class DeviceReviewsService {
 
     const now = new Date().toISOString();
 
-    await this.logAudit(
-      deviceId,
-      'auto_screen_report',
-      `Auto-screen: ${overallStatus} — ${sections.filter((s) => s.status === 'fail').length} fail, ${sections.filter((s) => s.status === 'warn').length} warn, ${sections.filter((s) => s.status === 'pass').length} pass`,
-      'reviewer',
-      {
-        overallStatus,
-        sections: sections.map((s) => ({ name: s.name, status: s.status })),
-      },
-    );
+    // Umbrella `auto_screen_report` row dropped — every sub-check
+    // already logs its own audit row (ownership_verification,
+    // duplicate_screening, photo_gps_check, ceiling_check, etc.) so
+    // an extra summary row would just double the audit-trail noise.
+    // Per-section status still rolls up into last_screen_status on
+    // the device row below.
 
     // Persist last screen result on device
     await this.connection.query(
