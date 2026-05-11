@@ -340,6 +340,11 @@ export class NewDeviceDTO implements Omit<
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  pvSystemOwnerAddress?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   offTakerName?: string;
 
   @ApiProperty({ required: false, enum: YesNo })

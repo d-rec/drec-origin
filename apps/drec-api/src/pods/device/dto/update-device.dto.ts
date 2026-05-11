@@ -337,6 +337,11 @@ export class UpdateDeviceDTO
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  pvSystemOwnerAddress?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   offTakerName?: string;
 
   @ApiProperty({ required: false, enum: YesNo })

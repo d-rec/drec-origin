@@ -298,6 +298,10 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   pvSystemOwner: string | null;
 
+  @Column({ type: 'varchar', nullable: true, name: 'pv_system_owner_address' })
+  @IsString()
+  pvSystemOwnerAddress: string | null;
+
   @Column({ type: 'varchar', nullable: true, name: 'off_taker_name' })
   @IsString()
   offTakerName: string | null;
