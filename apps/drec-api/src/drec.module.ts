@@ -90,6 +90,7 @@ import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.m
 import { SolarYieldModule } from './pods/solar-yield/solar-yield.module';
 import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
 import { VerificationReport } from './pods/device-reviews/verification-report.entity';
+import { DeviceReviewNote } from './pods/device-reviews/device-review-note.entity';
 import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
 import { ESignatureLog } from './pods/e-signature/e-signature-log.entity';
 
@@ -154,6 +155,7 @@ export const entities = [
   ESignatureLog,
   OrgApiLicenses,
   VerificationReport,
+  DeviceReviewNote,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
