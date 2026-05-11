@@ -44,18 +44,51 @@ export class ChatController {
 
   @Post('conversations/:id/messages')
   @ApiOperation({
-    summary: 'Append a message to a conversation (updates lastEntryUuid)',
+    summary:
+      'Append a message to a conversation (updates lastEntryUuid). ' +
+      'kind defaults to "text"; pass "note" with fieldName for an ' +
+      'anchored reviewer note.',
   })
   @ApiResponse({ status: 201, type: ChatDto })
   async appendToConversation(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { username: string; chatEntry: string },
+    @Body()
+    body: {
+      username: string;
+      chatEntry: string;
+      kind?: 'text' | 'note' | 'system' | 'doc-ref';
+      fieldName?: string | null;
+      payload?: Record<string, any> | null;
+    },
   ): Promise<Chat> {
     return this.chatService.appendToConversation(
       id,
       body.username,
       body.chatEntry,
+      { kind: body.kind, fieldName: body.fieldName, payload: body.payload },
     );
+  }
+
+  @Patch('messages/:uuid/resolve')
+  @ApiOperation({
+    summary:
+      'Resolve a reviewer note. Only reviewers/admins should call this; ' +
+      'appends a kind="system" audit marker to the chain.',
+  })
+  async resolveNote(
+    @Param('uuid') uuid: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<Chat> {
+    return this.chatService.resolveNote(uuid, user.email);
+  }
+
+  @Patch('messages/:uuid/reopen')
+  @ApiOperation({ summary: 'Re-open a previously resolved reviewer note' })
+  async reopenNote(
+    @Param('uuid') uuid: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<Chat> {
+    return this.chatService.reopenNote(uuid, user.email);
   }
 
   @Get('chain/:headUuid')
@@ -138,26 +171,11 @@ export class ChatController {
     return { success: true };
   }
 
-  @Delete('messages/:uuid')
-  @ApiOperation({
-    summary: 'Delete a single chat message (author only). Rewires the chain.',
-  })
-  async deleteMessage(
-    @Param('uuid') uuid: string,
-    @UserDecorator() user: ILoggedInUser,
-  ): Promise<{
-    success: boolean;
-    conversationId: number | null;
-    headUuid: string | null;
-  }> {
-    const username = (user.email || '').split('@')[0];
-    const { conversationId, headUuid } = await this.chatService.deleteMessage(
-      uuid,
-      username,
-      user.email,
-    );
-    return { success: true, conversationId, headUuid };
-  }
+  // DELETE /messages/:uuid intentionally removed (2026-05-11). Chat
+  // messages are eternal audit material; corrections happen via a
+  // follow-up message, and notes flip status via /resolve and /reopen
+  // (which themselves append kind="system" audit rows). Server-admin
+  // DB writes are the only way to redact, by design.
 
   @Get('unread-count/:email')
   @ApiOperation({ summary: 'Get unread conversation count for a user' })

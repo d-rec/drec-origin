@@ -25,4 +25,12 @@ export class ChatConversation {
 
   @Column({ type: 'timestamptz', nullable: true })
   lastReadAt2: Date | null;
+
+  /** Optional third seat — senior reviewer / admin who joined an
+   *  existing registrant↔reviewer conversation. Null on most rows. */
+  @Column({ type: 'varchar', nullable: true, default: null })
+  participant3: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastReadAt3: Date | null;
 }

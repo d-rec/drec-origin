@@ -29,18 +29,28 @@ export class ChatService {
     username: string,
     chatEntry: string,
     previousEntryUuid?: string,
+    opts: {
+      kind?: 'text' | 'note' | 'system' | 'doc-ref';
+      fieldName?: string | null;
+      payload?: Record<string, any> | null;
+    } = {},
   ): Promise<Chat> {
+    const kind = opts.kind ?? 'text';
     const node = this.chatRepository.create({
       username,
       chatEntry,
       nextEntryUuid: null,
+      kind,
+      fieldName: kind === 'note' ? (opts.fieldName ?? null) : null,
+      status: kind === 'note' ? 'open' : null,
+      payload: opts.payload ?? null,
     });
     const saved = await this.chatRepository.save(node);
 
     typedLog(
       this.logger,
       'chat',
-      `Chat message sent by ${username}: ${chatEntry}`,
+      `Chat message [${kind}] by ${username}: ${chatEntry}`,
     );
 
     if (previousEntryUuid) {
@@ -50,6 +60,71 @@ export class ChatService {
     }
 
     return saved;
+  }
+
+  /** Reviewer / admin flips a note's lifecycle. Notes never get
+   *  deleted — they're audit-trail material — only resolved/reopened.
+   *  Resolution is a state change on the SAME message row plus a
+   *  kind='system' marker appended to the chain so the timeline
+   *  shows who closed it and when. */
+  async resolveNote(uuid: string, resolvedBy: string): Promise<Chat> {
+    const node = await this.chatRepository.findOne({ where: { uuid } });
+    if (!node) throw new NotFoundException(`Chat node ${uuid} not found`);
+    if (node.kind !== 'note') {
+      throw new NotFoundException(`Chat node ${uuid} is not a note`);
+    }
+    node.status = 'resolved';
+    node.resolvedBy = resolvedBy;
+    node.resolvedAt = new Date();
+    await this.chatRepository.save(node);
+
+    // Audit marker — append a system message right after the note
+    // referencing the original via payload.noteUuid.
+    const conv = await this.conversationRepository.findOne({
+      where: [{ headUuid: uuid }, { lastEntryUuid: uuid }],
+    });
+    const tail = conv?.lastEntryUuid ?? uuid;
+    const marker = await this.appendMessage(
+      resolvedBy,
+      `Resolved: ${node.fieldName ?? 'general'}`,
+      tail,
+      { kind: 'system', payload: { noteUuid: uuid, action: 'resolve' } },
+    );
+    if (conv) {
+      await this.conversationRepository.update(conv.id, {
+        lastEntryUuid: marker.uuid,
+      });
+    }
+    return node;
+  }
+
+  async reopenNote(uuid: string, reopenedBy: string): Promise<Chat> {
+    const node = await this.chatRepository.findOne({ where: { uuid } });
+    if (!node) throw new NotFoundException(`Chat node ${uuid} not found`);
+    if (node.kind !== 'note') {
+      throw new NotFoundException(`Chat node ${uuid} is not a note`);
+    }
+    node.status = 'open';
+    node.resolvedBy = null;
+    node.resolvedAt = null;
+    await this.chatRepository.save(node);
+
+    const conv = await this.conversationRepository.findOne({
+      where: [{ headUuid: uuid }, { lastEntryUuid: uuid }],
+    });
+    const tail = conv?.lastEntryUuid ?? uuid;
+    const marker = await this.appendMessage(
+      reopenedBy,
+      `Reopened: ${node.fieldName ?? 'general'}`,
+      tail,
+      { kind: 'system', payload: { noteUuid: uuid, action: 'reopen' } },
+    );
+    if (conv) {
+      await this.conversationRepository.update(conv.id, {
+        lastEntryUuid: marker.uuid,
+      });
+    }
+    return node;
   }
 
   async getNode(uuid: string): Promise<Chat> {
@@ -234,7 +309,13 @@ export class ChatService {
     conversationId: number,
     username: string,
     chatEntry: string,
+    opts: {
+      kind?: 'text' | 'note' | 'system' | 'doc-ref';
+      fieldName?: string | null;
+      payload?: Record<string, any> | null;
+    } = {},
   ): Promise<Chat> {
+    const kind = opts.kind ?? 'text';
     const conversation = await this.conversationRepository.findOne({
       where: { id: conversationId },
     });
@@ -243,14 +324,17 @@ export class ChatService {
     }
 
     // Dedup: if the last message in this conversation is from the same user
-    // with identical text and was created within the last 60 seconds, return
-    // the existing message instead of creating a duplicate.
-    if (conversation.lastEntryUuid) {
+    // with identical text+kind and was created within the last 60 seconds,
+    // return the existing message instead of creating a duplicate. Notes
+    // are deduped per (kind, fieldName, body) to avoid double-clicks
+    // creating two open notes for the same field.
+    if (conversation.lastEntryUuid && kind === 'text') {
       const lastMsg = await this.chatRepository.findOne({
         where: { uuid: conversation.lastEntryUuid },
       });
       if (
         lastMsg &&
+        lastMsg.kind === 'text' &&
         lastMsg.username === username &&
         lastMsg.chatEntry === chatEntry &&
         Date.now() - lastMsg.createdAt.getTime() < 60_000
@@ -268,6 +352,7 @@ export class ChatService {
       username,
       chatEntry,
       conversation.lastEntryUuid ?? undefined,
+      opts,
     );
 
     // Mark the sender's side of the conversation as read so the author
