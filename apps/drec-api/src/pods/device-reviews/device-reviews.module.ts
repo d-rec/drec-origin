@@ -9,18 +9,29 @@ import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.modul
 import { SolarYieldModule } from '../solar-yield/solar-yield.module';
 import { VerificationReport } from './verification-report.entity';
 import { VerificationReportsService } from './verification-reports.service';
+import { DeviceReviewNote } from './device-review-note.entity';
+import { DeviceReviewNotesService } from './device-review-notes.service';
+import { DeviceReviewNotesController } from './device-review-notes.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([VerificationReport]),
+    TypeOrmModule.forFeature([VerificationReport, DeviceReviewNote]),
     FileModule,
     DocumentUploadsModule,
     forwardRef(() => UserModule),
     OrgApiLicensesModule,
     SolarYieldModule,
   ],
-  controllers: [DeviceReviewsController],
-  providers: [DeviceReviewsService, VerificationReportsService],
-  exports: [DeviceReviewsService, VerificationReportsService],
+  controllers: [DeviceReviewsController, DeviceReviewNotesController],
+  providers: [
+    DeviceReviewsService,
+    VerificationReportsService,
+    DeviceReviewNotesService,
+  ],
+  exports: [
+    DeviceReviewsService,
+    VerificationReportsService,
+    DeviceReviewNotesService,
+  ],
 })
 export class DeviceReviewsModule {}
