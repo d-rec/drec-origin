@@ -86,6 +86,14 @@ export interface AssetDto {
   pictureUrls: string[];
   screenshotUrls: string[];
   docMeta: Record<string, DocMeta>;
+  /** Per-field source map captured by the registrant's auto-fill /
+   *  Apply pipeline. The reviewer-side OC# checklist uses this to
+   *  tint each row based on whether the underlying field came from
+   *  a doc-extractor / inference / platform default vs. manual. */
+  fieldProvenance: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null;
 }
 
 @Injectable()
@@ -424,6 +432,7 @@ export class DeviceReviewsService {
         d."gridInterconnection",
         d."commissioningDate",
         d.serial_number AS "serialNumber",
+        d.field_provenance AS "fieldProvenance",
         o.name AS "orgName",
         s.status,
         s.reviewer_name,
@@ -581,6 +590,7 @@ export class DeviceReviewsService {
         screenshotUrls: [] as string[], // legacy field — SCREENSHOTS merged into METERING_EVIDENCE
         otherDocumentUrls: allOfType('OTHER_DOCUMENTS'),
         docMeta,
+        fieldProvenance: r.fieldProvenance ?? null,
       };
     });
   }
