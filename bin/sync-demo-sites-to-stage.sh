@@ -242,6 +242,19 @@ apply_table user
 apply_table device
 apply_table documents
 
+# Stage-only admin account that the TRUNCATE CASCADE wiped — gets
+# recreated post-sync with a fresh bcrypt hash so the operator can
+# still reach the Admin panel on stage after a demo refresh. Uses
+# SuperOrg (id=1) which is part of every snapshot.
+STAGEADMIN_PASSWORD="${STAGEADMIN_PASSWORD:-StageAdmin2026!}"
+log "restoring stage-only admin: stageadmin@drecs.org"
+STAGEADMIN_HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw(b'$STAGEADMIN_PASSWORD', bcrypt.gensalt(rounds=8)).decode())")
+STAGEADMIN_APIID=$(python3 -c "import uuid; print(uuid.uuid4())")
+{
+  echo "INSERT INTO api_user (api_user_id, permission_status) VALUES ('$STAGEADMIN_APIID', 'Active') ON CONFLICT DO NOTHING;"
+  echo "INSERT INTO \"user\" (id, \"createdAt\", \"updatedAt\", title, \"firstName\", \"lastName\", phone_number, email, password, status, role, \"organizationId\", \"roleId\", api_user_id) VALUES (100, NOW(), NOW(), 'Mr', 'Stage', 'Admin', '+33000000000', 'stageadmin@drecs.org', '$STAGEADMIN_HASH', 'Active', 'Admin', 1, 1, '$STAGEADMIN_APIID') ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, api_user_id = EXCLUDED.api_user_id;"
+} | stage_psql
+
 # ── Copy S3 objects ──────────────────────────────────────────────────
 log "copying S3 objects from MinIO ($DEV_S3_BUCKET) to stage ($STAGE_S3_BUCKET)"
 
