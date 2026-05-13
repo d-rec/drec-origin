@@ -9,6 +9,9 @@
 # Scope:
 #   - organization (wholesale; TRUNCATE CASCADE on stage first)
 #   - user (wholesale; comes back after the cascade)
+#   - api_user (wholesale; holds Registrant permission_status — login
+#     for Registrant users crashes if user.api_user_id has no row
+#     here)
 #   - device (the 3 chosen)
 #   - documents (for the chosen devices)
 #   - S3 objects referenced by documents.url, MinIO → stage S3
@@ -163,7 +166,13 @@ dump_table() {
 # Wholesale tables (no WHERE) — README creds make these effectively
 # shared singletons across envs anyway.
 dump_table organization "TRUE"
-dump_table user         "TRUE"
+# Order users by email so README accounts (evident.demo@…) come
+# before junk accounts (joe.orgadmin@…) that share a phone number.
+# Stage's UQ_user_phone_number keeps the first row inserted; without
+# this ordering evident.demo silently lost the race and the README
+# login on stage 401'd.
+dump_table user         "TRUE ORDER BY email"
+dump_table api_user     "TRUE"
 
 dump_table device           "id IN ($ID_CSV)"
 dump_table documents        "target_type='device' AND target_id IN ($ID_CSV)"
@@ -222,8 +231,13 @@ echo "TRUNCATE TABLE organization RESTART IDENTITY CASCADE;" | stage_psql
 log "DELETE stale documents for chosen devices on stage"
 echo "DELETE FROM documents WHERE target_type='device' AND target_id IN ($ID_CSV);" | stage_psql
 
-# Order matters: organization → user → device → documents.
+# api_user must come before user because user.api_user_id references
+# it. organization → api_user → user → device → documents.
+log "DELETE existing api_user rows on stage (will re-INSERT from dev)"
+echo "DELETE FROM api_user;" | stage_psql
+
 apply_table organization
+apply_table api_user
 apply_table user
 apply_table device
 apply_table documents
