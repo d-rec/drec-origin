@@ -1,11 +1,11 @@
 DREC Changelog
-Report date: May 8, 2026
+Report date: May 13, 2026
 
 
 RECENT CHANGES (April -- May 2026)
 ============================================================
 
-v0.9.5 (2026-05-08) -- AI Usage Dashboard
+v0.9.5 (2026-05-08) -- AI Usage Dashboard + Grafana Multi-Env Picker
 --------------------
 
   - New admin page /admin/ai-usage (Admin / Reviewer / SeniorReviewer)
@@ -16,6 +16,12 @@ v0.9.5 (2026-05-08) -- AI Usage Dashboard
     (token counts authoritative from Anthropic responses; cost computed
     at query time using current Haiku 4.5 pricing -- $1/Mtok input,
     $5/Mtok output).
+  - Grafana (2026-05-13): tokenization-pipeline dashboard at
+    stage-grafana.drecs.org now has an Environment dropdown that
+    swaps the backing Postgres between Stage, Prod, and PowerTrust
+    without leaving the dashboard (datasource variable + stable UIDs
+    stage-pg / prod-pg / powertrust-pg). Default time range widened
+    to 1y. Access gated by Grafana admin login only -- no OIDC yet.
 
 v0.9.4 (2026-05-08) -- Haiku Form Pre-Fill + Registrant ACL Backfill
 --------------------
