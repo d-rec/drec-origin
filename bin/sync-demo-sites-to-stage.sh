@@ -220,6 +220,28 @@ apply_table() {
   log "  $table: applied"
 }
 
+# ── Snapshot stage-only users before the wipe ────────────────────────
+# Anything on stage with an email not present in dev's user table is
+# stage-only (operator accounts, personal reviewer accounts,
+# environment-specific logins). Save their row + api_user row to
+# local files so we can re-INSERT them after the TRUNCATE.
+log "snapshotting stage-only users (email NOT IN dev emails)"
+DEV_EMAILS_SQL=$(PGPASSWORD="$DEV_DB_PASS" psql \
+  -h "$DEV_DB_HOST" -p "$DEV_DB_PORT" -U "$DEV_DB_USER" -d "$DEV_DB_NAME" \
+  -At -c "SELECT string_agg(format('%L', email), ',') FROM \"user\";")
+[[ -n "$DEV_EMAILS_SQL" ]] || DEV_EMAILS_SQL="''"
+
+STAGE_ONLY_COLS=$(stage_psql -c "
+  SELECT string_agg(format('\"%s\"', a.attname), ',' ORDER BY a.attnum)
+    FROM pg_attribute a
+   WHERE a.attrelid = '\"user\"'::regclass
+     AND a.attnum > 0 AND NOT a.attisdropped;")
+stage_psql -c "\\COPY (SELECT $STAGE_ONLY_COLS FROM \"user\" WHERE email NOT IN ($DEV_EMAILS_SQL)) TO STDOUT WITH (FORMAT csv, FORCE_QUOTE *)" > "$WORKDIR/stage_only_user.csv"
+echo "$STAGE_ONLY_COLS" > "$WORKDIR/stage_only_user.cols"
+stage_psql -c "\\COPY (SELECT * FROM api_user WHERE api_user_id IN (SELECT api_user_id FROM \"user\" WHERE email NOT IN ($DEV_EMAILS_SQL) AND api_user_id IS NOT NULL)) TO STDOUT WITH (FORMAT csv, FORCE_QUOTE *)" > "$WORKDIR/stage_only_api_user.csv"
+STAGE_ONLY_COUNT=$(wc -l < "$WORKDIR/stage_only_user.csv")
+log "  $STAGE_ONLY_COUNT stage-only user row(s) preserved"
+
 log "TRUNCATE organization CASCADE on stage (wipes user-data tables)"
 echo "TRUNCATE TABLE organization RESTART IDENTITY CASCADE;" | stage_psql
 
@@ -241,6 +263,47 @@ apply_table api_user
 apply_table user
 apply_table device
 apply_table documents
+
+# Restore the stage-only users snapshotted just before the wipe.
+# Re-point them at SuperOrg (id=1) since their original stage-only
+# org is gone — they keep their existing password hash, role,
+# status, and api_user link.
+if [[ -s "$WORKDIR/stage_only_user.csv" ]]; then
+  log "restoring $(wc -l < "$WORKDIR/stage_only_user.csv") stage-only user row(s)"
+  USER_COL_TYPES=$(stage_psql -c "
+    SELECT string_agg(format('\"%s\" %s', a.attname, format_type(a.atttypid, a.atttypmod)), ',' ORDER BY a.attnum)
+      FROM pg_attribute a
+     WHERE a.attrelid = '\"user\"'::regclass
+       AND a.attnum > 0 AND NOT a.attisdropped;")
+  USER_COLS=$(cat "$WORKDIR/stage_only_user.cols")
+  # Re-INSERT api_user rows first (if any) so user.api_user_id
+  # resolves.
+  if [[ -s "$WORKDIR/stage_only_api_user.csv" ]]; then
+    {
+      echo "BEGIN;"
+      echo "CREATE TEMP TABLE _so_api (api_user_id uuid, \"permissionIds\" jsonb, permission_status text);"
+      echo "\\COPY _so_api FROM STDIN WITH (FORMAT csv);"
+      cat "$WORKDIR/stage_only_api_user.csv"
+      echo "\\."
+      echo "INSERT INTO api_user (api_user_id, \"permissionIds\", permission_status) SELECT api_user_id, \"permissionIds\", permission_status FROM _so_api ON CONFLICT (api_user_id) DO NOTHING;"
+      echo "DROP TABLE _so_api;"
+      echo "COMMIT;"
+    } | stage_psql
+  fi
+  {
+    echo "BEGIN;"
+    echo "CREATE TEMP TABLE _so_user ($USER_COL_TYPES);"
+    echo "\\COPY _so_user ($USER_COLS) FROM STDIN WITH (FORMAT csv);"
+    cat "$WORKDIR/stage_only_user.csv"
+    echo "\\."
+    echo "INSERT INTO \"user\" ($USER_COLS) SELECT $USER_COLS FROM _so_user ON CONFLICT (email) DO NOTHING;"
+    # Re-point any restored user whose original organizationId is
+    # no longer present onto SuperOrg (id=1) so they can log in.
+    echo "UPDATE \"user\" SET \"organizationId\" = 1 WHERE email IN (SELECT email FROM _so_user) AND \"organizationId\" NOT IN (SELECT id FROM organization);"
+    echo "DROP TABLE _so_user;"
+    echo "COMMIT;"
+  } | stage_psql
+fi
 
 # Stage-only admin account that the TRUNCATE CASCADE wiped — gets
 # recreated post-sync with a fresh bcrypt hash so the operator can
