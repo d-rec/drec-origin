@@ -194,6 +194,26 @@ export class AiService {
   /** Cache TTL in days. */
   private static readonly CACHE_TTL_DAYS = 7;
 
+  /** Per-endpoint prompt version. Bump when the extractor's prompt
+   *  text materially changes — the cache key is composed as
+   *  `<endpoint>:v<N>` so old entries are silently bypassed without
+   *  needing a manual DELETE FROM ai_response_cache. */
+  private static readonly PROMPT_VERSIONS: Record<string, number> = {
+    'classify-document': 1,
+    'extract-sld-fields': 2,        // bumped 2026-05-13 — networkOwner "n/a" for off-grid
+    'extract-sf02-fields': 2,       // bumped 2026-05-13 — networkOwner "n/a" for off-grid
+    'extract-sf02c-fields': 1,
+    'extract-cod-fields': 1,
+    'extract-meter-ids-fields': 1,
+  };
+
+  /** Compose the cache key. Endpoint name keeps the canonical form
+   *  for audit logging; only the cache uses the versioned key. */
+  private versionedKey(endpoint: string): string {
+    const v = AiService.PROMPT_VERSIONS[endpoint] ?? 1;
+    return `${endpoint}:v${v}`;
+  }
+
   /** Look up a previously-stored response by content hash + endpoint.
    *  Returns null on miss or if the row is older than CACHE_TTL_DAYS. */
   private async cacheLookup(
@@ -202,7 +222,7 @@ export class AiService {
   ): Promise<any | null> {
     if (!contentHash) return null;
     const row = await this.cache.findOne({
-      where: { contentHash, endpoint },
+      where: { contentHash, endpoint: this.versionedKey(endpoint) },
     });
     if (!row) return null;
     const ageMs = Date.now() - new Date(row.createdAt).getTime();
@@ -224,7 +244,7 @@ export class AiService {
          VALUES ($1, $2, $3::jsonb, now())
          ON CONFLICT ("content_hash", "endpoint")
          DO UPDATE SET "response" = EXCLUDED."response", "created_at" = now()`,
-        [contentHash, endpoint, JSON.stringify(response)],
+        [contentHash, this.versionedKey(endpoint), JSON.stringify(response)],
       );
     } catch (err: any) {
       this.logger.warn(`cache store failed: ${err?.message}`);
