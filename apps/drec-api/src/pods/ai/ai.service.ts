@@ -172,6 +172,7 @@ export interface ExtractSldFieldsResult {
   gridExportType?: ExtractedField<string>;
   hasAuxiliaryEnergySources?: ExtractedField<boolean>;
   auxiliaryEnergySourceDetails?: ExtractedField<string>;
+  hasCaptiveConsumer?: ExtractedField<boolean>;
   reasoning: string;
 }
 
@@ -200,7 +201,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 1,
-    'extract-sld-fields': 4,        // bumped 2026-05-13 — gridTied=false for mini-grids; worked example rewritten
+    'extract-sld-fields': 5,        // bumped 2026-05-13 — added hasCaptiveConsumer
     'extract-sf02-fields': 2,       // bumped 2026-05-13 — networkOwner "n/a" for off-grid
     'extract-sf02c-fields': 1,
     'extract-cod-fields': 1,
@@ -543,6 +544,7 @@ export class AiService {
       `    Worked example (Atsawa-shape mini-grid): SLD shows 2× HUAWEI PV inverters → local AC bus → battery storage (SOLARMD) + Victron Quattro battery inverter forming the AC reference + diesel backup (Mikano), with multiple customer kWh meters, no MV/HV transformer, no named DSO, and a title like "Nigeria MiniGrid" or "off-grid community". This is an off-grid mini-grid feeding local customers: gridTied=false (no utility connection point exists), networkOwner="n/a", gridExportType="No (zero-export)", hasNetworkMeter=false. The "Grid tied" wording in the title refers to the HUAWEI inverter topology, not the facility — the inverters synchronise to the local Victron AC bus, not to a utility.`,
       `  - hasAuxiliaryEnergySources: true if the SLD shows ANY non-PV power source — diesel generator (gen-set / DG / "Mikano", "Cummins", "Caterpillar", "FG Wilson"), battery storage (BESS / lithium / "SOLARMD", "BYD", "Tesla Powerwall"), wind, hydro, fuel cell. Just the inverter + grid is NOT auxiliary. Return false only when the diagram clearly shows PV-only with no storage; null if uncertain.`,
       `  - auxiliaryEnergySourceDetails: short human-readable list of what you found (e.g. "Mikano 80kVA diesel + 128.7 kWh SOLARMD lithium battery"). Null if hasAuxiliaryEnergySources is false/null.`,
+      `  - hasCaptiveConsumer: true if the SLD shows ANY on-site consumption — direct loads like "TO LOAD", "TO HOUSE", "Gate house", water tank, customer meters, building loads on the LV side. A mini-grid feeding local customers IS captive consumption. False ONLY when the diagram is utility-scale export with no on-site load tap. Null when uncertain.`,
       ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
@@ -562,6 +564,7 @@ export class AiService {
       `  "gridExportType": {"value": <string|null>, "confidence": <0..1>},`,
       `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "hasCaptiveConsumer": {"value": <boolean|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1215,6 +1218,7 @@ export class AiService {
       gridExportType: strField(parsed.gridExportType),
       hasAuxiliaryEnergySources: boolField(parsed.hasAuxiliaryEnergySources),
       auxiliaryEnergySourceDetails: strField(parsed.auxiliaryEnergySourceDetails),
+      hasCaptiveConsumer: boolField(parsed.hasCaptiveConsumer),
       reasoning:
         typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
