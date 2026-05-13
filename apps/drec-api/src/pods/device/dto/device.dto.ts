@@ -272,7 +272,7 @@ export class DeviceDTO implements IDevice {
   @IsOptional()
   fieldProvenance?: Record<
     string,
-    { source: string; confidence: number; at: string }
+    { source: string; confidence: number; at: string; value?: any }
   > | null;
 
   // Facility technical (Evident checklist rows 32, 33, 35, 36)

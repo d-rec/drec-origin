@@ -92,7 +92,7 @@ export interface AssetDto {
    *  a doc-extractor / inference / platform default vs. manual. */
   fieldProvenance: Record<
     string,
-    { source: string; confidence: number; at: string }
+    { source: string; confidence: number; at: string; value?: any }
   > | null;
 }
 
