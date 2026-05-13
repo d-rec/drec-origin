@@ -25,6 +25,51 @@ export class ChatService {
     private readonly webhookService: ChatWebhookService,
   ) {}
 
+  /** Mirror a chat message into the device-scoped audit_log so every
+   *  exchange (chat / note / system marker) is captured in the
+   *  immutable D-REC §3.8 audit trail next to the verification
+   *  events. No-op when the conversation isn't tied to a device.
+   *  Fire-and-forget — audit failures must not break send. */
+  private async mirrorToAuditLog(
+    conversation: ChatConversation,
+    msg: Chat,
+    kind: 'text' | 'note' | 'system' | 'doc-ref' = 'text',
+  ): Promise<void> {
+    if (!conversation.deviceSiteName) return;
+    try {
+      const deviceRows: Array<{ id: number }> =
+        await this.chatRepository.manager.query(
+          `SELECT id FROM device WHERE "siteName" = $1 LIMIT 1`,
+          [conversation.deviceSiteName],
+        );
+      const deviceId = deviceRows[0]?.id;
+      if (!deviceId) return;
+      const detail =
+        msg.chatEntry.length > 500
+          ? msg.chatEntry.slice(0, 497) + '...'
+          : msg.chatEntry;
+      await this.chatRepository.manager.query(
+        `INSERT INTO audit_log (device_id, action_type, detail, performed_by, metadata)
+         VALUES ($1, $2, $3, $4, $5::jsonb)`,
+        [
+          deviceId,
+          `chat_${kind}`,
+          detail,
+          msg.username,
+          JSON.stringify({
+            uuid: msg.uuid,
+            conversationId: conversation.id,
+            kind,
+            ...(msg.fieldName ? { fieldName: msg.fieldName } : {}),
+            ...(msg.status ? { status: msg.status } : {}),
+          }),
+        ],
+      );
+    } catch (err: any) {
+      this.logger.warn(`audit mirror failed: ${err?.message}`);
+    }
+  }
+
   async appendMessage(
     username: string,
     chatEntry: string,
@@ -94,6 +139,7 @@ export class ChatService {
       await this.conversationRepository.update(conv.id, {
         lastEntryUuid: marker.uuid,
       });
+      void this.mirrorToAuditLog(conv, marker, 'system');
     }
     return node;
   }
@@ -123,6 +169,7 @@ export class ChatService {
       await this.conversationRepository.update(conv.id, {
         lastEntryUuid: marker.uuid,
       });
+      void this.mirrorToAuditLog(conv, marker, 'system');
     }
     return node;
   }
@@ -354,6 +401,10 @@ export class ChatService {
       conversation.lastEntryUuid ?? undefined,
       opts,
     );
+
+    // Mirror to the device-scoped audit log (§3.8) — every chat
+    // message, note, and system marker shows up in the audit trail.
+    void this.mirrorToAuditLog(conversation, message, kind);
 
     // Mark the sender's side of the conversation as read so the author
     // doesn't see a "new message" badge for their own message.
