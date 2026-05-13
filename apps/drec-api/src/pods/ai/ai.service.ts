@@ -84,6 +84,7 @@ export interface ExtractCodFieldsResult {
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
   country?: ExtractedField<string>;
+  stateProvince?: ExtractedField<string>;
   offTakerName?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
@@ -107,6 +108,7 @@ export interface ExtractSf02FieldsResult {
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;
+  ownerStateProvince?: ExtractedField<string>;
   latitude?: ExtractedField<number>;
   longitude?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;
@@ -130,6 +132,7 @@ export interface ExtractSf02cFieldsResult {
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;
+  ownerStateProvince?: ExtractedField<string>;
   signingDate?: ExtractedField<string>;
   signatoryName?: ExtractedField<string>;
   signatoryEmail?: ExtractedField<string>;
@@ -202,9 +205,9 @@ export class AiService {
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 1,
     'extract-sld-fields': 5,        // bumped 2026-05-13 — added hasCaptiveConsumer
-    'extract-sf02-fields': 2,       // bumped 2026-05-13 — networkOwner "n/a" for off-grid
-    'extract-sf02c-fields': 1,
-    'extract-cod-fields': 1,
+    'extract-sf02-fields': 3,       // bumped 2026-05-13 — added ownerStateProvince
+    'extract-sf02c-fields': 2,      // bumped 2026-05-13 — added ownerStateProvince
+    'extract-cod-fields': 2,        // bumped 2026-05-13 — added stateProvince
     'extract-meter-ids-fields': 1,
   };
 
@@ -663,6 +666,7 @@ export class AiService {
       `  - ownerLegalName: full legal name of the organization that owns the facility (typically the entity signing the letter)`,
       `  - ownerAddress: owner's mailing address (single line)`,
       `  - ownerCountry: country name OR ISO-2 code (e.g. "Nigeria" or "NG"). Pick whichever you can read most clearly.`,
+      `  - ownerStateProvince: the state / province / region that the address sits in. For Vietnamese addresses this is the "Tỉnh" (e.g. "Ninh Thuận", "Tây Ninh", "Bình Định"); for Nigerian, the State (e.g. "Lagos"); for Kenyan, the County (e.g. "Nakuru"). Return just the place name without the "Province"/"Tỉnh"/"State"/"County" suffix. Null if the address only has a city or you can't read a province.`,
       `  - signingDate: ISO-8601 date (YYYY-MM-DD). Convert from any format on the letter.`,
       `  - signatoryName: name of the person who signed`,
       `  - signatoryEmail: email of the signatory if present`,
@@ -673,6 +677,7 @@ export class AiService {
       `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
       `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>},`,
       `  "signingDate": {"value": <string|null>, "confidence": <0..1>},`,
       `  "signatoryName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "signatoryEmail": {"value": <string|null>, "confidence": <0..1>},`,
@@ -846,6 +851,7 @@ export class AiService {
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
       `  - country: country where the facility is located. Look at the address, the regulator name (NERC=Nigeria, EPRA=Kenya, NERSA=South Africa, ERC=Philippines), the utility (Eko Disco / AEDC=Nigeria, KPLC=Kenya, Eskom=South Africa), or place names. Return the full English country name (e.g. "Nigeria", "Kenya", "South Africa") or null.`,
+      `  - stateProvince: the state / province / region the facility is in. Vietnamese "Tỉnh" (e.g. "Ninh Thuận", "Tây Ninh"), Nigerian State (e.g. "Lagos"), Kenyan County (e.g. "Nakuru"). Return just the place name without the "Province" / "Tỉnh" / "State" / "County" suffix. Null if the document only names a city or you can't read a province.`,
       `  - offTakerName: legal name of the electricity OFF-TAKER — the entity buying / consuming the power (e.g. a factory, a mini-grid customer association, a hospital, a captive industrial user). NOT the project owner / EPC / utility / financier. Off-takers are usually named in the recital ("...for the supply of electricity to <off-taker>") or in a dedicated "Off-taker" / "Customer" / "Buyer" field. Return null if no distinct off-taker is named.`,
       `  - measurementIds: opportunistic — if the COD proof includes an equipment list with inverter / meter serial numbers, extract them as a string[]. Empty/null if no SN list is present.`,
       ``,
@@ -857,6 +863,7 @@ export class AiService {
       `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
       `  "country": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "stateProvince": {"value": <string|null>, "confidence": <0..1>},`,
       `  "offTakerName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
@@ -889,6 +896,7 @@ export class AiService {
       ownerName: this.strField(parsed.ownerName),
       utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
       country: this.strField(parsed.country),
+      stateProvince: this.strField(parsed.stateProvince),
       offTakerName: this.strField(parsed.offTakerName),
       measurementIds,
       reasoning:
@@ -912,6 +920,7 @@ export class AiService {
       `  - ownerLegalName: facility owner / participant legal name`,
       `  - ownerAddress: address (single line)`,
       `  - ownerCountry: country name OR ISO-2 code`,
+      `  - ownerStateProvince: the state / province / region the address is in. Vietnamese "Tỉnh" (e.g. "Ninh Thuận"), Nigerian State, Kenyan County, etc. Return just the place name, no "Province" / "Tỉnh" / "State" / "County" suffix. Null if not present.`,
       `  - latitude: decimal degrees (positive N, negative S)`,
       `  - longitude: decimal degrees (positive E, negative W)`,
       `  - inverterCount: number of inverters`,
@@ -927,6 +936,7 @@ export class AiService {
       `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
       `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
       `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>},`,
       `  "latitude": {"value": <number|null>, "confidence": <0..1>},`,
       `  "longitude": {"value": <number|null>, "confidence": <0..1>},`,
       `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
@@ -950,6 +960,7 @@ export class AiService {
       ownerLegalName: this.strField(parsed.ownerLegalName),
       ownerAddress: this.strField(parsed.ownerAddress),
       ownerCountry: this.strField(parsed.ownerCountry),
+      ownerStateProvince: this.strField(parsed.ownerStateProvince),
       latitude: this.numField(parsed.latitude),
       longitude: this.numField(parsed.longitude),
       inverterCount: this.numField(parsed.inverterCount),
@@ -1087,6 +1098,7 @@ export class AiService {
       ownerLegalName: strField(parsed.ownerLegalName),
       ownerAddress: strField(parsed.ownerAddress),
       ownerCountry: strField(parsed.ownerCountry),
+      ownerStateProvince: strField(parsed.ownerStateProvince),
       signingDate: strField(parsed.signingDate),
       signatoryName: strField(parsed.signatoryName),
       signatoryEmail: strField(parsed.signatoryEmail),
