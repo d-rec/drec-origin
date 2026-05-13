@@ -214,6 +214,14 @@ apply_table() {
 log "TRUNCATE organization CASCADE on stage (wipes user-data tables)"
 echo "TRUNCATE TABLE organization RESTART IDENTITY CASCADE;" | stage_psql
 
+# documents uses polymorphic (target_type, target_id) instead of a
+# real FK on device, so the cascade above misses it — stale doc rows
+# from a previous run would otherwise survive and ON CONFLICT DO
+# NOTHING would silently skip the fresh ones. Wipe the slice we're
+# about to re-import so updates to any doc actually propagate.
+log "DELETE stale documents for chosen devices on stage"
+echo "DELETE FROM documents WHERE target_type='device' AND target_id IN ($ID_CSV);" | stage_psql
+
 # Order matters: organization → user → device → documents.
 apply_table organization
 apply_table user
