@@ -806,11 +806,10 @@ export class AiService {
     apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<VerifyOdTemplateResult> {
-    const cached = await this.cacheLookup<VerifyOdTemplateResult>(
+    const cached = (await this.cacheLookup(
       input.contentHash,
       'verify-od-template',
-      ctx,
-    );
+    )) as VerifyOdTemplateResult | null;
     if (cached) return cached;
 
     const client = new Anthropic({ apiKey });

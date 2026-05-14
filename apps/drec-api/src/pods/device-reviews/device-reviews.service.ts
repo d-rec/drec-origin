@@ -1259,7 +1259,7 @@ export class DeviceReviewsService {
       solarGsa && capacityKw > 0
         ? solarGsa.annualKwh / capacityKw
         : undefined;
-    const ceilingYield = irradiance?.yieldHigh ?? gsaYieldPerKw ?? 1500;
+    const ceilingYield = gsaYieldPerKw ?? irradiance?.yieldHigh ?? 1500;
     const recentReadings = readRows.map((r: any) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
@@ -1295,7 +1295,7 @@ export class DeviceReviewsService {
     if (!opts.silent) await this.logAudit(
       deviceId,
       'ceiling_check',
-      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (irradiance high or Solar GSA)`,
+      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (Solar GSA or irradiance high)`,
       'reviewer',
       {
         irradianceYield: irradiance?.yieldHigh,
