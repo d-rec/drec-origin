@@ -342,6 +342,7 @@ export class AiService {
     daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
     topOrgs: Array<{
       organizationId: number | null;
+      organizationName: string | null;
       calls: number;
       estimatedUsd: number;
     }>;
@@ -413,12 +414,15 @@ export class AiService {
     const topOrgRows = await this.audit
       .createQueryBuilder('a')
       .select('a.organization_id', 'organizationId')
+      .addSelect('o.name', 'organizationName')
       .addSelect('COUNT(*)', 'calls')
       .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
       .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .leftJoin('organization', 'o', 'o.id = a.organization_id')
       .where('a.created_at >= :since', { since: monthIso })
       .andWhere("a.provider = 'anthropic'")
       .groupBy('a.organization_id')
+      .addGroupBy('o.name')
       .orderBy(
         'SUM(a.input_tokens * ' +
           PRICE_INPUT_PER_MTOK +
@@ -471,9 +475,61 @@ export class AiService {
       })),
       topOrgs: topOrgRows.map((r) => ({
         organizationId: r.organizationId == null ? null : Number(r.organizationId),
+        organizationName: r.organizationName ?? null,
         calls: Number(r.calls),
         estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
       })),
+    };
+  }
+
+  /**
+   * Per-org usage rollup for the current month, scoped to non-Anthropic
+   * paid providers (Roboflow + DeepL). Used by the registrant Licenses
+   * page so a customer with their own API key can see their own usage.
+   */
+  async getMyProviderUsage(organizationId: number): Promise<{
+    roboflow: { calls: number; successRate: number };
+    deepl: { calls: number; successRate: number; characterCount: number };
+  }> {
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const monthIso = monthStart.toISOString();
+
+    const rows = await this.audit
+      .createQueryBuilder('a')
+      .select('a.provider', 'provider')
+      .addSelect('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN a.success THEN 1 ELSE 0 END), 0)',
+        'successes',
+      )
+      .where('a.created_at >= :since', { since: monthIso })
+      .andWhere('a.organization_id = :org', { org: organizationId })
+      .andWhere("a.provider IN ('roboflow', 'deepl')")
+      .groupBy('a.provider')
+      .getRawMany();
+
+    const pull = (provider: 'roboflow' | 'deepl') => {
+      const r = rows.find((x) => x.provider === provider);
+      const calls = Number(r?.calls ?? 0);
+      const successes = Number(r?.successes ?? 0);
+      return {
+        calls,
+        successRate: calls ? Number((successes / calls).toFixed(3)) : 1,
+        inputTokens: Number(r?.inputTokens ?? 0),
+      };
+    };
+    const rf = pull('roboflow');
+    const dl = pull('deepl');
+    return {
+      roboflow: { calls: rf.calls, successRate: rf.successRate },
+      deepl: {
+        calls: dl.calls,
+        successRate: dl.successRate,
+        characterCount: dl.inputTokens,
+      },
     };
   }
 

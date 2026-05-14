@@ -245,6 +245,13 @@ export class AiController {
     return this.service.getUsageSummary();
   }
 
+  @Get('my-usage')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({ summary: 'Per-org Roboflow + DeepL call counts (current month)' })
+  async getMyUsage(@UserDecorator() user: ILoggedInUser) {
+    return this.service.getMyProviderUsage((user as any).organizationId);
+  }
+
   @Post('extract-meter-ids-fields')
   @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
