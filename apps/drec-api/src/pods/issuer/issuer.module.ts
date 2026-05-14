@@ -11,6 +11,7 @@ import { DeviceGroupModule } from '../device-group/device-group.module';
 import { IssuerService } from './services/issuer.service';
 import { DRECIssuerController } from './drec-issuer.controller';
 import { SynchronizeBlockchainTaskService } from './synchronize-blockchain-task.service';
+import { SyncQuarantineRecoveryService } from './sync-quarantine-recovery.service';
 import { CertificateLogModule } from '../certificate-log/certificate-log.module';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file';
@@ -50,6 +51,7 @@ import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
     LateOngoingIssuanceService,
     IssuerService,
     SynchronizeBlockchainTaskService,
+    SyncQuarantineRecoveryService,
     HistoricalIssuanceService,
     OngoingIssuanceService,
     LateOngoingIssuanceProcessor,
