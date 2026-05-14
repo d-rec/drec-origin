@@ -487,18 +487,15 @@ export class AiService {
       };
     });
 
-    const monthlyUsdTotal = Number(
-      byProvider
-        .reduce((sum, p) => sum + p.estimatedUsd, 0)
-        .toFixed(4),
-    );
-
+    // monthToDate is Anthropic-only — it powers the Haiku gauge / donut /
+    // byEndpoint slices on the AI Usage page. Roboflow + DeepL spend lives
+    // on byProvider[] (each row carries its own estimatedUsd).
     return {
       monthToDate: {
         calls,
         inputTokens,
         outputTokens,
-        estimatedUsd: monthlyUsdTotal,
+        estimatedUsd: costAnthropic(inputTokens, outputTokens),
         successRate: calls ? Number((successes / calls).toFixed(3)) : 1,
       },
       byEndpoint: byEndpointRows.map((r) => ({
