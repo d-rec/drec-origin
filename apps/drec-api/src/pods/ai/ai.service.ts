@@ -264,9 +264,9 @@ export class AiService {
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
     'extract-sld-fields': 5,        // bumped 2026-05-13 — added hasCaptiveConsumer
-    'extract-sf02-fields': 3,       // bumped 2026-05-13 — added ownerStateProvince
-    'extract-sf02c-fields': 2,      // bumped 2026-05-13 — added ownerStateProvince
-    'extract-cod-fields': 2,        // bumped 2026-05-13 — added stateProvince
+    'extract-sf02-fields': 4,       // bumped 2026-05-14 — generic-noun site-name filter
+    'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
+    'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
     'extract-meter-ids-fields': 1,
     'verify-od-template': 1,
   };
@@ -1206,7 +1206,7 @@ export class AiService {
     }
     return {
       commissioningDate: this.strField(parsed.commissioningDate),
-      facilityName: this.strField(parsed.facilityName),
+      facilityName: this.siteNameField(parsed.facilityName),
       acCapacityKw: this.numField(parsed.acCapacityKw),
       ownerName: this.strField(parsed.ownerName),
       utilityOrIssuer: this.strField(parsed.utilityOrIssuer),
@@ -1268,7 +1268,7 @@ export class AiService {
       promptInstructions,
     );
     return {
-      facilityName: this.strField(parsed.facilityName),
+      facilityName: this.siteNameField(parsed.facilityName),
       acCapacityKw: this.numField(parsed.acCapacityKw),
       commissioningDate: this.strField(parsed.commissioningDate),
       deviceTypeCode: this.strField(parsed.deviceTypeCode),
@@ -1393,6 +1393,58 @@ export class AiService {
     };
   }
 
+  /** Generic-noun tokens that Haiku sometimes returns as a `facilityName`
+   *  or `projectName` when it pulled a header phrase like "Hệ thống điện
+   *  mặt trời …" / "Solar power system …" and truncated to just the
+   *  leading common nouns. Strings made up entirely of these tokens
+   *  aren't actually site names and would only show up as noisy
+   *  low-confidence hints in the UI. Diacritics stripped before lookup. */
+  private static readonly GENERIC_SITE_NAME_TOKENS = new Set([
+    // English
+    'system', 'systems', 'project', 'projects', 'facility', 'facilities',
+    'plant', 'plants', 'site', 'sites', 'solar', 'power', 'energy', 'farm', 'pv',
+    // Vietnamese (diacritics stripped: "Hệ thống" → "he thong")
+    'he', 'thong', 'du', 'an', 'nha', 'may', 'dien', 'mat', 'troi',
+    // Spanish / Portuguese
+    'sistema', 'planta', 'proyecto', 'instalacion', 'energia',
+    // French
+    'systeme', 'projet', 'installation', 'centrale',
+    // German
+    'anlage', 'kraftwerk',
+  ]);
+
+  /** True when the extracted "site name" is just a string of generic
+   *  nouns ("System", "Hệ thống điện", "Solar project") — i.e. Haiku
+   *  grabbed a document header instead of a real proper-noun site name. */
+  private isGenericSiteName(value: string): boolean {
+    if (!value) return true;
+    const normalized = value
+      .toLowerCase()
+      .normalize('NFD')
+      // Strip combining diacritical marks so "Hệ" → "he", "Système" → "systeme"
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .trim();
+    if (normalized.length <= 2) return true;
+    const tokens = normalized.split(/\s+/).filter((t) => t.length > 0);
+    if (tokens.length === 0) return true;
+    return tokens.every((t) => AiService.GENERIC_SITE_NAME_TOKENS.has(t));
+  }
+
+  /** Like strField, but nulls out generic-noun site names so the UI
+   *  doesn't show low-confidence hints for "System" / "Hệ thống". */
+  private siteNameField(raw: any): ExtractedField<string> | undefined {
+    const f = this.strField(raw);
+    if (!f) return undefined;
+    if (this.isGenericSiteName(f.value)) {
+      this.logger.debug(
+        `dropped generic site-name extraction: "${f.value}" (conf=${f.confidence})`,
+      );
+      return undefined;
+    }
+    return f;
+  }
+
   private numField(raw: any): ExtractedField<number> | undefined {
     if (!raw || raw.value === null || raw.value === undefined) return undefined;
     const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
@@ -1409,7 +1461,7 @@ export class AiService {
       };
     };
     return {
-      projectName: strField(parsed.projectName),
+      projectName: this.siteNameField(parsed.projectName),
       ownerLegalName: strField(parsed.ownerLegalName),
       ownerAddress: strField(parsed.ownerAddress),
       ownerCountry: strField(parsed.ownerCountry),
