@@ -29,6 +29,7 @@ import {
   ExtractSf02FieldsResult,
   ExtractSf02cFieldsResult,
   ExtractSldFieldsResult,
+  VerifyOdTemplateResult,
 } from './ai.service';
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 
@@ -304,6 +305,33 @@ export class AiController {
   ): Promise<ExtractSf02cFieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractSf02cFields(
+      {
+        filename: dto.filename,
+        text: dto.text,
+        images: dto.images,
+        contentHash: dto.contentHash,
+      },
+      apiKey,
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
+    );
+  }
+
+  @Post('verify-od-template')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({
+    summary:
+      'Verify an SF-02C Owner\'s Declaration carries the three substantive boilerplate clauses with semantic equivalence to the canonical template',
+  })
+  async verifyOdTemplate(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ExtractSf02cFieldsDto,
+  ): Promise<VerifyOdTemplateResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.verifyOdTemplate(
       {
         filename: dto.filename,
         text: dto.text,

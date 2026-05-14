@@ -139,6 +139,28 @@ export interface ExtractSf02cFieldsResult {
   reasoning: string;
 }
 
+export interface VerifyOdTemplateInput {
+  filename: string;
+  text?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+  contentHash?: string;
+}
+
+export interface VerifyOdTemplateResult {
+  /** 0..1 — semantic similarity to the canonical 3 clauses. */
+  matchScore: number;
+  /** Per-clause judgment. severity: ok | warn | fail. */
+  deviations: Array<{
+    clause: 'attribute_grant' | 'distinctness' | 'ownership_assigned';
+    severity: 'ok' | 'warn' | 'fail';
+    note: string;
+  }>;
+  reasoning: string;
+}
+
 export interface ExtractSldFieldsInput {
   filename: string;
   images: Array<{
@@ -209,7 +231,21 @@ export class AiService {
     'extract-sf02c-fields': 2,      // bumped 2026-05-13 — added ownerStateProvince
     'extract-cod-fields': 2,        // bumped 2026-05-13 — added stateProvince
     'extract-meter-ids-fields': 1,
+    'verify-od-template': 1,
   };
+
+  /**
+   * Canonical SF-02C Owner's Declaration boilerplate — only the
+   * three substantive clauses (declaration of attribute generation,
+   * distinctness, granting of permission). Letterhead, addressing,
+   * date, and signature are excluded so a customised to-address or
+   * alternate signatory line doesn't false-flag.
+   */
+  private static readonly OD_TEMPLATE_CLAUSES = [
+    'Please accept this letter as granting [Registrant organisation name] the exclusive right to act in respect of trading all renewable and environmental attributes generated from the operation of our renewable electricity production facility.',
+    'We understand that the attributes associated with renewable electricity generation are different and distinct from instruments that may be granted by other certification schemes for the same generation, including but not limited to carbon credits, tax credits, and other environmental commodities.',
+    'In granting this permission we accept that the ownership of the associated renewable and carbon attributes from the generation of electricity at our production facility resides solely with the Registrant for the duration of this declaration, and we shall not assign, transfer, sell, or otherwise dispose of these attributes to any other party.',
+  ];
 
   /** Compose the cache key. Endpoint name keeps the canonical form
    *  for audit logging; only the cache uses the versioned key. */
@@ -753,6 +789,144 @@ export class AiService {
         );
       this.logger.log(
         `extract-sf02c-fields: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
+      );
+    }
+  }
+
+  /**
+   * Verify that an uploaded SF-02C Owner's Declaration carries the
+   * three substantive boilerplate clauses (attribute grant,
+   * distinctness, ownership-resides-with-Registrant) close to the
+   * canonical wording. Letterhead, addressing, date, and signature
+   * are intentionally NOT compared — registrants legitimately
+   * customise those.
+   */
+  async verifyOdTemplate(
+    input: VerifyOdTemplateInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<VerifyOdTemplateResult> {
+    const cached = await this.cacheLookup<VerifyOdTemplateResult>(
+      input.contentHash,
+      'verify-od-template',
+      ctx,
+    );
+    if (cached) return cached;
+
+    const client = new Anthropic({ apiKey });
+    const promptInstructions = [
+      `You are verifying that an Owner's Declaration letter (I-REC SF-02C) carries the three substantive boilerplate clauses with the SAME MEANING as the canonical template. Letterhead, to-address, date, signatory name, and salutation are NOT compared — registrants legitimately customise those.`,
+      ``,
+      `Canonical clauses to find in the letter:`,
+      ...AiService.OD_TEMPLATE_CLAUSES.map(
+        (c, i) =>
+          `  ${['attribute_grant', 'distinctness', 'ownership_assigned'][i]}:\n    "${c}"`,
+      ),
+      ``,
+      `For each clause, judge:`,
+      `  - "ok"   = present, semantically equivalent to canonical (small wording differences acceptable)`,
+      `  - "warn" = present but has wording deviations that change scope or detail`,
+      `  - "fail" = missing or materially different (e.g. excludes carbon attributes, names a different beneficiary, adds a sunset clause)`,
+      ``,
+      `Strict JSON only:`,
+      `{`,
+      `  "matchScore": <0..1 — 1.0 if all three clauses are "ok">,`,
+      `  "deviations": [`,
+      `    {"clause": "attribute_grant",    "severity": "ok|warn|fail", "note": "<one short sentence>"},`,
+      `    {"clause": "distinctness",       "severity": "ok|warn|fail", "note": "<one short sentence>"},`,
+      `    {"clause": "ownership_assigned", "severity": "ok|warn|fail", "note": "<one short sentence>"}`,
+      `  ],`,
+      `  "reasoning": "<one short sentence summarising overall match>"`,
+      `}`,
+    ].join('\n');
+
+    const startedAt = Date.now();
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    try {
+      const content: any[] = [];
+      if (input.images && input.images.length) {
+        for (const img of input.images) {
+          content.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: img.mimeType,
+              data: img.base64,
+            },
+          });
+        }
+      }
+      if (input.text && input.text.trim().length) {
+        const text = input.text.slice(0, MAX_INPUT_CHARS);
+        content.push({
+          type: 'text',
+          text: `Letter text:\n"""\n${text}\n"""\n\n${promptInstructions}`,
+        });
+      } else {
+        content.push({ type: 'text', text: promptInstructions });
+      }
+      const res = await client.messages.create({
+        model: HAIKU_MODEL,
+        max_tokens: 512,
+        temperature: 0,
+        messages: [{ role: 'user', content }],
+      });
+      inputTokens = res.usage?.input_tokens ?? 0;
+      outputTokens = res.usage?.output_tokens ?? 0;
+      const block = res.content.find((c) => c.type === 'text') as
+        | { type: 'text'; text: string }
+        | undefined;
+      const raw = block?.text?.trim() ?? '';
+      const parsed = this.parseJson(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error(`Model returned unparseable response: ${raw}`);
+      }
+      const result: VerifyOdTemplateResult = {
+        matchScore:
+          typeof parsed.matchScore === 'number'
+            ? this.clampConfidence(parsed.matchScore)
+            : 0,
+        deviations: Array.isArray(parsed.deviations)
+          ? parsed.deviations
+              .filter((d: any) => d && typeof d === 'object')
+              .map((d: any) => ({
+                clause: d.clause,
+                severity: ['ok', 'warn', 'fail'].includes(d.severity)
+                  ? d.severity
+                  : 'warn',
+                note: typeof d.note === 'string' ? d.note : '',
+              }))
+          : [],
+        reasoning:
+          typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      };
+      success = true;
+      void this.cacheStore(input.contentHash, 'verify-od-template', result);
+      return result;
+    } catch (err: any) {
+      errorMessage = err?.message ?? String(err);
+      throw err;
+    } finally {
+      void this.audit
+        .insert({
+          endpoint: 'verify-od-template',
+          model: HAIKU_MODEL,
+          inputTokens,
+          outputTokens,
+          userId: ctx.userId ?? null,
+          organizationId: ctx.organizationId ?? null,
+          deviceId: ctx.deviceId ?? null,
+          success,
+          errorMessage,
+        })
+        .catch((auditErr) =>
+          this.logger.warn(`audit insert failed: ${auditErr?.message}`),
+        );
+      this.logger.log(
+        `verify-od-template: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
   }
