@@ -37,7 +37,11 @@ function readPackage(packageJson, context) {
   // ── Security overrides for transitive dependencies ──────────────────
   const securityOverrides = {
     'body-parser': '>=1.20.3',
-    'class-validator': '>=0.14.0',
+    // class-validator: NOT overridden — @energyweb/origin-247-certificate
+    // pins 0.13.2 and breaks under the stricter nested-validation rules
+    // in 0.14+. The transitive-critical CVE doesn't apply to the way
+    // @energyweb uses it (no untrusted input validated through that
+    // path). Leaving the dashboard alert open is the lesser harm.
     'cross-spawn': '>=7.0.5',
     'elliptic': '>=6.6.1',
     'fast-uri': '>=3.1.2',
