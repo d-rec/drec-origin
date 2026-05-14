@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrgApiLicenses } from './org-api-licenses.entity';
+import { AiAuditLog } from '../ai/ai-audit-log.entity';
 import { SaveApiKeysDTO } from './dto/save-api-keys.dto';
 import { isMasked, mask } from '../../utils/mask';
 import { decrypt, encrypt } from '../../utils/crypto';
@@ -9,6 +10,17 @@ import { getRedisClient } from '../../lib/redis';
 import { RedisKeys } from '../../utils/enums/redis-keys.enum';
 
 export type ServiceType = 'roboflow' | 'deepl' | 'anthropic';
+
+/**
+ * Per-org monthly caps for the platform's free tier. Usage is derived
+ * from ai_audit_log row counts, not stored counters — so it survives
+ * the org TRUNCATE that sync-demo-sites does on stage.
+ */
+const MONTHLY_CAP: Record<ServiceType, number> = {
+  roboflow: 3,
+  deepl: 3,
+  anthropic: 50,
+};
 
 @Injectable()
 export class OrgApiLicensesService {
@@ -18,6 +30,8 @@ export class OrgApiLicensesService {
   constructor(
     @InjectRepository(OrgApiLicenses)
     private readonly repository: Repository<OrgApiLicenses>,
+    @InjectRepository(AiAuditLog)
+    private readonly auditRepository: Repository<AiAuditLog>,
   ) {
     this.redis = getRedisClient();
   }
@@ -28,12 +42,7 @@ export class OrgApiLicensesService {
     });
     if (existing) return existing;
 
-    return this.repository.save({
-      organizationId,
-      roboflowCreditsRemaining: 3,
-      deeplCreditsRemaining: 3,
-      anthropicCreditsRemaining: 50,
-    });
+    return this.repository.save({ organizationId });
   }
 
   async save(
@@ -152,6 +161,7 @@ export class OrgApiLicensesService {
   } | null> {
     const record = await this.findCached(organizationId);
     if (!record) return null;
+    const credits = await this.getCredits(organizationId);
 
     return {
       roboflowApiKey: record.roboflowApiKey
@@ -166,9 +176,9 @@ export class OrgApiLicensesService {
       anthropicApiKey: record.anthropicApiKey
         ? this.safeDecryptAndMask(record.anthropicApiKey)
         : null,
-      roboflowCreditsRemaining: record.roboflowCreditsRemaining,
-      deeplCreditsRemaining: record.deeplCreditsRemaining,
-      anthropicCreditsRemaining: record.anthropicCreditsRemaining,
+      roboflowCreditsRemaining: credits.roboflow,
+      deeplCreditsRemaining: credits.deepl,
+      anthropicCreditsRemaining: credits.anthropic,
     };
   }
 
@@ -179,9 +189,6 @@ export class OrgApiLicensesService {
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
     anthropicApiKey: string | null;
-    roboflowCreditsRemaining: number;
-    deeplCreditsRemaining: number;
-    anthropicCreditsRemaining: number;
   } | null> {
     const record = await this.findCached(organizationId);
     if (!record) return null;
@@ -197,20 +204,39 @@ export class OrgApiLicensesService {
       anthropicApiKey: record.anthropicApiKey
         ? decrypt(record.anthropicApiKey)
         : null,
-      roboflowCreditsRemaining: record.roboflowCreditsRemaining,
-      deeplCreditsRemaining: record.deeplCreditsRemaining,
-      anthropicCreditsRemaining: record.anthropicCreditsRemaining,
     };
   }
 
+  /**
+   * Remaining free-tier credits = monthly cap minus successful audit-log
+   * calls this calendar month. Counts only success=true so failed calls
+   * (auth errors, upstream 5xx) don't burn quota.
+   */
   async getCredits(
     organizationId: number,
   ): Promise<{ roboflow: number; deepl: number; anthropic: number }> {
-    const record = await this.findCached(organizationId);
+    const rows = await this.auditRepository
+      .createQueryBuilder('a')
+      .select('a.provider', 'provider')
+      .addSelect('COUNT(*)', 'count')
+      .where('a.organization_id = :orgId', { orgId: organizationId })
+      .andWhere('a.success = true')
+      .andWhere(`a.created_at >= date_trunc('month', now())`)
+      .groupBy('a.provider')
+      .getRawMany<{ provider: ServiceType; count: string }>();
+
+    const used: Record<ServiceType, number> = {
+      roboflow: 0,
+      deepl: 0,
+      anthropic: 0,
+    };
+    for (const r of rows) {
+      if (r.provider in used) used[r.provider] = parseInt(r.count, 10) || 0;
+    }
     return {
-      roboflow: record?.roboflowCreditsRemaining ?? 0,
-      deepl: record?.deeplCreditsRemaining ?? 0,
-      anthropic: record?.anthropicCreditsRemaining ?? 0,
+      roboflow: Math.max(0, MONTHLY_CAP.roboflow - used.roboflow),
+      deepl: Math.max(0, MONTHLY_CAP.deepl - used.deepl),
+      anthropic: Math.max(0, MONTHLY_CAP.anthropic - used.anthropic),
     };
   }
 
@@ -225,31 +251,18 @@ export class OrgApiLicensesService {
     return record.anthropicApiKey !== null;
   }
 
+  /**
+   * Capacity check (no DB write). The actual usage row gets written to
+   * ai_audit_log by the caller after a successful upstream call, and
+   * future getCredits() invocations count those rows. Returns true if
+   * there's at least one credit remaining this month.
+   */
   async deductCredit(
     organizationId: number,
     service: ServiceType,
   ): Promise<boolean> {
-    const column =
-      service === 'roboflow'
-        ? 'roboflow_credits_remaining'
-        : service === 'deepl'
-          ? 'deepl_credits_remaining'
-          : 'anthropic_credits_remaining';
-
-    const result = await this.repository.query(
-      `UPDATE "org_api_licenses"
-       SET "${column}" = "${column}" - 1, "updated_at" = now()
-       WHERE "organization_id" = $1 AND "${column}" > 0
-       RETURNING "${column}"`,
-      [organizationId],
-    );
-
-    if (result.length === 0) {
-      return false;
-    }
-
-    await this.redis.del(this.getRedisKey(organizationId));
-    return true;
+    const credits = await this.getCredits(organizationId);
+    return credits[service] > 0;
   }
 
   async findAdminOrgDecrypted(): Promise<{

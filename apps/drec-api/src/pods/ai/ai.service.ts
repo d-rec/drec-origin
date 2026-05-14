@@ -206,6 +206,43 @@ export interface ExtractSldFieldsResult {
 const PRICE_INPUT_PER_MTOK = 1.0;
 const PRICE_OUTPUT_PER_MTOK = 5.0;
 
+// Roboflow serverless workflow inference (cloud), 2026-05: ~$0.005 / call.
+const PRICE_ROBOFLOW_PER_CALL = 0.005;
+
+// DeepL Pro API, 2026-05: €20 / 1M characters → ~$22 / 1M chars.
+// Note: ai_audit_log.input_tokens stores character_count for DeepL rows
+// (the entity reuses the column — see ai-audit-log.entity.ts line 13).
+const PRICE_DEEPL_PER_MCHAR_USD = 22.0;
+
+function costAnthropic(inT: number, outT: number): number {
+  return Number(
+    (
+      (inT * PRICE_INPUT_PER_MTOK + outT * PRICE_OUTPUT_PER_MTOK) /
+      1_000_000
+    ).toFixed(4),
+  );
+}
+
+function costRoboflow(calls: number): number {
+  return Number((calls * PRICE_ROBOFLOW_PER_CALL).toFixed(4));
+}
+
+function costDeepl(chars: number): number {
+  return Number(((chars * PRICE_DEEPL_PER_MCHAR_USD) / 1_000_000).toFixed(4));
+}
+
+function costFor(
+  provider: string,
+  calls: number,
+  inT: number,
+  outT: number,
+): number {
+  if (provider === 'anthropic') return costAnthropic(inT, outT);
+  if (provider === 'roboflow') return costRoboflow(calls);
+  if (provider === 'deepl') return costDeepl(inT);
+  return 0;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -338,6 +375,7 @@ export class AiService {
       inputTokens: number;
       outputTokens: number;
       successRate: number;
+      estimatedUsd: number;
     }>;
     daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
     topOrgs: Array<{
@@ -352,9 +390,9 @@ export class AiService {
     monthStart.setUTCHours(0, 0, 0, 0);
     const monthIso = monthStart.toISOString();
 
-    // Cost-bearing queries are Anthropic-only — token counts and prices
-    // don't translate to Roboflow inferences or DeepL characters.
-    const totals = await this.audit
+    // Anthropic-only token rollups (used for byEndpoint / daily slices and
+    // for the Anthropic share of the month-to-date dollar total).
+    const totalsAnthropic = await this.audit
       .createQueryBuilder('a')
       .select('COUNT(*)', 'calls')
       .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
@@ -367,10 +405,10 @@ export class AiService {
       .andWhere("a.provider = 'anthropic'")
       .getRawOne();
 
-    const calls = Number(totals?.calls ?? 0);
-    const inputTokens = Number(totals?.inputTokens ?? 0);
-    const outputTokens = Number(totals?.outputTokens ?? 0);
-    const successes = Number(totals?.successes ?? 0);
+    const calls = Number(totalsAnthropic?.calls ?? 0);
+    const inputTokens = Number(totalsAnthropic?.inputTokens ?? 0);
+    const outputTokens = Number(totalsAnthropic?.outputTokens ?? 0);
+    const successes = Number(totalsAnthropic?.successes ?? 0);
 
     const byEndpointRows = await this.audit
       .createQueryBuilder('a')
@@ -434,20 +472,33 @@ export class AiService {
       .limit(10)
       .getRawMany();
 
-    const dollars = (inT: number, outT: number) =>
-      Number(
-        (
-          (inT * PRICE_INPUT_PER_MTOK + outT * PRICE_OUTPUT_PER_MTOK) /
-          1_000_000
-        ).toFixed(4),
-      );
+    const byProvider = byProviderRows.map((r) => {
+      const c = Number(r.calls);
+      const s = Number(r.successes);
+      const inT = Number(r.inputTokens);
+      const outT = Number(r.outputTokens);
+      return {
+        provider: r.provider,
+        calls: c,
+        inputTokens: inT,
+        outputTokens: outT,
+        successRate: c ? Number((s / c).toFixed(3)) : 1,
+        estimatedUsd: costFor(r.provider, c, inT, outT),
+      };
+    });
+
+    const monthlyUsdTotal = Number(
+      byProvider
+        .reduce((sum, p) => sum + p.estimatedUsd, 0)
+        .toFixed(4),
+    );
 
     return {
       monthToDate: {
         calls,
         inputTokens,
         outputTokens,
-        estimatedUsd: dollars(inputTokens, outputTokens),
+        estimatedUsd: monthlyUsdTotal,
         successRate: calls ? Number((successes / calls).toFixed(3)) : 1,
       },
       byEndpoint: byEndpointRows.map((r) => ({
@@ -455,29 +506,28 @@ export class AiService {
         calls: Number(r.calls),
         inputTokens: Number(r.inputTokens),
         outputTokens: Number(r.outputTokens),
-        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+        estimatedUsd: costAnthropic(
+          Number(r.inputTokens),
+          Number(r.outputTokens),
+        ),
       })),
-      byProvider: byProviderRows.map((r) => {
-        const c = Number(r.calls);
-        const s = Number(r.successes);
-        return {
-          provider: r.provider,
-          calls: c,
-          inputTokens: Number(r.inputTokens),
-          outputTokens: Number(r.outputTokens),
-          successRate: c ? Number((s / c).toFixed(3)) : 1,
-        };
-      }),
+      byProvider,
       daily: dailyRows.map((r) => ({
         day: r.day,
         calls: Number(r.calls),
-        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+        estimatedUsd: costAnthropic(
+          Number(r.inputTokens),
+          Number(r.outputTokens),
+        ),
       })),
       topOrgs: topOrgRows.map((r) => ({
         organizationId: r.organizationId == null ? null : Number(r.organizationId),
         organizationName: r.organizationName ?? null,
         calls: Number(r.calls),
-        estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
+        estimatedUsd: costAnthropic(
+          Number(r.inputTokens),
+          Number(r.outputTokens),
+        ),
       })),
     };
   }

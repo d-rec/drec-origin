@@ -29,27 +29,6 @@ export class OrgApiLicenses {
   @Column({ type: 'text', name: 'anthropic_api_key', nullable: true })
   anthropicApiKey: string | null;
 
-  @Column({
-    type: 'integer',
-    name: 'roboflow_credits_remaining',
-    default: 3,
-  })
-  roboflowCreditsRemaining: number;
-
-  @Column({
-    type: 'integer',
-    name: 'deepl_credits_remaining',
-    default: 3,
-  })
-  deeplCreditsRemaining: number;
-
-  @Column({
-    type: 'integer',
-    name: 'anthropic_credits_remaining',
-    default: 50,
-  })
-  anthropicCreditsRemaining: number;
-
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

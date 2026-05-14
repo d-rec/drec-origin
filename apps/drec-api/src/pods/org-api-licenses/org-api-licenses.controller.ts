@@ -39,18 +39,18 @@ export class OrgApiLicensesController {
   ): Promise<any> {
     const settings =
       await this.orgApiLicensesService.findMasked(organizationId);
-    if (!settings) {
-      return {
-        roboflowApiKey: null,
-        roboflowWorkflowUrl: null,
-        deeplApiKey: null,
-        anthropicApiKey: null,
-        roboflowCreditsRemaining: 3,
-        deeplCreditsRemaining: 3,
-        anthropicCreditsRemaining: 50,
-      };
-    }
-    return settings;
+    if (settings) return settings;
+
+    const credits = await this.orgApiLicensesService.getCredits(organizationId);
+    return {
+      roboflowApiKey: null,
+      roboflowWorkflowUrl: null,
+      deeplApiKey: null,
+      anthropicApiKey: null,
+      roboflowCreditsRemaining: credits.roboflow,
+      deeplCreditsRemaining: credits.deepl,
+      anthropicCreditsRemaining: credits.anthropic,
+    };
   }
 
   @Post()
@@ -76,9 +76,9 @@ export class OrgApiLicensesController {
   async getCredits(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<{
-    roboflow: { credits: number; hasOwnKey: boolean };
-    deepl: { credits: number; hasOwnKey: boolean };
-    anthropic: { credits: number; hasOwnKey: boolean };
+    roboflow: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
+    deepl: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
+    anthropic: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
   }> {
     const [roboflow, deepl, anthropic] = await Promise.all([
       this.apiKeyResolverService.getCreditsInfo(organizationId, 'roboflow'),

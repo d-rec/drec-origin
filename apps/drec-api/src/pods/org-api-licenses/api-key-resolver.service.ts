@@ -147,19 +147,26 @@ export class ApiKeyResolverService {
   async getCreditsInfo(
     organizationId: number,
     service: ServiceType,
-  ): Promise<{ credits: number; hasOwnKey: boolean }> {
+  ): Promise<{ credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean }> {
     const credits = await this.orgApiLicensesService.getCredits(organizationId);
     const hasOwnKey = await this.orgApiLicensesService.hasOwnKey(
       organizationId,
       service,
     );
+    const adminKeys = await this.orgApiLicensesService.findAdminOrgDecrypted();
+    const platformKey =
+      service === 'roboflow'
+        ? adminKeys.roboflowApiKey
+        : service === 'deepl'
+          ? adminKeys.deeplApiKey
+          : (adminKeys.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY ?? null);
     const credit =
       service === 'roboflow'
         ? credits.roboflow
         : service === 'deepl'
           ? credits.deepl
           : credits.anthropic;
-    return { credits: credit, hasOwnKey };
+    return { credits: credit, hasOwnKey, platformKeyConfigured: !!platformKey };
   }
 
   private async getPlatformAnthropicKey(): Promise<string> {
