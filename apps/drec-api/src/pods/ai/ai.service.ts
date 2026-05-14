@@ -22,11 +22,11 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
   PROOF_OF_OWNERSHIP:
     'Proof of Ownership of the physical site/equipment — title deed, land lease, rooftop lease, PPA (Power Purchase Agreement), purchase contract, bill of sale. NOT the SF-02c declaration letter',
   METERING_EVIDENCE:
-    'Meter readings, energy generation data, kWh/MWh production reports, monthly generation logs, screenshots of inverter/logger portals',
+    'Meter readings, energy generation data, kWh/MWh production reports, monthly generation logs, screenshots of inverter/logger portals. Excel/CSV monthly reports with daily PV(kWh) / Sell(kWh) / Buy(kWh) columns are METERING_EVIDENCE — common filename patterns: "MM_YYYY_Plant_…xls", "Plant_…_Monthly_Report.xlsx", "<plantName>_<YYYY>_<MM>.csv"',
   SINGLE_LINE_DIAGRAM:
     'Electrical single-line diagram (SLD) — schematic showing inverter, transformer, breakers, busbars, AC/DC disconnects, grid connection',
   PROJECT_PHOTOS:
-    'Photographs of the physical site, panels on roof or ground, installation evidence',
+    'Photographs (JPEG/PNG/HEIC) of the physical site, panels on roof or ground, installation evidence. NEVER an Excel/CSV/spreadsheet — those go to METERING_EVIDENCE if they hold meter readings, otherwise OTHER_DOCUMENTS',
   COD_PROOF:
     'Commercial Operation Date proof — certificate or letter confirming the date the facility began commercial operation',
   FACILITY_BOUNDARY:
@@ -203,7 +203,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 1,
+    'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
     'extract-sld-fields': 5,        // bumped 2026-05-13 — added hasCaptiveConsumer
     'extract-sf02-fields': 3,       // bumped 2026-05-13 — added ownerStateProvince
     'extract-sf02c-fields': 2,      // bumped 2026-05-13 — added ownerStateProvince
