@@ -6,15 +6,19 @@ import {
 } from 'typeorm';
 
 /**
- * Per-call ledger of Anthropic API usage. Each row corresponds to one
- * Claude call so we can verify monthly spend matches the workspace
- * budget cap. `input_tokens` + `output_tokens` come from the Anthropic
- * response's `usage` object — these are authoritative, not estimates.
+ * Per-call ledger of third-party AI/service API usage. One row per
+ * outbound call. `provider` distinguishes Anthropic (with authoritative
+ * token counts), Roboflow (call-only — no native usage telemetry), and
+ * DeepL (input_tokens repurposed to hold character_count, since DeepL
+ * bills by chars).
  */
 @Entity({ name: 'ai_audit_log' })
 export class AiAuditLog {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'text', default: 'anthropic' })
+  provider: 'anthropic' | 'roboflow' | 'deepl';
 
   @Column({ type: 'text' })
   endpoint: string;

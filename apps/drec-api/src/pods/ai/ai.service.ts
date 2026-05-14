@@ -332,6 +332,13 @@ export class AiService {
       outputTokens: number;
       estimatedUsd: number;
     }>;
+    byProvider: Array<{
+      provider: string;
+      calls: number;
+      inputTokens: number;
+      outputTokens: number;
+      successRate: number;
+    }>;
     daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
     topOrgs: Array<{
       organizationId: number | null;
@@ -344,6 +351,8 @@ export class AiService {
     monthStart.setUTCHours(0, 0, 0, 0);
     const monthIso = monthStart.toISOString();
 
+    // Cost-bearing queries are Anthropic-only — token counts and prices
+    // don't translate to Roboflow inferences or DeepL characters.
     const totals = await this.audit
       .createQueryBuilder('a')
       .select('COUNT(*)', 'calls')
@@ -354,6 +363,7 @@ export class AiService {
         'successes',
       )
       .where('a.created_at >= :since', { since: monthIso })
+      .andWhere("a.provider = 'anthropic'")
       .getRawOne();
 
     const calls = Number(totals?.calls ?? 0);
@@ -368,7 +378,23 @@ export class AiService {
       .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
       .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
       .where('a.created_at >= :since', { since: monthIso })
+      .andWhere("a.provider = 'anthropic'")
       .groupBy('a.endpoint')
+      .orderBy('"calls"', 'DESC')
+      .getRawMany();
+
+    const byProviderRows = await this.audit
+      .createQueryBuilder('a')
+      .select('a.provider', 'provider')
+      .addSelect('COUNT(*)', 'calls')
+      .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
+      .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN a.success THEN 1 ELSE 0 END), 0)',
+        'successes',
+      )
+      .where('a.created_at >= :since', { since: monthIso })
+      .groupBy('a.provider')
       .orderBy('"calls"', 'DESC')
       .getRawMany();
 
@@ -379,6 +405,7 @@ export class AiService {
       .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
       .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
       .where("a.created_at >= now() - INTERVAL '30 days'")
+      .andWhere("a.provider = 'anthropic'")
       .groupBy("to_char(a.created_at, 'YYYY-MM-DD')")
       .orderBy('"day"', 'ASC')
       .getRawMany();
@@ -390,6 +417,7 @@ export class AiService {
       .addSelect('COALESCE(SUM(a.input_tokens), 0)', 'inputTokens')
       .addSelect('COALESCE(SUM(a.output_tokens), 0)', 'outputTokens')
       .where('a.created_at >= :since', { since: monthIso })
+      .andWhere("a.provider = 'anthropic'")
       .groupBy('a.organization_id')
       .orderBy(
         'SUM(a.input_tokens * ' +
@@ -425,6 +453,17 @@ export class AiService {
         outputTokens: Number(r.outputTokens),
         estimatedUsd: dollars(Number(r.inputTokens), Number(r.outputTokens)),
       })),
+      byProvider: byProviderRows.map((r) => {
+        const c = Number(r.calls);
+        const s = Number(r.successes);
+        return {
+          provider: r.provider,
+          calls: c,
+          inputTokens: Number(r.inputTokens),
+          outputTokens: Number(r.outputTokens),
+          successRate: c ? Number((s / c).toFixed(3)) : 1,
+        };
+      }),
       daily: dailyRows.map((r) => ({
         day: r.day,
         calls: Number(r.calls),

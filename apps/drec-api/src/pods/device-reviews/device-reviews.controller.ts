@@ -171,7 +171,10 @@ export class DeviceReviewsController {
     @Body('image') image: string,
   ): Promise<any> {
     const { url, key } = await this.apiKeyResolver.resolveRoboflowKey(user);
-    return this.service.detectPanels(image, url, key);
+    return this.service.detectPanels(image, url, key, {
+      userId: (user as any)?.id,
+      organizationId: (user as any)?.organizationId,
+    });
   }
 
   @Patch(':deviceId/status')

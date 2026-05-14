@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.module';
 import { SolarYieldModule } from '../solar-yield/solar-yield.module';
+import { AiModule } from '../ai/ai.module';
 import { VerificationReport } from './verification-report.entity';
 import { VerificationReportsService } from './verification-reports.service';
 
@@ -18,6 +19,7 @@ import { VerificationReportsService } from './verification-reports.service';
     forwardRef(() => UserModule),
     OrgApiLicensesModule,
     SolarYieldModule,
+    AiModule,
   ],
   controllers: [DeviceReviewsController],
   providers: [DeviceReviewsService, VerificationReportsService],

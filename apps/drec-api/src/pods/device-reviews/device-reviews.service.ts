@@ -31,6 +31,7 @@ import {
   IrradianceEstimate,
 } from '../../utils/irradiance-estimate';
 import { SolarYieldService } from '../solar-yield/solar-yield.service';
+import { AiAuditService } from '../ai/ai-audit.service';
 import {
   requiresCompensatingControls,
   CompensatingControlResult,
@@ -112,6 +113,7 @@ export class DeviceReviewsService {
     @InjectDataSource() private readonly connection: DataSource,
     private readonly fileService: FileService,
     private readonly solarYield: SolarYieldService,
+    private readonly aiAudit: AiAuditService,
   ) {}
 
   /**
@@ -363,12 +365,22 @@ export class DeviceReviewsService {
     imageBase64: string,
     roboflowUrl?: string,
     roboflowKey?: string,
+    ctx: { userId?: number; organizationId?: number } = {},
   ): Promise<any> {
     if (!roboflowUrl || !roboflowKey) {
       throw new Error(
         'Roboflow URL and API key must be provided — configure them in Organization > Licenses',
       );
     }
+    // Roboflow charges per inference, so each call counts as one
+    // "input_token" for audit/billing rollups. No native usage telemetry.
+    const auditBase = {
+      provider: 'roboflow' as const,
+      endpoint: 'detect-panels',
+      inputTokens: 1,
+      userId: ctx.userId,
+      organizationId: ctx.organizationId,
+    };
     let res: Response;
     try {
       res = await fetch(roboflowUrl, {
@@ -392,16 +404,27 @@ export class DeviceReviewsService {
       this.logger.error(
         `Roboflow fetch failed: ${err?.message} | cause: ${JSON.stringify(err?.cause)} | url: ${roboflowUrl}`,
       );
+      void this.aiAudit.recordCall({
+        ...auditBase,
+        success: false,
+        errorMessage: err?.cause?.code || err?.cause?.message || err?.message,
+      });
       throw new Error(
         `Roboflow fetch failed: ${err?.cause?.code || err?.cause?.message || err?.message}`,
       );
     }
     if (!res.ok) {
       const body = await res.text().catch(() => '');
+      void this.aiAudit.recordCall({
+        ...auditBase,
+        success: false,
+        errorMessage: `${res.status}: ${body.slice(0, 200)}`,
+      });
       throw new Error(
         `Roboflow API returned ${res.status}: ${body.slice(0, 200)}`,
       );
     }
+    void this.aiAudit.recordCall({ ...auditBase, success: true });
     return res.json();
   }
 
