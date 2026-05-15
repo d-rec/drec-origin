@@ -171,11 +171,21 @@ export class ChatController {
     return { success: true };
   }
 
-  // DELETE /messages/:uuid intentionally removed (2026-05-11). Chat
-  // messages are eternal audit material; corrections happen via a
-  // follow-up message, and notes flip status via /resolve and /reopen
-  // (which themselves append kind="system" audit rows). Server-admin
-  // DB writes are the only way to redact, by design.
+  @Delete('messages/:uuid')
+  @ApiOperation({
+    summary:
+      'Delete a single chat message — splices the linked list so the conversation chain stays continuous. Reinstated 2026-05-15 at user request; if audit-trail concerns return, gate this on role.',
+  })
+  async deleteMessage(
+    @Param('uuid') uuid: string,
+    @UserDecorator() user: ILoggedInUser,
+  ): Promise<{ conversationId: number | null; headUuid: string | null }> {
+    return this.chatService.deleteMessage(
+      uuid,
+      user.email?.split('@')[0] ?? 'user',
+      user.email,
+    );
+  }
 
   @Get('unread-count/:email')
   @ApiOperation({ summary: 'Get unread conversation count for a user' })
