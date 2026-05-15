@@ -2067,22 +2067,26 @@ export class DeviceService {
         `DELETE FROM meter_read_reviews WHERE device_id = ANY($1::int[])`,
         [deviceIds],
       );
-      await manager.query(
-        `DELETE FROM certificate_read_model WHERE "deviceId" = ANY($1::int[])`,
-        [deviceIds],
-      );
-      await manager.query(
-        `DELETE FROM issuer_certificate WHERE "deviceId" = ANY($1::int[])`,
-        [deviceIds],
-      );
-      await manager.query(
-        `DELETE FROM issuer_certification_request WHERE "deviceId" = ANY($1::int[])`,
-        [deviceIds],
-      );
-      await manager.query(
-        `DELETE FROM old_issuer_certificate WHERE "deviceId" = ANY($1::int[])`,
-        [deviceIds],
-      );
+      // These four store the device's externalId (UUID string) in a
+      // column confusingly named "deviceId" — not the numeric id.
+      if (externalIds.length) {
+        await manager.query(
+          `DELETE FROM certificate_read_model WHERE "deviceId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM issuer_certificate WHERE "deviceId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM issuer_certification_request WHERE "deviceId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM old_issuer_certificate WHERE "deviceId" = ANY($1::text[])`,
+          [externalIds],
+        );
+      }
       // submissions joined by siteName slug (matches attachReviewStatus pattern)
       if (slugs.length) {
         await manager.query(
