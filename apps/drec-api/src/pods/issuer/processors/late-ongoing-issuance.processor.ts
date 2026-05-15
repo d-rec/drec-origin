@@ -11,12 +11,7 @@ export class LateOngoingIssuanceProcessor {
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
   ) {}
 
-  // Concurrency=10 with per-group jobId serialisation (see queue.add
-  // sites in late-ongoing-issuance.service.ts). Different groups
-  // process in parallel; same-group jobs are deduped/serialised by
-  // Bull so the inner group-state mutations in
-  // issuer.service.issueCertificate stay race-free.
-  @Process({ concurrency: 10 })
+  @Process({ concurrency: 1 })
   async processLateOngoingIssuance(
     job: Job<{ groupId: number }>,
   ): Promise<void> {
