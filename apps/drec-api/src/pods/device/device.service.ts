@@ -257,6 +257,44 @@ export class DeviceService {
     this.logger.verbose(`With in find`);
     const limit = LIMIT_PER_PAGE;
     let query = await this.getFilteredQuery(filterDto, OrgId);
+
+    // Special path: sort by computed lastUsedAt requires aggregating
+    // across upload_log / meter_reads / verification_reports first.
+    if (filterDto?.sortBy === 'lastUsedAt') {
+      const skip = pageNumber ? (pageNumber - 1) * limit : 0;
+      const take = pageNumber ? limit : Number.MAX_SAFE_INTEGER;
+      const { ids, totalCount } = await this.getDeviceIdsByLastUsed(
+        (query.where as FindOptionsWhere<Device>) || {},
+        filterDto.sortOrder === 'ASC' ? 'ASC' : 'DESC',
+        skip,
+        take,
+      );
+      const devicesUnordered = ids.length
+        ? await this.repository.find({
+            where: { id: In(ids) },
+            relations: ['organization'],
+          })
+        : [];
+      const indexById = new Map(ids.map((id, i) => [id, i]));
+      const ordered = devicesUnordered.sort(
+        (a, b) => (indexById.get(a.id) ?? 0) - (indexById.get(b.id) ?? 0),
+      );
+      const newDevices: any[] = [];
+      ordered.forEach((d: Device) => {
+        (d as any)['organizationname'] = d.organization?.name;
+        delete (d as any)['organization'];
+        newDevices.push(d);
+      });
+      await this.attachReviewStatus(newDevices);
+      await this.attachLastUsed(newDevices);
+      return {
+        devices: newDevices,
+        currentPage: pageNumber ?? 1,
+        totalPages: Math.ceil(totalCount / limit),
+        totalCount,
+      };
+    }
+
     if (pageNumber) {
       query = {
         ...query,
@@ -280,6 +318,7 @@ export class DeviceService {
     });
 
     await this.attachReviewStatus(newDevices);
+    await this.attachLastUsed(newDevices);
 
     return {
       devices: newDevices,
@@ -355,6 +394,91 @@ export class DeviceService {
 
     await this.attachReviewStatus(newDevices);
     return newDevices;
+  }
+
+  /**
+   * Attaches lastUsedAt to each device — the most recent timestamp across
+   * upload_log entries, meter reads, and verification reports for that device.
+   * Devices with no activity get lastUsedAt = null.
+   */
+  private async attachLastUsed(devices: any[]): Promise<void> {
+    if (!devices.length) return;
+    const ids = devices.map((d) => d.id);
+    const externalIds = devices
+      .map((d) => d.externalId)
+      .filter((x): x is string => !!x);
+    const rows: { device_id: number; last_used_at: Date | null }[] =
+      await this.connection.query(
+        `WITH activity AS (
+           SELECT device_id, MAX(created_at) AS ts
+             FROM upload_log
+            WHERE device_id = ANY($1::int[])
+            GROUP BY device_id
+           UNION ALL
+           SELECT device_id, MAX(created_at) AS ts
+             FROM verification_reports
+            WHERE device_id = ANY($1::int[])
+            GROUP BY device_id
+           UNION ALL
+           SELECT d.id AS device_id, MAX(mr.created_at) AS ts
+             FROM device d
+             JOIN meter_reads mr ON mr.external_id = d."externalId"
+            WHERE d.id = ANY($1::int[]) AND d."externalId" = ANY($2::text[])
+            GROUP BY d.id
+         )
+         SELECT device_id, MAX(ts) AS last_used_at
+           FROM activity
+          GROUP BY device_id`,
+        [ids, externalIds.length ? externalIds : ['']],
+      );
+    const map: Record<number, Date | null> = {};
+    for (const r of rows) map[r.device_id] = r.last_used_at;
+    for (const device of devices) {
+      device.lastUsedAt = map[device.id] ?? null;
+    }
+  }
+
+  /**
+   * Returns device IDs ordered by lastUsedAt for paginated admin sort.
+   * NULL lastUsedAt sorts last for DESC, first for ASC (default Postgres).
+   */
+  private async getDeviceIdsByLastUsed(
+    where: FindOptionsWhere<Device>,
+    sortOrder: 'ASC' | 'DESC',
+    skip: number,
+    take: number,
+  ): Promise<{ ids: number[]; totalCount: number }> {
+    const all = await this.repository.find({ where, select: ['id', 'externalId'] });
+    if (!all.length) return { ids: [], totalCount: 0 };
+    const idList = all.map((d) => d.id);
+    const extList = all
+      .map((d) => d.externalId)
+      .filter((x): x is string => !!x);
+    const rows: { device_id: number; last_used_at: Date | null }[] =
+      await this.connection.query(
+        `WITH activity AS (
+           SELECT device_id, MAX(created_at) AS ts FROM upload_log
+            WHERE device_id = ANY($1::int[]) GROUP BY device_id
+           UNION ALL
+           SELECT device_id, MAX(created_at) AS ts FROM verification_reports
+            WHERE device_id = ANY($1::int[]) GROUP BY device_id
+           UNION ALL
+           SELECT d.id, MAX(mr.created_at) FROM device d
+             JOIN meter_reads mr ON mr.external_id = d."externalId"
+            WHERE d.id = ANY($1::int[]) AND d."externalId" = ANY($2::text[])
+            GROUP BY d.id
+         )
+         SELECT d.id AS device_id, MAX(a.ts) AS last_used_at
+           FROM device d
+      LEFT JOIN activity a ON a.device_id = d.id
+          WHERE d.id = ANY($1::int[])
+          GROUP BY d.id
+          ORDER BY last_used_at ${sortOrder === 'ASC' ? 'ASC NULLS FIRST' : 'DESC NULLS LAST'}, d.id DESC`,
+        [idList, extList.length ? extList : ['']],
+      );
+    const totalCount = rows.length;
+    const page = rows.slice(skip, skip + take).map((r) => r.device_id);
+    return { ids: page, totalCount };
   }
 
   private async attachReviewStatus(devices: any[]): Promise<void> {
@@ -1821,6 +1945,113 @@ export class DeviceService {
     return {
       success: true,
       message: 'device deleted Successfully',
+    };
+  }
+
+  /**
+   * Admin bulk-delete. Removes the device rows together with their
+   * dependent data: documents (DB + S3), upload_log, e_signature_log,
+   * ai_audit_log, verification_reports, device-reviews audit_logs,
+   * meter_reads, failed_meter_reads, certificate issue-date logs, and
+   * submissions matching the siteName slug. DB deletes happen in a
+   * transaction; S3 deletes happen after commit (best-effort).
+   */
+  async bulkRemove(
+    ids: number[],
+  ): Promise<{
+    success: boolean;
+    deletedDevices: number;
+    deletedDocuments: number;
+    skipped: { id: number; reason: string }[];
+  }> {
+    this.logger.verbose(`bulkRemove ids=${ids.join(',')}`);
+    if (!ids.length) {
+      return { success: true, deletedDevices: 0, deletedDocuments: 0, skipped: [] };
+    }
+    const devices = await this.repository.find({ where: { id: In(ids) } });
+    const foundIds = new Set(devices.map((d) => d.id));
+    const skipped: { id: number; reason: string }[] = ids
+      .filter((id) => !foundIds.has(id))
+      .map((id) => ({ id, reason: 'not found' }));
+
+    const externalIds = devices
+      .map((d) => d.externalId)
+      .filter((x): x is string => !!x);
+    const slugs = devices
+      .map((d) => (d.siteName ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-'))
+      .filter((s) => s.length > 0);
+    const deviceIds = devices.map((d) => d.id);
+
+    if (!deviceIds.length) {
+      return { success: true, deletedDevices: 0, deletedDocuments: 0, skipped };
+    }
+
+    await this.connection.transaction(async (manager) => {
+      // by externalId
+      if (externalIds.length) {
+        await manager.query(
+          `DELETE FROM check_certificate_issue_date_log_for_device WHERE "externalId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM meter_reads WHERE external_id = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM failed_meter_reads WHERE external_id = ANY($1::text[])`,
+          [externalIds],
+        );
+      }
+      // by device_id
+      await manager.query(
+        `DELETE FROM upload_log WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM e_signature_log WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM ai_audit_log WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM verification_reports WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM audit_log WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      // submissions joined by siteName slug (matches attachReviewStatus pattern)
+      if (slugs.length) {
+        await manager.query(
+          `DELETE FROM submissions
+            WHERE regexp_replace(project_subfolder,
+                  '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+                  '', 'i') = ANY($1::text[])`,
+          [slugs],
+        );
+      }
+      await manager.query(
+        `DELETE FROM device WHERE id = ANY($1::int[])`,
+        [deviceIds],
+      );
+    });
+
+    // S3 cleanup runs after commit; failures are logged but non-fatal.
+    let deletedDocuments = 0;
+    try {
+      deletedDocuments = await this.documentsService.deleteAllByDevices(deviceIds);
+    } catch (err) {
+      this.logger.error(`bulkRemove: S3/doc cleanup error: ${(err as Error).message}`);
+    }
+
+    return {
+      success: true,
+      deletedDevices: deviceIds.length,
+      deletedDocuments,
+      skipped,
     };
   }
 

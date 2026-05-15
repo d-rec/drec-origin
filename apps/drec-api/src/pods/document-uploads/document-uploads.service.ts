@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { In, Repository, DataSource } from 'typeorm';
 import {
   DocumentEntity,
   DocumentType,
@@ -105,6 +105,27 @@ export class DocumentUploadsService {
         .catch(() => {});
     }
     await this.documentUploadsRepository.remove([doc]);
+  }
+
+  /** Delete every document attached to any of the given device IDs and
+   *  remove the underlying S3 objects. Best-effort on S3 — DB rows are
+   *  always cleared. */
+  async deleteAllByDevices(deviceIds: number[]): Promise<number> {
+    if (!deviceIds.length) return 0;
+    const docs = await this.documentUploadsRepository.find({
+      where: { targetId: In(deviceIds), targetType: DocumentTargetType.DEVICE },
+    });
+    for (const doc of docs) {
+      if (doc.url) {
+        await this.fileService
+          .deleteFileFromS3(decodeURIComponent(doc.url))
+          .catch(() => {});
+      }
+    }
+    if (docs.length) {
+      await this.documentUploadsRepository.remove(docs);
+    }
+    return docs.length;
   }
 
   async deleteByType(

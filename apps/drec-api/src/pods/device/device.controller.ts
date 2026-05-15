@@ -70,6 +70,7 @@ import {
   UpdateDeviceDTO,
 } from './dto';
 import { CodeNameDTO } from './dto/code-name.dto';
+import { BulkDeleteDevicesDTO } from './dto/bulk-delete.dto';
 import {
   FileFieldsInterceptor,
   FileInterceptor,
@@ -1284,6 +1285,31 @@ export class DeviceController {
    * @param param1 is getting organizationId and user role from user request
    * @returns {any}
    */
+  /**
+   * Admin-only bulk delete. Cascades through documents (incl. S3),
+   * upload_log, e-signature/audit/AI logs, verification reports,
+   * meter_reads / failed_meter_reads, certificate issue-date logs, and
+   * submissions matching the siteName slug.
+   */
+  @Delete('/bulk')
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
+  @Permission('Delete')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Bulk delete devices (admin)',
+    description:
+      'Delete several devices in one call. Also removes their cached documents (S3) and related rows.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Bulk delete result.' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Admin only.' })
+  public async bulkRemove(
+    @Body() body: BulkDeleteDevicesDTO,
+  ): Promise<any> {
+    this.logger.verbose(`bulkRemove ids=${body.ids.join(',')}`);
+    return this.deviceService.bulkRemove(body.ids);
+  }
+
   @Delete('/:id')
   @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
   @Permission('Delete')

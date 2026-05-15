@@ -116,6 +116,21 @@ export class FilterDTO {
   SDGBenefits?: string[] | undefined;
 
   organizationId?: number;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description:
+      'Sort field. Currently supported: "lastUsedAt" (admin all-devices view).',
+  })
+  sortBy?: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description: 'Sort direction: "ASC" or "DESC". Defaults to "DESC".',
+  })
+  sortOrder?: 'ASC' | 'DESC';
 }
 export class BuyerDeviceFilterDTO {
   @IsOptional()
