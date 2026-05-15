@@ -124,9 +124,23 @@ export class PermissionService {
     modulename: string[],
   ): Promise<IModulePermissionsConfig[]> {
     this.logger.verbose(`With in findById`);
+    const moduleName = modulename[0];
     const moduleId = await this.ACLpermissionService.findOne({
-      name: modulename[0],
+      name: moduleName,
     });
+    if (!moduleId) {
+      // Data-drift scenario (seen on stage 2026-05-15): the ACL module
+      // named in the @ACLModules() decorator on the requested route
+      // isn't seeded in this environment's aclmodules table. Previously
+      // this crashed inside the PermissionGuard with "Cannot read
+      // properties of null (reading 'id')" — useless to the user.
+      this.logger.error(
+        `ACL module "${moduleName}" is not configured in this environment`,
+      );
+      throw new NotFoundException(
+        `Permission setup error: ACL module "${moduleName}" is missing from this environment. Ask an admin to seed it before retrying.`,
+      );
+    }
     const userPermission = await this.repository.find({
       relations: ['aclmodules'],
       where: [
