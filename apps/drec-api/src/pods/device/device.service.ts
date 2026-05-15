@@ -2027,6 +2027,21 @@ export class DeviceService {
           [externalIds],
         );
       }
+      // Flush AI response cache for every file uploaded against these
+      // devices. ai_response_cache is keyed on content_hash, which is
+      // the same SHA-256 stored on upload_log.file_hash_sha256. A doc
+      // shared across devices would force one re-extraction elsewhere;
+      // acceptable trade for guaranteeing no AI residue from the
+      // deleted site.
+      await manager.query(
+        `DELETE FROM ai_response_cache WHERE content_hash IN (
+           SELECT DISTINCT file_hash_sha256
+             FROM upload_log
+            WHERE device_id = ANY($1::int[])
+              AND file_hash_sha256 IS NOT NULL
+         )`,
+        [deviceIds],
+      );
       // by device_id (or deviceId for camelCase tables)
       await manager.query(
         `DELETE FROM upload_log WHERE device_id = ANY($1::int[])`,
