@@ -591,13 +591,20 @@ export class OrganizationService {
   }
 
   /** Used by the registrant dashboard's "remove org" action. Detaches
-   *  an organization from its registrant family by nulling out
-   *  api_user_id — it will no longer appear in any registrant's
-   *  org-picker dropdowns. The org and its devices remain intact. */
+   *  an organization from its registrant family by overwriting
+   *  api_user_id with an "orphan" sentinel UUID — no real user matches
+   *  it, so the org won't appear in any registrant's org-picker
+   *  dropdowns. The org and its devices remain intact; an admin can
+   *  re-link by updating api_user_id back to a real family UUID.
+   *
+   *  We use a sentinel rather than NULL because the column is NOT
+   *  NULL-constrained on existing prod data. */
+  public static readonly ORPHAN_API_USER_ID =
+    '00000000-0000-0000-0000-000000000000';
   public async unlinkFromFamily(organizationId: number): Promise<void> {
     await this.repository.update(
       { id: organizationId },
-      { api_user_id: null as any },
+      { api_user_id: OrganizationService.ORPHAN_API_USER_ID },
     );
   }
 }
