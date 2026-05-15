@@ -151,7 +151,7 @@ export class BulkUploadController {
     if (organization.organizationType !== OrganizationType.Registrant) {
       console.log('[BULK-UPLOAD] org not Registrant, rejecting');
       throw new UnauthorizedException(
-        'Only Market Intermediary organizations can upload bulk files',
+        'Only Registrant organizations can upload bulk files',
       );
     }
 
