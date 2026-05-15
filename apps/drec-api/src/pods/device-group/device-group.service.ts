@@ -1425,26 +1425,43 @@ export class DeviceGroupService {
     api_user_id?: string,
   ): Promise<(DeviceDTO | DeviceRegistrationError)[]> {
     this.logger.verbose(`With in registerCSVBulkDevices`);
-    return await Promise.all(
-      newDevices.map(async (device: NewDeviceDTO) => {
-        try {
-          if (api_user_id == null) {
-            return await this.deviceService.register(orgCode, device, files);
-          } else {
-            return await this.deviceService.register(
-              orgCode,
-              device,
-              files,
-              api_user_id,
-              Role.Registrant,
-            );
-          }
-        } catch (e) {
-          this.logger.error(e);
-          return { isError: true, device: device, errorDetail: e };
+
+    // Bounded parallelism — register devices in batches of 5 instead of
+    // Promise.all over the whole CSV. Each device.register opens its
+    // own queryRunner connection AND issues findOne calls on the
+    // default repository (a second connection per device). Unbounded
+    // parallelism on a 62-row CSV burst-requested 124 connections from
+    // the pool and tripped RDS's max_connections ceiling, failing 45
+    // of 62 rows with "remaining connection slots are reserved...".
+    // Batch size 5 means ~10 simultaneous connections from this path,
+    // well within the pool=60 limit.
+    const BATCH_SIZE = 5;
+    const results: (DeviceDTO | DeviceRegistrationError)[] = [];
+    const registerOne = async (
+      device: NewDeviceDTO,
+    ): Promise<DeviceDTO | DeviceRegistrationError> => {
+      try {
+        if (api_user_id == null) {
+          return await this.deviceService.register(orgCode, device, files);
         }
-      }),
-    );
+        return await this.deviceService.register(
+          orgCode,
+          device,
+          files,
+          api_user_id,
+          Role.Registrant,
+        );
+      } catch (e) {
+        this.logger.error(e);
+        return { isError: true, device, errorDetail: e };
+      }
+    };
+    for (let i = 0; i < newDevices.length; i += BATCH_SIZE) {
+      const batch = newDevices.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(batch.map(registerOne));
+      results.push(...batchResults);
+    }
+    return results;
   }
 
   private async hasDeviceGroup(conditions: FindOptionsWhere<DeviceGroup>) {

@@ -33,12 +33,14 @@ export const getTypeOrmConfig = (): TypeOrmModuleOptions => ({
     slaves: getReplicaDBConfig(),
   },
   logging: ['info'],
-  // Default node-postgres pool size is 10. Bulk-device-registration uses
-  // queryRunner.startTransaction() inside Promise.all over every CSV
-  // row AND issues findOne calls on the default repository (different
-  // connection). With 10 slots, the queryRunners hold all connections
-  // and the findOnes deadlock. 100 gives enough headroom for ~50-row
-  // CSVs to import without the self-deadlock. RDS db.t3.micro
-  // max_connections is ~100, so this is safe.
-  extra: { max: 100 },
+  // Default node-postgres pool size is 10. Bulk-device-registration
+  // uses queryRunner.startTransaction() inside Promise.all over every
+  // CSV row AND issues findOne calls on the default repository
+  // (different connection). With 10 slots, the queryRunners held all
+  // connections and the findOnes deadlocked. 60 fits comfortably under
+  // RDS db.t3.micro's actual max_connections (81 - 3 reserved = 78),
+  // with headroom for the steady-state worker pool from upstream libs.
+  // Bulk-upload also batches device registrations now so a single CSV
+  // doesn't try to grow the pool past this ceiling.
+  extra: { max: 60 },
 });
