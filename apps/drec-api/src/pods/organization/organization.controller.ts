@@ -712,4 +712,44 @@ export class OrganizationController {
     }
     return responseSuccess();
   }
+
+  /** Remove an organization from the caller's registrant family — sets
+   *  the org's api_user_id to NULL so it stops appearing in the
+   *  registrant's org-picker dropdowns. Doesn't delete the org or its
+   *  devices; reversible by re-linking. Authorisation: caller's
+   *  api_user_id must match the org's current api_user_id (i.e. it's
+   *  in their family). The caller's own organizationId can't be
+   *  unlinked. */
+  @Delete('/registrant/:id/unlink')
+  @UseGuards(
+    AuthVerifiedGuard(['jwt', 'oauth2-client-password']),
+    PermissionGuard,
+  )
+  @Roles(Role.Registrant)
+  @Permission('Delete')
+  @ACLModules('ORGANIZATION_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Unlink an organization from the caller’s registrant family',
+  })
+  async unlinkFromFamily(
+    @UserDecorator() loggedUser: ILoggedInUser,
+    @Param('id', ParseIntPipe) orgId: number,
+  ): Promise<SuccessResponseDTO> {
+    if (orgId === loggedUser.organizationId) {
+      throw new BadRequestException(
+        'Cannot unlink the organization you are currently logged into.',
+      );
+    }
+    const org = await this.organizationService.findOne(orgId);
+    if (!org) {
+      throw new NotFoundException(`Organization ${orgId} not found`);
+    }
+    if (org.api_user_id !== loggedUser.api_user_id) {
+      throw new ForbiddenException(
+        'Organization is not part of your registrant family',
+      );
+    }
+    await this.organizationService.unlinkFromFamily(orgId);
+    return responseSuccess();
+  }
 }

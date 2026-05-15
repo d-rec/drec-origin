@@ -589,4 +589,15 @@ export class OrganizationService {
 
     return true;
   }
+
+  /** Used by the registrant dashboard's "remove org" action. Detaches
+   *  an organization from its registrant family by nulling out
+   *  api_user_id — it will no longer appear in any registrant's
+   *  org-picker dropdowns. The org and its devices remain intact. */
+  public async unlinkFromFamily(organizationId: number): Promise<void> {
+    await this.repository.update(
+      { id: organizationId },
+      { api_user_id: null as any },
+    );
+  }
 }
