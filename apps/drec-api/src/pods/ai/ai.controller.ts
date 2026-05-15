@@ -331,27 +331,14 @@ export class AiController {
   @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
     summary:
-      'Verify an SF-02C Owner\'s Declaration carries the three substantive boilerplate clauses with semantic equivalence to the canonical template',
+      'OD/COD template comparison — disabled. Returns a "matches" stub so any stale client tab that still calls it is a no-op.',
   })
-  async verifyOdTemplate(
-    @UserDecorator() user: ILoggedInUser,
-    @Body() dto: ExtractSf02cFieldsDto,
-  ): Promise<VerifyOdTemplateResult> {
-    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
-    return this.service.verifyOdTemplate(
-      {
-        filename: dto.filename,
-        text: dto.text,
-        images: dto.images,
-        contentHash: dto.contentHash,
-      },
-      apiKey,
-      {
-        userId: user.id,
-        organizationId: user.organizationId,
-        deviceId: dto.deviceId,
-      },
-    );
+  async verifyOdTemplate(): Promise<VerifyOdTemplateResult> {
+    return {
+      matchScore: 1,
+      deviations: [],
+      reasoning: 'template comparison disabled',
+    } as unknown as VerifyOdTemplateResult;
   }
 
   @Post('extract-sld-fields')
