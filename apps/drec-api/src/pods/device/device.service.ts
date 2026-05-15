@@ -1949,12 +1949,22 @@ export class DeviceService {
   }
 
   /**
-   * Admin bulk-delete. Removes the device rows together with their
-   * dependent data: documents (DB + S3), upload_log, e_signature_log,
-   * ai_audit_log, verification_reports, device-reviews audit_logs,
-   * meter_reads, failed_meter_reads, certificate issue-date logs, and
-   * submissions matching the siteName slug. DB deletes happen in a
-   * transaction; S3 deletes happen after commit (best-effort).
+   * Admin bulk-delete. Removes the device rows together with EVERY
+   * device-linked row across the schema:
+   *
+   *   - documents (DB + S3 keys)
+   *   - upload_log, e_signature_log, ai_audit_log, verification_reports,
+   *     audit_log, meter_read_reviews                            [device_id]
+   *   - meter_reads, failed_meter_reads, aggregate_meterread,
+   *     delta_firstread, history_intermediate_meteread,
+   *     check_certificate_issue_date_log_for_device              [externalId]
+   *   - certificate_read_model, issuer_certificate,
+   *     issuer_certification_request, old_issuer_certificate     [deviceId]
+   *   - submissions matching siteName slug                       [slug join]
+   *   - chats + chat_conversations for the site                  [siteName]
+   *
+   * DB deletes happen in a single transaction. S3 deletes run after the
+   * commit (best-effort — failures are logged, not surfaced).
    */
   async bulkRemove(
     ids: number[],
@@ -1977,6 +1987,9 @@ export class DeviceService {
     const externalIds = devices
       .map((d) => d.externalId)
       .filter((x): x is string => !!x);
+    const siteNames = devices
+      .map((d) => d.siteName)
+      .filter((s): s is string => !!s && s.length > 0);
     const slugs = devices
       .map((d) => (d.siteName ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-'))
       .filter((s) => s.length > 0);
@@ -2001,8 +2014,20 @@ export class DeviceService {
           `DELETE FROM failed_meter_reads WHERE external_id = ANY($1::text[])`,
           [externalIds],
         );
+        await manager.query(
+          `DELETE FROM aggregate_meterread WHERE "externalId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM delta_firstread WHERE "externalId" = ANY($1::text[])`,
+          [externalIds],
+        );
+        await manager.query(
+          `DELETE FROM history_intermediate_meteread WHERE "externalId" = ANY($1::text[])`,
+          [externalIds],
+        );
       }
-      // by device_id
+      // by device_id (or deviceId for camelCase tables)
       await manager.query(
         `DELETE FROM upload_log WHERE device_id = ANY($1::int[])`,
         [deviceIds],
@@ -2023,6 +2048,26 @@ export class DeviceService {
         `DELETE FROM audit_log WHERE device_id = ANY($1::int[])`,
         [deviceIds],
       );
+      await manager.query(
+        `DELETE FROM meter_read_reviews WHERE device_id = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM certificate_read_model WHERE "deviceId" = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM issuer_certificate WHERE "deviceId" = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM issuer_certification_request WHERE "deviceId" = ANY($1::int[])`,
+        [deviceIds],
+      );
+      await manager.query(
+        `DELETE FROM old_issuer_certificate WHERE "deviceId" = ANY($1::int[])`,
+        [deviceIds],
+      );
       // submissions joined by siteName slug (matches attachReviewStatus pattern)
       if (slugs.length) {
         await manager.query(
@@ -2031,6 +2076,34 @@ export class DeviceService {
                   '-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
                   '', 'i') = ANY($1::text[])`,
           [slugs],
+        );
+      }
+      // chat threads tied to this site. chat_conversations.headUuid has
+      // ON DELETE CASCADE so deleting head chats wipes the conversation;
+      // we also walk the linked list via nextEntryUuid to scrub every
+      // chat message belonging to those threads.
+      if (siteNames.length) {
+        await manager.query(
+          `WITH RECURSIVE chain AS (
+             SELECT c."headUuid" AS uuid
+               FROM chat_conversations c
+              WHERE c."deviceSiteName" = ANY($1::text[])
+             UNION
+             SELECT n."nextEntryUuid"
+               FROM chats n
+               JOIN chain ch ON n.uuid = ch.uuid
+              WHERE n."nextEntryUuid" IS NOT NULL
+           )
+           DELETE FROM chats WHERE uuid IN (SELECT uuid FROM chain WHERE uuid IS NOT NULL)`,
+          [siteNames],
+        );
+        // Sweep any orphaned conversation rows (e.g. a conversation
+        // whose head chat was already gone, leaving the conversation
+        // pointer dangling). The FK has ON DELETE CASCADE so the chat
+        // deletes above usually clean them up, but be explicit.
+        await manager.query(
+          `DELETE FROM chat_conversations WHERE "deviceSiteName" = ANY($1::text[])`,
+          [siteNames],
         );
       }
       await manager.query(
