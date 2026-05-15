@@ -53,15 +53,7 @@ export class LateOngoingIssuanceService {
       }
 
       for (const group of activeDeviceGroups) {
-        // jobId keys serialisation per group: Bull won't run two jobs
-        // with the same jobId in parallel, and won't add a duplicate
-        // when one is already pending. Pair with the bumped concurrency
-        // on the processor — different groups run in parallel, same
-        // group queues at most once.
-        await this.lateOngoingQueue.add(
-          { groupId: group.id },
-          { jobId: `late-${group.id}` },
-        );
+        await this.lateOngoingQueue.add({ groupId: group.id });
       }
 
       this.logger.debug(
@@ -82,13 +74,10 @@ export class LateOngoingIssuanceService {
     // If no group ID provided, schedule issuance for all active groups
     if (!groupId) return this.scheduleIssuance();
 
-    // Add a job for the specified group ID.
-    // Same jobId scheme as scheduleIssuance — Bull serialises same-
-    // group jobs and skips adding a duplicate while one is in flight.
+    // Add a job for the specified group ID
     await this.lateOngoingQueue.add(
       { groupId: groupId },
       {
-        jobId: `late-${groupId}`,
         lifo: true,
       },
     );
