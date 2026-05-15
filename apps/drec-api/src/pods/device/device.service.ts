@@ -1793,7 +1793,10 @@ export class DeviceService {
       filterOptions as FindOneOptions<Device>,
     );
     if (!checkDeviceUnreserve) {
-      const message = `Device id: ${checkDeviceUnreserve.serialNumber} already part of the reservation , you cannot delete it`;
+      // The original code dereferenced .serialNumber on the null
+      // variable here AND mis-described "not found" as "already in
+      // reservation" — fixed both.
+      const message = `Device id ${id} not found (or not in your scope)`;
       this.logger.error(message);
       return {
         success: false,
