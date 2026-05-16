@@ -44,8 +44,12 @@ export class LateOngoingIssuanceService {
   async scheduleIssuance(): Promise<void> {
     this.logger.debug('CRON [*/8h]: Late ongoing certificate issuance check');
     try {
+      // Late-ongoing must include groups that are past reservationEndDate
+      // but still inside reservationExpiryDate — that's exactly the window
+      // late-arriving reads land in, and where the previous "active=true
+      // only" filter silently dropped them.
       const activeDeviceGroups =
-        await this.groupService.getAllReservationActive();
+        await this.groupService.getAllEligibleForLateIssuance();
 
       if (!activeDeviceGroups.length) {
         this.logger.debug('No active device groups found.');
@@ -206,9 +210,10 @@ export class LateOngoingIssuanceService {
   async createMissingCycles(groupId?: number | string): Promise<void> {
     this.logger.debug('Checking for missing certificate cycles');
 
-    // Get active device groups
+    // Include tail-window groups (active=false but not yet expired) so
+    // late-arriving reads can still find their missing cycles.
     const activeGroups =
-      await this.groupService.getAllReservationActive(groupId);
+      await this.groupService.getAllEligibleForLateIssuance(groupId);
 
     // Process each group sequentially to avoid overwhelming the system
     for (const group of activeGroups) {

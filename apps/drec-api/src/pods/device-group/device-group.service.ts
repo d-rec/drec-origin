@@ -2275,26 +2275,29 @@ export class DeviceGroupService {
     deviceGroupIssueNextDateDTO: DeviceGroupNextIssueCertificate,
   ): Promise<void> {
     this.logger.verbose(`With in endReservation`);
+    // End-of-cycle: stop scheduling new issuance cycles for this group, but
+    // KEEP devices linked (device.groupId) and KEEP the deviceIdsInt array
+    // intact until reservationExpiryDate is reached. The late-ongoing pipeline
+    // needs the live device→group link to mint reads that arrive in the
+    // (reservationEndDate, reservationExpiryDate) tail window. The actual
+    // device-unlink happens later in deactivateReservation(), which is fired
+    // by sweepExpiredReservations() once isExpired() == true.
+    //
+    // History: prior implementation also unlinked every device here, which
+    // silently dropped any read submitted in the tail window because no
+    // issuance query could find the devices. Caught after multiple POs went
+    // un-tokenized despite reads being inside the active reservation window
+    // (69115/69115b/01464/40372/90126ext in May 2026).
     if (group) {
       group.reservationActive = false;
       await this.repository.save(group);
     }
 
-    await this.repositoryNextDeviceGroupCertificate.delete(
-      deviceGroupIssueNextDateDTO.id,
-    );
-    const devices = await this.deviceService.findForGroup(groupId);
-
-    if (!devices?.length) {
-      return;
+    if (deviceGroupIssueNextDateDTO?.id != null) {
+      await this.repositoryNextDeviceGroupCertificate.delete(
+        deviceGroupIssueNextDateDTO.id,
+      );
     }
-
-    await Promise.all(
-      devices.map(async (device: any) => {
-        await this.deviceService.removeFromGroup(device.id, groupId);
-      }),
-    );
-    return;
   }
 
   async deactivateReservation(group: DeviceGroup): Promise<void> {
@@ -2430,6 +2433,25 @@ export class DeviceGroupService {
     return await this.repository.find({
       where,
     });
+  }
+
+  /**
+   * Groups still eligible to mint certificates — either the reservation is
+   * still active and cycling, OR it has hit its end_date but not yet its
+   * expiry_date (the tail window where late-arriving reads can still be
+   * issued against the original reservation). Used by the late-ongoing
+   * pipeline. Devices remain FK-linked to these groups for the same reason.
+   */
+  async getAllEligibleForLateIssuance(
+    groupId?: number | string,
+  ): Promise<DeviceGroup[]> {
+    const qb = this.repository
+      .createQueryBuilder('g')
+      .where(
+        '(g."reservationActive" = TRUE) OR (g."reservationExpiryDate" IS NOT NULL AND g."reservationExpiryDate" > now())',
+      );
+    if (groupId) qb.andWhere('g.id = :gid', { gid: groupId });
+    return qb.getMany();
   }
 
   async getCurrentInformationOfDevicesInReservation(
