@@ -76,6 +76,33 @@ export class CertificateLogService {
     });
   }
 
+  /**
+   * Has a per-device certificate log row already been written for the given
+   * (group, externalId, ongoing window)? Used by admin reissue to skip
+   * already-minted devices and stay idempotent. Window matching is on
+   * ongoing_start_date / ongoing_end_date because that's what the issuance
+   * pipeline stamps; certificate_issuance_start/end use the trimmed read
+   * range and can drift slightly even for the same logical cycle.
+   */
+  public async hasIssuedForDeviceInWindow(
+    groupId: number,
+    externalId: string,
+    windowStart: Date,
+    windowEnd: Date,
+  ): Promise<boolean> {
+    const count = await this.repository
+      .createQueryBuilder('log')
+      .where('log."groupId" = :groupId', { groupId })
+      .andWhere('log."externalId" = :externalId', { externalId })
+      .andWhere('log.ongoing_start_date IS NOT NULL')
+      .andWhere(
+        '(log.ongoing_start_date::timestamptz, log.ongoing_end_date::timestamptz) OVERLAPS (:s::timestamptz, :e::timestamptz)',
+        { s: windowStart.toISOString(), e: windowEnd.toISOString() },
+      )
+      .getCount();
+    return count > 0;
+  }
+
   async findCertificateLog(): Promise<
     CheckCertificateIssueDateLogForDeviceEntity[]
   > {
