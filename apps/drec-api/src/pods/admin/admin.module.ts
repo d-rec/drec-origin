@@ -8,6 +8,9 @@ import { OrganizationModule } from '../organization/organization.module';
 import { DeviceModule } from '../device/device.module';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { InvitationModule } from '../invitation/invitation.module';
+import { IssuerModule } from '../issuer/issuer.module';
+import { CertificateLogModule } from '../certificate-log/certificate-log.module';
+import { ReadsModule } from '../reads/reads.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { InvitationModule } from '../invitation/invitation.module';
     DeviceModule,
     DeviceGroupModule,
     InvitationModule,
+    IssuerModule,
+    CertificateLogModule,
+    ReadsModule,
   ],
   controllers: [AdminController],
 })
