@@ -52,6 +52,10 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Organization } from '../organization/organization.entity';
+import { Connection } from 'typeorm';
+import { InjectConnection } from '@nestjs/typeorm';
+import { LateOngoingIssuanceService } from '../issuer/services/late-ongoing-issuance.service';
+import { RepairStrandedMintsDTO } from './dto/repair-stranded-mints.dto';
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -64,6 +68,8 @@ export class AdminController {
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly invitationService: InvitationService,
+    @InjectConnection() private readonly connection: Connection,
+    private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
   ) {}
 
   @Get('/users')
@@ -602,5 +608,169 @@ export class AdminController {
   }> {
     // this.logger.verbose(`With in getAllApiUsers`);
     return this.userService.getApiUsers(organizationName, pageNumber, limit);
+  }
+
+  /**
+   * Repair "stranded mints" — meter reads that look minted (mr.certified=true
+   * AND a Requested row in check_certificate_issue_date_log_for_device) but
+   * have no matching token in certificate_read_model.metadata.deviceIds. This
+   * is the half-finished-mint pattern that bit POs 01464 / 30848 / 90506
+   * on 2026-05-16/17, where the issuance pipeline updated the DB as if the
+   * mint had succeeded but the on-chain certificate was never actually
+   * created. The next issuance pass then skips the read (cert log "Requested"
+   * row trips the idempotency check) so the token never lands without manual
+   * cleanup.
+   *
+   * Operation:
+   *   1. Find reads in the group whose start_date is in window and which
+   *      have no token in certificate_read_model where metadata.deviceIds
+   *      contains the read's externalId AND the generation range overlaps.
+   *   2. For each such read: delete the stranded cert log row, reset
+   *      mr.certified=false, insert a *bracketed* cycle (start_date - 1s,
+   *      end_date + 1s) to dodge the TypeORM Between boundary issue.
+   *   3. Trigger late-ongoing for the group so the issuer retries.
+   *
+   * dryRun returns the list of stranded reads without writing anything or
+   * queuing issuance.
+   */
+  @Post('/repair-stranded-mints')
+  @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary:
+      'Repair stranded half-finished mints: reads marked certified but missing their on-chain token',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Repair summary.' })
+  public async repairStrandedMints(
+    @Body() body: RepairStrandedMintsDTO,
+  ): Promise<{
+    groupId: number;
+    dryRun: boolean;
+    strandedCount: number;
+    stranded: Array<{ externalId: string; start: string; end: string }>;
+    repaired?: {
+      logRowsCleared: number;
+      readsReset: number;
+      cyclesInserted: number;
+    };
+  }> {
+    const startMin = body.startDateMin ?? '2025-01-01';
+    const dryRun = !!body.dryRun;
+
+    // Identify stranded reads. The token model stores the device externalId
+    // inside metadata.deviceIds as a JSONB array; the group itself sits in
+    // certificate_read_model."deviceId" (yes, confusingly named).
+    const stranded: Array<{
+      read_id: number;
+      external_id: string;
+      start_date: Date;
+      end_date: Date;
+    }> = await this.connection.query(
+      `WITH r AS (
+         SELECT d."groupId" AS gid, mr.id AS read_id, mr.external_id,
+                mr.start_date, mr.end_date
+           FROM device d
+           JOIN meter_reads mr ON mr.external_id = d."externalId"::text
+          WHERE d."groupId" = $1
+            AND mr.type = 'Delta'
+            AND mr.value > 100
+            AND mr.start_date >= $2::timestamp
+       ),
+       t AS (
+         SELECT "deviceId"::int AS gid,
+                jsonb_array_elements_text(metadata::jsonb->'deviceIds') AS ext_id,
+                to_timestamp("generationStartTime") AS s,
+                to_timestamp("generationEndTime") AS e
+           FROM certificate_read_model
+          WHERE "deviceId" = $1::text
+       )
+       SELECT r.read_id, r.external_id, r.start_date, r.end_date
+         FROM r
+         LEFT JOIN t
+           ON t.gid = r.gid
+          AND t.ext_id = r.external_id
+          AND t.s <= r.end_date
+          AND t.e >= r.start_date
+        WHERE t.ext_id IS NULL
+        ORDER BY r.start_date, r.external_id`,
+      [body.groupId, startMin],
+    );
+
+    const summary = stranded.map((s) => ({
+      externalId: s.external_id,
+      start: new Date(s.start_date).toISOString(),
+      end: new Date(s.end_date).toISOString(),
+    }));
+
+    if (dryRun || stranded.length === 0) {
+      return {
+        groupId: body.groupId,
+        dryRun,
+        strandedCount: stranded.length,
+        stranded: summary,
+      };
+    }
+
+    // Per-read repair inside a single transaction. Bracketed cycle uses
+    // (start_date - 1s, end_date + 1s) so the read's endDate is strictly
+    // inside the window — daily 24h windows have boundary-equality issues
+    // with TypeORM Between against a `timestamp without time zone` column.
+    let logRowsCleared = 0;
+    let readsReset = 0;
+    let cyclesInserted = 0;
+
+    await this.connection.transaction(async (m) => {
+      const ids = stranded.map((s) => s.read_id);
+      const extWithRange = stranded.map((s) => ({
+        externalId: s.external_id,
+        sd: new Date(s.start_date).toISOString(),
+        ed: new Date(s.end_date).toISOString(),
+      }));
+
+      for (const r of extWithRange) {
+        const del = await m.query(
+          `DELETE FROM check_certificate_issue_date_log_for_device
+            WHERE "externalId" = $1
+              AND certificate_issuance_startdate <= $3::timestamp
+              AND certificate_issuance_enddate   >= $2::timestamp`,
+          [r.externalId, r.sd, r.ed],
+        );
+        logRowsCleared += Array.isArray(del) ? 0 : del?.[1] ?? 0;
+      }
+
+      const upd = await m.query(
+        `UPDATE meter_reads SET certified = false WHERE id = ANY($1::int[])`,
+        [ids],
+      );
+      readsReset = Array.isArray(upd) ? 0 : upd?.[1] ?? ids.length;
+
+      for (const r of extWithRange) {
+        await m.query(
+          `INSERT INTO device_lateongoing_certificate_cycle
+             ("groupId", device_externalid, late_start_date, late_end_date,
+              certificate_issued, "createdAt", "updatedAt", archived_at, checked_at)
+           VALUES ($1, $2,
+                   to_char(($3::timestamp - interval '1 second'), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                   to_char(($4::timestamp + interval '1 second'), 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                   false, now(), now(), NULL, NULL)`,
+          [body.groupId, r.externalId, r.sd, r.ed],
+        );
+        cyclesInserted++;
+      }
+    });
+
+    // Queue the issuance retry for this group so the issuer picks up the
+    // freshly-inserted cycles. lifo=true on the queue add means this jumps
+    // to the head of pending jobs.
+    await this.lateOngoingIssuanceService.triggerIssuance(body.groupId);
+
+    return {
+      groupId: body.groupId,
+      dryRun: false,
+      strandedCount: stranded.length,
+      stranded: summary,
+      repaired: { logRowsCleared, readsReset, cyclesInserted },
+    };
   }
 }
