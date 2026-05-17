@@ -4,7 +4,8 @@ import { NonConcurrentCron } from '../../../lib/cron';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DateTime } from 'luxon';
-import { DataSource } from 'typeorm';
+import { Connection } from 'typeorm';
+import { InjectConnection } from '@nestjs/typeorm';
 import * as Sentry from '@sentry/nestjs';
 
 import { Queues } from '../../../utils/enums/queues.enum';
@@ -35,7 +36,7 @@ export class LateOngoingIssuanceService {
     private readonly organizationService: OrganizationService,
     private readonly readsService: ReadsService,
     private readonly issuerService: IssuerService,
-    private readonly dataSource: DataSource,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   /**
@@ -53,7 +54,7 @@ export class LateOngoingIssuanceService {
   @NonConcurrentCron(CronExpression.EVERY_30_MINUTES)
   async monitorIssuanceWorkerHealth(): Promise<void> {
     try {
-      const [{ pending, last_checked }] = (await this.dataSource.query(
+      const [{ pending, last_checked }] = (await this.connection.query(
         `SELECT
            COUNT(*) FILTER (WHERE certificate_issued=false AND archived_at IS NULL) AS pending,
            MAX(checked_at) AS last_checked
@@ -80,7 +81,11 @@ export class LateOngoingIssuanceService {
         Sentry.captureMessage(msg, {
           level: 'error',
           tags: { check: 'late_ongoing_worker_liveness' },
-          extra: { pending: pendingNum, lastCheckedAt: last_checked, ageHours: Number(ageH) },
+          extra: {
+            pending: pendingNum,
+            lastCheckedAt: last_checked,
+            ageHours: Number(ageH),
+          },
         });
       }
     } catch (err) {

@@ -52,7 +52,8 @@ import { OrganizationFilterDTO } from './dto/organization-filter.dto';
 import { InvitationService } from '../invitation/invitation.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { Organization } from '../organization/organization.entity';
-import { DataSource } from 'typeorm';
+import { Connection } from 'typeorm';
+import { InjectConnection } from '@nestjs/typeorm';
 import { LateOngoingIssuanceService } from '../issuer/services/late-ongoing-issuance.service';
 import { RepairStrandedMintsDTO } from './dto/repair-stranded-mints.dto';
 @ApiTags('Admin')
@@ -67,7 +68,7 @@ export class AdminController {
     private readonly deviceService: DeviceService,
     private readonly deviceGroupService: DeviceGroupService,
     private readonly invitationService: InvitationService,
-    private readonly dataSource: DataSource,
+    @InjectConnection() private readonly connection: Connection,
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
   ) {}
 
@@ -648,7 +649,11 @@ export class AdminController {
     dryRun: boolean;
     strandedCount: number;
     stranded: Array<{ externalId: string; start: string; end: string }>;
-    repaired?: { logRowsCleared: number; readsReset: number; cyclesInserted: number };
+    repaired?: {
+      logRowsCleared: number;
+      readsReset: number;
+      cyclesInserted: number;
+    };
   }> {
     const startMin = body.startDateMin ?? '2025-01-01';
     const dryRun = !!body.dryRun;
@@ -661,7 +666,7 @@ export class AdminController {
       external_id: string;
       start_date: Date;
       end_date: Date;
-    }> = await this.dataSource.query(
+    }> = await this.connection.query(
       `WITH r AS (
          SELECT d."groupId" AS gid, mr.id AS read_id, mr.external_id,
                 mr.start_date, mr.end_date
@@ -715,7 +720,7 @@ export class AdminController {
     let readsReset = 0;
     let cyclesInserted = 0;
 
-    await this.dataSource.transaction(async (m) => {
+    await this.connection.transaction(async (m) => {
       const ids = stranded.map((s) => s.read_id);
       const extWithRange = stranded.map((s) => ({
         externalId: s.external_id,
@@ -731,14 +736,14 @@ export class AdminController {
               AND certificate_issuance_enddate   >= $2::timestamp`,
           [r.externalId, r.sd, r.ed],
         );
-        logRowsCleared += Array.isArray(del) ? 0 : (del?.[1] ?? 0);
+        logRowsCleared += Array.isArray(del) ? 0 : del?.[1] ?? 0;
       }
 
       const upd = await m.query(
         `UPDATE meter_reads SET certified = false WHERE id = ANY($1::int[])`,
         [ids],
       );
-      readsReset = Array.isArray(upd) ? 0 : (upd?.[1] ?? ids.length);
+      readsReset = Array.isArray(upd) ? 0 : upd?.[1] ?? ids.length;
 
       for (const r of extWithRange) {
         await m.query(

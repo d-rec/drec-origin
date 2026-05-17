@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsBoolean,
-  IsInt,
-  IsISO8601,
-  IsOptional,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsISO8601, IsOptional } from 'class-validator';
 
 /**
  * Admin "repair stranded mints" — finds reads that look minted (mr.certified=true
