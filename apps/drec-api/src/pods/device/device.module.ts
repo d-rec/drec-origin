@@ -21,6 +21,7 @@ import { MailModule } from '../../mail/mail.module';
 import { ReadsModule } from '../reads/reads.module';
 import { ESignatureModule } from '../e-signature/e-signature.module';
 import { DeviceReviewsModule } from '../device-reviews/device-reviews.module';
+import { IdempotencyModule } from '../idempotency/idempotency.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { DeviceReviewsModule } from '../device-reviews/device-reviews.module';
     DocumentUploadsModule,
     ESignatureModule,
     forwardRef(() => DeviceReviewsModule),
+    IdempotencyModule,
   ],
   providers: [DeviceService],
   exports: [DeviceService],

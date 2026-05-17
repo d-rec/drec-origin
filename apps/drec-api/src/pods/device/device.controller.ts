@@ -28,6 +28,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { DeviceReviewsService } from '../device-reviews/device-reviews.service';
+import { IdempotencyInterceptor } from '../idempotency/idempotency.interceptor';
 import { Request } from 'express';
 
 import {
@@ -696,6 +697,7 @@ export class DeviceController {
         fileFilter: fileFilter,
       },
     ),
+    IdempotencyInterceptor,
   )
   @ApiConsumes('multipart/form-data', 'application/json')
   @ApiBody({

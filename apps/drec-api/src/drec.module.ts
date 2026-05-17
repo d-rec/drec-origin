@@ -93,6 +93,8 @@ import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity'
 import { VerificationReport } from './pods/device-reviews/verification-report.entity';
 import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
 import { ESignatureLog } from './pods/e-signature/e-signature-log.entity';
+import { IdempotencyKeyEntity } from './pods/idempotency/idempotency-key.entity';
+import { IdempotencyModule } from './pods/idempotency/idempotency.module';
 
 const getEnvFilePath = () => {
   const pathsToTest = [
@@ -155,6 +157,7 @@ export const entities = [
   ESignatureLog,
   OrgApiLicenses,
   VerificationReport,
+  IdempotencyKeyEntity,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -224,6 +227,7 @@ const queueModule = () => {
     ESignatureModule,
     OrgApiLicensesModule,
     SolarYieldModule,
+    IdempotencyModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
