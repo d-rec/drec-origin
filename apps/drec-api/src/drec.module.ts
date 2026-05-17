@@ -34,6 +34,7 @@ import { EmailConfirmation } from './pods/email-confirmation/email-confirmation.
 import { Invitation } from './pods/invitation/invitation.entity';
 import { InvitationModule } from './pods/invitation/invitation.module';
 import { AdminModule } from './pods/admin/admin.module';
+import { DebugModule } from './pods/debug/debug.module';
 import { IntegratorsModule } from './pods/integrators/integrators.module';
 import { AccessControlLayerModuleServiceModule } from './pods/access-control-layer-module-service/access-control-layer-module-service.module';
 import { AClModules } from './pods/access-control-layer-module-service/aclmodule.entity';
@@ -201,6 +202,7 @@ const queueModule = () => {
     InvitationModule,
     EmailConfirmationModule,
     AdminModule,
+    DebugModule,
     IntegratorsModule,
     AccessControlLayerModuleServiceModule,
     PermissionModule,
