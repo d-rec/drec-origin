@@ -4,6 +4,8 @@ import { NonConcurrentCron } from '../../../lib/cron';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DateTime } from 'luxon';
+import { DataSource } from 'typeorm';
+import * as Sentry from '@sentry/nestjs';
 
 import { Queues } from '../../../utils/enums/queues.enum';
 import { Device } from '../../device/device.entity';
@@ -33,7 +35,61 @@ export class LateOngoingIssuanceService {
     private readonly organizationService: OrganizationService,
     private readonly readsService: ReadsService,
     private readonly issuerService: IssuerService,
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * Liveness probe for the late-ongoing BullMQ worker. Fires every 30 min.
+   * The scheduleIssuance cron runs every 8 hours and immediately queues jobs
+   * the worker should pick up within seconds. So if pending cycles exist
+   * AND the most recent checked_at across the whole table is older than 9h
+   * (one cron interval + 1h margin), the worker has silently stalled.
+   *
+   * Caught after a 17h silent stall on prod 2026-05-16 — the controller
+   * happily logged each manual trigger but no processIssuance ran, and
+   * we only noticed because customer reads weren't tokenizing. Surfacing
+   * to Sentry plus an error log so the next stall is loud, not silent.
+   */
+  @NonConcurrentCron(CronExpression.EVERY_30_MINUTES)
+  async monitorIssuanceWorkerHealth(): Promise<void> {
+    try {
+      const [{ pending, last_checked }] = (await this.dataSource.query(
+        `SELECT
+           COUNT(*) FILTER (WHERE certificate_issued=false AND archived_at IS NULL) AS pending,
+           MAX(checked_at) AS last_checked
+         FROM device_lateongoing_certificate_cycle`,
+      )) as { pending: string; last_checked: Date | null }[];
+      const pendingNum = Number(pending);
+      if (pendingNum === 0) return; // nothing for the worker to do
+      if (!last_checked) {
+        const msg =
+          'Late-ongoing worker liveness: pending cycles exist but no cycle has ever been checked. Worker may not be running.';
+        this.logger.error(msg);
+        Sentry.captureMessage(msg, 'error');
+        return;
+      }
+      const ageMs = Date.now() - new Date(last_checked).getTime();
+      const STALE_AFTER_MS = 9 * 60 * 60 * 1000; // 9h: one 8h cron + 1h margin
+      if (ageMs > STALE_AFTER_MS) {
+        const ageH = (ageMs / 1000 / 3600).toFixed(1);
+        const msg =
+          `Late-ongoing worker appears stalled: ${pendingNum} pending cycle(s), ` +
+          `last checked_at ${ageH}h ago (threshold ${STALE_AFTER_MS / 1000 / 3600}h). ` +
+          `Likely a stuck BullMQ worker — restart the api pod to recover.`;
+        this.logger.error(msg);
+        Sentry.captureMessage(msg, {
+          level: 'error',
+          tags: { check: 'late_ongoing_worker_liveness' },
+          extra: { pending: pendingNum, lastCheckedAt: last_checked, ageHours: Number(ageH) },
+        });
+      }
+    } catch (err) {
+      // Liveness check must never crash the process.
+      this.logger.error(
+        `monitorIssuanceWorkerHealth failed: ${(err as Error).message}`,
+      );
+    }
+  }
 
   /**
    * Cron job that runs every 8 hours to schedule certificate issuance for active device groups
