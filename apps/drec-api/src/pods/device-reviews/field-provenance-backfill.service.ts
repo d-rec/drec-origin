@@ -48,11 +48,17 @@ export class FieldProvenanceBackfillService {
     errors: string[];
   }> {
     const deviceRows: any[] = await this.connection.query(
-      `SELECT id, "gridInterconnection", "operatingConfiguration",
-              capacity, "interconnectionVoltage", network_owner,
-              has_network_meter, grid_export_type,
-              has_auxiliary_energy_sources, auxiliary_energy_source_details,
-              has_captive_consumer, field_provenance, "siteName"
+      `SELECT id, "gridInterconnection",
+              capacity,
+              interconnection_voltage  AS "interconnectionVoltage",
+              network_owner            AS "networkOwner",
+              has_network_meter        AS "hasNetworkMeter",
+              grid_export_type         AS "gridExportType",
+              has_auxiliary_energy_sources    AS "hasAuxiliaryEnergySources",
+              auxiliary_energy_source_details AS "auxiliaryEnergySourceDetails",
+              has_captive_consumer     AS "hasCaptiveConsumer",
+              field_provenance         AS "fieldProvenance",
+              "siteName"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -61,7 +67,7 @@ export class FieldProvenanceBackfillService {
     }
     const device = deviceRows[0];
     const existingProvenance: Record<string, any> =
-      device.field_provenance ?? {};
+      device.fieldProvenance ?? {};
 
     const docs: Array<{ url: string; type: string }> = await this.connection
       .query(
@@ -95,12 +101,12 @@ export class FieldProvenanceBackfillService {
       gridInterconnection: { current: device.gridInterconnection, transform: (v) => !!v },
       capacity:            { current: device.capacity != null ? Number(device.capacity) : null },
       interconnectionVoltage: { current: device.interconnectionVoltage },
-      networkOwner:        { current: device.network_owner },
-      hasNetworkMeter:     { current: device.has_network_meter, transform: (v) => (v ? 'Yes' : 'No') },
-      gridExportType:      { current: device.grid_export_type },
-      hasAuxiliaryEnergySources: { current: device.has_auxiliary_energy_sources, transform: (v) => (v ? 'Yes' : 'No') },
-      auxiliaryEnergySourceDetails: { current: device.auxiliary_energy_source_details },
-      hasCaptiveConsumer:  { current: device.has_captive_consumer, transform: (v) => (v ? 'Yes' : 'No') },
+      networkOwner:        { current: device.networkOwner },
+      hasNetworkMeter:     { current: device.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
+      gridExportType:      { current: device.gridExportType },
+      hasAuxiliaryEnergySources: { current: device.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
+      auxiliaryEnergySourceDetails: { current: device.auxiliaryEnergySourceDetails },
+      hasCaptiveConsumer:  { current: device.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
     };
 
     const client = new Anthropic({ apiKey: anthropicKey });
