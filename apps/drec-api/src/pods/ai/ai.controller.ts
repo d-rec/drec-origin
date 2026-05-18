@@ -24,6 +24,7 @@ import { ILoggedInUser } from '../../models';
 import {
   AiService,
   ClassifyDocumentResult,
+  ClassifySourceAccessModeResult,
   ExtractCodFieldsResult,
   ExtractMeterIdsResult,
   ExtractSf02FieldsResult,
@@ -162,6 +163,36 @@ class ExtractSf02cFieldsDto {
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images?: SldImageDto[];
+
+  @IsOptional()
+  @IsInt()
+  deviceId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  contentHash?: string;
+}
+
+class ClassifySourceAccessModeDto {
+  @IsString()
+  @MaxLength(512)
+  filename: string;
+
+  // 1..4 base64 images (the metering-evidence document rasterised).
+  // Same envelope as ExtractSldFieldsDto so the UI can reuse its
+  // PDF-to-PNG and screenshot-paste paths.
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images: SldImageDto[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20000)
+  text?: string;
 
   @IsOptional()
   @IsInt()
@@ -339,6 +370,33 @@ export class AiController {
       deviations: [],
       reasoning: 'template comparison disabled',
     } as unknown as VerifyOdTemplateResult;
+  }
+
+  @Post('classify-source-access-mode')
+  @UseGuards(AuthVerifiedGuard('jwt'))
+  @ApiOperation({
+    summary:
+      'Suggest a SourceAccessMode from the shape of a metering-evidence document (portal screenshot → Mode 2, API payload → Mode 1, source-linked CSV → Mode 3). Suggestion only; reviewer confirms.',
+  })
+  async classifySourceAccessMode(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() dto: ClassifySourceAccessModeDto,
+  ): Promise<ClassifySourceAccessModeResult> {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.service.classifySourceAccessMode(
+      {
+        filename: dto.filename,
+        images: dto.images,
+        text: dto.text,
+        contentHash: dto.contentHash,
+      },
+      apiKey,
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
+    );
   }
 
   @Post('extract-sld-fields')
