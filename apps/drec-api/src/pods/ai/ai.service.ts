@@ -180,6 +180,42 @@ export interface ExtractedField<T> {
   confidence: number;
 }
 
+export interface ClassifySourceAccessModeInput {
+  filename: string;
+  /** 1..4 base64-encoded page images. Same envelope as the SLD
+   *  extractor — registrants typically upload metering evidence as
+   *  screenshots, exported PDFs, or photos of paper readings, all of
+   *  which the UI rasterises to base64 PNGs before posting. */
+  images: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
+  text?: string;
+  contentHash?: string;
+}
+
+/** Haiku's guess at the SourceAccessMode for a given metering-evidence
+ *  document. Intentionally a *suggestion* with confidence — the UI
+ *  surfaces this in the review workflow as "AI suggests Mode 2 (60%);
+ *  apply / change / dismiss" and never auto-writes the field. Mode 4
+ *  (compensating controls) is a reviewer judgment about process, not
+ *  a document property, so the prompt explicitly refuses to suggest
+ *  it — Haiku returns null+reasoning for that case instead. */
+export interface ClassifySourceAccessModeResult {
+  /** One of the enum *keys* (Mode1_DirectAPI / Mode2_PortalAccess /
+   *  Mode3_FileSubmission) or null when the evidence shape doesn't
+   *  map cleanly to one mode. */
+  suggestedMode: ExtractedField<string>;
+  /** Human-readable description of what the document looks like
+   *  ("logged-in screenshot of Solis Cloud portal", "CSV export with
+   *  Trina source-system header", "hand-compiled monthly readings
+   *  spreadsheet"). Surfaced in the UI under the suggestion. */
+  evidenceShape: ExtractedField<string>;
+  /** One short sentence explaining why this evidence shape implies
+   *  the suggested mode. */
+  reasoning: string;
+}
+
 export interface ExtractSldFieldsResult {
   acCapacityKw?: ExtractedField<number>;
   dcCapacityKwp?: ExtractedField<number>;
@@ -268,6 +304,7 @@ export class AiService {
     'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
     'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
     'extract-meter-ids-fields': 1,
+    'classify-source-access-mode': 1,
     'verify-od-template': 1,
   };
 
@@ -672,6 +709,163 @@ export class AiService {
         );
       this.logger.log(
         `classify-document: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
+      );
+    }
+  }
+
+  /**
+   * Suggest a SourceAccessMode by looking at the metering-evidence
+   * document. The mode itself is a process/contract decision about
+   * how DREC obtains readings, not strictly extractable from any
+   * document — but in practice the *shape* of the evidence almost
+   * always implies one mode:
+   *
+   *   - portal screenshot (logged-in dashboard, time-series chart,
+   *     vendor UI chrome) → Mode 2 — portal access
+   *   - API response payload / Swagger / curl transcript / structured
+   *     JSON timeseries → Mode 1 — direct API
+   *   - CSV/XLSX export with a vendor source-system header (deviceId,
+   *     gateway hash, "Trina/Solis/Huawei FusionSolar Export") →
+   *     Mode 3 — source-linked file
+   *
+   * The prompt deliberately *refuses* to suggest Mode 4 (compensating
+   * controls) because that's a reviewer judgment about whether to
+   * accept low-trust data with manual checks on top — it's never a
+   * property of the document itself. Haiku returns null+reasoning
+   * for that case so the reviewer sets it explicitly.
+   *
+   * Always a suggestion. The UI surfaces it in the auto-screen
+   * panel as "apply / change / dismiss"; never auto-writes the
+   * device.sourceAccessMode field.
+   */
+  async classifySourceAccessMode(
+    input: ClassifySourceAccessModeInput,
+    apiKey: string,
+    ctx: { userId?: number; organizationId?: number; deviceId?: number },
+  ): Promise<ClassifySourceAccessModeResult> {
+    const cached = await this.cacheLookup(
+      input.contentHash,
+      'classify-source-access-mode',
+    );
+    if (cached) {
+      void this.auditCacheHit('classify-source-access-mode', ctx);
+      this.logger.log('classify-source-access-mode: cache hit');
+      return cached as ClassifySourceAccessModeResult;
+    }
+    const client = new Anthropic({ apiKey });
+    const prompt = [
+      `You are reading a "metering evidence" document submitted as part of a renewable-energy registration. The registrant is showing how meter readings will be sourced for periodic certificate issuance. Classify the document into ONE of three source-access modes by looking at its visual / textual shape.`,
+      ``,
+      `Modes you can suggest:`,
+      ``,
+      `  "Mode1_DirectAPI"     — the document shows or implies that DREC will pull readings via a vendor API. Signals: a JSON / XML payload printout, a Swagger / OpenAPI screenshot, a curl-style request transcript, structured timeseries data with explicit API field names (deviceId, ts, kwh, …), or an API key / endpoint URL.`,
+      ``,
+      `  "Mode2_PortalAccess"  — the document shows DREC (or a DREC operator) logging into a vendor's monitoring portal to read values. Signals: a logged-in dashboard screenshot, the chrome of a vendor UI (Solis Cloud, Huawei FusionSolar, SMA Sunny Portal, Solar-Log, Solar Edge monitoring, Trina, Enphase Enlighten), a time-series chart inside a browser window with a sidebar / nav / user-profile widget, OR a screenshot of a single browser tab whose URL bar references a known monitoring vendor.`,
+      ``,
+      `  "Mode3_FileSubmission" — the document is a *source-linked* file: a CSV / XLSX / PDF export that carries clear vendor source-system identifiers in its headers or filename (e.g. column names like "device_id, gateway_hash, raw_kwh", a header row like "Huawei FusionSolar Export 2026-04", a filename like "trina-rooftop-Q1-2026.csv"). The data was downloaded *from* a source system and uploaded as-is. NOT a hand-compiled spreadsheet.`,
+      ``,
+      `Return null for suggestedMode in these cases:`,
+      ``,
+      `  - The document is a hand-compiled spreadsheet with no source-system identifiers, a transcribed paper meter reading, a photo of a meter face, or any artefact whose data has been re-entered by a human. This is *candidate Mode 4 territory*, but Mode 4 is a reviewer judgment about adding compensating controls on top of low-trust data — it's not a property of the document. Set reasoning to "candidate Mode 4 — reviewer should confirm with compensating controls in mind".`,
+      ``,
+      `  - The document is ambiguous (could be Mode 1 or Mode 3, e.g. a clean CSV with no clear source-system header) — return null and let the reviewer pick. Set reasoning accordingly.`,
+      ``,
+      `  - The document isn't metering evidence at all (it's an SLD, COD, SF-02, photo of panels, etc.). Set reasoning to "not a metering evidence document".`,
+      ``,
+      `Respond with strict JSON only, no prose, no markdown fences:`,
+      `{`,
+      `  "suggestedMode":  {"value": <"Mode1_DirectAPI"|"Mode2_PortalAccess"|"Mode3_FileSubmission"|null>, "confidence": <0..1>},`,
+      `  "evidenceShape":  {"value": <string|null>, "confidence": <0..1>},`,
+      `  "reasoning":      "<one short sentence>"`,
+      `}`,
+    ].join('\n');
+
+    const startedAt = Date.now();
+    let inputTokens = 0;
+    let outputTokens = 0;
+    let success = false;
+    let errorMessage: string | null = null;
+    try {
+      const imageBlocks = input.images.map((img) => ({
+        type: 'image' as const,
+        source: {
+          type: 'base64' as const,
+          media_type: img.mimeType,
+          data: img.base64,
+        },
+      }));
+      const textBlock =
+        input.text && input.text.trim().length
+          ? `\n\nText layer (use to confirm what the vision pass sees):\n"""\n${input.text.slice(0, MAX_INPUT_CHARS)}\n"""\n`
+          : '';
+      const res = await client.messages.create({
+        model: HAIKU_MODEL,
+        max_tokens: 512,
+        temperature: 0,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              ...imageBlocks,
+              { type: 'text', text: prompt + textBlock },
+            ],
+          },
+        ],
+      });
+      inputTokens = res.usage?.input_tokens ?? 0;
+      outputTokens = res.usage?.output_tokens ?? 0;
+      const block = res.content.find((c) => c.type === 'text') as
+        | { type: 'text'; text: string }
+        | undefined;
+      const raw = block?.text?.trim() ?? '';
+      const parsed = this.parseJson(raw);
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error(`Model returned unparseable response: ${raw}`);
+      }
+      const result: ClassifySourceAccessModeResult = {
+        suggestedMode: {
+          value: typeof parsed.suggestedMode?.value === 'string'
+            ? parsed.suggestedMode.value
+            : (null as any),
+          confidence: Number(parsed.suggestedMode?.confidence ?? 0),
+        },
+        evidenceShape: {
+          value: typeof parsed.evidenceShape?.value === 'string'
+            ? parsed.evidenceShape.value
+            : (null as any),
+          confidence: Number(parsed.evidenceShape?.confidence ?? 0),
+        },
+        reasoning:
+          typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      };
+      success = true;
+      void this.cacheStore(
+        input.contentHash,
+        'classify-source-access-mode',
+        result,
+      );
+      return result;
+    } catch (err: any) {
+      errorMessage = err?.message ?? String(err);
+      throw err;
+    } finally {
+      void this.audit
+        .insert({
+          endpoint: 'classify-source-access-mode',
+          model: HAIKU_MODEL,
+          inputTokens,
+          outputTokens,
+          userId: ctx.userId ?? null,
+          organizationId: ctx.organizationId ?? null,
+          deviceId: ctx.deviceId ?? null,
+          success,
+          errorMessage,
+        })
+        .catch((auditErr) =>
+          this.logger.warn(`audit insert failed: ${auditErr?.message}`),
+        );
+      this.logger.log(
+        `classify-source-access-mode: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
   }
