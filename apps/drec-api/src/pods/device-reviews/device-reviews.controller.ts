@@ -42,6 +42,7 @@ import { Permission } from '../permission/decorators/permission.decorator';
 import { ACLModules } from '../access-control-layer-module-service/decorator/aclModule.decorator';
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 import { VerificationReportsService } from './verification-reports.service';
+import { FieldProvenanceBackfillService } from './field-provenance-backfill.service';
 
 @ApiTags('Device Reviews')
 @ApiBearerAuth('access-token')
@@ -53,6 +54,7 @@ export class DeviceReviewsController {
     private readonly uploadLogService: UploadLogService,
     private readonly apiKeyResolver: ApiKeyResolverService,
     private readonly verificationReportsService: VerificationReportsService,
+    private readonly backfillService: FieldProvenanceBackfillService,
   ) {}
 
   @Get()
@@ -215,6 +217,22 @@ export class DeviceReviewsController {
     @Body('deviceIds') deviceIds?: number[],
   ): Promise<Array<{ deviceId: number; overallStatus: string; error?: string }>> {
     return this.service.bulkAutoScreen(deviceIds);
+  }
+
+  @Post(':deviceId/backfill-provenance-from-sld')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Update')
+  @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary:
+      "Re-run the SLD extractor against the device's uploaded SLD(s) and patch field_provenance for any field where the extractor value matches the current device value. One-off backfill — existing provenance entries are never overwritten.",
+  })
+  async backfillProvenanceFromSld(
+    @Param('deviceId', ParseIntPipe) deviceId: number,
+    @UserDecorator() user: ILoggedInUser,
+  ) {
+    const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
+    return this.backfillService.backfillFromSld(deviceId, apiKey);
   }
 
   @Post('refresh-url')

@@ -10,6 +10,7 @@ import { SolarYieldModule } from '../solar-yield/solar-yield.module';
 import { AiModule } from '../ai/ai.module';
 import { VerificationReport } from './verification-report.entity';
 import { VerificationReportsService } from './verification-reports.service';
+import { FieldProvenanceBackfillService } from './field-provenance-backfill.service';
 
 @Module({
   imports: [
@@ -22,7 +23,15 @@ import { VerificationReportsService } from './verification-reports.service';
     AiModule,
   ],
   controllers: [DeviceReviewsController],
-  providers: [DeviceReviewsService, VerificationReportsService],
-  exports: [DeviceReviewsService, VerificationReportsService],
+  providers: [
+    DeviceReviewsService,
+    VerificationReportsService,
+    FieldProvenanceBackfillService,
+  ],
+  exports: [
+    DeviceReviewsService,
+    VerificationReportsService,
+    FieldProvenanceBackfillService,
+  ],
 })
 export class DeviceReviewsModule {}
