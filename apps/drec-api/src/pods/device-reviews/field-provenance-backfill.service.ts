@@ -71,7 +71,7 @@ export class FieldProvenanceBackfillService {
 
     const docs: Array<{ url: string; type: string }> = await this.connection
       .query(
-        `SELECT url, type FROM document_uploads
+        `SELECT url, type FROM documents
          WHERE target_id = $1 AND target_type = 'device'
            AND type = $2
          ORDER BY created_at DESC`,
