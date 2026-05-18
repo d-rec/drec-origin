@@ -566,7 +566,13 @@ export class DeviceReviewsService {
 
       return {
         id: String(r.id),
-        serial: r.externalId ?? r.operatorExternalId ?? '',
+        // OC#14: serialNumber is the canonical field for meter/measurement
+        // IDs. The mapping used to surface externalId (a UUID) here, which
+        // showed up in the reviewer UI's "Meter / Measurement ID(s)" panel
+        // as the opaque UUID instead of the actual semicolon-separated
+        // meter IDs. operatorExternalId stays as a fallback for legacy
+        // rows that never had serial_number populated.
+        serial: r.serialNumber ?? r.operatorExternalId ?? '',
         lat: r.latitude ? parseFloat(r.latitude) : null,
         long: r.longitude ? parseFloat(r.longitude) : null,
         siteName: r.siteName ?? '',
