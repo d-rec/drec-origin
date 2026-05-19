@@ -41,6 +41,12 @@ import { ReadsService } from './reads.service';
 import { Request } from 'express';
 import { UploadLogService } from '../upload-log/upload-log.service';
 import { UploadActionType } from '../upload-log/upload-log.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  parseWideMeterCsv,
+  toIntermediate,
+} from './parser/multi-column-meter-csv.parser';
 
 @Controller('meter-reads')
 @ApiBearerAuth('access-token')
@@ -423,6 +429,78 @@ export class ReadsController {
    * @param user
    * @returns {NewIntermediateMeterReadDTO}
    */
+
+  /**
+   * Wide-format CSV ingest. Accepts a meter export with one timestamp
+   * column plus N value columns and a units row (Atsawa-shape: timezone
+   * in row 2 cell 0, "kWh" in the value-column cells). Picks the
+   * `valueColumn` query param (default "Solar Yield (delta)") as the
+   * production-volume column and inserts one Delta read per hour.
+   *
+   * Zero / empty cells are skipped — those are no-production hours, not
+   * data gaps. The response carries skip counts so the caller can sanity
+   * check the row count against expected fill.
+   */
+  @Post('csv-ingest/:externalId')
+  @UseGuards(AuthVerifiedGuard('jwt'), RolesGuard, PermissionGuard)
+  @Roles(Role.Admin, Role.Registrant)
+  @Permission('Write')
+  @ACLModules('READS_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary:
+      'Ingest a wide-format meter CSV (timestamp + N value cols + units row) as Delta reads.',
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  public async csvIngest(
+    @Param('externalId') externalId: string,
+    @Query('valueColumn') valueColumn: string | undefined,
+    @Query('sumColumns') sumColumns: string | undefined,
+    @Query('intervalMinutes') intervalMinutes: string | undefined,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{
+    deviceExternalId: string;
+    parsedColumn: string;
+    timezone: string;
+    unit: string;
+    inserted: number;
+    skippedEmpty: number;
+    skippedZero: number;
+    intervalMinutes: number;
+  }> {
+    if (!file?.buffer) {
+      throw new BadRequestException('CSV file is required (field: "file")');
+    }
+    if (!/\.csv$/i.test(file.originalname)) {
+      throw new BadRequestException(
+        `Only .csv files supported (got "${file.originalname}")`,
+      );
+    }
+    const sumCols = sumColumns?.split(',').map((s) => s.trim()).filter(Boolean);
+    const intervalMin = intervalMinutes ? Number(intervalMinutes) : undefined;
+    const parsed = await parseWideMeterCsv(file.buffer, {
+      valueColumn: valueColumn?.trim() || undefined,
+      sumColumns: sumCols && sumCols.length ? sumCols : undefined,
+      intervalMinutes:
+        intervalMin && Number.isFinite(intervalMin) ? intervalMin : undefined,
+    });
+    if (parsed.reads.length === 0) {
+      throw new BadRequestException(
+        `Parsed 0 reads from CSV (column="${parsed.parsedColumn}", skippedEmpty=${parsed.skippedEmpty}, skippedZero=${parsed.skippedZero}). ` +
+          `Check that the column name matches a header in the file and that it carries non-zero values.`,
+      );
+    }
+    await this.readsService.storeRead(externalId.trim(), toIntermediate(parsed));
+    return {
+      deviceExternalId: externalId.trim(),
+      parsedColumn: parsed.parsedColumn,
+      timezone: parsed.timezone,
+      unit: parsed.unit,
+      inserted: parsed.reads.length,
+      skippedEmpty: parsed.skippedEmpty,
+      skippedZero: parsed.skippedZero,
+      intervalMinutes: parsed.intervalMs / 60_000,
+    };
+  }
 
   @Post('addByAdmin/new/:externalId')
   @ApiOperation({
