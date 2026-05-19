@@ -456,6 +456,7 @@ export class ReadsController {
     @Query('valueColumn') valueColumn: string | undefined,
     @Query('sumColumns') sumColumns: string | undefined,
     @Query('intervalMinutes') intervalMinutes: string | undefined,
+    @Query('replaceExisting') replaceExisting: string | undefined,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<{
     deviceExternalId: string;
@@ -466,6 +467,7 @@ export class ReadsController {
     skippedEmpty: number;
     skippedZero: number;
     intervalMinutes: number;
+    deletedOverlapping: number;
   }> {
     if (!file?.buffer) {
       throw new BadRequestException('CSV file is required (field: "file")');
@@ -489,9 +491,26 @@ export class ReadsController {
           `Check that the column name matches a header in the file and that it carries non-zero values.`,
       );
     }
-    await this.readsService.storeRead(externalId.trim(), toIntermediate(parsed));
+    const cleanExternalId = externalId.trim();
+    let deletedOverlapping = 0;
+    if (replaceExisting === 'true' || replaceExisting === '1') {
+      const starts = parsed.reads.map((r) =>
+        new Date(r.starttimestamp).getTime(),
+      );
+      const ends = parsed.reads.map((r) =>
+        new Date(r.endtimestamp).getTime(),
+      );
+      const minStart = new Date(Math.min(...starts));
+      const maxEnd = new Date(Math.max(...ends));
+      deletedOverlapping = await this.readsService.deleteHistoryReadsInRange(
+        cleanExternalId,
+        minStart,
+        maxEnd,
+      );
+    }
+    await this.readsService.storeRead(cleanExternalId, toIntermediate(parsed));
     return {
-      deviceExternalId: externalId.trim(),
+      deviceExternalId: cleanExternalId,
       parsedColumn: parsed.parsedColumn,
       timezone: parsed.timezone,
       unit: parsed.unit,
@@ -499,6 +518,7 @@ export class ReadsController {
       skippedEmpty: parsed.skippedEmpty,
       skippedZero: parsed.skippedZero,
       intervalMinutes: parsed.intervalMs / 60_000,
+      deletedOverlapping,
     };
   }
 

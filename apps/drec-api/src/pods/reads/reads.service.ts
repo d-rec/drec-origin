@@ -536,6 +536,42 @@ export class ReadsService {
     });
   }
 
+  /** Delete all History reads for a device whose [startDate, endDate]
+   *  overlaps the given window. Used by the CSV-ingest endpoint when
+   *  the caller passes replaceExisting=true, so a re-ingest of an
+   *  overlapping range succeeds instead of tripping the conflict
+   *  guard in validateHistoricalReads. Returns the row count deleted. */
+  async deleteHistoryReadsInRange(
+    externalId: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<number> {
+    const result = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(MeterRead)
+      .where('external_id = :externalId', { externalId })
+      .andWhere('type = :type', { type: ReadType.History })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('start_date BETWEEN :startDate AND :endDate', {
+            startDate,
+            endDate,
+          })
+            .orWhere('end_date BETWEEN :startDate AND :endDate', {
+              startDate,
+              endDate,
+            })
+            .orWhere(
+              '(start_date <= :startDate AND end_date >= :endDate)',
+              { startDate, endDate },
+            );
+        }),
+      )
+      .execute();
+    return result.affected ?? 0;
+  }
+
   private async checkHistoryReadExist(
     deviceId: string,
     startDate: Date,
