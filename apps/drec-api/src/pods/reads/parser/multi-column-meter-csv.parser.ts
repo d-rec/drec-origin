@@ -46,6 +46,60 @@ function pickColumnIndex(headers: string[], preferred: string): number {
   return headers.findIndex((h) => norm(h) === wantNorm);
 }
 
+/** Inspect the CSV headers and figure out which column(s) carry the
+ *  PV production volume. Heuristic so the UI button can be a single
+ *  click for the common shapes, without forcing the user to hand-pick:
+ *
+ *  1. A "Solar Yield (delta)" / "Solar Yield" / "Generation" / similar
+ *     single column → use that.
+ *  2. Otherwise, every header matching /^PV to /i (Atsawa shape:
+ *     "PV to battery" + "PV to consumers" + "PV to grid") → sum those.
+ *  3. Otherwise → null (caller must specify valueColumn/sumColumns).
+ *
+ *  The pre-data-read row stats aren't available yet, so the heuristic
+ *  is header-only. A column that exists but is always empty (e.g.
+ *  Atsawa's "Solar Yield (delta)") will produce zero reads — the
+ *  caller is expected to fall back to sumColumns in that case.
+ *  Reported back via the response so the UI can flag it. */
+function autoDetectColumns(
+  headers: string[],
+): { valueColumn?: string; sumColumns?: string[] } {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Prefer the PV-to-* sum when 2+ such columns exist. In real-world
+  // PowerHive-shape exports (Atsawa) the "Solar Yield (delta)" header
+  // is present but the column itself is dashboard-derived and always
+  // empty in the raw download — falling back to per-path PV columns
+  // (PV to battery, PV to consumers, PV to grid) is what actually
+  // carries the production volume. The single-column candidates below
+  // are a fallback for vendors that DO populate the aggregate.
+  const pvToColumns = headers.filter((h) => /^pv\s*to\s+/i.test(h));
+  if (pvToColumns.length >= 2) {
+    return { sumColumns: pvToColumns };
+  }
+
+  const directMatches = [
+    'Solar Yield (delta)',
+    'Solar Yield',
+    'PV Generation',
+    'Generation',
+    'Production',
+    'Energy',
+  ];
+  for (const candidate of directMatches) {
+    const want = norm(candidate);
+    const found = headers.find((h) => norm(h) === want);
+    if (found) return { valueColumn: found };
+  }
+
+  // Single PV-to-* (unusual but possible) as a last resort before
+  // giving up.
+  if (pvToColumns.length === 1) {
+    return { valueColumn: pvToColumns[0] };
+  }
+  return {};
+}
+
 /** Pull the timezone out of the units row's first cell. Atsawa-style:
  *  "Africa/Lagos (+01:00)" — keep only the IANA name. */
 function extractTimezone(firstCell: string): string {
@@ -85,9 +139,16 @@ export async function parseWideMeterCsv(
     intervalMinutes?: number;
   } = {},
 ): Promise<ParsedWideCsv> {
-  const sumColumns = (opts.sumColumns ?? []).filter((c) => c && c.trim());
-  const valueColumn = opts.valueColumn ?? DEFAULT_VALUE_COLUMN;
-  const useSum = sumColumns.length > 0;
+  let sumColumns = (opts.sumColumns ?? []).filter((c) => c && c.trim());
+  let valueColumn = opts.valueColumn ?? '';
+  // Caller passed nothing — flag for auto-detect from headers once
+  // we've read the first row.
+  const autoDetect = !valueColumn && sumColumns.length === 0;
+  // When auto-detect is off, fall back to the legacy default name.
+  if (!autoDetect && !valueColumn && sumColumns.length === 0) {
+    valueColumn = DEFAULT_VALUE_COLUMN;
+  }
+  let useSum = sumColumns.length > 0;
   // Auto-inferred from row-to-row delta unless caller provides
   // intervalMinutes explicitly. Until inferred, we buffer rows so we
   // can backfill endtimestamp once we know.
@@ -119,6 +180,23 @@ export async function parseWideMeterCsv(
       while ((row = parser.read() as string[] | null) !== null) {
         if (!headers) {
           headers = row.map((c) => String(c ?? '').trim());
+          if (autoDetect) {
+            const detected = autoDetectColumns(headers);
+            if (detected.sumColumns?.length) {
+              sumColumns = detected.sumColumns;
+              useSum = true;
+            } else if (detected.valueColumn) {
+              valueColumn = detected.valueColumn;
+            } else {
+              parser.destroy(
+                new Error(
+                  `Could not auto-detect a PV production column. Headers: ${headers.join(', ')}. ` +
+                    `Pass valueColumn or sumColumns explicitly.`,
+                ),
+              );
+              return;
+            }
+          }
           if (useSum) {
             columnIdxs = sumColumns.map((c) => pickColumnIndex(headers!, c));
             const missing = sumColumns.filter((_, i) => columnIdxs[i] < 0);
