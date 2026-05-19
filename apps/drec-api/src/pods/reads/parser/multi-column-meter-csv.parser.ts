@@ -232,11 +232,18 @@ export async function parseWideMeterCsv(
 }
 
 /** Convenience wrapper that wraps parseWideMeterCsv's output in the
- *  shape ReadsService.storeRead expects. */
+ *  shape ReadsService.storeRead expects.
+ *
+ *  Type is History rather than Delta: each row in the wide CSV carries
+ *  its own start AND end timestamps, which is the History semantic.
+ *  Delta's processing path derives startDate from the previous read's
+ *  endDate (streaming use case), which destroys the per-row timestamps
+ *  we worked to parse. History keeps element.starttimestamp intact.
+ *  Constraint: timestamps must fall within (createdAt - 3y, createdAt). */
 export function toIntermediate(parsed: ParsedWideCsv) {
   return {
     timezone: parsed.timezone,
-    type: ReadType.Delta as const,
+    type: ReadType.History as const,
     unit: parsed.unit,
     reads: parsed.reads,
   };
