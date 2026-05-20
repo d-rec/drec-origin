@@ -1992,6 +1992,18 @@ export class DeviceGroupService {
     });
   }
 
+  async sweepExpiredReservations(): Promise<number> {
+    const activeGroups = await this.getAllReservationActive();
+    let released = 0;
+    for (const group of activeGroups) {
+      if (group.isExpired()) {
+        await this.deactivateReservation(group);
+        released++;
+      }
+    }
+    return released;
+  }
+
   async getCurrentInformationOfDevicesInReservation(
     groupId: string,
     pageNumber?: number,

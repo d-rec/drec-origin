@@ -18,6 +18,7 @@ import { Certificate } from '@energyweb/issuer-api';
 import { UserModule } from '../user/user.module';
 import { CertificateSettingEntity } from './certificate_setting.entity';
 import { DeviceBulkUploadProcessor } from './device-bulk-upload.processor';
+import { ReservationExpiryCron } from './reservation-expiry.cron';
 import { BullModule } from '@nestjs/bull';
 import { BulkUploadModule } from '../bulk-upload/bulk-upload.module';
 import { BulkUploadEntity } from '../bulk-upload/bulk-uploads.entity';
@@ -52,7 +53,7 @@ import { Queues } from '../../utils/enums/queues.enum';
     UserModule,
     forwardRef(() => BulkUploadModule),
   ],
-  providers: [DeviceGroupService, DeviceBulkUploadProcessor],
+  providers: [DeviceGroupService, DeviceBulkUploadProcessor, ReservationExpiryCron],
   exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })
