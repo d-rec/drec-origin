@@ -9,6 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { getQueueToken } from '@nestjs/bull';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { getConnectionToken } from '@nestjs/typeorm';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
 import {
@@ -160,6 +161,18 @@ describe('IssuerService', () => {
         {
           provide: Logger,
           useValue: logger,
+        },
+        {
+          // monitorIssuanceWorkerHealth() in LateOngoingIssuanceService uses
+          // a raw connection to query for stuck-worker detection. Mock it so
+          // the DI container can construct the service in tests.
+          provide: getConnectionToken(),
+          useValue: {
+            query: jest
+              .fn()
+              .mockResolvedValue([{ pending: '0', last_checked: null }]),
+            transaction: jest.fn(),
+          } as any,
         },
       ],
     }).compile();
