@@ -178,6 +178,20 @@ export interface ExtractSldFieldsInput {
 export interface ExtractedField<T> {
   value: T;
   confidence: number;
+  /** Optional region pointer into the source document — page index
+   *  (1-based) and a normalised bounding box (each value 0..1, where
+   *  the page is treated as 1x1). Lets the UI highlight the exact
+   *  location the model claims to have read the value from, so the
+   *  registrant can visually confirm before accepting the extraction
+   *  as evidence. Absent when the model didn't return a region
+   *  (older cache hits, or extractors not yet wired). */
+  region?: {
+    page: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  };
 }
 
 export interface ClassifySourceAccessModeInput {
@@ -299,7 +313,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
-    'extract-sld-fields': 5,        // bumped 2026-05-13 — added hasCaptiveConsumer
+    'extract-sld-fields': 6,        // bumped 2026-05-21 — added region (page + bbox) per field
     'extract-sf02-fields': 4,       // bumped 2026-05-14 — generic-noun site-name filter
     'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
     'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
@@ -955,25 +969,28 @@ export class AiService {
       `  - auxiliaryEnergySourceDetails: short human-readable list of what you found (e.g. "Mikano 80kVA diesel + 128.7 kWh SOLARMD lithium battery"). Null if hasAuxiliaryEnergySources is false/null.`,
       `  - hasCaptiveConsumer: true if the SLD shows ANY on-site consumption — direct loads like "TO LOAD", "TO HOUSE", "Gate house", water tank, customer meters, building loads on the LV side. A mini-grid feeding local customers IS captive consumption. False ONLY when the diagram is utility-scale export with no on-site load tap. Null when uncertain.`,
       ``,
+      ``,
+      `For EACH field, also include a "region" pointing to the location in the source where you read the value. The region is the 1-based page number plus a normalised bounding box where the page is treated as 1×1 (x, y = top-left corner of the box as fractions of page width/height; w, h = box width/height as fractions of page width/height). Make the box snug around the literal text/symbol/number you read. Skip the "region" field when the value is null OR when you cannot point to a specific location (e.g. derived/computed values).`,
+      ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
-      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "dcCapacityKwp": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
-      `  "inverterCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>},`,
-      `  "moduleWattage": {"value": <integer|null>, "confidence": <0..1>},`,
-      `  "gridVoltage": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>},`,
-      `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>},`,
-      `  "transformerKva": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>},`,
-      `  "gridExportType": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>},`,
-      `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "hasCaptiveConsumer": {"value": <boolean|null>, "confidence": <0..1>},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}},`,
+      `  "dcCapacityKwp": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "inverterCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "moduleWattage": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "gridVoltage": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "transformerKva": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "gridExportType": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "hasCaptiveConsumer": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
