@@ -192,6 +192,15 @@ export interface ExtractedField<T> {
     w: number;
     h: number;
   };
+  /** One-line justification — what specifically in the doc the model
+   *  used to derive this value. Essential for boolean / derived /
+   *  semantic fields where there's no literal token to point at
+   *  (e.g. "I see a 'ZERO EXPORT SMART METER' label below the
+   *  busbar, which indicates a network meter is installed"). The
+   *  verify dialog shows this alongside the bbox so the registrant
+   *  can scan the diagram for the actual basis even when the box is
+   *  approximate. */
+  reasoning?: string;
 }
 
 export interface ClassifySourceAccessModeInput {
@@ -313,7 +322,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
-    'extract-sld-fields': 7,        // bumped 2026-05-21 — normalizer now carries region through (v6 entries cached pre-fix had no region)
+    'extract-sld-fields': 8,        // bumped 2026-05-21 — per-field reasoning ("what in the doc justifies this value")
     'extract-sf02-fields': 4,       // bumped 2026-05-14 — generic-noun site-name filter
     'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
     'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
@@ -972,25 +981,31 @@ export class AiService {
       ``,
       `For EACH field, also include a "region" pointing to the location in the source where you read the value. The region is the 1-based page number plus a normalised bounding box where the page is treated as 1×1 (x, y = top-left corner of the box as fractions of page width/height; w, h = box width/height as fractions of page width/height). Make the box snug around the literal text/symbol/number you read. Skip the "region" field when the value is null OR when you cannot point to a specific location (e.g. derived/computed values).`,
       ``,
+      `For EACH field, also include a short "reasoning" — one concise sentence naming the specific element(s) of the diagram that justify your value. Examples:`,
+      `  acCapacityKw=250 → "summed from two INVERTER 3P-125kW labels"`,
+      `  hasNetworkMeter=true → "ZERO EXPORT SMART METER label below the MDB-PV busbar"`,
+      `  gridVoltage="400Vac" → "GRID 400Vac label at the top of the diagram"`,
+      `This reasoning is shown to the registrant during verification so they can find the basis even when the bbox is approximate. Make it useful for human verification, not a generic restatement.`,
+      ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
-      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}},`,
-      `  "dcCapacityKwp": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "inverterCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "moduleWattage": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "gridVoltage": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "transformerKva": {"value": <number|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "gridExportType": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>, "region": <as above>},`,
-      `  "hasCaptiveConsumer": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "dcCapacityKwp": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "inverterCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "moduleWattage": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "gridVoltage": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "gridTied": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "zeroExport": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "transformerKva": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "hasNetworkMeter": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "gridExportType": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "hasAuxiliaryEnergySources": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "auxiliaryEnergySourceDetails": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "hasCaptiveConsumer": {"value": <boolean|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1845,7 +1860,14 @@ export class AiService {
     ): ExtractedField<T> | undefined => {
       if (!base) return base;
       const region = regionField(raw);
-      return region ? { ...base, region } : base;
+      const reasoning =
+        raw && typeof raw.reasoning === 'string' && raw.reasoning.trim()
+          ? raw.reasoning.trim()
+          : undefined;
+      const extras: Partial<ExtractedField<T>> = {};
+      if (region) extras.region = region;
+      if (reasoning) extras.reasoning = reasoning;
+      return Object.keys(extras).length ? { ...base, ...extras } : base;
     };
     const numField = (
       raw: any,
