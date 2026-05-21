@@ -344,6 +344,40 @@ export class AiService {
     return row.response;
   }
 
+  /** Drop any ExtractedField entry whose confidence is below the
+   *  threshold (default 0.5). Below half-confidence is "the model is
+   *  guessing" — and a guess that gets the right answer is
+   *  indistinguishable from a hallucination that happens to be
+   *  plausible. We'd rather the downstream see `undefined` and prompt
+   *  a human to type the value than show an AI-fabricated string with
+   *  a confidence sticker that lulls reviewers into trusting it.
+   *
+   *  Mutates and returns the same object. `reasoning` and any
+   *  non-ExtractedField properties are left intact. */
+  private scrubLowConfidence<T extends Record<string, any>>(
+    result: T,
+    minConfidence = 0.5,
+  ): T {
+    if (!result || typeof result !== 'object') return result;
+    for (const key of Object.keys(result)) {
+      const v = (result as any)[key];
+      // ExtractedField is shaped { value, confidence } — anything else
+      // (reasoning string, deviations array, matchScore number) stays.
+      if (
+        v &&
+        typeof v === 'object' &&
+        !Array.isArray(v) &&
+        typeof v.confidence === 'number' &&
+        'value' in v
+      ) {
+        if ((v.confidence ?? 0) < minConfidence) {
+          delete (result as any)[key];
+        }
+      }
+    }
+    return result;
+  }
+
   /** Store an extraction response keyed on (hash, endpoint). Upserts
    *  so a re-extraction overwrites stale data within the TTL window. */
   private async cacheStore(
@@ -889,7 +923,7 @@ export class AiService {
     if (cached) {
       void this.auditCacheHit('extract-sld-fields', ctx);
       this.logger.log('extract-sld-fields: cache hit');
-      return cached as ExtractSldFieldsResult;
+      return this.scrubLowConfidence(cached as ExtractSldFieldsResult);
     }
     const client = new Anthropic({ apiKey });
     const prompt = [
@@ -985,8 +1019,10 @@ export class AiService {
       if (!parsed || typeof parsed !== 'object') {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
-      const result = this.deriveAcCapacityIfMissing(
-        this.deriveInverterCapacityFromModel(this.normalizeSldResult(parsed)),
+      const result = this.scrubLowConfidence(
+        this.deriveAcCapacityIfMissing(
+          this.deriveInverterCapacityFromModel(this.normalizeSldResult(parsed)),
+        ),
       );
       success = true;
       void this.cacheStore(input.contentHash, 'extract-sld-fields', result);
@@ -1101,7 +1137,7 @@ export class AiService {
       if (!parsed || typeof parsed !== 'object') {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
-      const result = this.normalizeSf02cResult(parsed);
+      const result = this.scrubLowConfidence(this.normalizeSf02cResult(parsed));
       success = true;
       return result;
     } catch (err: any) {
@@ -1504,7 +1540,7 @@ export class AiService {
     if (cached) {
       void this.auditCacheHit(endpoint, ctx);
       this.logger.log(`${endpoint}: cache hit`);
-      return cached;
+      return this.scrubLowConfidence(cached);
     }
     const client = new Anthropic({ apiKey });
     const startedAt = Date.now();
@@ -1552,8 +1588,9 @@ export class AiService {
         throw new Error(`Model returned unparseable response: ${raw}`);
       }
       success = true;
-      void this.cacheStore(input.contentHash, endpoint, parsed);
-      return parsed;
+      const scrubbed = this.scrubLowConfidence(parsed);
+      void this.cacheStore(input.contentHash, endpoint, scrubbed);
+      return scrubbed;
     } catch (err: any) {
       errorMessage = err?.message ?? String(err);
       throw err;
