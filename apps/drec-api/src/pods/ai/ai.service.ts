@@ -323,9 +323,9 @@ export class AiService {
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
     'extract-sld-fields': 8,        // bumped 2026-05-21 — per-field reasoning ("what in the doc justifies this value")
-    'extract-sf02-fields': 4,       // bumped 2026-05-14 — generic-noun site-name filter
-    'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
-    'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
+    'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
+    'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
+    'extract-cod-fields': 4,        // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
@@ -1115,16 +1115,20 @@ export class AiService {
       `  - signatoryName: name of the person who signed`,
       `  - signatoryEmail: email of the signatory if present`,
       ``,
+      `For EACH field, also include a "region" pointing to the location in the source where you read the value: 1-based page number plus a normalised bounding box (x, y, w, h ∈ [0, 1], page treated as 1×1). Skip "region" when the value is null OR when it isn't a literal piece of text on the page.`,
+      ``,
+      `For EACH field, also include a short "reasoning" — one concise sentence naming the specific element(s) on the letter that justify your value (e.g. "Project name in title block, second line"). Shown to the registrant during verification.`,
+      ``,
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
-      `  "projectName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "signingDate": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "signatoryName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "signatoryEmail": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "projectName": {"value": <string|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "signingDate": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "signatoryName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "signatoryEmail": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "reasoning": "<one short sentence summarising what you read>"`,
       `}`,
     ].join('\n');
@@ -1159,7 +1163,8 @@ export class AiService {
       }
       const res = await client.messages.create({
         model: HAIKU_MODEL,
-        max_tokens: 1024,
+        // Bumped 2026-05-21 for region + reasoning per field (Phase 2).
+        max_tokens: 2048,
         temperature: 0,
         messages: [{ role: 'user', content }],
       });
@@ -1436,17 +1441,20 @@ export class AiService {
       `  - offTakerName: legal name of the electricity OFF-TAKER — the entity buying / consuming the power (e.g. a factory, a mini-grid customer association, a hospital, a captive industrial user). NOT the project owner / EPC / utility / financier. Off-takers are usually named in the recital ("...for the supply of electricity to <off-taker>") or in a dedicated "Off-taker" / "Customer" / "Buyer" field. Return null if no distinct off-taker is named.`,
       `  - measurementIds: opportunistic — if the COD proof includes an equipment list with inverter / meter serial numbers, extract them as a string[]. Empty/null if no SN list is present.`,
       ``,
+      ``,
+      `For EACH field, also include "region" (1-based page + normalised x/y/w/h ∈ [0,1] bbox; omit when not a literal token) and "reasoning" (one concise sentence naming the element on the document that justified the value). Shown to the registrant during verification.`,
+      ``,
       `Strict JSON, no markdown, no prose:`,
       `{`,
-      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "facilityName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "ownerName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "country": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "stateProvince": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "offTakerName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
+      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "facilityName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "utilityOrIssuer": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "country": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "stateProvince": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "offTakerName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>, "reasoning": <as above>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
@@ -1508,21 +1516,24 @@ export class AiService {
       `  - moduleCount: total module count`,
       `  - networkOwner: the DSO / electricity DISTRIBUTION COMPANY that owns the grid the facility connects to. This is the utility (e.g. "Eko Disco", "AEDC", "Eskom", "ECG"), NOT the project sponsor / EPC / developer / off-taker. Look in the "Grid Connection" or "Network Operator" section. **If the SF-02 indicates the facility is off-grid / not grid-connected (no DSO field, "n/a" written in, or the facility config is mini-grid / off-grid), return the literal string "n/a".** Otherwise return null only if grid-connected but the DSO field is left blank.`,
       ``,
+      ``,
+      `For EACH field, also include "region" (1-based page + normalised x/y/w/h ∈ [0,1] bbox; omit when not a literal token) and "reasoning" (one concise sentence naming the form section or label that justified the value).`,
+      ``,
       `Strict JSON only:`,
       `{`,
-      `  "facilityName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "deviceTypeCode": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>},`,
-      `  "latitude": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "longitude": {"value": <number|null>, "confidence": <0..1>},`,
-      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>},`,
-      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>},`,
-      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "facilityName": {"value": <string|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "deviceTypeCode": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "ownerStateProvince": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "latitude": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "longitude": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "inverterCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "moduleCount": {"value": <integer|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
+      `  "networkOwner": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
@@ -1609,7 +1620,8 @@ export class AiService {
       }
       const res = await client.messages.create({
         model: HAIKU_MODEL,
-        max_tokens: 1024,
+        // Bumped 2026-05-21 for region + reasoning per field (Phase 2).
+        max_tokens: 2048,
         temperature: 0,
         messages: [{ role: 'user', content }],
       });
@@ -1650,14 +1662,6 @@ export class AiService {
         `${endpoint}: ${success ? 'ok' : 'fail'} in=${inputTokens} out=${outputTokens} ${Date.now() - startedAt}ms`,
       );
     }
-  }
-
-  private strField(raw: any): ExtractedField<string> | undefined {
-    if (!raw || !raw.value) return undefined;
-    return {
-      value: String(raw.value).trim(),
-      confidence: this.clampConfidence(raw.confidence),
-    };
   }
 
   /** Generic-noun tokens that Haiku sometimes returns as a `facilityName`
@@ -1712,21 +1716,10 @@ export class AiService {
     return f;
   }
 
-  private numField(raw: any): ExtractedField<number> | undefined {
-    if (!raw || raw.value === null || raw.value === undefined) return undefined;
-    const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
-    if (!isFinite(v)) return undefined;
-    return { value: v, confidence: this.clampConfidence(raw.confidence) };
-  }
-
   private normalizeSf02cResult(parsed: any): ExtractSf02cFieldsResult {
-    const strField = (raw: any): ExtractedField<string> | undefined => {
-      if (!raw || !raw.value) return undefined;
-      return {
-        value: String(raw.value).trim(),
-        confidence: this.clampConfidence(raw.confidence),
-      };
-    };
+    // Uses the class-level strField helper that carries region +
+    // reasoning through (Phase 2 — surfaces in the verify queue).
+    const strField = (raw: any) => this.strField(raw);
     return {
       projectName: this.siteNameField(parsed.projectName),
       ownerLegalName: strField(parsed.ownerLegalName),
@@ -1820,90 +1813,104 @@ export class AiService {
     return result;
   }
 
+  // ── Shared field-shape helpers used by every normalize*Result. ──
+  // Hoisted out of normalizeSldResult so the SF-02c / COD / SF-02
+  // normalizers all carry region + reasoning through with the same
+  // logic. Each *Field helper builds an ExtractedField<T> from the
+  // model's raw {value, confidence, region?, reasoning?} object.
+
+  /** Sanity-check the region the model returned. Page must be a
+   *  positive integer; bbox numbers must each be finite and clamped
+   *  to 0..1 (Haiku occasionally returns -0.01 or 1.05). Returns
+   *  undefined when nothing usable is present. */
+  private regionField(raw: any) {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const r = raw.region;
+    if (!r || typeof r !== 'object') return undefined;
+    const page = Number(r.page);
+    const x = Number(r.x);
+    const y = Number(r.y);
+    const w = Number(r.w);
+    const h = Number(r.h);
+    if (
+      !Number.isFinite(page) ||
+      !Number.isFinite(x) ||
+      !Number.isFinite(y) ||
+      !Number.isFinite(w) ||
+      !Number.isFinite(h)
+    ) {
+      return undefined;
+    }
+    const clamp = (n: number) => Math.max(0, Math.min(1, n));
+    return {
+      page: Math.max(1, Math.floor(page)),
+      x: clamp(x),
+      y: clamp(y),
+      w: clamp(w),
+      h: clamp(h),
+    };
+  }
+
+  /** Attach region + reasoning to a base ExtractedField when the
+   *  raw input provided them. Both are optional; absent metadata
+   *  doesn't break the base shape. */
+  private withRegion<T>(
+    base: ExtractedField<T> | undefined,
+    raw: any,
+  ): ExtractedField<T> | undefined {
+    if (!base) return base;
+    const region = this.regionField(raw);
+    const reasoning =
+      raw && typeof raw.reasoning === 'string' && raw.reasoning.trim()
+        ? raw.reasoning.trim()
+        : undefined;
+    const extras: Partial<ExtractedField<T>> = {};
+    if (region) extras.region = region;
+    if (reasoning) extras.reasoning = reasoning;
+    return Object.keys(extras).length ? { ...base, ...extras } : base;
+  }
+
+  /** Number-typed ExtractedField with region + reasoning carry-through. */
+  private numField(raw: any): ExtractedField<number> | undefined {
+    if (!raw || raw.value === null || raw.value === undefined) return undefined;
+    const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
+    if (!isFinite(v)) return undefined;
+    return this.withRegion(
+      { value: v, confidence: this.clampConfidence(raw.confidence) },
+      raw,
+    );
+  }
+
+  /** String-typed ExtractedField with region + reasoning carry-through. */
+  private strField(raw: any): ExtractedField<string> | undefined {
+    if (!raw || !raw.value) return undefined;
+    return this.withRegion(
+      {
+        value: String(raw.value),
+        confidence: this.clampConfidence(raw.confidence),
+      },
+      raw,
+    );
+  }
+
+  /** Boolean-typed ExtractedField with region + reasoning carry-through. */
+  private boolFieldCommon(
+    raw: any,
+  ): ExtractedField<boolean> | undefined {
+    if (!raw || raw.value === null || raw.value === undefined) return undefined;
+    return this.withRegion(
+      {
+        value: Boolean(raw.value),
+        confidence: this.clampConfidence(raw.confidence),
+      },
+      raw,
+    );
+  }
+
   private normalizeSldResult(parsed: any): ExtractSldFieldsResult {
-    // Pull the region off the raw field if it has a sensible shape.
-    // Page must be a positive integer; bbox numbers must each be a
-    // finite 0..1 (Haiku occasionally returns -0.01 or 1.05 — clamp).
-    // Returns undefined when nothing usable is present so downstream
-    // can still tell "model declined to give a region" from "model
-    // gave a malformed one we threw away".
-    const regionField = (raw: any) => {
-      if (!raw || typeof raw !== 'object') return undefined;
-      const r = raw.region;
-      if (!r || typeof r !== 'object') return undefined;
-      const page = Number(r.page);
-      const x = Number(r.x);
-      const y = Number(r.y);
-      const w = Number(r.w);
-      const h = Number(r.h);
-      if (
-        !Number.isFinite(page) ||
-        !Number.isFinite(x) ||
-        !Number.isFinite(y) ||
-        !Number.isFinite(w) ||
-        !Number.isFinite(h)
-      ) {
-        return undefined;
-      }
-      const clamp = (n: number) => Math.max(0, Math.min(1, n));
-      return {
-        page: Math.max(1, Math.floor(page)),
-        x: clamp(x),
-        y: clamp(y),
-        w: clamp(w),
-        h: clamp(h),
-      };
-    };
-    const withRegion = <T>(
-      base: ExtractedField<T> | undefined,
-      raw: any,
-    ): ExtractedField<T> | undefined => {
-      if (!base) return base;
-      const region = regionField(raw);
-      const reasoning =
-        raw && typeof raw.reasoning === 'string' && raw.reasoning.trim()
-          ? raw.reasoning.trim()
-          : undefined;
-      const extras: Partial<ExtractedField<T>> = {};
-      if (region) extras.region = region;
-      if (reasoning) extras.reasoning = reasoning;
-      return Object.keys(extras).length ? { ...base, ...extras } : base;
-    };
-    const numField = (
-      raw: any,
-    ): ExtractedField<number> | undefined => {
-      if (!raw || raw.value === null || raw.value === undefined) return undefined;
-      const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
-      if (!isFinite(v)) return undefined;
-      return withRegion(
-        { value: v, confidence: this.clampConfidence(raw.confidence) },
-        raw,
-      );
-    };
-    const strField = (
-      raw: any,
-    ): ExtractedField<string> | undefined => {
-      if (!raw || !raw.value) return undefined;
-      return withRegion(
-        {
-          value: String(raw.value),
-          confidence: this.clampConfidence(raw.confidence),
-        },
-        raw,
-      );
-    };
-    const boolField = (
-      raw: any,
-    ): ExtractedField<boolean> | undefined => {
-      if (!raw || raw.value === null || raw.value === undefined) return undefined;
-      return withRegion(
-        {
-          value: Boolean(raw.value),
-          confidence: this.clampConfidence(raw.confidence),
-        },
-        raw,
-      );
-    };
+    const numField = (raw: any) => this.numField(raw);
+    const strField = (raw: any) => this.strField(raw);
+    const boolField = (raw: any) => this.boolFieldCommon(raw);
     return {
       acCapacityKw: numField(parsed.acCapacityKw),
       dcCapacityKwp: numField(parsed.dcCapacityKwp),
