@@ -1806,31 +1806,81 @@ export class AiService {
   }
 
   private normalizeSldResult(parsed: any): ExtractSldFieldsResult {
+    // Pull the region off the raw field if it has a sensible shape.
+    // Page must be a positive integer; bbox numbers must each be a
+    // finite 0..1 (Haiku occasionally returns -0.01 or 1.05 — clamp).
+    // Returns undefined when nothing usable is present so downstream
+    // can still tell "model declined to give a region" from "model
+    // gave a malformed one we threw away".
+    const regionField = (raw: any) => {
+      if (!raw || typeof raw !== 'object') return undefined;
+      const r = raw.region;
+      if (!r || typeof r !== 'object') return undefined;
+      const page = Number(r.page);
+      const x = Number(r.x);
+      const y = Number(r.y);
+      const w = Number(r.w);
+      const h = Number(r.h);
+      if (
+        !Number.isFinite(page) ||
+        !Number.isFinite(x) ||
+        !Number.isFinite(y) ||
+        !Number.isFinite(w) ||
+        !Number.isFinite(h)
+      ) {
+        return undefined;
+      }
+      const clamp = (n: number) => Math.max(0, Math.min(1, n));
+      return {
+        page: Math.max(1, Math.floor(page)),
+        x: clamp(x),
+        y: clamp(y),
+        w: clamp(w),
+        h: clamp(h),
+      };
+    };
+    const withRegion = <T>(
+      base: ExtractedField<T> | undefined,
+      raw: any,
+    ): ExtractedField<T> | undefined => {
+      if (!base) return base;
+      const region = regionField(raw);
+      return region ? { ...base, region } : base;
+    };
     const numField = (
       raw: any,
     ): ExtractedField<number> | undefined => {
       if (!raw || raw.value === null || raw.value === undefined) return undefined;
       const v = typeof raw.value === 'number' ? raw.value : parseFloat(raw.value);
       if (!isFinite(v)) return undefined;
-      return { value: v, confidence: this.clampConfidence(raw.confidence) };
+      return withRegion(
+        { value: v, confidence: this.clampConfidence(raw.confidence) },
+        raw,
+      );
     };
     const strField = (
       raw: any,
     ): ExtractedField<string> | undefined => {
       if (!raw || !raw.value) return undefined;
-      return {
-        value: String(raw.value),
-        confidence: this.clampConfidence(raw.confidence),
-      };
+      return withRegion(
+        {
+          value: String(raw.value),
+          confidence: this.clampConfidence(raw.confidence),
+        },
+        raw,
+      );
     };
     const boolField = (
       raw: any,
     ): ExtractedField<boolean> | undefined => {
       if (!raw || raw.value === null || raw.value === undefined) return undefined;
-      return {
-        value: Boolean(raw.value),
-        confidence: this.clampConfidence(raw.confidence),
-      };
+      return withRegion(
+        {
+          value: Boolean(raw.value),
+          confidence: this.clampConfidence(raw.confidence),
+        },
+        raw,
+      );
     };
     return {
       acCapacityKw: numField(parsed.acCapacityKw),
