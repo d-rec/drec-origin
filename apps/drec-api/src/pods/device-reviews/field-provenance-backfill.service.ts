@@ -136,10 +136,16 @@ export class FieldProvenanceBackfillService {
             continue;
           }
           const extractedField = extracted[fieldName];
+          // Match the apply-extraction bar (0.70) used everywhere else
+          // in the UI. The previous 0.50 threshold was producing false
+          // attributions: a weakly-matched extraction at 0.50 would get
+          // saved as provenance even when the doc didn't clearly contain
+          // the value, and then the UI would render the field as
+          // doc-backed when in reality the doc says nothing supportive.
           if (
             !extractedField ||
             extractedField.value == null ||
-            (extractedField.confidence ?? 0) < 0.5
+            (extractedField.confidence ?? 0) < 0.7
           ) {
             continue;
           }
