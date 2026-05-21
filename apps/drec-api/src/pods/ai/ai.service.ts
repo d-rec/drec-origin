@@ -1014,7 +1014,11 @@ export class AiService {
         : '';
       const res = await client.messages.create({
         model: HAIKU_MODEL,
-        max_tokens: 1024,
+        // Bumped 2026-05-21: 1024 was tight when each ExtractedField
+        // gained a region: {page, x, y, w, h} — 17 fields × ~20 tokens
+        // for the region object adds ~340 tokens just for bbox JSON,
+        // and 1024 truncated the response mid-array → parse fail → 500.
+        max_tokens: 2048,
         temperature: 0,
         messages: [
           {
