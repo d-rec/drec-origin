@@ -313,7 +313,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
-    'extract-sld-fields': 6,        // bumped 2026-05-21 — added region (page + bbox) per field
+    'extract-sld-fields': 7,        // bumped 2026-05-21 — normalizer now carries region through (v6 entries cached pre-fix had no region)
     'extract-sf02-fields': 4,       // bumped 2026-05-14 — generic-noun site-name filter
     'extract-sf02c-fields': 3,      // bumped 2026-05-14 — generic-noun site-name filter
     'extract-cod-fields': 3,        // bumped 2026-05-14 — generic-noun site-name filter
