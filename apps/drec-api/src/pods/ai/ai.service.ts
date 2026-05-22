@@ -327,7 +327,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
-    'extract-sld-fields': 8,        // bumped 2026-05-21 — per-field reasoning ("what in the doc justifies this value")
+    'extract-sld-fields': 9,        // bumped 2026-05-22 — require region anchor for gridExportType pointing at strongest visual signal
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-cod-fields': 7,        // bumped 2026-05-22 — stronger kWp/DC rule with PV Capacity example
@@ -977,6 +977,12 @@ export class AiService {
       `      "Yes (partial-export)"  — a bidirectional / net-metering / "import + export" meter is EXPLICITLY drawn or labelled, OR the SLD labels the export path as "surplus only", "net metering", "behind-the-meter with export", "feed-in tariff". The site self-consumes first and exports the surplus to a UTILITY (not to local mini-grid customers). Multiple kWh meters alone are NOT enough to claim partial-export — they could be customer-side metering on a mini-grid.`,
       `      "Yes (full-export)"     — the SLD shows ALL inverter output going through a dedicated export meter to a UTILITY grid with no local-load tap (utility-scale solar farm, dedicated export PPA, "export only" label). Rare outside of utility-scale projects.`,
       `    Return null if you genuinely can't tell. When in doubt for a mini-grid or community system, prefer "No (zero-export)".`,
+      `    **Region for gridExportType**: this is a derived classification — there is no single literal token to point to. Provide a region anchored on the SINGLE strongest visual signal that made you pick the answer. Examples:`,
+      `      - "No (zero-export)" with a zero-export relay shown: bbox the relay symbol.`,
+      `      - "No (zero-export)" mini-grid by topology: bbox the AC bus + customer-meter cluster (the LV distribution side).`,
+      `      - "Yes (partial-export)" with a bidirectional meter: bbox the meter symbol.`,
+      `      - "Yes (full-export)" with an export meter: bbox the meter symbol.`,
+      `    And in the reasoning, say what's IN that region (e.g. "AC bus feeding 8 customer kWh meters on the LV side, no MV/HV transformer" or "Reverse-power relay above main breaker"). That gives the registrant something concrete to find on the diagram.`,
       ``,
       `    Worked example (Atsawa-shape mini-grid): SLD shows 2× HUAWEI PV inverters → local AC bus → battery storage (SOLARMD) + Victron Quattro battery inverter forming the AC reference + diesel backup (Mikano), with multiple customer kWh meters, no MV/HV transformer, no named DSO, and a title like "Nigeria MiniGrid" or "off-grid community". This is an off-grid mini-grid feeding local customers: gridTied=false (no utility connection point exists), networkOwner="n/a", gridExportType="No (zero-export)", hasNetworkMeter=false. The "Grid tied" wording in the title refers to the HUAWEI inverter topology, not the facility — the inverters synchronise to the local Victron AC bus, not to a utility.`,
       `  - hasAuxiliaryEnergySources: true if the SLD shows ANY non-PV power source — diesel generator (gen-set / DG / "Mikano", "Cummins", "Caterpillar", "FG Wilson"), battery storage (BESS / lithium / "SOLARMD", "BYD", "Tesla Powerwall"), wind, hydro, fuel cell. Just the inverter + grid is NOT auxiliary. Return false only when the diagram clearly shows PV-only with no storage; null if uncertain.`,
