@@ -330,7 +330,7 @@ export class AiService {
     'extract-sld-fields': 8,        // bumped 2026-05-21 — per-field reasoning ("what in the doc justifies this value")
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
-    'extract-cod-fields': 5,        // bumped 2026-05-22 — siteName filter for multi-site certs
+    'extract-cod-fields': 6,        // bumped 2026-05-22 — refuse kWp values for acCapacityKw (it's DC, not AC)
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
@@ -1451,7 +1451,7 @@ export class AiService {
       `Extract these fields. Use null where unknown.`,
       `  - commissioningDate: ISO-8601 (YYYY-MM-DD)`,
       `  - facilityName: site / plant name as written`,
-      `  - acCapacityKw: AC capacity in kW (convert from kVA / MW if needed)`,
+      `  - acCapacityKw: AC capacity in kW. **CRITICAL units check**: if the column / value is labelled "kWp", "Wp", "MWp", or otherwise marked as peak / DC capacity, that is the DC-side number — DO NOT return it here. Return null for acCapacityKw and explain in reasoning ("doc reports DC kWp, not AC kW"). Convert plain kVA / MW to kW. AC values are typically lower than the DC peak by 10–40%.`,
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
       `  - country: country where the facility is located. Look at the address, the regulator name (NERC=Nigeria, EPRA=Kenya, NERSA=South Africa, ERC=Philippines), the utility (Eko Disco / AEDC=Nigeria, KPLC=Kenya, Eskom=South Africa), or place names. Return the full English country name (e.g. "Nigeria", "Kenya", "South Africa") or null.`,
