@@ -327,7 +327,7 @@ export class AiService {
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
-    'extract-sld-fields': 9,        // bumped 2026-05-22 — require region anchor for gridExportType pointing at strongest visual signal
+    'extract-sld-fields': 10,       // bumped 2026-05-22 — mandate non-null region for derived fields (loose quadrant OK)
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-cod-fields': 7,        // bumped 2026-05-22 — stronger kWp/DC rule with PV Capacity example
@@ -977,12 +977,14 @@ export class AiService {
       `      "Yes (partial-export)"  — a bidirectional / net-metering / "import + export" meter is EXPLICITLY drawn or labelled, OR the SLD labels the export path as "surplus only", "net metering", "behind-the-meter with export", "feed-in tariff". The site self-consumes first and exports the surplus to a UTILITY (not to local mini-grid customers). Multiple kWh meters alone are NOT enough to claim partial-export — they could be customer-side metering on a mini-grid.`,
       `      "Yes (full-export)"     — the SLD shows ALL inverter output going through a dedicated export meter to a UTILITY grid with no local-load tap (utility-scale solar farm, dedicated export PPA, "export only" label). Rare outside of utility-scale projects.`,
       `    Return null if you genuinely can't tell. When in doubt for a mini-grid or community system, prefer "No (zero-export)".`,
-      `    **Region for gridExportType**: this is a derived classification — there is no single literal token to point to. Provide a region anchored on the SINGLE strongest visual signal that made you pick the answer. Examples:`,
-      `      - "No (zero-export)" with a zero-export relay shown: bbox the relay symbol.`,
-      `      - "No (zero-export)" mini-grid by topology: bbox the AC bus + customer-meter cluster (the LV distribution side).`,
-      `      - "Yes (partial-export)" with a bidirectional meter: bbox the meter symbol.`,
-      `      - "Yes (full-export)" with an export meter: bbox the meter symbol.`,
-      `    And in the reasoning, say what's IN that region (e.g. "AC bus feeding 8 customer kWh meters on the LV side, no MV/HV transformer" or "Reverse-power relay above main breaker"). That gives the registrant something concrete to find on the diagram.`,
+      `    **Region for gridExportType (MANDATORY when value is non-null)**: this is a derived classification — there is no single literal token to point to, but you MUST still provide a region. Be COARSE if you have to — a quadrant of the page is fine, the whole LV / customer side is fine, the whole utility-side bus is fine. Just don't return null for region when you have a value. Examples:`,
+      `      - "No (zero-export)" with a zero-export relay shown: tight bbox the relay symbol.`,
+      `      - "No (zero-export)" mini-grid by topology: LOOSE bbox covering the LV distribution + customer-meter cluster (bottom-half / right-half of the diagram, whatever that is on this page).`,
+      `      - "Yes (partial-export)" with a bidirectional meter: tight bbox the meter symbol.`,
+      `      - "Yes (full-export)" with an export meter: tight bbox the meter symbol.`,
+      `    A loose bbox covering "look here, somewhere in this rectangle" is INFINITELY better than null — the registrant has to scan a wall-sized SLD blind otherwise. In the reasoning, say what's IN that region (e.g. "AC bus feeding customer kWh meters on the LV side, no MV/HV transformer" or "reverse-power relay above main breaker").`,
+      ``,
+      `**Region MANDATORY-FOR-VALUE rule** also applies to: hasNetworkMeter, hasAuxiliaryEnergySources, auxiliaryEnergySourceDetails, hasCaptiveConsumer, networkOwner, gridInterconnection. If you return a non-null value, you must return a region (tight if a literal element, loose-quadrant if topological). Only null values may have null region.`,
       ``,
       `    Worked example (Atsawa-shape mini-grid): SLD shows 2× HUAWEI PV inverters → local AC bus → battery storage (SOLARMD) + Victron Quattro battery inverter forming the AC reference + diesel backup (Mikano), with multiple customer kWh meters, no MV/HV transformer, no named DSO, and a title like "Nigeria MiniGrid" or "off-grid community". This is an off-grid mini-grid feeding local customers: gridTied=false (no utility connection point exists), networkOwner="n/a", gridExportType="No (zero-export)", hasNetworkMeter=false. The "Grid tied" wording in the title refers to the HUAWEI inverter topology, not the facility — the inverters synchronise to the local Victron AC bus, not to a utility.`,
       `  - hasAuxiliaryEnergySources: true if the SLD shows ANY non-PV power source — diesel generator (gen-set / DG / "Mikano", "Cummins", "Caterpillar", "FG Wilson"), battery storage (BESS / lithium / "SOLARMD", "BYD", "Tesla Powerwall"), wind, hydro, fuel cell. Just the inverter + grid is NOT auxiliary. Return false only when the diagram clearly shows PV-only with no storage; null if uncertain.`,
