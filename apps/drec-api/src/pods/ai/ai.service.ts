@@ -75,6 +75,11 @@ export interface ExtractCodFieldsInput {
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   }>;
   contentHash?: string;
+  /** Site name to filter on when the cert lists multiple facilities
+   *  (Provisional Acceptance Certificates etc.). Extractor picks the
+   *  row whose name matches; without this it averages / sums / picks
+   *  arbitrary rows on multi-site docs. */
+  siteName?: string;
 }
 
 export interface ExtractCodFieldsResult {
@@ -325,7 +330,7 @@ export class AiService {
     'extract-sld-fields': 8,        // bumped 2026-05-21 — per-field reasoning ("what in the doc justifies this value")
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
-    'extract-cod-fields': 4,        // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
+    'extract-cod-fields': 5,        // bumped 2026-05-22 — siteName filter for multi-site certs
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
@@ -1427,9 +1432,22 @@ export class AiService {
     apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
   ): Promise<ExtractCodFieldsResult> {
+    const siteFilterBlock = input.siteName
+      ? [
+          `**THIS COD IS BEING READ FOR A SPECIFIC SITE: "${input.siteName}"**`,
+          ``,
+          `If the document is a multi-site / portfolio certificate (a table listing several facilities, mini-grids, or projects), find the ROW whose facility / project / mini-grid name matches "${input.siteName}" — exact match preferred, but fuzzy is OK if there's only one plausible candidate (e.g. "Atsawa" matches "Atsawa Mini-Grid"). Extract ONLY that row's values. Ignore other rows. Ignore "total" / aggregate rows.`,
+          ``,
+          `If there is NO row matching "${input.siteName}" in a multi-site doc, return null for ALL fields and put "no row for ${input.siteName} found in this multi-site certificate" in the top-level reasoning field. DO NOT pick a different row or aggregate.`,
+          ``,
+          `If the document is a single-site cert (not a multi-row table), proceed normally — the siteName filter is moot.`,
+          ``,
+        ].join('\n')
+      : '';
     const promptInstructions = [
       `You are reading a "Commercial Operation Date" (COD) proof — a certificate or letter from a utility / regulator / EPC stating the date the solar facility began commercial operation.`,
       ``,
+      siteFilterBlock,
       `Extract these fields. Use null where unknown.`,
       `  - commissioningDate: ISO-8601 (YYYY-MM-DD)`,
       `  - facilityName: site / plant name as written`,
@@ -1458,9 +1476,15 @@ export class AiService {
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
+    // Mix siteName into the cache key — two devices reading the same
+    // multi-site cert with different siteName filters must NOT share
+    // cached results.
+    const siteSalted = input.siteName
+      ? { ...input, contentHash: input.contentHash ? `${input.contentHash}#site=${input.siteName}` : undefined }
+      : input;
     const parsed = await this.runDocExtraction(
       'extract-cod-fields',
-      input,
+      siteSalted,
       apiKey,
       ctx,
       promptInstructions,

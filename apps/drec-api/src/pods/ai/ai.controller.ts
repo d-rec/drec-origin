@@ -118,6 +118,15 @@ class ExtractCodFieldsDto {
   @IsString()
   @MaxLength(64)
   contentHash?: string;
+
+  /** Site name to filter on inside multi-site certificates (e.g. a
+   *  Provisional Acceptance Certificate listing 15 mini-grids). When
+   *  set, the extractor picks the row whose facility name matches
+   *  this string and ignores other rows / totals. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(256)
+  siteName?: string;
 }
 
 class ExtractSf02FieldsDto {
@@ -310,7 +319,7 @@ export class AiController {
   ): Promise<ExtractCodFieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractCodFields(
-      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
+      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash, siteName: dto.siteName },
       apiKey,
       { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
     );
