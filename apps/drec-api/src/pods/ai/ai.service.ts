@@ -107,6 +107,7 @@ export interface ExtractSf02FieldsInput {
 
 export interface ExtractSf02FieldsResult {
   facilityName?: ExtractedField<string>;
+  facilityAddress?: ExtractedField<string>;
   acCapacityKw?: ExtractedField<number>;
   commissioningDate?: ExtractedField<string>;
   deviceTypeCode?: ExtractedField<string>;
@@ -329,9 +330,9 @@ export class AiService {
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
-    'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
-    'extract-sf02c-fields': 5,      // bumped 2026-05-26 — projectAddress (site address, distinct from owner HQ)
-    'extract-cod-fields': 8,        // bumped 2026-05-26 — facilityName rejects owner+capacity mash-ups and adds proper-noun examples
+    'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
+    'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
+    'extract-cod-fields': 14,       // bumped 2026-05-26 — 5 pages × 1024px
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
@@ -1566,13 +1567,14 @@ export class AiService {
       ``,
       `Extract:`,
       `  - facilityName: site/plant name`,
+      `  - facilityAddress: physical street address of the SITE itself (where the panels are installed) — NOT the owner's HQ. Usually labelled "Facility address", "Site address", "Installation address", or "Project location". Single line. Return null if the form only shows the owner's HQ address.`,
       `  - acCapacityKw: nameplate AC capacity in kW`,
       `  - commissioningDate: ISO-8601 YYYY-MM-DD`,
       `  - deviceTypeCode: I-REC fuel/technology code as written (e.g. "TC100", "Solar PV")`,
       `  - ownerLegalName: facility owner / participant legal name`,
-      `  - ownerAddress: address (single line)`,
+      `  - ownerAddress: owner's mailing / HQ address (single line). Distinct from facilityAddress when the company HQ is in a different city than the site.`,
       `  - ownerCountry: country name OR ISO-2 code`,
-      `  - ownerStateProvince: the state / province / region the address is in. Vietnamese "Tỉnh" (e.g. "Ninh Thuận"), Nigerian State, Kenyan County, etc. Return just the place name, no "Province" / "Tỉnh" / "State" / "County" suffix. Null if not present.`,
+      `  - ownerStateProvince: the state / province / region the SITE sits in (matches facilityAddress, not ownerAddress). Vietnamese "Tỉnh" (e.g. "Ninh Thuận"), Nigerian State, Kenyan County, etc. Return just the place name, no "Province" / "Tỉnh" / "State" / "County" suffix. Null if not present.`,
       `  - latitude: decimal degrees (positive N, negative S)`,
       `  - longitude: decimal degrees (positive E, negative W)`,
       `  - inverterCount: number of inverters`,
@@ -1585,6 +1587,7 @@ export class AiService {
       `Strict JSON only:`,
       `{`,
       `  "facilityName": {"value": <string|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "facilityAddress": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "acCapacityKw": {"value": <number|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "commissioningDate": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "deviceTypeCode": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
@@ -1609,6 +1612,7 @@ export class AiService {
     );
     return {
       facilityName: this.siteNameField(parsed.facilityName),
+      facilityAddress: this.strField(parsed.facilityAddress),
       acCapacityKw: this.numField(parsed.acCapacityKw),
       commissioningDate: this.strField(parsed.commissioningDate),
       deviceTypeCode: this.strField(parsed.deviceTypeCode),

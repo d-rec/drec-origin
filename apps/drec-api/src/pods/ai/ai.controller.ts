@@ -78,7 +78,7 @@ class ExtractMeterIdsDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images?: SldImageDto[];
@@ -105,7 +105,7 @@ class ExtractCodFieldsDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images?: SldImageDto[];
@@ -141,7 +141,7 @@ class ExtractSf02FieldsDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images?: SldImageDto[];
@@ -168,7 +168,7 @@ class ExtractSf02cFieldsDto {
 
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images?: SldImageDto[];
@@ -193,7 +193,7 @@ class ClassifySourceAccessModeDto {
   // PDF-to-PNG and screenshot-paste paths.
   @IsArray()
   @ArrayMinSize(1)
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images: SldImageDto[];
@@ -222,7 +222,7 @@ class ExtractSldFieldsDto {
   // ~7 MB per encoded image — Anthropic's per-image limit is 5 MB.
   @IsArray()
   @ArrayMinSize(1)
-  @ArrayMaxSize(4)
+  @ArrayMaxSize(8)
   @ValidateNested({ each: true })
   @Type(() => SldImageDto)
   images: SldImageDto[];
