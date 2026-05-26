@@ -330,7 +330,7 @@ export class AiService {
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
     'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
-    'extract-cod-fields': 7,        // bumped 2026-05-22 — stronger kWp/DC rule with PV Capacity example
+    'extract-cod-fields': 8,        // bumped 2026-05-26 — facilityName rejects owner+capacity mash-ups and adds proper-noun examples
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
@@ -1486,7 +1486,7 @@ export class AiService {
       ``,
       `Extract these fields. Use null where unknown.`,
       `  - commissioningDate: ISO-8601 (YYYY-MM-DD)`,
-      `  - facilityName: site / plant name as written`,
+      `  - facilityName: the PROPER NOUN identifying this specific physical site / plant. Usually a place name, a project codename, or a customer/site label — short (1-4 tokens) and distinctive. Do NOT include capacity, units (kW/kWp/MWp/MW/kVA), the owner's company name, or generic words ("System", "Solar Plant", "Project", "Installation", "Hệ Thống"). If the doc only shows generic headers + company branding with no site-specific name, return null with low confidence — the registrant will fill it manually. Examples: "Bhadhaura", "Atsawa", "Hamara Grid Site 12". Counter-examples to REJECT: "Stride Solar 300 kWp", "ACME PV 1.2 MW", "Solar Project", "System".`,
       `  - acCapacityKw: AC capacity in kW (kVA → kW, MW → kW; **but never** kWp/Wp/MWp — see the ABSOLUTE RULE above)`,
       `  - ownerName: facility owner organization`,
       `  - utilityOrIssuer: who issued / signed the COD letter`,
@@ -1746,9 +1746,19 @@ export class AiService {
 
   /** True when the extracted "site name" is just a string of generic
    *  nouns ("System", "Hệ thống điện", "Solar project") — i.e. Haiku
-   *  grabbed a document header instead of a real proper-noun site name. */
+   *  grabbed a document header instead of a real proper-noun site name.
+   *  Also catches the "owner-name + capacity" mash-up Haiku sometimes
+   *  emits when no clear facility-name token exists ("Stride Solar 300
+   *  kWp", "ACME PV 1.2 MW"). */
   private isGenericSiteName(value: string): boolean {
     if (!value) return true;
+    // Reject anything that embeds a power unit — kW / kWp / kVA / MW /
+    // MWp / Wp. A real site name is a proper noun, not a brand + spec
+    // mash-up. Run this BEFORE the diacritic strip so the regex hits
+    // 'kWp' (case-insensitive, with optional 'p' and adjacent number).
+    if (/\b\d+(?:[.,]\d+)?\s*(?:k|m|g)?w(?:p|h|h\/?yr)?\b/i.test(value)) {
+      return true;
+    }
     const normalized = value
       .toLowerCase()
       .normalize('NFD')
@@ -2025,3 +2035,4 @@ export class AiService {
     return n;
   }
 }
+

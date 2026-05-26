@@ -1932,12 +1932,16 @@ export class DeviceService {
     // (issuer_certificate_id IS NOT NULL). Stale Requested-only rows from
     // a removed reservation should not pin a device forever.
     if (checkDeviceUnreserve.groupId != null) {
-      const mintedRows = await this.checkDeviceLogCertificateRepository.count({
-        where: {
-          externalId: checkDeviceUnreserve.externalId,
-          issuer_certificate_id: Not(IsNull()),
-        },
-      });
+      // issuer_certificate_id is a DB column but isn't declared on the
+      // entity, so the where-typed find() can't reference it. Drop to
+      // a query builder.
+      const mintedRows = await this.checkDeviceLogCertificateRepository
+        .createQueryBuilder('cl')
+        .where('cl."externalId" = :ext', {
+          ext: checkDeviceUnreserve.externalId,
+        })
+        .andWhere('cl.issuer_certificate_id IS NOT NULL')
+        .getCount();
 
       if (mintedRows > 0) {
         const prettySerial = (checkDeviceUnreserve.serialNumber ?? '').replace(
