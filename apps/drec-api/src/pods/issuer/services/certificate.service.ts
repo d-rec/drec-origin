@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import {
   IGetAllCertificatesOptions,
@@ -57,6 +57,30 @@ export class CertificateService {
     toTime: Date,
     certificateTransactionUID: string,
   ): IIssueCommandParams<ICertificateMetadata> {
+    // Guard against the 2026-05-17 incident: 4 certs were minted for PO 69115
+    // with fromTime ~5 months before reservation start. Reject any mint where
+    // fromTime precedes the reservation window or the window is inverted, so
+    // garbage timestamps surface as an error here instead of on chain.
+    const reservationStart = group.reservationStartDate
+      ? new Date(group.reservationStartDate)
+      : null;
+    if (reservationStart && fromTime.getTime() < reservationStart.getTime()) {
+      const msg =
+        `Refusing to issue certificate for group ${group.id} (${group.name}): ` +
+        `fromTime ${fromTime.toISOString()} is before reservationStartDate ${reservationStart.toISOString()}. ` +
+        `certificateTransactionUID=${certificateTransactionUID}`;
+      this.logger.error(msg);
+      throw new BadRequestException(msg);
+    }
+    if (toTime.getTime() <= fromTime.getTime()) {
+      const msg =
+        `Refusing to issue certificate for group ${group.id} (${group.name}): ` +
+        `toTime ${toTime.toISOString()} is not after fromTime ${fromTime.toISOString()}. ` +
+        `certificateTransactionUID=${certificateTransactionUID}`;
+      this.logger.error(msg);
+      throw new BadRequestException(msg);
+    }
+
     const address = group.buyerAddress || process.env.DREC_BLOCKCHAIN_ADDRESS;
     return {
       deviceId: group.id?.toString(),
