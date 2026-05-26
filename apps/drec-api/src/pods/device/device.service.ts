@@ -1927,18 +1927,30 @@ export class DeviceService {
         message,
       };
     }
-    const certifiedAmountOfRead =
-      await this.checkDeviceLogCertificateRepository.findOne({
-        where: { externalId: checkDeviceUnreserve.externalId },
+    // Only block deletion if the device is in an active reservation AND
+    // has at least one cert-log row that reached an on-chain mint
+    // (issuer_certificate_id IS NOT NULL). Stale Requested-only rows from
+    // a removed reservation should not pin a device forever.
+    if (checkDeviceUnreserve.groupId != null) {
+      const mintedRows = await this.checkDeviceLogCertificateRepository.count({
+        where: {
+          externalId: checkDeviceUnreserve.externalId,
+          issuer_certificate_id: Not(IsNull()),
+        },
       });
 
-    if (certifiedAmountOfRead) {
-      const message = `Device id: ${checkDeviceUnreserve.serialNumber} already certified in reservation , you cannot delete it`;
-      this.logger.error(message);
-      return {
-        success: false,
-        message,
-      };
+      if (mintedRows > 0) {
+        const prettySerial = (checkDeviceUnreserve.serialNumber ?? '').replace(
+          /;/g,
+          ' ; ',
+        );
+        const message = `Device "${prettySerial}" has ${mintedRows} on-chain certificate ${mintedRows === 1 ? 'entry' : 'entries'} and is part of an active reservation (group ${checkDeviceUnreserve.groupId}). Remove it from the reservation first, or ask an admin to purge the cert history.`;
+        this.logger.error(message);
+        return {
+          success: false,
+          message,
+        };
+      }
     }
     await this.repository.delete(id);
     this.logger.log(`device deleted Successfully`);
