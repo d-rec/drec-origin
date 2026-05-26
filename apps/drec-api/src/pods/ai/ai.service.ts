@@ -134,6 +134,7 @@ export interface ExtractSf02cFieldsInput {
 
 export interface ExtractSf02cFieldsResult {
   projectName?: ExtractedField<string>;
+  projectAddress?: ExtractedField<string>;
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;
@@ -329,7 +330,7 @@ export class AiService {
     'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 5,       // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
-    'extract-sf02c-fields': 4,      // bumped 2026-05-21 — per-field region + reasoning (Phase 2)
+    'extract-sf02c-fields': 5,      // bumped 2026-05-26 — projectAddress (site address, distinct from owner HQ)
     'extract-cod-fields': 8,        // bumped 2026-05-26 — facilityName rejects owner+capacity mash-ups and adds proper-noun examples
     'extract-meter-ids-fields': 1,
     'classify-source-access-mode': 1,
@@ -1132,10 +1133,11 @@ export class AiService {
       `Extract these fields. Use null for any field you cannot read with reasonable certainty. Each field has its own 0..1 confidence.`,
       ``,
       `  - projectName: site / project / facility name as written (e.g. "Adupi-Emiriko", "Atsawa Solar Project")`,
+      `  - projectAddress: physical street address of the SITE itself (where the panels are installed) — NOT the owner's HQ. Single line. Usually labelled "Site address", "Project location", "Facility address", or appears in the same block as the project's country/state. If the letter only shows the owner's HQ address with no separate site location, return null. Country/state extracted below come from THIS address (the site location), so they should be consistent.`,
       `  - ownerLegalName: full legal name of the organization that owns the facility (typically the entity signing the letter)`,
-      `  - ownerAddress: owner's mailing address (single line)`,
+      `  - ownerAddress: owner's mailing / HQ address (single line). Often distinct from projectAddress when the company is headquartered in a different city/country than the site.`,
       `  - ownerCountry: country name OR ISO-2 code (e.g. "Nigeria" or "NG"). Pick whichever you can read most clearly.`,
-      `  - ownerStateProvince: the state / province / region that the address sits in. For Vietnamese addresses this is the "Tỉnh" (e.g. "Ninh Thuận", "Tây Ninh", "Bình Định"); for Nigerian, the State (e.g. "Lagos"); for Kenyan, the County (e.g. "Nakuru"). Return just the place name without the "Province"/"Tỉnh"/"State"/"County" suffix. Null if the address only has a city or you can't read a province.`,
+      `  - ownerStateProvince: the state / province / region that the SITE sits in (matches projectAddress, not ownerAddress). For Vietnamese addresses this is the "Tỉnh" (e.g. "Ninh Thuận", "Tây Ninh", "Bình Định"); for Nigerian, the State (e.g. "Lagos"); for Kenyan, the County (e.g. "Nakuru"). Return just the place name without the "Province"/"Tỉnh"/"State"/"County" suffix. Null if the address only has a city or you can't read a province.`,
       `  - signingDate: ISO-8601 date (YYYY-MM-DD). Convert from any format on the letter.`,
       `  - signatoryName: name of the person who signed`,
       `  - signatoryEmail: email of the signatory if present`,
@@ -1147,6 +1149,7 @@ export class AiService {
       `Respond with strict JSON only, no prose, no markdown fences. Use null for unknown values:`,
       `{`,
       `  "projectName": {"value": <string|null>, "confidence": <0..1>, "region": {"page": 1, "x": 0..1, "y": 0..1, "w": 0..1, "h": 0..1}, "reasoning": "<one-line>"},`,
+      `  "projectAddress": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "ownerLegalName": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "ownerAddress": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
       `  "ownerCountry": {"value": <string|null>, "confidence": <0..1>, "region": <as above>, "reasoning": <as above>},`,
@@ -1792,6 +1795,7 @@ export class AiService {
     const strField = (raw: any) => this.strField(raw);
     return {
       projectName: this.siteNameField(parsed.projectName),
+      projectAddress: strField(parsed.projectAddress),
       ownerLegalName: strField(parsed.ownerLegalName),
       ownerAddress: strField(parsed.ownerAddress),
       ownerCountry: strField(parsed.ownerCountry),
