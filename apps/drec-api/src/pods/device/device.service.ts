@@ -1165,12 +1165,20 @@ export class DeviceService {
         statusCode: 409,
       });
     }
+    this.logger.verbose(
+      `[update-debug] dto.address=${JSON.stringify((updateDeviceDTO as any).address)} ` +
+      `addressKeyPresent=${'address' in (updateDeviceDTO as any)} ` +
+      `keys=${Object.keys(updateDeviceDTO as any).join(',')}`,
+    );
     // Only overwrite fields that were actually sent (not undefined)
     for (const [key, value] of Object.entries(updateDeviceDTO)) {
       if (value !== undefined) {
         (currentDevice as any)[key] = value;
       }
     }
+    this.logger.verbose(
+      `[update-debug] post-loop currentDevice.address=${JSON.stringify((currentDevice as any).address)}`,
+    );
     currentDevice.fingerprint = fingerprint;
     currentDevice.updatedAt = new Date();
     return await this.repository.save(currentDevice);
