@@ -1010,11 +1010,15 @@ export class DeviceController {
                   metadata: { documentType: field },
                 });
               } catch (error) {
+                const msg =
+                  error?.message ??
+                  (typeof error === 'string' ? error : String(error));
                 this.logger.error(
-                  `Failed to upload ${field}: ${error.message}`,
+                  `Failed to upload ${field}: ${msg}`,
+                  error?.stack,
                 );
                 throw new BadRequestException(
-                  `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+                  `Failed to upload ${field}: ${msg || 'Invalid file format or size'}`,
                 );
               }
             }
@@ -1263,11 +1267,15 @@ export class DeviceController {
                   metadata: { documentType: field },
                 });
               } catch (error) {
+                const msg =
+                  error?.message ??
+                  (typeof error === 'string' ? error : String(error));
                 this.logger.error(
-                  `Failed to upload ${field}: ${error.message}`,
+                  `Failed to upload ${field}: ${msg}`,
+                  error?.stack,
                 );
                 throw new BadRequestException(
-                  `Failed to upload ${field}: ${error.message || 'Invalid file format or size'}`,
+                  `Failed to upload ${field}: ${msg || 'Invalid file format or size'}`,
                 );
               }
             }

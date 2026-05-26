@@ -270,7 +270,13 @@ export class FileService {
       s3.upload(params, (err, data) => {
         if (err) {
           this.logger.error(err);
-          reject(err.message);
+          // Reject with the Error object (not its .message string) so
+          // upstream `error.message` and `error.stack` keep working.
+          // Without the `return`, resolve(data) below also fired and
+          // upstream callers got `data=undefined` masquerading as a
+          // successful upload before the rejection landed.
+          reject(err);
+          return;
         }
         resolve(data);
       });
@@ -306,7 +312,8 @@ export class FileService {
           (err, data) => {
             if (err) {
               this.logger.error(err);
-              reject(err.message);
+              reject(err);
+              return;
             }
             resolve({
               data,
