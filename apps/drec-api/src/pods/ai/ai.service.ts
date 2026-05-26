@@ -1049,11 +1049,11 @@ export class AiService {
         : '';
       const res = await client.messages.create({
         model: HAIKU_MODEL,
-        // Bumped 2026-05-21: 1024 was tight when each ExtractedField
-        // gained a region: {page, x, y, w, h} — 17 fields × ~20 tokens
-        // for the region object adds ~340 tokens just for bbox JSON,
-        // and 1024 truncated the response mid-array → parse fail → 500.
-        max_tokens: 2048,
+        // 2048 truncated on busy diagrams where the model produced long
+        // reasoning strings per field (seen 2026-05-26 — Atsawa SLD hit
+        // out=2048 mid-string in hasAuxiliaryEnergySources.reasoning).
+        // 4096 leaves headroom for ~17 fields with verbose reasoning.
+        max_tokens: 4096,
         temperature: 0,
         messages: [
           {
@@ -1067,6 +1067,11 @@ export class AiService {
       });
       inputTokens = res.usage?.input_tokens ?? 0;
       outputTokens = res.usage?.output_tokens ?? 0;
+      if (res.stop_reason === 'max_tokens') {
+        throw new Error(
+          `SLD extraction response truncated at max_tokens=${4096}. The diagram is unusually complex; consider bumping max_tokens or trimming the prompt.`,
+        );
+      }
       const block = res.content.find((c) => c.type === 'text') as
         | { type: 'text'; text: string }
         | undefined;
@@ -1990,11 +1995,17 @@ export class AiService {
   }
 
   private parseJson(raw: string): any {
+    // Strip ```json / ``` fences first — Haiku sometimes wraps even when
+    // told not to. The greedy {…} fallback below would mis-balance on a
+    // fence-wrapped truncated response.
+    const cleaned = raw
+      .replace(/^\s*```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/i, '')
+      .trim();
     try {
-      return JSON.parse(raw);
+      return JSON.parse(cleaned);
     } catch {
-      // Models occasionally wrap JSON in ```json fences despite instructions.
-      const m = raw.match(/\{[\s\S]*\}/);
+      const m = cleaned.match(/\{[\s\S]*\}/);
       if (m) {
         try {
           return JSON.parse(m[0]);
