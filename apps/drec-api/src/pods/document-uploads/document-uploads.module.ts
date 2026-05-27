@@ -4,11 +4,12 @@ import { DocumentUploadsController } from './document-uploads.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileModule } from '../file/file.module';
 import { DocumentEntity } from './entities/documents.entity';
+import { DocumentExtractionEntity } from './entities/document-extraction.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DocumentEntity]),
+    TypeOrmModule.forFeature([DocumentEntity, DocumentExtractionEntity]),
     FileModule,
     forwardRef(() => UserModule),
   ],

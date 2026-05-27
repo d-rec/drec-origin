@@ -6,6 +6,7 @@ import {
   DocumentType,
   DocumentTargetType,
 } from './entities/documents.entity';
+import { DocumentExtractionEntity } from './entities/document-extraction.entity';
 import { FileService } from '../file/file.service';
 
 @Injectable()
@@ -15,9 +16,54 @@ export class DocumentUploadsService {
   constructor(
     @InjectRepository(DocumentEntity)
     private readonly documentUploadsRepository: Repository<DocumentEntity>,
+    @InjectRepository(DocumentExtractionEntity)
+    private readonly extractionsRepository: Repository<DocumentExtractionEntity>,
     private readonly fileService: FileService,
     private readonly connection: DataSource,
   ) {}
+
+  async saveExtraction(
+    documentId: number,
+    endpoint: string,
+    response: Record<string, any>,
+  ): Promise<void> {
+    const doc = await this.documentUploadsRepository.findOne({
+      where: { id: documentId },
+    });
+    if (!doc) {
+      throw new NotFoundException(`Document ${documentId} not found`);
+    }
+    await this.extractionsRepository.query(
+      `INSERT INTO "document_extractions" ("document_id", "endpoint", "response", "created_at", "updated_at")
+       VALUES ($1, $2, $3::jsonb, now(), now())
+       ON CONFLICT ("document_id", "endpoint")
+       DO UPDATE SET "response" = EXCLUDED."response", "updated_at" = now()`,
+      [documentId, endpoint, JSON.stringify(response)],
+    );
+  }
+
+  private async findExtractionsByDocIds(
+    docIds: number[],
+  ): Promise<Map<number, Record<string, any>>> {
+    const out = new Map<number, Record<string, any>>();
+    if (!docIds.length) return out;
+    const rows: Array<{
+      document_id: number;
+      endpoint: string;
+      response: Record<string, any>;
+    }> = await this.extractionsRepository.query(
+      `SELECT "document_id", "endpoint", "response"
+       FROM "document_extractions"
+       WHERE "document_id" = ANY($1::int[])`,
+      [docIds],
+    );
+    for (const r of rows) {
+      const bucket = out.get(r.document_id) ?? {};
+      bucket[r.endpoint] = r.response;
+      out.set(r.document_id, bucket);
+    }
+    return out;
+  }
 
   async getSignedUrl(id: number): Promise<string> {
     const doc = await this.documentUploadsRepository.findOne({ where: { id } });
@@ -51,11 +97,15 @@ export class DocumentUploadsService {
       label: string | null;
       originalFilename: string | null;
       createdAt: Date;
+      extractions: Record<string, any>;
     }[]
   > {
     const docs = await this.documentUploadsRepository.find({
       where: { targetId, targetType },
     });
+    const extractionsByDocId = await this.findExtractionsByDocIds(
+      docs.map((d) => d.id),
+    );
     const results: {
       type: string;
       url: string;
@@ -63,6 +113,7 @@ export class DocumentUploadsService {
       label: string | null;
       originalFilename: string | null;
       createdAt: Date;
+      extractions: Record<string, any>;
     }[] = [];
     for (const doc of docs) {
       let signedUrl = '';
@@ -78,6 +129,7 @@ export class DocumentUploadsService {
         label: doc.label,
         originalFilename: doc.originalFilename,
         createdAt: doc.createdAt,
+        extractions: extractionsByDocId.get(doc.id) ?? {},
       });
     }
     return results;

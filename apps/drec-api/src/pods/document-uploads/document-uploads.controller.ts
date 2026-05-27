@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
   Patch,
+  Put,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -78,6 +80,30 @@ export class DocumentUploadsController {
       }
     });
     stream.pipe(res);
+  }
+
+  @Put(':id/extractions/:endpoint')
+  @UseGuards(AuthVerifiedGuard('jwt'), PermissionGuard)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary:
+      'Persist an AI extraction result against a document so the next ' +
+      'session can rehydrate without re-running OCR / Haiku.',
+  })
+  async saveExtraction(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('endpoint') endpoint: string,
+    @Body() body: Record<string, any>,
+  ): Promise<{ ok: true }> {
+    if (!endpoint || !/^[a-z0-9-]+$/i.test(endpoint)) {
+      throw new BadRequestException('Invalid endpoint');
+    }
+    if (!body || typeof body !== 'object') {
+      throw new BadRequestException('Body must be a JSON object');
+    }
+    await this.documentUploadsService.saveExtraction(id, endpoint, body);
+    return { ok: true };
   }
 
   @Patch(':id')

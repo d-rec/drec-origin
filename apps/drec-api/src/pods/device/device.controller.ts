@@ -580,7 +580,17 @@ export class DeviceController {
   @ApiOperation({ summary: 'Get documents for a device' })
   public async getDocuments(
     @Param('id') id: string,
-  ): Promise<{ type: string; url: string; id: number }[]> {
+  ): Promise<
+    {
+      type: string;
+      url: string;
+      id: number;
+      label: string | null;
+      originalFilename: string | null;
+      createdAt: Date;
+      extractions: Record<string, any>;
+    }[]
+  > {
     return this.documentUploadsService.findByTarget(
       parseInt(id, 10),
       DocumentTargetType.DEVICE,
