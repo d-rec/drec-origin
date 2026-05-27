@@ -7,6 +7,7 @@ import { AiResponseCache } from './ai-response-cache.entity';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const SONNET_MODEL = 'claude-sonnet-4-6';
+const OPUS_MODEL = 'claude-opus-4-7';
 const MAX_INPUT_CHARS = 8000;
 
 /**
@@ -333,7 +334,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 4,        // bumped 2026-05-27 — front-load portal-screenshot rule so SemsPortal isn't drowned by SF_02C disambiguation
+    'classify-document': 5,        // bumped 2026-05-27 — escalated vision branch from Sonnet to Opus 4.7 for higher-accuracy portal recognition
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
