@@ -334,7 +334,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 5,        // bumped 2026-05-27 — escalated vision branch from Sonnet to Opus 4.7 for higher-accuracy portal recognition
+    'classify-document': 6,        // bumped 2026-05-27 — vision now always fires when images supplied (was gated on text<200 chars, leaking screenshots into Haiku-text-only)
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
@@ -703,10 +703,14 @@ export class AiService {
     const typeLines = input.validTypes
       .map((t) => `  - ${t}: ${TYPE_DESCRIPTIONS[t] ?? '(no description)'}`)
       .join('\n');
+    // If the caller supplied images, always use vision — gating on
+    // text length meant a screenshot whose Tesseract pre-pass leaked
+    // 200+ chars of garbled portal UI text fell back to Haiku-text-
+    // only, ignoring the image entirely and returning whatever Haiku
+    // could guess from the garbage (usually OTHER_DOCUMENTS). Text,
+    // when present, is added to the vision prompt as an extra hint.
     const useVision =
-      Array.isArray(input.images) &&
-      input.images.length > 0 &&
-      text.trim().length < 200;
+      Array.isArray(input.images) && input.images.length > 0;
     const visionCues = [
       `STRONGEST VISUAL CUES (apply these BEFORE anything else):`,
       `  • Browser screenshot of a solar monitoring portal — Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar, PowerTrust, etc. Tell-tale signs: the portal logo / product name in the header, navigation tabs like "Plants / Devices / Reports / Management", a tabular device list with columns like "SN", "Model", "Capacity", "Data Logger", or a chart of generation over time. ALWAYS classify as METERING_EVIDENCE, no matter what else is on screen.`,
