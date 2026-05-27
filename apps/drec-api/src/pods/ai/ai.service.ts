@@ -44,6 +44,10 @@ export interface ClassifyDocumentInput {
   text: string;
   validTypes: string[];
   contentHash?: string;
+  images?: Array<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  }>;
 }
 
 export interface ClassifyDocumentResult {
@@ -329,7 +333,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 2,        // bumped 2026-05-14 — METERING_EVIDENCE / PROJECT_PHOTOS descriptions tightened on Excel reports
+    'classify-document': 3,        // bumped 2026-05-27 — Sonnet-vision fallback for thin-OCR images so portal screenshots stop landing in PROJECT_PHOTOS
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
@@ -698,6 +702,10 @@ export class AiService {
     const typeLines = input.validTypes
       .map((t) => `  - ${t}: ${TYPE_DESCRIPTIONS[t] ?? '(no description)'}`)
       .join('\n');
+    const useVision =
+      Array.isArray(input.images) &&
+      input.images.length > 0 &&
+      text.trim().length < 200;
     const prompt = [
       `You are classifying a document for the D-REC platform (renewable-energy certificate registration).`,
       ``,
@@ -706,30 +714,63 @@ export class AiService {
       `  • PROOF_OF_OWNERSHIP is evidence of ownership of the PHYSICAL ASSET (the site / land / panels / equipment): a title deed, land lease, rooftop lease, PPA, purchase contract, bill of sale.`,
       `Rule of thumb: "owns the attributes / I-REC / declaration" → SF_02C. "owns the land / equipment / physical site" → PROOF_OF_OWNERSHIP.`,
       ``,
+      useVision
+        ? `KEY VISUAL CUES for images:`
+        : '',
+      useVision
+        ? `  • A monitoring portal screenshot (Goodwe SemsPortal, SolarEdge, Huawei FusionSolar) with a header logo + device/inverter table, or a spreadsheet with kWh/PV/Sell/Buy columns → METERING_EVIDENCE.`
+        : '',
+      useVision
+        ? `  • An on-site photo of panels on a roof / ground array / installation crew / nameplate sticker → PROJECT_PHOTOS.`
+        : '',
+      useVision
+        ? `  • A schematic/diagram with grid symbols, inverter blocks, AC/DC lines → SINGLE_LINE_DIAGRAM.`
+        : '',
+      useVision
+        ? `  • A scanned/photographed letter or certificate with a signature/seal → SF_02C, PROOF_OF_OWNERSHIP, or COD_PROOF depending on subject matter.`
+        : '',
+      useVision ? `` : '',
       `Pick exactly one of:`,
       typeLines,
       ``,
       `Filename: ${input.filename}`,
-      `First-page text:`,
-      `"""`,
-      text,
-      `"""`,
+      text.trim().length ? `First-page text:` : '',
+      text.trim().length ? `"""` : '',
+      text.trim().length ? text : '',
+      text.trim().length ? `"""` : '',
       ``,
       `Respond with strict JSON, no prose, no markdown fences:`,
       `{"suggestedType": "<one of the listed types>", "confidence": <0..1>, "reasoning": "<one short sentence>"}`,
-    ].join('\n');
+    ]
+      .filter((l) => l !== '')
+      .join('\n');
 
     const startedAt = Date.now();
     let inputTokens = 0;
     let outputTokens = 0;
     let success = false;
     let errorMessage: string | null = null;
+    const modelToUse = useVision ? SONNET_MODEL : HAIKU_MODEL;
     try {
+      const content: any[] = [];
+      if (useVision) {
+        for (const img of input.images!) {
+          content.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: img.mimeType,
+              data: img.base64,
+            },
+          });
+        }
+      }
+      content.push({ type: 'text', text: prompt });
       const res = await client.messages.create({
-        model: HAIKU_MODEL,
+        model: modelToUse,
         max_tokens: 256,
         temperature: 0,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [{ role: 'user', content }],
       });
       inputTokens = res.usage?.input_tokens ?? 0;
       outputTokens = res.usage?.output_tokens ?? 0;
@@ -760,7 +801,7 @@ export class AiService {
       void this.audit
         .insert({
           endpoint: 'classify-document',
-          model: HAIKU_MODEL,
+          model: modelToUse,
           inputTokens,
           outputTokens,
           userId: ctx.userId ?? null,

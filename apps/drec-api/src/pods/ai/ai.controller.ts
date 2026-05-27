@@ -48,6 +48,13 @@ class ClassifyDocumentDto {
   validTypes: string[];
 
   @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @ValidateNested({ each: true })
+  @Type(() => SldImageDto)
+  images?: SldImageDto[];
+
+  @IsOptional()
   @IsInt()
   deviceId?: number;
 
@@ -263,7 +270,13 @@ export class AiController {
   ): Promise<ClassifyDocumentResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.classifyDocument(
-      { filename: dto.filename, text: dto.text, validTypes: dto.validTypes, contentHash: dto.contentHash },
+      {
+        filename: dto.filename,
+        text: dto.text,
+        validTypes: dto.validTypes,
+        contentHash: dto.contentHash,
+        images: dto.images,
+      },
       apiKey,
       {
         userId: user.id,
