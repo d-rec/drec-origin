@@ -333,7 +333,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 3,        // bumped 2026-05-27 — Sonnet-vision fallback for thin-OCR images so portal screenshots stop landing in PROJECT_PHOTOS
+    'classify-document': 4,        // bumped 2026-05-27 — front-load portal-screenshot rule so SemsPortal isn't drowned by SF_02C disambiguation
     'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
@@ -706,30 +706,26 @@ export class AiService {
       Array.isArray(input.images) &&
       input.images.length > 0 &&
       text.trim().length < 200;
+    const visionCues = [
+      `STRONGEST VISUAL CUES (apply these BEFORE anything else):`,
+      `  • Browser screenshot of a solar monitoring portal — Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar, PowerTrust, etc. Tell-tale signs: the portal logo / product name in the header, navigation tabs like "Plants / Devices / Reports / Management", a tabular device list with columns like "SN", "Model", "Capacity", "Data Logger", or a chart of generation over time. ALWAYS classify as METERING_EVIDENCE, no matter what else is on screen.`,
+      `  • Spreadsheet / Excel / CSV screenshot or render with columns like PV(kWh), Sell(kWh), Buy(kWh), Meter Reading, Date, Plant name → METERING_EVIDENCE.`,
+      `  • On-site PHOTOGRAPH (not a screenshot) showing physical panels on a roof / ground-mount array / inverter cabinet / installation crew / nameplate sticker → PROJECT_PHOTOS.`,
+      `  • Schematic / line diagram with electrical symbols (inverter blocks, AC/DC lines, grid tie-in, metering points) → SINGLE_LINE_DIAGRAM.`,
+      `  • Scanned or photographed signed letter / certificate / declaration / signed PDF → fall through to the SF_02C vs PROOF_OF_OWNERSHIP vs COD_PROOF disambiguation below.`,
+      ``,
+      `If the image is clearly a portal screenshot, you may stop here and answer METERING_EVIDENCE with high confidence — the remaining disambiguation rules only apply to letter/certificate documents.`,
+    ].join('\n');
     const prompt = [
       `You are classifying a document for the D-REC platform (renewable-energy certificate registration).`,
       ``,
-      `CRITICAL DISAMBIGUATION between two slots that BOTH mention ownership:`,
+      useVision ? visionCues : '',
+      useVision ? `` : '',
+      `For LETTER / CERTIFICATE / DECLARATION documents only — disambiguation between two slots that BOTH mention ownership:`,
       `  • SF_02C is the I-REC "Owner's Declaration" letter — a declaration of ATTRIBUTE rights (renewable / environmental / carbon ATTRIBUTES). It is signed by the owner and references I-REC. If the document declares rights over RENEWABLE/ENVIRONMENTAL/CARBON ATTRIBUTES or generation, it is SF_02C — even though the word "ownership" appears.`,
       `  • PROOF_OF_OWNERSHIP is evidence of ownership of the PHYSICAL ASSET (the site / land / panels / equipment): a title deed, land lease, rooftop lease, PPA, purchase contract, bill of sale.`,
       `Rule of thumb: "owns the attributes / I-REC / declaration" → SF_02C. "owns the land / equipment / physical site" → PROOF_OF_OWNERSHIP.`,
       ``,
-      useVision
-        ? `KEY VISUAL CUES for images:`
-        : '',
-      useVision
-        ? `  • A monitoring portal screenshot (Goodwe SemsPortal, SolarEdge, Huawei FusionSolar) with a header logo + device/inverter table, or a spreadsheet with kWh/PV/Sell/Buy columns → METERING_EVIDENCE.`
-        : '',
-      useVision
-        ? `  • An on-site photo of panels on a roof / ground array / installation crew / nameplate sticker → PROJECT_PHOTOS.`
-        : '',
-      useVision
-        ? `  • A schematic/diagram with grid symbols, inverter blocks, AC/DC lines → SINGLE_LINE_DIAGRAM.`
-        : '',
-      useVision
-        ? `  • A scanned/photographed letter or certificate with a signature/seal → SF_02C, PROOF_OF_OWNERSHIP, or COD_PROOF depending on subject matter.`
-        : '',
-      useVision ? `` : '',
       `Pick exactly one of:`,
       typeLines,
       ``,
