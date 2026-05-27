@@ -6,6 +6,7 @@ import { AiAuditLog } from './ai-audit-log.entity';
 import { AiResponseCache } from './ai-response-cache.entity';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
+const SONNET_MODEL = 'claude-sonnet-4-6';
 const MAX_INPUT_CHARS = 8000;
 
 /**
@@ -333,7 +334,7 @@ export class AiService {
     'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
     'extract-cod-fields': 14,       // bumped 2026-05-26 — 5 pages × 1024px
-    'extract-meter-ids-fields': 2,        // bumped 2026-05-27 — recognise SemsPortal device-list SN columns; ignore URL params
+    'extract-meter-ids-fields': 3,        // bumped 2026-05-27 — switched to Sonnet 4.6 for stronger vision on portal device tables
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
   };
@@ -1429,6 +1430,7 @@ export class AiService {
       apiKey,
       ctx,
       promptInstructions,
+      SONNET_MODEL,
     );
     const idsRaw = parsed?.measurementIds;
     let idsField: ExtractedField<string[]> | undefined;
@@ -1657,6 +1659,7 @@ export class AiService {
     apiKey: string,
     ctx: { userId?: number; organizationId?: number; deviceId?: number },
     promptInstructions: string,
+    modelOverride?: string,
   ): Promise<any> {
     const cached = await this.cacheLookup(input.contentHash, endpoint);
     if (cached) {
@@ -1693,8 +1696,9 @@ export class AiService {
       } else {
         content.push({ type: 'text', text: promptInstructions });
       }
+      const modelToUse = modelOverride ?? HAIKU_MODEL;
       const res = await client.messages.create({
-        model: HAIKU_MODEL,
+        model: modelToUse,
         // Bumped 2026-05-21 for region + reasoning per field (Phase 2).
         max_tokens: 2048,
         temperature: 0,
@@ -1721,7 +1725,7 @@ export class AiService {
       void this.audit
         .insert({
           endpoint,
-          model: HAIKU_MODEL,
+          model: modelOverride ?? HAIKU_MODEL,
           inputTokens,
           outputTokens,
           userId: ctx.userId ?? null,
