@@ -81,7 +81,11 @@ import {
   DocumentTargetType,
   DocumentType,
 } from '../document-uploads/entities/documents.entity';
-import { generateDeviceFingerprint } from '../../lib/device';
+import {
+  generateDeviceFingerprint,
+  canonicalizeSerialNumber,
+  serialNumberCanonicalSql,
+} from '../../lib/device';
 import { DocumentUploadsService } from '../document-uploads/document-uploads.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
 import {
@@ -176,7 +180,7 @@ export class DeviceService {
         organizationId: number;
         distance_m: number;
       }> = await this.connection.query(
-        `SELECT id, "externalId", "siteName", "serialNumber", "organizationId",
+        `SELECT id, "externalId", "siteName", serial_number AS "serialNumber", "organizationId",
                 (6371000 * acos(
                   cos(radians($1)) * cos(radians(CAST(latitude AS double precision)))
                   * cos(radians(CAST(longitude AS double precision)) - radians($2))
@@ -200,15 +204,25 @@ export class DeviceService {
       );
     }
 
-    // 2. Cross-org serial number match
+    // 2. Cross-org serial number match. Fold the letter O to digit 0 on both
+    // sides so visually-confusable serials (e.g. "ABCO1" vs "ABC01") are
+    // still detected as duplicates.
     if (device.serialNumber) {
-      const serialMatches = await this.repository.find({
-        where: {
-          serialNumber: device.serialNumber,
-          id: Not(device.id),
-        },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
-      });
+      const serialMatches = await this.repository
+        .createQueryBuilder('device')
+        .select([
+          'device.id',
+          'device.externalId',
+          'device.siteName',
+          'device.serialNumber',
+          'device.organizationId',
+        ])
+        .where('device.id != :id', { id: device.id })
+        .andWhere(
+          `${serialNumberCanonicalSql('"device"."serial_number"')} = :canonicalSerial`,
+          { canonicalSerial: canonicalizeSerialNumber(device.serialNumber) },
+        )
+        .getMany();
       serialMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
           duplicates.push({
@@ -745,13 +759,19 @@ export class DeviceService {
     organizationId: number,
   ): Promise<Array<DeviceDTO | null>> {
     this.logger.verbose(`With in findMultipleDevicesBasedExternalId`);
+    if (!meterIdList.length) return [];
+    // Match on the canonical (O→0 folded) serial so confusable serials are
+    // still flagged as already-existing during bulk upload.
+    const canonicalList = meterIdList.map((s) => canonicalizeSerialNumber(s));
     return (
-      (await this.repository.find({
-        where: {
-          serialNumber: In(meterIdList),
-          organizationId: organizationId,
-        },
-      })) ?? null
+      (await this.repository
+        .createQueryBuilder('device')
+        .where('device.organizationId = :organizationId', { organizationId })
+        .andWhere(
+          `${serialNumberCanonicalSql('"device"."serial_number"')} IN (:...canonicalList)`,
+          { canonicalList },
+        )
+        .getMany()) ?? null
     );
   }
 
@@ -893,12 +913,16 @@ export class DeviceService {
     }
 
     if (newDevice.serialNumber) {
-      const checkSerialNumber = await this.repository.findOne({
-        where: {
-          serialNumber: newDevice.serialNumber,
-          organizationId: organizationId,
-        },
-      });
+      // Fold the letter O to digit 0 so a serial that differs from an
+      // existing one only by an O/0 transcription error is still rejected.
+      const checkSerialNumber = await this.repository
+        .createQueryBuilder('device')
+        .where('device.organizationId = :organizationId', { organizationId })
+        .andWhere(
+          `${serialNumberCanonicalSql('"device"."serial_number"')} = :canonicalSerial`,
+          { canonicalSerial: canonicalizeSerialNumber(newDevice.serialNumber) },
+        )
+        .getOne();
 
       if (checkSerialNumber) {
         this.logger.error(

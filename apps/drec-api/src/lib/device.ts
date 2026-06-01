@@ -46,7 +46,9 @@ export function generateDeviceFingerprint(
     normalizedCapacity,
     fuelCode?.trim() || 'ES100',
     deviceTypeCode?.trim() || 'TC110',
-    serialNumber?.trim() || '',
+    // Fold the letter O to digit 0 so an O/0 transcription variant of the
+    // same serial yields the same fingerprint (see canonicalizeSerialNumber).
+    canonicalizeSerialNumber(serialNumber),
   ].join('|');
   return createHash('sha256').update(combinedString).digest('hex');
 }
@@ -55,4 +57,26 @@ export function generateDeviceFingerprint(
 function removeTrailingZeroes(value: number): string {
   if (value == null) return '0';
   return Number.parseFloat(value.toString()).toString();
+}
+
+// SQL fragment matching canonicalizeSerialNumber(), for use in query-time
+// duplicate checks against the device.serial_number column. Keep the two in
+// sync. `col` is the already-quoted column reference (e.g. "device"."serial_number").
+export const serialNumberCanonicalSql = (col: string): string =>
+  `REPLACE(REPLACE(${col}, 'O', '0'), 'o', '0')`;
+
+/**
+ * Canonical form of a serial number for DUPLICATE detection only.
+ *
+ * Folds the letter "O" (both cases) to the digit "0": the two are visually
+ * confusable and registrants routinely transcribe one for the other, so
+ * "ABCO123" and "ABC0123" denote the same physical device and must be caught
+ * as duplicates. Only the O↔0 confusable is folded — overall case is left
+ * untouched so unrelated identifiers aren't collapsed.
+ *
+ * NOT for device lookup/resolution (resolveDeviceKey, update, etc.), which
+ * require an exact identifier — only for the duplicate-screening paths.
+ */
+export function canonicalizeSerialNumber(serialNumber: string): string {
+  return (serialNumber ?? '').trim().replace(/[Oo]/g, '0');
 }

@@ -71,6 +71,7 @@ import { DateTime } from 'luxon';
 import { getCycleEndDate } from '../../lib/helpers/getCycleEndDate';
 import { splitValueIntoIntegerAndDecimal } from '../../lib/helpers/splitValueIntoIntegerAndDecimal';
 import { Profile } from '../../lib/profile';
+import { canonicalizeSerialNumber } from '../../lib/device';
 import { isValidUTCDateFormat } from '../../utils/checkForISOStringFormat';
 import { Queues } from '../../utils/enums/queues.enum';
 import { BulkUploadFailedLogEntity } from '../bulk-upload/bulk-uploads-failed-logs.entity';
@@ -1284,8 +1285,10 @@ export class DeviceGroupService {
       );
 
     if (existingDevices && existingDevices.length > 0) {
+      // Return the canonical (O→0 folded) serials so the caller can match
+      // confusable serials against the uploaded rows.
       existingDevices.forEach((ele) =>
-        existingSerialNumbers.push(ele?.serialNumber),
+        existingSerialNumbers.push(canonicalizeSerialNumber(ele?.serialNumber)),
       );
     }
     return existingSerialNumbers;
@@ -1963,10 +1966,15 @@ export class DeviceGroupService {
         );
 
         if (listOfExistingDevices.length > 0) {
+          // listOfExistingDevices holds canonical (O→0 folded) serials of
+          // devices already in the org; match each uploaded row's serial in
+          // the same canonical form so O/0 transcription variants are caught.
+          const existingCanonicalSerials = new Set(listOfExistingDevices);
           records?.forEach((singleRecord, index) => {
             if (
-              listOfExistingDevices.find(
-                (ele) => ele === singleRecord.externalId,
+              singleRecord.serialNumber &&
+              existingCanonicalSerials.has(
+                canonicalizeSerialNumber(singleRecord.serialNumber),
               )
             ) {
               recordsErrors[index].isError = true;
@@ -2017,8 +2025,12 @@ export class DeviceGroupService {
               recordsCopy[j].serialNumber != null
             ) {
               if (
-                recordsCopy[i].serialNumber.toLowerCase() ===
-                  recordsCopy[j].serialNumber.toLowerCase() &&
+                canonicalizeSerialNumber(
+                  recordsCopy[i].serialNumber,
+                ).toLowerCase() ===
+                  canonicalizeSerialNumber(
+                    recordsCopy[j].serialNumber,
+                  ).toLowerCase() &&
                 recordsCopy[j]['statusDuplicate'] === false
               ) {
                 recordsCopy[j]['statusDuplicate'] = true;
