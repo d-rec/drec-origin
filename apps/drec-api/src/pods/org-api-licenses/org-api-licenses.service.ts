@@ -17,8 +17,8 @@ export type ServiceType = 'roboflow' | 'deepl' | 'anthropic';
  * the org TRUNCATE that sync-demo-sites does on stage.
  */
 const MONTHLY_CAP: Record<ServiceType, number> = {
-  roboflow: 3,
-  deepl: 3,
+  roboflow: 10,
+  deepl: 10,
   anthropic: 50,
 };
 
