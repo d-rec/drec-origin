@@ -103,7 +103,8 @@ export class DeviceDTO implements IDevice {
   // @IsEnum(Installation)
   // installationConfiguration: Installation;
 
-  @ApiProperty()
+  /** Installed DC nameplate capacity in kW (kWp), not an AC / inverter rating. */
+  @ApiProperty({ description: 'Installed DC nameplate capacity in kW (kWp)' })
   @IsNumber()
   @IsOptional()
   capacity: number;

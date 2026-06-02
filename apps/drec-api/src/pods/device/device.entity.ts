@@ -85,6 +85,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @IsEnum(Installation)
   // installationConfiguration: Installation;
 
+  // Installed nameplate capacity in kW. Platform convention is DC nameplate
+  // (kWp / kilowatt-peak), NOT an AC / inverter rating. The Solar GSA yield
+  // model (pods/solar-yield) and the production-ceiling check both treat this
+  // as DC kWp; entering an AC rating skews those estimates. Cross-checked
+  // against `sld_capacity_kw` during review (see device-reviews ceiling check).
   @Column({ type: 'double precision', nullable: true })
   @IsNumber()
   capacity: number;

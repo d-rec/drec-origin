@@ -107,7 +107,9 @@ export class UpdateDeviceDTO
   })
   serialNumber: string;
 
-  @ApiProperty()
+  /** Installed DC nameplate capacity in kW (kWp), not an AC / inverter rating.
+   * Treated as DC kWp by the Solar GSA yield model and ceiling check. */
+  @ApiProperty({ description: 'Installed DC nameplate capacity in kW (kWp)' })
   @IsNumber()
   @IsOptional()
   @Min(0.001, {

@@ -1172,6 +1172,13 @@ export class DeviceReviewsService {
     gsaYieldPerKw: number | null;
     effectiveCeiling: number;
     capacityKw: number;
+    /** Set when the registered capacity (used for the GSA yield estimate)
+     * diverges from the SLD-parsed capacity beyond tolerance. The Solar GSA
+     * specific yield is defined per kWp of installed DC, so a large gap can
+     * mean an AC / inverter rating was entered as `capacity` instead of DC
+     * kWp — which biases this whole ceiling. Null when the two agree, no SLD
+     * capacity is on file, or capacity is missing. */
+    capacityBasisNote: string | null;
     lat: number | null;
     lng: number | null;
     commissioningDate: string | Date | null;
@@ -1187,7 +1194,7 @@ export class DeviceReviewsService {
   }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     const rows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, capacity, "commissioningDate"
+      `SELECT id, latitude, longitude, capacity, sld_capacity_kw AS "sldCapacityKw", "commissioningDate"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -1284,6 +1291,34 @@ export class DeviceReviewsService {
       [deviceId],
     );
 
+    // DC/AC basis sanity check. The GSA yield above is built on `capacityKw`
+    // (= device.capacity), which the model treats as DC nameplate (kWp). If a
+    // reviewer-entered SLD capacity exists and diverges beyond ±10%, surface a
+    // warning: a gap on the order of the DC:AC ratio (~1.1–1.3×) is a classic
+    // sign that an AC / inverter rating was registered instead of DC kWp,
+    // which would skew this entire ceiling.
+    const CAPACITY_BASIS_TOLERANCE = 10; // percent
+    let capacityBasisNote: string | null = null;
+    const sldCapacityKw =
+      device.sldCapacityKw != null ? parseFloat(device.sldCapacityKw) : null;
+    if (
+      hasCapacity &&
+      sldCapacityKw != null &&
+      !isNaN(sldCapacityKw) &&
+      sldCapacityKw > 0
+    ) {
+      const diffPct = ((sldCapacityKw - capacityKw) / capacityKw) * 100;
+      if (Math.abs(diffPct) > CAPACITY_BASIS_TOLERANCE) {
+        const sign = diffPct > 0 ? '+' : '';
+        capacityBasisNote =
+          `Registered capacity ${capacityKw} kW differs from SLD ${sldCapacityKw} kW ` +
+          `(${sign}${Math.round(diffPct * 10) / 10}%). The Solar GSA yield assumes the ` +
+          `registered value is DC nameplate (kWp); a gap this size can indicate an ` +
+          `AC / inverter rating was entered — verify the capacity basis before relying ` +
+          `on this ceiling.`;
+      }
+    }
+
     const gsaYieldPerKw =
       solarGsa && capacityKw > 0
         ? solarGsa.annualKwh / capacityKw
@@ -1340,6 +1375,7 @@ export class DeviceReviewsService {
       gsaYieldPerKw: gsaYieldPerKw != null ? Math.round(gsaYieldPerKw) : null,
       effectiveCeiling: Math.round(ceilingYield),
       capacityKw,
+      capacityBasisNote,
       lat,
       lng,
       commissioningDate: device.commissioningDate ?? null,

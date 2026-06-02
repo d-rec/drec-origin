@@ -119,7 +119,10 @@ export class NewDeviceDTO implements Omit<
   })
   deviceTypeCode: DeviceTypeCode;
 
-  @ApiProperty()
+  /** Installed nameplate capacity in kW, as DC nameplate (kWp), not an AC /
+   * inverter rating. Used as DC kWp by the Solar GSA yield model and the
+   * production-ceiling check. */
+  @ApiProperty({ description: 'Installed DC nameplate capacity in kW (kWp)' })
   @IsOptional()
   @IsNumber()
   @Min(0.001, {

@@ -159,7 +159,12 @@ export class SolarYieldService implements OnModuleInit {
    *
    * @param latitude   decimal degrees, [-60, 65]
    * @param longitude  decimal degrees, [-180, 180]
-   * @param capacity   nameplate AC capacity in kW
+   * @param capacity   nameplate DC capacity in kWp. The grid stores Global
+   *                   Solar Atlas PVOUT specific yield (kWh per kWp installed
+   *                   DC), so this MUST be the DC peak rating, not an AC /
+   *                   inverter rating — passing AC kW under-predicts by the
+   *                   DC:AC ratio (~1.1–1.3×). Matches the upstream Python
+   *                   docstring ("capacity ... in kWp").
    * @param cod        Commercial Operation Date (Date or parseable string)
    * @param year       the year to predict yield for
    */
