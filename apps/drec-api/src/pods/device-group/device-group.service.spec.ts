@@ -748,4 +748,78 @@ describe('DeviceGroupService', () => {
       expect(result).toBe(5);
     });
   });
+
+  describe('sweepExpiredReservations', () => {
+    it('releases devices from an expired reservation even when reservationActive is already false', async () => {
+      // endReservation() flips reservationActive to false at reservationEndDate,
+      // before reservationExpiryDate. The sweep must still release this group.
+      const endedExpiredGroup = {
+        id: 156,
+        reservationActive: false,
+        reservationExpiryDate: new Date('2025-06-30T23:59:59Z'),
+      } as unknown as DeviceGroup;
+
+      jest
+        .spyOn(service, 'getExpiredReservationsWithLinkedDevices')
+        .mockResolvedValue([endedExpiredGroup]);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(endedExpiredGroup as any);
+      (deviceService.findForGroup as jest.Mock).mockResolvedValue([
+        { id: 2001 },
+        { id: 2002 },
+      ]);
+      const removeSpy = deviceService.removeFromGroup as jest.Mock;
+      removeSpy.mockClear();
+
+      const released = await service.sweepExpiredReservations();
+
+      expect(released).toBe(1);
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ reservationActive: false }),
+      );
+      expect(removeSpy).toHaveBeenCalledTimes(2);
+      expect(removeSpy).toHaveBeenCalledWith(2001, 156);
+      expect(removeSpy).toHaveBeenCalledWith(2002, 156);
+    });
+  });
+
+  describe('getExpiredReservationsWithLinkedDevices', () => {
+    it('filters on expiry + EXISTS-devices and never filters on reservationActive', async () => {
+      const groups = [{ id: 156 }] as DeviceGroup[];
+      const subQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getQuery: jest.fn().mockReturnValue('SUBQ'),
+      };
+      const qb: any = {
+        where: jest.fn().mockReturnThis(),
+        subQuery: jest.fn().mockReturnValue(subQuery),
+        getMany: jest.fn().mockResolvedValue(groups),
+      };
+      // andWhere may receive a raw string or a subquery-building callback;
+      // invoke the callback so the EXISTS clause is exercised.
+      qb.andWhere = jest.fn().mockImplementation((arg: any) => {
+        if (typeof arg === 'function') arg(qb);
+        return qb;
+      });
+      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue(qb);
+
+      const result = await service.getExpiredReservationsWithLinkedDevices();
+
+      expect(result).toBe(groups);
+      expect(qb.where).toHaveBeenCalledWith(
+        'group.reservationExpiryDate IS NOT NULL',
+      );
+      const clauseStrings = [
+        ...qb.where.mock.calls.flat(),
+        ...qb.andWhere.mock.calls.flat(),
+      ].filter((a) => typeof a === 'string');
+      expect(
+        clauseStrings.some((s: string) => s.includes('reservationActive')),
+      ).toBe(false);
+      expect(qb.getMany).toHaveBeenCalled();
+    });
+  });
 });

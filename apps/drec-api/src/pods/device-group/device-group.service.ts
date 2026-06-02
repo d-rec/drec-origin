@@ -2335,15 +2335,56 @@ export class DeviceGroupService {
   }
 
   async sweepExpiredReservations(): Promise<number> {
-    const activeGroups = await this.getAllReservationActive();
+    // Release devices from every reservation that is past its expiry date and
+    // still holds devices — regardless of reservationActive. Previously this
+    // iterated getAllReservationActive() (reservationActive = true) and skipped
+    // groups whose flag had already been flipped to false by endReservation(),
+    // which runs at reservationEndDate, ahead of reservationExpiryDate. Those
+    // ended-but-unexpired groups therefore never reached deactivateReservation()
+    // and their devices stayed locked to a dead reservation forever — blocking
+    // them from being added to the next PO (createOne only accepts groupId ==
+    // null). See getExpiredReservationsWithLinkedDevices().
+    const expiredGroups = await this.getExpiredReservationsWithLinkedDevices();
     let released = 0;
-    for (const group of activeGroups) {
-      if (group.isExpired()) {
-        await this.deactivateReservation(group);
-        released++;
-      }
+    for (const group of expiredGroups) {
+      await this.deactivateReservation(group);
+      released++;
     }
     return released;
+  }
+
+  /**
+   * Reservations past their expiry date that still have devices linked
+   * (device.groupId = group.id), independent of reservationActive.
+   *
+   * The release sweep must not key off reservationActive: endReservation() sets
+   * that flag to false at reservationEndDate — well before reservationExpiryDate
+   * — to stop scheduling new issuance cycles while intentionally keeping devices
+   * linked for the tail window. By the time a group is due for device release at
+   * expiry it is therefore already inactive, so getAllReservationActive() never
+   * returned it. Keying the sweep here off expiry + an EXISTS-devices guard fixes
+   * that and is self-healing for groups already stranded (PO 69115b et al.,
+   * June 2026).
+   *
+   * The EXISTS guard also keeps the sweep cheap and idempotent: once a group's
+   * devices are released it drops out of the result set rather than being
+   * reprocessed on every nightly run.
+   */
+  async getExpiredReservationsWithLinkedDevices(): Promise<DeviceGroup[]> {
+    return this.repository
+      .createQueryBuilder('group')
+      .where('group.reservationExpiryDate IS NOT NULL')
+      .andWhere('group.reservationExpiryDate <= :now', { now: new Date() })
+      .andWhere((qb) => {
+        const sub = qb
+          .subQuery()
+          .select('1')
+          .from(Device, 'd')
+          .where('d.groupId = group.id')
+          .getQuery();
+        return `EXISTS ${sub}`;
+      })
+      .getMany();
   }
 
   public async getDeviceGrouplog(
