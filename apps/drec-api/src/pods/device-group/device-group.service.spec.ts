@@ -89,6 +89,7 @@ describe('DeviceGroupService', () => {
           provide: DeviceService,
           useValue: {
             findForGroup: jest.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+            removeFromGroup: jest.fn().mockResolvedValue({}),
           } as any,
         },
         {
@@ -711,6 +712,91 @@ describe('DeviceGroupService', () => {
         'US',
       );
       expect(result).toBe(5);
+    });
+  });
+
+  describe('deactivateReservation', () => {
+    it('unlinks the group devices, not just flips reservationActive', async () => {
+      const group = { id: 156, reservationActive: true } as unknown as DeviceGroup;
+      jest.spyOn(repository, 'save').mockResolvedValue(group as any);
+      (deviceService.findForGroup as jest.Mock).mockResolvedValue([
+        { id: 2001 },
+        { id: 2002 },
+      ]);
+      const removeSpy = deviceService.removeFromGroup as jest.Mock;
+      removeSpy.mockClear();
+
+      await service.deactivateReservation(group);
+
+      expect(group.reservationActive).toBe(false);
+      expect(removeSpy).toHaveBeenCalledTimes(2);
+      expect(removeSpy).toHaveBeenCalledWith(2001, 156);
+      expect(removeSpy).toHaveBeenCalledWith(2002, 156);
+    });
+  });
+
+  describe('sweepExpiredReservations', () => {
+    it('releases devices from an expired reservation even when reservationActive is already false', async () => {
+      const endedExpiredGroup = {
+        id: 156,
+        reservationActive: false,
+        reservationExpiryDate: new Date('2025-06-30T23:59:59Z'),
+      } as unknown as DeviceGroup;
+
+      jest
+        .spyOn(service, 'getExpiredReservationsWithLinkedDevices')
+        .mockResolvedValue([endedExpiredGroup]);
+      jest.spyOn(repository, 'save').mockResolvedValue(endedExpiredGroup as any);
+      (deviceService.findForGroup as jest.Mock).mockResolvedValue([
+        { id: 2001 },
+        { id: 2002 },
+      ]);
+      const removeSpy = deviceService.removeFromGroup as jest.Mock;
+      removeSpy.mockClear();
+
+      const released = await service.sweepExpiredReservations();
+
+      expect(released).toBe(1);
+      expect(removeSpy).toHaveBeenCalledTimes(2);
+      expect(removeSpy).toHaveBeenCalledWith(2001, 156);
+      expect(removeSpy).toHaveBeenCalledWith(2002, 156);
+    });
+  });
+
+  describe('getExpiredReservationsWithLinkedDevices', () => {
+    it('filters on expiry + EXISTS-devices and never filters on reservationActive', async () => {
+      const groups = [{ id: 156 }] as DeviceGroup[];
+      const subQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        getQuery: jest.fn().mockReturnValue('SUBQ'),
+      };
+      const qb: any = {
+        where: jest.fn().mockReturnThis(),
+        subQuery: jest.fn().mockReturnValue(subQuery),
+        getMany: jest.fn().mockResolvedValue(groups),
+      };
+      qb.andWhere = jest.fn().mockImplementation((arg: any) => {
+        if (typeof arg === 'function') arg(qb);
+        return qb;
+      });
+      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue(qb);
+
+      const result = await service.getExpiredReservationsWithLinkedDevices();
+
+      expect(result).toBe(groups);
+      expect(qb.where).toHaveBeenCalledWith(
+        'group.reservationExpiryDate IS NOT NULL',
+      );
+      const clauseStrings = [
+        ...qb.where.mock.calls.flat(),
+        ...qb.andWhere.mock.calls.flat(),
+      ].filter((a) => typeof a === 'string');
+      expect(
+        clauseStrings.some((s: string) => s.includes('reservationActive')),
+      ).toBe(false);
+      expect(qb.getMany).toHaveBeenCalled();
     });
   });
 });
