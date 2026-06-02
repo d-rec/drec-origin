@@ -717,7 +717,10 @@ describe('DeviceGroupService', () => {
 
   describe('deactivateReservation', () => {
     it('unlinks the group devices, not just flips reservationActive', async () => {
-      const group = { id: 156, reservationActive: true } as unknown as DeviceGroup;
+      const group = {
+        id: 156,
+        reservationActive: true,
+      } as unknown as DeviceGroup;
       jest.spyOn(repository, 'save').mockResolvedValue(group as any);
       (deviceService.findForGroup as jest.Mock).mockResolvedValue([
         { id: 2001 },
@@ -746,7 +749,9 @@ describe('DeviceGroupService', () => {
       jest
         .spyOn(service, 'getExpiredReservationsWithLinkedDevices')
         .mockResolvedValue([endedExpiredGroup]);
-      jest.spyOn(repository, 'save').mockResolvedValue(endedExpiredGroup as any);
+      jest
+        .spyOn(repository, 'save')
+        .mockResolvedValue(endedExpiredGroup as any);
       (deviceService.findForGroup as jest.Mock).mockResolvedValue([
         { id: 2001 },
         { id: 2002 },
