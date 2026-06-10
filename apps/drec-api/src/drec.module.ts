@@ -89,6 +89,8 @@ import { UploadLogModule } from './pods/upload-log/upload-log.module';
 import { ESignatureModule } from './pods/e-signature/e-signature.module';
 import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
 import { SolarYieldModule } from './pods/solar-yield/solar-yield.module';
+import { NasaPowerModule } from './pods/nasa-power/nasa-power.module';
+import { NasaPowerMonthlyCache } from './pods/nasa-power/nasa-power-monthly-cache.entity';
 import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
 import { VerificationReport } from './pods/device-reviews/verification-report.entity';
 import { UploadLogEntity } from './pods/upload-log/upload-log.entity';
@@ -155,6 +157,7 @@ export const entities = [
   ESignatureLog,
   OrgApiLicenses,
   VerificationReport,
+  NasaPowerMonthlyCache,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -224,6 +227,7 @@ const queueModule = () => {
     ESignatureModule,
     OrgApiLicensesModule,
     SolarYieldModule,
+    NasaPowerModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,

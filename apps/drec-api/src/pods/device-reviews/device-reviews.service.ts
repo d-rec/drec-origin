@@ -31,6 +31,7 @@ import {
   IrradianceEstimate,
 } from '../../utils/irradiance-estimate';
 import { SolarYieldService } from '../solar-yield/solar-yield.service';
+import { NasaPowerService } from '../nasa-power/nasa-power.service';
 import { AiAuditService } from '../ai/ai-audit.service';
 import {
   requiresCompensatingControls,
@@ -113,6 +114,7 @@ export class DeviceReviewsService {
     @InjectDataSource() private readonly connection: DataSource,
     private readonly fileService: FileService,
     private readonly solarYield: SolarYieldService,
+    private readonly nasaPower: NasaPowerService,
     private readonly aiAudit: AiAuditService,
   ) {}
 
@@ -1189,7 +1191,18 @@ export class DeviceReviewsService {
       periodHours: number;
       ceilingKwh: number;
       exceedsCeiling: boolean;
+      /** Period-specific NASA POWER ceiling using actual-month GHI for the
+       * read window. Null when POWER is unavailable for the cell/year. */
+      powerCeilingKwh?: number | null;
+      exceedsPowerCeiling?: boolean | null;
     }>;
+    /** NASA POWER summary for the most-recent reading window, when available. */
+    nasaPower?: {
+      latQuantized: number;
+      lonQuantized: number;
+      months: Array<{ year: number; month: number; ghiKwhM2Day: number | null }>;
+    } | null;
+    nasaPowerUnavailableReason?: string | null;
     pathwayNote?: string;
   }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
@@ -1324,6 +1337,86 @@ export class DeviceReviewsService {
         ? solarGsa.annualKwh / capacityKw
         : undefined;
     const ceilingYield = gsaYieldPerKw ?? irradiance?.yieldHigh ?? 1500;
+
+    // NASA POWER pre-fetch: collect every (year, month) touched by the read
+    // windows, fetch each cell-year once, then index by month for the
+    // per-read ceiling. POWER's monthly endpoint already serves a year at a
+    // time, and the service caches in-process + on disk — so this is one
+    // fetch per distinct year for the device, regardless of read count.
+    type PowerSummaryMonth = {
+      year: number;
+      month: number;
+      ghiKwhM2Day: number | null;
+    };
+    let nasaPower:
+      | {
+          latQuantized: number;
+          lonQuantized: number;
+          months: PowerSummaryMonth[];
+        }
+      | null = null;
+    let nasaPowerUnavailableReason: string | null = null;
+    const powerByYear = new Map<number, (number | null)[]>();
+    if (hasLat && hasLng && hasCapacity && readRows.length > 0) {
+      const years = new Set<number>();
+      for (const r of readRows) {
+        const start = new Date(r.startDate);
+        const end = new Date(r.endDate);
+        if (!isNaN(start.getTime())) years.add(start.getUTCFullYear());
+        if (!isNaN(end.getTime())) years.add(end.getUTCFullYear());
+      }
+      try {
+        for (const y of years) {
+          const monthly = await this.nasaPower.getMonthlyGhi(
+            lat as number,
+            lng as number,
+            y,
+          );
+          powerByYear.set(y, monthly);
+        }
+        // Build a flat summary for the response (months that appear in any
+        // read window, deduped + sorted).
+        const seen = new Set<string>();
+        const summary: PowerSummaryMonth[] = [];
+        for (const r of readRows) {
+          const months = monthsInWindow(
+            new Date(r.startDate),
+            new Date(r.endDate),
+          );
+          for (const { year, month } of months) {
+            const k = `${year}-${month}`;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            const arr = powerByYear.get(year);
+            summary.push({
+              year,
+              month,
+              ghiKwhM2Day: arr ? arr[month - 1] : null,
+            });
+          }
+        }
+        summary.sort((a, b) =>
+          a.year !== b.year ? a.year - b.year : a.month - b.month,
+        );
+        nasaPower = {
+          latQuantized: Math.round((lat as number) * 10) / 10,
+          lonQuantized: Math.round((lng as number) * 10) / 10,
+          months: summary,
+        };
+      } catch (e: any) {
+        nasaPowerUnavailableReason = `Lookup failed: ${e?.message || String(e)}`;
+        this.logger.debug(
+          `NASA POWER unavailable for device ${deviceId}: ${nasaPowerUnavailableReason}`,
+        );
+      }
+    } else if (readRows.length > 0) {
+      const missing: string[] = [];
+      if (!hasLat) missing.push('latitude');
+      if (!hasLng) missing.push('longitude');
+      if (!hasCapacity) missing.push('capacity');
+      nasaPowerUnavailableReason = `Missing ${missing.join(', ')}`;
+    }
+
     const recentReadings = readRows.map((r: any) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
@@ -1335,10 +1428,34 @@ export class DeviceReviewsService {
       else if (r.unit === 'MWh') valueKwh *= 1000;
       else if (r.unit === 'GWh') valueKwh *= 1000000;
 
-      // Ceiling for this period: capacity × hourly yield rate × period × 1.2 margin
+      // Climatology ceiling for this period: capacity × hourly yield rate × period × 1.2 margin
       const ceilingKwh = capacityKw * (ceilingYield / 8760) * periodHours * 1.2;
 
-      return {
+      // NASA POWER period-specific ceiling. POWER gives the all-sky daily
+      // mean kWh/m² for the actual month — i.e. the energy a 1-m² flat
+      // collector would receive each day. To get a panel ceiling, multiply
+      // by capacity (kW), a performance-ratio factor (PR_AVG below), days in
+      // each covered fraction of the month, and the same 1.2 margin. PR is
+      // intentionally generous — this is a ceiling, not an expectation.
+      let powerCeilingKwh: number | null = null;
+      if (powerByYear.size > 0 && capacityKw > 0 && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        const PR_AVG = 0.82; // typical PV system performance ratio
+        let accumulated = 0;
+        let anyData = false;
+        for (const slice of monthSlices(start, end)) {
+          const arr = powerByYear.get(slice.year);
+          const ghi = arr ? arr[slice.month - 1] : null;
+          if (ghi == null) continue;
+          anyData = true;
+          // ghi is kWh/m²/day. capacity kW × ghi kWh/m²/day × days = kWh
+          // (the m² and kW cancel via the standard 1 kW/m² reference
+          // irradiance baked into nameplate capacity).
+          accumulated += capacityKw * ghi * PR_AVG * slice.days;
+        }
+        if (anyData) powerCeilingKwh = accumulated * 1.2;
+      }
+
+      const result: any = {
         startDate: r.startDate,
         endDate: r.endDate,
         valueKwh: Math.round(valueKwh * 100) / 100,
@@ -1346,6 +1463,14 @@ export class DeviceReviewsService {
         ceilingKwh: Math.round(ceilingKwh * 100) / 100,
         exceedsCeiling: valueKwh > ceilingKwh,
       };
+      if (powerCeilingKwh != null) {
+        result.powerCeilingKwh = Math.round(powerCeilingKwh * 100) / 100;
+        result.exceedsPowerCeiling = valueKwh > powerCeilingKwh;
+      } else if (nasaPower) {
+        result.powerCeilingKwh = null;
+        result.exceedsPowerCeiling = null;
+      }
+      return result;
     });
 
     this.logger.log(
@@ -1356,14 +1481,25 @@ export class DeviceReviewsService {
         `${recentReadings.filter((r) => r.exceedsCeiling).length}/${recentReadings.length} readings exceed ceiling`,
     );
 
+    const powerExceedCount = recentReadings.filter(
+      (r: any) => r.exceedsPowerCeiling === true,
+    ).length;
+    const powerEvaluatedCount = recentReadings.filter(
+      (r: any) => r.powerCeilingKwh != null,
+    ).length;
     if (!opts.silent) await this.logAudit(
       deviceId,
       'ceiling_check',
-      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (Solar GSA or irradiance high)`,
+      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (Solar GSA or irradiance high)` +
+        (powerEvaluatedCount > 0
+          ? `; NASA POWER: ${powerExceedCount}/${powerEvaluatedCount} readings exceed period-specific ceiling`
+          : ''),
       'reviewer',
       {
         irradianceYield: irradiance?.yieldHigh,
         gsaYieldPerKw,
+        nasaPowerEvaluated: powerEvaluatedCount,
+        nasaPowerExceed: powerExceedCount,
       },
     );
 
@@ -1380,6 +1516,8 @@ export class DeviceReviewsService {
       lng,
       commissioningDate: device.commissioningDate ?? null,
       recentReadings,
+      nasaPower,
+      nasaPowerUnavailableReason,
       ...(pathwayNote ? { pathwayNote } : {}),
     };
   }
@@ -3077,6 +3215,67 @@ export class DeviceReviewsService {
       doc.end();
     });
   }
+}
+
+/**
+ * Distinct (year, month) pairs that a [start, end] window touches.
+ * Used to summarise which months a set of read windows covers when
+ * surfacing NASA POWER values.
+ */
+function monthsInWindow(
+  start: Date,
+  end: Date,
+): Array<{ year: number; month: number }> {
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return [];
+  const out: Array<{ year: number; month: number }> = [];
+  const cursor = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1),
+  );
+  const endStop = new Date(
+    Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 1),
+  );
+  while (cursor.getTime() <= endStop.getTime()) {
+    out.push({
+      year: cursor.getUTCFullYear(),
+      month: cursor.getUTCMonth() + 1,
+    });
+    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
+  }
+  return out;
+}
+
+/**
+ * Fractional-month slices for [start, end]: each entry is the days
+ * of overlap with that calendar month. Lets us prorate a monthly mean
+ * (kWh/m²/day) across partial-month meter windows.
+ */
+function monthSlices(
+  start: Date,
+  end: Date,
+): Array<{ year: number; month: number; days: number }> {
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return [];
+  const out: Array<{ year: number; month: number; days: number }> = [];
+  let cursor = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1),
+  );
+  const endMs = end.getTime();
+  while (cursor.getTime() < endMs) {
+    const nextMonth = new Date(
+      Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1),
+    );
+    const sliceStart = Math.max(cursor.getTime(), start.getTime());
+    const sliceEnd = Math.min(nextMonth.getTime(), endMs);
+    const days = Math.max(0, (sliceEnd - sliceStart) / (24 * 3600 * 1000));
+    if (days > 0) {
+      out.push({
+        year: cursor.getUTCFullYear(),
+        month: cursor.getUTCMonth() + 1,
+        days,
+      });
+    }
+    cursor = nextMonth;
+  }
+  return out;
 }
 
 /** Haversine distance in meters between two lat/lng points. */

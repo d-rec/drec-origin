@@ -7,6 +7,7 @@ import { UserModule } from '../user/user.module';
 import { DocumentUploadsModule } from '../document-uploads/document-uploads.module';
 import { OrgApiLicensesModule } from '../org-api-licenses/org-api-licenses.module';
 import { SolarYieldModule } from '../solar-yield/solar-yield.module';
+import { NasaPowerModule } from '../nasa-power/nasa-power.module';
 import { AiModule } from '../ai/ai.module';
 import { VerificationReport } from './verification-report.entity';
 import { VerificationReportsService } from './verification-reports.service';
@@ -20,6 +21,7 @@ import { FieldProvenanceBackfillService } from './field-provenance-backfill.serv
     forwardRef(() => UserModule),
     OrgApiLicensesModule,
     SolarYieldModule,
+    NasaPowerModule,
     AiModule,
   ],
   controllers: [DeviceReviewsController],
