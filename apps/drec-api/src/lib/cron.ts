@@ -24,26 +24,35 @@ const runExclusive = async <T>(
   const key = `cron-lock:${context}:${functionName}`;
   const lockId = uuid4(); // Generate unique lock value
 
-  // Try to acquire the lock
-  const isLocked = await redis.set(key, lockId, 'EX', LOCK_TTL, 'NX');
-
-  if (!isLocked) {
-    logger.log(`${functionName}: Already running on another instance.`);
-    return;
-  }
-
+  // Outer try/finally guarantees the ioredis connection is released on every
+  // path — including the early `return` when the lock is already held, and any
+  // throw from redis.set/get. Without this, each cron tick leaked a client and
+  // Redis eventually hit maxclients: the PowerTrust env accumulated ~10k idle
+  // connections over 17 days (2026-06-18), stalling all certificate issuance.
   try {
-    return await fn();
-  } finally {
-    // Ensure we only delete the lock if we still own it
-    const currentLockId = await redis.get(key);
-    if (currentLockId === lockId) {
-      logger.log(`${functionName}: Lock released successfully.`);
-      // Delete the lock
-      await redis.del(key);
-    } else {
-      logger.warn(`${functionName}: Lock ownership lost, not deleting lock.`);
+    // Try to acquire the lock
+    const isLocked = await redis.set(key, lockId, 'EX', LOCK_TTL, 'NX');
+
+    if (!isLocked) {
+      logger.log(`${functionName}: Already running on another instance.`);
+      return;
     }
+
+    try {
+      return await fn();
+    } finally {
+      // Ensure we only delete the lock if we still own it
+      const currentLockId = await redis.get(key);
+      if (currentLockId === lockId) {
+        logger.log(`${functionName}: Lock released successfully.`);
+        // Delete the lock
+        await redis.del(key);
+      } else {
+        logger.warn(`${functionName}: Lock ownership lost, not deleting lock.`);
+      }
+    }
+  } finally {
+    await redis.quit();
   }
 };
 
