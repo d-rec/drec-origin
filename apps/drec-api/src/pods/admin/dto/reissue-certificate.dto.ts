@@ -56,4 +56,17 @@ export class ReissueCertificateDTO {
   @IsOptional()
   @IsBoolean()
   dryRun?: boolean;
+
+  @ApiPropertyOptional({
+    type: Boolean,
+    description:
+      'When true, bypass the hasIssuedForDeviceInWindow idempotency guard and ' +
+      'reissue even if a per-device certificate-log row overlaps the window. For ' +
+      '"phantom" cycles where the log says issued but no certificate was minted. ' +
+      'Use only after confirming no real certificate exists for the window.',
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  force?: boolean;
 }

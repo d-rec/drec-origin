@@ -810,6 +810,7 @@ export class AdminController {
     groupId: number;
     window: { start: string; end: string };
     dryRun: boolean;
+    force: boolean;
     requested: number;
     eligible: string[];
     skippedNotFound: string[];
@@ -836,9 +837,13 @@ export class AdminController {
     const errors: { externalId: string; message: string }[] = [];
 
     const dryRun = !!body.dryRun;
+    const force = !!body.force;
 
     // First pass: filter out missing devices and already-issued ones so the
-    // caller can see the planned set even in dryRun.
+    // caller can see the planned set even in dryRun. When `force` is set the
+    // hasIssuedForDeviceInWindow guard is bypassed — used for "phantom" cycles
+    // where a per-device cert-log row exists but no certificate was ever
+    // minted, so the guard would otherwise wrongly skip the read.
     const devicesToIssue = [];
     for (const externalId of body.externalIds) {
       const device = await this.deviceService.findByExternalId(externalId);
@@ -846,12 +851,14 @@ export class AdminController {
         skippedNotFound.push(externalId);
         continue;
       }
-      const already = await this.certificateLogService.hasIssuedForDeviceInWindow(
-        body.groupId,
-        externalId,
-        windowStart,
-        windowEnd,
-      );
+      const already = force
+        ? false
+        : await this.certificateLogService.hasIssuedForDeviceInWindow(
+            body.groupId,
+            externalId,
+            windowStart,
+            windowEnd,
+          );
       if (already) {
         skippedAlreadyIssued.push(externalId);
         continue;
@@ -865,6 +872,7 @@ export class AdminController {
         groupId: body.groupId,
         window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
         dryRun: true,
+        force,
         requested: body.externalIds.length,
         eligible,
         skippedNotFound,
@@ -879,6 +887,7 @@ export class AdminController {
         groupId: body.groupId,
         window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
         dryRun: false,
+        force,
         requested: body.externalIds.length,
         eligible,
         skippedNotFound,
@@ -915,6 +924,7 @@ export class AdminController {
       groupId: body.groupId,
       window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
       dryRun: false,
+      force,
       requested: body.externalIds.length,
       eligible,
       skippedNotFound,
