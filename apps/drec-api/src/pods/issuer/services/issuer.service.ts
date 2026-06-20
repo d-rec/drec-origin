@@ -106,13 +106,37 @@ export class IssuerService {
 
     const certificateTransactionUID = uuid();
 
+    // Prepare certificate issuance parameters (pure — no DB writes).
+    const issuance = this.certificateService.getIssuanceParams(
+      group,
+      group.devices,
+      issueTotalReadValue,
+      minimumStartDate,
+      maximumEndDate,
+      certificateTransactionUID,
+    );
+
+    this.logger.log(
+      `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
+    );
+
+    // Issue the certificate FIRST. Everything below records "this period was
+    // issued" — marking the reads certified, the per-device and group cert
+    // logs, the megawatt-hour accounting and the reservation end. If issue()
+    // throws, none of it runs, so the reads stay uncertified and are retried
+    // on the next cycle. Previously this bookkeeping ran *before* issue(), so a
+    // failed mint left "phantom" certified reads with no certificate — and the
+    // certified flag plus the cert-log row then blocked any automatic retry.
+    await this.certificateService.issue(issuance);
+
+    // Mark the underlying reads as certified for this issuance window.
     await this.readsService.updateCertificateIssueDate(
       validReadings.map((r) => r.filteredReadings.map((fr) => fr.id)).flat(),
       startDate.toJSDate(),
       endDate.toJSDate(),
     );
 
-    // Log the certificate details
+    // Per-device certificate log.
     await Promise.all(
       validReadings.map(({ device, totalRead }) =>
         this.certificateLogService.createForDevice(
@@ -128,21 +152,8 @@ export class IssuerService {
       ),
     );
 
-    // Prepare certificate issuance parameters
-    const issuance = this.certificateService.getIssuanceParams(
-      group,
-      group.devices,
-      issueTotalReadValue,
-      minimumStartDate,
-      maximumEndDate,
-      certificateTransactionUID,
-    );
-
-    this.logger.log(
-      `Issuance: ${JSON.stringify(issuance)}, Group name: ${group.name}`,
-    );
-
-    // Calculate and update megawatt hour values
+    // Update megawatt-hour accounting and end the reservation if the target
+    // volume has now been reached.
     const totalReadValueMegaWattHour = totalReadValueKw / 1000;
 
     await this.groupService.updateTotalReadingRequestedForCertificateIssuance(
@@ -151,7 +162,6 @@ export class IssuerService {
       totalReadValueMegaWattHour,
     );
 
-    // Check if target volume reached and end reservation if needed
     const newTotalRequested =
       group.targetVolumeCertificateGenerationRequestedInMegaWattHour +
       totalReadValueMegaWattHour;
@@ -164,7 +174,7 @@ export class IssuerService {
       await this.groupService.endReservation(group.id, group, groupRequest);
     }
 
-    // Create group certificate log
+    // Group certificate log.
     await this.certificateLogService.createForGroup(
       group,
       minimumStartDate,
@@ -174,9 +184,6 @@ export class IssuerService {
       countryCodeKey,
       certificateTransactionUID,
     );
-
-    // Issue the certificate
-    return this.certificateService.issue(issuance);
   }
 
   @Profile()
