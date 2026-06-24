@@ -90,6 +90,7 @@ import { ESignatureModule } from './pods/e-signature/e-signature.module';
 import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
 import { SolarYieldModule } from './pods/solar-yield/solar-yield.module';
 import { NasaPowerModule } from './pods/nasa-power/nasa-power.module';
+import { EnodeModule } from './pods/enode/enode.module';
 import { NasaPowerMonthlyCache } from './pods/nasa-power/nasa-power-monthly-cache.entity';
 import { OrgApiLicenses } from './pods/org-api-licenses/org-api-licenses.entity';
 import { VerificationReport } from './pods/device-reviews/verification-report.entity';
@@ -228,6 +229,7 @@ const queueModule = () => {
     OrgApiLicensesModule,
     SolarYieldModule,
     NasaPowerModule,
+    EnodeModule,
   ],
   providers: [
     OnApplicationBootstrapHookService,
