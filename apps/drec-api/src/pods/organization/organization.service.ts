@@ -10,14 +10,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository, SelectQueryBuilder } from 'typeorm';
-import {
-  getProviderWithFallback,
-  recoverTypedSignatureAddress,
-} from '@energyweb/utils-general';
-import { utils, Wallet } from 'ethers';
+import { recoverTypedSignatureAddress } from '@energyweb/utils-general';
+import { utils } from 'ethers';
 import { ConfigService } from '@nestjs/config';
 import { Organization } from './organization.entity';
-import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import {
   BindBlockchainAccountDTO,
   NewOrganizationDTO,
@@ -25,7 +21,6 @@ import {
   UpdateOrganizationDTO,
 } from './dto';
 import { defaults } from 'lodash';
-import { Contracts } from '@energyweb/issuer';
 import {
   IFullOrganization,
   ILoggedInUser,
@@ -55,7 +50,6 @@ export class OrganizationService {
     @InjectRepository(Organization)
     private readonly repository: Repository<Organization>,
     private readonly configService: ConfigService,
-    private readonly blockchainPropertiesService: BlockchainPropertiesService,
     private readonly userService: UserService,
     private readonly mailService: MailService,
     private readonly fileService: FileService,
@@ -353,33 +347,6 @@ export class OrganizationService {
     });
 
     return linkedRegistrant ? linkedRegistrant : organization;
-  }
-
-  private async generateBlockchainAddress(index: number): Promise<string> {
-    this.logger.verbose(`With in generateBlockchainAddress`);
-    const issuerAccount = Wallet.fromMnemonic(
-      process.env.MNEMONIC!,
-      `m/44'/60'/0'/0/${0}`,
-    ); // Index 0 account
-
-    const [primaryRpc, fallbackRpc] = process.env.WEB3!.split(';');
-    const provider = getProviderWithFallback(primaryRpc, fallbackRpc);
-    const blockchainAccount = Wallet.fromMnemonic(
-      process.env.MNEMONIC!,
-      `m/44'/60'/0'/0/${index + 1}`,
-    );
-
-    const blockchainProperties = await this.blockchainPropertiesService.get();
-
-    const registryWithSigner =
-      Contracts.factories.RegistryExtendedFactory.connect(
-        blockchainProperties!.registry,
-        new Wallet(blockchainAccount.privateKey, provider),
-      );
-
-    await registryWithSigner.setApprovalForAll(issuerAccount.address, true);
-
-    return blockchainAccount.address;
   }
 
   async update(
