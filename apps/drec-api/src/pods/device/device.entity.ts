@@ -15,7 +15,19 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DeviceDescription, IDevice } from '../../models';
-import { DeviceTypeCode, EvidencePathway, FuelCode, OffTaker, OperatingConfiguration, OwnershipStatus, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../utils/enums';
+import {
+  DeviceTypeCode,
+  EvidencePathway,
+  FuelCode,
+  OffTaker,
+  OperatingConfiguration,
+  OwnershipStatus,
+  RegistrationType,
+  SourceAccessMode,
+  SubsidyType,
+  VolumeEvidenceType,
+  YesNo,
+} from '../../utils/enums';
 import { Organization } from '../organization/organization.entity';
 import { CheckCertificateIssueDateLogForDeviceEntity } from './check_certificate_issue_date_log_for_device.entity';
 import { EvidentRegistrationStatus } from '../../types/evident';
@@ -234,7 +246,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   defaultAccountCode: string | null;
 
-  @Column({ type: 'date', nullable: true, name: 'requested_effective_reg_date' })
+  @Column({
+    type: 'date',
+    nullable: true,
+    name: 'requested_effective_reg_date',
+  })
   requestedEffectiveRegDate: string | null;
 
   // Signature & evidence pathway (Evident checklist rows 55-56, 58-59, 61-62)
@@ -259,11 +275,19 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsEnum(YesNo)
   hasCaptiveConsumer: YesNo | null;
 
-  @Column({ type: 'varchar', nullable: true, name: 'has_auxiliary_energy_sources' })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'has_auxiliary_energy_sources',
+  })
   @IsEnum(YesNo)
   hasAuxiliaryEnergySources: YesNo | null;
 
-  @Column({ type: 'varchar', nullable: true, name: 'auxiliary_energy_source_details' })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'auxiliary_energy_source_details',
+  })
   @IsString()
   auxiliaryEnergySourceDetails: string | null;
 
@@ -271,7 +295,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   nonMeterImportDetails: string | null;
 
-  @Column({ type: 'text', nullable: true, name: 'other_eac_scheme_registration' })
+  @Column({
+    type: 'text',
+    nullable: true,
+    name: 'other_eac_scheme_registration',
+  })
   @IsString()
   otherEacSchemeRegistration: string | null;
 
@@ -311,7 +339,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   offTakerName: string | null;
 
-  @Column({ type: 'varchar', nullable: true, name: 'off_taker_same_company_as_owner' })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'off_taker_same_company_as_owner',
+  })
   @IsEnum(YesNo)
   offTakerSameCompanyAsOwner: YesNo | null;
 
@@ -349,7 +381,11 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsEnum(VolumeEvidenceType)
   volumeEvidenceType: VolumeEvidenceType | null;
 
-  @Column({ type: 'varchar', nullable: true, name: 'labelling_scheme_accreditation' })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    name: 'labelling_scheme_accreditation',
+  })
   @IsString()
   labellingSchemeAccreditation: string | null;
 
@@ -361,7 +397,12 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   @IsString()
   offGridCircumstances: string | null;
 
-  @Column({ type: 'varchar', length: 10, nullable: true, name: 'last_screen_status' })
+  @Column({
+    type: 'varchar',
+    length: 10,
+    nullable: true,
+    name: 'last_screen_status',
+  })
   lastScreenStatus: string | null;
 
   @Column({ type: 'timestamptz', nullable: true, name: 'last_screened_at' })

@@ -36,12 +36,16 @@ export class EnodeAuthService {
     const body = new URLSearchParams({ grant_type: 'client_credentials' });
 
     const { data } = await firstValueFrom(
-      this.http.post<EnodeTokenResponse>(this.config.oauthUrl, body.toString(), {
-        headers: {
-          Authorization: `Basic ${basic}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
+      this.http.post<EnodeTokenResponse>(
+        this.config.oauthUrl,
+        body.toString(),
+        {
+          headers: {
+            Authorization: `Basic ${basic}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
         },
-      }),
+      ),
     );
 
     this.token = data.access_token;

@@ -37,7 +37,11 @@ export interface CrossSourceResult {
 }
 
 export interface CrossSourceFlag {
-  type: 'overproduction' | 'underproduction' | 'inconsistent' | 'seasonal_anomaly';
+  type:
+    | 'overproduction'
+    | 'underproduction'
+    | 'inconsistent'
+    | 'seasonal_anomaly';
   severity: 'warning' | 'critical';
   description: string;
 }
@@ -65,8 +69,7 @@ export function computeCrossSourceVerification(
     sumModel += m.modelKwh;
   }
 
-  const performanceFactor =
-    sumModelSq > 0 ? sumModelActual / sumModelSq : 0;
+  const performanceFactor = sumModelSq > 0 ? sumModelActual / sumModelSq : 0;
   const simpleRatio = sumModel > 0 ? sumActual / sumModel : 0;
 
   // Compute ratios per month

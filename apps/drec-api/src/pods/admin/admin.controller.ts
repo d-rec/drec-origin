@@ -592,7 +592,8 @@ export class AdminController {
   @Permission('Write')
   @ACLModules('ADMIN_MANAGEMENT_CRUDL')
   @ApiOperation({
-    summary: 'Manually reissue certificates for a (group, externalIds, window) tuple',
+    summary:
+      'Manually reissue certificates for a (group, externalIds, window) tuple',
   })
   @ApiResponse({ status: HttpStatus.OK, description: 'Reissue summary.' })
   public async reissueCertificate(
@@ -608,7 +609,9 @@ export class AdminController {
     issued: string[];
     errors: { externalId: string; message: string }[];
   }> {
-    const group = await this.deviceGroupService.adminFindGroupById(body.groupId);
+    const group = await this.deviceGroupService.adminFindGroupById(
+      body.groupId,
+    );
     if (!group) {
       throw new NotFoundException(`No device_group with id ${body.groupId}`);
     }
@@ -637,12 +640,13 @@ export class AdminController {
         skippedNotFound.push(externalId);
         continue;
       }
-      const already = await this.certificateLogService.hasIssuedForDeviceInWindow(
-        body.groupId,
-        externalId,
-        windowStart,
-        windowEnd,
-      );
+      const already =
+        await this.certificateLogService.hasIssuedForDeviceInWindow(
+          body.groupId,
+          externalId,
+          windowStart,
+          windowEnd,
+        );
       if (already) {
         skippedAlreadyIssued.push(externalId);
         continue;
@@ -654,7 +658,10 @@ export class AdminController {
     if (dryRun) {
       return {
         groupId: body.groupId,
-        window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+        window: {
+          start: windowStart.toISOString(),
+          end: windowEnd.toISOString(),
+        },
         dryRun: true,
         requested: body.externalIds.length,
         eligible,
@@ -668,7 +675,10 @@ export class AdminController {
     if (devicesToIssue.length === 0) {
       return {
         groupId: body.groupId,
-        window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+        window: {
+          start: windowStart.toISOString(),
+          end: windowEnd.toISOString(),
+        },
         dryRun: false,
         requested: body.externalIds.length,
         eligible,
@@ -698,13 +708,19 @@ export class AdminController {
         );
         issued.push(device.externalId);
       } catch (e: any) {
-        errors.push({ externalId: device.externalId, message: e?.message ?? String(e) });
+        errors.push({
+          externalId: device.externalId,
+          message: e?.message ?? String(e),
+        });
       }
     }
 
     return {
       groupId: body.groupId,
-      window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+      window: {
+        start: windowStart.toISOString(),
+        end: windowEnd.toISOString(),
+      },
       dryRun: false,
       requested: body.externalIds.length,
       eligible,

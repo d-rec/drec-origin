@@ -288,19 +288,21 @@ export class AiController {
 
   @Get('usage')
   @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiOperation({ summary: 'Aggregated AI usage / cost stats (admin / reviewer)' })
+  @ApiOperation({
+    summary: 'Aggregated AI usage / cost stats (admin / reviewer)',
+  })
   async getUsage(@UserDecorator() user: ILoggedInUser) {
     if (!['Admin', 'Reviewer', 'SeniorReviewer'].includes(user.role)) {
-      throw new ForbiddenException(
-        'AI usage stats are admin / reviewer only',
-      );
+      throw new ForbiddenException('AI usage stats are admin / reviewer only');
     }
     return this.service.getUsageSummary();
   }
 
   @Get('my-usage')
   @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiOperation({ summary: 'Per-org Roboflow + DeepL call counts (current month)' })
+  @ApiOperation({
+    summary: 'Per-org Roboflow + DeepL call counts (current month)',
+  })
   async getMyUsage(@UserDecorator() user: ILoggedInUser) {
     return this.service.getMyProviderUsage((user as any).organizationId);
   }
@@ -317,47 +319,78 @@ export class AiController {
   ): Promise<ExtractMeterIdsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractMeterIds(
-      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
+      {
+        filename: dto.filename,
+        text: dto.text,
+        images: dto.images,
+        contentHash: dto.contentHash,
+      },
       apiKey,
-      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
     );
   }
 
   @Post('extract-cod-fields')
   @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiOperation({ summary: 'Extract commissioning date / capacity from a COD proof' })
+  @ApiOperation({
+    summary: 'Extract commissioning date / capacity from a COD proof',
+  })
   async extractCodFields(
     @UserDecorator() user: ILoggedInUser,
     @Body() dto: ExtractCodFieldsDto,
   ): Promise<ExtractCodFieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractCodFields(
-      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash, siteName: dto.siteName },
+      {
+        filename: dto.filename,
+        text: dto.text,
+        images: dto.images,
+        contentHash: dto.contentHash,
+        siteName: dto.siteName,
+      },
       apiKey,
-      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
     );
   }
 
   @Post('extract-sf02-fields')
   @UseGuards(AuthVerifiedGuard('jwt'))
-  @ApiOperation({ summary: 'Extract registration form fields from an SF-02 form' })
+  @ApiOperation({
+    summary: 'Extract registration form fields from an SF-02 form',
+  })
   async extractSf02Fields(
     @UserDecorator() user: ILoggedInUser,
     @Body() dto: ExtractSf02FieldsDto,
   ): Promise<ExtractSf02FieldsResult> {
     const apiKey = await this.apiKeyResolver.resolveAnthropicKey(user);
     return this.service.extractSf02Fields(
-      { filename: dto.filename, text: dto.text, images: dto.images, contentHash: dto.contentHash },
+      {
+        filename: dto.filename,
+        text: dto.text,
+        images: dto.images,
+        contentHash: dto.contentHash,
+      },
       apiKey,
-      { userId: user.id, organizationId: user.organizationId, deviceId: dto.deviceId },
+      {
+        userId: user.id,
+        organizationId: user.organizationId,
+        deviceId: dto.deviceId,
+      },
     );
   }
 
   @Post('extract-sf02c-fields')
   @UseGuards(AuthVerifiedGuard('jwt'))
   @ApiOperation({
-    summary:
-      'Extract owner / project / signing fields from an SF-02c letter',
+    summary: 'Extract owner / project / signing fields from an SF-02c letter',
   })
   async extractSf02cFields(
     @UserDecorator() user: ILoggedInUser,

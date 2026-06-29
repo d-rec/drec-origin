@@ -10,10 +10,7 @@ import {
 } from '@energyweb/issuer';
 import { getProviderWithFallback } from '@energyweb/utils-general';
 
-import {
-  IRoleConfig,
-  IACLModuleConfig,
-} from '../src/models';
+import { IRoleConfig, IACLModuleConfig } from '../src/models';
 import { v4 as uuid } from 'uuid';
 import bcrypt from 'bcryptjs';
 
@@ -259,7 +256,9 @@ export class Seed9999999999999 implements MigrationInterface {
     const email = process.env.REGISTRANT_EMAIL;
     const pass = process.env.REGISTRANT_PASSWORD;
     if (!email || !pass) {
-      this.logger.verbose('REGISTRANT_EMAIL / REGISTRANT_PASSWORD not set — skipping registrant seed.');
+      this.logger.verbose(
+        'REGISTRANT_EMAIL / REGISTRANT_PASSWORD not set — skipping registrant seed.',
+      );
       return;
     }
 
@@ -281,7 +280,8 @@ export class Seed9999999999999 implements MigrationInterface {
 
     const apiUserId = apiUser[0].api_user_id;
 
-    const organization = await queryRunner.query(`INSERT INTO public.organization (
+    const organization =
+      await queryRunner.query(`INSERT INTO public.organization (
       "name",
       "address",
       "organizationType",
@@ -337,7 +337,9 @@ export class Seed9999999999999 implements MigrationInterface {
     const email = process.env.REVIEWER_EMAIL;
     const pass = process.env.REVIEWER_PASSWORD;
     if (!email || !pass) {
-      this.logger.verbose('REVIEWER_EMAIL / REVIEWER_PASSWORD not set — skipping reviewer seed.');
+      this.logger.verbose(
+        'REVIEWER_EMAIL / REVIEWER_PASSWORD not set — skipping reviewer seed.',
+      );
       return;
     }
 
@@ -404,7 +406,9 @@ export class Seed9999999999999 implements MigrationInterface {
     const email = process.env.BUYER_EMAIL;
     const pass = process.env.BUYER_PASSWORD;
     if (!email || !pass) {
-      this.logger.verbose('BUYER_EMAIL / BUYER_PASSWORD not set — skipping buyer seed.');
+      this.logger.verbose(
+        'BUYER_EMAIL / BUYER_PASSWORD not set — skipping buyer seed.',
+      );
       return;
     }
 
@@ -426,7 +430,8 @@ export class Seed9999999999999 implements MigrationInterface {
 
     const apiUserId = apiUser[0].api_user_id;
 
-    const organization = await queryRunner.query(`INSERT INTO public.organization (
+    const organization =
+      await queryRunner.query(`INSERT INTO public.organization (
       "name",
       "address",
       "organizationType",

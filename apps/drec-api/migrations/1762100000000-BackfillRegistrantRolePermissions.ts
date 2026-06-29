@@ -23,18 +23,58 @@ export class BackfillRegistrantRolePermissions1762100000000
       perms: string;
       value: number;
     }[] = [
-      { module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write',               value: 3  },
-      { module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      {
+        module: 'USER_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'DEVICE_BULK_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        module: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      { module: 'PASSWORD_MANAGEMENT_CRUDL', perms: 'Write', value: 2 },
+      {
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      {
+        module: 'SUBMISSION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
     ];
 
     for (const p of permissions) {
@@ -54,7 +94,7 @@ export class BackfillRegistrantRolePermissions1762100000000
     }
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // No-op: this migration only fills holes left by an earlier
     // migration. Reverting it would delete legitimate permission
     // rows that the original migration was meant to create.

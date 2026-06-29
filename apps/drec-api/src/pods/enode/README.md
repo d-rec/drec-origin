@@ -20,20 +20,25 @@ so the production-ceiling check and downstream issuance apply unchanged.
 The integration is **inert unless both client credentials are set** — it cannot
 affect existing flows when unconfigured.
 
-| Env var               | Required | Default                                         | Notes |
-|-----------------------|----------|-------------------------------------------------|-------|
-| `ENODE_CLIENT_ID`     | yes      | —                                               | enables the integration |
-| `ENODE_CLIENT_SECRET` | yes      | —                                               | enables the integration |
-| `ENODE_OAUTH_URL`     | no       | `https://oauth.sandbox.enode.io/oauth2/token`   | use the production URL for live |
-| `ENODE_API_URL`       | no       | `https://enode-api.sandbox.enode.io`            | use the production URL for live |
-| `ENODE_API_VERSION`   | no       | `2024-10-01`                                    | pins the response schema |
-| `ENODE_POLL_CRON`     | no       | hourly                                          | standard cron expression |
-| `ENODE_DEVICE_MAP`    | no       | `[]`                                            | JSON array, see below |
+| Env var               | Required | Default                                       | Notes                           |
+| --------------------- | -------- | --------------------------------------------- | ------------------------------- |
+| `ENODE_CLIENT_ID`     | yes      | —                                             | enables the integration         |
+| `ENODE_CLIENT_SECRET` | yes      | —                                             | enables the integration         |
+| `ENODE_OAUTH_URL`     | no       | `https://oauth.sandbox.enode.io/oauth2/token` | use the production URL for live |
+| `ENODE_API_URL`       | no       | `https://enode-api.sandbox.enode.io`          | use the production URL for live |
+| `ENODE_API_VERSION`   | no       | `2024-10-01`                                  | pins the response schema        |
+| `ENODE_POLL_CRON`     | no       | hourly                                        | standard cron expression        |
+| `ENODE_DEVICE_MAP`    | no       | `[]`                                          | JSON array, see below           |
 
 `ENODE_DEVICE_MAP` maps an Enode inverter to the D-REC device it feeds:
 
 ```json
-[{ "inverterId": "449c5d52-9ba7-44bb-9322-d5703ec5816e", "deviceExternalId": "AC0061" }]
+[
+  {
+    "inverterId": "449c5d52-9ba7-44bb-9322-d5703ec5816e",
+    "deviceExternalId": "AC0061"
+  }
+]
 ```
 
 ## Known limitations of this first cut

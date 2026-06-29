@@ -578,9 +578,7 @@ export class DeviceController {
   @Permission('Read')
   @ACLModules('DEVICE_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Get documents for a device' })
-  public async getDocuments(
-    @Param('id') id: string,
-  ): Promise<
+  public async getDocuments(@Param('id') id: string): Promise<
     {
       type: string;
       url: string;
@@ -772,7 +770,8 @@ export class DeviceController {
     @Req() req: Request,
   ): Promise<DeviceDTO> {
     this.logger.verbose(`With in create`);
-    let { organizationId, role, api_user_id } = user;
+    let { organizationId, api_user_id } = user;
+    const { role } = user;
     // Dual-path: multipart sends device data in `deviceToRegister` field;
     // plain JSON sends it directly as the body.
     const deviceToRegister = (
@@ -978,8 +977,7 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.PROOF_OF_OWNERSHIP]:
-            DocumentType.PROOF_OF_OWNERSHIP,
+          [DocumentType.PROOF_OF_OWNERSHIP]: DocumentType.PROOF_OF_OWNERSHIP,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
@@ -1176,9 +1174,7 @@ export class DeviceController {
             checkDevice.createdAt,
           );
 
-        if (
-          deviceToUpdate.commissioningDate != checkDevice.commissioningDate
-        ) {
+        if (deviceToUpdate.commissioningDate != checkDevice.commissioningDate) {
           if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
             this.logger.error(
               `Commissioning date cannot be changed due to existing meter reads available for ${checkDevice.serialNumber}`,
@@ -1198,7 +1194,9 @@ export class DeviceController {
       user.organizationId,
     );
     if (!deviceForUpdate) {
-      throw new NotFoundException(`No device found with identifier "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with identifier "${serialNumber}"`,
+      );
     }
 
     // Pass the resolved externalId so update()'s inner lookup hits on the first try.
@@ -1223,8 +1221,7 @@ export class DeviceController {
         const documentTypes = {
           [DocumentType.FORM_SF_02]: DocumentType.FORM_SF_02,
           [DocumentType.SF_02C]: DocumentType.SF_02C,
-          [DocumentType.PROOF_OF_OWNERSHIP]:
-            DocumentType.PROOF_OF_OWNERSHIP,
+          [DocumentType.PROOF_OF_OWNERSHIP]: DocumentType.PROOF_OF_OWNERSHIP,
           [DocumentType.METERING_EVIDENCE]: DocumentType.METERING_EVIDENCE,
           [DocumentType.SINGLE_LINE_DIAGRAM]: DocumentType.SINGLE_LINE_DIAGRAM,
           [DocumentType.PROJECT_PHOTOS]: DocumentType.PROJECT_PHOTOS,
@@ -1321,9 +1318,7 @@ export class DeviceController {
   })
   @ApiResponse({ status: HttpStatus.OK, description: 'Bulk delete result.' })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Admin only.' })
-  public async bulkRemove(
-    @Body() body: BulkDeleteDevicesDTO,
-  ): Promise<any> {
+  public async bulkRemove(@Body() body: BulkDeleteDevicesDTO): Promise<any> {
     this.logger.verbose(`bulkRemove ids=${body.ids.join(',')}`);
     return this.deviceService.bulkRemove(body.ids);
   }

@@ -233,7 +233,10 @@ export class InvitationController {
     }
 
     try {
-      if (loggedUser.role === Role.Admin || loggedUser.role === Role.Registrant) {
+      if (
+        loggedUser.role === Role.Admin ||
+        loggedUser.role === Role.Registrant
+      ) {
         if (organizationId === null || organizationId === undefined) {
           throw new BadRequestException(
             responseFailure(

@@ -28,6 +28,7 @@ import {
   DocumentEntity,
   DocumentType,
 } from '../document-uploads/entities/documents.entity';
+import { DocumentExtractionEntity } from '../document-uploads/entities/document-extraction.entity';
 import { FileService } from '../file';
 import { EvidentService } from '../evident/evident.service';
 import { EvidentDeviceService } from '../evident/evident-device.service';
@@ -71,6 +72,15 @@ describe('DeviceService', () => {
           },
         },
         {
+          provide: getRepositoryToken(DocumentExtractionEntity),
+          useValue: {
+            query: jest.fn(),
+            create: jest.fn(),
+            save: jest.fn(),
+            findOne: jest.fn(),
+          },
+        },
+        {
           provide: FileService,
           useValue: {
             upload: jest.fn().mockResolvedValue({
@@ -91,6 +101,7 @@ describe('DeviceService', () => {
             create: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
+            createQueryBuilder: jest.fn(),
           } as any,
         },
         {
@@ -312,19 +323,29 @@ describe('DeviceService', () => {
         ],
       };
       jest.spyOn(repository, 'findOne').mockReturnValue(undefined);
-      const saveSpy = jest
-        .spyOn(repository, 'save')
-        .mockResolvedValue(deviceEntity as any);
+      // serialNumber dup-check now runs through a canonical-serial query builder
+      jest.spyOn(repository, 'createQueryBuilder').mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(null),
+      } as any);
+      // register now persists inside a transaction via queryRunner.manager.save
+      const managerSave = jest.fn().mockResolvedValue(deviceEntity);
+      jest.spyOn(dataSource, 'createQueryRunner').mockReturnValue({
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
+        manager: { save: managerSave },
+      } as any);
 
       const result = await service.register(orgCode, newDevice, files as any);
 
-      const options = {
-        where: {
-          serialNumber: newDevice.serialNumber,
-          organizationId: orgCode,
-        },
-      };
-      expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining(newDevice));
+      expect(managerSave).toHaveBeenCalledWith(
+        repository.target,
+        expect.objectContaining(newDevice),
+      );
       expect(result).toEqual(deviceEntity);
     });
 
@@ -418,11 +439,10 @@ describe('DeviceService', () => {
         service.register(orgCode, newDevice, correctedFiles, apiUserId, role),
       ).rejects.toThrowError(ConflictException);
 
-      // Service checks siteName first, then serialNumber
+      // Service checks siteName first (platform-wide, not org-scoped), then serialNumber
       await expect(findOneSpy).toHaveBeenCalledWith({
         where: {
           siteName: newDevice.siteName,
-          organizationId: orgCode,
         },
       });
       await expect(findOneSpy).toBeDefined();
@@ -772,7 +792,7 @@ describe('DeviceService', () => {
           commissioningDate: '2024-02-01T06:59:11.000Z',
           gridInterconnection: true,
           offTaker: 'School',
-            impactStory: null,
+          impactStory: null,
           images: null,
           groupId: null,
           deviceDescription: 'Solar Lantern',
@@ -802,7 +822,7 @@ describe('DeviceService', () => {
           commissioningDate: '2020-09-04T21:08:21.890Z',
           gridInterconnection: true,
           offTaker: null,
-            impactStory: null,
+          impactStory: null,
           images: null,
           groupId: null,
           deviceDescription: null,
@@ -832,7 +852,7 @@ describe('DeviceService', () => {
           commissioningDate: '2020-09-04T21:08:21.890Z',
           gridInterconnection: true,
           offTaker: null,
-            impactStory: null,
+          impactStory: null,
           images: null,
           groupId: null,
           deviceDescription: null,
@@ -862,7 +882,7 @@ describe('DeviceService', () => {
           commissioningDate: '2022-11-26T10:06:56.640Z',
           gridInterconnection: true,
           offTaker: 'Residential',
-            impactStory: 'string',
+          impactStory: 'string',
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
@@ -892,7 +912,7 @@ describe('DeviceService', () => {
           commissioningDate: '1990-11-26T04:30:00.000Z',
           gridInterconnection: true,
           offTaker: 'Residential',
-            impactStory: 'string',
+          impactStory: 'string',
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
@@ -922,7 +942,7 @@ describe('DeviceService', () => {
           commissioningDate: '1990-11-26T04:30:00.000Z',
           gridInterconnection: true,
           offTaker: 'Residential',
-            impactStory: 'string',
+          impactStory: 'string',
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
@@ -952,7 +972,7 @@ describe('DeviceService', () => {
           commissioningDate: '2022-11-26T11:00:00.640Z',
           gridInterconnection: true,
           offTaker: 'Residential',
-            impactStory: 'string',
+          impactStory: 'string',
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
@@ -982,7 +1002,7 @@ describe('DeviceService', () => {
           commissioningDate: '2022-10-18T11:35:27.640Z',
           gridInterconnection: true,
           offTaker: 'Residential',
-            impactStory: 'string',
+          impactStory: 'string',
           images: ['string'],
           groupId: null,
           deviceDescription: 'Ground Mount Solar',
@@ -1370,8 +1390,15 @@ describe('DeviceService', () => {
 
   describe('findMultipleDevicesBasedExternalId', () => {
     it('should return an empty array when no devices are found', async () => {
-      // Mock repository to return an empty array
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+      // Lookup now folds confusable serials through a canonical-serial query builder
+      const qb = {
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([]),
+      };
+      const cqbSpy = jest
+        .spyOn(repository, 'createQueryBuilder')
+        .mockReturnValue(qb as any);
 
       // Execute the function
       const result = await service.findMultipleDevicesBasedExternalId(
@@ -1381,11 +1408,11 @@ describe('DeviceService', () => {
 
       // Assert
       expect(result).toEqual([]);
-      expect(findSpy).toHaveBeenCalledWith({
-        where: {
-          serialNumber: In(['non-existent-meter-id']),
-          organizationId: 1,
-        },
+      expect(cqbSpy).toHaveBeenCalledWith('device');
+      // serial is canonicalized (letter O -> digit 0) before lookup; the 'o'
+      // in "non-..." folds to '0'
+      expect(qb.andWhere).toHaveBeenCalledWith(expect.stringContaining('IN'), {
+        canonicalList: ['n0n-existent-meter-id'],
       });
     });
 
@@ -1502,10 +1529,15 @@ describe('DeviceService', () => {
         reload: jest.fn(),
       } as unknown as Device;
 
-      // Mock repository to return an array of devices
-      const findSpy = jest
-        .spyOn(repository, 'find')
-        .mockResolvedValue([deviceEntity1, deviceEntity2]);
+      // Mock the canonical-serial query builder to return the devices
+      const qb = {
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([deviceEntity1, deviceEntity2]),
+      };
+      const cqbSpy = jest
+        .spyOn(repository, 'createQueryBuilder')
+        .mockReturnValue(qb as any);
 
       // Execute the function
       const result = await service.findMultipleDevicesBasedExternalId(
@@ -1515,17 +1547,22 @@ describe('DeviceService', () => {
 
       // Assert
       expect(result).toEqual([deviceEntity1, deviceEntity2]);
-      expect(findSpy).toHaveBeenCalledWith({
-        where: {
-          serialNumber: In(['externalId1', 'externalId2']),
-          organizationId: 1,
-        },
+      expect(cqbSpy).toHaveBeenCalledWith('device');
+      expect(qb.andWhere).toHaveBeenCalledWith(expect.stringContaining('IN'), {
+        canonicalList: ['externalId1', 'externalId2'],
       });
     });
 
     it('should return null when the repository returns null', async () => {
-      // Mock repository to return null
-      const findSpy = jest.spyOn(repository, 'find').mockResolvedValue(null);
+      // Mock the query builder to return null
+      const qb = {
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue(null),
+      };
+      const cqbSpy = jest
+        .spyOn(repository, 'createQueryBuilder')
+        .mockReturnValue(qb as any);
 
       // Execute the function
       const result = await service.findMultipleDevicesBasedExternalId(
@@ -1535,31 +1572,26 @@ describe('DeviceService', () => {
 
       // Assert
       expect(result).toBeNull();
-      expect(findSpy).toHaveBeenCalledWith({
-        where: {
-          serialNumber: In(['meter-id-1']),
-          organizationId: 1,
-        },
-      });
+      expect(cqbSpy).toHaveBeenCalledWith('device');
     });
 
     it('should handle exceptions thrown by the repository', async () => {
-      // Mock repository to throw an error
-      const findSpy = jest
-        .spyOn(repository, 'find')
-        .mockRejectedValue(new Error('Database error'));
+      // Mock the query builder to throw
+      const qb = {
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockRejectedValue(new Error('Database error')),
+      };
+      const cqbSpy = jest
+        .spyOn(repository, 'createQueryBuilder')
+        .mockReturnValue(qb as any);
 
       // Assert that an error is thrown
       await expect(
         service.findMultipleDevicesBasedExternalId(['meter-id-1'], 1),
       ).rejects.toThrow('Database error');
 
-      expect(findSpy).toHaveBeenCalledWith({
-        where: {
-          serialNumber: In(['meter-id-1']),
-          organizationId: 1,
-        },
-      });
+      expect(cqbSpy).toHaveBeenCalledWith('device');
     });
   });
 
@@ -1666,7 +1698,7 @@ describe('DeviceService', () => {
           meterReadtype: null,
           IREC_Status: null,
           IREC_ID: null,
-            labels: 'labels',
+          labels: 'labels',
           serialNumber: 'SN123455',
         }),
       );

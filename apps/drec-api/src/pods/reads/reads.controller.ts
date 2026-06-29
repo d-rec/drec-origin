@@ -221,9 +221,7 @@ export class ReadsController {
         user.role === Role.Registrant &&
         user.organizationId != filter.organizationId
       ) {
-        this.logger.error(
-          `You cannot view the reads of another organization`,
-        );
+        this.logger.error(`You cannot view the reads of another organization`);
         throw new BadRequestException({
           success: false,
           message: `You cannot view the reads of another organization`,
@@ -234,9 +232,7 @@ export class ReadsController {
         user.role != Role.Admin &&
         user.api_user_id != organization.api_user_id
       ) {
-        this.logger.error(
-          `You cannot view the reads of another API user`,
-        );
+        this.logger.error(`You cannot view the reads of another API user`);
         throw new BadRequestException({
           success: false,
           message: `You cannot view the reads of another API user`,
@@ -477,7 +473,10 @@ export class ReadsController {
         `Only .csv files supported (got "${file.originalname}")`,
       );
     }
-    const sumCols = sumColumns?.split(',').map((s) => s.trim()).filter(Boolean);
+    const sumCols = sumColumns
+      ?.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
     const intervalMin = intervalMinutes ? Number(intervalMinutes) : undefined;
     const parsed = await parseWideMeterCsv(file.buffer, {
       valueColumn: valueColumn?.trim() || undefined,
@@ -497,9 +496,7 @@ export class ReadsController {
       const starts = parsed.reads.map((r) =>
         new Date(r.starttimestamp).getTime(),
       );
-      const ends = parsed.reads.map((r) =>
-        new Date(r.endtimestamp).getTime(),
-      );
+      const ends = parsed.reads.map((r) => new Date(r.endtimestamp).getTime());
       const minStart = new Date(Math.min(...starts));
       const maxEnd = new Date(Math.max(...ends));
       deletedOverlapping = await this.readsService.deleteHistoryReadsInRange(

@@ -6,12 +6,10 @@ import {
   IsDate,
   IsEnum,
   IsIn,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   Matches,
-  MaxDate,
   Min,
   ValidateIf,
 } from 'class-validator';
@@ -20,12 +18,22 @@ import { countryCodesList } from '../../../models/country-code';
 import { ConvertToNullIfEmpty, Trim } from '../../../transformers/string';
 import { UpperCase } from '../../../transformers/uppercase';
 import { DocumentType } from '../../document-uploads/entities/documents.entity';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
+import {
+  DeviceTypeCode,
+  FuelCode,
+  OffTaker,
+  OperatingConfiguration,
+  RegistrationType,
+  SourceAccessMode,
+  SubsidyType,
+  VolumeEvidenceType,
+  YesNo,
+} from '../../../utils/enums';
 
-export class NewDeviceDTO implements Omit<
-  IDevice,
-  'id' | 'status' | 'organizationId' | 'labels' | 'groupId'
-> {
+export class NewDeviceDTO
+  implements
+    Omit<IDevice, 'id' | 'status' | 'organizationId' | 'labels' | 'groupId'>
+{
   @ApiProperty()
   @Trim()
   @IsOptional()
@@ -80,8 +88,7 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d+)?$/, {
-    message:
-      'Latitude should be a number from -90 to +90.',
+    message: 'Latitude should be a number from -90 to +90.',
   })
   latitude: string;
 
@@ -89,8 +96,7 @@ export class NewDeviceDTO implements Omit<
   @IsOptional()
   @IsString()
   @Matches(/^-?\d{1,3}(\.\d+)?$/, {
-    message:
-      'Longitude should be a number from -180 to +180.',
+    message: 'Longitude should be a number from -180 to +180.',
   })
   longitude: string;
 

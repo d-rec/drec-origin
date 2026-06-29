@@ -5,10 +5,7 @@ import { NasaPowerService } from './nasa-power.service';
 import { NasaPowerMonthlyCache } from './nasa-power-monthly-cache.entity';
 
 @Module({
-  imports: [
-    HttpModule,
-    TypeOrmModule.forFeature([NasaPowerMonthlyCache]),
-  ],
+  imports: [HttpModule, TypeOrmModule.forFeature([NasaPowerMonthlyCache])],
   providers: [NasaPowerService],
   exports: [NasaPowerService],
 })

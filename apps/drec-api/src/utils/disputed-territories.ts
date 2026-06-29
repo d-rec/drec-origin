@@ -25,7 +25,12 @@ export interface DisputedTerritory {
 }
 
 /** Bounding box helper — produces a rectangle polygon. */
-function bbox(minLng: number, minLat: number, maxLng: number, maxLat: number): Array<[number, number]> {
+function bbox(
+  minLng: number,
+  minLat: number,
+  maxLng: number,
+  maxLat: number,
+): Array<[number, number]> {
   return [
     [minLng, minLat],
     [maxLng, minLat],
@@ -69,7 +74,7 @@ export const DISPUTED_TERRITORIES: DisputedTerritory[] = [
     id: 'gaza',
     name: 'Gaza Strip',
     claimants: ['ISR', 'PSE'],
-    polygon: bbox(34.22, 31.22, 34.58, 31.60),
+    polygon: bbox(34.22, 31.22, 34.58, 31.6),
   },
   {
     id: 'golan-heights',
@@ -105,31 +110,31 @@ export const DISPUTED_TERRITORIES: DisputedTerritory[] = [
     id: 'northern-cyprus',
     name: 'Northern Cyprus',
     claimants: ['CYP', 'TUR'],
-    polygon: bbox(32.26, 34.98, 34.60, 35.70),
+    polygon: bbox(32.26, 34.98, 34.6, 35.7),
   },
   {
     id: 'abkhazia',
     name: 'Abkhazia',
     claimants: ['GEO', 'RUS'],
-    polygon: bbox(40.00, 42.38, 42.30, 43.60),
+    polygon: bbox(40.0, 42.38, 42.3, 43.6),
   },
   {
     id: 'south-ossetia',
     name: 'South Ossetia',
     claimants: ['GEO', 'RUS'],
-    polygon: bbox(43.40, 42.20, 44.60, 42.80),
+    polygon: bbox(43.4, 42.2, 44.6, 42.8),
   },
   {
     id: 'transnistria',
     name: 'Transnistria (Pridnestrovie)',
     claimants: ['MDA', 'RUS'],
-    polygon: bbox(28.85, 46.15, 30.15, 48.50),
+    polygon: bbox(28.85, 46.15, 30.15, 48.5),
   },
   {
     id: 'nagorno-karabakh',
     name: 'Nagorno-Karabakh',
     claimants: ['ARM', 'AZE'],
-    polygon: bbox(45.90, 39.40, 47.20, 40.45),
+    polygon: bbox(45.9, 39.4, 47.2, 40.45),
   },
 ];
 
@@ -144,8 +149,7 @@ export function pointInPolygon(
     const [xi, yi] = polygon[i];
     const [xj, yj] = polygon[j];
     const intersects =
-      yi > lat !== yj > lat &&
-      lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+      yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
     if (intersects) inside = !inside;
   }
   return inside;

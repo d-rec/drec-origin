@@ -317,9 +317,7 @@ describe('DeviceGroupService', () => {
       jest
         .spyOn(userService, 'findByEmail')
         .mockResolvedValue({ role: Role.Registrant } as any);
-      jest
-        .spyOn(service, 'checkDeviceOrganization')
-        .mockResolvedValue(false);
+      jest.spyOn(service, 'checkDeviceOrganization').mockResolvedValue(false);
 
       await expect(service.findById(deviceGroupUid, mockUser)).rejects.toThrow(
         UnauthorizedException,

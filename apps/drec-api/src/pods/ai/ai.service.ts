@@ -7,7 +7,6 @@ import { AiResponseCache } from './ai-response-cache.entity';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const SONNET_MODEL = 'claude-sonnet-4-6';
-const OPUS_MODEL = 'claude-opus-4-7';
 const MAX_INPUT_CHARS = 8000;
 
 /**
@@ -334,12 +333,12 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 6,        // bumped 2026-05-27 — vision now always fires when images supplied (was gated on text<200 chars, leaking screenshots into Haiku-text-only)
-    'extract-sld-fields': 11,       // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
-    'extract-sf02-fields': 12,      // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
-    'extract-sf02c-fields': 11,     // bumped 2026-05-26 — 5 pages × 1024px
-    'extract-cod-fields': 14,       // bumped 2026-05-26 — 5 pages × 1024px
-    'extract-meter-ids-fields': 3,        // bumped 2026-05-27 — switched to Sonnet 4.6 for stronger vision on portal device tables
+    'classify-document': 6, // bumped 2026-05-27 — vision now always fires when images supplied (was gated on text<200 chars, leaking screenshots into Haiku-text-only)
+    'extract-sld-fields': 11, // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
+    'extract-sf02-fields': 12, // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
+    'extract-sf02c-fields': 11, // bumped 2026-05-26 — 5 pages × 1024px
+    'extract-cod-fields': 14, // bumped 2026-05-26 — 5 pages × 1024px
+    'extract-meter-ids-fields': 3, // bumped 2026-05-27 — switched to Sonnet 4.6 for stronger vision on portal device tables
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
   };
@@ -625,7 +624,8 @@ export class AiService {
         ),
       })),
       topOrgs: topOrgRows.map((r) => ({
-        organizationId: r.organizationId == null ? null : Number(r.organizationId),
+        organizationId:
+          r.organizationId == null ? null : Number(r.organizationId),
         organizationName: r.organizationName ?? null,
         calls: Number(r.calls),
         estimatedUsd: costAnthropic(
@@ -709,8 +709,7 @@ export class AiService {
     // only, ignoring the image entirely and returning whatever Haiku
     // could guess from the garbage (usually OTHER_DOCUMENTS). Text,
     // when present, is added to the vision prompt as an extra hint.
-    const useVision =
-      Array.isArray(input.images) && input.images.length > 0;
+    const useVision = Array.isArray(input.images) && input.images.length > 0;
     const visionCues = [
       `STRONGEST VISUAL CUES (apply these BEFORE anything else):`,
       `  • Browser screenshot of a solar monitoring portal — Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar, PowerTrust, etc. Tell-tale signs: the portal logo / product name in the header, navigation tabs like "Plants / Devices / Reports / Management", a tabular device list with columns like "SN", "Model", "Capacity", "Data Logger", or a chart of generation over time. ALWAYS classify as METERING_EVIDENCE, no matter what else is on screen.`,
@@ -785,7 +784,9 @@ export class AiService {
         typeof parsed.suggestedType !== 'string' ||
         !input.validTypes.includes(parsed.suggestedType)
       ) {
-        throw new Error(`Model returned unparseable / off-list response: ${raw}`);
+        throw new Error(
+          `Model returned unparseable / off-list response: ${raw}`,
+        );
       }
       const result: ClassifyDocumentResult = {
         suggestedType: parsed.suggestedType,
@@ -931,19 +932,20 @@ export class AiService {
       }
       const result: ClassifySourceAccessModeResult = {
         suggestedMode: {
-          value: typeof parsed.suggestedMode?.value === 'string'
-            ? parsed.suggestedMode.value
-            : (null as any),
+          value:
+            typeof parsed.suggestedMode?.value === 'string'
+              ? parsed.suggestedMode.value
+              : (null as any),
           confidence: Number(parsed.suggestedMode?.confidence ?? 0),
         },
         evidenceShape: {
-          value: typeof parsed.evidenceShape?.value === 'string'
-            ? parsed.evidenceShape.value
-            : (null as any),
+          value:
+            typeof parsed.evidenceShape?.value === 'string'
+              ? parsed.evidenceShape.value
+              : (null as any),
           confidence: Number(parsed.evidenceShape?.confidence ?? 0),
         },
-        reasoning:
-          typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+        reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
       };
       success = true;
       void this.cacheStore(
@@ -1089,9 +1091,10 @@ export class AiService {
           data: img.base64,
         },
       }));
-      const textBlock = input.text && input.text.trim().length
-        ? `\n\nPDF text layer (use to confirm labels the vision pass misses):\n"""\n${input.text.slice(0, MAX_INPUT_CHARS)}\n"""\n`
-        : '';
+      const textBlock =
+        input.text && input.text.trim().length
+          ? `\n\nPDF text layer (use to confirm labels the vision pass misses):\n"""\n${input.text.slice(0, MAX_INPUT_CHARS)}\n"""\n`
+          : '';
       const res = await client.messages.create({
         model: HAIKU_MODEL,
         // 2048 truncated on busy diagrams where the model produced long
@@ -1384,8 +1387,7 @@ export class AiService {
                 note: typeof d.note === 'string' ? d.note : '',
               }))
           : [],
-        reasoning:
-          typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+        reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
       };
       success = true;
       void this.cacheStore(input.contentHash, 'verify-od-template', result);
@@ -1498,8 +1500,7 @@ export class AiService {
     return {
       measurementIds: idsField,
       inverterMakeModel: this.strField(parsed.inverterMakeModel),
-      reasoning:
-        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
 
@@ -1572,7 +1573,12 @@ export class AiService {
     // multi-site cert with different siteName filters must NOT share
     // cached results.
     const siteSalted = input.siteName
-      ? { ...input, contentHash: input.contentHash ? `${input.contentHash}#site=${input.siteName}` : undefined }
+      ? {
+          ...input,
+          contentHash: input.contentHash
+            ? `${input.contentHash}#site=${input.siteName}`
+            : undefined,
+        }
       : input;
     const parsed = await this.runDocExtraction(
       'extract-cod-fields',
@@ -1604,8 +1610,7 @@ export class AiService {
       stateProvince: this.strField(parsed.stateProvince),
       offTakerName: this.strField(parsed.offTakerName),
       measurementIds,
-      reasoning:
-        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
 
@@ -1677,8 +1682,7 @@ export class AiService {
       inverterCount: this.numField(parsed.inverterCount),
       moduleCount: this.numField(parsed.moduleCount),
       networkOwner: this.strField(parsed.networkOwner),
-      reasoning:
-        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
 
@@ -1793,16 +1797,45 @@ export class AiService {
    *  low-confidence hints in the UI. Diacritics stripped before lookup. */
   private static readonly GENERIC_SITE_NAME_TOKENS = new Set([
     // English
-    'system', 'systems', 'project', 'projects', 'facility', 'facilities',
-    'plant', 'plants', 'site', 'sites', 'solar', 'power', 'energy', 'farm', 'pv',
+    'system',
+    'systems',
+    'project',
+    'projects',
+    'facility',
+    'facilities',
+    'plant',
+    'plants',
+    'site',
+    'sites',
+    'solar',
+    'power',
+    'energy',
+    'farm',
+    'pv',
     // Vietnamese (diacritics stripped: "Hệ thống" → "he thong")
-    'he', 'thong', 'du', 'an', 'nha', 'may', 'dien', 'mat', 'troi',
+    'he',
+    'thong',
+    'du',
+    'an',
+    'nha',
+    'may',
+    'dien',
+    'mat',
+    'troi',
     // Spanish / Portuguese
-    'sistema', 'planta', 'proyecto', 'instalacion', 'energia',
+    'sistema',
+    'planta',
+    'proyecto',
+    'instalacion',
+    'energia',
     // French
-    'systeme', 'projet', 'installation', 'centrale',
+    'systeme',
+    'projet',
+    'installation',
+    'centrale',
     // German
-    'anlage', 'kraftwerk',
+    'anlage',
+    'kraftwerk',
   ]);
 
   /** True when the extracted "site name" is just a string of generic
@@ -1861,8 +1894,7 @@ export class AiService {
       signingDate: strField(parsed.signingDate),
       signatoryName: strField(parsed.signatoryName),
       signatoryEmail: strField(parsed.signatoryEmail),
-      reasoning:
-        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
 
@@ -1929,7 +1961,7 @@ export class AiService {
       const product = Math.round(cnt * each * 100) / 100;
       const claimed = result.acCapacityKw.value;
       const drift = Math.abs(claimed - product) / Math.max(product, 1);
-      if (drift > 0.10) {
+      if (drift > 0.1) {
         const cConf = result.inverterCount?.confidence ?? 0.5;
         const eConf = result.inverterCapacityKw?.confidence ?? 0.5;
         result.acCapacityKw = {
@@ -2026,9 +2058,7 @@ export class AiService {
   }
 
   /** Boolean-typed ExtractedField with region + reasoning carry-through. */
-  private boolFieldCommon(
-    raw: any,
-  ): ExtractedField<boolean> | undefined {
+  private boolFieldCommon(raw: any): ExtractedField<boolean> | undefined {
     if (!raw || raw.value === null || raw.value === undefined) return undefined;
     return this.withRegion(
       {
@@ -2059,10 +2089,11 @@ export class AiService {
       hasNetworkMeter: boolField(parsed.hasNetworkMeter),
       gridExportType: strField(parsed.gridExportType),
       hasAuxiliaryEnergySources: boolField(parsed.hasAuxiliaryEnergySources),
-      auxiliaryEnergySourceDetails: strField(parsed.auxiliaryEnergySourceDetails),
+      auxiliaryEnergySourceDetails: strField(
+        parsed.auxiliaryEnergySourceDetails,
+      ),
       hasCaptiveConsumer: boolField(parsed.hasCaptiveConsumer),
-      reasoning:
-        typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
 
@@ -2097,4 +2128,3 @@ export class AiService {
     return n;
   }
 }
-

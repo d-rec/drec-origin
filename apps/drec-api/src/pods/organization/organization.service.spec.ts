@@ -10,6 +10,7 @@ import { BlockchainPropertiesService } from '@energyweb/issuer-api';
 import { UserService } from '../user/user.service';
 import { MailService } from '../../mail/mail.service';
 import { FileService } from '../file';
+import { OrgApiLicensesService } from '../org-api-licenses/org-api-licenses.service';
 import { OrganizationFilterDTO } from '../admin/dto/organization-filter.dto';
 import { LoggedInUser } from '../../models';
 import {
@@ -60,6 +61,12 @@ describe('OrganizationService', () => {
         {
           provide: FileService,
           useValue: {} as any,
+        },
+        {
+          provide: OrgApiLicensesService,
+          useValue: {
+            initializeCredits: jest.fn(),
+          } as any,
         },
       ],
     }).compile();

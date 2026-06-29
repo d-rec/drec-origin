@@ -51,7 +51,10 @@ export class DebugController {
       'Sink for browser console events streamed from the UI when ?debug=1 is set on stage',
   })
   async ingest(@Body() body: BrowserLogPayload): Promise<void> {
-    if (process.env.MODE === 'production' || process.env.NODE_ENV === 'production') {
+    if (
+      process.env.MODE === 'production' ||
+      process.env.NODE_ENV === 'production'
+    ) {
       return; // hard-stop on prod
     }
     if (!body?.events?.length) return;

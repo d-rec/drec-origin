@@ -28,7 +28,8 @@ export class MergeDeviceOwnerIntoSiteOperator1759900600000
     } else {
       // SiteOperator row exists — merge permissions and delete DeviceOwner row
       const siteOpId = siteOpRole[0].id;
-      await queryRunner.query(`
+      await queryRunner.query(
+        `
         UPDATE "aclmodulepermissions"
         SET "entityId" = $1
         WHERE "entityId" = 3
@@ -37,7 +38,9 @@ export class MergeDeviceOwnerIntoSiteOperator1759900600000
             SELECT "aclmodulesId" FROM "aclmodulepermissions"
             WHERE "entityId" = $1 AND "entityType" = 'Role'
           )
-      `, [siteOpId]);
+      `,
+        [siteOpId],
+      );
 
       await queryRunner.query(`
         DELETE FROM "aclmodulepermissions"

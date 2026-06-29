@@ -22,7 +22,7 @@ export class MigrateDeveloperToMarketIntermediary1759900400000
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // Cannot reliably reverse — we don't know which orgs were originally Developer
     // This is intentionally a no-op
   }

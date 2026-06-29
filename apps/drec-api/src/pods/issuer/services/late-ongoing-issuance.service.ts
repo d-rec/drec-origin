@@ -80,7 +80,11 @@ export class LateOngoingIssuanceService {
         Sentry.captureMessage(msg, {
           level: 'error',
           tags: { check: 'late_ongoing_worker_liveness' },
-          extra: { pending: pendingNum, lastCheckedAt: last_checked, ageHours: Number(ageH) },
+          extra: {
+            pending: pendingNum,
+            lastCheckedAt: last_checked,
+            ageHours: Number(ageH),
+          },
         });
       }
     } catch (err) {

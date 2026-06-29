@@ -71,7 +71,12 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Bhagauli, IN', lat: 27.2308042, lon: 80.2977929 },
   { name: 'Bawan, IN', lat: 27.39706, lon: 80.022158, labelOnly: true },
   { name: 'Kalauli, IN', lat: 27.1226161, lon: 80.315018 },
-  { name: 'Ganj Muradabad, IN', lat: 26.9587116, lon: 80.1836987, labelOnly: true },
+  {
+    name: 'Ganj Muradabad, IN',
+    lat: 26.9587116,
+    lon: 80.1836987,
+    labelOnly: true,
+  },
   { name: 'Banda, IN', lat: 28.2411253, lon: 80.11016313, labelOnly: true },
   { name: 'Bihat Gaud, IN', lat: 27.5592695, lon: 80.4899989, labelOnly: true },
   { name: 'Bahai, IN', lat: 26.1289326, lon: 81.001229 },
@@ -97,16 +102,31 @@ const FEATURED: FeaturedSite[] = [
   { name: 'Pratapnagar, IN', lat: 27.32506, lon: 80.42972 },
   { name: 'Pipargaon, IN', lat: 27.1240747, lon: 80.7369858 },
   { name: 'Sansarpur, IN', lat: 28.1399152, lon: 80.3617823 },
-  { name: 'Aurangabad Village, IN', lat: 27.34581667, lon: 80.54310278, labelOnly: true },
+  {
+    name: 'Aurangabad Village, IN',
+    lat: 27.34581667,
+    lon: 80.54310278,
+    labelOnly: true,
+  },
   { name: 'Hargaon, IN', lat: 27.7603971, lon: 80.7319728 },
   { name: 'Kampil, IN', lat: 27.6096211, lon: 79.2761528 },
   { name: 'Kaant, IN', lat: 27.8067297, lon: 79.7941142 },
   { name: 'Rampur Mathura, IN', lat: 27.3605336, lon: 81.3174024 },
   { name: 'Sanda, IN', lat: 27.577461, lon: 81.0593793 },
-  { name: 'Shahbaz Nagar, IN', lat: 27.92563333, lon: 79.88403056, labelOnly: true },
+  {
+    name: 'Shahbaz Nagar, IN',
+    lat: 27.92563333,
+    lon: 79.88403056,
+    labelOnly: true,
+  },
   { name: 'Som, IN', lat: 27.07791389, lon: 80.45518889, labelOnly: true },
   { name: 'Gangsara, IN', lat: 28.1263123, lon: 80.1695645 },
-  { name: 'Bangarmou / Naunihalganj, IN', lat: 26.90336667, lon: 80.2151, labelOnly: true },
+  {
+    name: 'Bangarmou / Naunihalganj, IN',
+    lat: 26.90336667,
+    lon: 80.2151,
+    labelOnly: true,
+  },
   { name: 'Bejham, IN', lat: 27.8819991, lon: 80.6348419 },
   { name: 'Belagusisi, IN', lat: 26.112, lon: 81.21024444, labelOnly: true },
   { name: 'Maholi, IN', lat: 27.6560439, lon: 80.474773 },
@@ -133,14 +153,44 @@ const FEATURED: FeaturedSite[] = [
   // crosshair, then 2 re-confirmed via the haiti2 re-audit (the prior audit
   // ring was too small relative to the cutaway disc — panels visible in the
   // wider disc had been missed).
-  { name: 'Okra Solar, HT', lat: 19.20520641, lon: -72.49656819, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.21009143, lon: -72.51078575, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.2260702, lon: -72.5219985, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.2207567, lon: -72.5163421, labelOnly: true },
-  { name: 'Okra Solar, HT', lat: 19.2200273, lon: -72.5162294, labelOnly: true },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.20520641,
+    lon: -72.49656819,
+    labelOnly: true,
+  },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.21009143,
+    lon: -72.51078575,
+    labelOnly: true,
+  },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.2260702,
+    lon: -72.5219985,
+    labelOnly: true,
+  },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.2207567,
+    lon: -72.5163421,
+    labelOnly: true,
+  },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.2200273,
+    lon: -72.5162294,
+    labelOnly: true,
+  },
   { name: 'Okra Solar, HT', lat: 19.2194404, lon: -72.516219 },
   { name: 'Okra Solar, HT', lat: 19.2190465, lon: -72.5164148 },
-  { name: 'Okra Solar, HT', lat: 19.2179321, lon: -72.5148441, labelOnly: true },
+  {
+    name: 'Okra Solar, HT',
+    lat: 19.2179321,
+    lon: -72.5148441,
+    labelOnly: true,
+  },
   // Visually-confirmed cutaway-eligible sites added 2026-05-03 from a stage-DB
   // candidate sweep (≥6 decimal precision, non-IND/HTI). Each verified at z=19
   // satellite imagery; one Uganda entry recentered onto the panel array.
@@ -168,8 +218,8 @@ const FEATURED: FeaturedSite[] = [
   // "Kenya, KE" callout but the three dots remain distinct on the globe.
   // Replace each lat/lon as PT registers each device.
   { name: 'Kenya, KE', lat: -1.2921, lon: 36.8219, labelOnly: true },
-  { name: 'Kenya, KE', lat: -1.20, lon: 36.95, labelOnly: true },
-  { name: 'Kenya, KE', lat: -1.40, lon: 36.70, labelOnly: true },
+  { name: 'Kenya, KE', lat: -1.2, lon: 36.95, labelOnly: true },
+  { name: 'Kenya, KE', lat: -1.4, lon: 36.7, labelOnly: true },
 ];
 
 @ApiTags('Featured Sites')
@@ -228,8 +278,18 @@ export class FeaturedSitesController {
     `);
     const cc2 = (cc: string): string =>
       ({
-        BRA: 'BR', GHA: 'GH', GTM: 'GT', IDN: 'ID', KHM: 'KH', MYS: 'MY',
-        NGA: 'NG', NPL: 'NP', PHL: 'PH', THA: 'TH', UGA: 'UG', VNM: 'VN',
+        BRA: 'BR',
+        GHA: 'GH',
+        GTM: 'GT',
+        IDN: 'ID',
+        KHM: 'KH',
+        MYS: 'MY',
+        NGA: 'NG',
+        NPL: 'NP',
+        PHL: 'PH',
+        THA: 'TH',
+        UGA: 'UG',
+        VNM: 'VN',
         ZAF: 'ZA',
       })[cc] || cc;
     const live: FeaturedSite[] = rows
@@ -238,7 +298,11 @@ export class FeaturedSitesController {
         const lon = parseFloat(r.longitude);
         if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
         if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
-        const name = r.siteName.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/[,\s]+$/, '');
+        const name = r.siteName
+          .replace(/[\r\n]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/[,\s]+$/, '');
         if (!name) return null;
         return {
           name: `${name}, ${cc2(r.countryCode)}`,

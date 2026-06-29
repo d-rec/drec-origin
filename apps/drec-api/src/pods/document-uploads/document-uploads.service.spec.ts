@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DocumentUploadsService } from './document-uploads.service';
 import { DocumentEntity } from './entities/documents.entity';
+import { DocumentExtractionEntity } from './entities/document-extraction.entity';
 import { FileService } from '../file/file.service';
 import { DataSource, Repository } from 'typeorm';
 import { Organization } from '../organization/organization.entity';
@@ -17,6 +18,15 @@ describe('DocumentUploadsService', () => {
         {
           provide: getRepositoryToken(DocumentEntity),
           useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(DocumentExtractionEntity),
+          useValue: {
+            query: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
             findOne: jest.fn(),

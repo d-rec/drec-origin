@@ -40,7 +40,9 @@ export class TranslateService {
     ctx: { userId?: number; organizationId?: number } = {},
   ): Promise<TranslateResult> {
     if (!apiKey) {
-      throw new BadRequestException('Translation is not configured — set the DeepL API key in Organization > Licenses');
+      throw new BadRequestException(
+        'Translation is not configured — set the DeepL API key in Organization > Licenses',
+      );
     }
 
     const host = this.deeplHost(apiKey);
@@ -109,7 +111,9 @@ export class TranslateService {
     });
     if (!res.ok) {
       const body = await res.text();
-      throw new BadRequestException(`DeepL /v2/usage ${res.status}: ${body.slice(0, 200)}`);
+      throw new BadRequestException(
+        `DeepL /v2/usage ${res.status}: ${body.slice(0, 200)}`,
+      );
     }
     const data = (await res.json()) as {
       character_count: number;

@@ -69,8 +69,8 @@ export class FieldProvenanceBackfillService {
     const existingProvenance: Record<string, any> =
       device.fieldProvenance ?? {};
 
-    const docs: Array<{ url: string; type: string }> = await this.connection
-      .query(
+    const docs: Array<{ url: string; type: string }> =
+      await this.connection.query(
         `SELECT url, type FROM documents
          WHERE target_id = $1 AND target_type = 'device'
            AND type = $2
@@ -97,16 +97,35 @@ export class FieldProvenanceBackfillService {
     // The fields the SLD extractor knows about, mapped to the device's
     // current column values. Keep in sync with extractSldFields in
     // ai.service.ts.
-    const fieldMap: Record<string, { current: any; transform?: (v: any) => any }> = {
-      gridInterconnection: { current: device.gridInterconnection, transform: (v) => !!v },
-      capacity:            { current: device.capacity != null ? Number(device.capacity) : null },
+    const fieldMap: Record<
+      string,
+      { current: any; transform?: (v: any) => any }
+    > = {
+      gridInterconnection: {
+        current: device.gridInterconnection,
+        transform: (v) => !!v,
+      },
+      capacity: {
+        current: device.capacity != null ? Number(device.capacity) : null,
+      },
       interconnectionVoltage: { current: device.interconnectionVoltage },
-      networkOwner:        { current: device.networkOwner },
-      hasNetworkMeter:     { current: device.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
-      gridExportType:      { current: device.gridExportType },
-      hasAuxiliaryEnergySources: { current: device.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
-      auxiliaryEnergySourceDetails: { current: device.auxiliaryEnergySourceDetails },
-      hasCaptiveConsumer:  { current: device.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
+      networkOwner: { current: device.networkOwner },
+      hasNetworkMeter: {
+        current: device.hasNetworkMeter,
+        transform: (v) => (v ? 'Yes' : 'No'),
+      },
+      gridExportType: { current: device.gridExportType },
+      hasAuxiliaryEnergySources: {
+        current: device.hasAuxiliaryEnergySources,
+        transform: (v) => (v ? 'Yes' : 'No'),
+      },
+      auxiliaryEnergySourceDetails: {
+        current: device.auxiliaryEnergySourceDetails,
+      },
+      hasCaptiveConsumer: {
+        current: device.hasCaptiveConsumer,
+        transform: (v) => (v ? 'Yes' : 'No'),
+      },
     };
 
     const client = new Anthropic({ apiKey: anthropicKey });
@@ -251,7 +270,9 @@ export class FieldProvenanceBackfillService {
     const jsonStart = raw.indexOf('{');
     const jsonEnd = raw.lastIndexOf('}');
     if (jsonStart < 0 || jsonEnd < 0) {
-      throw new Error(`Model returned unparseable response: ${raw.slice(0, 200)}`);
+      throw new Error(
+        `Model returned unparseable response: ${raw.slice(0, 200)}`,
+      );
     }
     return JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
   }

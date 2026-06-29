@@ -13,7 +13,7 @@ export class FixStaleRoleIds1759900700000 implements MigrationInterface {
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // No revert needed — this is a data consistency fix
   }
 }

@@ -61,7 +61,8 @@ function normalizeCountry(code: string | null | undefined): string | null {
   if (!trimmed) return null;
   const upper = trimmed.toUpperCase();
   if (upper.length === 3 && /^[A-Z]+$/.test(upper)) return upper;
-  if (upper.length === 2 && /^[A-Z]+$/.test(upper)) return alpha2ToAlpha3(upper);
+  if (upper.length === 2 && /^[A-Z]+$/.test(upper))
+    return alpha2ToAlpha3(upper);
   // Full-name match — case-insensitive, exact name match against the
   // canonical country list.
   const byName = countryCodesList.find(

@@ -24,43 +24,188 @@ export class SeedCoreRolePermissions1759901100000
       value: number;
     }[] = [
       // ── Registrant ──
-      { role: 'Registrant', module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'DEVICE_BULK_MANAGEMENT_CRUDL',     perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { role: 'Registrant', module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Registrant', module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
-      { role: 'Registrant', module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',  perms: 'Read,Write',               value: 3  },
-      { role: 'Registrant', module: 'SUBMISSION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
+      {
+        role: 'Registrant',
+        module: 'USER_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'DEVICE_BULK_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'Registrant',
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Registrant',
+        module: 'PASSWORD_MANAGEMENT_CRUDL',
+        perms: 'Write',
+        value: 2,
+      },
+      {
+        role: 'Registrant',
+        module: 'DEVICE_REVIEWS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      {
+        role: 'Registrant',
+        module: 'SUBMISSION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
 
       // ── Buyer ──
-      { role: 'Buyer', module: 'USER_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update', value: 7  },
-      { role: 'Buyer', module: 'ORGANIZATION_MANAGEMENT_CRUDL',    perms: 'Read',              value: 1  },
-      { role: 'Buyer', module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read',              value: 1  },
-      { role: 'Buyer', module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',              value: 1  },
-      { role: 'Buyer', module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'Buyer', module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',             value: 2  },
+      {
+        role: 'Buyer',
+        module: 'USER_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update',
+        value: 7,
+      },
+      {
+        role: 'Buyer',
+        module: 'ORGANIZATION_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'Buyer',
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'Buyer',
+        module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'Buyer',
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'Buyer',
+        module: 'PASSWORD_MANAGEMENT_CRUDL',
+        perms: 'Write',
+        value: 2,
+      },
 
       // ── SubBuyer ──
-      { role: 'SubBuyer', module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL', perms: 'Read,Write',               value: 3  },
-      { role: 'SubBuyer', module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { role: 'SubBuyer', module: 'INVITATION_MANAGEMENT_CRUDL',      perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'SubBuyer', module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      {
+        role: 'SubBuyer',
+        module: 'DEVICE_GROUPING_MANAGEMENT_CRUDL',
+        perms: 'Read,Write',
+        value: 3,
+      },
+      {
+        role: 'SubBuyer',
+        module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'SubBuyer',
+        module: 'INVITATION_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'SubBuyer',
+        module: 'PASSWORD_MANAGEMENT_CRUDL',
+        perms: 'Write',
+        value: 2,
+      },
 
       // ── MarketIntermediary (modules not covered by 1759900300000) ──
-      { role: 'MarketIntermediary', module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL', perms: 'Read',                     value: 1  },
-      { role: 'MarketIntermediary', module: 'DEVICE_MANAGEMENT_CRUDL',          perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'MarketIntermediary', module: 'FILE_MANAGEMENT_CRUDL',            perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'MarketIntermediary', module: 'READS_MANAGEMENT_CRUDL',           perms: 'Read,Write,Update,Delete', value: 15 },
-      { role: 'MarketIntermediary', module: 'PASSWORD_MANAGEMENT_CRUDL',        perms: 'Write',                    value: 2  },
+      {
+        role: 'MarketIntermediary',
+        module: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'MarketIntermediary',
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'MarketIntermediary',
+        module: 'FILE_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'MarketIntermediary',
+        module: 'READS_MANAGEMENT_CRUDL',
+        perms: 'Read,Write,Update,Delete',
+        value: 15,
+      },
+      {
+        role: 'MarketIntermediary',
+        module: 'PASSWORD_MANAGEMENT_CRUDL',
+        perms: 'Write',
+        value: 2,
+      },
 
       // ── Reviewer / SeniorReviewer: DEVICE_MANAGEMENT Read (not covered by 1759800000000) ──
-      { role: 'Reviewer',       module: 'DEVICE_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
-      { role: 'SeniorReviewer', module: 'DEVICE_MANAGEMENT_CRUDL', perms: 'Read', value: 1 },
+      {
+        role: 'Reviewer',
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
+      {
+        role: 'SeniorReviewer',
+        module: 'DEVICE_MANAGEMENT_CRUDL',
+        perms: 'Read',
+        value: 1,
+      },
     ];
 
     for (const p of permissions) {
@@ -81,11 +226,7 @@ export class SeedCoreRolePermissions1759901100000
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    const roles = [
-      'Registrant',
-      'Buyer',
-      'SubBuyer',
-    ];
+    const roles = ['Registrant', 'Buyer', 'SubBuyer'];
     for (const role of roles) {
       await queryRunner.query(`
         DELETE FROM "aclmodulepermissions"

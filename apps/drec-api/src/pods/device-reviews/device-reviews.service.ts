@@ -630,7 +630,10 @@ export class DeviceReviewsService {
    * D-REC §2.6: Screen a device for potential duplicates across all organizations.
    * Checks coordinate proximity (< 100m), cross-org serial number, and fingerprint.
    */
-  async screenForDuplicates(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async screenForDuplicates(
+    deviceId: number,
+    opts: { silent?: boolean } = {},
+  ): Promise<{
     duplicates: Array<{
       id: number;
       externalId: string;
@@ -719,13 +722,14 @@ export class DeviceReviewsService {
       });
     }
 
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'duplicate_screening',
-      `${duplicates.length} potential duplicate(s) found`,
-      'reviewer',
-      { duplicateCount: duplicates.length },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'duplicate_screening',
+        `${duplicates.length} potential duplicate(s) found`,
+        'reviewer',
+        { duplicateCount: duplicates.length },
+      );
 
     return { duplicates };
   }
@@ -736,7 +740,10 @@ export class DeviceReviewsService {
    * Owner's Declaration / Proof of Ownership. Missing any of these flags
    * the device; otherwise ownershipStatus is set to 'verified'.
    */
-  async verifyOwnership(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async verifyOwnership(
+    deviceId: number,
+    opts: { silent?: boolean } = {},
+  ): Promise<{
     ownershipStatus: OwnershipStatus;
     missingDocuments: string[];
   }> {
@@ -779,13 +786,14 @@ export class DeviceReviewsService {
           ? ` (missing: ${missingDocuments.join(', ')})`
           : ''),
     );
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'ownership_verification',
-      `Ownership ${ownershipStatus}${missingDocuments.length ? ': missing ' + missingDocuments.join(', ') : ''}`,
-      'system',
-      { ownershipStatus, missingDocuments },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'ownership_verification',
+        `Ownership ${ownershipStatus}${missingDocuments.length ? ': missing ' + missingDocuments.join(', ') : ''}`,
+        'system',
+        { ownershipStatus, missingDocuments },
+      );
 
     return { ownershipStatus, missingDocuments };
   }
@@ -853,7 +861,10 @@ export class DeviceReviewsService {
    * Returns the rule set, which documents are present/missing, and which checks
    * the reviewer still needs to confirm manually.
    */
-  async verifySourceAccessMode(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async verifySourceAccessMode(
+    deviceId: number,
+    _opts: { silent?: boolean } = {},
+  ): Promise<{
     mode: string | null;
     rules: ModeVerificationRule | null;
     missingRequired: string[];
@@ -927,7 +938,10 @@ export class DeviceReviewsService {
    * D-REC §3.7: Historical consistency review for production data.
    * Analyses meter readings over time and flags anomalies.
    */
-  async reviewHistoricalConsistency(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async reviewHistoricalConsistency(
+    deviceId: number,
+    opts: { silent?: boolean } = {},
+  ): Promise<{
     totalReadings: number;
     periodMonths: number;
     anomalies: Array<{
@@ -1135,13 +1149,14 @@ export class DeviceReviewsService {
         `${periodMonths} months, ${anomalies.length} anomalies`,
     );
 
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'historical_consistency',
-      `${reads.length} readings, ${anomalies.length} anomalies over ${periodMonths} months`,
-      'reviewer',
-      { totalReadings: reads.length, anomalyCount: anomalies.length },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'historical_consistency',
+        `${reads.length} readings, ${anomalies.length} anomalies over ${periodMonths} months`,
+        'reviewer',
+        { totalReadings: reads.length, anomalyCount: anomalies.length },
+      );
 
     return {
       totalReadings: reads.length,
@@ -1157,7 +1172,10 @@ export class DeviceReviewsService {
    * Estimates expected yield from device location, compares with
    * the location-aware ceiling, and checks recent readings against it.
    */
-  async checkProductionCeiling(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async checkProductionCeiling(
+    deviceId: number,
+    opts: { silent?: boolean } = {},
+  ): Promise<{
     irradiance: IrradianceEstimate | null;
     irradianceUnavailableReason: string | null;
     /** Solar GSA climatology estimate (more accurate than the lat-band
@@ -1200,7 +1218,11 @@ export class DeviceReviewsService {
     nasaPower?: {
       latQuantized: number;
       lonQuantized: number;
-      months: Array<{ year: number; month: number; ghiKwhM2Day: number | null }>;
+      months: Array<{
+        year: number;
+        month: number;
+        ghiKwhM2Day: number | null;
+      }>;
     } | null;
     nasaPowerUnavailableReason?: string | null;
     pathwayNote?: string;
@@ -1333,9 +1355,7 @@ export class DeviceReviewsService {
     }
 
     const gsaYieldPerKw =
-      solarGsa && capacityKw > 0
-        ? solarGsa.annualKwh / capacityKw
-        : undefined;
+      solarGsa && capacityKw > 0 ? solarGsa.annualKwh / capacityKw : undefined;
     const ceilingYield = gsaYieldPerKw ?? irradiance?.yieldHigh ?? 1500;
 
     // NASA POWER pre-fetch: collect every (year, month) touched by the read
@@ -1348,13 +1368,11 @@ export class DeviceReviewsService {
       month: number;
       ghiKwhM2Day: number | null;
     };
-    let nasaPower:
-      | {
-          latQuantized: number;
-          lonQuantized: number;
-          months: PowerSummaryMonth[];
-        }
-      | null = null;
+    let nasaPower: {
+      latQuantized: number;
+      lonQuantized: number;
+      months: PowerSummaryMonth[];
+    } | null = null;
     let nasaPowerUnavailableReason: string | null = null;
     const powerByYear = new Map<number, (number | null)[]>();
     if (hasLat && hasLng && hasCapacity && readRows.length > 0) {
@@ -1438,7 +1456,12 @@ export class DeviceReviewsService {
       // each covered fraction of the month, and the same 1.2 margin. PR is
       // intentionally generous — this is a ceiling, not an expectation.
       let powerCeilingKwh: number | null = null;
-      if (powerByYear.size > 0 && capacityKw > 0 && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      if (
+        powerByYear.size > 0 &&
+        capacityKw > 0 &&
+        !isNaN(start.getTime()) &&
+        !isNaN(end.getTime())
+      ) {
         const PR_AVG = 0.82; // typical PV system performance ratio
         let accumulated = 0;
         let anyData = false;
@@ -1487,21 +1510,22 @@ export class DeviceReviewsService {
     const powerEvaluatedCount = recentReadings.filter(
       (r: any) => r.powerCeilingKwh != null,
     ).length;
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'ceiling_check',
-      `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (Solar GSA or irradiance high)` +
-        (powerEvaluatedCount > 0
-          ? `; NASA POWER: ${powerExceedCount}/${powerEvaluatedCount} readings exceed period-specific ceiling`
-          : ''),
-      'reviewer',
-      {
-        irradianceYield: irradiance?.yieldHigh,
-        gsaYieldPerKw,
-        nasaPowerEvaluated: powerEvaluatedCount,
-        nasaPowerExceed: powerExceedCount,
-      },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'ceiling_check',
+        `Effective ceiling ${Math.round(ceilingYield)} kWh/kW/yr (Solar GSA or irradiance high)` +
+          (powerEvaluatedCount > 0
+            ? `; NASA POWER: ${powerExceedCount}/${powerEvaluatedCount} readings exceed period-specific ceiling`
+            : ''),
+        'reviewer',
+        {
+          irradianceYield: irradiance?.yieldHigh,
+          gsaYieldPerKw,
+          nasaPowerEvaluated: powerEvaluatedCount,
+          nasaPowerExceed: powerExceedCount,
+        },
+      );
 
     return {
       irradiance,
@@ -1652,13 +1676,16 @@ export class DeviceReviewsService {
 
     const allSatisfied = controls.every((c) => c.satisfied);
 
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'compensating_controls',
-      `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
-      'system',
-      { controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })) },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'compensating_controls',
+        `Mode 4 evaluation: ${allSatisfied ? 'all satisfied' : controls.filter((c) => !c.satisfied).length + ' control(s) failed'}`,
+        'system',
+        {
+          controls: controls.map((c) => ({ id: c.id, satisfied: c.satisfied })),
+        },
+      );
 
     return {
       isMode4: true,
@@ -1754,19 +1781,20 @@ export class DeviceReviewsService {
 
     const result = computeCrossSourceVerification(months);
 
-    if (!opts.silent) await this.logAudit(
-      deviceId,
-      'cross_source_verification',
-      `PF=${result.performanceFactor}, R²=${result.rSquared}, ${result.monthsCompared} months, ${result.flags.length} flag(s)`,
-      'system',
-      {
-        performanceFactor: result.performanceFactor,
-        simpleRatio: result.simpleRatio,
-        rSquared: result.rSquared,
-        monthsCompared: result.monthsCompared,
-        flagCount: result.flags.length,
-      },
-    );
+    if (!opts.silent)
+      await this.logAudit(
+        deviceId,
+        'cross_source_verification',
+        `PF=${result.performanceFactor}, R²=${result.rSquared}, ${result.monthsCompared} months, ${result.flags.length} flag(s)`,
+        'system',
+        {
+          performanceFactor: result.performanceFactor,
+          simpleRatio: result.simpleRatio,
+          rSquared: result.rSquared,
+          monthsCompared: result.monthsCompared,
+          flagCount: result.flags.length,
+        },
+      );
 
     return { ...result, ...(pathwayNote ? { pathwayNote } : {}) };
   }
@@ -2103,7 +2131,10 @@ export class DeviceReviewsService {
    * never auto-reject — they're surfaced to the reviewer with both the API's
    * answer and the registrant's claim.
    */
-  async verifyCountryMatch(deviceId: number, opts: { silent?: boolean } = {}): Promise<CountryMatchResult> {
+  async verifyCountryMatch(
+    deviceId: number,
+    _opts: { silent?: boolean } = {},
+  ): Promise<CountryMatchResult> {
     const rows: any[] = await this.connection.query(
       `SELECT latitude, longitude, "countryCode" FROM device WHERE id = $1`,
       [deviceId],
@@ -2424,7 +2455,9 @@ export class DeviceReviewsService {
       if (r.manualChecks?.length > 0) {
         flags.push(`${r.manualChecks.length} manual check(s) needed`);
         for (const c of r.manualChecks)
-          flags.push(`  → ${c.label}${c.description ? ` — ${c.description}` : ''}`);
+          flags.push(
+            `  → ${c.label}${c.description ? ` — ${c.description}` : ''}`,
+          );
       }
       sections.push({
         name: 'Source Access Mode',
@@ -2589,7 +2622,6 @@ export class DeviceReviewsService {
     // Photo GPS section removed from auto-screen — it's covered by the
     // standalone 'Photo GPS Location' check in the verify dialog with
     // per-photo distance detail. Keeping both was duplicate noise.
-
 
     // 8. Compensating Controls (only relevant for Mode 4)
     if (controls.status === 'fulfilled') {
@@ -2768,7 +2800,10 @@ export class DeviceReviewsService {
    * D-REC VA layer: Compare SLD-stated capacity against registered capacity.
    * Flags mismatch if difference exceeds ±10%.
    */
-  async compareSldCapacity(deviceId: number, opts: { silent?: boolean } = {}): Promise<{
+  async compareSldCapacity(
+    deviceId: number,
+    _opts: { silent?: boolean } = {},
+  ): Promise<{
     registeredCapacityKw: number | null;
     sldCapacityKw: number | null;
     hasSld: boolean;
@@ -2996,12 +3031,16 @@ export class DeviceReviewsService {
     // Human-readable display name for the docs list — ISO timestamp + site name
     // (slugified). The S3 key still carries a uuid for uniqueness; this is
     // just for display.
-    const slug = (dev.siteName || `device-${deviceId}`)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 40) || `device-${deviceId}`;
-    const isoStamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    const slug =
+      (dev.siteName || `device-${deviceId}`)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40) || `device-${deviceId}`;
+    const isoStamp = new Date()
+      .toISOString()
+      .slice(0, 16)
+      .replace(/[:T]/g, '-');
     const displayFilename = `SF02-${slug}-${isoStamp}.pdf`;
 
     // Delete any existing FORM_SF_02 documents for this device (replace with generated).

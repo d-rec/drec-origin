@@ -83,10 +83,7 @@ export class SolarYieldService implements OnModuleInit {
       const m = spec.match(/^s3:\/\/([^/]+)\/(.+)$/);
       if (!m) throw new Error(`malformed s3 uri: ${spec}`);
       const [, bucket, key] = m;
-      const cachePath = join(
-        tmpdir(),
-        `solar-grid-${bucket}-${basename(key)}`,
-      );
+      const cachePath = join(tmpdir(), `solar-grid-${bucket}-${basename(key)}`);
       if (existsSync(cachePath)) {
         this.logger.log(`using cached solar grid at ${cachePath}`);
         return cachePath;
@@ -120,10 +117,7 @@ export class SolarYieldService implements OnModuleInit {
     return spec;
   }
 
-  private httpsDownload(
-    url: string,
-    redirectsLeft = 5,
-  ): Promise<Buffer> {
+  private httpsDownload(url: string, redirectsLeft = 5): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       httpsGet(url, (res) => {
         const status = res.statusCode || 0;

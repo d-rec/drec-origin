@@ -30,6 +30,8 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { EmailConfirmation } from '../email-confirmation/email-confirmation.entity';
 import { IUser } from '../../models';
 import { OtpService } from '../otp/otp.service';
+import { MailService } from '../../mail/mail.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('UserService', () => {
   let service: UserService;
@@ -40,8 +42,14 @@ describe('UserService', () => {
   let organizationService: OrganizationService;
   let registrantEntityRepository: Repository<RegistrantEntity>;
   let userLoginSessionRepository: Repository<UserLoginSessionEntity>;
+  let managerSaveMock: jest.Mock;
 
   beforeEach(async () => {
+    // newCreateUser persists via repository.manager.transaction(m => m.save(User, {...}));
+    // capture the manager.save so tests can assert the persisted payload.
+    managerSaveMock = jest.fn((_entity, data) =>
+      Promise.resolve({ id: 1, ...data }),
+    );
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -53,6 +61,9 @@ describe('UserService', () => {
             save: jest.fn(),
             update: jest.fn(),
             create: jest.fn(),
+            manager: {
+              transaction: jest.fn((cb) => cb({ save: managerSaveMock })),
+            },
           },
         },
         {
@@ -104,6 +115,18 @@ describe('UserService', () => {
           provide: OtpService,
           useValue: {
             send: jest.fn(),
+          },
+        },
+        {
+          provide: MailService,
+          useValue: {
+            send: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
           },
         },
       ],
@@ -217,14 +240,15 @@ describe('UserService', () => {
         }),
       );
 
-      expect(repository.save).toHaveBeenCalledWith(
+      expect(managerSaveMock).toHaveBeenCalledWith(
+        User,
         expect.objectContaining({
           firstName: userData.firstName,
           lastName: userData.lastName,
           email: userData.email.toLowerCase(),
           password: expect.any(String),
           notifications: true,
-          status: UserStatus.Active,
+          status: UserStatus.Pending,
           role: Role.Registrant,
           roleId: 6,
           organization: { id: 1 },
@@ -298,6 +322,13 @@ describe('UserService', () => {
       jest
         .spyOn(emailConfirmationService, 'get')
         .mockResolvedValue(mockEmailConfirmationEntity);
+      jest
+        .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
+        .mockResolvedValue({
+          api_user_id: userData.api_user_id,
+          permission_status: UserPermissionStatus.Request,
+          permissionIds: [],
+        });
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
@@ -375,6 +406,13 @@ describe('UserService', () => {
         .spyOn(emailConfirmationService, 'get')
         .mockResolvedValue(mockEmailConfirmationEntity);
 
+      jest
+        .spyOn(oauthClientCredentialsService, 'findOneByApiUserId')
+        .mockResolvedValue({
+          api_user_id: userData.api_user_id,
+          permission_status: UserPermissionStatus.Request,
+          permissionIds: [],
+        });
       jest
         .spyOn(organizationService, 'isNameAlreadyTaken')
         .mockResolvedValue(true);
@@ -679,7 +717,7 @@ describe('UserService', () => {
         password: 'Drec@1234',
         notifications: null,
         status: UserStatus.Active,
-        role: Role.Registrant,
+        role: Role.Buyer,
         roleId: 2,
         api_user_id: 'apiUserId',
         organization: organizationEntity,

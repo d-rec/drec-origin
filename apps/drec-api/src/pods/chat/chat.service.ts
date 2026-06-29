@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Chat } from './chat.entity';
@@ -86,7 +82,7 @@ export class ChatService {
       chatEntry,
       nextEntryUuid: null,
       kind,
-      fieldName: kind === 'note' ? (opts.fieldName ?? null) : null,
+      fieldName: kind === 'note' ? opts.fieldName ?? null : null,
       status: kind === 'note' ? 'open' : null,
       payload: opts.payload ?? null,
     });
@@ -208,7 +204,7 @@ export class ChatService {
     }
     // Find the conversation this message belongs to (by traversing back
     // to the head if needed) so we can return its current headUuid.
-    let conv = await this.conversationRepository.findOne({
+    const conv = await this.conversationRepository.findOne({
       where: { headUuid: uuid },
     });
     let result: { conversationId: number | null; headUuid: string | null } = {
@@ -229,6 +225,7 @@ export class ChatService {
     } else if (prev) {
       // Walk back to the head from prev to identify the conversation.
       let walker = prev;
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const upstream = await this.chatRepository.findOne({
           where: { nextEntryUuid: walker.uuid },
@@ -311,7 +308,9 @@ export class ChatService {
     );
     // Pre-mark the sender's side as read so they don't see their own
     // first message as unread.
-    const senderLocal = (firstMessageUsername || '').toLowerCase().split('@')[0];
+    const senderLocal = (firstMessageUsername || '')
+      .toLowerCase()
+      .split('@')[0];
     const p1 = (participant1 || '').toLowerCase();
     const p2 = (participant2 || '').toLowerCase();
     const isSender = (email: string): boolean =>
@@ -415,8 +414,7 @@ export class ChatService {
       lastEntryUuid: message.uuid,
     };
     const matchSlot = (email: string): boolean =>
-      email === username.toLowerCase() ||
-      email.split('@')[0] === senderLocal;
+      email === username.toLowerCase() || email.split('@')[0] === senderLocal;
     if (matchSlot(p1)) update.lastReadAt1 = new Date();
     if (matchSlot(p2)) update.lastReadAt2 = new Date();
     await this.conversationRepository.update(conversationId, update);
@@ -531,14 +529,10 @@ export class ChatService {
     // (a message exists after their lastReadAt)
     const rows = await this.conversationRepository
       .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
+      .innerJoin(Chat, 'latest', 'latest.uuid = conv."lastEntryUuid"')
       .where(
         '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+          '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
         { email },
       )
       // Exclude conversations where the latest message is from the user themselves
@@ -574,16 +568,12 @@ export class ChatService {
   async getUnreadDeviceNames(email: string): Promise<string[]> {
     const rows = await this.conversationRepository
       .createQueryBuilder('conv')
-      .innerJoin(
-        Chat,
-        'latest',
-        'latest.uuid = conv."lastEntryUuid"',
-      )
+      .innerJoin(Chat, 'latest', 'latest.uuid = conv."lastEntryUuid"')
       .select('conv."deviceSiteName"', 'deviceSiteName')
       .where('conv."deviceSiteName" IS NOT NULL')
       .andWhere(
         '(conv.participant1 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt1", \'1970-01-01\')) OR ' +
-        '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
+          '(conv.participant2 = :email AND latest."createdAt" > COALESCE(conv."lastReadAt2", \'1970-01-01\'))',
         { email },
       )
       .andWhere('latest.username != :email', { email })

@@ -11,6 +11,7 @@ import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
 import { of } from 'rxjs';
+import { DataSource } from 'typeorm';
 import {
   roundDecimalToFixedPrecision,
   splitValueIntoIntegerAndDecimal,
@@ -158,6 +159,20 @@ describe('IssuerService', () => {
           } as any,
         },
         {
+          provide: DataSource,
+          useValue: {
+            query: jest.fn(),
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+              manager: {},
+            }),
+          } as any,
+        },
+        {
           provide: Logger,
           useValue: logger,
         },
@@ -281,8 +296,8 @@ describe('IssuerService', () => {
 
       const deviceHistoryRequest = {
         value: 1000,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date('2024-01-01T00:00:00Z'),
+        endDate: new Date('2024-01-02T00:00:00Z'),
         id: 1,
       } as unknown as MeterRead;
 
@@ -311,8 +326,8 @@ describe('IssuerService', () => {
 
       const deviceHistoryRequest = {
         value: 1000,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date('2024-01-01T00:00:00Z'),
+        endDate: new Date('2024-01-02T00:00:00Z'),
         id: 1,
       } as unknown as MeterRead;
 
@@ -341,8 +356,8 @@ describe('IssuerService', () => {
 
       const deviceHistoryRequest = {
         value: 1000,
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: new Date('2024-01-01T00:00:00Z'),
+        endDate: new Date('2024-01-02T00:00:00Z'),
         id: 1,
       } as unknown as MeterRead;
 

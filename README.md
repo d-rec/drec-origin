@@ -54,9 +54,9 @@ Repository for Origin DREC project
 
 | Environment | Purpose | Infrastructure | Portal | API |
 |---|---|---|---|---|
-| `development` | Local development and testing | localhost / Docker | http://localhost:4200 | http://localhost:3040 |
-| `stage` | Pre-production validation | AWS EKS + RDS | https://stage-portal.drecs.org/login | https://stage-api.drecs.org |
-| `prod` | Production | AWS EKS + RDS | https://portal.drecs.org/login | https://api.drecs.org |
+| `development` | Local development and testing | localhost / Docker | <http://localhost:4200> | <http://localhost:3040> |
+| `stage` | Pre-production validation | AWS EKS + RDS | <https://stage-portal.drecs.org/login> | <https://stage-api.drecs.org> |
+| `prod` | Production | AWS EKS + RDS | <https://portal.drecs.org/login> | <https://api.drecs.org> |
 
 > **Note:** The `develop` branch is intended for local development only. It runs against a local PostgreSQL database seeded with `rush start:dev`. There is no cloud infrastructure for the develop environment — do not deploy it to AWS.
 

@@ -11,7 +11,17 @@ import {
 } from 'class-validator';
 import { DeviceDescription, IDevice } from '../../../models';
 import { Trim } from '../../../transformers/string';
-import { DeviceTypeCode, FuelCode, OffTaker, OperatingConfiguration, RegistrationType, SourceAccessMode, SubsidyType, VolumeEvidenceType, YesNo } from '../../../utils/enums';
+import {
+  DeviceTypeCode,
+  FuelCode,
+  OffTaker,
+  OperatingConfiguration,
+  RegistrationType,
+  SourceAccessMode,
+  SubsidyType,
+  VolumeEvidenceType,
+  YesNo,
+} from '../../../utils/enums';
 export class DeviceDTO implements IDevice {
   @ApiProperty()
   @IsNumber()

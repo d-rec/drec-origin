@@ -61,9 +61,10 @@ function pickColumnIndex(headers: string[], preferred: string): number {
  *  Atsawa's "Solar Yield (delta)") will produce zero reads — the
  *  caller is expected to fall back to sumColumns in that case.
  *  Reported back via the response so the UI can flag it. */
-function autoDetectColumns(
-  headers: string[],
-): { valueColumn?: string; sumColumns?: string[] } {
+function autoDetectColumns(headers: string[]): {
+  valueColumn?: string;
+  sumColumns?: string[];
+} {
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
   // Prefer the PV-to-* sum when 2+ such columns exist. In real-world

@@ -10,9 +10,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * (verify-dialog drop, then submit-side drop), so these columns are
  * now dead weight. Drop them to clean up the schema.
  */
-export class DropCoordsConfirmation1763700000000
-  implements MigrationInterface
-{
+export class DropCoordsConfirmation1763700000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "device"

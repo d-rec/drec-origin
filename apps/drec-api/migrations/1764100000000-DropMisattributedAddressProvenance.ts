@@ -35,7 +35,7 @@ export class DropMisattributedAddressProvenance1764100000000
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // No-op: the backfill itself is the source of truth and can be
     // re-run if needed.
   }

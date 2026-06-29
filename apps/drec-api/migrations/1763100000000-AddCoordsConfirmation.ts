@@ -10,9 +10,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * Set by the registrant flow (edit-device's panel-detect) — never by
  * reviewers (per "reviewer modifies nothing" rule).
  */
-export class AddCoordsConfirmation1763100000000
-  implements MigrationInterface
-{
+export class AddCoordsConfirmation1763100000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       ALTER TABLE "device"

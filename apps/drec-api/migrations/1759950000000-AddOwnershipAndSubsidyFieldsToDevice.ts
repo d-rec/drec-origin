@@ -54,9 +54,7 @@ export class AddOwnershipAndSubsidyFieldsToDevice1759950000000
     await queryRunner.query(
       `ALTER TABLE "device" DROP COLUMN "subsidy_types";`,
     );
-    await queryRunner.query(
-      `ALTER TABLE "device" DROP COLUMN "has_subsidy";`,
-    );
+    await queryRunner.query(`ALTER TABLE "device" DROP COLUMN "has_subsidy";`);
     await queryRunner.query(
       `ALTER TABLE "device" DROP COLUMN "off_taker_same_company_as_owner";`,
     );

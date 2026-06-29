@@ -22,7 +22,6 @@ describe('AuthService', () => {
   let userService: UserService;
   let jwtService: JwtService;
 
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +33,7 @@ describe('AuthService', () => {
             findById: jest.fn(), // Include other methods if needed
             findByEmail: jest.fn(),
             createUserSession: jest.fn(),
+            recordLogin: jest.fn(),
             removeUserSession: jest.fn(),
             hasValidUserSession: jest.fn(),
             sendOtp: jest.fn(),
@@ -61,9 +61,7 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     userService = module.get<UserService>(UserService);
     jwtService = module.get<JwtService>(JwtService);
-    module.get<OauthClientCredentialsService>(
-      OauthClientCredentialsService,
-    );
+    module.get<OauthClientCredentialsService>(OauthClientCredentialsService);
   });
 
   it('should be defined', () => {

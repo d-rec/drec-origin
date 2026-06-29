@@ -144,9 +144,7 @@ export class DeviceService {
    * Screen a device for potential duplicates across all organizations.
    * Checks: coordinate proximity (< 100m), serial number match, fingerprint match.
    */
-  async screenForDuplicates(
-    deviceId: number,
-  ): Promise<{
+  async screenForDuplicates(deviceId: number): Promise<{
     duplicates: Array<{
       id: number;
       externalId: string;
@@ -200,7 +198,10 @@ export class DeviceService {
         [device.latitude, device.longitude, device.id],
       );
       nearbyDevices.forEach((d) =>
-        duplicates.push({ ...d, matchType: `coordinates (${Math.round(d.distance_m)}m)` }),
+        duplicates.push({
+          ...d,
+          matchType: `coordinates (${Math.round(d.distance_m)}m)`,
+        }),
       );
     }
 
@@ -244,7 +245,13 @@ export class DeviceService {
           fingerprint: device.fingerprint,
           id: Not(device.id),
         },
-        select: ['id', 'externalId', 'siteName', 'serialNumber', 'organizationId'],
+        select: [
+          'id',
+          'externalId',
+          'siteName',
+          'serialNumber',
+          'organizationId',
+        ],
       });
       fpMatches.forEach((d) => {
         if (!duplicates.find((dup) => dup.id === d.id)) {
@@ -462,7 +469,10 @@ export class DeviceService {
     skip: number,
     take: number,
   ): Promise<{ ids: number[]; totalCount: number }> {
-    const all = await this.repository.find({ where, select: ['id', 'externalId'] });
+    const all = await this.repository.find({
+      where,
+      select: ['id', 'externalId'],
+    });
     if (!all.length) return { ids: [], totalCount: 0 };
     const idList = all.map((d) => d.id);
     const extList = all
@@ -1119,7 +1129,9 @@ export class DeviceService {
 
     if (!currentDevice) {
       this.logger.error(`No device found with ${lookupBy} ${serialNumber}`);
-      throw new NotFoundException(`No device found with ${lookupBy} "${serialNumber}"`);
+      throw new NotFoundException(
+        `No device found with ${lookupBy} "${serialNumber}"`,
+      );
     }
 
     if (updateDeviceDTO.siteName) {
@@ -1169,10 +1181,12 @@ export class DeviceService {
     const fingerprint = generateDeviceFingerprint({
       latitude: updateDeviceDTO.latitude ?? currentDevice.latitude,
       longitude: updateDeviceDTO.longitude ?? currentDevice.longitude,
-      commissioningDate: updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
+      commissioningDate:
+        updateDeviceDTO.commissioningDate ?? currentDevice.commissioningDate,
       capacity: updateDeviceDTO.capacity ?? currentDevice.capacity,
       fuelCode: updateDeviceDTO.fuelCode ?? currentDevice.fuelCode,
-      deviceTypeCode: updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
+      deviceTypeCode:
+        updateDeviceDTO.deviceTypeCode ?? currentDevice.deviceTypeCode,
       serialNumber: updateDeviceDTO.serialNumber ?? currentDevice.serialNumber,
     });
 
@@ -1191,8 +1205,8 @@ export class DeviceService {
     }
     this.logger.verbose(
       `[update-debug] dto.address=${JSON.stringify((updateDeviceDTO as any).address)} ` +
-      `addressKeyPresent=${'address' in (updateDeviceDTO as any)} ` +
-      `keys=${Object.keys(updateDeviceDTO as any).join(',')}`,
+        `addressKeyPresent=${'address' in (updateDeviceDTO as any)} ` +
+        `keys=${Object.keys(updateDeviceDTO as any).join(',')}`,
     );
     // Only overwrite fields that were actually sent (not undefined)
     for (const [key, value] of Object.entries(updateDeviceDTO)) {
@@ -2014,9 +2028,7 @@ export class DeviceService {
    * DB deletes happen in a single transaction. S3 deletes run after the
    * commit (best-effort — failures are logged, not surfaced).
    */
-  async bulkRemove(
-    ids: number[],
-  ): Promise<{
+  async bulkRemove(ids: number[]): Promise<{
     success: boolean;
     deletedDevices: number;
     deletedDocuments: number;
@@ -2024,7 +2036,12 @@ export class DeviceService {
   }> {
     this.logger.verbose(`bulkRemove ids=${ids.join(',')}`);
     if (!ids.length) {
-      return { success: true, deletedDevices: 0, deletedDocuments: 0, skipped: [] };
+      return {
+        success: true,
+        deletedDevices: 0,
+        deletedDocuments: 0,
+        skipped: [],
+      };
     }
     const devices = await this.repository.find({ where: { id: In(ids) } });
     const foundIds = new Set(devices.map((d) => d.id));
@@ -2173,18 +2190,20 @@ export class DeviceService {
           [siteNames],
         );
       }
-      await manager.query(
-        `DELETE FROM device WHERE id = ANY($1::int[])`,
-        [deviceIds],
-      );
+      await manager.query(`DELETE FROM device WHERE id = ANY($1::int[])`, [
+        deviceIds,
+      ]);
     });
 
     // S3 cleanup runs after commit; failures are logged but non-fatal.
     let deletedDocuments = 0;
     try {
-      deletedDocuments = await this.documentsService.deleteAllByDevices(deviceIds);
+      deletedDocuments =
+        await this.documentsService.deleteAllByDevices(deviceIds);
     } catch (err) {
-      this.logger.error(`bulkRemove: S3/doc cleanup error: ${(err as Error).message}`);
+      this.logger.error(
+        `bulkRemove: S3/doc cleanup error: ${(err as Error).message}`,
+      );
     }
 
     return {

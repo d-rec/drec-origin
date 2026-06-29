@@ -22,15 +22,36 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 //   6. Add the PK + UNIQUE(name) constraints that should have been there
 //      since 2021.
 //   7. Realign user_role_id_seq.
-const CANONICAL: ReadonlyArray<{ id: number; name: string; description: string }> = [
-  { id: 1, name: 'Admin',          description: 'for admin role' },
-  { id: 3, name: 'SiteOperator',   description: 'Site Operator role for device management' },
-  { id: 4, name: 'Buyer',          description: 'for Buyer role' },
-  { id: 5, name: 'User',           description: 'for User role' },
-  { id: 6, name: 'Registrant',     description: 'Registrant role for device registration and meter read submission' },
-  { id: 7, name: 'SubBuyer',       description: 'Same as buyer but not delete any user of org' },
-  { id: 8, name: 'Reviewer',       description: 'Reviewer role for device reviews' },
-  { id: 9, name: 'SeniorReviewer', description: 'Senior Reviewer role for device reviews' },
+const CANONICAL: ReadonlyArray<{
+  id: number;
+  name: string;
+  description: string;
+}> = [
+  { id: 1, name: 'Admin', description: 'for admin role' },
+  {
+    id: 3,
+    name: 'SiteOperator',
+    description: 'Site Operator role for device management',
+  },
+  { id: 4, name: 'Buyer', description: 'for Buyer role' },
+  { id: 5, name: 'User', description: 'for User role' },
+  {
+    id: 6,
+    name: 'Registrant',
+    description:
+      'Registrant role for device registration and meter read submission',
+  },
+  {
+    id: 7,
+    name: 'SubBuyer',
+    description: 'Same as buyer but not delete any user of org',
+  },
+  { id: 8, name: 'Reviewer', description: 'Reviewer role for device reviews' },
+  {
+    id: 9,
+    name: 'SeniorReviewer',
+    description: 'Senior Reviewer role for device reviews',
+  },
 ];
 
 export class DedupeUserRoleAndAddPrimaryKey1762200000000

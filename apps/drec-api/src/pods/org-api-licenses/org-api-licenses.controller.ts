@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Logger,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -76,9 +69,21 @@ export class OrgApiLicensesController {
   async getCredits(
     @UserDecorator() { organizationId }: ILoggedInUser,
   ): Promise<{
-    roboflow: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
-    deepl: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
-    anthropic: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
+    roboflow: {
+      credits: number;
+      hasOwnKey: boolean;
+      platformKeyConfigured: boolean;
+    };
+    deepl: {
+      credits: number;
+      hasOwnKey: boolean;
+      platformKeyConfigured: boolean;
+    };
+    anthropic: {
+      credits: number;
+      hasOwnKey: boolean;
+      platformKeyConfigured: boolean;
+    };
   }> {
     const [roboflow, deepl, anthropic] = await Promise.all([
       this.apiKeyResolverService.getCreditsInfo(organizationId, 'roboflow'),

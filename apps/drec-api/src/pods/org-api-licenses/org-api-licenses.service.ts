@@ -120,12 +120,7 @@ export class OrgApiLicensesService {
       dto.roboflowWorkflowUrl,
       dto.clearRoboflowWorkflowUrl,
     );
-    apply(
-      'deeplApiKey',
-      'deeplApiKey',
-      dto.deeplApiKey,
-      dto.clearDeeplApiKey,
-    );
+    apply('deeplApiKey', 'deeplApiKey', dto.deeplApiKey, dto.clearDeeplApiKey);
     apply(
       'anthropicApiKey',
       'anthropicApiKey',
@@ -148,9 +143,7 @@ export class OrgApiLicensesService {
     return this.repository.save(record);
   }
 
-  async findMasked(
-    organizationId: number,
-  ): Promise<{
+  async findMasked(organizationId: number): Promise<{
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;
@@ -182,9 +175,7 @@ export class OrgApiLicensesService {
     };
   }
 
-  async findDecrypted(
-    organizationId: number,
-  ): Promise<{
+  async findDecrypted(organizationId: number): Promise<{
     roboflowApiKey: string | null;
     roboflowWorkflowUrl: string | null;
     deeplApiKey: string | null;

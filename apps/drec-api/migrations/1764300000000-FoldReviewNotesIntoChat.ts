@@ -22,7 +22,9 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  *        chat open() merges into it via deviceSiteName.
  *      → table dropped after data migration.
  */
-export class FoldReviewNotesIntoChat1764300000000 implements MigrationInterface {
+export class FoldReviewNotesIntoChat1764300000000
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── chat_conversations: third seat ───────────────────────────────
     await queryRunner.query(`
@@ -94,7 +96,7 @@ export class FoldReviewNotesIntoChat1764300000000 implements MigrationInterface 
       const submitter = deviceRows[0]?.submitter ?? 'unknown@registrant';
 
       // find-or-create the conversation for this device
-      let convRows: Array<{ id: number; headUuid: string | null }> =
+      const convRows: Array<{ id: number; headUuid: string | null }> =
         await queryRunner.query(
           `SELECT id, "headUuid" FROM chat_conversations
            WHERE "deviceSiteName" = $1

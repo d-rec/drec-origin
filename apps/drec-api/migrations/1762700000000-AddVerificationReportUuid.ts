@@ -9,9 +9,7 @@ export class AddVerificationReportUuid1762700000000
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`,
-    );
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
     await queryRunner.query(`
       ALTER TABLE "verification_reports"
         ADD COLUMN IF NOT EXISTS "uuid" UUID NOT NULL DEFAULT uuid_generate_v4();
