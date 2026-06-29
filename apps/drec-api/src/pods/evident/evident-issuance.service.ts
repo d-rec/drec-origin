@@ -304,14 +304,19 @@ export class EvidentIssuanceService {
       );
     }
 
-    const format = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    // Evident's POST /issue_details parses dates with PHP format "Y-m-d\TH:i:sP"
+    // — ISO-8601 with a timezone offset and NO fractional seconds. The previous
+    // ".SSS'Z'" format was rejected ("Trailing data" at the fractional-seconds
+    // position), which silently failed every issuance export because the error
+    // is swallowed in create()'s try/catch. Verified against the Evident sandbox.
+    const format = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
-    const startDateFormatted = DateTime.fromISO(issuance.startDate).toFormat(
-      format,
-    );
-    const endDateFormatted = DateTime.fromISO(issuance.endDate).toFormat(
-      format,
-    );
+    const startDateFormatted = DateTime.fromISO(issuance.startDate)
+      .toUTC()
+      .toFormat(format);
+    const endDateFormatted = DateTime.fromISO(issuance.endDate)
+      .toUTC()
+      .toFormat(format);
 
     const payload = {
       files: uploadedFiles,
