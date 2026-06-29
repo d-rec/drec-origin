@@ -62,6 +62,12 @@ function readPackage(packageJson, context) {
     'rollup': '>=4.59.0',
     'serialize-javascript': '>=6.0.2',
     'sha.js': '>=2.4.12',
+    // Floors a transitive typeorm 0.2.x consumer (@energyweb, via @nestjs/typeorm)
+    // up past CVE-2022-... (fixed in 0.3.26). NOTE: this also rewrites drec-api's
+    // OWN direct typeorm specifier, so apps/drec-api/package.json must declare the
+    // SAME ">=0.3.26" string — otherwise Rush's lockfile-consistency check fails
+    // permanently ("Missing dependency typeorm (...)"), because Rush compares the
+    // original declared specifier against the post-override one recorded in the lockfile.
     'typeorm': '>=0.3.26',
     'uglify-js': '>=2.6.0',
     'underscore': '>=1.13.8',
