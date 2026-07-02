@@ -53,7 +53,11 @@ function readPackage(packageJson, context) {
     'jws': '>=3.2.3',
     'lodash': '>=4.17.21',
     'lodash-es': '>=4.17.21',
-    'minimatch': '~3.1.4',
+    // minimatch: NOT overridden. Forcing one minimatch version breaks the tree —
+    // modern consumers (glob@13, test-exclude@8) need minimatch@9's named exports,
+    // while older packages use the v3 function API. The CVE floor (>=3.0.5) is
+    // already met by every consumer's own ^3/^5/^9 range, so no override is needed;
+    // each gets the right major. (A "~3.1.4" cap here was the core of the coverage tangle.)
     'moment': '>=2.29.4',
     'pbkdf2': '>=3.1.3',
     'picomatch': '>=2.3.2',
@@ -63,16 +67,22 @@ function readPackage(packageJson, context) {
     'serialize-javascript': '>=6.0.2',
     'sha.js': '>=2.4.12',
     // Floors a transitive typeorm 0.2.x consumer (@energyweb, via @nestjs/typeorm)
-    // up past CVE-2022-... (fixed in 0.3.26). NOTE: this also rewrites drec-api's
-    // OWN direct typeorm specifier, so apps/drec-api/package.json must declare the
-    // SAME ">=0.3.26" string — otherwise Rush's lockfile-consistency check fails
-    // permanently ("Missing dependency typeorm (...)"), because Rush compares the
-    // original declared specifier against the post-override one recorded in the lockfile.
-    'typeorm': '>=0.3.26',
+    // up past CVE-2022-... (fixed in 0.3.26). Upper-bounded at <0.4.0: the code uses
+    // APIs removed in typeorm 0.4/1.0 (findByIds, getManager), and an unbounded ">="
+    // resolves to the latest major (1.0.0) on re-resolution, which breaks the build.
+    // NOTE: this rewrites drec-api's OWN direct typeorm specifier, so
+    // apps/drec-api/package.json must declare the SAME ">=0.3.26 <0.4.0" string —
+    // otherwise Rush's lockfile-consistency check fails ("Missing dependency typeorm").
+    'typeorm': '>=0.3.26 <0.4.0',
     'uglify-js': '>=2.6.0',
     'underscore': '>=1.13.8',
     'validator': '>=13.15.22',
     'ws': '>=7.5.10',
+    // Compat (not security): jest@29 coverage (babel-plugin-istanbul@6.1.1) pulls
+    // test-exclude@6, which does `promisify(require('glob'))` — but the glob '>=10.5.0'
+    // floor gives it glob v13 (an object, not a function), breaking every
+    // `jest --coverage`. test-exclude@8 uses the glob v13 + minimatch v9 named APIs.
+    'test-exclude': '>=7',
   };
 
   for (const [pkg, version] of Object.entries(securityOverrides)) {

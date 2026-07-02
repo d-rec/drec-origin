@@ -132,14 +132,6 @@ jobs:
         working-directory: apps/drec-api
         run: pnpm run test:jest --passWithNoTests
 
-      # Coverage instrumentation is currently broken by the security-override
-      # dep tree: the glob '>=10.5.0' floor (common/config/rush/.pnpmfile.cjs)
-      # hands test-exclude@6 a glob object instead of a function, so
-      # `promisify(require('glob'))` throws for every suite. Bumping test-exclude
-      # collides with the minimatch '~3.1.4' floor, so a clean fix needs a
-      # holistic dependency untangle. The tests themselves (above) still gate CI;
-      # coverage runs informationally until the deps are sorted out.
       - name: Run Code Coverage (Jest)
         working-directory: apps/drec-api
-        continue-on-error: true
         run: pnpm run coverage:jest --passWithNoTests
