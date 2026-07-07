@@ -1,9 +1,126 @@
 DREC Changelog
-Report date: May 13, 2026
+Report date: July 7, 2026
 
 
-RECENT CHANGES (April -- May 2026)
+RECENT CHANGES (April -- July 2026)
 ============================================================
+
+v0.9.8 (2026-07-07) -- CI Green Restore + Unsaved-Changes Guard
+--------------------
+
+  BACKEND / BUILD (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Code Quality pipeline restored to green after being red since
+    2026-03-26. The pnpmfile typeorm security override had broken
+    rush install permanently, hiding three months of drift; fixed
+    the install, then repaired 75 prettier files, 16 eslint errors
+    (plus adopting the ^_ ignore convention for deliberately-unused
+    vars), and 90 failing unit tests.
+  - Dependency override hardening: the .pnpmfile.cjs security
+    overrides were all unbounded ">=" ranges -- typeorm's resolved
+    to 1.0.0 on re-resolution and broke the build. Bounded typeorm
+    to ">=0.3.26 <0.4.0", dropped the minimatch "~3.1.4" cap (it
+    forced three incompatible major-APIs onto v3), added
+    test-exclude >=7. Jest coverage works again and gates CI.
+  - Docker note: the deployed image installs standalone from
+    apps/drec-api/package.json (pnpm.overrides pins typeorm
+    0.3.28), NOT the rush lockfile. Both paths verified.
+
+  UI (drec-ui)
+  ~~~~~~~~~~~~
+  - Device add/edit now warns before leaving the page when field
+    contents would be lost (in-app navigation via CanDeactivate
+    guard, tab close/refresh via beforeunload). Successful submits,
+    edit updates and per-row SF-02 saves mark the form pristine so
+    they never false-trigger. Platform auto-fills (geocoder,
+    impact-story inference, extractor fill-empty, derived defaults)
+    deliberately do NOT count as unsaved user edits -- and no
+    longer get mis-tagged as Manual provenance at submit.
+  - drec-ui Code Quality + Check Generic pipelines restored to
+    green (red since mid-June): a literal NUL byte in
+    chat-window.component.ts made editorconfig-checker read the
+    file as binary; prettier'd 40 drifted files; removed dead code;
+    adopted the same ^_ unused-vars convention as the API repo.
+    Known remaining red: the Cypress E2E workflow (pre-existing,
+    fails at its drec-origin rush install step).
+
+v0.9.7 (2026-06-24) -- Evident I-REC Sandbox, OEM Decision, Ops Fixes
+--------------------
+
+  EVIDENT / I-REC REGISTRY
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+  - Evident sandbox credentials tested end-to-end: auth, device
+    export, issue + issue_details creation against the I-REC
+    sandbox registry. Stage SuperOrg wired to the sandbox.
+  - Fixed issue_details date format (registry rejects millisecond
+    UTC timestamps; now ISO-8601 with offset). Prod has no
+    evident_settings rows -- integration is stage-only for now.
+
+  DIRECT-OEM METER INGESTION
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - New EnodeModule ingesting live solar-inverter production as
+    meter reads (counter-delta -> storeRead). Strategic decision
+    2026-06-24: drop the Enode aggregator (thin margins) and build
+    direct OEM integrations instead; the module stays as the
+    adapter template. Build-first list: SolarEdge, Deye, Huawei,
+    Growatt.
+
+  OPERATIONS / ISSUANCE
+  ~~~~~~~~~~~~~~~~~~~~~
+  - @NonConcurrentCron leaked one ioredis connection per cron tick
+    (never quit()); over weeks this exhausted Redis maxclients and
+    stalled the Bull issuance queue (took down the PowerTrust env
+    2026-06-18). Connections now released on every path.
+  - New admin endpoint POST /admin/reissue-certificate for targeted
+    manual reissue of a (group, externalIds, window) -- used for the
+    2026-06-20 phantom-certified remediation on prod.
+  - Mint guards: refuse when fromTime precedes reservationStart or
+    toTime <= fromTime.
+  - Reservations: devices released from expired groups even after
+    deactivation (#782); devices stay attached between end_date and
+    expiry_date instead of unlinking early.
+  - Liveness probe for the late-ongoing BullMQ worker: alert when
+    pending cycles exist but no progress for 9h.
+  - bulkRemove fix: issuer/certificate tables store the device's
+    externalId in a column named "deviceId", not the numeric id.
+
+v0.9.6 (2026-06-10) -- Evidence Verification Walk + Extraction Regions
+--------------------
+
+  EXTRACTION QUALITY (API + UI)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Every AI-extracted field can now carry a region (page +
+    normalised bbox) plus per-field reasoning. Extractors reworked:
+    SLD regions mandatory, COD refuses kWp for AC capacity and
+    takes a siteName filter for multi-site certificates, SF-02c
+    extracts the project address as distinct from the owner HQ.
+  - Per-document AI extractions persisted server-side, so edit
+    pages rehydrate hints without re-running extractors.
+  - Sub-0.5-confidence extractions dropped at the extractor;
+    (backfill) provenance entries purged.
+
+  VERIFY WALK (UI)
+  ~~~~~~~~~~~~~~~~
+  - New verify-source dialog: walks the registrant field-by-field
+    through each extracted value, highlighting the supporting
+    region in the source PDF (text-layer ctrl-F strategy, with
+    Tesseract fallback), with accept / decline / fill-own actions.
+  - OC# walkthrough: guided pass over every OC-numbered field with
+    self-checks that the recorded value actually appears in the
+    document; the walk log is persisted with provenance.
+  - Document auto-classifier: portal-signature short-circuit,
+    spreadsheets default to metering evidence, ambiguous images
+    escalate to server-side vision, "OK & Extract" is the default.
+
+  READS / DEVICES (API)
+  ~~~~~~~~~~~~~~~~~~~~~
+  - POST /meter-reads/csv-ingest/:externalId ingests wide-format
+    meter CSV exports as History reads (auto-detects value columns;
+    ?replaceExisting=true wipes overlapping History reads).
+  - device.capacity pinned as DC kWp; DC/AC divergence flagged in
+    the production-ceiling check and surfaced in the review UI.
+  - Duplicate detection folds O<->0 in serial comparison.
+  - Roboflow & DeepL free-tier caps raised 3 -> 10.
 
 v0.9.5 (2026-05-08) -- AI Usage Dashboard + Grafana Multi-Env Picker
 --------------------
