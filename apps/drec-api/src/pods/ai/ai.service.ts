@@ -21,7 +21,7 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
   SF_02C:
     "I-REC SF-02c Owner's Declaration LETTER — formal letter on the owner's letterhead declaring exclusive rights to the environmental/renewable attributes (the I-REC declaration), referencing I-REC code, attribute generation, hereby-declare phrasing",
   PROOF_OF_OWNERSHIP:
-    'Proof of Ownership of the physical site/equipment — title deed, land lease, rooftop lease, PPA (Power Purchase Agreement), purchase contract, bill of sale. NOT the SF-02c declaration letter',
+    'Proof of Ownership of the physical site/equipment — title deed, land lease, rooftop lease, PPA (Power Purchase Agreement), purchase contract, bill of sale, or an EPC / engineering-procurement-construction contract by which the owner procured/built the plant. May be in any language. NOT the SF-02c declaration letter',
   METERING_EVIDENCE:
     'Meter readings, energy generation data, kWh/MWh production reports, monthly generation logs, screenshots of inverter/logger portals. Excel/CSV monthly reports with daily PV(kWh) / Sell(kWh) / Buy(kWh) columns are METERING_EVIDENCE — common filename patterns: "MM_YYYY_Plant_…xls", "Plant_…_Monthly_Report.xlsx", "<plantName>_<YYYY>_<MM>.csv"',
   SINGLE_LINE_DIAGRAM:
@@ -333,7 +333,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 6, // bumped 2026-05-27 — vision now always fires when images supplied (was gated on text<200 chars, leaking screenshots into Haiku-text-only)
+    'classify-document': 7, // bumped 2026-07-13 — PROOF_OF_OWNERSHIP now covers EPC/construction contracts + non-English guidance
     'extract-sld-fields': 11, // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12, // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11, // bumped 2026-05-26 — 5 pages × 1024px
@@ -727,8 +727,9 @@ export class AiService {
       useVision ? `` : '',
       `For LETTER / CERTIFICATE / DECLARATION documents only — disambiguation between two slots that BOTH mention ownership:`,
       `  • SF_02C is the I-REC "Owner's Declaration" letter — a declaration of ATTRIBUTE rights (renewable / environmental / carbon ATTRIBUTES). It is signed by the owner and references I-REC. If the document declares rights over RENEWABLE/ENVIRONMENTAL/CARBON ATTRIBUTES or generation, it is SF_02C — even though the word "ownership" appears.`,
-      `  • PROOF_OF_OWNERSHIP is evidence of ownership of the PHYSICAL ASSET (the site / land / panels / equipment): a title deed, land lease, rooftop lease, PPA, purchase contract, bill of sale.`,
-      `Rule of thumb: "owns the attributes / I-REC / declaration" → SF_02C. "owns the land / equipment / physical site" → PROOF_OF_OWNERSHIP.`,
+      `  • PROOF_OF_OWNERSHIP is evidence of ownership of the PHYSICAL ASSET (the site / land / panels / equipment): a title deed, land lease, rooftop lease, PPA, purchase contract, bill of sale, or an EPC / engineering-procurement-construction contract (a "design, procurement and construction" agreement) by which the owner had the plant built. A multi-page signed construction/procurement/sale contract between the project owner and a contractor/vendor is PROOF_OF_OWNERSHIP.`,
+      `Rule of thumb: "owns the attributes / I-REC / declaration" → SF_02C. "owns the land / equipment / physical site", or "contracted to build/buy the plant" → PROOF_OF_OWNERSHIP.`,
+      `Documents are often NOT in English (e.g. Vietnamese "HỢP ĐỒNG THIẾT KẾ, MUA SẮM VÀ XÂY DỰNG" = a design/procurement/construction contract → PROOF_OF_OWNERSHIP). Classify by document structure and meaning regardless of language; OCR of non-English scans is frequently garbled, so trust the visual layout.`,
       ``,
       `Pick exactly one of:`,
       typeLines,
