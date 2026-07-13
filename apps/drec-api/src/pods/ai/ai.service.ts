@@ -69,6 +69,12 @@ export interface ExtractMeterIdsInput {
 export interface ExtractMeterIdsResult {
   measurementIds?: ExtractedField<string[]>;
   inverterMakeModel?: ExtractedField<string>;
+  // Portal "Info / Basic Information" overview fields (e.g. SolisCloud
+  // station Info tab). Present when the screenshot is an info/overview
+  // page rather than a device/SN table.
+  capacityKwp?: ExtractedField<number>;
+  commissioningDate?: ExtractedField<string>;
+  plantType?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -338,7 +344,7 @@ export class AiService {
     'extract-sf02-fields': 12, // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11, // bumped 2026-05-26 — 5 pages × 1024px
     'extract-cod-fields': 14, // bumped 2026-05-26 — 5 pages × 1024px
-    'extract-meter-ids-fields': 3, // bumped 2026-05-27 — switched to Sonnet 4.6 for stronger vision on portal device tables
+    'extract-meter-ids-fields': 4, // bumped 2026-07-13 — also extracts portal Info-page fields (capacity/commissioning date/plant type)
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
   };
@@ -1462,10 +1468,18 @@ export class AiService {
       `  - measurementIds: array of contiguous-alphanumeric SN strings. One entry per visible inverter row.`,
       `  - inverterMakeModel: manufacturer + model when visible (e.g. "Goodwe GW50K-MT")`,
       ``,
+      `ALSO — some portal screenshots are an "Info / Basic Information / Overview" page for the whole plant (not a device/SN table). SolisCloud's station "Info" tab is the classic example. When such fields are visible, extract them too (leave null if not on screen):`,
+      `  - capacityKwp: the plant's rated capacity in kWp/kW. Read the number off "Capacity", "Installed Capacity", "System Size" etc. Return the NUMBER only (e.g. 8.47 from "8.47kWp"). If only a per-module wattage × module count is shown, you may compute it.`,
+      `  - commissioningDate: the plant's commissioning / grid-connection / creation date. Prefer a field labelled "Grid Connection Date"; else "Time of creation of power station" / "Commissioning Date". Return ISO yyyy-MM-dd (convert dd/MM/yyyy → yyyy-MM-dd).`,
+      `  - plantType: the plant type/category if shown (e.g. "Residential Plant", "Commercial", "Ground-mount", "Rooftop").`,
+      ``,
       `Strict JSON only:`,
       `{`,
       `  "measurementIds": {"value": <string[]|null>, "confidence": <0..1>},`,
       `  "inverterMakeModel": {"value": <string|null>, "confidence": <0..1>},`,
+      `  "capacityKwp": {"value": <number|null>, "confidence": <0..1>},`,
+      `  "commissioningDate": {"value": <"yyyy-MM-dd"|null>, "confidence": <0..1>},`,
+      `  "plantType": {"value": <string|null>, "confidence": <0..1>},`,
       `  "reasoning": "<one short sentence>"`,
       `}`,
     ].join('\n');
@@ -1501,6 +1515,9 @@ export class AiService {
     return {
       measurementIds: idsField,
       inverterMakeModel: this.strField(parsed.inverterMakeModel),
+      capacityKwp: this.numField(parsed.capacityKwp),
+      commissioningDate: this.strField(parsed.commissioningDate),
+      plantType: this.strField(parsed.plantType),
       reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
   }
