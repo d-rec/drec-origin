@@ -56,6 +56,10 @@ import { Connection } from 'typeorm';
 import { InjectConnection } from '@nestjs/typeorm';
 import { LateOngoingIssuanceService } from '../issuer/services/late-ongoing-issuance.service';
 import { RepairStrandedMintsDTO } from './dto/repair-stranded-mints.dto';
+import { IssuerService } from '../issuer/services/issuer.service';
+import { CertificateLogService } from '../certificate-log/certificate-log.service';
+import { ReissueCertificateDTO } from './dto/reissue-certificate.dto';
+import { DateTime } from 'luxon';
 @ApiTags('Admin')
 @ApiBearerAuth('access-token')
 @Controller('admin')
@@ -70,6 +74,8 @@ export class AdminController {
     private readonly invitationService: InvitationService,
     @InjectConnection() private readonly connection: Connection,
     private readonly lateOngoingIssuanceService: LateOngoingIssuanceService,
+    private readonly issuerService: IssuerService,
+    private readonly certificateLogService: CertificateLogService,
   ) {}
 
   @Get('/users')
@@ -771,6 +777,160 @@ export class AdminController {
       strandedCount: stranded.length,
       stranded: summary,
       repaired: { logRowsCleared, readsReset, cyclesInserted },
+    };
+  }
+
+  /**
+   * Admin manual reissue. Reissues certificates for the given device externalIds
+   * against the given reservation (groupId), over a specified or default window
+   * (defaults to group.reservationStartDate..reservationEndDate).
+   *
+   * Why this exists: the legacy endReservation() cascade unlinked devices the
+   * moment reservationEndDate passed, leaving any in-window reads unminted.
+   * The DB-level repair restored device.groupId for the orphaned set, but in
+   * cases where devices have since been re-attached to a follow-on reservation
+   * (e.g. 69115b → 88079), the only safe way to mint the missed window is a
+   * targeted reissue that doesn't touch the current FK.
+   *
+   * Idempotent: devices that already have a per-device certificate log row
+   * overlapping the target window are skipped. Pass `dryRun: true` to preview
+   * without writing.
+   */
+  @Post('/reissue-certificate')
+  @Roles(Role.Admin)
+  @Permission('Write')
+  @ACLModules('ADMIN_MANAGEMENT_CRUDL')
+  @ApiOperation({
+    summary: 'Manually reissue certificates for a (group, externalIds, window) tuple',
+  })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Reissue summary.' })
+  public async reissueCertificate(
+    @Body() body: ReissueCertificateDTO,
+  ): Promise<{
+    groupId: number;
+    window: { start: string; end: string };
+    dryRun: boolean;
+    force: boolean;
+    requested: number;
+    eligible: string[];
+    skippedNotFound: string[];
+    skippedAlreadyIssued: string[];
+    issued: string[];
+    errors: { externalId: string; message: string }[];
+  }> {
+    const group = await this.deviceGroupService.adminFindGroupById(body.groupId);
+    if (!group) {
+      throw new NotFoundException(`No device_group with id ${body.groupId}`);
+    }
+
+    const windowStart = body.startDate
+      ? new Date(body.startDate)
+      : new Date(group.reservationStartDate);
+    const windowEnd = body.endDate
+      ? new Date(body.endDate)
+      : new Date(group.reservationEndDate);
+
+    const eligible: string[] = [];
+    const skippedNotFound: string[] = [];
+    const skippedAlreadyIssued: string[] = [];
+    const issued: string[] = [];
+    const errors: { externalId: string; message: string }[] = [];
+
+    const dryRun = !!body.dryRun;
+    const force = !!body.force;
+
+    // First pass: filter out missing devices and already-issued ones so the
+    // caller can see the planned set even in dryRun. When `force` is set the
+    // hasIssuedForDeviceInWindow guard is bypassed — used for "phantom" cycles
+    // where a per-device cert-log row exists but no certificate was ever
+    // minted, so the guard would otherwise wrongly skip the read.
+    const devicesToIssue = [];
+    for (const externalId of body.externalIds) {
+      const device = await this.deviceService.findByExternalId(externalId);
+      if (!device) {
+        skippedNotFound.push(externalId);
+        continue;
+      }
+      const already = force
+        ? false
+        : await this.certificateLogService.hasIssuedForDeviceInWindow(
+            body.groupId,
+            externalId,
+            windowStart,
+            windowEnd,
+          );
+      if (already) {
+        skippedAlreadyIssued.push(externalId);
+        continue;
+      }
+      eligible.push(externalId);
+      devicesToIssue.push(device);
+    }
+
+    if (dryRun) {
+      return {
+        groupId: body.groupId,
+        window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+        dryRun: true,
+        force,
+        requested: body.externalIds.length,
+        eligible,
+        skippedNotFound,
+        skippedAlreadyIssued,
+        issued: [],
+        errors: [],
+      };
+    }
+
+    if (devicesToIssue.length === 0) {
+      return {
+        groupId: body.groupId,
+        window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+        dryRun: false,
+        force,
+        requested: body.externalIds.length,
+        eligible,
+        skippedNotFound,
+        skippedAlreadyIssued,
+        issued: [],
+        errors: [],
+      };
+    }
+
+    // The issuer reads group.devices to know which devices' reads to total
+    // and mint against. We hand-assemble the device list rather than relying
+    // on device.groupId so devices currently attached to another reservation
+    // (e.g. moved to a follow-on PO) can still be reissued for this older
+    // window. Per-device so one bad device doesn't poison the whole batch.
+    for (const device of devicesToIssue) {
+      try {
+        const issuanceGroup = { ...group, devices: [device] } as typeof group;
+        await this.issuerService.issueCertificate(
+          issuanceGroup,
+          // nextIssuance is only used for cycle bookkeeping that doesn't apply
+          // to a one-shot manual reissue; passing a minimal stub is fine.
+          { id: 0 } as any,
+          DateTime.fromJSDate(windowStart).toUTC(),
+          DateTime.fromJSDate(windowEnd).toUTC(),
+          device.countryCode,
+        );
+        issued.push(device.externalId);
+      } catch (e: any) {
+        errors.push({ externalId: device.externalId, message: e?.message ?? String(e) });
+      }
+    }
+
+    return {
+      groupId: body.groupId,
+      window: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+      dryRun: false,
+      force,
+      requested: body.externalIds.length,
+      eligible,
+      skippedNotFound,
+      skippedAlreadyIssued,
+      issued,
+      errors,
     };
   }
 }

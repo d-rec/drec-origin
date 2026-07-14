@@ -1206,6 +1206,11 @@ export class DeviceGroupService {
     }
   }
 
+  /** Admin lookup: load any device_group by id regardless of org. */
+  public async adminFindGroupById(id: number): Promise<DeviceGroup | null> {
+    return this.repository.findOne({ where: { id } });
+  }
+
   private async findDeviceGroupById(
     id: number,
     organizationId: number,

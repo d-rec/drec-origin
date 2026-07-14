@@ -9,6 +9,8 @@ import { DeviceModule } from '../device';
 import { DeviceGroupModule } from '../device-group/device-group.module';
 import { InvitationModule } from '../invitation/invitation.module';
 import { IssuerModule } from '../issuer/issuer.module';
+import { CertificateLogModule } from '../certificate-log/certificate-log.module';
+import { ReadsModule } from '../reads/reads.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { IssuerModule } from '../issuer/issuer.module';
     DeviceGroupModule,
     InvitationModule,
     forwardRef(() => IssuerModule),
+    CertificateLogModule,
+    ReadsModule,
   ],
   controllers: [AdminController],
 })

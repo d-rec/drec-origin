@@ -456,6 +456,13 @@ export class DeviceService {
     return device;
   }
 
+  async findByExternalId(externalId: string): Promise<Device | null> {
+    const device = await this.repository.findOne({
+      where: { externalId },
+    });
+    return device ?? null;
+  }
+
   @Profile()
   async findReads(meterId: string): Promise<Device | null> {
     this.logger.verbose(`With in findReads`);
