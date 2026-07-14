@@ -83,7 +83,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     'Unexpected field':
       'Too many files for one document type, or a document type that this ' +
       'endpoint does not accept. Each type allows at most 10 files (20 for ' +
-      'Other Documents) — reduce the count on the over-filled slot and retry.',
+      'Metering Evidence and Other Documents) — reduce the count on the ' +
+      'over-filled slot and retry.',
     'File too large': 'A file exceeds the maximum allowed upload size (20MB).',
     'Too many files': 'Too many files were uploaded in a single request.',
     'Too many parts': 'The upload contained too many parts.',
