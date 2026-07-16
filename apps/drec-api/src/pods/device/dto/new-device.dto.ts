@@ -118,6 +118,10 @@ export class NewDeviceDTO
   fuelCode: FuelCode;
 
   @ApiProperty()
+  // Empty string -> undefined so @IsOptional skips it (class-validator's
+  // @IsOptional only skips null/undefined, not ''). A missing code is derived
+  // from deviceDescription at register time; we never block an incomplete site.
+  @Transform((value) => (value === '' || value == null ? undefined : value))
   @IsOptional()
   @IsEnum(DeviceTypeCode, {
     message:

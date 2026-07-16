@@ -40,6 +40,7 @@ import {
 } from '../../lib/helpers/getCycleEndDate';
 import { Profile } from '../../lib/profile';
 import {
+  DeviceDescription,
   DeviceKey,
   DeviceSortPropertyMapper,
   IREC_DEVICE_TYPES,
@@ -49,6 +50,7 @@ import { SDGBenefits } from '../../models/Sdgbenefit';
 import {
   CertificateGenerationFrequency,
   DeviceOrderBy,
+  DeviceTypeCode,
   ReadType,
   Role,
 } from '../../utils/enums';
@@ -101,6 +103,24 @@ import EvidentDeviceRejectedTemplate, {
   getEvidentDeviceRejectedSubject,
 } from '../evident/mail/evident-device-rejected.template';
 import { SMALL_DEVICES_MAX_CAPACITY, LIMIT_PER_PAGE } from '../../constants';
+
+/**
+ * Best-effort device type code for a site that was submitted without one.
+ * Roof-mounted descriptions map to TC120; everything else (ground mount, mini
+ * grid, solar lantern, and any unknown/blank description) falls back to the
+ * ground-mounted TC110 — the safe default so submission is never blocked.
+ */
+export function deriveDeviceTypeCode(
+  deviceDescription?: DeviceDescription | string,
+): DeviceTypeCode {
+  switch (deviceDescription) {
+    case DeviceDescription.RooftopSolar:
+    case DeviceDescription.SolarHomeSystem:
+      return DeviceTypeCode.TC120;
+    default:
+      return DeviceTypeCode.TC110;
+  }
+}
 
 @Injectable()
 export class DeviceService {
@@ -945,6 +965,16 @@ export class DeviceService {
       }
     }
     newDevice.externalId = uuid();
+
+    // Never block an incomplete site on a missing device type code. When the
+    // registrant left it blank, derive it from the device description: rooftop-
+    // style installs are TC120 (roof mounted), everything else — including an
+    // unknown/blank description — defaults to TC110 (ground mounted).
+    if (!newDevice.deviceTypeCode) {
+      newDevice.deviceTypeCode = deriveDeviceTypeCode(
+        newDevice.deviceDescription,
+      );
+    }
 
     if (
       newDevice.SDGBenefits &&
