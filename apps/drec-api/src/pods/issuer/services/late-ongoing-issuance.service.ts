@@ -21,6 +21,11 @@ import { IssuerService } from './issuer.service';
 import { Profile } from '../../../lib/profile';
 import { CronExpression } from '@nestjs/schedule';
 import { ReadType } from '../../../utils/enums';
+import {
+  LATE_ONGOING_WORKER_HEALTH_SQL,
+  LateOngoingWorkerHealthRow,
+  evaluateLateOngoingWorkerHealth,
+} from './late-ongoing-worker-health';
 
 @Injectable()
 export class LateOngoingIssuanceService {
@@ -54,40 +59,28 @@ export class LateOngoingIssuanceService {
   @NonConcurrentCron(CronExpression.EVERY_30_MINUTES)
   async monitorIssuanceWorkerHealth(): Promise<void> {
     try {
-      const [{ pending, last_checked }] = (await this.connection.query(
-        `SELECT
-           COUNT(*) FILTER (WHERE certificate_issued=false AND archived_at IS NULL) AS pending,
-           MAX(checked_at) AS last_checked
-         FROM device_lateongoing_certificate_cycle`,
-      )) as { pending: string; last_checked: Date | null }[];
-      const pendingNum = Number(pending);
-      if (pendingNum === 0) return;
-      if (!last_checked) {
-        const msg =
-          'Late-ongoing worker liveness: pending cycles exist but no cycle has ever been checked. Worker may not be running.';
-        this.logger.error(msg);
-        Sentry.captureMessage(msg, 'error');
-        return;
-      }
-      const ageMs = Date.now() - new Date(last_checked).getTime();
-      const STALE_AFTER_MS = 9 * 60 * 60 * 1000;
-      if (ageMs > STALE_AFTER_MS) {
-        const ageH = (ageMs / 1000 / 3600).toFixed(1);
-        const msg =
-          `Late-ongoing worker appears stalled: ${pendingNum} pending cycle(s), ` +
-          `last checked_at ${ageH}h ago (threshold ${STALE_AFTER_MS / 1000 / 3600}h). ` +
-          `Likely a stuck BullMQ worker — restart the api pod to recover.`;
-        this.logger.error(msg);
-        Sentry.captureMessage(msg, {
-          level: 'error',
-          tags: { check: 'late_ongoing_worker_liveness' },
-          extra: {
-            pending: pendingNum,
-            lastCheckedAt: last_checked,
-            ageHours: Number(ageH),
-          },
-        });
-      }
+      const [row] = (await this.connection.query(
+        LATE_ONGOING_WORKER_HEALTH_SQL,
+      )) as LateOngoingWorkerHealthRow[];
+
+      const health = evaluateLateOngoingWorkerHealth(row, Date.now());
+      if (!health.stalled) return;
+
+      // Same signal the /health/issuance-worker probe reports; here we make it
+      // loud (log + Sentry) in case the k8s livenessProbe isn't wired yet.
+      const msg =
+        `Late-ongoing worker appears stalled: ${health.reason}. ` +
+        `Likely a stuck BullMQ worker — restart the api pod to recover.`;
+      this.logger.error(msg);
+      Sentry.captureMessage(msg, {
+        level: 'error',
+        tags: { check: 'late_ongoing_worker_liveness' },
+        extra: {
+          pending: health.pending,
+          lastCheckedAt: health.lastChecked,
+          ageHours: health.ageHours,
+        },
+      });
     } catch (err) {
       this.logger.error(
         `monitorIssuanceWorkerHealth failed: ${(err as Error).message}`,
