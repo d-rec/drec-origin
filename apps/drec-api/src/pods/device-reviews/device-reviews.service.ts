@@ -47,6 +47,7 @@ import {
   computeCountryMatchVerification,
   CountryMatchResult,
 } from '../../utils/country-match-verification';
+import { getDcCapacity } from '../../utils/get-dc-capacity';
 import { countryCodesList } from '../../models/country-code';
 
 export interface DocMeta {
@@ -1229,7 +1230,7 @@ export class DeviceReviewsService {
   }> {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     const rows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, capacity, sld_capacity_kw AS "sldCapacityKw", "commissioningDate"
+      `SELECT id, latitude, longitude, capacity, dc_capacity, sld_capacity_kw AS "sldCapacityKw", "commissioningDate"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -1239,7 +1240,9 @@ export class DeviceReviewsService {
     const device = rows[0];
     const lat = device.latitude ? parseFloat(device.latitude) : null;
     const lng = device.longitude ? parseFloat(device.longitude) : null;
-    const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
+    // DC nameplate drives the yield model / ceiling; falls back to AC `capacity`
+    // when dc_capacity is not yet recorded (identical to pre-split behaviour).
+    const capacityKw = getDcCapacity(device);
 
     const hasLat = lat !== null && !isNaN(lat);
     const hasLng = lng !== null && !isNaN(lng);
@@ -1326,13 +1329,16 @@ export class DeviceReviewsService {
       [deviceId],
     );
 
-    // DC/AC basis sanity check. The GSA yield above is built on `capacityKw`
-    // (= device.capacity), which the model treats as DC nameplate (kWp). If a
-    // reviewer-entered SLD capacity exists and diverges beyond ±10%, surface a
-    // warning: a gap on the order of the DC:AC ratio (~1.1–1.3×) is a classic
-    // sign that an AC / inverter rating was registered instead of DC kWp,
-    // which would skew this entire ceiling.
+    // DC basis sanity check. The GSA yield above is built on `capacityKw` (the
+    // DC nameplate — `dc_capacity` when recorded, else the AC `capacity`
+    // fallback). SLD capacity is itself a DC figure, so compare the two: a
+    // divergence beyond ±10% means either the two DC values disagree (when
+    // dc_capacity is explicitly set) or — when we're still falling back to the
+    // AC `capacity` — that an AC / inverter rating is standing in for DC kWp
+    // (~1.1–1.3× gap), which would skew this entire ceiling.
     const CAPACITY_BASIS_TOLERANCE = 10; // percent
+    const hasExplicitDc =
+      device.dc_capacity != null && device.dc_capacity !== '';
     let capacityBasisNote: string | null = null;
     const sldCapacityKw =
       device.sldCapacityKw != null ? parseFloat(device.sldCapacityKw) : null;
@@ -1345,12 +1351,15 @@ export class DeviceReviewsService {
       const diffPct = ((sldCapacityKw - capacityKw) / capacityKw) * 100;
       if (Math.abs(diffPct) > CAPACITY_BASIS_TOLERANCE) {
         const sign = diffPct > 0 ? '+' : '';
-        capacityBasisNote =
-          `Registered capacity ${capacityKw} kW differs from SLD ${sldCapacityKw} kW ` +
-          `(${sign}${Math.round(diffPct * 10) / 10}%). The Solar GSA yield assumes the ` +
-          `registered value is DC nameplate (kWp); a gap this size can indicate an ` +
-          `AC / inverter rating was entered — verify the capacity basis before relying ` +
-          `on this ceiling.`;
+        capacityBasisNote = hasExplicitDc
+          ? `Recorded DC capacity ${capacityKw} kWp differs from SLD ${sldCapacityKw} kWp ` +
+            `(${sign}${Math.round(diffPct * 10) / 10}%). Both are DC figures — verify ` +
+            `which is correct before relying on this ceiling.`
+          : `No DC capacity is recorded, so this ceiling falls back to the AC capacity ` +
+            `${capacityKw} kW, which differs from the SLD DC capacity ${sldCapacityKw} kWp ` +
+            `(${sign}${Math.round(diffPct * 10) / 10}%). A gap this size is the classic ` +
+            `sign of an AC / inverter rating standing in for DC kWp — record the DC ` +
+            `nameplate before relying on this ceiling.`;
       }
     }
 
@@ -1708,7 +1717,7 @@ export class DeviceReviewsService {
     const pathwayNote = await this.ensurePathwayClassified(deviceId);
     // Fetch device
     const rows: any[] = await this.connection.query(
-      `SELECT id, latitude, longitude, capacity, "externalId"
+      `SELECT id, latitude, longitude, capacity, dc_capacity, "externalId"
        FROM device WHERE id = $1`,
       [deviceId],
     );
@@ -1717,7 +1726,8 @@ export class DeviceReviewsService {
     }
     const device = rows[0];
     const lat = device.latitude ? parseFloat(device.latitude) : null;
-    const capacityKw = device.capacity ? parseFloat(device.capacity) : 0;
+    // DC nameplate drives the modeled yield; falls back to AC when unrecorded.
+    const capacityKw = getDcCapacity(device);
     const externalId = device.externalId;
 
     if (lat === null || isNaN(lat) || capacityKw <= 0) {
@@ -2813,14 +2823,18 @@ export class DeviceReviewsService {
   }> {
     const TOLERANCE = 10; // ±10%
     const rows: any[] = await this.connection.query(
-      `SELECT capacity, sld_capacity_kw FROM device WHERE id = $1`,
+      `SELECT capacity, dc_capacity, sld_capacity_kw FROM device WHERE id = $1`,
       [deviceId],
     );
     if (rows.length === 0) {
       throw new NotFoundException(`Device ${deviceId} not found`);
     }
+    // SLD capacity is a DC figure, so compare it against the DC nameplate
+    // (dc_capacity when recorded, else the AC `capacity` fallback).
     const registered =
-      rows[0].capacity != null ? parseFloat(rows[0].capacity) : null;
+      rows[0].capacity != null || rows[0].dc_capacity != null
+        ? getDcCapacity(rows[0])
+        : null;
     const sld =
       rows[0].sld_capacity_kw != null
         ? parseFloat(rows[0].sld_capacity_kw)

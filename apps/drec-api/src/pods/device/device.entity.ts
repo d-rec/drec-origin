@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import {
@@ -97,14 +98,26 @@ export class Device extends ExtendedBaseEntity implements IDevice {
   // @IsEnum(Installation)
   // installationConfiguration: Installation;
 
-  // Installed nameplate capacity in kW. Platform convention is DC nameplate
-  // (kWp / kilowatt-peak), NOT an AC / inverter rating. The Solar GSA yield
-  // model (pods/solar-yield) and the production-ceiling check both treat this
-  // as DC kWp; entering an AC rating skews those estimates. Cross-checked
-  // against `sld_capacity_kw` during review (see device-reviews ceiling check).
+  // Installed AC nameplate capacity in kW (inverter / grid-side rating). This is
+  // the value the UI form collects, the GCC-facing production report shows, and
+  // the registry (Evident/I-REC) export sends. The DC nameplate used by the
+  // Solar GSA yield model and production-ceiling check lives in `dcCapacity`;
+  // those code paths read `getDcCapacity()` which falls back to this `capacity`
+  // when `dcCapacity` is null. Cross-checked against `sld_capacity_kw` (a DC
+  // figure) during review (see device-reviews ceiling check).
   @Column({ type: 'double precision', nullable: true })
   @IsNumber()
   capacity: number;
+
+  // Installed DC nameplate capacity in kWp (module-side / kilowatt-peak).
+  // Nullable and populated going forward only. The Solar GSA yield model and
+  // production-ceiling check read this via getDcCapacity(); when null they fall
+  // back to `capacity` (historical behaviour). NOT part of the device
+  // fingerprint (see lib/device.ts).
+  @Column({ type: 'double precision', nullable: true, name: 'dc_capacity' })
+  @IsOptional()
+  @IsNumber()
+  dcCapacity: number | null;
 
   @Column('simple-array', { nullable: true })
   @IsArray()

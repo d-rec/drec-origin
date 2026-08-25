@@ -132,7 +132,7 @@ export class NewDeviceDTO
   /** Installed nameplate capacity in kW, as DC nameplate (kWp), not an AC /
    * inverter rating. Used as DC kWp by the Solar GSA yield model and the
    * production-ceiling check. */
-  @ApiProperty({ description: 'Installed DC nameplate capacity in kW (kWp)' })
+  @ApiProperty({ description: 'Installed AC nameplate capacity in kW' })
   @IsOptional()
   @IsNumber()
   @Min(0.001, {
@@ -140,6 +140,21 @@ export class NewDeviceDTO
   })
   @Transform((value) => (value == null ? undefined : parseFloat(value)))
   capacity: number;
+
+  /** Installed DC nameplate capacity in kWp. Optional; when present it is used
+   * as DC kWp by the Solar GSA yield model and the production-ceiling check
+   * (falling back to `capacity` when absent). */
+  @ApiProperty({
+    required: false,
+    description: 'Installed DC nameplate capacity in kWp',
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.001, {
+    message: 'Invalid DC Capacity, it should be greater than 0',
+  })
+  @Transform((value) => (value == null ? undefined : parseFloat(value)))
+  dcCapacity?: number | null;
 
   @ApiProperty()
   @IsOptional()
