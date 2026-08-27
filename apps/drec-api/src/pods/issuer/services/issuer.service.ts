@@ -79,6 +79,16 @@ export class IssuerService {
       validReadings,
     } = await this.processGroupDeviceReads(group, startDate, endDate);
 
+    // TODO(issuance): silent no-op that drops multi-day (e.g. monthly) reads.
+    // The late-ongoing path (late-ongoing-issuance.service `processReads`) matches a read to a
+    // cycle via reads.service `find()` on `endDate BETWEEN cycleStart..cycleEnd`, flags the cycle
+    // `certificate_issued = true`, then calls here — but processGroupDeviceReads/getDeviceReads
+    // re-fetch over the same (often 1-day) window and find nothing for a ~30-day read, so this
+    // returns with no mint. Net: cycle marked issued, no cert, read stays uncertified (orphaned),
+    // no error. Bit SELF (Uganda, org 134): 63.6 MWh of monthly reads couldn't back-issue via a
+    // reservation (2026-08; worked around by reclassifying those reads to History + the per-read
+    // historical path). Fix: align this read-matching with `find()`'s endDate-BETWEEN (or overlap)
+    // semantics, and don't set the cycle's certificate_issued flag unless a cert actually minted.
     if (!totalReading || !validDevices.length) {
       return;
     }
