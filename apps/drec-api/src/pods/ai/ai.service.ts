@@ -7,6 +7,11 @@ import { AiResponseCache } from './ai-response-cache.entity';
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const SONNET_MODEL = 'claude-sonnet-4-6';
+// SLD field extraction runs on Opus — the densest visual-reasoning task in the
+// pipeline (reading full single-line diagrams). Haiku under-performed on it;
+// Opus's accuracy directly saves reviewer verification time. Bounded cost:
+// ~$0.23/SLD, cached per unique document. (2026-09, Peter.)
+const OPUS_MODEL = 'claude-opus-5';
 const MAX_INPUT_CHARS = 8000;
 
 /**
@@ -1103,7 +1108,7 @@ export class AiService {
           ? `\n\nPDF text layer (use to confirm labels the vision pass misses):\n"""\n${input.text.slice(0, MAX_INPUT_CHARS)}\n"""\n`
           : '';
       const res = await client.messages.create({
-        model: HAIKU_MODEL,
+        model: OPUS_MODEL,
         // 2048 truncated on busy diagrams where the model produced long
         // reasoning strings per field (seen 2026-05-26 — Atsawa SLD hit
         // out=2048 mid-string in hasAuxiliaryEnergySources.reasoning).
@@ -1150,7 +1155,7 @@ export class AiService {
       void this.audit
         .insert({
           endpoint: 'extract-sld-fields',
-          model: HAIKU_MODEL,
+          model: OPUS_MODEL,
           inputTokens,
           outputTokens,
           userId: ctx.userId ?? null,
