@@ -388,7 +388,7 @@ export class AiService {
    *  `<endpoint>:v<N>` so old entries are silently bypassed without
    *  needing a manual DELETE FROM ai_response_cache. */
   private static readonly PROMPT_VERSIONS: Record<string, number> = {
-    'classify-document': 7, // bumped 2026-07-13 — PROOF_OF_OWNERSHIP now covers EPC/construction contracts + non-English guidance
+    'classify-document': 8, // bumped 2026-09-03 — satellite/map views go to FACILITY_BOUNDARY, not METERING_EVIDENCE (an overhead site screenshot was being filed as metering evidence)
     'extract-sld-fields': 11, // bumped 2026-05-22 — derived values reuse the literal-evidence bbox (capacity from inverter labels)
     'extract-sf02-fields': 12, // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11, // bumped 2026-05-26 — 5 pages × 1024px
@@ -769,11 +769,12 @@ export class AiService {
       `STRONGEST VISUAL CUES (apply these BEFORE anything else):`,
       `  • Browser screenshot of a solar monitoring portal — Goodwe SemsPortal, SolarEdge Monitoring, Huawei FusionSolar, PowerTrust, etc. Tell-tale signs: the portal logo / product name in the header, navigation tabs like "Plants / Devices / Reports / Management", a tabular device list with columns like "SN", "Model", "Capacity", "Data Logger", or a chart of generation over time. ALWAYS classify as METERING_EVIDENCE, no matter what else is on screen.`,
       `  • Spreadsheet / Excel / CSV screenshot or render with columns like PV(kWh), Sell(kWh), Buy(kWh), Meter Reading, Date, Plant name → METERING_EVIDENCE.`,
+      `  • SATELLITE / AERIAL / MAP view of the site — a top-down or oblique overhead image, typically from Google Maps / Earth / Bing, often with a map pin, a drawn boundary polygon, or a highlighted array outline → FACILITY_BOUNDARY. This is a screenshot but it is NOT a monitoring portal: no portal chrome, no device table, no generation chart. Overhead imagery of panels is site evidence, never metering evidence.`,
       `  • On-site PHOTOGRAPH (not a screenshot) showing physical panels on a roof / ground-mount array / inverter cabinet / installation crew / nameplate sticker → PROJECT_PHOTOS.`,
       `  • Schematic / line diagram with electrical symbols (inverter blocks, AC/DC lines, grid tie-in, metering points) → SINGLE_LINE_DIAGRAM.`,
       `  • Scanned or photographed signed letter / certificate / declaration / signed PDF → fall through to the SF_02C vs PROOF_OF_OWNERSHIP vs COD_PROOF disambiguation below.`,
       ``,
-      `If the image is clearly a portal screenshot, you may stop here and answer METERING_EVIDENCE with high confidence — the remaining disambiguation rules only apply to letter/certificate documents.`,
+      `If the image is clearly a MONITORING PORTAL screenshot (portal chrome + device table or generation chart), you may stop here and answer METERING_EVIDENCE with high confidence. "Screenshot" alone is not enough: a satellite/map view is a screenshot too and belongs in FACILITY_BOUNDARY. The remaining disambiguation rules only apply to letter/certificate documents.`,
     ].join('\n');
     const prompt = [
       `You are classifying a document for the D-REC platform (renewable-energy certificate registration).`,
