@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CronExpression } from '@nestjs/schedule';
 import Anthropic from '@anthropic-ai/sdk';
+import { NonConcurrentCron } from '../../lib/cron';
 import { AiAuditLog } from './ai-audit-log.entity';
 import { AiResponseCache } from './ai-response-cache.entity';
 
@@ -335,6 +337,48 @@ export class AiService {
     @InjectRepository(AiResponseCache)
     private readonly cache: Repository<AiResponseCache>,
   ) {}
+
+  /**
+   * Watch for an extractor that has started failing outright.
+   *
+   * The Opus switch left a `temperature` parameter Opus rejects, so every
+   * SLD extraction 400'd for a day: the frontend got no fields, the verify
+   * queue came up empty, and it read as "Verify does nothing". Nothing
+   * complained, and cached documents kept working, which hid it further.
+   *
+   * So: hourly, flag any endpoint whose recent calls are all failures.
+   * A rate rather than a single error, so one-off timeouts stay quiet.
+   */
+  @NonConcurrentCron(CronExpression.EVERY_HOUR)
+  async checkExtractorHealth(): Promise<void> {
+    try {
+      const rows = await this.audit.query(
+        `SELECT endpoint,
+                count(*) FILTER (WHERE success = false)::int AS failed,
+                count(*) FILTER (WHERE success = true
+                                   AND error_message IS DISTINCT FROM 'cache hit')::int AS ok,
+                (array_agg(error_message ORDER BY created_at DESC)
+                   FILTER (WHERE success = false))[1] AS last_error
+           FROM ai_audit_log
+          WHERE created_at > now() - interval '1 hour'
+          GROUP BY endpoint`,
+      );
+      for (const r of rows ?? []) {
+        const failed = Number(r.failed ?? 0);
+        const ok = Number(r.ok ?? 0);
+        if (failed >= 3 && ok === 0) {
+          this.logger.error(
+            `AI extractor DOWN: ${r.endpoint} — ${failed} consecutive failures in the last hour, no successes. ` +
+              `Users see an empty result with no explanation. Last error: ${String(
+                r.last_error ?? '',
+              ).slice(0, 300)}`,
+          );
+        }
+      }
+    } catch (err: any) {
+      this.logger.warn(`extractor health check failed: ${err?.message}`);
+    }
+  }
 
   /** Cache TTL in days. */
   private static readonly CACHE_TTL_DAYS = 7;
