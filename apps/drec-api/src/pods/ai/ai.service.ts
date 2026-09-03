@@ -393,7 +393,7 @@ export class AiService {
     'extract-sf02-fields': 12, // bumped 2026-05-26 — 5 pages × 1024px (8 × 1200 still hung the proxy at ~6MB)
     'extract-sf02c-fields': 11, // bumped 2026-05-26 — 5 pages × 1024px
     'extract-cod-fields': 14, // bumped 2026-05-26 — 5 pages × 1024px
-    'extract-meter-ids-fields': 4, // bumped 2026-07-13 — also extracts portal Info-page fields (capacity/commissioning date/plant type)
+    'extract-meter-ids-fields': 5, // bumped 2026-09-03 — read the SN column, never the Software Version column (Huawei FusionSolar V…R…SPC… strings were being returned as serials)
     'classify-source-access-mode': 1,
     'verify-od-template': 1,
   };
@@ -1518,6 +1518,7 @@ export class AiService {
       ``,
       `Extract:`,
       `  - measurementIds: array of contiguous-alphanumeric SN strings. One entry per visible inverter row.`,
+      `    **Read the SN column, never the Software/Firmware Version column.** Huawei FusionSolar device tables place "Software Version" immediately left of "SN", and its values look like serials but are not: V100R001C00SPC153, V300R001C00SPC050, V100R001C01AM001. Anything matching V<digits>R<digits>C<digits>… (or ending SPC###/SPH###) is a firmware version — never return it. In that same table the real serials are the SN column: BT2220018220, ES2220068424, 102170110431, AM00102170110431. If both columns are visible and you are unsure which you read, return an empty array rather than the versions — a wrong meter ID silently attributes generation to the wrong device.`,
       `  - inverterMakeModel: manufacturer + model when visible (e.g. "Goodwe GW50K-MT")`,
       ``,
       `ALSO — some portal screenshots are an "Info / Basic Information / Overview" page for the whole plant (not a device/SN table). SolisCloud's station "Info" tab is the classic example. When such fields are visible, extract them too (leave null if not on screen):`,
