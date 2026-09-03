@@ -1114,7 +1114,10 @@ export class AiService {
         // out=2048 mid-string in hasAuxiliaryEnergySources.reasoning).
         // 4096 leaves headroom for ~17 fields with verbose reasoning.
         max_tokens: 4096,
-        temperature: 0,
+        // No `temperature`: Opus rejects it ("`temperature` is deprecated
+        // for this model") with a 400, which silently failed every SLD
+        // extraction after the switch from Haiku. The other calls here
+        // still run on Haiku/Sonnet and keep theirs.
         messages: [
           {
             role: 'user',
