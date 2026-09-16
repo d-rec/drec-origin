@@ -43,7 +43,7 @@ services:
       - 8025:8025   # Web inbox UI
 
   drec-minio-init:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z-cpuv1
     container_name: drec-minio-init
     depends_on:
       drec-minio:
