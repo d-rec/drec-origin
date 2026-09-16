@@ -44,7 +44,9 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
         : ['error', 'warn', 'log'],
   });
 
-  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
+  app.useGlobalPipes(
+    new ValidationPipe({ forbidUnknownValues: false, whitelist: true }),
+  );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.enableShutdownHooks();
