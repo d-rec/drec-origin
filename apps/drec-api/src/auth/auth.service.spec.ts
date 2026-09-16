@@ -2,6 +2,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService, IJWTPayload } from './auth.service';
+import { hashToken } from './security.util';
 import { UserService } from '../pods/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { OauthClientCredentialsService } from '../pods/user/oauth_client.service';
@@ -273,7 +274,7 @@ describe('AuthService', () => {
       await service.isTokenBlacklisted(token, payload);
 
       expect(userService.hasValidUserSession).toHaveBeenCalledWith({
-        accesstoken_hash: token,
+        accesstoken_hash: hashToken(token),
         userId: payload.id,
       });
     });

@@ -11,6 +11,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 import { EmailConfirmationModule } from '../pods/email-confirmation/email-confirmation.module';
 import { ClientJwtStrategy } from './client-jwt.strategy';
+import { requireSecret } from './security.util';
 @Global()
 @Module({
   imports: [
@@ -22,10 +23,9 @@ import { ClientJwtStrategy } from './client-jwt.strategy';
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => {
         return {
-          secret: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
+          secret: requireSecret(configService, 'JWT_SECRET'),
           signOptions: {
-            expiresIn:
-              configService.get<string>('JWT_EXPIRY_TIME') || '180 days',
+            expiresIn: configService.get<string>('JWT_EXPIRY_TIME') || '7 days',
           },
         };
       },
