@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from '../pods/user/user.service';
 import { IJWTPayload, AuthService } from './auth.service';
 import { IUser } from '../models';
+import { requireSecret } from './security.util';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -23,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') || 'thisisnotsecret',
+      secretOrKey: requireSecret(configService, 'JWT_SECRET'),
       passReqToCallback: true,
     });
   }
