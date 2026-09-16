@@ -5,7 +5,7 @@
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
 Report suspected vulnerabilities in D-REC Origin, the D-REC portal, or the
-hosted D-REC platform by email to **privacy@drec.energy**. Include:
+hosted D-REC platform by email to **<privacy@drec.energy>**. Include:
 
 - a description of the issue and its potential impact,
 - steps to reproduce or a proof of concept,
