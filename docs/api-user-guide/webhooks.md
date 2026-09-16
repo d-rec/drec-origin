@@ -15,10 +15,10 @@ Webhooks allow your platform to receive real-time notifications when chat events
 
 ## Events
 
-| Event                  | Triggered when                            |
-| ---------------------- | ----------------------------------------- |
-| `message.new`          | A new message is added to a conversation  |
-| `conversation.created` | A new conversation is started             |
+| Event                  | Triggered when                           |
+| ---------------------- | ---------------------------------------- |
+| `message.new`          | A new message is added to a conversation |
+| `conversation.created` | A new conversation is started            |
 
 ## Managing Webhooks
 
@@ -140,10 +140,10 @@ This sends a `ping` event to your URL.
 
 Every webhook delivery includes two headers:
 
-| Header                 | Description                                    |
-| ---------------------- | ---------------------------------------------- |
-| `X-Webhook-Signature`  | HMAC-SHA256 hex digest of the request body     |
-| `X-Webhook-Event`      | Event name (e.g. `message.new`)                |
+| Header                | Description                                |
+| --------------------- | ------------------------------------------ |
+| `X-Webhook-Signature` | HMAC-SHA256 hex digest of the request body |
+| `X-Webhook-Event`     | Event name (e.g. `message.new`)            |
 
 To verify the payload is authentic:
 
@@ -157,10 +157,7 @@ function verifyWebhook(body, signature, secret) {
     .createHmac('sha256', secret)
     .update(body)
     .digest('hex');
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected),
-  );
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 // In your Express handler:

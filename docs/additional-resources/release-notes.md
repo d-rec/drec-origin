@@ -352,7 +352,7 @@ only devices that are not part of the reservation or the devices that have never
 
 2. The apiusers and buyers will be able to download the csv file locally in the name of reservation name and the date of export.
 
-3. Request URL : [https://dev-api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId](https://dev-api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId)
+3. Request URL : [https://api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId](https://api.drecs.org/api/certificate-log/expoert_perdevice/:GroupId)
 
 - UI-added export action option to download csv file of perdevice log from reservation list: added new action button in reservation list to get the perdevcie log of certified devcie in reservation
 

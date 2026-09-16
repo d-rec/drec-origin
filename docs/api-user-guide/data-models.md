@@ -59,14 +59,14 @@ The caller must have one of: `OrganizationAdmin`, `ApiUser`.
 
 ### Document Types
 
-| Field Name            | Description                           |
-| --------------------- | ------------------------------------- |
-| `FORM_SF_02`          | SF-02 application form                |
-| `SF_02C`              | SF-02C compliance form                |
-| `METERING_EVIDENCE`   | Metering/measurement evidence         |
-| `SINGLE_LINE_DIAGRAM` | Single line diagram (SLD)             |
-| `PROJECT_PHOTOS`      | Site/project photographs              |
-| `COD_PROOF`           | Commercial Operation Date proof       |
+| Field Name            | Description                     |
+| --------------------- | ------------------------------- |
+| `FORM_SF_02`          | SF-02 application form          |
+| `SF_02C`              | SF-02C compliance form          |
+| `METERING_EVIDENCE`   | Metering/measurement evidence   |
+| `SINGLE_LINE_DIAGRAM` | Single line diagram (SLD)       |
+| `PROJECT_PHOTOS`      | Site/project photographs        |
+| `COD_PROOF`           | Commercial Operation Date proof |
 
 ## Device Update (PATCH /api/device/:externalId)
 

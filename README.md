@@ -88,8 +88,10 @@ Edit `.env` and fill in the required values. The most important ones:
 | `ISSUER_PRIVATE_KEY` | An Ethereum private key (hex, **without** `0x` prefix) | For local dev you can generate a throwaway key — see [Blockchain / Wallet setup](#blockchain--wallet-setup) below |
 | `DREC_BLOCKCHAIN_ADDRESS` | Your Metamask wallet address | Same section below |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Credentials for the default admin user | Any valid email/password for local dev |
+| `JWT_SECRET` | A strong random string, e.g. `openssl rand -hex 32` | Signs portal session tokens. **Required outside local development** — the API refuses to start if it is empty or a known placeholder |
+| `JWT_REGISTRANT_SECRET` | A strong random string, e.g. `openssl rand -hex 32` | Signs API-user access tokens. Same rule as above; never reuse a value across environments |
 
-All other values in `.env.example` have sensible defaults for local development.
+All other values in `.env.example` have sensible defaults for local development (in `development`/`test` the two JWT secrets fall back to an insecure dev value with a warning).
 
 ### 2. Start Docker services
 
