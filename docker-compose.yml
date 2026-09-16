@@ -18,7 +18,7 @@ services:
       - 6379:6379
 
   drec-minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z.hotfix.7aa24e772
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: drec-minio
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -43,7 +43,7 @@ services:
       - 8025:8025   # Web inbox UI
 
   drec-minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z-cpuv1
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
     container_name: drec-minio-init
     depends_on:
       drec-minio:
