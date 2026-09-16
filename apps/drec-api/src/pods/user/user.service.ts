@@ -10,6 +10,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { hashToken } from '../../auth/security.util';
 import bcrypt from 'bcryptjs';
 import {
   FindOptionsWhere,
@@ -1060,7 +1061,7 @@ export class UserService {
   ): Promise<void> {
     await this.userLoginSessionRepository.save({
       userId: user.id,
-      accesstoken_hash: token,
+      accesstoken_hash: hashToken(token),
     });
     return;
   }
@@ -1072,7 +1073,7 @@ export class UserService {
   async removeUserSession(userId: number, token: string): Promise<any> {
     return await this.userLoginSessionRepository.delete({
       userId: userId,
-      accesstoken_hash: token.trim(),
+      accesstoken_hash: hashToken(token),
     });
   }
 

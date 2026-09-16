@@ -18,6 +18,7 @@ import { OauthClientCredentialsService } from '../pods/user/oauth_client.service
 import { DeleteResult } from 'typeorm';
 import { LoginReturnDataDTO } from './dto/login-return-data.dto';
 import { ConfigService } from '@nestjs/config';
+import { requireSecret, hashToken } from './security.util';
 
 export interface IJWTPayload {
   id: number;
@@ -88,7 +89,7 @@ export class AuthService {
     payload: IJWTPayload,
   ): Promise<boolean> {
     const session = await this.userService.hasValidUserSession({
-      accesstoken_hash: token,
+      accesstoken_hash: hashToken(token),
       userId: payload.id,
     });
     return !session;
@@ -108,8 +109,7 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload, {
       privateKey: fileData,
-      secret:
-        this.configService.get<string>('JWT_REGISTRANT_SECRET') || 'my-secret',
+      secret: requireSecret(this.configService, 'JWT_REGISTRANT_SECRET'),
     });
     return {
       accessToken: token,

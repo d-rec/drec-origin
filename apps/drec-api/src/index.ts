@@ -64,7 +64,9 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ limit: '10mb', extended: true }));
 
-  app.useGlobalPipes(new ValidationPipe({ forbidUnknownValues: false }));
+  app.useGlobalPipes(
+    new ValidationPipe({ forbidUnknownValues: false, whitelist: true }),
+  );
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector)),
     new NormalizeDatesInterceptor(),
