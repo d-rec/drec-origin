@@ -11,9 +11,16 @@ const HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 const SONNET_MODEL = 'claude-sonnet-4-6';
 // SLD field extraction runs on Opus — the densest visual-reasoning task in the
 // pipeline (reading full single-line diagrams). Haiku under-performed on it;
-// Opus's accuracy directly saves reviewer verification time. Bounded cost:
-// ~$0.23/SLD, cached per unique document. (2026-09, Peter.)
-const OPUS_MODEL = 'claude-opus-5';
+// Opus's accuracy directly saves reviewer verification time. Cached per unique
+// document. (2026-09, Peter.)
+//
+// 5.5 over 5: A/B'd on the Sweden Ghana and Sukhpura SLDs with an identical
+// prompt and images — same value on 15/17 fields each, and the two that differ
+// are low-confidence on both models (an export behaviour the drawings never
+// state). No accuracy regression; what it buys is ~2x faster, 20% cheaper per
+// token, and ~25% fewer output tokens, which is headroom against the
+// max_tokens truncation this extractor hit on 2026-09-22.
+const OPUS_MODEL = 'claude-opus-5-5';
 const MAX_INPUT_CHARS = 8000;
 
 /**
