@@ -125,6 +125,44 @@ export class HistoricalIssuanceService {
       );
     }
 
+    // A historical catch-up is usually still uploading reads while this pass
+    // runs, so reads can land after the query above enumerated them. Those
+    // would be stranded: the request is marked Completed below and
+    // scheduleIssuance only ever picks up Pending ones, so nothing looks at
+    // this device again. Re-check the window before closing the request.
+    const remaining =
+      await this.readService.getCheckHistoryCertificateIssueDateLogForDevice(
+        historyDevice.device_externalid,
+        historyDevice.reservationStartDate,
+        historyDevice.reservationEndDate,
+      );
+
+    const attempted = new Set((historyReads ?? []).map((read) => read.id));
+    const arrivedLate = (remaining ?? []).filter(
+      (read) => !attempted.has(read.id),
+    );
+
+    if (arrivedLate.length > 0) {
+      // Leave the request Pending so the next run issues these. Only reads we
+      // have NOT already attempted hold it open — a read that genuinely cannot
+      // be issued therefore cannot spin the cron every five minutes forever.
+      this.logger.warn(
+        `${arrivedLate.length} historical read(s) for device ` +
+          `${historyDevice.device_externalid} arrived after issuance ` +
+          `enumerated them; leaving request ${historyDevice.id} Pending`,
+      );
+      return;
+    }
+
+    if (remaining?.length > 0) {
+      this.logger.error(
+        `${remaining.length} historical read(s) for device ` +
+          `${historyDevice.device_externalid} were attempted but are still ` +
+          `uncertified; completing request ${historyDevice.id} rather than ` +
+          `retrying indefinitely`,
+      );
+    }
+
     // Mark the request as completed
     await this.groupService.updateHistoryCertificateIssueStatus(
       historyDevice.id,
