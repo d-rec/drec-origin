@@ -27,6 +27,8 @@ import { HistoricalIssuanceProcessor } from './processors/historical-issuance.pr
 import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
 import { StrandedCertificateService } from './services/stranded-certificate.service';
 import { MailModule } from '../../mail/mail.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MeterRead } from '../reads/reads.entity';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { MailModule } from '../../mail/mail.module';
     UserModule,
     FileModule,
     MailModule,
+    TypeOrmModule.forFeature([MeterRead]),
     registerQueues(
       Queues.LateOngoingIssuance,
       Queues.HistoricalIssuance,
