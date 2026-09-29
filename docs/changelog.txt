@@ -1,9 +1,144 @@
 DREC Changelog
-Report date: July 7, 2026
+Report date: September 26, 2026
 
 
-RECENT CHANGES (April -- July 2026)
+RECENT CHANGES (April -- September 2026)
 ============================================================
+
+v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
+--------------------
+
+  AI EXTRACTION (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - SLD field extraction moved from Haiku 4.5 to Opus (reading a
+    full single-line diagram is the densest visual-reasoning task
+    in the pipeline, and Haiku under-performed on it), then to
+    Opus 5.5 once it shipped. The 5.5 move was A/B'd on two real
+    SLDs with an identical prompt: same value on 15 of 17 fields,
+    the two differing ones low-confidence on both models. It is
+    not an accuracy change -- it is ~2x faster, 20% cheaper per
+    token, and ~25% fewer output tokens, which is headroom
+    against the max_tokens truncation this extractor has hit.
+  - The Opus switch initially broke extraction outright: the
+    request still carried `temperature`, which Opus rejects with
+    a 400. Every SLD extraction failed for a day while documents
+    already in ai_response_cache kept working, so the UI showed
+    an empty verify queue rather than an error. Removed, and an
+    hourly check now flags any endpoint with several failures and
+    no successes, so a wholesale extractor failure announces
+    itself instead of looking like "Verify does nothing".
+  - Meter-ID extraction now reads the SN *column* rather than
+    guessing from string shape. A firmware version and a serial
+    are indistinguishable as strings -- both alphanumeric, both
+    mixed letters and digits, same length -- so the previous
+    heuristics were harvesting Huawei "Software Version" values
+    (V100R001C00SPC153) as meter IDs while the real serials sat
+    in the next column. Position is the only real discriminator.
+    "SN" appears twice on those pages (a search box above the
+    table as well as the header), so every candidate header is
+    scored by how many serial-like values sit beneath it.
+  - Satellite and map views (a map pin, a drawn boundary polygon,
+    an overhead array) now classify as FACILITY_BOUNDARY. The
+    vision rules never mentioned that category, and PROJECT_PHOTOS
+    explicitly excludes screenshots, so aerial screenshots fell
+    into the catch-all "screenshot => METERING_EVIDENCE" branch.
+
+  UI (drec-ui)
+  ~~~~~~~~~~~~
+  - Field highlights in SLD verify are now pixel-exact, from a
+    self-hosted PP-OCR service rather than in-browser tesseract.
+    Tesseract could not lock onto dense diagram text, so the
+    highlight fell back to the model's estimated bbox, which
+    lands far from the value. Qwen2.5-VL grounding was tested
+    head-to-head and is no better -- its boxes miss by hundreds
+    of pixels even rescaled, because any model estimating
+    coordinates is guessing. Deterministic OCR detects the text
+    pixels, so there is nothing to guess.
+  - Derived values (a count, a boolean) have no literal text to
+    box, so instead of drawing a confident-looking estimate the
+    view highlights the *evidence* -- the three "INV 0n" labels
+    behind "3 generating units" -- and says N/A outright when
+    nothing on the drawing can be pointed at.
+  - Added a magnifier for the highlighted region: SLD labels are
+    unreadable at page scale and zooming the page does not help.
+    It parks in the quadrant the pointer is not in, stays put
+    while the drawing scrolls, and magnifies the text itself
+    rather than the padded outline.
+  - Meter IDs carry a box each and are cross-checked against the
+    image. An ID the model returned that OCR cannot find anywhere
+    is flagged, since a wrong meter ID silently attributes
+    generation to the wrong device. Near-matches are boxed and
+    named, which is what makes a wrong-column read visible.
+  - Maps use keyless OpenStreetMap tiles; the CARTO basemap had
+    started rendering an "API KEY REQUIRED" watermark.
+  - Auto-sort documents moved to the top row beside Organization
+    -- dropping the documents in is the first thing a registrant
+    does, so the button belongs before the form.
+
+  DEVICE MODEL (drec-origin + drec-ui)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Capacity split into AC and DC. `capacity` stays AC (what the
+    UI, GCC reports and the registry already treat it as) and a
+    nullable `dc_capacity` was added; only the production-ceiling
+    and yield code reads DC, via dcCapacity ?? capacity. A site
+    whose real DC array over-produces relative to its AC rating
+    (normal ~1.3x oversizing) no longer has legitimate metered
+    energy rejected as over-the-max. Null everywhere on deploy,
+    so behaviour is unchanged until a DC value is entered.
+
+  INFRASTRUCTURE (drec-infrastructure)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - EKS upgraded from a 1.33-era cluster to 1.36, clearing the
+    extended-support surcharge deadline (1.34 standard support
+    ended 2026-12-02; 1.36 runs to 2027-08-02) and the cluster
+    policy switched to STANDARD so the surcharge cannot recur
+    silently. Karpenter 1.6.8 -> 1.14.1 first, since it gates
+    which Kubernetes versions can be provisioned.
+  - The upgrade surfaced four faults that had each been silently
+    blocking it, and any one of them would block the next:
+    a `10%` disruption budget rounds DOWN TO ZERO on a pool of
+    fewer than ten nodes, so Karpenter could disrupt nothing --
+    no consolidation, no drift remediation, no AMI updates, which
+    is why every node was still on 1.33 a month after the 1.34
+    upgrade; `karpenter.sh/do-not-disrupt` on the deployment
+    templates made those nodes permanently undrainable (replaced
+    with two replicas plus a PodDisruptionBudget, which protects
+    the same thing while still allowing recycling); EKS addons
+    are not upgraded with the control plane, and a kube-proxy
+    outside the version skew left pods Pending with no CNI; and
+    the managed nodegroup was t3.small (1.46GB), which OOM-killed
+    kubelets and hit the pod-density cap -- replaced by a
+    t3.medium nodegroup carrying only Karpenter and core addons.
+  - AMI selection moved from pinned IDs and dated aliases to
+    al2023@latest, which tracks the cluster version and resolves
+    the right variant per instance type, including NVIDIA for GPU
+    nodes. Stale pins were a recurring cause of upgrade churn.
+  - Karpenter's interruption queue never existed: the controller
+    was configured with INTERRUPTION_QUEUE but no SQS queue had
+    been created, so spot interruption notices were never handled
+    and spot nodes were terminated without being drained. Queue,
+    EventBridge rules and IAM added.
+  - AWS Health events are now ingested and mailed already decoded.
+    The Health API needs a Business/Enterprise Support plan and
+    returns SubscriptionRequiredException here, so EventBridge
+    fans the events into SQS and a Lambda publishes a readable
+    summary, prefixed [ACTION NEEDED] for the categories that
+    carry a deadline. Previously these arrived as raw notices
+    that had to be read by hand.
+  - The upgrade is now reproducible: nodegroup and addon versions
+    are scripted, PodDisruptionBudgets are checked in, and a
+    runbook records the ordering (Karpenter, control plane,
+    addons, nodes) and the four blockers above. The manifests had
+    still described the pre-upgrade state, so applying them would
+    have undone the fix.
+
+  OPS
+  ~~~
+  - RDS: PowerTrust backup retention raised 1 -> 35 days, matching
+    the other instances; a day of point-in-time recovery on a
+    customer-facing environment was an oversight. copy-tags-to-
+    snapshot enabled on all three.
+
 
 v0.9.8 (2026-07-07) -- CI Green Restore + Unsaved-Changes Guard
 --------------------
