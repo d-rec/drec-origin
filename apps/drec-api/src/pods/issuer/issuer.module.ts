@@ -25,6 +25,8 @@ import { registerQueues } from '../../lib/helpers/registerQueues';
 import { OngoingIssuanceProcessor } from './processors/ongoing-issuance.processor';
 import { HistoricalIssuanceProcessor } from './processors/historical-issuance.processor';
 import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
+import { StrandedCertificateService } from './services/stranded-certificate.service';
+import { MailModule } from '../../mail/mail.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
     HttpModule,
     UserModule,
     FileModule,
+    MailModule,
     registerQueues(
       Queues.LateOngoingIssuance,
       Queues.HistoricalIssuance,
@@ -56,6 +59,7 @@ import { MissingCyclesProcessor } from './processors/missing-cycles.processor';
     OngoingIssuanceProcessor,
     HistoricalIssuanceProcessor,
     MissingCyclesProcessor,
+    StrandedCertificateService,
   ],
   exports: [
     IssuerService,
