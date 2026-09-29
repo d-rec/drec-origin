@@ -1,12 +1,13 @@
-import { getDataSourceToken } from '@nestjs/typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
+import { MeterRead } from '../../reads/reads.entity';
 import { MailService } from '../../../mail/mail.service';
 import { StrandedCertificateService } from './stranded-certificate.service';
 
 describe('StrandedCertificateService', () => {
   let service: StrandedCertificateService;
-  let dataSource: DataSource;
+  let reads: Repository<MeterRead>;
   let mailService: MailService;
 
   const row = (id: number) => ({
@@ -26,7 +27,7 @@ describe('StrandedCertificateService', () => {
       providers: [
         StrandedCertificateService,
         {
-          provide: getDataSourceToken(),
+          provide: getRepositoryToken(MeterRead),
           useValue: { query: jest.fn() } as any,
         },
         {
@@ -37,12 +38,12 @@ describe('StrandedCertificateService', () => {
     }).compile();
 
     service = module.get(StrandedCertificateService);
-    dataSource = module.get(getDataSourceToken());
+    reads = module.get(getRepositoryToken(MeterRead));
     mailService = module.get(MailService);
   });
 
   const returns = (...batches: any[][]) => {
-    const q = dataSource.query as jest.Mock;
+    const q = reads.query as jest.Mock;
     batches.forEach((b) => q.mockResolvedValueOnce(b));
   };
 
@@ -93,7 +94,7 @@ describe('StrandedCertificateService', () => {
   });
 
   it('survives a database error without throwing', async () => {
-    (dataSource.query as jest.Mock).mockRejectedValueOnce(new Error('boom'));
+    (reads.query as jest.Mock).mockRejectedValueOnce(new Error('boom'));
     await expect(service.detectAndAlert()).resolves.not.toThrow();
     expect(mailService.send).not.toHaveBeenCalled();
   });

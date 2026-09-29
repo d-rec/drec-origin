@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CronExpression } from '@nestjs/schedule';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MeterRead } from '../../reads/reads.entity';
 import { NonConcurrentCron } from '../../../lib/cron';
 import { MailService } from '../../../mail/mail.service';
 
@@ -39,8 +40,15 @@ export class StrandedCertificateService {
   private lastAlertAt = 0;
 
   constructor(
-    @InjectDataSource()
-    private readonly dataSource: DataSource,
+    /**
+     * Only used as a handle for raw SQL: certificate_read_model belongs to
+     * @energyweb/origin-247-certificate and has no entity here. Repository
+     * .query() is deliberate — DataSource/InjectDataSource do not exist in
+     * the TypeORM 0.2 line that the prod branch still builds against, and
+     * this service is cherry-picked there.
+     */
+    @InjectRepository(MeterRead)
+    private readonly reads: Repository<MeterRead>,
     private readonly mailService: MailService,
   ) {}
 
@@ -84,7 +92,7 @@ export class StrandedCertificateService {
   }
 
   private async findStranded(): Promise<StrandedRow[]> {
-    return this.dataSource.query(
+    return this.reads.query(
       `SELECT c."internalCertificateId"       AS "internalCertificateId",
               c."deviceId"                    AS "groupId",
               c."createdAt"                   AS "createdAt",
