@@ -8,6 +8,34 @@ RECENT CHANGES (April -- September 2026)
 v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
 --------------------
 
+  SECURITY (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~
+  - The API now refuses to start in production-like environments
+    when a JWT signing secret is missing or left at a known
+    placeholder, instead of falling back to an in-code default.
+    A guessable signing key lets anyone mint a valid token for
+    any account, and the fallbacks meant that misconfiguration
+    booted cleanly and looked healthy. Development and test keep
+    a warned fallback so local work and CI are not blocked.
+  - Session tokens are stored as a SHA-256 hash rather than the
+    raw JWT, so read access to user_login_session no longer
+    yields usable bearer credentials. NOTE: this invalidates
+    existing sessions on deploy -- everyone logs in again once.
+
+  ISSUANCE (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~
+  - Reads are marked certified, certificate-log rows written, MWh
+    accounting advanced and the reservation ended only AFTER the
+    mint succeeds. All of that used to happen first, so a failing
+    issue() left reads flagged certified with "Requested" log
+    rows and no certificate on chain. That state then blocked
+    every automatic retry -- the certified flag hides the reads
+    and the log rows suppress re-issuance -- so the token never
+    landed without hand cleanup. This is the fault behind the
+    2026-06-20 prod missing-tokens incident (~30 site-months
+    stranded across Hamara Grid and Fourth Partner); prod was
+    remediated at the time, this is the fix for the cause.
+
   AI EXTRACTION (drec-origin)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
   - SLD field extraction moved from Haiku 4.5 to Opus (reading a
@@ -43,6 +71,17 @@ v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
     explicitly excludes screenshots, so aerial screenshots fell
     into the catch-all "screenshot => METERING_EVIDENCE" branch.
 
+  - EPC / design-procurement-construction contracts now classify
+    as PROOF_OF_OWNERSHIP. The definition listed only deed, lease,
+    PPA, purchase and bill-of-sale, so a Vietnamese EPC contract
+    submitted as proof of ownership landed in Other Documents.
+    The rules now also say outright that documents are often not
+    in English and should be classified by structure.
+  - Meter-ID extraction also reads portal Info-page fields
+    (capacity, commissioning date, device type) from the same
+    screenshot, since a registrant uploading one for meter IDs
+    is usually retyping the rest of it by hand anyway.
+
   UI (drec-ui)
   ~~~~~~~~~~~~
   - Field highlights in SLD verify are now pixel-exact, from a
@@ -75,6 +114,23 @@ v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
     -- dropping the documents in is the first thing a registrant
     does, so the button belongs before the form.
 
+  - Scanned and non-English PDFs go to the vision model instead
+    of the text path, which returned near-empty strings for them
+    and produced confident nonsense downstream.
+  - Document preview handles the formats registrants actually
+    upload: .txt renders as text and .csv as a spreadsheet rather
+    than a broken image, spreadsheets keep a sticky header row
+    while scrolling and no longer offer an OCR button.
+  - Add-device fixes from real submissions: SF-02 auto-selects
+    "Upload your own" when one is detected, SiteOperator orgs
+    appear in the registrant Organization dropdown, the live-
+    issues sidebar shows in add mode when a disagreement blocks
+    submit, and the (14) Meter ID label stops clipping.
+  - Panel detection captures at zoom 19 and waits for tiles to
+    finish loading; it was detecting against half-rendered
+    imagery and then reporting zero panels with a hint that named
+    the wrong cause.
+
   DEVICE MODEL (drec-origin + drec-ui)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   - Capacity split into AC and DC. `capacity` stays AC (what the
@@ -85,6 +141,13 @@ v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
     (normal ~1.3x oversizing) no longer has legitimate metered
     energy rejected as over-the-max. Null everywhere on deploy,
     so behaviour is unchanged until a DC value is entered.
+
+  - deviceTypeCode is optional and derived from the description
+    at register time. @IsOptional does not skip an empty string,
+    so a blank field was rejected by the enum validator and an
+    otherwise complete site could not be submitted.
+  - Metering-evidence uploads raised from 10 files to 20; sites
+    with many meters were hitting the cap legitimately.
 
   INFRASTRUCTURE (drec-infrastructure)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,6 +194,18 @@ v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
     addons, nodes) and the four blockers above. The manifests had
     still described the pre-upgrade state, so applying them would
     have undone the fix.
+
+  BUILD / DOCS (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - MinIO and the mc client are pulled from quay.io at pinned
+    release tags. Docker Hub stopped serving both images (401 on
+    pull), which broke the local dev stack at startup.
+  - Added a Code of Conduct, a security policy and NOTICE, and
+    refreshed the API guide with a deployment/ops page -- the
+    repo is public and had none of the files a reader looks for
+    first.
+  - Upload failures return the actual multer error rather than a
+    generic message, so a rejected file says why.
 
   OPS
   ~~~
