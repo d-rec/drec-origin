@@ -26,6 +26,15 @@ v0.9.10 (2026-10-12) -- Device Registration Regression Fix
     409 in device registration really is a duplicate.
   - My Devices no longer renders an empty list when the API
     returns a bare array instead of a paged object. (drec-ui)
+  - Document translation worked again. The same v0.9.9 validator
+    change had been emptying the translate request body since
+    2026-09-16, so every translation returned a server error.
+  - Seeding admin users worked again: the organization id was
+    being checked against a password rule it could never match,
+    so the endpoint rejected everything.
+  - Swept every request body the validator inspects and gave
+    each field an explicit rule, so a field cannot be dropped
+    in silence again.
 
 v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
 --------------------
