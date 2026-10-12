@@ -1,9 +1,31 @@
 DREC Changelog
-Report date: September 26, 2026
+Report date: October 12, 2026
 
 
-RECENT CHANGES (April -- September 2026)
+RECENT CHANGES (April -- October 2026)
 ============================================================
+
+v0.9.10 (2026-10-12) -- Device Registration Regression Fix
+--------------------
+
+  REGRESSION (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+  - Device registration worked again on develop and stage. Every
+    submit since 2026-09-16 had failed with "Organization id is
+    required, please add the organization", shown as a "Duplicate
+    Entry" dialog, with an organization plainly selected and no
+    device to duplicate. The JWT hardening in v0.9.9 tightened
+    the global request validator to drop any body field it does
+    not recognise, and the registration payload -- a JSON blob
+    sent alongside the uploaded documents -- was not on its list,
+    so the server received the files and none of the form data.
+    Production was never affected; it does not run that setting.
+  - The error now names the field as the form labels it
+    ("Organization"), and returns 400 rather than 409. The 409
+    was why the portal titled it "Duplicate Entry": every other
+    409 in device registration really is a duplicate.
+  - My Devices no longer renders an empty list when the API
+    returns a bare array instead of a paged object. (drec-ui)
 
 v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
 --------------------
