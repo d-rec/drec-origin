@@ -32,9 +32,20 @@ v0.9.10 (2026-10-12) -- Device Registration Regression Fix
   - Seeding admin users worked again: the organization id was
     being checked against a password rule it could never match,
     so the endpoint rejected everything.
+  - Creating and updating buyer reservations worked again. The
+    reserved volume, the start, end and expiry dates and the
+    three continue/authority options were all being dropped
+    from the request, so every submission came back claiming
+    the target capacity was not a valid number.
+  - Certificate re-issue requested through the API worked
+    again. The metadata that names the reservation, group and
+    devices was being dropped, and because re-issue does not
+    wait for a result, it failed without telling anyone.
+  - Creating module permissions and ACL modules worked again.
   - Swept every request body the validator inspects and gave
-    each field an explicit rule, so a field cannot be dropped
-    in silence again.
+    each field an explicit rule, and added a build check that
+    fails if a new field is added without one, so a field
+    cannot be dropped in silence again.
 
 v0.9.9 (2026-09-26) -- Pixel-Exact Field Evidence + EKS 1.36
 --------------------
