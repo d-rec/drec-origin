@@ -804,14 +804,19 @@ export class DeviceController {
         organizationId = deviceToRegister.organizationId;
       } else {
         this.logger.error(
-          `Organization id is required, please add the organization`,
+          `Device registration rejected: no organization selected (role=${role})`,
         );
         // A missing required field is a bad request, not a conflict. This
         // used to throw 409, which the portal renders as "Duplicate Entry"
         // because that is what a 409 means everywhere else here.
+        //
+        // Only Admin/Registrant reach this branch -- API users resolve their
+        // organization from api_user_id in the else branch -- so the message
+        // names the field as the portal labels it ("Organization"), not the
+        // internal organizationId.
         throw new BadRequestException({
           success: false,
-          message: `Organization id is required, please add the organization`,
+          message: `Please select an Organization before submitting.`,
         });
       }
     } else {
