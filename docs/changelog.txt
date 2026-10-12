@@ -42,6 +42,21 @@ v0.9.10 (2026-10-12) -- Device Registration Regression Fix
     devices was being dropped, and because re-issue does not
     wait for a result, it failed without telling anyone.
   - Creating module permissions and ACL modules worked again.
+  LOCAL DEVELOPMENT (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Replaced MinIO with SeaweedFS as the local object store.
+    MinIO withdrew its free distribution -- the images were
+    deleted and the download server now returns an error -- so
+    a fresh checkout could no longer start the local stack.
+    Ports and settings are unchanged, and the documents already
+    uploaded locally were copied across. Stage and production
+    were never affected: they use AWS S3 directly.
+  - Local object storage now rejects unsigned requests, the way
+    AWS S3 does, so a missing-signature bug can no longer pass
+    locally and fail only in production.
+
+  ISSUANCE / API (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   - Swept every request body the validator inspects and gave
     each field an explicit rule, and added a build check that
     fails if a new field is added without one, so a field
