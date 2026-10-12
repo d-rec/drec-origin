@@ -441,23 +441,33 @@ export class NewDeviceDTO implements Omit<
   offGridCircumstances?: string;
 }
 export class DeviceRegistrationBody {
-  // The DocumentType members below are filled by FileFieldsInterceptor and
-  // read via @UploadedFiles(), so they never pass through the validation
-  // pipe. deviceToRegister does -- it is a @Body() field -- and the global
-  // pipe runs with `whitelist: true` (added by #791), which DELETES any body
-  // property carrying no class-validator decorator. That emptied the
-  // multipart body entirely and broke device registration with
-  // "Organization id is required", because deviceToRegister was stripped
-  // before the controller ever saw it. @Allow() keeps a property through
-  // whitelisting without validating it, which is what we want: the field
-  // arrives as a JSON string and the controller parses it by hand.
+  // EVERY property in this class carries a decorator, deliberately. The
+  // global pipe runs with `whitelist: true` (added by #791) and DELETES any
+  // body property that has none -- silently, with no validation error. That
+  // is what broke device registration between 2026-09-16 and 2026-10-12:
+  // `deviceToRegister` was undecorated, so the whole multipart text body
+  // arrived empty and the controller reported "Organization id is required".
+  //
+  // @Allow() is the marker for "keep this through whitelisting, validate
+  // nothing" -- right for all of these: the document fields are populated by
+  // FileFieldsInterceptor and read via @UploadedFiles(), and
+  // deviceToRegister arrives as a JSON string the controller parses by hand.
+  // If you add a property here, decorate it.
+  @Allow()
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
+  @Allow()
   [DocumentType.SF_02C]: Express.Multer.File[];
+  @Allow()
   [DocumentType.PROOF_OF_OWNERSHIP]: Express.Multer.File[];
+  @Allow()
   [DocumentType.METERING_EVIDENCE]: Express.Multer.File[];
+  @Allow()
   [DocumentType.SINGLE_LINE_DIAGRAM]: Express.Multer.File[];
+  @Allow()
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
+  @Allow()
   [DocumentType.COD_PROOF]: Express.Multer.File[];
+  @Allow()
   [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
   @Allow()
   deviceToRegister: NewDeviceDTO;

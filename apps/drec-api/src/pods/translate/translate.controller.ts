@@ -9,9 +9,19 @@ import {
 import { ApiKeyResolverService } from '../org-api-licenses/api-key-resolver.service';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
+import { ArrayNotEmpty, IsArray, IsString } from 'class-validator';
 
 class TranslateDto {
+  // Decorators are not optional here: the global pipe runs with
+  // `whitelist: true`, which deletes any body property that has none. Both
+  // of these were undecorated, so every request arrived with an empty body
+  // and the service threw on `text.reduce`.
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
   text: string[];
+
+  @IsString()
   target_lang: string;
 }
 
