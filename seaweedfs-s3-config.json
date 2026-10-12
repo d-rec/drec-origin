@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "S3 identities for the local SeaweedFS dev stack. Credentials match the",
+    "AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY defaults in .env.example.",
+    "",
+    "This file is why the service is started with -s3.config. WITHOUT it,",
+    "`weed server -s3` accepts ANY credentials and serves objects to",
+    "unsigned, anonymous requests -- a presigned-URL bug would pass locally",
+    "and fail only in production. With it, SeaweedFS behaves like real S3:",
+    "anonymous GET is 403 and a tampered signature is rejected.",
+    "",
+    "Local dev only. Stage and prod set no AWS_S3_ENDPOINT and talk to real",
+    "AWS S3, so nothing here is deployed anywhere."
+  ],
+  "identities": [
+    {
+      "name": "drec-local",
+      "credentials": [
+        {
+          "accessKey": "minioadmin",
+          "secretKey": "minioadmin"
+        }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

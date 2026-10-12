@@ -227,28 +227,32 @@ Open <http://localhost:8025> in your browser.
 
 **For production**, replace the `.env` SMTP values with real credentials (e.g. `smtp.gmail.com` + a Gmail App Password or SMTP relay).
 
-## Browsing MinIO (local dev)
+## Browsing object storage (local dev)
 
-MinIO is the S3-compatible object store used for device submission documents. In local dev it runs as a Docker container and exposes two ports:
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is the S3-compatible object store used for device submission documents. In local dev it runs as a Docker container and exposes two ports:
 
 | Port | Purpose |
 |------|---------|
 | 9000 | S3 API (used by the backend) |
-| 9001 | Web console (browser UI) |
+| 9001 | Filer file browser (browser UI) |
 
-**To open the browser console:**
+**To browse uploaded files:**
 
 1. Make sure the Docker services are running:
 
    ```sh
-   docker compose up -d drec-minio
+   docker compose up -d drec-seaweedfs drec-s3-init
    ```
 
-2. Open <http://localhost:9001> in your browser.
-3. Log in with:
-   - **Username:** `minioadmin`
-   - **Password:** `minioadmin`
-4. Navigate to **Buckets → drec-documents** to browse uploaded files.
+2. Open <http://localhost:9001/buckets/drec-documents/> in your browser. No login — the file browser is unauthenticated on localhost; the S3 API on 9000 is not.
+
+The S3 credentials are `minioadmin` / `minioadmin`, set in `seaweedfs-s3-config.json` and matching the `.env.example` defaults. They are enforced: an unsigned request to port 9000 gets a 403, as it would against real AWS S3.
+
+> **This was MinIO until 2026-10-12.** MinIO Inc. withdrew the free community distribution — the Docker Hub images were deleted, the `dl.min.io` binaries return 410 Gone, anonymous pulls on quay.io are closed and the OSS repo is archived. There is no registry left to point at, so the fixture was replaced. The service name and both port numbers were kept, so `AWS_S3_ENDPOINT` and every `.env` are unchanged.
+>
+> Only local dev used MinIO. Stage and production set no `AWS_S3_ENDPOINT` and talk to real AWS S3, so nothing deployed was affected.
+>
+> Documents uploaded before the switch were copied across. The old `minio-data` volume is left in place rather than deleted; remove it with `docker volume rm drec-origin_minio-data` once you are satisfied.
 
 ## Logging (Grafana Loki)
 
