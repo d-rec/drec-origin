@@ -806,7 +806,10 @@ export class DeviceController {
         this.logger.error(
           `Organization id is required, please add the organization`,
         );
-        throw new ConflictException({
+        // A missing required field is a bad request, not a conflict. This
+        // used to throw 409, which the portal renders as "Duplicate Entry"
+        // because that is what a 409 means everywhere else here.
+        throw new BadRequestException({
           success: false,
           message: `Organization id is required, please add the organization`,
         });
