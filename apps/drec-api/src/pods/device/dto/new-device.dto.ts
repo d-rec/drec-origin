@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  Allow,
   IsArray,
   IsBoolean,
   IsDate,
@@ -30,10 +31,10 @@ import {
   YesNo,
 } from '../../../utils/enums';
 
-export class NewDeviceDTO
-  implements
-    Omit<IDevice, 'id' | 'status' | 'organizationId' | 'labels' | 'groupId'>
-{
+export class NewDeviceDTO implements Omit<
+  IDevice,
+  'id' | 'status' | 'organizationId' | 'labels' | 'groupId'
+> {
   @ApiProperty()
   @Trim()
   @IsOptional()
@@ -440,6 +441,16 @@ export class NewDeviceDTO
   offGridCircumstances?: string;
 }
 export class DeviceRegistrationBody {
+  // The DocumentType members below are filled by FileFieldsInterceptor and
+  // read via @UploadedFiles(), so they never pass through the validation
+  // pipe. deviceToRegister does -- it is a @Body() field -- and the global
+  // pipe runs with `whitelist: true` (added by #791), which DELETES any body
+  // property carrying no class-validator decorator. That emptied the
+  // multipart body entirely and broke device registration with
+  // "Organization id is required", because deviceToRegister was stripped
+  // before the controller ever saw it. @Allow() keeps a property through
+  // whitelisting without validating it, which is what we want: the field
+  // arrives as a JSON string and the controller parses it by hand.
   [DocumentType.FORM_SF_02]: Express.Multer.File[];
   [DocumentType.SF_02C]: Express.Multer.File[];
   [DocumentType.PROOF_OF_OWNERSHIP]: Express.Multer.File[];
@@ -448,6 +459,7 @@ export class DeviceRegistrationBody {
   [DocumentType.PROJECT_PHOTOS]: Express.Multer.File[];
   [DocumentType.COD_PROOF]: Express.Multer.File[];
   [DocumentType.OTHER_DOCUMENTS]: Express.Multer.File[];
+  @Allow()
   deviceToRegister: NewDeviceDTO;
 }
 
