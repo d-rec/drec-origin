@@ -60,6 +60,16 @@ jobs:
         working-directory: apps/drec-api
         run: pnpm run lint
 
+      # Fails if a request-body DTO has a property with no class-validator
+      # decorator. The global ValidationPipe runs with `whitelist: true`,
+      # which deletes such properties from the body silently -- no error, no
+      # log line. That broke device registration, DeepL translation, buyer
+      # reservations and API re-issue for four weeks in Sep/Oct 2026 before
+      # anyone traced it. See apps/drec-api/scripts/check-dto-decorators.ts.
+      - name: Check DTO decorator coverage
+        working-directory: apps/drec-api
+        run: pnpm run check:dto-decorators
+
   check-build:
     runs-on: ubuntu-latest
     services:

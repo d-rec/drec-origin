@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { Allow, IsString } from 'class-validator';
 
 // {"deviceId":"10","energyValue":"2463000","fromTime":"2022-07-31T18:30:01.000Z","toTime":"2022-08-31T18:29:59.000Z",
 // "toAddress":"0x320Bbee0D0CE23302eDDb2707B2DdED3e49E4437",
@@ -29,9 +29,15 @@ export class ReIssueCertificateDTO {
   @IsString()
   toAddress: string;
 
+  // Free-form blob consumed by issueFromAPI (buyerReservationId, groupId,
+  // deviceIds, ...). @Allow() because it is deliberately untyped; a rule here
+  // would be a guess. Without a decorator the pipe deletes it, which left
+  // every API-driven re-issue running against an empty metadata object.
   @ApiProperty()
+  @Allow()
   metadata: any;
 
   @ApiProperty()
+  @IsString()
   userId: string;
 }

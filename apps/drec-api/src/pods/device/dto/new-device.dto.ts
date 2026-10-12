@@ -31,10 +31,10 @@ import {
   YesNo,
 } from '../../../utils/enums';
 
-export class NewDeviceDTO implements Omit<
-  IDevice,
-  'id' | 'status' | 'organizationId' | 'labels' | 'groupId'
-> {
+export class NewDeviceDTO
+  implements
+    Omit<IDevice, 'id' | 'status' | 'organizationId' | 'labels' | 'groupId'>
+{
   @ApiProperty()
   @Trim()
   @IsOptional()

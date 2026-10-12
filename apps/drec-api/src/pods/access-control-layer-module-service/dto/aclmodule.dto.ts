@@ -62,6 +62,11 @@ export class NewACLModuleDTO implements Omit<IACLModuleConfig, 'id'> {
   @ArrayNotEmpty()
   permissions: string[];
 
+  // Intentionally undecorated: computed server-side from `permissions` by
+  // DecimalPermissionValue.computePermissions() in
+  // AccessControlLayerModuleServiceService, which overrides whatever the body
+  // carried. The pipe's `whitelist: true` strips it, which is what we want --
+  // a client-set permissions bitmask would be a privilege escalation.
   @Column()
   permissionsValue: number;
 }

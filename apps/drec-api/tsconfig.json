@@ -34,7 +34,8 @@
     "migrations/*",
     "test/*",
     "ormconfig*.ts",
-    "seeders/**/*"
+    "seeders/**/*",
+    "scripts/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
