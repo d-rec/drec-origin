@@ -22,7 +22,11 @@ export class Invitation
   email: string;
 
   @ApiProperty({ enum: Role, enumName: 'Role' })
-  @Column({ default: Role.SiteOperator })
+  // Explicit type: `OrganizationRole` is a union of enum members, so
+  // emitDecoratorMetadata reflects it as `Object` and TypeORM 0.3.30 refuses
+  // to infer a column type from that (DataTypeNotSupportedError at boot). The
+  // live column has always been `character varying`.
+  @Column({ type: 'varchar', default: Role.SiteOperator })
   @IsEnum(Role)
   role: OrganizationRole;
 
