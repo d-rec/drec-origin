@@ -8,10 +8,14 @@ import {
   Post,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -32,6 +36,7 @@ import {
   ApproveFieldCaptureDTO,
   RejectFieldCaptureDTO,
 } from './dto/review-field-capture.dto';
+import { DebugFrameBody } from './dto/debug-frame.dto';
 import { UserDecorator } from '../user/decorators/user.decorator';
 import { ILoggedInUser } from '../../models';
 import { AuthVerifiedGuard, PermissionGuard } from '../../guards';
@@ -121,6 +126,45 @@ export class FieldCaptureController {
     }
 
     return this.service.create(user, dto, photo);
+  }
+
+  @Post('debug-frame')
+  @UseGuards(AuthVerifiedGuard(['jwt']), RolesGuard, PermissionGuard)
+  @Roles(Role.SiteOperator, Role.Registrant, Role.Admin)
+  @Permission('Write')
+  @ACLModules('DEVICE_MANAGEMENT_CRUDL')
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'full', maxCount: 1 },
+      { name: 'crop', maxCount: 1 },
+    ]),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Upload the current viewfinder frame for diagnosis',
+    description:
+      'Stores the raw frame, the preprocessed guide-box crop, and what the ' +
+      'readers made of them. Diagnostic only: it creates no capture and no ' +
+      'device, and nothing reads these objects back into the platform.',
+  })
+  public async debugFrame(
+    @UserDecorator() user: ILoggedInUser,
+    @Body() body: DebugFrameBody,
+    @UploadedFiles()
+    files: { full?: Express.Multer.File[]; crop?: Express.Multer.File[] },
+  ): Promise<{ reference: string; keys: string[] }> {
+    let meta: Record<string, any> = {};
+    if (body?.meta) {
+      try {
+        meta = JSON.parse(body.meta);
+      } catch {
+        throw new BadRequestException('`meta` is not valid JSON');
+      }
+    }
+    return this.service.storeDebugFrame(user, meta, {
+      full: files?.full?.[0],
+      crop: files?.crop?.[0],
+    });
   }
 
   @Get('serial-candidates')

@@ -25,6 +25,12 @@ import { rankSerialCandidates, SerialMatch } from './ocr-confusables';
 const PHOTO_SUBFOLDER = 'field-capture';
 
 /**
+ * Diagnostic frames live under their own prefix, separate from real capture
+ * photos, so they can be lifecycled away without touching evidence.
+ */
+const DEBUG_SUBFOLDER = 'field-capture-debug';
+
+/**
  * Above this the GPS fix is too coarse to place a device, and the reviewer is
  * told so. Not a hard rejection: a bad fix with a good nameplate photo is still
  * worth having, and the reviewer can place the site from the photo and the
@@ -152,6 +158,70 @@ export class FieldCaptureService {
     });
 
     return rankSerialCandidates(scanned, known as any);
+  }
+
+  /**
+   * Store a viewfinder frame for diagnosis.
+   *
+   * Explicitly NOT a capture: it creates no `field_capture` row, no device,
+   * and nothing in the platform reads these objects back. It exists so a
+   * frame that the readers get wrong in the field can be looked at directly,
+   * instead of being reconstructed from a description of it.
+   *
+   * Three objects per call, under one reference: the raw frame as the camera
+   * produced it, the preprocessed guide-box crop exactly as the reader saw
+   * it, and the metadata — what each reader returned, the camera track
+   * settings, the user agent. The crop matters most: a read that fails on the
+   * crop but succeeds on the frame means the preprocessing is at fault, not
+   * the engine.
+   */
+  public async storeDebugFrame(
+    user: ILoggedInUser,
+    meta: Record<string, any>,
+    files: { full?: Express.Multer.File; crop?: Express.Multer.File },
+  ): Promise<{ reference: string; keys: string[] }> {
+    const reference = `${new Date()
+      .toISOString()
+      .replace(/[:.]/g, '-')}-${Math.random().toString(36).slice(2, 8)}`;
+    const subfolder = `${DEBUG_SUBFOLDER}/${reference}`;
+    const keys: string[] = [];
+
+    for (const [name, file] of Object.entries(files)) {
+      if (!file) continue;
+      const upload = await this.fileService.upload(
+        { ...file, originalname: `${name}.png` } as Express.Multer.File,
+        subfolder,
+      );
+      const key = upload?.Key ?? upload?.key;
+      if (key) keys.push(key);
+    }
+
+    const metaFile = {
+      originalname: 'meta.json',
+      mimetype: 'application/json',
+      buffer: Buffer.from(
+        JSON.stringify(
+          {
+            ...meta,
+            reference,
+            submittedBy: user.email,
+            organizationId: user.organizationId,
+            at: new Date().toISOString(),
+          },
+          null,
+          2,
+        ),
+      ),
+    } as Express.Multer.File;
+    const metaUpload = await this.fileService.upload(metaFile, subfolder);
+    const metaKey = metaUpload?.Key ?? metaUpload?.key;
+    if (metaKey) keys.push(metaKey);
+
+    this.logger.log(
+      `Debug frame ${reference} stored by ${user.email}: ${keys.join(', ')}`,
+    );
+
+    return { reference, keys };
   }
 
   public async findOneByUuid(uuid: string): Promise<FieldCapture> {
@@ -328,7 +398,7 @@ export class FieldCaptureService {
 
     // Barcode decodes are exact; an OCR burst is only as good as its agreement.
     const serialConfidence =
-      capture.serialSource === 'barcode' ? 1 : capture.ocrConfidence ?? 0.5;
+      capture.serialSource === 'barcode' ? 1 : (capture.ocrConfidence ?? 0.5);
 
     const provenance: Record<string, any> = {
       serialNumber: entry(serialNumber, serialConfidence),
