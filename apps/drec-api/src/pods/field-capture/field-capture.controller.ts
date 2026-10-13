@@ -52,6 +52,11 @@ import { SerialMatch } from './ocr-confusables';
  * so no new ACL rows are needed — which is the whole reason for reusing them.
  * The role lists below are what actually keeps an operator from approving their
  * own capture, since SiteOperator also happens to hold the reviews module.
+ *
+ * Mutating routes ask for 'Write', not 'Update', matching every other route on
+ * the reviews module. The grant reviewers actually hold is 'Read,Write', so
+ * asking for 'Update' 403s them on stage even though the role map in
+ * user.service lists it.
  */
 @ApiTags('Field Capture')
 @ApiBearerAuth('access-token')
@@ -186,7 +191,7 @@ export class FieldCaptureController {
   @Post(':uuid/approve')
   @UseGuards(AuthVerifiedGuard(['jwt']), RolesGuard, PermissionGuard)
   @Roles(Role.Reviewer, Role.SeniorReviewer, Role.Admin)
-  @Permission('Update')
+  @Permission('Write')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({
     summary: 'Approve a capture and create the device',
@@ -206,7 +211,7 @@ export class FieldCaptureController {
   @Post(':uuid/reject')
   @UseGuards(AuthVerifiedGuard(['jwt']), RolesGuard, PermissionGuard)
   @Roles(Role.Reviewer, Role.SeniorReviewer, Role.Admin)
-  @Permission('Update')
+  @Permission('Write')
   @ACLModules('DEVICE_REVIEWS_MANAGEMENT_CRUDL')
   @ApiOperation({ summary: 'Reject a capture, with a reason' })
   public async reject(
