@@ -85,6 +85,8 @@ import { ChatModule } from './pods/chat/chat.module';
 import { TranslateModule } from './pods/translate/translate.module';
 import { AiModule } from './pods/ai/ai.module';
 import { DeviceReviewsModule } from './pods/device-reviews/device-reviews.module';
+import { FieldCaptureModule } from './pods/field-capture/field-capture.module';
+import { FieldCapture } from './pods/field-capture/field-capture.entity';
 import { UploadLogModule } from './pods/upload-log/upload-log.module';
 import { ESignatureModule } from './pods/e-signature/e-signature.module';
 import { OrgApiLicensesModule } from './pods/org-api-licenses/org-api-licenses.module';
@@ -159,6 +161,7 @@ export const entities = [
   OrgApiLicenses,
   VerificationReport,
   NasaPowerMonthlyCache,
+  FieldCapture,
 ];
 
 export const originAppTypeOrmModule = (): DynamicModule => {
@@ -222,6 +225,7 @@ const queueModule = () => {
     EvidentModule,
     ChatModule,
     DeviceReviewsModule,
+    FieldCaptureModule,
     TranslateModule,
     AiModule,
     UploadLogModule,

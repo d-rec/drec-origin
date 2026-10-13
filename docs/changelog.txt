@@ -5,6 +5,42 @@ Report date: October 13, 2026
 RECENT CHANGES (April -- October 2026)
 ============================================================
 
+v0.9.12 (2026-10-13) -- Field Capture for Site Operators
+--------------------
+
+  NEW FEATURE (drec-origin, drec-ui)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Site operators can now register equipment from a phone. A
+    new full-screen capture page reads the serial off the
+    nameplate with the camera, records the operator's location
+    and a photo, and submits the three fields a device cannot
+    do without. Works on iOS and Android, with a single-photo
+    fallback for browsers that will not grant camera access.
+  - The serial is read from a barcode where the nameplate has
+    one, which is exact, and by on-device text recognition
+    otherwise, which is not. A scan that nearly matches a
+    serial already on file is offered as a suggestion rather
+    than accepted silently, so the glyph pairs a camera
+    confuses -- O for 0, 8 for B, 1 for I -- stop mattering. A
+    serial that matches nothing is the useful signal: a new
+    install, or a unit that has been swapped.
+  - A capture is NOT a device. It lands as a pending submission
+    that a reviewer approves, and only approval creates the
+    device. Reviewers get the nameplate photo, the location on
+    satellite imagery with the GPS uncertainty drawn to scale,
+    what the reader produced before any correction, and a
+    warning when the fields needed for issuance are missing.
+  - Captures taken out of signal are held on the phone and
+    uploaded when it returns. Each carries an identifier minted
+    before the first attempt, so a retry can never produce a
+    second copy of the same panel.
+
+  RELIABILITY (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~
+  - The API starts again on current dependencies. A column
+    whose type the database driver could no longer infer
+    aborted startup outright.
+
 v0.9.11 (2026-10-13) -- Concurrent Cron Runs Stranded Certificates
 --------------------
 
