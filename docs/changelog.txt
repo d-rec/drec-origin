@@ -1,9 +1,36 @@
 DREC Changelog
-Report date: October 12, 2026
+Report date: October 13, 2026
 
 
 RECENT CHANGES (April -- October 2026)
 ============================================================
+
+v0.9.11 (2026-10-13) -- Concurrent Cron Runs Stranded Certificates
+--------------------
+
+  ISSUANCE (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~
+  - Scheduled jobs can no longer run twice at the same time.
+    The distributed lock that is supposed to keep a job on one
+    instance expired after ten minutes and was never extended,
+    so any run lasting longer than that lost its lock and the
+    next tick started a second copy on the other replica. The
+    lock is now renewed on a heartbeat for as long as the job
+    is running.
+  - This had been stranding certificates. Two copies of the
+    certificate synchronizer submit blockchain transactions
+    from the same wallet and collide on the transaction nonce;
+    each certificate retries a fixed number of times and is
+    then abandoned, with its meter reads still marked
+    certified, so nothing reconsiders them and the buyer never
+    receives a token. A 63-minute run on 2026-10-12 produced
+    3,614 such collisions across 451 certificates and
+    stranded 8 of them.
+  - The 8 stranded certificates (5.48 MWh across two Powertrust
+    reservations) were reissued and confirmed on-chain.
+    Previous occurrences recorded as unexplained chain
+    transients, and as a consequence of large issuance batches,
+    have the same cause.
 
 v0.9.10 (2026-10-12) -- Device Registration Regression Fix
 --------------------

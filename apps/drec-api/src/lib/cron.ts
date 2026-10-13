@@ -3,8 +3,35 @@ import { getRedisClient } from './redis';
 import { Logger } from '@nestjs/common';
 import { v4 as uuid4 } from 'uuid';
 
-// Lock expiration time in seconds
-const LOCK_TTL = 600;
+// Lock expiration time in seconds. Deliberately short: the lock is now
+// renewed on a heartbeat while the job runs, so the TTL no longer has to
+// cover the longest possible run -- it only decides how long a lock survives
+// a pod that died without releasing it.
+const LOCK_TTL = 120;
+
+// How often to extend the lock. A third of the TTL leaves room for two
+// missed renewals (a GC pause, a Redis blip) before the lock can lapse.
+const LOCK_RENEW_INTERVAL_MS = (LOCK_TTL / 3) * 1000;
+
+/**
+ * Extend the lock only if we still hold it, in one atomic step. A GET
+ * followed by a separate EXPIRE could renew a lock that another instance
+ * acquired in between.
+ */
+const RENEW_IF_OWNED = `
+  if redis.call('get', KEYS[1]) == ARGV[1] then
+    return redis.call('expire', KEYS[1], ARGV[2])
+  end
+  return 0
+`;
+
+/** Same compare-and-act, for release. */
+const DELETE_IF_OWNED = `
+  if redis.call('get', KEYS[1]) == ARGV[1] then
+    return redis.call('del', KEYS[1])
+  end
+  return 0
+`;
 
 /**
  * Executes a function with Redis-based distributed locking
@@ -38,15 +65,46 @@ const runExclusive = async <T>(
       return;
     }
 
+    // Keep the lock alive for as long as the job runs. Without this a run
+    // that outlasts LOCK_TTL silently loses its lock and the next tick starts
+    // a SECOND copy on the other replica -- which is not merely wasted work:
+    // both copies then submit blockchain transactions from the same issuer
+    // wallet with the same nonce. On 2026-10-12 a certificate synchronize run
+    // took 63 minutes against the old 600s TTL and did exactly that, logging
+    // 3,614 nonce collisions ("Transaction with the same hash was already
+    // imported", "another transaction with same nonce in the queue") across
+    // 451 certificates and permanently stranding 8 of them once they
+    // exhausted MAX_SYNCHRONIZATION_ATTEMPTS_FOR_EVENT.
+    let lockLost = false;
+    const renewal = setInterval(() => {
+      // Fire-and-forget: this runs on a timer, so there is nobody to await it.
+      redis
+        .eval(RENEW_IF_OWNED, 1, key, lockId, String(LOCK_TTL))
+        .then((extended) => {
+          if (extended !== 1 && !lockLost) {
+            lockLost = true;
+            logger.error(
+              `${functionName}: lock lost while still running — another ` +
+                `instance may now be running this job concurrently.`,
+            );
+          }
+        })
+        .catch((err) => {
+          logger.warn(`${functionName}: lock renewal failed: ${err?.message}`);
+        });
+    }, LOCK_RENEW_INTERVAL_MS);
+    // Do not let the heartbeat hold the event loop open on shutdown.
+    renewal.unref?.();
+
     try {
       return await fn();
     } finally {
-      // Ensure we only delete the lock if we still own it
-      const currentLockId = await redis.get(key);
-      if (currentLockId === lockId) {
+      clearInterval(renewal);
+      // Compare-and-delete, so a lock that has since been taken over by
+      // another instance is never deleted from under it.
+      const released = await redis.eval(DELETE_IF_OWNED, 1, key, lockId);
+      if (released === 1) {
         logger.log(`${functionName}: Lock released successfully.`);
-        // Delete the lock
-        await redis.del(key);
       } else {
         logger.warn(`${functionName}: Lock ownership lost, not deleting lock.`);
       }
