@@ -14,7 +14,9 @@ export class ReservationExpiryCron {
     this.logger.log('Sweeping expired reservations…');
     const released = await this.groupService.sweepExpiredReservations();
     if (released > 0) {
-      this.logger.log(`Deactivated ${released} expired reservation(s) and released their devices`);
+      this.logger.log(
+        `Deactivated ${released} expired reservation(s) and released their devices`,
+      );
     } else {
       this.logger.debug('No expired reservations found');
     }

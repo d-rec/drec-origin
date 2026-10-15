@@ -53,7 +53,11 @@ import { Queues } from '../../utils/enums/queues.enum';
     UserModule,
     forwardRef(() => BulkUploadModule),
   ],
-  providers: [DeviceGroupService, DeviceBulkUploadProcessor, ReservationExpiryCron],
+  providers: [
+    DeviceGroupService,
+    DeviceBulkUploadProcessor,
+    ReservationExpiryCron,
+  ],
   exports: [DeviceGroupService, BullModule],
   controllers: [BuyerReservationController],
 })

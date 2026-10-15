@@ -1048,8 +1048,8 @@ export class CertificateLogService {
         organizationId,
       );
       this.logger.error(`Error generating CSV: ${data[0]}`);
-      const headers = Object.keys(data[0]);
-      if (headers !== undefined) {
+      if (data && data.length > 0) {
+        const headers = Object.keys(data[0]);
         res.setHeader(
           'Content-Disposition',
           'attachment; filename=' +
@@ -1059,7 +1059,13 @@ export class CertificateLogService {
             '.csv',
         );
         res.setHeader('Content-Type', 'text/csv');
-        const csvString = `${headers.join(',')}\n${data.map((obj) => headers.map((key) => obj[key]).join(',')).join('\n')}`;
+        const escapeCsv = (field: unknown): string => {
+          const s = field === null || field === undefined ? '' : String(field);
+          return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const csvString = `${headers.map(escapeCsv).join(',')}\n${data
+          .map((obj) => headers.map((key) => escapeCsv(obj[key])).join(','))
+          .join('\n')}`;
         // Stream the CSV string to the response
         res.write(csvString, 'utf-8', () => {
           this.logger.log('The CSV file streamed successfully!');
