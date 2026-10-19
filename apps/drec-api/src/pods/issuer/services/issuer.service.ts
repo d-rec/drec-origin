@@ -1,7 +1,11 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
+
+import { CertificateIssuanceClaim } from '../certificate_issuance_claim.entity';
 
 import { Profile } from '../../../lib/profile';
 import { IDevice } from '../../../models';
@@ -30,7 +34,73 @@ export class IssuerService {
     private readonly readsService: ReadsService,
     private readonly certificateLogService: CertificateLogService,
     private readonly certificateService: CertificateService,
+    @InjectRepository(CertificateIssuanceClaim)
+    private readonly claimRepository: Repository<CertificateIssuanceClaim>,
   ) {}
+
+  /**
+   * Claim (group, period) before minting it.
+   *
+   * Returns false when someone else already holds the claim, which is the
+   * signal to skip rather than mint. The guarantee is the unique index, not a
+   * prior read: a SELECT-then-INSERT would still let two copies pass the check
+   * together, which is precisely the race that put 105 duplicate device+period
+   * certificates on chain.
+   *
+   * 23505 is Postgres' unique_violation. Any other error is a real fault and
+   * propagates — failing closed, because the alternative is minting anyway.
+   */
+  private async claimIssuancePeriod(
+    groupId: number,
+    generationStart: Date,
+    generationEnd: Date,
+    certificateTransactionUID: string,
+  ): Promise<boolean> {
+    try {
+      await this.claimRepository.insert({
+        groupId,
+        generationStart,
+        generationEnd,
+        certificateTransactionUID,
+      });
+      return true;
+    } catch (err: any) {
+      if (err?.code === '23505') {
+        this.logger.warn(
+          `Skipping issuance for group ${groupId} ` +
+            `${generationStart.toISOString()}..${generationEnd.toISOString()}: ` +
+            'already claimed by another issuance run.',
+        );
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Release a claim whose mint did not happen, so the next cycle can retry.
+   * Best-effort: a claim left behind blocks one period until it is cleaned up,
+   * which is a far better failure than minting twice.
+   */
+  private async releaseIssuancePeriod(
+    groupId: number,
+    generationStart: Date,
+    generationEnd: Date,
+  ): Promise<void> {
+    try {
+      await this.claimRepository.delete({
+        groupId,
+        generationStart,
+        generationEnd,
+      });
+    } catch (err: any) {
+      this.logger.error(
+        `Failed to release issuance claim for group ${groupId} ` +
+          `${generationStart.toISOString()}..${generationEnd.toISOString()}: ` +
+          `${err?.message}. This period will not retry until the row is removed.`,
+      );
+    }
+  }
 
   /**
    * Issues certificates for a device group based on reads within a time period
@@ -137,7 +207,32 @@ export class IssuerService {
     // on the next cycle. Previously this bookkeeping ran *before* issue(), so a
     // failed mint left "phantom" certified reads with no certificate — and the
     // certified flag plus the cert-log row then blocked any automatic retry.
-    await this.certificateService.issue(issuance);
+    // Claim the period before minting. If another run already holds it, that
+    // run is minting this exact period and this one must not. The leader
+    // election makes concurrent signers unlikely; this makes a duplicate mint
+    // impossible even when it lapses.
+    const claimed = await this.claimIssuancePeriod(
+      group.id,
+      minimumStartDate,
+      maximumEndDate,
+      certificateTransactionUID,
+    );
+    if (!claimed) {
+      return;
+    }
+
+    try {
+      await this.certificateService.issue(issuance);
+    } catch (err) {
+      // Nothing was minted, so the claim must not outlive the attempt —
+      // otherwise this period could never be retried.
+      await this.releaseIssuancePeriod(
+        group.id,
+        minimumStartDate,
+        maximumEndDate,
+      );
+      throw err;
+    }
 
     // Mark the underlying reads as certified for this issuance window.
     await this.readsService.updateCertificateIssueDate(

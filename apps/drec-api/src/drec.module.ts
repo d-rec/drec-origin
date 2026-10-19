@@ -50,6 +50,7 @@ import { SDGBenefitModule } from './pods/sdgbenefit/sdgbenefit.module';
 import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
+import { CertificateIssuanceClaim } from './pods/issuer/certificate_issuance_claim.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
 import { BlockchainQueueLeaderService } from './lib/blockchain-queue-leader.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
@@ -136,6 +137,7 @@ export const entities = [
   MeterRead,
   FailedMeterRead,
   HistoryDeviceGroupNextIssueCertificate,
+  CertificateIssuanceClaim,
   CheckCertificateIssueDateLogForDeviceEntity,
   CheckCertificateIssueDateLogForDeviceGroupEntity,
   SDGBenefit,

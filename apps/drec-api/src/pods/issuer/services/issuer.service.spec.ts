@@ -7,6 +7,7 @@ import {
 } from '@energyweb/origin-247-certificate';
 import { HttpService } from '@nestjs/axios';
 import { getQueueToken } from '@nestjs/bull';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateTime } from 'luxon';
@@ -28,6 +29,7 @@ import { Organization } from '../../organization/organization.entity';
 import { OrganizationService } from '../../organization/organization.service';
 import { MeterRead } from '../../reads/reads.entity';
 import { ReadsService } from '../../reads/reads.service';
+import { CertificateIssuanceClaim } from '../certificate_issuance_claim.entity';
 import { CertificateService } from './certificate.service';
 import { HistoricalIssuanceService } from './historical-issuance.service';
 import { IssuerService } from './issuer.service';
@@ -46,12 +48,19 @@ describe('IssuerService', () => {
   let deviceService: DeviceService;
   let organizationService: OrganizationService;
   let readsService: ReadsService;
+  let claimRepository: { insert: jest.Mock; delete: jest.Mock };
   let logger: Logger;
 
   beforeEach(async () => {
     jest.setTimeout(10000); // Set timeout to 10 seconds
 
     logger = { debug: jest.fn(), error: jest.fn() } as unknown as Logger;
+
+    // Default: the claim is granted, i.e. no concurrent run holds this period.
+    claimRepository = {
+      insert: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -60,6 +69,10 @@ describe('IssuerService', () => {
         OngoingIssuanceService,
         IssuerService,
         CertificateService,
+        {
+          provide: getRepositoryToken(CertificateIssuanceClaim),
+          useValue: claimRepository as any,
+        },
         {
           provide: OffChainCertificateService,
           useValue: {
@@ -735,6 +748,72 @@ describe('IssuerService', () => {
 
       // Verify that no further methods are called
       expect(organizationService.findOne).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('issuance period claim (double-mint backstop)', () => {
+    const start = new Date('2026-01-31T17:00:00.000Z');
+    const end = new Date('2026-02-28T16:59:59.000Z');
+
+    const uniqueViolation = () =>
+      Object.assign(new Error('dup'), { code: '23505' });
+
+    it('grants the claim when the period is free', async () => {
+      const granted = await (service as any).claimIssuancePeriod(
+        185,
+        start,
+        end,
+        'uid-1',
+      );
+
+      expect(granted).toBe(true);
+      expect(claimRepository.insert).toHaveBeenCalledWith({
+        groupId: 185,
+        generationStart: start,
+        generationEnd: end,
+        certificateTransactionUID: 'uid-1',
+      });
+    });
+
+    it('refuses the claim on unique violation, so the duplicate never mints', async () => {
+      claimRepository.insert.mockRejectedValueOnce(uniqueViolation());
+
+      const granted = await (service as any).claimIssuancePeriod(
+        185,
+        start,
+        end,
+        'uid-2',
+      );
+
+      expect(granted).toBe(false);
+    });
+
+    it('fails closed: any error other than 23505 propagates', async () => {
+      claimRepository.insert.mockRejectedValueOnce(
+        Object.assign(new Error('connection reset'), { code: '08006' }),
+      );
+
+      await expect(
+        (service as any).claimIssuancePeriod(185, start, end, 'uid-3'),
+      ).rejects.toThrow('connection reset');
+    });
+
+    it('releases the claim so a failed mint can be retried', async () => {
+      await (service as any).releaseIssuancePeriod(185, start, end);
+
+      expect(claimRepository.delete).toHaveBeenCalledWith({
+        groupId: 185,
+        generationStart: start,
+        generationEnd: end,
+      });
+    });
+
+    it('swallows a failed release rather than masking the mint error', async () => {
+      claimRepository.delete.mockRejectedValueOnce(new Error('db gone'));
+
+      await expect(
+        (service as any).releaseIssuancePeriod(185, start, end),
+      ).resolves.toBeUndefined();
     });
   });
 });

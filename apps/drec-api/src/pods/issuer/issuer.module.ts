@@ -29,6 +29,7 @@ import { StrandedCertificateService } from './services/stranded-certificate.serv
 import { MailModule } from '../../mail/mail.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MeterRead } from '../reads/reads.entity';
+import { CertificateIssuanceClaim } from './certificate_issuance_claim.entity';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { MeterRead } from '../reads/reads.entity';
     UserModule,
     FileModule,
     MailModule,
-    TypeOrmModule.forFeature([MeterRead]),
+    TypeOrmModule.forFeature([MeterRead, CertificateIssuanceClaim]),
     registerQueues(
       Queues.LateOngoingIssuance,
       Queues.HistoricalIssuance,
