@@ -51,6 +51,7 @@ import { SDGBenefit } from './pods/sdgbenefit/sdgbenefit.entity';
 import { CertificateLogModule } from './pods/certificate-log/certificate-log.module';
 import { HistoryDeviceGroupNextIssueCertificate } from './pods/device-group/history_next_issuance_date_log.entity';
 import { OnApplicationBootstrapHookService } from './on-application-bootsrap-hook.service';
+import { BlockchainQueueLeaderService } from './lib/blockchain-queue-leader.service';
 import { OauthClientCredentials } from './pods/user/oauth_client_credentials.entity';
 import { RegistrantEntity } from './pods/user/registrant.entity';
 import { UserLoginSessionEntity } from './pods/user/user_login_session.entity';
@@ -237,6 +238,9 @@ const queueModule = () => {
   ],
   providers: [
     OnApplicationBootstrapHookService,
+    // Elects one replica to run the transaction-signing queues; see the
+    // service for why the cron lock cannot cover them.
+    BlockchainQueueLeaderService,
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
