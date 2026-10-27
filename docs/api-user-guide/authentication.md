@@ -61,7 +61,7 @@ Use it exactly like a session token (`Authorization: Bearer …`) on the meter-r
 
 ## Roles and permissions
 
-Access is role-based. Each endpoint declares the roles allowed to call it (for example, device registration requires `OrganizationAdmin` or `ApiUser`); calling an endpoint without a permitted role returns `403`. The exact roles per endpoint are listed in the interactive API reference — see the [Endpoints Reference](endpoints-reference.md) or the live Swagger UI at `/swagger` on any running instance.
+Access is role-based. Each endpoint declares the roles allowed to call it (for example, device registration requires `Registrant`; `Admin` and `SiteOperator` are the other roles an integrator will encounter); calling an endpoint without a permitted role returns `403`. The exact roles per endpoint are listed in the interactive API reference — see the [Endpoints Reference](endpoints-reference.md) or the live Swagger UI at `/swagger` on any running instance.
 
 ## Operational notes
 

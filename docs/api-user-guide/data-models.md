@@ -43,30 +43,34 @@ Content-Type: multipart/form-data
 Authorization: Bearer <token>
 
 deviceToRegister: '{"externalId":"DEV-001","siteName":"My Solar Site",...}'
-FORM_SF_02: <file>         (optional)
-SF_02C: <file>             (optional)
-METERING_EVIDENCE: <file>  (optional)
-SINGLE_LINE_DIAGRAM: <file>(optional)
-PROJECT_PHOTOS: <file>     (optional)
-COD_PROOF: <file>          (optional)
+FORM_SF_02: <file>          (optional)
+SF_02C: <file>              (optional)
+PROOF_OF_OWNERSHIP: <file>  (optional)
+METERING_EVIDENCE: <file>   (optional)
+SINGLE_LINE_DIAGRAM: <file> (optional)
+PROJECT_PHOTOS: <file>      (optional)
+COD_PROOF: <file>           (optional)
+OTHER_DOCUMENTS: <file>     (optional)
 ```
 
-Each file field accepts up to 10 files.
+Each file field accepts up to 10 files, except `METERING_EVIDENCE` and `OTHER_DOCUMENTS`, which accept up to 20.
 
 ### Required Roles
 
-The caller must have one of: `OrganizationAdmin`, `ApiUser`.
+The caller must have the `Registrant` role (API users are registrants).
 
 ### Document Types
 
 | Field Name            | Description                     |
 | --------------------- | ------------------------------- |
 | `FORM_SF_02`          | SF-02 application form          |
-| `SF_02C`              | SF-02C compliance form          |
+| `SF_02C`              | SF-02c owner's declaration      |
+| `PROOF_OF_OWNERSHIP`  | Proof of ownership              |
 | `METERING_EVIDENCE`   | Metering/measurement evidence   |
 | `SINGLE_LINE_DIAGRAM` | Single line diagram (SLD)       |
 | `PROJECT_PHOTOS`      | Site/project photographs        |
 | `COD_PROOF`           | Commercial Operation Date proof |
+| `OTHER_DOCUMENTS`     | Any other supporting document   |
 
 ## Device Update (PATCH /api/device/:externalId)
 
