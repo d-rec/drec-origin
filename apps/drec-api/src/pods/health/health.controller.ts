@@ -14,6 +14,7 @@ import {
 } from '@nestjs/terminus';
 import { redisOptions } from '../../drec.module';
 import { RedisHealthIndicator } from './redis.health-indicator';
+import { IssuanceWorkerHealthIndicator } from './issuance-worker.health-indicator';
 
 @ApiTags('Health')
 @Controller('health')
@@ -23,6 +24,7 @@ export class HealthController {
     private db: TypeOrmHealthIndicator,
     private redis: RedisHealthIndicator,
     private http: HttpHealthIndicator,
+    private issuanceWorker: IssuanceWorkerHealthIndicator,
   ) {}
 
   @Get()
@@ -57,6 +59,26 @@ export class HealthController {
           'redis',
           `redis://${redisOptions.host}:${redisOptions.port}`,
         ),
+    ]);
+  }
+
+  @Get('/issuance-worker')
+  @ApiOperation({
+    summary: 'Issuance worker liveness',
+    description:
+      'Returns 503 when the late-ongoing BullMQ mint worker has stalled ' +
+      '(pending cycles exist but no cycle has been checked for >9h). Intended ' +
+      'as a k8s livenessProbe target so a stuck worker triggers an automatic ' +
+      'pod restart — the proven remedy for the ioredis connection-drop stall.',
+  })
+  @ApiResponse({
+    status: HttpStatus.SERVICE_UNAVAILABLE,
+    description: 'The late-ongoing issuance worker appears stalled',
+  })
+  @HealthCheck()
+  issuanceWorkerLiveness(): Promise<HealthCheckResult> {
+    return this.health.check([
+      () => this.issuanceWorker.isHealthy('issuance_worker'),
     ]);
   }
 }
