@@ -67,9 +67,14 @@ export async function startAPI(logger?: LoggerService): Promise<any> {
   app.useGlobalPipes(
     new ValidationPipe({ forbidUnknownValues: false, whitelist: true }),
   );
+  // Order matters: on the way out the LAST interceptor listed runs FIRST.
+  // The serializer must see the class instances the handlers return, so it
+  // has to run before NormalizeDatesInterceptor, which rebuilds every object
+  // as a plain one. The other way round, every @Exclude() in the API is
+  // silently ignored (it leaked the user's password hash and roleId).
   app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector)),
     new NormalizeDatesInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
   );
 
   app.enableShutdownHooks();

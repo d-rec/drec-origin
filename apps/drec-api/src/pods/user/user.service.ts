@@ -82,7 +82,7 @@ export class UserService {
   ): Promise<UserDTO> {
     await this.checkForExistingUser(data.email);
 
-    return this.repository.save({
+    const user = await this.repository.save({
       // title: data.title,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -93,6 +93,7 @@ export class UserService {
       status: status || UserStatus.Active,
       organization: organizationId ? { id: organizationId } : {},
     });
+    return this.withoutPassword(user);
   }
 
   // Phone number uniqueness is not enforced — multiple users may share a number
@@ -188,7 +189,7 @@ export class UserService {
     // Email confirmation runs after the transaction commits so the user row
     // is visible to the email_confirmation FK constraint.
     await this.emailConfirmationService.create(user);
-    return user;
+    return this.withoutPassword(user);
   }
 
   public async createUserByAdmin(
@@ -302,7 +303,7 @@ export class UserService {
         await this.emailConfirmationService.adminCreate(user, data.password);
       }
 
-      return new User(user);
+      return new User(this.withoutPassword(user));
     } catch (error) {
       if (error instanceof ConflictException) {
         throw error;
@@ -372,6 +373,17 @@ export class UserService {
     }
 
     return user ?? null;
+  }
+
+  /**
+   * Drops the password hash from a freshly saved user before it is returned.
+   * `save()` on a plain object hands back a plain object, so the entity's
+   * `@Exclude()` never applies to it and the hash would go out in the response.
+   */
+  private withoutPassword<T>(user: T): T {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...rest } = user as T & { password?: string };
+    return rest as T;
   }
 
   private hashPassword(password: string) {
