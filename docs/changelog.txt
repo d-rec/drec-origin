@@ -11,10 +11,15 @@ v0.9.13 (2026-11-23) -- Change History Restored, Two API Fixes
   DATA GOVERNANCE (drec-origin)
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   - Change-history triggers on the 15 evidentiary tables are
-    back, on STAGE ONLY for now. Production still has none: the
-    April 2 triggers were removed around April 10 and the
-    DELETE revocation was undone at the same time, so the April
-    2 entry below no longer describes production.
+    back, on stage and on PRODUCTION (applied November 23). The
+    April 2 triggers had been removed around April 10, so
+    production recorded no change history between those dates.
+  - The DELETE revocation from April 2 was undone at the same
+    time and has NOT been restored: the application
+    legitimately deletes devices, reservations, organizations
+    and issuance-log rows. Deletes and truncates are recorded
+    in the change history instead. The April 2 entry below no
+    longer describes production on this point.
   - The April version could not have worked: it read OLD.id,
     and certificate_read_model has no id column, so every
     certificate write raised. The new trigger takes each
@@ -24,7 +29,11 @@ v0.9.13 (2026-11-23) -- Change History Restored, Two API Fixes
     cron's checked_at stamps, which were 93% of the old volume.
   - Script: apps/drec-api/scripts/db/history-triggers.sql
     (idempotent, run as the table owner). Verified on stage
-    with a full submission-to-mint run through the API.
+    with a full submission-to-mint run through the API, then on
+    production against the next issuance cycle: changes are
+    recorded under the application's database user. On
+    production the time index was skipped, to avoid scanning
+    the 5.8 GB of history left from April.
   - pgAudit write logging is on in production but is NOT
     exported to CloudWatch; logs stay on the instance for 72h.
 
@@ -43,6 +52,12 @@ v0.9.13 (2026-11-23) -- Change History Restored, Two API Fixes
   - Archived late-issuance cycles are no longer fed back into
     the worker. TypeORM 0.3 silently drops a null in a where
     clause; the two filters now use IsNull().
+  - The worker fix and the password-hash strip are also on
+    production (PR #806). Production never had the interceptor
+    ordering problem; there only the user-creation responses
+    carried the hash.
+  - Four files failing the prettier check on the prod branch
+    were reformatted (PR #807).
 
 v0.9.12 (2026-10-13) -- Field Capture for Site Operators
 --------------------
