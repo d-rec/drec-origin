@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { NonConcurrentCron } from '../../../lib/cron';
 
 import { InjectQueue } from '@nestjs/bull';
@@ -167,9 +167,14 @@ export class LateOngoingIssuanceService {
 
     this.logger.debug(`Found ${cycles.length} cycles to process`);
 
+    // Devices found to be missing during this run. Their remaining cycles
+    // are archived in one statement, so the rest of the list is skipped.
+    const missingDevices = new Set<string>();
+
     // Process each cycle sequentially
     for (let index = 0; index < cycles.length; index++) {
       const cycle = cycles[index];
+      if (missingDevices.has(cycle.device_externalid)) continue;
 
       this.logger.log(
         `Processing cycle ${index + 1} of ${cycles.length}`,
@@ -179,7 +184,7 @@ export class LateOngoingIssuanceService {
         'To: ' + cycle.lateEndDateUTC.toString(),
       );
 
-      await this.processIssuanceForCycle(cycle);
+      await this.processIssuanceForCycle(cycle, missingDevices);
     }
 
     // Update the last checked timestamp for the group
@@ -196,11 +201,18 @@ export class LateOngoingIssuanceService {
   @Profile()
   private async processIssuanceForCycle(
     cycle: DeviceLateOngoingIssueCertificateEntity,
+    missingDevices: Set<string> = new Set(),
   ): Promise<void> {
-    // Fetch group and device data in parallel
+    // Fetch group and device data in parallel. findReads throws when the
+    // device no longer exists; that must not abort the whole group.
     const [group, device] = await Promise.all([
       this.groupService.findOne({ id: cycle.groupId }),
-      this.deviceService.findReads(cycle.device_externalid),
+      this.deviceService
+        .findReads(cycle.device_externalid)
+        .catch((error: unknown) => {
+          if (error instanceof NotFoundException) return null;
+          throw error;
+        }),
     ]);
 
     // Handle missing group
@@ -209,6 +221,22 @@ export class LateOngoingIssuanceService {
         `Group missing for cycle ID: ${cycle.id}, device: ${cycle.device_externalid}`,
       );
       await this.deviceService.archiveLateOngoing(cycle.id);
+      return;
+    }
+
+    // Handle missing device. A deleted device used to throw here on the
+    // group's first cycle, every run: no later cycle of the group was ever
+    // processed and checked_at never advanced, so the liveness probe reported
+    // a stalled worker. Nothing can be issued for a device that is gone, so
+    // its pending cycles are archived and the group carries on.
+    if (!device) {
+      this.logger.error(
+        `Device missing for cycle ID: ${cycle.id}, device: ${cycle.device_externalid}; archiving its pending cycles`,
+      );
+      await this.deviceService.archiveLateOngoingForDevice(
+        cycle.device_externalid,
+      );
+      missingDevices.add(cycle.device_externalid);
       return;
     }
 
