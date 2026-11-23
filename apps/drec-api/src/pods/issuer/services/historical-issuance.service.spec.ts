@@ -72,12 +72,10 @@ describe('HistoricalIssuanceService — closing a request', () => {
         {
           provide: OrganizationService,
           useValue: {
-            findOne: jest
-              .fn()
-              .mockResolvedValue({
-                name: 'org',
-                blockchainAccountAddress: '0x',
-              }),
+            findOne: jest.fn().mockResolvedValue({
+              name: 'org',
+              blockchainAccountAddress: '0x',
+            }),
           } as any,
         },
         {
