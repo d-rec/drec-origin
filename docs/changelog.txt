@@ -1,9 +1,48 @@
 DREC Changelog
-Report date: October 13, 2026
+Report date: November 23, 2026
 
 
-RECENT CHANGES (April -- October 2026)
+RECENT CHANGES (April -- November 2026)
 ============================================================
+
+v0.9.13 (2026-11-23) -- Change History Restored, Two API Fixes
+--------------------
+
+  DATA GOVERNANCE (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  - Change-history triggers on the 15 evidentiary tables are
+    back, on STAGE ONLY for now. Production still has none: the
+    April 2 triggers were removed around April 10 and the
+    DELETE revocation was undone at the same time, so the April
+    2 entry below no longer describes production.
+  - The April version could not have worked: it read OLD.id,
+    and certificate_read_model has no id column, so every
+    certificate write raised. The new trigger takes each
+    table's primary key. It also records the connected user
+    rather than the function owner, records TRUNCATE, and skips
+    updates that change nothing -- including the late-issuance
+    cron's checked_at stamps, which were 93% of the old volume.
+  - Script: apps/drec-api/scripts/db/history-triggers.sql
+    (idempotent, run as the table owner). Verified on stage
+    with a full submission-to-mint run through the API.
+  - pgAudit write logging is on in production but is NOT
+    exported to CloudWatch; logs stay on the instance for 72h.
+
+  FIXES (drec-origin)
+  ~~~~~~~~~~~~~~~~~~~
+  - Password hashes no longer appear in API responses. Since
+    March 31 the date-normalizing interceptor ran before the
+    serializer and flattened every returned object, so no
+    @Exclude() in the API took effect. The order is corrected
+    and the user-creation paths strip the hash themselves.
+  - The late-issuance worker no longer gives up on a whole
+    group when one of its devices has been deleted. It used to
+    fail on the group's first cycle on every run, which the
+    liveness probe reported as a stalled worker. A missing
+    device's pending cycles are now archived.
+  - Archived late-issuance cycles are no longer fed back into
+    the worker. TypeORM 0.3 silently drops a null in a where
+    clause; the two filters now use IsNull().
 
 v0.9.12 (2026-10-13) -- Field Capture for Site Operators
 --------------------
