@@ -23,6 +23,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
   Raw,
@@ -1075,7 +1076,7 @@ export class DeviceService {
     this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
     const whereClause: any = {
       certificate_issued: false,
-      archived_at: null,
+      archived_at: IsNull(),
     };
     if (groupId) {
       whereClause.groupId = groupId; // Add groupId condition if provided
@@ -1447,6 +1448,23 @@ export class DeviceService {
     );
   }
 
+  /**
+   * Archives every pending late-ongoing cycle of a device that no longer
+   * exists. Issued cycles are left untouched.
+   */
+  @Profile()
+  async archiveLateOngoingForDevice(externalId: string): Promise<any> {
+    this.logger.verbose(`With in archiveLateOngoingForDevice`, externalId);
+    return await this.lateDeviceCertificateRepository.update(
+      {
+        device_externalid: externalId,
+        certificate_issued: false,
+        archived_at: IsNull(),
+      },
+      { archived_at: new Date() },
+    );
+  }
+
   @Profile()
   async archiveLateOngoingIfReservationInactive(groupId: number): Promise<any> {
     this.logger.verbose(`With in archiveLateOngoingIfReservationInactive`);
@@ -1671,7 +1689,7 @@ export class DeviceService {
         groupId: cycle.groupId,
         certificate_issued: false,
         late_end_date: LessThanOrEqual(cycle.late_start_date),
-        archived_at: null,
+        archived_at: IsNull(),
       },
       {
         archived_at: new Date(),
