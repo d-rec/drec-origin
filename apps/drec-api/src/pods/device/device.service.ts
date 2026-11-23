@@ -23,6 +23,7 @@ import {
   FindOneOptions,
   FindOperator,
   In,
+  IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
   Raw,
@@ -1075,8 +1076,6 @@ export class DeviceService {
     this.logger.verbose(`With in DeviceLateOngoingIssueCertificateList`);
     const whereClause: any = {
       certificate_issued: false,
-      // IsNull(), not null: TypeORM 0.3 silently drops a null in a where
-      // clause, which fed every archived cycle back into the worker.
       archived_at: IsNull(),
     };
     if (groupId) {
