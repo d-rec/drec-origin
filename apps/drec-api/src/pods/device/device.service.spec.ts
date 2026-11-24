@@ -1595,7 +1595,7 @@ describe('DeviceService', () => {
         .mockResolvedValue(currentDevice);
       const saveSpy = jest
         .spyOn(repository, 'save')
-        .mockImplementation(async (d) => ({ ...(d as object) }) as Device);
+        .mockImplementation(async (d) => ({ ...(d as Device) }) as Device);
 
       await service.update(
         1,
