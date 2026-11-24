@@ -1,3 +1,4 @@
+import { classToPlain } from 'class-transformer';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { HttpService } from '@nestjs/axios';
@@ -1613,6 +1614,40 @@ describe('DeviceService', () => {
           developerExternalId: 'developer-external-id',
         }),
       );
+    });
+  });
+
+  describe('update response', () => {
+    it('should return an object the response serializer can handle', async () => {
+      const currentDevice = Object.assign(new Device({}), {
+        id: 1,
+        externalId: 'external-id-1',
+        developerExternalId: 'developer-external-id',
+        organizationId: 1,
+        yieldValue: 2000,
+        SDGBenefits: [],
+      });
+      jest
+        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .mockResolvedValue(currentDevice);
+      jest
+        .spyOn(repository, 'save')
+        .mockImplementation(async (d) => d as Device);
+
+      const result = await service.update(
+        1,
+        Role.ApiUser,
+        'developer-external-id',
+        { yieldValue: 3000, SDGBenefits: [] } as UpdateDeviceDTO,
+      );
+
+      // inherited entity methods must not end up as own properties
+      const ownFunctions = Object.keys(result).filter(
+        (key) => typeof result[key] === 'function',
+      );
+      expect(ownFunctions).toEqual([]);
+      expect(() => classToPlain(result)).not.toThrow();
+      expect(result.yieldValue).toBe(3000);
     });
   });
 
