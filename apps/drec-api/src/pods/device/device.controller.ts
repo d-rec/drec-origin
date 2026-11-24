@@ -1182,7 +1182,15 @@ export class DeviceController {
             checkDevice.createdAt,
           );
 
-        if (deviceToUpdate.commissioningDate != checkDevice.commissioningDate) {
+        // Compare as instants: the DTO holds a Date and the column a string,
+        // so "!=" was always true and an unchanged date was refused as a change.
+        const unchanged =
+          new Date(deviceToUpdate.commissioningDate).getTime() ===
+          new Date(checkDevice.commissioningDate).getTime();
+        if (unchanged) {
+          // keep the stored string as it is
+          deviceToUpdate.commissioningDate = undefined;
+        } else {
           if (noOfHistRead > 0 || noOfOnGoingRead > 0) {
             this.logger.error(
               `Commissioning date cannot be changed due to existing meter reads available for ${checkDevice.serialNumber}`,
