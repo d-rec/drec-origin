@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import cleanDeep from 'clean-deep';
-import { defaults } from 'lodash';
 import { DateTime } from 'luxon';
 import { Observable } from 'rxjs';
 import {
@@ -655,7 +654,7 @@ export class DeviceService {
             },
           }
         : undefined;
-    let currentDevice = await this.findDeviceByDeveloperExternalId(
+    const currentDevice = await this.findDeviceByDeveloperExternalId(
       externalId.trim(),
       organizationId,
     );
@@ -671,7 +670,7 @@ export class DeviceService {
       updateDeviceDTO.SDGBenefits === undefined ||
       updateDeviceDTO.SDGBenefits === null
     ) {
-      // Not sent: keep the stored value (defaults() below fills it in).
+      // Not sent: keep the stored value (undefined is skipped below).
       // This used to throw, so a partial update was impossible.
       updateDeviceDTO.SDGBenefits = undefined;
     } else if (
@@ -700,7 +699,15 @@ export class DeviceService {
     } else {
       updateDeviceDTO.SDGBenefits = [];
     }
-    currentDevice = defaults(updateDeviceDTO, currentDevice);
+    // Copy the fields that were sent onto the stored entity. This used to be
+    // lodash defaults(dto, entity), which also copied the entity's inherited
+    // methods onto the DTO; the response serializer then called them and the
+    // request ended in a 500 after the update had already been saved.
+    for (const [key, value] of Object.entries(updateDeviceDTO)) {
+      if (value !== undefined) {
+        currentDevice[key] = value;
+      }
+    }
     const result = await this.repository.save(currentDevice);
     result['internalexternalId'] = result.externalId;
     result.externalId = result.developerExternalId;
