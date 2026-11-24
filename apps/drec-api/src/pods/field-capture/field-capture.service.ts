@@ -398,7 +398,7 @@ export class FieldCaptureService {
 
     // Barcode decodes are exact; an OCR burst is only as good as its agreement.
     const serialConfidence =
-      capture.serialSource === 'barcode' ? 1 : (capture.ocrConfidence ?? 0.5);
+      capture.serialSource === 'barcode' ? 1 : capture.ocrConfidence ?? 0.5;
 
     const provenance: Record<string, any> = {
       serialNumber: entry(serialNumber, serialConfidence),
