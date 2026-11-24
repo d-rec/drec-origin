@@ -668,6 +668,13 @@ export class DeviceService {
     const sdgBenefitList = SDGBenefits;
 
     if (
+      updateDeviceDTO.SDGBenefits === undefined ||
+      updateDeviceDTO.SDGBenefits === null
+    ) {
+      // Not sent: keep the stored value (defaults() below fills it in).
+      // This used to throw, so a partial update was impossible.
+      updateDeviceDTO.SDGBenefits = undefined;
+    } else if (
       updateDeviceDTO.SDGBenefits.includes('0') ||
       updateDeviceDTO.SDGBenefits.includes('1')
     ) {

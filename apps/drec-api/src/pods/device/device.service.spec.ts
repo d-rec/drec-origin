@@ -1577,6 +1577,43 @@ describe('DeviceService', () => {
         }),
       );
     });
+
+    it('should keep stored values when only yieldValue is sent', async () => {
+      const updateDeviceDTO = { yieldValue: 3000 } as UpdateDeviceDTO;
+      const currentDevice = {
+        id: 1,
+        externalId: 'external-id-1',
+        developerExternalId: 'developer-external-id',
+        organizationId: 1,
+        yieldValue: 2000,
+        commissioningDate: '2024-05-14T18:30:00.000+00:00',
+        SDGBenefits: ['No Poverty'],
+      } as Device;
+
+      jest
+        .spyOn(service, 'findDeviceByDeveloperExternalId')
+        .mockResolvedValue(currentDevice);
+      const saveSpy = jest
+        .spyOn(repository, 'save')
+        .mockImplementation(async (d) => ({ ...(d as Device) }) as Device);
+
+      await service.update(
+        1,
+        Role.DeviceOwner,
+        'developer-external-id',
+        updateDeviceDTO,
+      );
+
+      expect(saveSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 1,
+          yieldValue: 3000,
+          commissioningDate: '2024-05-14T18:30:00.000+00:00',
+          SDGBenefits: ['No Poverty'],
+          developerExternalId: 'developer-external-id',
+        }),
+      );
+    });
   });
 
   describe('findUngrouped', () => {
